@@ -194,7 +194,7 @@ void HexagonGame::updateLevelInfo()
         return s;
     };
 
-    levelInfoTextLevel.setFillColor(styleData.getMainColor());
+    levelInfoTextLevel.setFillColor(getColorText());
     levelInfoTextLevel.setCharacterSize(20.f / Config::getZoomFactor());
     levelInfoTextLevel.setString(trim(Utils::toUppercase(levelData->name)));
     levelInfoTextLevel.setOrigin(ssvs::getLocalNW(levelInfoTextLevel));
@@ -204,7 +204,7 @@ void HexagonGame::updateLevelInfo()
     const auto prepareText = [&](sf::Text& text, const float characterSize,
                                  const std::string& string)
     {
-        text.setFillColor(styleData.getTextColor());
+        text.setFillColor(getColorText());
         text.setCharacterSize(characterSize / Config::getZoomFactor());
         text.setString(string);
     };
@@ -287,6 +287,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
       messageText{initText("", font, 38.f)},
       pbText{initText("", fontBold, 65.f)},
+      txStarParticle{nullptr},
+      txSmallCircle{nullptr},
       levelInfoTextLevel{"", font},
       levelInfoTextPack{"", font},
       levelInfoTextAuthor{"", font},
@@ -311,6 +313,9 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         overlayCamera.emplace(
             *window, sf::View{sf::Vector2f{width / 2.f, height / 2.f},
                          sf::Vector2f{width, height}});
+
+        txStarParticle = &assets.getTextureOrNullTexture("starParticle.png");
+        txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
     }
 
 
@@ -665,6 +670,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     mustSpawnPBParticles = false;
     nextPBParticleSpawn = 0.f;
     particles.clear();
+    trailParticles.clear();
 
     if(window != nullptr)
     {

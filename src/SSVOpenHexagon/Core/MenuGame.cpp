@@ -1394,7 +1394,24 @@ void MenuGame::initMenus()
     visfx.create<i::Toggle>("flash", &Config::getFlash, &Config::setFlash);
     visfx.create<i::Slider>("shake mult.", &Config::getCameraShakeMultiplier,
         &Config::setCameraShakeMultiplier, 0.f, 5.f, 0.1f);
-    visfx.create<i::GoBack>("back");
+
+    auto& playervisfx(optionsMenu.createCategory("player visual fxs"));
+    gfx.create<i::Goto>("player visual fxs", playervisfx);
+    playervisfx.create<i::Slider>("angle tilt mult.",
+        &Config::getAngleTiltIntensity, &Config::setAngleTiltIntensity, 0.f,
+        5.f, 0.1f);
+    playervisfx.create<i::Toggle>(
+        "show trail", &Config::getShowPlayerTrail, &Config::setShowPlayerTrail);
+    playervisfx.create<i::Slider>("trail alpha", &Config::getPlayerTrailAlpha,
+        &Config::setPlayerTrailAlpha, 0, 255, 5);
+    playervisfx.create<i::Slider>("trail scale", &Config::getPlayerTrailScale,
+        &Config::setPlayerTrailScale, 0.05f, 1.f, 0.05f);
+    playervisfx.create<i::Slider>("trail decay", &Config::getPlayerTrailDecay,
+        &Config::setPlayerTrailDecay, 0.5f, 50.f, 2.5f);
+    playervisfx.create<i::Toggle>("trail has swap color",
+        &Config::getPlayerTrailHasSwapColor,
+        &Config::setPlayerTrailHasSwapColor);
+    playervisfx.create<i::GoBack>("back");
 
     auto& fps(optionsMenu.createCategory("fps settings"));
     gfx.create<i::Goto>("fps settings", fps);
@@ -2650,8 +2667,13 @@ void MenuGame::update(ssvu::FT mFT)
             auto& items = getCurrentMenu()->getItems();
             if(static_cast<int>(items.size()) > *mustUseMenuItem)
             {
-                playSoundOverride("beep.ogg");
-                items.at(*mustUseMenuItem)->exec();
+                ssvms::ItemBase& item = *items.at(*mustUseMenuItem);
+
+                if(item.isEnabled())
+                {
+                    playSoundOverride("beep.ogg");
+                    item.exec();
+                }
             }
         }
 
@@ -3711,7 +3733,7 @@ void MenuGame::drawMainMenu(
 
         // TODO (P2): cleanup mouse control
         if(mouseOverlap && !mustUseMenuItem.has_value() &&
-            mouseLeftRisingEdge())
+            mouseLeftRisingEdge() && items[i]->isEnabled())
         {
             mustUseMenuItem = i;
         }
