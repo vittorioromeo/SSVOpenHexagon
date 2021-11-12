@@ -317,10 +317,16 @@ vrm_cmake_include_vc_dependency_once(vc_detection)
 # Targets
 # -----------------------------------------------------------------------------
 
+if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+    set(SSVOH_BUILD_WIN32_CONSOLE TRUE)
+else()
+    set(SSVOH_BUILD_WIN32_CONSOLE FALSE)
+endif()
+
 add_library(SSVOpenHexagonLibC STATIC ${C_SRC_LIST})
 add_library(SSVOpenHexagonLib STATIC ${SRC_LIST})
 
-if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+if(SSVOH_BUILD_WIN32_CONSOLE)
     add_executable(SSVOpenHexagon WIN32 ${MAIN_FILE})
     add_executable(SSVOpenHexagon-Console ${MAIN_FILE})
 else()
@@ -340,7 +346,7 @@ target_precompile_headers(
 
 target_precompile_headers(SSVOpenHexagon REUSE_FROM SSVOpenHexagonLib)
 
-if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+if(SSVOH_BUILD_WIN32_CONSOLE)
     target_precompile_headers(SSVOpenHexagon-Console REUSE_FROM SSVOpenHexagonLib)
 endif()
 
@@ -410,29 +416,26 @@ ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
 
 target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 
-if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+if(SSVOH_BUILD_WIN32_CONSOLE)
     target_link_libraries(SSVOpenHexagon "${CMAKE_SOURCE_DIR}/art/icon.res" sfml-main)
     target_compile_options(SSVOpenHexagon PRIVATE "-Wl,-subsystem,windows")
     target_link_libraries(SSVOpenHexagon-Console SSVOpenHexagonLib SSVOpenHexagonLibC)
 endif()
 
+set(SSVOH_INCLUDE_DIRECTORIES ${SFML_SOURCE_DIR}/include
+                              ${PUBLIC_INCLUDE_DIRS}
+                              ${zlib_SOURCE_DIR}
+                              ${zlib_BINARY_DIR}
+                              ${LUASRC}
+                              ${imgui_SOURCE_DIR})
+
 target_include_directories(
-    SSVOpenHexagon SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
-                          PUBLIC ${PUBLIC_INCLUDE_DIRS}
-                          PUBLIC ${zlib_SOURCE_DIR}
-                          PUBLIC ${zlib_BINARY_DIR}
-                          PUBLIC ${LUASRC}
-                          PUBLIC ${imgui_SOURCE_DIR}
+    SSVOpenHexagon SYSTEM PUBLIC ${SSVOH_INCLUDE_DIRECTORIES}
 )
 
-if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+if(SSVOH_BUILD_WIN32_CONSOLE)
     target_include_directories(
-        SSVOpenHexagon-Console SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
-                                    PUBLIC ${PUBLIC_INCLUDE_DIRS}
-                                    PUBLIC ${zlib_SOURCE_DIR}
-                                    PUBLIC ${zlib_BINARY_DIR}
-                                    PUBLIC ${LUASRC}
-                                    PUBLIC ${imgui_SOURCE_DIR}
+        SSVOpenHexagon-Console SYSTEM PUBLIC  ${SSVOH_INCLUDE_DIRECTORIES}
     )
 endif()
 
@@ -444,7 +447,7 @@ install(
     TARGETS SSVOpenHexagon RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
 )
 
-if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+if(SSVOH_BUILD_WIN32_CONSOLE)
     install(
         TARGETS SSVOpenHexagon-Console RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
     )
