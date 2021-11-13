@@ -34,12 +34,6 @@ cp ./_RELEASE/libsteam_api.so ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libz.so.1 ./_PREPARED_RELEASE_LINUX
 
 cp ./_RELEASE/steam_appid.txt ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/windowed.bat ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/windowed_no3D.bat ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/fullscreen.bat ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/fullscreen_no3D.bat ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/highfps.bat ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/noaudio.bat ./_PREPARED_RELEASE_LINUX
 
 cp ./_RELEASE/run_ssvopenhexagon_linux.sh ./_PREPARED_RELEASE_LINUX
 
