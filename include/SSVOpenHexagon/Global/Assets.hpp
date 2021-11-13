@@ -23,6 +23,7 @@ namespace sf {
 class SoundBuffer;
 class Font;
 class Texture;
+class Shader;
 } // namespace sf
 
 namespace ssvu::FileSystem {
@@ -66,6 +67,8 @@ private:
 
     std::unordered_set<std::string> packIdsWithMissingDependencies;
 
+    std::unordered_map<std::string, Utils::UniquePtr<sf::Shader>> shaders;
+
     std::string buf;
 
     template <typename... Ts>
@@ -81,6 +84,8 @@ private:
 
     [[nodiscard]] bool loadPackAssets(const PackData& packData);
 
+    void loadPackAssets_loadShaders(
+        const std::string& mPackId, const ssvufs::Path& mPath);
     void loadPackAssets_loadMusic(
         const std::string& mPackId, const ssvufs::Path& mPath);
     void loadPackAssets_loadMusicData(
@@ -143,6 +148,8 @@ public:
     [[nodiscard]] const MusicData& getMusicData(
         const std::string& mPackId, const std::string& mId);
     [[nodiscard]] const StyleData& getStyleData(
+        const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] sf::Shader* getShader(
         const std::string& mPackId, const std::string& mId);
 
     [[nodiscard]] std::string reloadPack(
