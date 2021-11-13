@@ -26,6 +26,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Shader.hpp>
 
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
@@ -300,6 +301,12 @@ HGAssets::~HGAssets()
 
     try
     {
+        if(ssvufs::Path{packPath + "Shaders/"}.exists<ssvufs::Type::Folder>() &&
+            !levelsOnly)
+        {
+            loadPackAssets_loadShaders(packId, packPath);
+        }
+
         if(ssvufs::Path{packPath + "Music/"}.exists<ssvufs::Type::Folder>() &&
             !levelsOnly)
         {
@@ -318,7 +325,7 @@ HGAssets::~HGAssets()
         }
 
         if(!levelsOnly &&
-            ssvufs::Path(packPath + "Sounds/").exists<ssvufs::Type::Folder>())
+            ssvufs::Path{packPath + "Sounds/"}.exists<ssvufs::Type::Folder>())
         {
             loadPackAssets_loadCustomSounds(packId, packPath);
         }
@@ -667,6 +674,43 @@ void HGAssets::addLocalProfile(ProfileData&& profileData)
     return true;
 }
 
+void HGAssets::loadPackAssets_loadShaders(
+    const std::string& mPackId, const ssvufs::Path& mPath)
+{
+    const auto loadShadersOfType =
+        [&](const char* const extension, sf::Shader::Type shaderType)
+    {
+        for(const auto& p : scanSingleByExt(mPath + "Shaders/", extension))
+        {
+            auto shader = Utils::makeUnique<sf::Shader>();
+
+            if(!shader->loadFromFile(p, shaderType))
+            {
+                ssvu::lo("hg::loadPackAssets_loadShaders")
+                    << "Failed to load shader '" << p << "'\n";
+
+                continue;
+            }
+            else
+            {
+                // TODO (P0): remove
+                ssvu::lo("hg::loadPackAssets_loadShaders")
+                    << "Loaded shader '" << p << "' with id '"
+                    << concatIntoBuf(mPackId, '_', p.getFileName()) << "' \n";
+            }
+
+            shaders.emplace(concatIntoBuf(mPackId, '_', p.getFileName()),
+                std::move(shader));
+
+            ++loadInfo.assets;
+        }
+    };
+
+    loadShadersOfType(".vert", sf::Shader::Type::Vertex);
+    loadShadersOfType(".geom", sf::Shader::Type::Geometry);
+    loadShadersOfType(".frag", sf::Shader::Type::Fragment);
+}
+
 void HGAssets::loadPackAssets_loadCustomSounds(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {
@@ -839,6 +883,21 @@ void HGAssets::saveAllProfiles()
     }
 
     return it->second;
+}
+
+[[nodiscard]] sf::Shader* HGAssets::getShader(
+    const std::string& mPackId, const std::string& mId)
+{
+    const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
+
+    const auto it = shaders.find(assetId);
+    if(it == shaders.end())
+    {
+        ssvu::lo("getShader") << "Asset '" << assetId << "' not found\n";
+        return nullptr;
+    }
+
+    return it->second.get();
 }
 
 //**********************************************
