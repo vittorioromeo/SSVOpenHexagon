@@ -33,6 +33,7 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -99,6 +100,7 @@ private:
 
     ssvs::GameState game;
     ssvs::GameWindow* window;
+    sf::RenderTexture renderTexture;
 
     HexagonClient* hexagonClient;
 

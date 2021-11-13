@@ -1,3 +1,3 @@
 #!/bin/bash
-(cp ./SSVOpenHexagon.exe ../_RELEASE ; cd ../_RELEASE && ./SSVOpenHexagon.exe "$@")
+(cp ./SSVOpenHexagon-Console.exe ../_RELEASE ; cd ../_RELEASE && ./SSVOpenHexagon-Console.exe "$@")
 
