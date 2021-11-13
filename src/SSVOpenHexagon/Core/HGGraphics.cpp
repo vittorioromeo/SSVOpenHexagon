@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Components/CWall.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Imgui.hpp"
 
@@ -14,6 +15,7 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 
 #include "SSVStart/Utils/SFML.hpp"
+#include "buildandroid/_deps/sfml-src/include/SFML/System/Vector3.hpp"
 
 #include <SFML/Config.hpp>
 
@@ -22,6 +24,9 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Utils/Rnd.hpp>
+
+#include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
 
 namespace hg {
 
@@ -228,7 +233,30 @@ void HexagonGame::draw()
         }
     }
 
-    render(wallQuads3D);
+    auto* shader = getAssets().getShader(
+        "ohvrvanilla_vittorio_romeo_experimental_1", "pixelate.frag");
+    shader->setUniform("currentTexture", renderTexture.getTexture());
+
+    static float ba = 0.0f;
+    ba += 0.1;
+    if(ba > 1) ba = 0;
+    shader->setUniform(
+        "u_resolution", sf::Vector2f(window->getWidth(), window->getHeight()));
+
+    auto toglslvec3 = [](sf::Color c) -> sf::Vector3f {
+        return {float(c.r) / 255.f, float(c.g) / 255.f, float(c.b) / 255.f};
+    };
+
+    shader->setUniform("color1", toglslvec3(getColorMain()));
+    shader->setUniform(
+        "color2", toglslvec3(sf::Color{255, 255, 255, 255} - getColorMain()));
+
+    //        shader->("color1",
+
+    sf::RenderStates testrs(shader);
+    // testrs.texture = &renderTexture.getTexture();
+    render(wallQuads3D, testrs);
+
     render(pivotQuads3D);
     render(playerTris3D);
 
@@ -237,7 +265,12 @@ void HexagonGame::draw()
         drawTrailParticles();
     }
 
-    render(wallQuads);
+    shader->setUniform("color2", toglslvec3(getColorMain()));
+    shader->setUniform(
+        "color1", toglslvec3(sf::Color{255, 255, 255, 255} - getColorMain()));
+
+
+    render(wallQuads,testrs);
     render(capTris);
     render(pivotQuads);
     render(playerTris);
@@ -278,6 +311,10 @@ void HexagonGame::draw()
     }
 
     drawImguiLuaConsole();
+
+    // sf::Sprite everything(renderTexture.getTexture());
+    // everything.setPosition(0.f, 0.f);
+    // window->draw(everything);
 }
 
 void HexagonGame::drawImguiLuaConsole()

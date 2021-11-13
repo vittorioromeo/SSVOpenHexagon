@@ -52,6 +52,7 @@
 	"player_speed" : 9.449999809265137,
 	"player_trail_alpha" : 255,
 	"player_trail_decay" : 0.50,
+	"player_trail_has_swap_color" : true,
 	"player_trail_scale" : 1.0,
 	"pulse_enabled" : true,
 	"rotate_to_start" : false,

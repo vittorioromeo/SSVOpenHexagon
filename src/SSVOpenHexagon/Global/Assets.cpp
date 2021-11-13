@@ -550,6 +550,7 @@ HGAssets::getSelectablePackInfos() const noexcept
         tryLoadPackFromPath(packPath);
     }
 
+#if 0
     // ------------------------------------------------------------------------
     // Load pack datas from Steam workshop.
     if(steamManager != nullptr)
@@ -568,6 +569,7 @@ HGAssets::getSelectablePackInfos() const noexcept
             }
         }
     }
+#endif
 
     return true;
 }
