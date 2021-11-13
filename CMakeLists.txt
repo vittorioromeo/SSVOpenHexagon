@@ -443,9 +443,10 @@ ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
 target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 
 if(SSVOH_BUILD_WIN32_CONSOLE)
-    target_link_libraries(SSVOpenHexagon "${CMAKE_SOURCE_DIR}/art/icon.res" sfml-main)
+    target_link_libraries(SSVOpenHexagon "${CMAKE_SOURCE_DIR}/art/icon256.res" sfml-main)
     target_compile_options(SSVOpenHexagon PRIVATE "-Wl,-subsystem,windows")
-    target_link_libraries(SSVOpenHexagon-Console SSVOpenHexagonLib SSVOpenHexagonLibC)
+    target_link_libraries(SSVOpenHexagon-Console SSVOpenHexagonLib SSVOpenHexagonLibC
+                                                 "${CMAKE_SOURCE_DIR}/art/icon256console.res")
 endif()
 
 set(SSVOH_INCLUDE_DIRECTORIES ${SFML_SOURCE_DIR}/include
