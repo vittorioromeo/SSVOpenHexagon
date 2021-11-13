@@ -9,7 +9,11 @@
 #include <cstdint>
 #include <chrono>
 
+#ifndef SSVOH_ANDROID
 #include "discord/discord.h"
+#endif
+
+#ifndef SSVOH_ANDROID
 
 namespace hg::Discord {
 
@@ -179,3 +183,38 @@ bool discord_manager::set_rich_presence_in_game(
 }
 
 } // namespace hg::Discord
+
+#else
+
+namespace hg::Discord {
+
+discord_manager::discord_manager() : _core{nullptr}, _initialized{false}
+{}
+
+discord_manager::~discord_manager()
+{}
+
+bool discord_manager::run_callbacks()
+{
+    return false;
+}
+
+bool discord_manager::set_rich_presence_in_menu()
+{
+    return false;
+}
+
+bool discord_manager::set_rich_presence_on_replay()
+{
+    return false;
+}
+
+bool discord_manager::set_rich_presence_in_game(
+    const std::string& level_info, const std::string& second_info, bool dead)
+{
+    return false;
+}
+
+} // namespace hg::Discord
+
+#endif

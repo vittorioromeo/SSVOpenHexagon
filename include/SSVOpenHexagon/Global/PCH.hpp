@@ -45,9 +45,11 @@
 
 #include <sodium.h>
 
+#ifndef SSVOH_ANDROID
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <misc/cpp/imgui_stdlib.h>
+#endif
 
 #include <sqlite3.h>
 #include <sqlite_orm.h>
