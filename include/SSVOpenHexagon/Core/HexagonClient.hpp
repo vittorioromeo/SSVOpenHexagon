@@ -22,9 +22,7 @@
 #include <vector>
 
 namespace hg::Steam {
-
 class steam_manager;
-
 }
 
 namespace hg {

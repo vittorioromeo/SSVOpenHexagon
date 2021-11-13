@@ -5,23 +5,24 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Imgui.hpp"
+
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
+
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
-
-#include <imgui.h>
-#include <imgui-SFML.h>
 
 #include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
@@ -260,8 +261,8 @@ void HexagonGame::nameFormat(std::string& name)
 
 [[nodiscard]] bool HexagonGame::imguiLuaConsoleHasInput()
 {
-    return ilcShowConsole && (ImGui::GetIO().WantCaptureKeyboard ||
-                                 ImGui::GetIO().WantCaptureMouse);
+    return ilcShowConsole &&
+           (Imgui::wantCaptureKeyboard() || Imgui::wantCaptureMouse());
 }
 
 [[nodiscard]] static sf::Text initText(
@@ -326,8 +327,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     game.onDraw += [this] { draw(); };
 
-    game.onAnyEvent +=
-        [](const sf::Event& event) { ImGui::SFML::ProcessEvent(event); };
+    game.onAnyEvent += Imgui::processEvent;
 
     if(window != nullptr)
     {

@@ -9,19 +9,19 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
+
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Imgui.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 
 #include <sodium.h>
-
-#include <imgui.h>
-#include <imgui-SFML.h>
 
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
@@ -344,7 +344,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     if(!headless)
     {
         SSVOH_ASSERT(window.has_value());
-        ImGui::SFML::Init(*window);
+        hg::Imgui::initialize(*window);
     }
 
     HG_SCOPE_GUARD({
@@ -352,7 +352,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
         if(!headless)
         {
-            ImGui::SFML::Shutdown();
+            hg::Imgui::shutdown();
         }
 
         ssvu::lo("::main") << "Done shutting down ImGui...\n";

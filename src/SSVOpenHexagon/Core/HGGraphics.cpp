@@ -4,16 +4,18 @@
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
+#include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Imgui.hpp"
+
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVStart/Utils/SFML.hpp"
 
 #include <SFML/Config.hpp>
-#include <imgui.h>
-#include <imgui-SFML.h>
 
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
@@ -293,7 +295,7 @@ void HexagonGame::drawImguiLuaConsole()
     SSVOH_ASSERT(overlayCamera.has_value());
     overlayCamera->unapply();
 
-    ImGui::SFML::Render(*window);
+    Imgui::render(*window);
 }
 
 void HexagonGame::initFlashEffect(int r, int g, int b)

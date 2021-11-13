@@ -24,9 +24,11 @@
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
+#ifndef SSVOH_ANDROID
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include <imgui-SFML.h>
+#endif
 
 #include <SSVStart/Utils/Vector2.hpp>
 
@@ -1014,6 +1016,7 @@ static int Strnicmp(const char* s1, const char* s2, int n)
 
 int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
 {
+#ifndef SSVOH_ANDROID
     switch(data->EventFlag)
     {
         case ImGuiInputTextFlags_CallbackCompletion:
@@ -1144,12 +1147,14 @@ int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
             }
         }
     }
+#endif
 
     return 0;
 }
 
 void HexagonGame::postUpdate_ImguiLuaConsole()
 {
+#ifndef SSVOH_ANDROID
     if(window == nullptr)
     {
         return;
@@ -1499,6 +1504,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     }
 
     ImGui::End();
+#endif
 }
 
 void HexagonGame::postUpdate()

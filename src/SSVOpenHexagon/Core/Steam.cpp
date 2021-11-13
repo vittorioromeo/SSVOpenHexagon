@@ -11,9 +11,12 @@
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <stdint.h> // Steam API needs this.
+
+#ifndef SSVOH_ANDROID
 #include "steam/steam_api.h"
 #include "steam/steam_api_flat.h"
 #include "steam/steamencryptedappticket.h"
+#endif
 
 #include <array>
 #include <charconv>
@@ -24,6 +27,8 @@
 #include <string_view>
 #include <string>
 #include <unordered_set>
+
+#ifndef SSVOH_ANDROID
 
 namespace hg::Steam {
 
@@ -840,7 +845,6 @@ steam_manager::steam_manager_impl::get_ticket_steam_id() const noexcept
 
 // ----------------------------------------------------------------------------
 
-
 [[nodiscard]] const steam_manager::steam_manager_impl&
 steam_manager::impl() const noexcept
 {
@@ -947,3 +951,113 @@ steam_manager::get_ticket_steam_id() const noexcept
 }
 
 } // namespace hg::Steam
+
+#else
+
+namespace hg::Steam
+
+    [[nodiscard]] const steam_manager::steam_manager_impl&
+    steam_manager::impl() const noexcept
+{
+    SSVOH_ASSERT(false);
+    return nullptr;
+}
+
+[[nodiscard]] steam_manager::steam_manager_impl& steam_manager::impl() noexcept
+{
+    SSVOH_ASSERT(false);
+    return nullptr;
+}
+
+steam_manager::steam_manager() : _impl{nullptr}
+{}
+
+steam_manager::~steam_manager() = default;
+
+[[nodiscard]] bool steam_manager::is_initialized() const noexcept
+{
+    return false;
+}
+
+bool steam_manager::request_stats_and_achievements()
+{
+    return false;
+}
+
+bool steam_manager::run_callbacks()
+{
+    return false;
+}
+
+bool steam_manager::store_stats()
+{
+    return false;
+}
+
+bool steam_manager::unlock_achievement(std::string_view name)
+{
+    return false;
+}
+
+bool steam_manager::set_rich_presence_in_menu()
+{
+    return false;
+}
+
+bool steam_manager::set_rich_presence_in_game(
+    std::string_view level_name_format, std::string_view difficulty_mult_format,
+    std::string_view time_format)
+{
+    return false;
+}
+
+bool steam_manager::set_and_store_stat(std::string_view name, int data)
+{
+    return false;
+}
+
+[[nodiscard]] bool steam_manager::get_achievement(
+    bool* out, std::string_view name)
+{
+    return false;
+}
+
+[[nodiscard]] bool steam_manager::get_stat(int* out, std::string_view name)
+{
+    return false;
+}
+
+bool steam_manager::update_hardcoded_achievements()
+{
+    return false;
+}
+
+void steam_manager::for_workshop_pack_folders(
+    const std::function<void(const std::string&)>& f) const
+{}
+
+bool steam_manager::request_encrypted_app_ticket()
+{
+    return false;
+}
+
+[[nodiscard]] bool
+steam_manager::got_encrypted_app_ticket_response() const noexcept
+{
+    return false;
+}
+
+[[nodiscard]] bool steam_manager::got_encrypted_app_ticket() const noexcept
+{
+    return false;
+}
+
+[[nodiscard]] std::optional<std::uint64_t>
+steam_manager::get_ticket_steam_id() const noexcept
+{
+    return std::nullopt;
+}
+
+} // namespace hg::Steam
+
+#endif
