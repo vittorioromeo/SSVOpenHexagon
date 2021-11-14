@@ -1119,6 +1119,8 @@ void MenuGame::initLua()
             "steam_unlockAchievement",
 
             "u_kill", "u_eventKill", "u_playSound", "u_playPackSound",
+            "u_setFlashEffect", "u_setFlashColor",
+
             "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
             "e_eventWaitS", "e_eventWaitUntilS", "m_messageAdd",
             "m_messageAddImportant", "m_messageAddImportantSilent",
