@@ -80,7 +80,7 @@ void HexagonGame::draw()
 
     if(!Config::getNoBackground())
     {
-        backgroundCamera->apply();
+        backgroundCamera->apply(*window);
 
         backgroundTris.clear();
 
@@ -93,7 +93,7 @@ void HexagonGame::draw()
         render(backgroundTris);
     }
 
-    backgroundCamera->apply();
+    backgroundCamera->apply(*window);
 
     wallQuads3D.clear();
     pivotQuads3D.clear();
@@ -242,7 +242,7 @@ void HexagonGame::draw()
     render(pivotQuads);
     render(playerTris);
 
-    overlayCamera->apply();
+    overlayCamera->apply(*window);
 
     drawParticles();
     drawText();
@@ -293,7 +293,7 @@ void HexagonGame::drawImguiLuaConsole()
     }
 
     SSVOH_ASSERT(overlayCamera.has_value());
-    overlayCamera->unapply();
+    overlayCamera->unapply(*window);
 
     Imgui::render(*window);
 }
