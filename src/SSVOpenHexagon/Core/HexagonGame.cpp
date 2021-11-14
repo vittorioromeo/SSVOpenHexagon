@@ -307,13 +307,11 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
 
-        backgroundCamera.emplace(*window,
-            sf::View{ssvs::zeroVec2f,
-                sf::Vector2f{width * zoomFactor, height * zoomFactor}});
+        backgroundCamera.emplace(sf::View{ssvs::zeroVec2f,
+            sf::Vector2f{width * zoomFactor, height * zoomFactor}});
 
-        overlayCamera.emplace(
-            *window, sf::View{sf::Vector2f{width / 2.f, height / 2.f},
-                         sf::Vector2f{width, height}});
+        overlayCamera.emplace(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
+            sf::Vector2f{width, height}});
 
         txStarParticle = &assets.getTextureOrNullTexture("starParticle.png");
         txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
