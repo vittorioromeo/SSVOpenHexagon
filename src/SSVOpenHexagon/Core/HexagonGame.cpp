@@ -670,6 +670,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     particles.clear();
     trailParticles.clear();
 
+    // Re-init default flash effect
+    initFlashEffect(255, 255, 255);
+
     if(window != nullptr)
     {
         SSVOH_ASSERT(overlayCamera.has_value());
