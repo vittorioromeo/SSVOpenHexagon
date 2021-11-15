@@ -24,11 +24,11 @@ private:
     };
 
     // There are 9 categories.
-    static constexpr std::size_t NUM_CATEGORIES = 10;
+    static constexpr std::size_t NUM_CATEGORIES = 11;
     std::array<std::vector<FnEntry>, NUM_CATEGORIES> fnEntries;
     static constexpr std::array<std::string_view, NUM_CATEGORIES>
         prefixCategories{"u_", "a_", "t_", "e_", "l_", "s_", "w_", "cw_", "ct_",
-            "Miscellaneous"};
+            "shdr_", "Miscellaneous"};
 
     [[nodiscard]] std::size_t getCategoryIndexFromName(
         const std::string_view fnName);
@@ -98,23 +98,27 @@ public:
 
         "## Custom Wall Functions (cw_)\n\n"
 
-        "Below are the custom wall functions, which can be identified with "
-        "the \"cw_\" prefix. These are 2.0 exclusive "
-        "functions with foundations of [Object-oriented "
+        "Below are the custom wall functions, which can be identified with the "
+        "\"cw_\" prefix. These are functions with foundations of "
+        "[Object-oriented "
         "programming](https://en.wikipedia.org/wiki/"
-        "Object-oriented_programming) "
-        "to allow pack developers to customize individual walls and their "
-        "properties and make the most out of them. ",
+        "Object-oriented_programming) to allow pack developers to customize "
+        "individual walls and their properties and make the most out of them.",
 
         "## Custom Timeline Functions (ct_)\n\n"
 
-        "Below are the custom timeline functions, which can be identified "
-        "with the \"ct_\" prefix. These are 2.0 exclusive functions with "
-        "foundations of [Object-oriented "
+        "Below are the custom timeline functions, which can be identified with "
+        "the \"ct_\" prefix. These are functions with foundations of "
+        "[Object-oriented "
         "programming](https://en.wikipedia.org/wiki/"
-        "Object-oriented_programming) "
-        "to allow pack developers to create and manage independent "
-        "timelines. ",
+        "Object-oriented_programming) to allow pack developers to create and "
+        "manage independent timelines.",
+
+        "## Shader Functions (shdr_)\n\n"
+
+        "Below are the shader functions, which can be identified with the "
+        "\"shdr_\" prefix. These are functions that enable graphical "
+        "manipulation of the rendered game scene via GLSL shaders.",
 
         "## Miscellaneous Functions\n\n"
 

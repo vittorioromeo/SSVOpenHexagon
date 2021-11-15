@@ -5,21 +5,31 @@
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
+
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
+
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
+
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
+
+#include <SFML/Graphics/Glsl.hpp>
+#include <SFML/Graphics/Shader.hpp>
 
 #include <cstddef>
 #include <sstream>
@@ -1165,6 +1175,289 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
             "style.");
 }
 
+static void initExecScript(Lua::LuaContext& lua, HGAssets& assets,
+    const std::function<void(const std::string&)>& fRunLuaFile,
+    std::vector<std::string>& execScriptPackPathContext,
+    const std::function<const std::string&()>& fPackPathGetter,
+    const std::function<const PackData&()>& fGetPackData)
+{
+    addLuaFn(lua, "u_execScript", //
+        [fRunLuaFile, &execScriptPackPathContext, fPackPathGetter](
+            const std::string& mScriptName)
+        {
+            fRunLuaFile(Utils::getDependentScriptFilename(
+                execScriptPackPathContext, fPackPathGetter(), mScriptName));
+        })
+        .arg("scriptFilename")
+        .doc("Execute the script located at `<pack>/Scripts/$0`.");
+
+    addLuaFn(lua, "u_execDependencyScript", //
+        [fRunLuaFile, &assets, &execScriptPackPathContext, fGetPackData](
+            const std::string& mPackDisambiguator, const std::string& mPackName,
+            const std::string& mPackAuthor, const std::string& mScriptName)
+        {
+            Utils::withDependencyScriptFilename(fRunLuaFile,
+                execScriptPackPathContext, assets, fGetPackData(),
+                mPackDisambiguator, mPackName, mPackAuthor, mScriptName);
+        })
+        .arg("packDisambiguator")
+        .arg("packName")
+        .arg("packAuthor")
+        .arg("scriptFilename")
+        .doc(
+            "Execute the script provided by the dependee pack with "
+            "disambiguator `$0`, name `$1`, author `$2`, located at "
+            "`<dependeePack>/Scripts/$3`.");
+}
+
+static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
+    std::vector<std::string>& execScriptPackPathContext,
+    const std::function<const std::string&()>& fPackPathGetter,
+    const std::function<const PackData&()>& fGetPackData)
+{
+    // ------------------------------------------------------------------------
+    // Shader id retrieval
+
+    addLuaFn(lua, "shdr_getShaderId",
+        [&assets, &execScriptPackPathContext, fPackPathGetter](
+            const std::string& shaderFilename) -> std::size_t
+        {
+            // With format "Packs/<PACK>/Shaders/<SHADER>"
+            const std::string shaderPath = Utils::getDependentShaderFilename(
+                execScriptPackPathContext, fPackPathGetter(), shaderFilename);
+
+            const std::optional<std::size_t> id =
+                assets.getShaderIdByPath(shaderPath);
+
+            if(!id.has_value())
+            {
+                ssvu::lo("hg::LuaScripting::initShaders")
+                    << "`u_getShaderId` failed, no id found for '"
+                    << shaderFilename << "'\n";
+
+                return static_cast<std::size_t>(-1);
+            }
+
+            return *id;
+        })
+        .arg("shaderFilename")
+        .doc(
+            "Retrieve the id of the shader with name `$0` from the current "
+            "pack. The shader will be searched for in the `Shaders/` "
+            "subfolder. The extension of the shader should be included in `$0` "
+            "and it will determine its type (i.e. `.frag`, `.vert`, and "
+            "`.geom`).");
+
+    addLuaFn(lua, "shdr_getDependencyShaderId",
+        [&assets, &execScriptPackPathContext, fGetPackData](
+            const std::string& packDisambiguator, const std::string& packName,
+            const std::string& packAuthor,
+            const std::string& shaderFilename) -> std::size_t
+        {
+            std::size_t result = static_cast<std::size_t>(-1);
+
+            auto setResult = [&assets, &result](const std::string& shaderPath)
+            {
+                const std::optional<std::size_t> id =
+                    assets.getShaderIdByPath(shaderPath);
+
+                if(!id.has_value())
+                {
+                    ssvu::lo("hg::LuaScripting::initShaders")
+                        << "`u_getDependencyShaderId` failed, no id found for '"
+                        << shaderPath << "'\n";
+
+                    result = static_cast<std::size_t>(-1);
+                    return;
+                }
+
+                result = *id;
+                return;
+            };
+
+            Utils::withDependencyScriptFilename(setResult,
+                execScriptPackPathContext, assets, fGetPackData(),
+                packDisambiguator, packName, packAuthor, shaderFilename);
+
+            return result;
+        })
+        .arg("packDisambiguator")
+        .arg("packName")
+        .arg("packAuthor")
+        .arg("shaderFilename")
+        .doc(
+            "Retrieve the id of the shader with name `$3` provided by the "
+            "dependee pack with disambiguator `$0`, name `$1`, author `$2`. "
+            "The shader will be searched for in the `Shaders/` subfolder of "
+            "the dependee. The extension of the shader should be included in "
+            "`$0` and it will determine its type (i.e. `.frag`, `.vert`, and "
+            "`.geom`).");
+
+    // ------------------------------------------------------------------------
+    // Utility functions
+
+    auto withValidShaderId =
+        [&assets](const char* caller, const std::size_t shaderId, auto&& f)
+    {
+        if(!assets.isValidShaderId(shaderId))
+        {
+            ssvu::lo("hg::LuaScripting::initShaders")
+                << "`" << caller << "` failed, invalid shader id '" << shaderId
+                << "'\n";
+
+            return;
+        }
+
+        sf::Shader* shader = assets.getShaderByShaderId(shaderId);
+        SSVOH_ASSERT(shader != nullptr);
+
+        f(*shader);
+    };
+
+    // ------------------------------------------------------------------------
+    // Float uniforms
+
+    addLuaFn(lua, "shdr_setUniformF",
+        [withValidShaderId](
+            const std::size_t shaderId, const std::string& name, const float a)
+        {
+            withValidShaderId("shdr_setUniformF", shaderId,
+                [&](sf::Shader& shader) { shader.setUniform(name, a); });
+        })
+        .arg("shaderId")
+        .arg("name")
+        .arg("a")
+        .doc(
+            "Set the float uniform with name `$1` of the shader with id `$0` "
+            "to `$2`.");
+
+    addLuaFn(lua, "shdr_setUniformFVec2",
+        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+            const float a, const float b)
+        {
+            withValidShaderId("shdr_setUniformFVec2", shaderId,
+                [&](sf::Shader& shader) {
+                    shader.setUniform(name, sf::Glsl::Vec2{a, b});
+                });
+        })
+        .arg("shaderId")
+        .arg("name")
+        .arg("a")
+        .arg("b")
+        .doc(
+            "Set the float vector2 uniform with name `$1` of the shader with "
+            "id `$0` to `{$2, $3}`.");
+
+    addLuaFn(lua, "shdr_setUniformFVec3",
+        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+            const float a, const float b, const float c)
+        {
+            withValidShaderId("shdr_setUniformFVec3", shaderId,
+                [&](sf::Shader& shader) {
+                    shader.setUniform(name, sf::Glsl::Vec3{a, b, c});
+                });
+        })
+        .arg("shaderId")
+        .arg("name")
+        .arg("a")
+        .arg("b")
+        .arg("c")
+        .doc(
+            "Set the float vector3 uniform with name `$1` of the shader with "
+            "id `$0` to `{$2, $3, $4}`.");
+
+    addLuaFn(lua, "shdr_setUniformFVec4",
+        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+            const float a, const float b, const float c, const float d)
+        {
+            withValidShaderId("shdr_setUniformFVec4", shaderId,
+                [&](sf::Shader& shader) {
+                    shader.setUniform(name, sf::Glsl::Vec4{a, b, c, d});
+                });
+        })
+        .arg("shaderId")
+        .arg("name")
+        .arg("a")
+        .arg("b")
+        .arg("c")
+        .arg("d")
+        .doc(
+            "Set the float vector4 uniform with name `$1` of the shader with "
+            "id `$0` to `{$2, $3, $4, $5}`.");
+
+
+    // ------------------------------------------------------------------------
+    // Integer uniforms
+
+    addLuaFn(lua, "shdr_setUniformI",
+        [withValidShaderId](
+            const std::size_t shaderId, const std::string& name, const int a)
+        {
+            withValidShaderId("shdr_setUniformI", shaderId,
+                [&](sf::Shader& shader) { shader.setUniform(name, a); });
+        })
+        .arg("shaderId")
+        .arg("name")
+        .arg("a")
+        .doc(
+            "Set the integer uniform with name `$1` of the shader with id `$0` "
+            "to `$2`.");
+
+    addLuaFn(lua, "shdr_setUniformIVec2",
+        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+            const int a, const int b)
+        {
+            withValidShaderId("shdr_setUniformIVec2", shaderId,
+                [&](sf::Shader& shader) {
+                    shader.setUniform(name, sf::Glsl::Ivec2{a, b});
+                });
+        })
+        .arg("shaderId")
+        .arg("name")
+        .arg("a")
+        .arg("b")
+        .doc(
+            "Set the integer vector2 uniform with name `$1` of the shader with "
+            "id `$0` to `{$2, $3}`.");
+
+    addLuaFn(lua, "shdr_setUniformIVec3",
+        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+            const int a, const int b, const int c)
+        {
+            withValidShaderId("shdr_setUniformIVec3", shaderId,
+                [&](sf::Shader& shader) {
+                    shader.setUniform(name, sf::Glsl::Ivec3{a, b, c});
+                });
+        })
+        .arg("shaderId")
+        .arg("name")
+        .arg("a")
+        .arg("b")
+        .arg("c")
+        .doc(
+            "Set the integer vector3 uniform with name `$1` of the shader with "
+            "id `$0` to `{$2, $3, $4}`.");
+
+    addLuaFn(lua, "shdr_setUniformIVec4",
+        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+            const int a, const int b, const int c, const int d)
+        {
+            withValidShaderId("shdr_setUniformIVec4", shaderId,
+                [&](sf::Shader& shader) {
+                    shader.setUniform(name, sf::Glsl::Ivec4{a, b, c, d});
+                });
+        })
+        .arg("shaderId")
+        .arg("name")
+        .arg("a")
+        .arg("b")
+        .arg("c")
+        .arg("d")
+        .doc(
+            "Set the integer vector4 uniform with name `$1` of the shader with "
+            "id `$0` to `{$2, $3, $4, $5}`.");
+}
+
 [[nodiscard]] Utils::LuaMetadata& getMetadata()
 {
     static Utils::LuaMetadata lm;
@@ -1173,7 +1466,12 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
 
 void init(Lua::LuaContext& lua, random_number_generator& rng, const bool inMenu,
     CCustomWallManager& cwManager, LevelStatus& levelStatus,
-    HexagonGameStatus& hexagonGameStatus, StyleData& styleData)
+    HexagonGameStatus& hexagonGameStatus, StyleData& styleData,
+    HGAssets& assets,
+    const std::function<void(const std::string&)>& fRunLuaFile,
+    std::vector<std::string>& execScriptPackPathContext,
+    const std::function<const std::string&()>& fPackPathGetter,
+    const std::function<const PackData&()>& fGetPackData)
 {
     initRandom(lua, rng);
     redefineIoOpen(lua);
@@ -1187,6 +1485,10 @@ void init(Lua::LuaContext& lua, random_number_generator& rng, const bool inMenu,
     initCustomWalls(lua, cwManager);
     initLevelControl(lua, levelStatus, hexagonGameStatus);
     initStyleControl(lua, styleData);
+    initExecScript(lua, assets, fRunLuaFile, execScriptPackPathContext,
+        fPackPathGetter, fGetPackData);
+    initShaders(
+        lua, assets, execScriptPackPathContext, fPackPathGetter, fGetPackData);
 }
 
 void printDocs()
