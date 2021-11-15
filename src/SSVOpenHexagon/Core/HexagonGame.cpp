@@ -310,13 +310,11 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
         renderTexture.create(width, height);
 
-        backgroundCamera.emplace(*window,
-            sf::View{ssvs::zeroVec2f,
-                sf::Vector2f{width * zoomFactor, height * zoomFactor}});
+        backgroundCamera.emplace(sf::View{ssvs::zeroVec2f,
+            sf::Vector2f{width * zoomFactor, height * zoomFactor}});
 
-        overlayCamera.emplace(
-            *window, sf::View{sf::Vector2f{width / 2.f, height / 2.f},
-                         sf::Vector2f{width, height}});
+        overlayCamera.emplace(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
+            sf::Vector2f{width, height}});
 
         txStarParticle = &assets.getTextureOrNullTexture("starParticle.png");
         txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
@@ -674,6 +672,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     nextPBParticleSpawn = 0.f;
     particles.clear();
     trailParticles.clear();
+
+    // Re-init default flash effect
+    initFlashEffect(255, 255, 255);
 
     if(window != nullptr)
     {

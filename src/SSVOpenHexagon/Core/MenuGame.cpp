@@ -170,14 +170,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       rsOnlineStatus{sf::Vector2f{128.f, 32.f}},
       txtOnlineStatus{"", openSquare, 24},
       enteredChars{},
-      backgroundCamera{window,
+      backgroundCamera{
           {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
                                 Config::getSizeY() * Config::getZoomFactor()}}},
-      overlayCamera{
-          window, {{Config::getWidth() / 2.f,
-                       Config::getHeight() * Config::getZoomFactor() / 2.f},
-                      {Config::getWidth() * Config::getZoomFactor(),
-                          Config::getHeight() * Config::getZoomFactor()}}},
+      overlayCamera{{{Config::getWidth() / 2.f,
+                         Config::getHeight() * Config::getZoomFactor() / 2.f},
+          {Config::getWidth() * Config::getZoomFactor(),
+              Config::getHeight() * Config::getZoomFactor()}}},
       mustRefresh{false},
       wasFocusHeld{false},
       focusHeld{false},
@@ -957,7 +956,7 @@ void MenuGame::initInput()
 
     game.addInput( // hardcoded
         {{k::Escape}},
-        [this](ssvs::FT mFT)
+        [this](ssvu::FT mFT)
         {
             if(state != States::MOpts)
             {
@@ -1120,6 +1119,8 @@ void MenuGame::initLua()
             "steam_unlockAchievement",
 
             "u_kill", "u_eventKill", "u_playSound", "u_playPackSound",
+            "u_setFlashEffect", "u_setFlashColor",
+
             "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
             "e_eventWaitS", "e_eventWaitUntilS", "m_messageAdd",
             "m_messageAddImportant", "m_messageAddImportantSilent",
@@ -3637,7 +3638,7 @@ void MenuGame::setMouseCursorVisible(const bool x)
         return false;
     }
 
-    const sf::Vector2f mp = overlayCamera.getMousePosition();
+    const sf::Vector2f mp = overlayCamera.getMousePosition(window);
 
     return mp.x > mins.x - tolerance && mp.x < maxs.x + tolerance &&
            mp.y > mins.y - tolerance && mp.y < maxs.y + tolerance;
@@ -5705,7 +5706,7 @@ void MenuGame::draw()
     styleData.computeColors();
     window.clear(sf::Color{0, 0, 0, 255});
 
-    backgroundCamera.apply();
+    backgroundCamera.apply(window);
     const bool mainOrAbove{state >= States::SMain};
 
     // Only draw the hexagon background past the loading screens.
@@ -5722,7 +5723,7 @@ void MenuGame::draw()
         render(menuBackgroundTris);
     }
 
-    overlayCamera.apply();
+    overlayCamera.apply(window);
 
     // Draw the profile name.
     if(mainOrAbove && state != States::LevelSelection)
@@ -5903,7 +5904,7 @@ void MenuGame::draw()
 
     if(!dialogBox.empty())
     {
-        overlayCamera.apply();
+        overlayCamera.apply(window);
         dialogBox.draw(dialogBoxTextColor, styleData.getColor(0));
     }
 
