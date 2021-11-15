@@ -1073,6 +1073,13 @@ void MenuGame::initLua()
 
     lua.writeVariable("u_getPlayerAngle", [] { return 0; });
 
+    // TODO (P0): repetition
+    lua.writeVariable("u_getWidth", //
+        [] { return Config::getWidth(); });
+
+    lua.writeVariable("u_getHeight", //
+        [] { return Config::getHeight(); });
+
     // Unused functions
     for(const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
@@ -3063,6 +3070,8 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
     {
         return;
     }
+
+    assets.reloadAllShaders();
 
     // Do the necessary asset reload operation and get the log
     // of the results.

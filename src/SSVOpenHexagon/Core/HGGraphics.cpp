@@ -56,6 +56,21 @@ void HexagonGame::draw()
         return;
     }
 
+    const auto getRenderStates = [this](
+                                     const RenderStage rs) -> sf::RenderStates
+    {
+        const std::optional<std::size_t> fragmentShaderId =
+            status.fragmentShaderIds[static_cast<std::size_t>(rs)];
+
+        if(!fragmentShaderId.has_value())
+        {
+            return sf::RenderStates::Default;
+        }
+
+        runLuaFunctionIfExists<int>("onRenderStage", static_cast<int>(rs));
+        return sf::RenderStates{assets.getShaderByShaderId(*fragmentShaderId)};
+    };
+
     SSVOH_ASSERT(backgroundCamera.has_value());
     SSVOH_ASSERT(overlayCamera.has_value());
 
@@ -95,7 +110,7 @@ void HexagonGame::draw()
                 levelStatus.darkenUnevenBackgroundChunk,
             Config::getBlackAndWhite());
 
-        render(backgroundTris);
+        render(backgroundTris, getRenderStates(RenderStage::BackgroundTris));
     }
 
     backgroundCamera->apply(*window);
@@ -233,44 +248,19 @@ void HexagonGame::draw()
         }
     }
 
-    auto* shader = getAssets().getShader(
-        "ohvrvanilla_vittorio_romeo_experimental_1", "pixelate.frag");
-    shader->setUniform("currentTexture", renderTexture.getTexture());
-
-    static float ba = 0.0f;
-    ba += 0.1;
-    if(ba > 1) ba = 0;
-    shader->setUniform(
-        "u_resolution", sf::Vector2f(window->getWidth(), window->getHeight()));
-
-
-    shader->setUniform("color1", Utils::toGLSLVec3(getColorMain()));
-    shader->setUniform("color2",
-        Utils::toGLSLVec3(sf::Color{255, 255, 255, 255} - getColorMain()));
-
-    //        shader->("color1",
-
-    sf::RenderStates testrs(shader);
-    // testrs.texture = &renderTexture.getTexture();
-    render(wallQuads3D, testrs);
-
-    render(pivotQuads3D);
-    render(playerTris3D);
+    render(wallQuads3D, getRenderStates(RenderStage::WallQuads3D));
+    render(pivotQuads3D, getRenderStates(RenderStage::PivotQuads3D));
+    render(playerTris3D, getRenderStates(RenderStage::PlayerTris3D));
 
     if(Config::getShowPlayerTrail() && status.showPlayerTrail)
     {
         drawTrailParticles();
     }
 
-    shader->setUniform("color2", Utils::toGLSLVec3(getColorMain()));
-    shader->setUniform("color1",
-        Utils::toGLSLVec3(sf::Color{255, 255, 255, 255} - getColorMain()));
-
-
-    render(wallQuads, testrs);
-    render(capTris);
-    render(pivotQuads);
-    render(playerTris);
+    render(wallQuads, getRenderStates(RenderStage::WallQuads));
+    render(capTris, getRenderStates(RenderStage::CapTris));
+    render(pivotQuads, getRenderStates(RenderStage::PivotQuads));
+    render(playerTris, getRenderStates(RenderStage::PlayerTris));
 
     overlayCamera->apply(*window);
 
