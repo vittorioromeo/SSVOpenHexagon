@@ -100,7 +100,6 @@ private:
 
     ssvs::GameState game;
     ssvs::GameWindow* window;
-    sf::RenderTexture renderTexture;
 
     HexagonClient* hexagonClient;
 

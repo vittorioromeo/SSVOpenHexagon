@@ -13,6 +13,8 @@
 
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
+#include <SFML/Graphics/Shader.hpp>
+
 #include <cstddef>
 #include <map>
 #include <optional>
@@ -71,6 +73,8 @@ private:
     struct LoadedShader
     {
         Utils::UniquePtr<sf::Shader> shader;
+        std::string path;
+        sf::Shader::Type shaderType;
         std::size_t id;
     };
 
@@ -168,6 +172,7 @@ public:
     [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
     [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
 
+    void reloadAllShaders();
     [[nodiscard]] std::string reloadPack(
         const std::string& mPackId, const std::string& mPath);
     [[nodiscard]] std::string reloadLevel(const std::string& mPackId,

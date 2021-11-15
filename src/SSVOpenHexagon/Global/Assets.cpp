@@ -698,7 +698,10 @@ void HGAssets::loadPackAssets_loadShaders(
             SSVOH_ASSERT(shadersById.size() > 0);
             const std::size_t shaderId = shadersById.size() - 1;
 
-            LoadedShader ls{.shader{std::move(shader)}, .id{shaderId}};
+            LoadedShader ls{.shader{std::move(shader)},
+                .path{p},
+                .shaderType{shaderType},
+                .id{shaderId}};
 
             shaders.emplace(
                 concatIntoBuf(mPackId, '_', p.getFileName()), std::move(ls));
@@ -951,6 +954,21 @@ void HGAssets::saveAllProfiles()
 
 //**********************************************
 // RELOAD
+
+void HGAssets::reloadAllShaders()
+{
+    for(auto& [id, loadedShader] : shaders)
+    {
+        if(!loadedShader.shader->loadFromFile(
+               loadedShader.path, loadedShader.shaderType))
+        {
+            ssvu::lo("hg::HGAssets::reloadAllShaders")
+                << "Failed to load shader '" << loadedShader.path << "'\n";
+
+            continue;
+        }
+    }
+}
 
 [[nodiscard]] std::string HGAssets::reloadPack(
     const std::string& mPackId, const std::string& mPath)

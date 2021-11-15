@@ -1213,7 +1213,8 @@ static void initExecScript(Lua::LuaContext& lua, HGAssets& assets,
 static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
     std::vector<std::string>& execScriptPackPathContext,
     const std::function<const std::string&()>& fPackPathGetter,
-    const std::function<const PackData&()>& fGetPackData)
+    const std::function<const PackData&()>& fGetPackData,
+    HexagonGameStatus& hexagonGameStatus)
 {
     // ------------------------------------------------------------------------
     // Shader id retrieval
@@ -1314,6 +1315,21 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         f(*shader);
     };
 
+    const auto checkValidRenderStage =
+        [](const char* caller, const std::size_t renderStage, auto& ids) -> bool
+    {
+        if(renderStage >= ids.size())
+        {
+            ssvu::lo("hg::LuaScripting::initShaders")
+                << "`" << caller << "` failed, invalid render stage id '"
+                << renderStage << "'\n";
+
+            return false;
+        }
+
+        return true;
+    };
+
     // ------------------------------------------------------------------------
     // Float uniforms
 
@@ -1385,7 +1401,6 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             "Set the float vector4 uniform with name `$1` of the shader with "
             "id `$0` to `{$2, $3, $4, $5}`.");
 
-
     // ------------------------------------------------------------------------
     // Integer uniforms
 
@@ -1456,6 +1471,54 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         .doc(
             "Set the integer vector4 uniform with name `$1` of the shader with "
             "id `$0` to `{$2, $3, $4, $5}`.");
+
+    // ------------------------------------------------------------------------
+    // Fragment shader binding
+
+    // TODO (P0): docs
+
+    addLuaFn(lua, "shdr_resetAllActiveFragmentShaders",
+        [&hexagonGameStatus]()
+        {
+            auto& ids = hexagonGameStatus.fragmentShaderIds;
+
+            for(std::size_t i = 0;
+                i < static_cast<std::size_t>(RenderStage::Count); ++i)
+            {
+                ids[i] = std::nullopt;
+            }
+        });
+
+    addLuaFn(lua, "shdr_resetActiveFragmentShader",
+        [checkValidRenderStage, &hexagonGameStatus](
+            const std::size_t renderStage)
+        {
+            auto& ids = hexagonGameStatus.fragmentShaderIds;
+
+            if(checkValidRenderStage(
+                   "shdr_resetActiveFragmentShader", renderStage, ids))
+            {
+                ids[renderStage] = std::nullopt;
+            }
+        })
+        .arg("renderStage")
+        .doc("TODO");
+
+    addLuaFn(lua, "shdr_setActiveFragmentShader",
+        [checkValidRenderStage, &hexagonGameStatus](
+            const std::size_t renderStage, const std::size_t shaderId)
+        {
+            auto& ids = hexagonGameStatus.fragmentShaderIds;
+
+            if(checkValidRenderStage(
+                   "shdr_setActiveFragmentShader", renderStage, ids))
+            {
+                ids[renderStage] = shaderId;
+            }
+        })
+        .arg("renderStage")
+        .arg("shaderId")
+        .doc("TODO");
 }
 
 [[nodiscard]] Utils::LuaMetadata& getMetadata()
@@ -1487,8 +1550,8 @@ void init(Lua::LuaContext& lua, random_number_generator& rng, const bool inMenu,
     initStyleControl(lua, styleData);
     initExecScript(lua, assets, fRunLuaFile, execScriptPackPathContext,
         fPackPathGetter, fGetPackData);
-    initShaders(
-        lua, assets, execScriptPackPathContext, fPackPathGetter, fGetPackData);
+    initShaders(lua, assets, execScriptPackPathContext, fPackPathGetter,
+        fGetPackData, hexagonGameStatus);
 }
 
 void printDocs()

@@ -168,6 +168,15 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
             "`true`, the swap sound will be played.");
+
+    // TODO (P0): repetition
+    addLuaFn(lua, "u_getWidth", //
+        [] { return Config::getWidth(); })
+        .doc("TODO");
+
+    addLuaFn(lua, "u_getHeight", //
+        [] { return Config::getHeight(); })
+        .doc("TODO");
 }
 
 void HexagonGame::initLua_AudioControl()

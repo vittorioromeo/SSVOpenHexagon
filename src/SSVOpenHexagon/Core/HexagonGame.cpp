@@ -282,7 +282,6 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       fontBold{assets.getFontOrNullFont("OpenSquare-Bold.ttf")},
       audio(mAudio),
       window(mGameWindow),
-      renderTexture{},
       hexagonClient{mHexagonClient},
       player{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
@@ -307,8 +306,6 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         const float width = Config::getWidth();
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
-
-        renderTexture.create(width, height);
 
         backgroundCamera.emplace(sf::View{ssvs::zeroVec2f,
             sf::Vector2f{width * zoomFactor, height * zoomFactor}});

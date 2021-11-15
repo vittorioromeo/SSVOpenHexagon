@@ -6,7 +6,10 @@
 
 #include <SFML/Graphics/Color.hpp>
 
+#include <array>
 #include <chrono>
+#include <cstddef>
+#include <optional>
 #include <string>
 
 namespace hg {
@@ -16,6 +19,20 @@ enum class StateChange
     None,
     MustRestart,
     MustReplay
+};
+
+enum class RenderStage : std::size_t
+{
+    BackgroundTris = 0,
+    WallQuads3D = 1,
+    PivotQuads3D = 2,
+    PlayerTris3D = 3,
+    WallQuads = 4,
+    CapTris = 5,
+    PivotQuads = 6,
+    PlayerTris = 7,
+
+    Count = 8
 };
 
 struct HexagonGameStatus
@@ -59,6 +76,11 @@ public:
     std::string restartInput;
     std::string replayInput;
     bool showPlayerTrail{true};
+
+    // Shaders
+    std::array<std::optional<std::size_t>,
+        static_cast<std::size_t>(RenderStage::Count)>
+        fragmentShaderIds;
 
     // Reset all the time points and signal that we started
     void start() noexcept;
