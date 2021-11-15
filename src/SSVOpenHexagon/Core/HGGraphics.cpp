@@ -243,13 +243,10 @@ void HexagonGame::draw()
     shader->setUniform(
         "u_resolution", sf::Vector2f(window->getWidth(), window->getHeight()));
 
-    auto toglslvec3 = [](sf::Color c) -> sf::Vector3f {
-        return {float(c.r) / 255.f, float(c.g) / 255.f, float(c.b) / 255.f};
-    };
 
-    shader->setUniform("color1", toglslvec3(getColorMain()));
-    shader->setUniform(
-        "color2", toglslvec3(sf::Color{255, 255, 255, 255} - getColorMain()));
+    shader->setUniform("color1", Utils::toGLSLVec3(getColorMain()));
+    shader->setUniform("color2",
+        Utils::toGLSLVec3(sf::Color{255, 255, 255, 255} - getColorMain()));
 
     //        shader->("color1",
 
@@ -265,12 +262,12 @@ void HexagonGame::draw()
         drawTrailParticles();
     }
 
-    shader->setUniform("color2", toglslvec3(getColorMain()));
-    shader->setUniform(
-        "color1", toglslvec3(sf::Color{255, 255, 255, 255} - getColorMain()));
+    shader->setUniform("color2", Utils::toGLSLVec3(getColorMain()));
+    shader->setUniform("color1",
+        Utils::toGLSLVec3(sf::Color{255, 255, 255, 255} - getColorMain()));
 
 
-    render(wallQuads,testrs);
+    render(wallQuads, testrs);
     render(capTris);
     render(pivotQuads);
     render(playerTris);

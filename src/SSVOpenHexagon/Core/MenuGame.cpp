@@ -1054,31 +1054,16 @@ void MenuGame::initLua()
     static random_number_generator rng{0};
     static HexagonGameStatus hexagonGameStatus;
 
-    LuaScripting::init(lua, rng, true /* inMenu */, cwManager, levelStatus,
-        hexagonGameStatus, styleData);
+    LuaScripting::init(
+        lua, rng, true /* inMenu */, cwManager, levelStatus, hexagonGameStatus,
+        styleData, assets,
+        [this](const std::string& filename) { runLuaFile(filename); },
+        execScriptPackPathContext,
+        [this]() -> const std::string& { return levelData->packPath; },
+        [this]() -> const PackData& { return *currentPack; });
 
     lua.writeVariable("u_log",
         [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
-
-    lua.writeVariable("u_execScript",
-        [this](const std::string& mScriptName)
-        {
-            runLuaFile(Utils::getDependentScriptFilename(
-                execScriptPackPathContext, levelData->packPath, mScriptName));
-        });
-
-    lua.writeVariable("u_execDependencyScript", //
-        [this](const std::string& mPackDisambiguator,
-            const std::string& mPackName, const std::string& mPackAuthor,
-            const std::string& mScriptName)
-        {
-            SSVOH_ASSERT(currentPack != nullptr);
-
-            Utils::withDependencyScriptFilename(
-                [this](const std::string& filename) { runLuaFile(filename); },
-                execScriptPackPathContext, assets, *currentPack,
-                mPackDisambiguator, mPackName, mPackAuthor, mScriptName);
-        });
 
     lua.writeVariable("u_getDifficultyMult", [] { return 1; });
 

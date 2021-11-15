@@ -15,6 +15,7 @@
 
 #include <cstddef>
 #include <map>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -67,7 +68,15 @@ private:
 
     std::unordered_set<std::string> packIdsWithMissingDependencies;
 
-    std::unordered_map<std::string, Utils::UniquePtr<sf::Shader>> shaders;
+    struct LoadedShader
+    {
+        Utils::UniquePtr<sf::Shader> shader;
+        std::size_t id;
+    };
+
+    std::unordered_map<std::string, LoadedShader> shaders;
+    std::unordered_map<std::string, std::size_t> shadersPathToId;
+    std::vector<sf::Shader*> shadersById;
 
     std::string buf;
 
@@ -151,6 +160,13 @@ public:
         const std::string& mPackId, const std::string& mId);
     [[nodiscard]] sf::Shader* getShader(
         const std::string& mPackId, const std::string& mId);
+
+    [[nodiscard]] std::optional<std::size_t> getShaderId(
+        const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] std::optional<std::size_t> getShaderIdByPath(
+        const std::string& mShaderPath);
+    [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
+    [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
 
     [[nodiscard]] std::string reloadPack(
         const std::string& mPackId, const std::string& mPath);

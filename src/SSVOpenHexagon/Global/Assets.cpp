@@ -693,16 +693,17 @@ void HGAssets::loadPackAssets_loadShaders(
 
                 continue;
             }
-            else
-            {
-                // TODO (P0): remove
-                ssvu::lo("hg::loadPackAssets_loadShaders")
-                    << "Loaded shader '" << p << "' with id '"
-                    << concatIntoBuf(mPackId, '_', p.getFileName()) << "' \n";
-            }
 
-            shaders.emplace(concatIntoBuf(mPackId, '_', p.getFileName()),
-                std::move(shader));
+            shadersById.push_back(shader.get());
+            SSVOH_ASSERT(shadersById.size() > 0);
+            const std::size_t shaderId = shadersById.size() - 1;
+
+            LoadedShader ls{.shader{std::move(shader)}, .id{shaderId}};
+
+            shaders.emplace(
+                concatIntoBuf(mPackId, '_', p.getFileName()), std::move(ls));
+
+            shadersPathToId.emplace(p, shaderId);
 
             ++loadInfo.assets;
         }
@@ -899,7 +900,53 @@ void HGAssets::saveAllProfiles()
         return nullptr;
     }
 
-    return it->second.get();
+    return it->second.shader.get();
+}
+
+[[nodiscard]] std::optional<std::size_t> HGAssets::getShaderId(
+    const std::string& mPackId, const std::string& mId)
+{
+    const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
+
+    const auto it = shaders.find(assetId);
+    if(it == shaders.end())
+    {
+        ssvu::lo("getShaderId") << "Asset '" << assetId << "' not found\n";
+        return std::nullopt;
+    }
+
+    return it->second.id;
+}
+
+[[nodiscard]] std::optional<std::size_t> HGAssets::getShaderIdByPath(
+    const std::string& mShaderPath)
+{
+    const auto it = shadersPathToId.find(mShaderPath);
+    if(it == shadersPathToId.end())
+    {
+        ssvu::lo("getShaderIdByPath") << "Shader with path '" << mShaderPath
+                                      << "' not found, couldn't get id\n";
+
+        return std::nullopt;
+    }
+
+    return it->second;
+}
+
+[[nodiscard]] sf::Shader* HGAssets::getShaderByShaderId(
+    const std::size_t mShaderId)
+{
+    if(!isValidShaderId(mShaderId))
+    {
+        return nullptr;
+    }
+
+    return shadersById[mShaderId];
+}
+
+[[nodiscard]] bool HGAssets::isValidShaderId(const std::size_t mShaderId) const
+{
+    return mShaderId < shadersById.size();
 }
 
 //**********************************************
