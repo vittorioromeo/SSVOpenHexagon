@@ -279,10 +279,16 @@ include_directories("./${INC_DIR}")
 
 file(GLOB_RECURSE MAIN_FILE "${SRC_DIR}/SSVOpenHexagon/*/main.cpp")
 
-file(GLOB_RECURSE SRC_LIST
-     "${INC_DIR}/SSVOpenHexagon/*"
-     "${SRC_DIR}/SSVOpenHexagon/*"
-     "public/discord/*")
+if(NOT SSVOH_ANDROID)
+    file(GLOB_RECURSE SRC_LIST
+        "${INC_DIR}/SSVOpenHexagon/*"
+        "${SRC_DIR}/SSVOpenHexagon/*"
+        "public/discord/*")
+else()
+    file(GLOB_RECURSE SRC_LIST
+        "${INC_DIR}/SSVOpenHexagon/*"
+        "${SRC_DIR}/SSVOpenHexagon/*")
+endif()
 
 file(GLOB_RECURSE C_SRC_LIST
      "public/sqlite/*.c")

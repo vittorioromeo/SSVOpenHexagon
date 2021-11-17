@@ -210,7 +210,8 @@ bool discord_manager::set_rich_presence_on_replay()
 }
 
 bool discord_manager::set_rich_presence_in_game(
-    const std::string& level_info, const std::string& second_info, bool dead)
+    [[maybe_unused]] const std::string& level_info,
+    [[maybe_unused]] const std::string& second_info, [[maybe_unused]] bool dead)
 {
     return false;
 }

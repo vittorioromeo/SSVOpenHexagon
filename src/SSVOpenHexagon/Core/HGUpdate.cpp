@@ -985,6 +985,7 @@ void HexagonGame::updateTrailParticles(ssvu::FT mFT)
     }
 }
 
+#ifndef SSVOH_ANDROID
 static int ilcTextEditCallbackStub(ImGuiInputTextCallbackData* data)
 {
     auto hg = (HexagonGame*)data->UserData;
@@ -1013,8 +1014,10 @@ static int Strnicmp(const char* s1, const char* s2, int n)
     }
     return d;
 }
+#endif
 
-int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
+int HexagonGame::ilcTextEditCallback(
+    [[maybe_unused]] ImGuiInputTextCallbackData* data)
 {
 #ifndef SSVOH_ANDROID
     switch(data->EventFlag)
