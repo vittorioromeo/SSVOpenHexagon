@@ -26,6 +26,7 @@
 defaultServerLevelWhitelist()
 {
     static const std::vector<std::string> result{
+        // Vittorio Romeo - Cube
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_0.35",
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1",
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1.6",
@@ -56,9 +57,13 @@ defaultServerLevelWhitelist()
         "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1",
         "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1.8",
         "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_2.2",
+
+        // Vittorio Romeo - Orthoplex
         "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_0.5",
         "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_1",
         "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_1.8",
+
+        // Vittorio Romeo - Hypercube
         "ohvrvanilla_vittorio_romeo_hypercube_1_acceleradiant_m_0.85",
         "ohvrvanilla_vittorio_romeo_hypercube_1_acceleradiant_m_1",
         "ohvrvanilla_vittorio_romeo_hypercube_1_acceleradiant_m_1.8",
@@ -89,7 +94,27 @@ defaultServerLevelWhitelist()
         "ohvrvanilla_vittorio_romeo_hypercube_1_slither_m_0.5",
         "ohvrvanilla_vittorio_romeo_hypercube_1_slither_m_1",
         "ohvrvanilla_vittorio_romeo_hypercube_1_slither_m_1.5",
-        "ohvrvanilla_vittorio_romeo_hypercube_1_slither_m_2" //
+        "ohvrvanilla_vittorio_romeo_hypercube_1_slither_m_2",
+
+        // Vipre - Vanity [Steam Workshop]
+        "vanitylevels_Vipre_Vanity_10006_haunted_m_1",
+        "vanitylevels_Vipre_Vanity_10006_haunted_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_mantra_m_1",
+        "vanitylevels_Vipre_Vanity_10006_menace_m_1",
+        "vanitylevels_Vipre_Vanity_10006_menace_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_narcotics_m_1",
+        "vanitylevels_Vipre_Vanity_10006_narcotics_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_rocketscience_m_1",
+        "vanitylevels_Vipre_Vanity_10006_rocketscience_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_singlepulseremixv2remix_m_1",
+        "vanitylevels_Vipre_Vanity_10006_squarepractice_m_1",
+        "vanitylevels_Vipre_Vanity_10006_squarepractice_m_1.003",
+        "vanitylevels_Vipre_Vanity_10006_squarepractice_m_1.005",
+        "vanitylevels_Vipre_Vanity_10006_technology_m_1",
+        "vanitylevels_Vipre_Vanity_10006_technology_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1",
+        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.002" //
     };
 
     return result;
