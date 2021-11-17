@@ -1,12 +1,16 @@
 <a href="https://openhexagon.org" target="_blank">
     <p align="center">
-        <img src="https://vittorioromeo.info/Misc/Linked/githubohlogo.png">
+        <img src="https://vittorioromeo.info/Misc/Linked/githubohlogo2.png">
     </p>
 </a>
 
-> **Open Hexagon is a fast-paced and adrenaline-inducing paced arcade experience by [Vittorio Romeo](https://vittorioromeo.info). Designed for moddability and custom level creation.** Now available on [Steam](https://store.steampowered.com/app/1358090/)!
+> **Four buttons, one goal: survive. Are you ready for a real challenge? -- Become the best and climb the leaderboards in Open Hexagon, a fast-paced adrenalinic arcade game that's easy to learn but hard to master!** *Now available on [Steam](https://store.steampowered.com/app/1358090/)*.
 
-[![Official Trailer (Early Access)](https://img.youtube.com/vi/TlSJZlQrVJ4/0.jpg)](https://www.youtube.com/watch?v=TlSJZlQrVJ4) [![Custom Level Showcase](https://img.youtube.com/vi/h4Jfj3lzWD4/0.jpg)](https://www.youtube.com/watch?v=h4Jfj3lzWD4) 
+<p align="center">
+    
+[![Official Trailer](https://img.youtube.com/vi/06y7mEsAMHM/0.jpg)](https://www.youtube.com/watch?v=06y7mEsAMHM) [![Custom Level Showcase](https://img.youtube.com/vi/h4Jfj3lzWD4/0.jpg)](https://www.youtube.com/watch?v=h4Jfj3lzWD4) 
+    
+</p>
 
 ## Credits
 
