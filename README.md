@@ -6,11 +6,11 @@
 
 > **Four buttons, one goal: survive. Are you ready for a real challenge? -- Become the best and climb the leaderboards in Open Hexagon, a fast-paced adrenalinic arcade game that's easy to learn but hard to master!** *Now available on [Steam](https://store.steampowered.com/app/1358090/)*.
 
-<p align="center">
-    
-[![Official Trailer](https://img.youtube.com/vi/06y7mEsAMHM/0.jpg)](https://www.youtube.com/watch?v=06y7mEsAMHM) [![Custom Level Showcase](https://img.youtube.com/vi/h4Jfj3lzWD4/0.jpg)](https://www.youtube.com/watch?v=h4Jfj3lzWD4) 
-    
-</p>
+<a href="https://www.youtube.com/watch?v=06y7mEsAMHM" target="_blank">
+    <p align="center">
+        <img src="https://img.youtube.com/vi/06y7mEsAMHM/0.jpg">
+    </p>
+</a>   
 
 ## Credits
 
