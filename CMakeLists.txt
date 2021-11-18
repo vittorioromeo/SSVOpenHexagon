@@ -475,7 +475,7 @@ if(SSVOH_BUILD_WIN32_CONSOLE)
     )
 endif()
 
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
     target_link_libraries(SSVOpenHexagonLib pthread)
 endif()
 
@@ -513,7 +513,7 @@ if(NOT SSVOH_ANDROID)
 
     target_link_libraries(OHWorkshopUploader ${STEAM_LIBRARIES})
 
-    if(UNIX AND NOT APPLE)
+    if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
         target_link_libraries(OHWorkshopUploader pthread)
     endif()
 
@@ -539,7 +539,7 @@ if(NOT SSVOH_ANDROID)
 
     target_link_libraries(OHServerControl sfml-system sfml-network)
 
-    if(UNIX AND NOT APPLE)
+    if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
         target_link_libraries(OHServerControl pthread)
     endif()
 
