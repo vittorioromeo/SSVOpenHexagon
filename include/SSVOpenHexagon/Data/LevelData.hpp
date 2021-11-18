@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <string>
 #include <set>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace Json {
 class Value;

@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
@@ -48,18 +49,12 @@ namespace hg {
 
 void HexagonGame::fastForwardTo(const double target)
 {
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
-    const TimePoint tpBegin = Clock::now();
+    const HRTimePoint tpBegin = HRClock::now();
 
     const auto exceededProcessingTime = [&]
     {
         constexpr int maxProcessingSeconds = 3;
-
-        return std::chrono::duration_cast<std::chrono::seconds>(
-                   Clock::now() - tpBegin)
-                   .count() > maxProcessingSeconds;
+        return hrSecondsSince(tpBegin) > maxProcessingSeconds;
     };
 
     while(!status.hasDied && status.getTimeSeconds() < target &&

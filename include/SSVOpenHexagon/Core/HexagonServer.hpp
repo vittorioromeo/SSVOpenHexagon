@@ -6,15 +6,17 @@
 
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 
+#include "SSVOpenHexagon/Utils/Timestamp.hpp"
+
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
 #include <SFML/Network/IpAddress.hpp>
+#include <SFML/Network/Packet.hpp>
+#include <SFML/Network/SocketSelector.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/UdpSocket.hpp>
-#include <SFML/Network/SocketSelector.hpp>
-#include <SFML/Network/Packet.hpp>
 
 #include <chrono>
 #include <list>
@@ -32,10 +34,6 @@ struct replay_file;
 
 class HexagonServer
 {
-public:
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
 private:
     HGAssets& _assets;
     HexagonGame& _hexagonGame;
@@ -67,7 +65,7 @@ private:
         };
 
         sf::TcpSocket _socket;
-        TimePoint _lastActivity;
+        Utils::SCTimePoint _lastActivity;
         int _consecutiveFailures;
         bool _mustDisconnect;
         std::optional<SodiumPublicKeyArray> _clientPublicKey;
@@ -88,13 +86,13 @@ private:
 
         struct GameStatus
         {
-            TimePoint _startTP;
+            Utils::SCTimePoint _startTP;
             std::string _levelValidator;
         };
 
         std::optional<GameStatus> _gameStatus;
 
-        explicit ConnectedClient(const TimePoint lastActivity)
+        explicit ConnectedClient(const Utils::SCTimePoint lastActivity)
             : _socket{},
               _lastActivity{lastActivity},
               _consecutiveFailures{0},
@@ -117,8 +115,8 @@ private:
 
     const SodiumPSKeys _serverPSKeys;
 
-    TimePoint _lastTokenPurge;
-    TimePoint _lastLogsFlush;
+    Utils::SCTimePoint _lastTokenPurge;
+    Utils::SCTimePoint _lastLogsFlush;
 
     [[nodiscard]] bool initializeControlSocket();
     [[nodiscard]] bool initializeTcpListener();

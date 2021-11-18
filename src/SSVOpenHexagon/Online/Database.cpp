@@ -205,7 +205,7 @@ constexpr int tokenValiditySeconds = 3600;
 
 [[nodiscard]] static bool isLoginTokenTimestampValid(const LoginToken& lt)
 {
-    const Utils::TimePoint now = Utils::Clock::now();
+    const Utils::SCTimePoint now = Utils::SCClock::now();
 
     return (now - Utils::toTimepoint(lt.timestamp)) <
            std::chrono::seconds(tokenValiditySeconds);

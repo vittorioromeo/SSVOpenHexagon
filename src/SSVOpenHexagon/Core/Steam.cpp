@@ -956,7 +956,8 @@ steam_manager::get_ticket_steam_id() const noexcept
 
 namespace hg::Steam {
 
-class steam_manager::steam_manager_impl { };
+class steam_manager::steam_manager_impl
+{};
 
 steam_manager::steam_manager() : _impl{nullptr}
 {}

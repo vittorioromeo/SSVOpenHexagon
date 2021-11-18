@@ -7,6 +7,8 @@
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
+
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/Packet.hpp>
@@ -81,9 +83,6 @@ public:
         >;
 
 private:
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
     Steam::steam_manager& _steamManager;
 
     std::optional<std::uint64_t> _ticketSteamID;
@@ -97,7 +96,7 @@ private:
     sf::Packet _packetBuffer;
     std::ostringstream _errorOss;
 
-    TimePoint _lastHeartbeatTime;
+    HRTimePoint _lastHeartbeatTime;
 
     bool _verbose;
 
