@@ -4,12 +4,14 @@
 
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 
-#include <string>
-#include <sstream>
-#include <vector>
+#include "SSVOpenHexagon/Global/Assert.hpp"
+
 #include <chrono>
-#include <unordered_map>
 #include <optional>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace hg {
 
@@ -18,7 +20,7 @@ void LeaderboardCache::receivedScores(const std::string& levelValidator,
 {
     CachedScores& cs = _levelValidatorToScores[levelValidator];
     cs._scores = scores;
-    cs._cacheTime = Clock::now();
+    cs._cacheTime = HRClock::now();
 }
 
 void LeaderboardCache::receivedOwnScore(
@@ -26,12 +28,12 @@ void LeaderboardCache::receivedOwnScore(
 {
     CachedScores& cs = _levelValidatorToScores[levelValidator];
     cs._ownScore = score;
-    cs._cacheTime = Clock::now();
+    cs._cacheTime = HRClock::now();
 }
 
 void LeaderboardCache::requestedScores(const std::string& levelValidator)
 {
-    _levelValidatorToScores[levelValidator]._cacheTime = Clock::now();
+    _levelValidatorToScores[levelValidator]._cacheTime = HRClock::now();
 }
 
 [[nodiscard]] bool LeaderboardCache::shouldRequestScores(
@@ -45,7 +47,7 @@ void LeaderboardCache::requestedScores(const std::string& levelValidator)
 
     const CachedScores& cs = it->second;
 
-    return (Clock::now() - cs._cacheTime) > std::chrono::seconds(6);
+    return (HRClock::now() - cs._cacheTime) > std::chrono::seconds(6);
 }
 
 [[nodiscard]] const std::vector<Database::ProcessedScore>&

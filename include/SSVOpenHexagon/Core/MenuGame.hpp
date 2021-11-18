@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
@@ -259,10 +260,7 @@ private:
     Utils::FastVertexVectorQuads menuQuads;
 
     // Mouse control
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = Clock::time_point;
-    using Duration = Clock::duration;
-    TimePoint lastMouseClick{};
+    HRTimePoint lastMouseClick{};
     bool mouseHovering{false};
     bool mouseWasPressed{false};
     bool mousePressed{false};

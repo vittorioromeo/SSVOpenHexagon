@@ -32,7 +32,7 @@ void CustomTimelineManager::clear() noexcept
     _timelines.clear();
 }
 
-void CustomTimelineManager::updateAllTimelines(const TimePoint tp)
+void CustomTimelineManager::updateAllTimelines(const HRTimePoint tp)
 {
     for(CustomTimeline& t : _timelines)
     {

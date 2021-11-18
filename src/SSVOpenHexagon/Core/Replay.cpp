@@ -417,7 +417,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
 [[nodiscard]] std::string replay_file::create_filename() const
 {
-    const Utils::TimePoint tp = Utils::toTimepoint(Utils::nowTimestamp());
+    const Utils::SCTimePoint tp = Utils::toTimepoint(Utils::nowTimestamp());
     const std::string tp_str = Utils::formatTimepoint(tp, "%Y%m%d_%H%M%S");
 
     return Utils::concat(_version, '_', tp_str, '_', _player_name, '_',

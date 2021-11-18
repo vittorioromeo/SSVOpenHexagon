@@ -238,7 +238,7 @@ template <typename T>
         return fail();
     }
 
-    _lastHeartbeatTime = Clock::now();
+    _lastHeartbeatTime = HRClock::now();
     return true;
 }
 
@@ -521,7 +521,7 @@ bool HexagonClient::sendHeartbeatIfNecessary()
 
     constexpr std::chrono::duration heatbeatInterval = std::chrono::seconds(45);
 
-    if(Clock::now() - _lastHeartbeatTime > heatbeatInterval)
+    if(HRClock::now() - _lastHeartbeatTime > heatbeatInterval)
     {
         if(!sendHeartbeat())
         {

@@ -6,6 +6,8 @@
 
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -17,16 +19,12 @@ namespace hg {
 
 class LeaderboardCache
 {
-public:
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
 private:
     struct CachedScores
     {
         std::vector<Database::ProcessedScore> _scores;
         std::optional<Database::ProcessedScore> _ownScore;
-        TimePoint _cacheTime;
+        HRTimePoint _cacheTime;
     };
 
     std::unordered_map<std::string, CachedScores> _levelValidatorToScores;
