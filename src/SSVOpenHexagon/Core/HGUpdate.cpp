@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
@@ -48,18 +49,12 @@ namespace hg {
 
 void HexagonGame::fastForwardTo(const double target)
 {
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
-    const TimePoint tpBegin = Clock::now();
+    const HRTimePoint tpBegin = HRClock::now();
 
     const auto exceededProcessingTime = [&]
     {
         constexpr int maxProcessingSeconds = 3;
-
-        return std::chrono::duration_cast<std::chrono::seconds>(
-                   Clock::now() - tpBegin)
-                   .count() > maxProcessingSeconds;
+        return hrSecondsSince(tpBegin) > maxProcessingSeconds;
     };
 
     while(!status.hasDied && status.getTimeSeconds() < target &&
@@ -985,6 +980,7 @@ void HexagonGame::updateTrailParticles(ssvu::FT mFT)
     }
 }
 
+#ifndef SSVOH_ANDROID
 static int ilcTextEditCallbackStub(ImGuiInputTextCallbackData* data)
 {
     auto hg = (HexagonGame*)data->UserData;
@@ -1013,8 +1009,10 @@ static int Strnicmp(const char* s1, const char* s2, int n)
     }
     return d;
 }
+#endif
 
-int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
+int HexagonGame::ilcTextEditCallback(
+    [[maybe_unused]] ImGuiInputTextCallbackData* data)
 {
 #ifndef SSVOH_ANDROID
     switch(data->EventFlag)

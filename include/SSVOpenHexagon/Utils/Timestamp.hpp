@@ -10,13 +10,16 @@
 
 namespace hg::Utils {
 
-using Clock = std::chrono::high_resolution_clock;
-using TimePoint = std::chrono::time_point<Clock>;
+using SCClock = std::chrono::system_clock;
+using SCTimePoint = std::chrono::time_point<SCClock>;
 
-[[nodiscard]] std::uint64_t timestamp(const TimePoint tp);
+[[nodiscard]] std::uint64_t timestamp(const SCTimePoint tp);
+
 [[nodiscard]] std::uint64_t nowTimestamp();
-[[nodiscard]] TimePoint toTimepoint(const std::uint64_t timestamp);
+
+[[nodiscard]] SCTimePoint toTimepoint(const std::uint64_t timestamp);
+
 [[nodiscard]] std::string formatTimepoint(
-    const TimePoint time, const std::string& format);
+    const SCTimePoint time, const std::string& format);
 
 } // namespace hg::Utils

@@ -424,7 +424,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
     SSVOH_SLOG_VERBOSE << "Listener is ready\n";
 
     ConnectedClient& potentialClient =
-        _connectedClients.emplace_back(Clock::now());
+        _connectedClients.emplace_back(Utils::SCClock::now());
 
     sf::TcpSocket& potentialSocket = potentialClient._socket;
     potentialSocket.setBlocking(true);
@@ -478,7 +478,7 @@ void HexagonServer::runIteration_LoopOverSockets()
 
             if(processPacket(connectedClient, _packetBuffer))
             {
-                connectedClient._lastActivity = Clock::now();
+                connectedClient._lastActivity = Utils::SCClock::now();
                 connectedClient._consecutiveFailures = 0;
 
                 continue;
@@ -508,7 +508,7 @@ void HexagonServer::runIteration_PurgeClients()
 {
     constexpr std::chrono::duration maxInactivity = std::chrono::seconds(60);
 
-    const TimePoint now = Clock::now();
+    const Utils::SCTimePoint now = Utils::SCClock::now();
 
     for(auto it = _connectedClients.begin(); it != _connectedClients.end();
         ++it)
@@ -538,16 +538,16 @@ void HexagonServer::runIteration_PurgeClients()
     }
 }
 
-template <typename Duration>
+template <typename TDuration>
 [[nodiscard]] static bool checkAndUpdateLastElapsed(
-    HexagonServer::TimePoint& last, const Duration duration)
+    Utils::SCTimePoint& last, const TDuration duration)
 {
-    if(HexagonServer::Clock::now() - last < duration)
+    if(Utils::SCClock::now() - last < duration)
     {
         return false;
     }
 
-    last = HexagonServer::Clock::now();
+    last = Utils::SCClock::now();
     return true;
 }
 
@@ -631,7 +631,7 @@ void HexagonServer::runIteration_FlushLogs()
 {
     const void* clientAddr = static_cast<void*>(&c);
 
-    const TimePoint receiveTime = Clock::now();
+    const Utils::SCTimePoint receiveTime = Utils::SCClock::now();
 
     if(!validateLogin(c, "replay", loginToken))
     {
@@ -1006,8 +1006,6 @@ void HexagonServer::printCTSPDataVerbose(
 
             Database::removeAllLoginTokensForUser(user->id);
 
-            static_assert(std::is_same_v<Clock, Utils::Clock>);
-
             Database::addLoginToken( //
                 Database::LoginToken{
                     .userId = user->id,
@@ -1214,8 +1212,8 @@ void HexagonServer::printCTSPDataVerbose(
                        << "' started game for level '" << lv << "'\n";
 
             c._gameStatus = ConnectedClient::GameStatus{
-                ._startTP = Clock::now(), //
-                ._levelValidator = lv     //
+                ._startTP = Utils::SCClock::now(), //
+                ._levelValidator = lv              //
             };
 
             return true;
@@ -1323,7 +1321,7 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
       _running{true},
       _verbose{false},
       _serverPSKeys{generateSodiumPSKeys()},
-      _lastTokenPurge{Clock::now()}
+      _lastTokenPurge{Utils::SCClock::now()}
 {
     const auto sKeyPublic = sodiumKeyToString(_serverPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_serverPSKeys.keySecret);

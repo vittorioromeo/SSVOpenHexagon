@@ -6,6 +6,8 @@
 
 #include "SSVOpenHexagon/Core/CustomTimelineHandle.hpp"
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
+
 #include <chrono>
 #include <vector>
 
@@ -15,10 +17,6 @@ struct CustomTimeline;
 
 class CustomTimelineManager
 {
-public:
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
 private:
     std::vector<CustomTimeline> _timelines;
 
@@ -31,7 +29,7 @@ public:
 
     void clear() noexcept;
 
-    void updateAllTimelines(const TimePoint tp);
+    void updateAllTimelines(const HRTimePoint tp);
 
     [[nodiscard]] CustomTimelineHandle create();
 

@@ -15,7 +15,7 @@
 
 namespace hg::Imgui {
 
-void initialize(sf::RenderWindow& window)
+void initialize([[maybe_unused]] sf::RenderWindow& window)
 {
 #ifndef SSVOH_ANDROID
     ImGui::SFML::Init(window);
@@ -47,14 +47,14 @@ void shutdown()
 #endif
 }
 
-void processEvent(const sf::Event& event)
+void processEvent([[maybe_unused]] const sf::Event& event)
 {
 #ifndef SSVOH_ANDROID
     ImGui::SFML::ProcessEvent(event);
 #endif
 }
 
-void render(sf::RenderTarget& renderTarget)
+void render([[maybe_unused]] sf::RenderTarget& renderTarget)
 {
 #ifndef SSVOH_ANDROID
     ImGui::SFML::Render(renderTarget);
