@@ -19,7 +19,7 @@ struct LevelStatus;
 struct HexagonGameStatus;
 class StyleData;
 class HGAssets;
-class PackData;
+struct PackData;
 } // namespace hg
 
 namespace hg::Utils {
