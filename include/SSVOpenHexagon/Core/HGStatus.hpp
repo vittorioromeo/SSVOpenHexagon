@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 
 #include <array>
@@ -38,9 +40,6 @@ enum class RenderStage : std::size_t
 struct HexagonGameStatus
 {
 public:
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
     struct FlashColor
     {
         int r;
@@ -92,13 +91,13 @@ public:
     [[nodiscard]] double getTimeSeconds() const noexcept;
 
     // Absolute time, as time point
-    [[nodiscard]] TimePoint getCurrentTP() const noexcept;
+    [[nodiscard]] HRTimePoint getCurrentTP() const noexcept;
 
     // Game timer, as time point
-    [[nodiscard]] TimePoint getTimeTP() const noexcept;
+    [[nodiscard]] HRTimePoint getTimeTP() const noexcept;
 
     // Level start, as time point
-    [[nodiscard]] TimePoint getLevelStartTP() const noexcept;
+    [[nodiscard]] HRTimePoint getLevelStartTP() const noexcept;
 
     // `true` if we are currently paused
     [[nodiscard]] bool isTimePaused() const noexcept;

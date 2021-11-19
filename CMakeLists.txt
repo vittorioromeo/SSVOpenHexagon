@@ -279,10 +279,16 @@ include_directories("./${INC_DIR}")
 
 file(GLOB_RECURSE MAIN_FILE "${SRC_DIR}/SSVOpenHexagon/*/main.cpp")
 
-file(GLOB_RECURSE SRC_LIST
-     "${INC_DIR}/SSVOpenHexagon/*"
-     "${SRC_DIR}/SSVOpenHexagon/*"
-     "public/discord/*")
+if(NOT SSVOH_ANDROID)
+    file(GLOB_RECURSE SRC_LIST
+        "${INC_DIR}/SSVOpenHexagon/*"
+        "${SRC_DIR}/SSVOpenHexagon/*"
+        "public/discord/*")
+else()
+    file(GLOB_RECURSE SRC_LIST
+        "${INC_DIR}/SSVOpenHexagon/*"
+        "${SRC_DIR}/SSVOpenHexagon/*")
+endif()
 
 file(GLOB_RECURSE C_SRC_LIST
      "public/sqlite/*.c")
@@ -469,7 +475,7 @@ if(SSVOH_BUILD_WIN32_CONSOLE)
     )
 endif()
 
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
     target_link_libraries(SSVOpenHexagonLib pthread)
 endif()
 
@@ -507,7 +513,7 @@ if(NOT SSVOH_ANDROID)
 
     target_link_libraries(OHWorkshopUploader ${STEAM_LIBRARIES})
 
-    if(UNIX AND NOT APPLE)
+    if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
         target_link_libraries(OHWorkshopUploader pthread)
     endif()
 
@@ -533,7 +539,7 @@ if(NOT SSVOH_ANDROID)
 
     target_link_libraries(OHServerControl sfml-system sfml-network)
 
-    if(UNIX AND NOT APPLE)
+    if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
         target_link_libraries(OHServerControl pthread)
     endif()
 

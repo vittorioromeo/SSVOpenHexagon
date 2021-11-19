@@ -4995,8 +4995,8 @@ void MenuGame::drawLevelSelectionRightSide(
         // TODO (P2): cleanup mouse control
         if(mouseOverlap && mouseLeftRisingEdge())
         {
-            if(!mustPlay &&
-                Clock::now() - lastMouseClick < std::chrono::milliseconds(160))
+            if(!mustPlay && HRClock::now() - lastMouseClick <
+                                std::chrono::milliseconds(160))
             {
                 mustPlay = true;
             }
@@ -5904,7 +5904,7 @@ void MenuGame::draw()
 
     if(!mouseWasPressed && mousePressed)
     {
-        lastMouseClick = Clock::now();
+        lastMouseClick = HRClock::now();
     }
 }
 

@@ -954,20 +954,10 @@ steam_manager::get_ticket_steam_id() const noexcept
 
 #else
 
-namespace hg::Steam
+namespace hg::Steam {
 
-    [[nodiscard]] const steam_manager::steam_manager_impl&
-    steam_manager::impl() const noexcept
-{
-    SSVOH_ASSERT(false);
-    return nullptr;
-}
-
-[[nodiscard]] steam_manager::steam_manager_impl& steam_manager::impl() noexcept
-{
-    SSVOH_ASSERT(false);
-    return nullptr;
-}
+class steam_manager::steam_manager_impl
+{};
 
 steam_manager::steam_manager() : _impl{nullptr}
 {}
@@ -994,7 +984,7 @@ bool steam_manager::store_stats()
     return false;
 }
 
-bool steam_manager::unlock_achievement(std::string_view name)
+bool steam_manager::unlock_achievement([[maybe_unused]] std::string_view name)
 {
     return false;
 }
@@ -1005,24 +995,27 @@ bool steam_manager::set_rich_presence_in_menu()
 }
 
 bool steam_manager::set_rich_presence_in_game(
-    std::string_view level_name_format, std::string_view difficulty_mult_format,
-    std::string_view time_format)
+    [[maybe_unused]] std::string_view level_name_format,
+    [[maybe_unused]] std::string_view difficulty_mult_format,
+    [[maybe_unused]] std::string_view time_format)
 {
     return false;
 }
 
-bool steam_manager::set_and_store_stat(std::string_view name, int data)
+bool steam_manager::set_and_store_stat(
+    [[maybe_unused]] std::string_view name, [[maybe_unused]] int data)
 {
     return false;
 }
 
 [[nodiscard]] bool steam_manager::get_achievement(
-    bool* out, std::string_view name)
+    [[maybe_unused]] bool* out, [[maybe_unused]] std::string_view name)
 {
     return false;
 }
 
-[[nodiscard]] bool steam_manager::get_stat(int* out, std::string_view name)
+[[nodiscard]] bool steam_manager::get_stat(
+    [[maybe_unused]] int* out, [[maybe_unused]] std::string_view name)
 {
     return false;
 }
@@ -1033,7 +1026,7 @@ bool steam_manager::update_hardcoded_achievements()
 }
 
 void steam_manager::for_workshop_pack_folders(
-    const std::function<void(const std::string&)>& f) const
+    [[maybe_unused]] const std::function<void(const std::string&)>& f) const
 {}
 
 bool steam_manager::request_encrypted_app_ticket()

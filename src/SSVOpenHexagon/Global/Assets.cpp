@@ -16,6 +16,7 @@
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include "SSVOpenHexagon/Utils/BuildPackId.hpp"
+#include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/EraseIf.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
@@ -123,10 +124,7 @@ HGAssets::HGAssets(
       levelsOnly{mLevelsOnly},
       assetStorage{Utils::makeUnique<AssetStorage>()}
 {
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
-    const TimePoint tpBeforeLoad = Clock::now();
+    const HRTimePoint tpBeforeLoad = HRClock::now();
 
     if(!levelsOnly && !mHeadless)
     {
@@ -196,7 +194,7 @@ HGAssets::HGAssets(
     // so shrink it to fit the actually used size.
     loadInfo.errorMessages.shrink_to_fit();
 
-    const std::chrono::duration durElapsed = Clock::now() - tpBeforeLoad;
+    const std::chrono::duration durElapsed = HRClock::now() - tpBeforeLoad;
 
     ssvu::lo("HGAssets::HGAssets")
         << "Loaded all assets in "

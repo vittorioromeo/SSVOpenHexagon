@@ -9,7 +9,7 @@
 
 namespace hg::Utils {
 
-[[nodiscard]] std::uint64_t timestamp(const TimePoint tp)
+[[nodiscard]] std::uint64_t timestamp(const SCTimePoint tp)
 {
     return std::chrono::duration_cast<std::chrono::seconds>(
         tp.time_since_epoch())
@@ -18,16 +18,16 @@ namespace hg::Utils {
 
 [[nodiscard]] std::uint64_t nowTimestamp()
 {
-    return timestamp(Clock::now());
+    return timestamp(SCClock::now());
 }
 
-[[nodiscard]] TimePoint toTimepoint(const std::uint64_t timestamp)
+[[nodiscard]] SCTimePoint toTimepoint(const std::uint64_t timestamp)
 {
-    return TimePoint{} + std::chrono::seconds(timestamp);
+    return SCTimePoint{} + std::chrono::seconds(timestamp);
 }
 
 [[nodiscard]] std::string formatTimepoint(
-    const TimePoint time, const std::string& format)
+    const SCTimePoint time, const std::string& format)
 {
     const std::time_t tt = std::chrono::system_clock::to_time_t(time);
     const std::tm tm = *std::gmtime(&tt); // GMT (UTC)

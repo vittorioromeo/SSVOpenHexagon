@@ -1052,17 +1052,10 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 HexagonGame::executeGameUntilDeath(
     const int maxProcessingSeconds, const float timescale)
 {
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
-    const TimePoint tpBegin = Clock::now();
+    const HRTimePoint tpBegin = HRClock::now();
 
     const auto exceededProcessingTime = [&]
-    {
-        return std::chrono::duration_cast<std::chrono::seconds>(
-                   Clock::now() - tpBegin)
-                   .count() > maxProcessingSeconds;
-    };
+    { return hrSecondsSince(tpBegin) > maxProcessingSeconds; };
 
     while(!status.hasDied)
     {
