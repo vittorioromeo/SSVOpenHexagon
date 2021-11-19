@@ -15,7 +15,6 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 
 #include "SSVStart/Utils/SFML.hpp"
-#include "buildandroid/_deps/sfml-src/include/SFML/System/Vector3.hpp"
 
 #include <SFML/Config.hpp>
 
