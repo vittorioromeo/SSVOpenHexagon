@@ -128,7 +128,7 @@ HGAssets::HGAssets(
 
     if(!levelsOnly && !mHeadless)
     {
-        if(!ssvufs::Path{"Assets/"}.exists<ssvufs::Type::Folder>())
+        if(!ssvufs::Path{"Assets/"}.isFolder())
         {
             ssvu::lo("FATAL ERROR")
                 << "Folder Assets/ does not exist" << std::endl;
@@ -152,7 +152,7 @@ HGAssets::HGAssets(
         return;
     }
 
-    if(!loadAllPackAssets())
+    if(!loadAllPackAssets(mHeadless))
     {
         ssvu::lo("HGAssets::HGAssets") << "Error loading all pack assets\n";
         std::terminate();
@@ -210,7 +210,7 @@ HGAssets::~HGAssets()
 
 [[nodiscard]] bool HGAssets::loadPackData(const ssvufs::Path& packPath)
 {
-    if(!ssvufs::Path{packPath + "/pack.json"}.exists<ssvufs::Type::File>())
+    if(!ssvufs::Path{packPath + "/pack.json"}.isFile())
     {
         return false;
     }
@@ -290,7 +290,8 @@ HGAssets::~HGAssets()
     return true;
 }
 
-[[nodiscard]] bool HGAssets::loadPackAssets(const PackData& packData)
+[[nodiscard]] bool HGAssets::loadPackAssets(
+    const PackData& packData, const bool headless)
 {
     const std::string& packPath{packData.folderPath};
     const std::string& packId{packData.id};
@@ -299,33 +300,37 @@ HGAssets::~HGAssets()
 
     try
     {
-        if(ssvufs::Path{packPath + "Shaders/"}.exists<ssvufs::Type::Folder>() &&
-            !levelsOnly)
+        if(!headless)
         {
-            loadPackAssets_loadShaders(packId, packPath);
+            if(ssvufs::Path{packPath + "Shaders/"}.isFolder() && !levelsOnly)
+            {
+                loadPackAssets_loadShaders(packId, packPath);
+            }
+
+            if(!levelsOnly && ssvufs::Path{packPath + "Sounds/"}.isFolder())
+            {
+                loadPackAssets_loadCustomSounds(packId, packPath);
+            }
         }
 
-        if(ssvufs::Path{packPath + "Music/"}.exists<ssvufs::Type::Folder>() &&
-            !levelsOnly)
+        if(ssvufs::Path{packPath + "Music/"}.isFolder() && !levelsOnly)
         {
-            loadPackAssets_loadMusic(packId, packPath);
+            if(!headless)
+            {
+                loadPackAssets_loadMusic(packId, packPath);
+            }
+
             loadPackAssets_loadMusicData(packId, packPath);
         }
 
-        if(ssvufs::Path{packPath + "Styles/"}.exists<ssvufs::Type::Folder>())
+        if(ssvufs::Path{packPath + "Styles/"}.isFolder())
         {
             loadPackAssets_loadStyleData(packId, packPath);
         }
 
-        if(ssvufs::Path{packPath + "Levels/"}.exists<ssvufs::Type::Folder>())
+        if(ssvufs::Path{packPath + "Levels/"}.isFolder())
         {
             loadPackAssets_loadLevelData(packId, packPath);
-        }
-
-        if(!levelsOnly &&
-            ssvufs::Path{packPath + "Sounds/"}.exists<ssvufs::Type::Folder>())
-        {
-            loadPackAssets_loadCustomSounds(packId, packPath);
         }
     }
     catch(const std::runtime_error& mEx)
@@ -464,7 +469,7 @@ HGAssets::getSelectablePackInfos() const noexcept
 
 [[nodiscard]] bool HGAssets::loadWorkshopPackDatasFromCache()
 {
-    if(!ssvufs::Path{"workshopCache.json"}.exists<ssvufs::Type::File>())
+    if(!ssvufs::Path{"workshopCache.json"}.isFile())
     {
         ssvu::lo("::loadAssets") << "Workshop cache file does not exist. No "
                                     "workshop packs to load\n";
@@ -517,7 +522,7 @@ HGAssets::getSelectablePackInfos() const noexcept
 
 [[nodiscard]] bool HGAssets::loadAllPackDatas()
 {
-    if(!ssvufs::Path{"Packs/"}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{"Packs/"}.isFolder())
     {
         ssvu::lo("::loadAssets") << "Folder Packs/ does not exist" << std::endl;
         return false;
@@ -570,11 +575,11 @@ HGAssets::getSelectablePackInfos() const noexcept
     return true;
 }
 
-[[nodiscard]] bool HGAssets::loadAllPackAssets()
+[[nodiscard]] bool HGAssets::loadAllPackAssets(const bool headless)
 {
     for(const auto& [packId, packData] : packDatas)
     {
-        if(loadPackAssets(packData))
+        if(loadPackAssets(packData, headless))
         {
             continue;
         }
@@ -650,7 +655,7 @@ void HGAssets::addLocalProfile(ProfileData&& profileData)
 
 [[nodiscard]] bool HGAssets::loadAllLocalProfiles()
 {
-    if(!ssvufs::Path{"Profiles/"}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{"Profiles/"}.isFolder())
     {
         ssvu::lo("::loadAssets")
             << "Folder Profiles/ does not exist" << std::endl;
@@ -973,7 +978,7 @@ void HGAssets::reloadAllShaders()
 
     // Levels, if there is not folder cancel everything
     temp = mPath + "Levels/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         return "invalid level folder path\n";
     }
@@ -997,7 +1002,7 @@ void HGAssets::reloadAllShaders()
 
     // Styles
     temp = mPath + "Styles/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         output += "invalid style folder path\n";
     }
@@ -1015,7 +1020,7 @@ void HGAssets::reloadAllShaders()
 
     // Music data
     temp = mPath + "Music/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         output += "invalid music data folder path\n";
     }
@@ -1034,7 +1039,7 @@ void HGAssets::reloadAllShaders()
 
     // Music
     temp = mPath + "Music/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         output += "invalid music folder path\n";
     }
@@ -1050,7 +1055,7 @@ void HGAssets::reloadAllShaders()
 
     // Custom sounds
     temp = mPath + "Sounds/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         output += "invalid custom sound folder path\n";
     }
@@ -1080,7 +1085,7 @@ void HGAssets::reloadAllShaders()
     //*******************************************
     // Level
     temp = mPath + "Levels/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         return "invalid level folder path\n";
     }
@@ -1111,7 +1116,7 @@ void HGAssets::reloadAllShaders()
     //*******************************************
     // Style
     temp = mPath + "Styles/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         output += "invalid style folder path\n";
     }
@@ -1137,7 +1142,7 @@ void HGAssets::reloadAllShaders()
     //*******************************************
     // Music data
     temp = mPath + "Music/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         output += "invalid music folder path\n";
     }
@@ -1166,7 +1171,7 @@ void HGAssets::reloadAllShaders()
     // Music files
     std::string assetId;
     temp = mPath + "Music/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         output += "invalid music folder path\n";
     }
@@ -1194,7 +1199,7 @@ void HGAssets::reloadAllShaders()
     }
 
     temp = mPath + "Sounds/";
-    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    if(!ssvufs::Path{temp}.isFolder())
     {
         output += "invalid custom sound folder path\n";
         return output;

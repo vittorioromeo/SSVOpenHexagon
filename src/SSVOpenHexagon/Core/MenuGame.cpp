@@ -1769,8 +1769,7 @@ void MenuGame::playLocally()
 MenuGame::pickRandomMainMenuBackgroundStyle()
 {
     // If there is no `menubackgrounds.json` abort
-    if(!ssvufs::Path{"Assets/menubackgrounds.json"}
-            .exists<ssvufs::Type::File>())
+    if(!ssvufs::Path{"Assets/menubackgrounds.json"}.isFile())
     {
         ssvu::lo("MenuGame::$")
             << "File 'Assets/menubackgrounds.json' does not exist" << std::endl;

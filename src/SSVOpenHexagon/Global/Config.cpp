@@ -254,7 +254,7 @@ namespace hg::Config {
 {
     static ssvuj::Obj res = []
     {
-        if(ssvufs::Path{"config.json"}.exists<ssvufs::Type::File>())
+        if(ssvufs::Path{"config.json"}.isFile())
         {
             ssvu::lo("hg::Config::root()")
                 << "User-defined `config.json` file found\n";
@@ -367,7 +367,7 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
 {
     ssvu::lo("::loadConfig") << "loading config\n";
 
-    if(ssvufs::Path{"ConfigOverrides/"}.exists<ssvufs::Type::Folder>())
+    if(ssvufs::Path{"ConfigOverrides/"}.isFolder())
     {
         for(const ssvufs::Path& p :
             ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
