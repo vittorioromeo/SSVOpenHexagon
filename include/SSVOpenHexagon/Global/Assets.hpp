@@ -88,14 +88,15 @@ private:
     [[nodiscard]] std::string& concatIntoBuf(const Ts&...);
 
     [[nodiscard]] bool loadAllPackDatas();
-    [[nodiscard]] bool loadAllPackAssets();
+    [[nodiscard]] bool loadAllPackAssets(const bool headless);
     [[nodiscard]] bool loadWorkshopPackDatasFromCache();
     [[nodiscard]] bool verifyAllPackDependencies();
     [[nodiscard]] bool loadAllLocalProfiles();
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
 
-    [[nodiscard]] bool loadPackAssets(const PackData& packData);
+    [[nodiscard]] bool loadPackAssets(
+        const PackData& packData, const bool headless);
 
     void loadPackAssets_loadShaders(
         const std::string& mPackId, const ssvufs::Path& mPath);
