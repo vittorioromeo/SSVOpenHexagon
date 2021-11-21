@@ -313,9 +313,9 @@ void HexagonGame::drawImguiLuaConsole()
     }
 
     SSVOH_ASSERT(overlayCamera.has_value());
+
     sf::RenderWindow& renderWindow = window->getRenderWindow();
-    renderWindow.setView(
-        getLetterboxView(renderWindow.getDefaultView(), 1440, 900));
+    window->setView(getLetterboxView(renderWindow.getDefaultView(), 1440, 900));
 
     Imgui::render(*window);
 }
@@ -617,8 +617,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     {
         text.setFillColor(colorText);
         text.setOrigin(ssvs::getLocalNW(text));
-        text.setPosition(
-            sf::Vector2f{padding, ssvs::getGlobalBottom(timeText) + padding});
+        text.setPosition({padding, ssvs::getGlobalBottom(timeText) + padding});
 
         render(text);
     }
@@ -630,13 +629,12 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
 
         if(Config::getShowLevelInfo() || mustShowReplayUI())
         {
-            fpsText.setPosition(sf::Vector2f{
-                padding, ssvs::getGlobalTop(levelInfoRectangle) - padding});
+            fpsText.setPosition(
+                {padding, ssvs::getGlobalTop(levelInfoRectangle) - padding});
         }
         else
         {
-            fpsText.setPosition(
-                sf::Vector2f{padding, Config::getHeight() - padding});
+            fpsText.setPosition({padding, Config::getHeight() - padding});
         }
 
         render(fpsText);
