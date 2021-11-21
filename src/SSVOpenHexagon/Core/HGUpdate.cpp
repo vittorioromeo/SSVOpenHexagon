@@ -14,6 +14,7 @@
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
+#include "SSVOpenHexagon/Utils/Letterbox.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/MoveTowards.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
@@ -740,9 +741,11 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
         const float p{status.pulse / levelStatus.pulseMin};
         const float rotation{backgroundCamera->getRotation()};
 
-        backgroundCamera->setView({ssvs::zeroVec2f,
-            {(Config::getWidth() * Config::getZoomFactor()) * p,
-                (Config::getHeight() * Config::getZoomFactor()) * p}});
+        backgroundCamera->setView(getLetterboxView(
+            sf::View{ssvs::zeroVec2f,
+                {(Config::getWidth() * Config::getZoomFactor()) * p,
+                    (Config::getHeight() * Config::getZoomFactor()) * p}},
+            1440, 900));
 
         backgroundCamera->setRotation(rotation);
     }

@@ -20,4 +20,5 @@ cmake .. -G"Ninja" \
              -Wall -Wextra -Wpedantic -Wno-braced-scalar-init \
              -Wno-pragmas -Wno-missing-field-initializers \
              -O3 -DNDEBUG \
-             -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off"
+             -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off\
+             -g3" # TODO (P0): for profiling, remove

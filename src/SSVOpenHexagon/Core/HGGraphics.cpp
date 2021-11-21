@@ -11,8 +11,9 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Imgui.hpp"
 
-#include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
+#include "SSVOpenHexagon/Utils/Letterbox.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
 
 #include "SSVStart/Utils/SFML.hpp"
 
@@ -99,7 +100,7 @@ void HexagonGame::draw()
 
     if(!Config::getNoBackground())
     {
-        backgroundCamera->apply(*window);
+        window->setView(getLetterboxView(backgroundCamera->apply(), 1440, 900));
 
         backgroundTris.clear();
 
@@ -112,7 +113,7 @@ void HexagonGame::draw()
         render(backgroundTris, getRenderStates(RenderStage::BackgroundTris));
     }
 
-    backgroundCamera->apply(*window);
+    window->setView(getLetterboxView(backgroundCamera->apply(), 1440, 900));
 
     wallQuads3D.clear();
     pivotQuads3D.clear();
@@ -261,7 +262,7 @@ void HexagonGame::draw()
     render(pivotQuads, getRenderStates(RenderStage::PivotQuads));
     render(playerTris, getRenderStates(RenderStage::PlayerTris));
 
-    overlayCamera->apply(*window);
+    window->setView(getLetterboxView(overlayCamera->apply(), 1440, 900));
 
     drawParticles();
     drawText();
@@ -297,10 +298,6 @@ void HexagonGame::draw()
     }
 
     drawImguiLuaConsole();
-
-    // sf::Sprite everything(renderTexture.getTexture());
-    // everything.setPosition(0.f, 0.f);
-    // window->draw(everything);
 }
 
 void HexagonGame::drawImguiLuaConsole()
@@ -316,7 +313,9 @@ void HexagonGame::drawImguiLuaConsole()
     }
 
     SSVOH_ASSERT(overlayCamera.has_value());
-    overlayCamera->unapply(*window);
+    sf::RenderWindow& renderWindow = window->getRenderWindow();
+    renderWindow.setView(
+        getLetterboxView(renderWindow.getDefaultView(), 1440, 900));
 
     Imgui::render(*window);
 }
@@ -532,7 +531,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
     // Set information text
     text.setString(os.str());
     text.setCharacterSize(getScaledCharacterSize(20.f));
-    text.setOrigin(0, 0);
+    text.setOrigin({0.f, 0.f});
 
     // Set FPS Text, if option is enabled.
     if(Config::getShowFPS())
@@ -542,11 +541,11 @@ void HexagonGame::updateText(ssvu::FT mFT)
     }
 
     messageText.setCharacterSize(getScaledCharacterSize(32.f));
-    messageText.setOrigin(ssvs::getGlobalWidth(messageText) / 2.f, 0);
+    messageText.setOrigin({ssvs::getGlobalWidth(messageText) / 2.f, 0.f});
 
     const float growth = std::sin(pbTextGrowth);
     pbText.setCharacterSize(getScaledCharacterSize(64.f) + growth * 10.f);
-    pbText.setOrigin(ssvs::getGlobalWidth(pbText) / 2.f, 0);
+    pbText.setOrigin({ssvs::getGlobalWidth(pbText) / 2.f, 0.f});
 
     // ------------------------------------------------------------------------
     if(mustShowReplayUI())
@@ -609,7 +608,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     {
         timeText.setFillColor(colorText);
         timeText.setOrigin(ssvs::getLocalNW(timeText));
-        timeText.setPosition(sf::Vector2f{padding, padding});
+        timeText.setPosition({padding, padding});
 
         render(timeText);
     }

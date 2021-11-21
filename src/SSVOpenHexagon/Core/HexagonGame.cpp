@@ -18,11 +18,12 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 
-#include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/Letterbox.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
@@ -119,10 +120,10 @@ void HexagonGame::updateKeyIcons()
 
     const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
 
-    keyIconLeft.setScale(scaling, scaling);
-    keyIconRight.setScale(scaling, scaling);
-    keyIconFocus.setScale(scaling, scaling);
-    keyIconSwap.setScale(scaling, scaling);
+    keyIconLeft.setScale({scaling, scaling});
+    keyIconRight.setScale({scaling, scaling});
+    keyIconFocus.setScale({scaling, scaling});
+    keyIconSwap.setScale({scaling, scaling});
 
     const float scaledHalfSize = halfSize * scaling;
     const float scaledSize = size * scaling;
@@ -142,7 +143,7 @@ void HexagonGame::updateKeyIcons()
     // ------------------------------------------------------------------------
 
     replayIcon.setOrigin({size, size});
-    replayIcon.setScale(scaling / 2.f, scaling / 2.f);
+    replayIcon.setScale({scaling / 2.f, scaling / 2.f});
 
     const sf::Vector2f topRight{Config::getWidth() - padding - scaledHalfSize,
         padding + scaledHalfSize};
@@ -166,7 +167,7 @@ void HexagonGame::updateLevelInfo()
     const sf::Vector2f scaledHalfSize{halfSize * scaling};
 
     levelInfoRectangle.setSize(size);
-    levelInfoRectangle.setScale(scaling, scaling);
+    levelInfoRectangle.setScale({scaling, scaling});
 
     const sf::Color offsetColor{
         Config::getBlackAndWhite() || styleData.getColors().empty()
@@ -307,11 +308,15 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
 
-        backgroundCamera.emplace(sf::View{ssvs::zeroVec2f,
-            sf::Vector2f{width * zoomFactor, height * zoomFactor}});
+        backgroundCamera.emplace(getLetterboxView(
+            sf::View{ssvs::zeroVec2f,
+                sf::Vector2f{width * zoomFactor, height * zoomFactor}},
+            1440, 900));
 
-        overlayCamera.emplace(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
-            sf::Vector2f{width, height}});
+        overlayCamera.emplace(
+            getLetterboxView(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
+                                 sf::Vector2f{width, height}},
+                1440, 900));
 
         txStarParticle = &assets.getTextureOrNullTexture("starParticle.png");
         txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
@@ -679,12 +684,17 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         SSVOH_ASSERT(backgroundCamera.has_value());
 
         // Reset zoom
-        overlayCamera->setView(
-            {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                sf::Vector2f(Config::getWidth(), Config::getHeight())});
-        backgroundCamera->setView({ssvs::zeroVec2f,
-            {Config::getWidth() * Config::getZoomFactor(),
-                Config::getHeight() * Config::getZoomFactor()}});
+        overlayCamera->setView(getLetterboxView(
+            sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                sf::Vector2f(Config::getWidth(), Config::getHeight())},
+            1440, 900));
+
+        backgroundCamera->setView(getLetterboxView(
+            sf::View{ssvs::zeroVec2f,
+                {Config::getWidth() * Config::getZoomFactor(),
+                    Config::getHeight() * Config::getZoomFactor()}},
+            1440, 900));
+
         backgroundCamera->setRotation(0);
 
         // Reset skew
@@ -790,9 +800,10 @@ void HexagonGame::death_shakeCamera()
     SSVOH_ASSERT(overlayCamera.has_value());
     SSVOH_ASSERT(backgroundCamera.has_value());
 
-    overlayCamera->setView(
-        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            sf::Vector2f(Config::getWidth(), Config::getHeight())});
+    overlayCamera->setView(getLetterboxView(
+        sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+            sf::Vector2f(Config::getWidth(), Config::getHeight())},
+        1440, 900));
 
     backgroundCamera->setCenter(ssvs::zeroVec2f);
 

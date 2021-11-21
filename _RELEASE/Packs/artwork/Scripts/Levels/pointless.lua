@@ -117,11 +117,8 @@ function onInit()
     shdr_setActiveFragmentShader(RenderStage.PLAYERTRIS, gradientShaderId)
 end
 
-function onRenderStage(rs)
-    shdr_setUniformFVec2(gradientShaderId, "u_resolution", u_getWidth(), u_getHeight());
-    shdr_setUniformF(gradientShaderId, "u_time", l_getLevelTime())
-    shdr_setUniformF(gradientShaderId, "u_rotation", math.rad(l_getRotation()))
-end
+-- function onRenderStage(rs)
+-- end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
@@ -163,4 +160,8 @@ function onUpdate(mFrameTime)
         steam_unlockAchievement("a25_pointless_hard")
         hardAchievementUnlocked = true
     end
+
+    shdr_setUniformFVec2(gradientShaderId, "u_resolution", u_getWidth(), u_getHeight());
+    shdr_setUniformF(gradientShaderId, "u_time", l_getLevelTime())
+    shdr_setUniformF(gradientShaderId, "u_rotation", math.rad(l_getRotation()))
 end
