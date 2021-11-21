@@ -134,12 +134,15 @@ public:
     [[nodiscard]] std::size_t getNumCategories() const noexcept;
 
     template <typename F>
-    void forFnEntries(F&& f, const std::size_t categoryIndex)
+    void forFnEntries([[maybe_unused]] F&& f,
+        [[maybe_unused]] const std::size_t categoryIndex)
     {
+#ifdef SSVOH_PRODUCE_LUA_METADATA
         for(const auto& [ret, name, args, docs] : fnEntries.at(categoryIndex))
         {
             f(ret, name, args, docs);
         }
+#endif
     }
 };
 
