@@ -64,7 +64,7 @@ void createFolderIfNonExistant(const std::string& folderName)
 {
     const ssvu::FileSystem::Path path{folderName};
 
-    if(path.exists<ssvufs::Type::Folder>())
+    if(path.isFolder())
     {
         return;
     }

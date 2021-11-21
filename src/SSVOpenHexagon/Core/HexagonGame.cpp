@@ -119,10 +119,10 @@ void HexagonGame::updateKeyIcons()
 
     const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
 
-    keyIconLeft.setScale(scaling, scaling);
-    keyIconRight.setScale(scaling, scaling);
-    keyIconFocus.setScale(scaling, scaling);
-    keyIconSwap.setScale(scaling, scaling);
+    keyIconLeft.setScale({scaling, scaling});
+    keyIconRight.setScale({scaling, scaling});
+    keyIconFocus.setScale({scaling, scaling});
+    keyIconSwap.setScale({scaling, scaling});
 
     const float scaledHalfSize = halfSize * scaling;
     const float scaledSize = size * scaling;
@@ -142,7 +142,7 @@ void HexagonGame::updateKeyIcons()
     // ------------------------------------------------------------------------
 
     replayIcon.setOrigin({size, size});
-    replayIcon.setScale(scaling / 2.f, scaling / 2.f);
+    replayIcon.setScale({scaling / 2.f, scaling / 2.f});
 
     const sf::Vector2f topRight{Config::getWidth() - padding - scaledHalfSize,
         padding + scaledHalfSize};
@@ -166,7 +166,7 @@ void HexagonGame::updateLevelInfo()
     const sf::Vector2f scaledHalfSize{halfSize * scaling};
 
     levelInfoRectangle.setSize(size);
-    levelInfoRectangle.setScale(scaling, scaling);
+    levelInfoRectangle.setScale({scaling, scaling});
 
     const sf::Color offsetColor{
         Config::getBlackAndWhite() || styleData.getColors().empty()

@@ -3,6 +3,19 @@ cmake_minimum_required(VERSION 3.9)
 #
 #
 # -----------------------------------------------------------------------------
+# Produce Lua Metadata
+# -----------------------------------------------------------------------------
+
+if(FALSE)
+    set(SSVOH_PRODUCE_LUA_METADATA TRUE)
+    add_definitions(-DSSVOH_PRODUCE_LUA_METADATA)
+else()
+    set(SSVOH_PRODUCE_LUA_METADATA FALSE)
+endif()
+
+#
+#
+# -----------------------------------------------------------------------------
 # Android build
 # -----------------------------------------------------------------------------
 
@@ -82,7 +95,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY SuperV1234/SFML
-    GIT_TAG c815ee19e42c313edee37f395f75aae88f4a6762
+    GIT_TAG 1f30120edea67acf7b4e5c8136cf95f920876db2
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -264,6 +277,7 @@ message(STATUS "initialized project ${PROJECT_NAME}")
 # -----------------------------------------------------------------------------
 
 set(CMAKE_UNITY_BUILD ON)
+set(CMAKE_UNITY_BUILD_BATCH_SIZE 4)
 
 #
 #

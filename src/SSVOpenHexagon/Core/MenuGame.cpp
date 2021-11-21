@@ -1777,8 +1777,7 @@ void MenuGame::playLocally()
 MenuGame::pickRandomMainMenuBackgroundStyle()
 {
     // If there is no `menubackgrounds.json` abort
-    if(!ssvufs::Path{"Assets/menubackgrounds.json"}
-            .exists<ssvufs::Type::File>())
+    if(!ssvufs::Path{"Assets/menubackgrounds.json"}.isFile())
     {
         ssvu::lo("MenuGame::$")
             << "File 'Assets/menubackgrounds.json' does not exist" << std::endl;
@@ -3275,7 +3274,7 @@ void MenuGame::renderTextCentered(
     const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
 {
     mText.setString(mStr);
-    mText.setPosition(mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
+    mText.setPosition({mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y});
     render(mText);
 }
 
@@ -3311,7 +3310,7 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
 {
     mText.setString(mStr);
     mText.setPosition(
-        xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
+        {xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y});
     render(mText);
 }
 
@@ -5336,13 +5335,13 @@ void MenuGame::drawLevelSelectionLeftSide(
     const float difficultyBumpFactor =
         1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
     txtSelectionMedium.font.setScale(
-        difficultyBumpFactor, difficultyBumpFactor);
+        {difficultyBumpFactor, difficultyBumpFactor});
 
     renderText(tempString, txtSelectionMedium.font,
         {textXPos + txtSelectionMedium.font.getGlobalBounds().width,
             difficultyHeight});
 
-    txtSelectionMedium.font.setScale(1.f, 1.f);
+    txtSelectionMedium.font.setScale({1.f, 1.f});
 
     // Bottom line
     height += txtSelectionMedium.height + textToQuadBorder + lineThickness;
@@ -5706,7 +5705,7 @@ void MenuGame::draw()
     styleData.computeColors();
     window.clear(sf::Color{0, 0, 0, 255});
 
-    backgroundCamera.apply(window);
+    window.setView(backgroundCamera.apply());
     const bool mainOrAbove{state >= States::SMain};
 
     // Only draw the hexagon background past the loading screens.
@@ -5723,7 +5722,7 @@ void MenuGame::draw()
         render(menuBackgroundTris);
     }
 
-    overlayCamera.apply(window);
+    window.setView(overlayCamera.apply());
 
     // Draw the profile name.
     if(mainOrAbove && state != States::LevelSelection)
@@ -5904,7 +5903,7 @@ void MenuGame::draw()
 
     if(!dialogBox.empty())
     {
-        overlayCamera.apply(window);
+        window.setView(overlayCamera.apply());
         dialogBox.draw(dialogBoxTextColor, styleData.getColor(0));
     }
 
@@ -6021,7 +6020,7 @@ void MenuGame::drawOnlineStatus()
 
     sOnline.setScale(sf::Vector2f{spriteScale, spriteScale});
     sOnline.setOrigin(ssvs::getLocalSW(sOnline));
-    sOnline.setPosition(0 + padding, getWindowHeight() - padding);
+    sOnline.setPosition({0 + padding, getWindowHeight() - padding});
 
     rsOnlineStatus.setSize(
         sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
@@ -6029,12 +6028,12 @@ void MenuGame::drawOnlineStatus()
     rsOnlineStatus.setFillColor(sf::Color::Black);
     rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));
     rsOnlineStatus.setPosition(
-        ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y);
+        {ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y});
 
     txtOnlineStatus.setOrigin(ssvs::getLocalCenterW(txtOnlineStatus));
     txtOnlineStatus.setPosition(
-        ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
-        ssvs::getGlobalCenter(rsOnlineStatus).y);
+        {ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
+            ssvs::getGlobalCenter(rsOnlineStatus).y});
 
     render(sOnline);
     render(rsOnlineStatus);
