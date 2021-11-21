@@ -95,7 +95,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY SuperV1234/SFML
-    GIT_TAG 1f30120edea67acf7b4e5c8136cf95f920876db2
+    GIT_TAG 47129290bbf6f7ab689de1835146cd40118bb79d
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -117,7 +117,7 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME luajit
     GIT_REPOSITORY https://github.com/SuperV1234/LuaJIT
-    GIT_TAG 43cbd9b5f40c472eb9602b66b203057d0f08231b
+    GIT_TAG 1fc4827feffea4f687a3f102871a3630a5ca9ee2
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -157,7 +157,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 19c3773cc09fffdf950c3e88273f0a15adad1176
+        GIT_TAG 764f9e606d106591072a8e5a79d4e801c4c699fb
         DOWNLOAD_ONLY YES
     )
 
@@ -183,7 +183,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
         GITHUB_REPOSITORY eliasdaler/imgui-sfml
-        GIT_TAG 8bc196c5eaadb342712407eb06fc2f53edfde227
+        GIT_TAG 9cc8c57a4565551087be0d9aeb3ae55490aa1207
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
@@ -201,7 +201,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME libsodium-cmake
     GITHUB_REPOSITORY SuperV1234/libsodium-cmake
-    GIT_TAG c33e05c9bcf7fa1ef0291cf4f35ea1a677a5b7f0
+    GIT_TAG 6afc5beec300bd28589e2e3cb22732e8123fe30f
     OPTIONS "SODIUM_DISABLE_TESTS ON" "SODIUM_DISABLE_TESTS ON CACHE BOOL \"\" FORCE"
 )
 
