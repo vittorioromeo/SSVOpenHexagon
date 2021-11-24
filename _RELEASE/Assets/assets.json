@@ -27,6 +27,7 @@
     "soundBuffers":
     [
         "beep.ogg",
+        "blip.ogg",
         "death.ogg",
         "difficultyMultDown.ogg",
         "difficultyMultUp.ogg",
