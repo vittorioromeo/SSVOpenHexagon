@@ -89,6 +89,9 @@ void setPlayerTrailAlpha(unsigned int x);
 void setPlayerTrailScale(float x);
 void setPlayerTrailDecay(float x);
 void setPlayerTrailHasSwapColor(bool x);
+void setShowSwapParticles(bool x);
+void setPlaySwapReadySound(bool x);
+void setShowSwapBlinkingEffect(bool x);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -162,6 +165,9 @@ void setPlayerTrailHasSwapColor(bool x);
 [[nodiscard]] float getPlayerTrailScale();
 [[nodiscard]] float getPlayerTrailDecay();
 [[nodiscard]] bool getPlayerTrailHasSwapColor();
+[[nodiscard]] bool getShowSwapParticles();
+[[nodiscard]] bool getPlaySwapReadySound();
+[[nodiscard]] bool getShowSwapBlinkingEffect();
 
 // keyboard binds
 
