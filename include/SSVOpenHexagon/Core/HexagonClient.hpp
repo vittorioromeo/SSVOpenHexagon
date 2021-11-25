@@ -47,21 +47,21 @@ public:
     };
 
     // clang-format off
-    struct EConnectionSuccess              { };
-    struct EConnectionFailure              { std::string error; };
-    struct EKicked                         { };
-    struct ERegistrationSuccess            { };
-    struct ERegistrationFailure            { std::string error;};
-    struct ELoginSuccess                   { };
-    struct ELoginFailure                   { std::string error; };
-    struct ELogoutSuccess                  { };
-    struct ELogoutFailure                  { };
-    struct EDeleteAccountSuccess           { };
-    struct EDeleteAccountFailure           { std::string error; };
-    struct EReceivedTopScores              { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
-    struct EReceivedOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
-    struct EGameVersionMismatch            { };
-    struct EProtocolVersionMismatch        { };
+    struct EConnectionSuccess       { };
+    struct EConnectionFailure       { std::string error; };
+    struct EKicked                  { };
+    struct ERegistrationSuccess     { };
+    struct ERegistrationFailure     { std::string error;};
+    struct ELoginSuccess            { };
+    struct ELoginFailure            { std::string error; };
+    struct ELogoutSuccess           { };
+    struct ELogoutFailure           { };
+    struct EDeleteAccountSuccess    { };
+    struct EDeleteAccountFailure    { std::string error; };
+    struct EReceivedTopScores       { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
+    struct EReceivedOwnScore        { std::string levelValidator; Database::ProcessedScore score; };
+    struct EGameVersionMismatch     { };
+    struct EProtocolVersionMismatch { };
     // clang-format on
 
     using Event = std::variant<  //
