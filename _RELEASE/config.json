@@ -47,6 +47,7 @@
 	"official" : true,
 	"online" : true,
 	"pixel_multiplier" : 1,
+	"play_swap_ready_sound" : true,
 	"player_focus_speed" : 4.6250,
 	"player_size" : 7.300000190734863,
 	"player_speed" : 9.449999809265137,
@@ -155,6 +156,8 @@
 	"show_messages" : true,
 	"show_player_trail" : true,
 	"show_status_text" : true,
+	"show_swap_blinking_effect" : true,
+	"show_swap_particles" : true,
 	"show_timer" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 100.0,
@@ -276,7 +279,7 @@
 	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 768,
+	"windowed_height" : 720,
 	"windowed_width" : 1280,
-	"zoom_factor" : 1.0
+	"zoom_factor" : 1.066666722297668
 }
