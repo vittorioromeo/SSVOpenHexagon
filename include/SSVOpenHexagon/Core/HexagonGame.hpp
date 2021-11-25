@@ -180,12 +180,28 @@ private:
         float angle;
     };
 
+    struct SwapParticle
+    {
+        sf::Sprite sprite;
+        sf::Vector2f velocity;
+    };
+
     sf::Texture* txStarParticle;
     sf::Texture* txSmallCircle;
 
     std::vector<Particle> particles;
     std::vector<TrailParticle> trailParticles;
+    std::vector<SwapParticle> swapParticles;
     bool mustSpawnPBParticles{false};
+
+    struct SwapParticleSpawnInfo
+    {
+        bool ready;
+        sf::Vector2f position;
+        float angle;
+    };
+
+    std::optional<SwapParticleSpawnInfo> swapParticlesSpawnInfo;
     float nextPBParticleSpawn{0.f};
     float pbTextGrowth{0.f};
 
@@ -238,6 +254,8 @@ private:
     int inputMovement{0};
     bool inputImplCW{false};
     bool inputImplCCW{false};
+    bool playerNowReadyToSwap{false};
+
     std::ostringstream os;
 
     sf::Text fpsText;
@@ -344,6 +362,7 @@ private:
     void updateLevelInfo();
     void updateParticles(ssvu::FT mFT);
     void updateTrailParticles(ssvu::FT mFT);
+    void updateSwapParticles(ssvu::FT mFT);
 
     // Post update methods
     void postUpdate();
@@ -365,6 +384,7 @@ private:
     void drawLevelInfo();
     void drawParticles();
     void drawTrailParticles();
+    void drawSwapParticles();
     void drawImguiLuaConsole();
 
     // Data-related methods
@@ -502,6 +522,8 @@ public:
     [[nodiscard]] HGAssets& getAssets();
     [[nodiscard]] sf::Color getColorMain() const;
     [[nodiscard]] sf::Color getColorPlayer() const;
+    [[nodiscard]] sf::Color getColorPlayerAdjustedForSwap() const;
+    [[nodiscard]] sf::Color getColorPlayerTrail() const;
     [[nodiscard]] sf::Color getColorText() const;
     [[nodiscard]] sf::Color getColorCap() const;
     [[nodiscard]] sf::Color getColorWall() const;
