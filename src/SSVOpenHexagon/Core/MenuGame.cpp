@@ -1412,6 +1412,10 @@ void MenuGame::initMenus()
     playervisfx.create<i::Toggle>("trail has swap color",
         &Config::getPlayerTrailHasSwapColor,
         &Config::setPlayerTrailHasSwapColor);
+    playervisfx.create<i::Toggle>("show swap particles",
+        &Config::getShowSwapParticles, &Config::setShowSwapParticles);
+    playervisfx.create<i::Toggle>("swap blinking effect",
+        &Config::getShowSwapBlinkingEffect, &Config::setShowSwapBlinkingEffect);
     playervisfx.create<i::GoBack>("back");
 
     auto& fps(optionsMenu.createCategory("fps settings"));
@@ -1509,6 +1513,8 @@ void MenuGame::initMenus()
         [](float mValue) { Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f,
         0.05f) |
         whenMusicEnabled;
+    sfx.create<i::Toggle>("play swap ready blip sound",
+        &Config::getPlaySwapReadySound, &Config::setPlaySwapReadySound);
     sfx.create<i::GoBack>("back");
 
 
