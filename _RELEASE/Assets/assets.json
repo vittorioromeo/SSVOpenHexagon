@@ -40,6 +40,7 @@
         "personalBest.ogg",
         "restart.ogg",
         "select.ogg",
-        "swap.ogg"
+        "swap.ogg",
+        "swapBlip.ogg"
     ]
 }
