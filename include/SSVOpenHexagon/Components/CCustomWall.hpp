@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
+
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 

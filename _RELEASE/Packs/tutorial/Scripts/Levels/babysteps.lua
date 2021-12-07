@@ -91,24 +91,31 @@ end
 -- onInput is a hardcoded function invoked when the player executes input
 function onInput(mFrameTime, mMovement, mFocus, mSwap)
     if not step25 and step1 then
-        if mMovement == -1 then
+        if mMovement == -1 and step0_trRotateLeft ~= "yes!" then
+            a_playSound("blip.ogg")
             step0_trRotateLeft = "yes!"
         end
 
-        if mMovement == 1 then
+        if mMovement == 1 and step0_trRotateRight ~= "yes!"  then
+            a_playSound("blip.ogg")
             step0_trRotateRight = "yes!"
         end
     end
 
     if step25 then
         if mFocus then
-            step1_trFocus = "yes!"
+            if step1_trFocus ~= "yes!" then
+                a_playSound("blip.ogg")
+                step1_trFocus = "yes!"
+            end
 
-            if mMovement == -1 then
+            if mMovement == -1 and step0_trRotateLeft ~= "yes!" then
+                a_playSound("blip.ogg")
                 step0_trRotateLeft = "yes!"
             end
 
-            if mMovement == 1 then
+            if mMovement == 1 and step0_trRotateRight ~= "yes!" then
+                a_playSound("blip.ogg")
                 step0_trRotateRight = "yes!"
             end
         end
@@ -140,9 +147,11 @@ function onUpdate(mFrameTime)
         step2 = true
         step0_completionTime = l_getLevelTime()
 
+        l_clearTracked()
+
         e_messageAddImportant("well done!", 120)
         e_messageAddImportant("you can slow down by focusing", 160)
-        e_messageAddImportant("by default, use left shift", 160)
+        e_messageAddImportant("by default, use left shift", 180)
         e_messageAddImportant("try it while rotating!", 140)
         e_stopTimeS(8)
     end
@@ -153,14 +162,16 @@ function onUpdate(mFrameTime)
         step0_trRotateLeft = "nope"
         step0_trRotateRight = "nope"
 
-        l_addTracked("step1_trFocus", "focused")
-        l_addTracked("step0_trRotateLeft", "rotated counter-clockwise while focusing")
-        l_addTracked("step0_trRotateRight", "rotated clockwise while focusing")
+        l_addTracked("step0_trRotateLeft", "rotated ccw while focusing")
+        l_addTracked("step0_trRotateRight", "rotated cw while focusing")
+        l_addTracked("step1_trFocus", "focused (left shift)")
     end
 
     if step25 and not step3 and step0_trRotateLeft == "yes!" and step0_trRotateRight == "yes!" and step1_trFocus == "yes!" then
         step3 = true
         step3_completionTime = l_getLevelTime()
+
+        l_clearTracked()
 
         e_stopTimeS(7)
         e_messageAddImportant("great!", 120)
@@ -171,7 +182,7 @@ function onUpdate(mFrameTime)
     if not step35 and step3 and l_getLevelTime() > step3_completionTime + 0.2 then
         step35 = true
 
-        l_clearTracked()
+
         l_addTracked("challengeFailedText", "survived until the end")
 
         l_resetTime()

@@ -59,6 +59,12 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
       _currTiltedAngle{0}
 {}
 
+[[nodiscard]] sf::Color CPlayer::getColor(const sf::Color& colorPlayer) const
+{
+    return !_deadEffectTimer.isRunning() ? colorPlayer
+                                         : Utils::getColorFromHue(_hue / 360.f);
+}
+
 [[nodiscard]] sf::Color CPlayer::getColorAdjustedForSwap(
     const sf::Color& colorPlayer) const
 {
@@ -68,15 +74,14 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
             std::fmod(_swapBlinkTimer.getCurrent() / 12.f, 0.2f));
     }
 
-    return !_deadEffectTimer.isRunning() ? colorPlayer
-                                         : Utils::getColorFromHue(_hue / 360.f);
+    return getColor(colorPlayer);
 }
 
 void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
     const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
     Utils::FastVertexVectorTris& capTris,
     Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor,
-    const float angleTiltIntensity)
+    const float angleTiltIntensity, const bool swapBlinkingEffect)
 {
     drawPivot(sides, colorMain, wallQuads, capTris, capColor);
 
@@ -95,7 +100,9 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
         _pos, tiltedAngle + ssvu::toRad(100.f), _size + _triangleWidth);
 
     playerTris.reserve_more(3);
-    playerTris.batch_unsafe_emplace_back(getColorAdjustedForSwap(colorPlayer),
+    playerTris.batch_unsafe_emplace_back(
+        swapBlinkingEffect ? getColorAdjustedForSwap(colorPlayer)
+                           : getColor(colorPlayer),
         ssvs::getOrbitRad(_pos, tiltedAngle, _size), pLeft, pRight);
 }
 

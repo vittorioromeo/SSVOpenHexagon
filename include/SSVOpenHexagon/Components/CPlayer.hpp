@@ -114,6 +114,8 @@ public:
 
     void updatePosition(const float radius);
 
+    [[nodiscard]] sf::Color getColor(const sf::Color& colorPlayer) const;
+
     [[nodiscard]] sf::Color getColorAdjustedForSwap(
         const sf::Color& colorPlayer) const;
 
@@ -121,7 +123,7 @@ public:
         const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
         Utils::FastVertexVectorTris& capTris,
         Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor,
-        const float angleTiltIntensity);
+        const float angleTiltIntensity, const bool swapBlinkingEffect);
 
     [[nodiscard]] bool push(const int movementDir, const float radius,
         const CWall& wall, const sf::Vector2f& mCenterPos,
