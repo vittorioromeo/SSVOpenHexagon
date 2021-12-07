@@ -246,6 +246,9 @@ using cil = std::initializer_list<cmb>;
     X(playerTrailScale, float, "player_trail_scale", 0.9f)                 \
     X(playerTrailDecay, float, "player_trail_decay", 3.0f)                 \
     X(playerTrailHasSwapColor, bool, "player_trail_has_swap_color", true)  \
+    X(showSwapParticles, bool, "show_swap_particles", true)                \
+    X(playSwapReadySound, bool, "play_swap_ready_sound", true)             \
+    X(showSwapBlinkingEffect, bool, "show_swap_blinking_effect", true)     \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -797,6 +800,21 @@ void setPlayerTrailHasSwapColor(bool x)
     playerTrailHasSwapColor() = x;
 }
 
+void setShowSwapParticles(bool x)
+{
+    showSwapParticles() = x;
+}
+
+void setPlaySwapReadySound(bool x)
+{
+    playSwapReadySound() = x;
+}
+
+void setShowSwapBlinkingEffect(bool x)
+{
+    showSwapBlinkingEffect() = x;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -1155,6 +1173,21 @@ void setPlayerTrailHasSwapColor(bool x)
 [[nodiscard]] bool getPlayerTrailHasSwapColor()
 {
     return playerTrailHasSwapColor();
+}
+
+[[nodiscard]] bool getShowSwapParticles()
+{
+    return showSwapParticles();
+}
+
+[[nodiscard]] bool getPlaySwapReadySound()
+{
+    return playSwapReadySound();
+}
+
+[[nodiscard]] bool getShowSwapBlinkingEffect()
+{
+    return showSwapBlinkingEffect();
 }
 
 //***********************************************************

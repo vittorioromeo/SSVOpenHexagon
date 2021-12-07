@@ -43,8 +43,7 @@ struct GameVersion
     }
 };
 
-// TODO (P0): bump this version
-inline constexpr GameVersion GAME_VERSION{2, 1, 3};
-inline constexpr auto& GAME_VERSION_STR = "2.1.3";
+inline constexpr GameVersion GAME_VERSION{2, 1, 4};
+inline constexpr auto& GAME_VERSION_STR = "2.1.4";
 
 } // namespace hg
