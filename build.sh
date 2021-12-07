@@ -47,7 +47,7 @@ while [[ $# -gt 0 ]]; do
             VALGRIND=1
             shift
             ;;
-        
+
         -g|--regenerate-cmake)
             REGENERATE_CMAKE=1
             shift
@@ -95,11 +95,11 @@ case $OSTYPE in
     # MinGW / Windows...
     "msys")
         # Removes existing library artifacts
-        rm -f "$RELEASE_DIR/sfml-audio-2.dll"
-        rm -f "$RELEASE_DIR/sfml-graphics-2.dll"
-        rm -f "$RELEASE_DIR/sfml-network-2.dll"
-        rm -f "$RELEASE_DIR/sfml-system-2.dll"
-        rm -f "$RELEASE_DIR/sfml-window-2.dll"
+        rm -f "$RELEASE_DIR/sfml-audio-3.dll"
+        rm -f "$RELEASE_DIR/sfml-graphics-3.dll"
+        rm -f "$RELEASE_DIR/sfml-network-3.dll"
+        rm -f "$RELEASE_DIR/sfml-system-3.dll"
+        rm -f "$RELEASE_DIR/sfml-window-3.dll"
         rm -f "$RELEASE_DIR/openal32.dll"
         rm -f "$RELEASE_DIR/libzlib1.dll"
         rm -f "$RELEASE_DIR/OHWorkshopUploader.exe"
@@ -120,19 +120,19 @@ case $OSTYPE in
 
         echo "Building for MinGW/Windows..."
         make $THREAD_MAKE_COUNT
-        
+
         # Moves artifacts to release folder
-        mv ./_deps/sfml-build/lib/sfml-audio-2.dll $RELEASE_DIR
-        mv ./_deps/sfml-build/lib/sfml-graphics-2.dll $RELEASE_DIR
-        mv ./_deps/sfml-build/lib/sfml-network-2.dll $RELEASE_DIR
-        mv ./_deps/sfml-build/lib/sfml-system-2.dll $RELEASE_DIR
-        mv ./_deps/sfml-build/lib/sfml-window-2.dll $RELEASE_DIR
+        mv ./_deps/sfml-build/lib/sfml-audio-3.dll $RELEASE_DIR
+        mv ./_deps/sfml-build/lib/sfml-graphics-3.dll $RELEASE_DIR
+        mv ./_deps/sfml-build/lib/sfml-network-3.dll $RELEASE_DIR
+        mv ./_deps/sfml-build/lib/sfml-system-3.dll $RELEASE_DIR
+        mv ./_deps/sfml-build/lib/sfml-window-3.dll $RELEASE_DIR
         cp ./_deps/sfml-src/extlibs/bin/x64/openal32.dll $RELEASE_DIR
         mv ./_deps/zlib-build/libzlib1.dll $RELEASE_DIR
         mv ./OHWorkshopUploader.exe $RELEASE_DIR
         mv ./SSVOpenHexagon.exe $RELEASE_DIR
         ;;
-    
+
     # Linux...
     "linux-gnu")
         # Removes existing executables
