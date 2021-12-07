@@ -420,14 +420,14 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
                 if(debugPause)
                 {
-                    if(audio != nullptr)
+                    if(shouldPlayMusic())
                     {
                         audio->pauseMusic();
                     }
                 }
                 else if(!status.hasDied)
                 {
-                    if(audio != nullptr)
+                    if(shouldPlayMusic())
                     {
                         audio->resumeMusic();
                     }
