@@ -133,8 +133,8 @@ private:
 
     struct PreShakeCenters
     {
-        sf::Vector2f backgroundCameraPreShakeCenter;
-        sf::Vector2f overlayCameraPreShakeCenter;
+        sf::Vector2f background;
+        sf::Vector2f overlay;
     };
 
     std::optional<PreShakeCenters> preShakeCenters;
