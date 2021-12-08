@@ -95,7 +95,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY SuperV1234/SFML
-    GIT_TAG ab41e083f6de91c3440bd04341b73f89d69f7975
+    GIT_TAG 7ebfaad3ad793a139ca63d904eb4d9d523389ea6
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -157,7 +157,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 764f9e606d106591072a8e5a79d4e801c4c699fb
+        GIT_TAG 270d4d0855ea3b2f66833ab1124ec475abe9df9c
         DOWNLOAD_ONLY YES
     )
 
@@ -183,7 +183,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
         GITHUB_REPOSITORY eliasdaler/imgui-sfml
-        GIT_TAG 9cc8c57a4565551087be0d9aeb3ae55490aa1207
+        GIT_TAG 4cb798bb20f41acca5872dd94a3a11f2ec0fbdb0
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
