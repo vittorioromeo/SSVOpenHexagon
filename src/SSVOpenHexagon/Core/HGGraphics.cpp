@@ -104,7 +104,7 @@ void HexagonGame::draw()
     capTris.clear();
 
     // Reserve right amount of memory for all walls and custom walls
-    wallQuads.reserve_more(4 * walls.size() + 4 * cwManager.count());
+    wallQuads.reserve_more_quad(walls.size() + cwManager.count());
 
     for(CWall& w : walls)
     {

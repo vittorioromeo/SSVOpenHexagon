@@ -425,12 +425,12 @@ private:
     void performPlayerKill();
 
     Utils::FastVertexVectorTris backgroundTris;
-    Utils::FastVertexVectorQuads wallQuads;
-    Utils::FastVertexVectorQuads pivotQuads;
+    Utils::FastVertexVectorTris wallQuads;
+    Utils::FastVertexVectorTris pivotQuads;
     Utils::FastVertexVectorTris playerTris;
     Utils::FastVertexVectorTris capTris;
-    Utils::FastVertexVectorQuads wallQuads3D;
-    Utils::FastVertexVectorQuads pivotQuads3D;
+    Utils::FastVertexVectorTris wallQuads3D;
+    Utils::FastVertexVectorTris pivotQuads3D;
     Utils::FastVertexVectorTris playerTris3D;
 
 public:
