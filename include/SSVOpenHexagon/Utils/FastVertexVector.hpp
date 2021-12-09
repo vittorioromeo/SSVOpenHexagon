@@ -213,7 +213,4 @@ public:
     }
 };
 
-class FastVertexVectorQuads : public FastVertexVector<sf::PrimitiveType::Quads>
-{};
-
 } // namespace hg::Utils

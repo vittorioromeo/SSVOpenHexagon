@@ -30,7 +30,7 @@ using Obj = Json::Value;
 namespace hg::Utils {
 
 class FastVertexVectorTris;
-class FastVertexVectorQuads;
+class FastVertexVectorTris;
 
 } // namespace hg::Utils
 
