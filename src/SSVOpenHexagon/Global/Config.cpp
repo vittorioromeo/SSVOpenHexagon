@@ -161,7 +161,7 @@ using cil = std::initializer_list<cmb>;
     X(triggerForceRestart, trig, "t_force_restart",                         \
         cil{cmb{{k::Up}}, cmb{{k::R}}})                                     \
     X(triggerRestart, trig, "t_restart",                                    \
-        cil{cmb{{k::Space}}, cmb{{k::Return}}, cmb{kil{}, mil{m::Middle}}}) \
+        cil{cmb{{k::Space}}, cmb{{k::Enter}}, cmb{kil{}, mil{m::Middle}}}) \
     X(triggerReplay, trig, "t_replay", cil{cmb{{k::Y}}})                    \
     X(triggerScreenshot, trig, "t_screenshot", cil{cmb{{k::F12}}})          \
     X(triggerSwap, trig, "t_swap",                                          \

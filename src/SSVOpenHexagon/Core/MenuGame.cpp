@@ -291,7 +291,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
-    game.onEvent(sf::Event::EventType::MouseWheelMoved) +=
+    game.onEvent(sf::Event::EventType::MouseWheelScrolled) +=
         [this](const sf::Event& mEvent)
     {
         if(window.hasFocus())
@@ -314,11 +314,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         {
             if(focusHeld)
             {
-                changePackQuick(mEvent.mouseWheel.delta > 0 ? -1 : 1);
+                changePackQuick(mEvent.mouseWheelScroll.delta > 0 ? -1 : 1);
             }
             else if(lvlDrawer != nullptr)
             {
-                lvlDrawer->YScrollTo += mEvent.mouseWheel.delta * 48.f;
+                lvlDrawer->YScrollTo += mEvent.mouseWheelScroll.delta * 48.f;
 
                 if(lvlDrawer->YScrollTo > 0)
                 {
@@ -336,7 +336,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        wheelProgress += mEvent.mouseWheel.delta;
+        wheelProgress += mEvent.mouseWheelScroll.delta;
         if(wheelProgress > 1.f)
         {
             wheelProgress = 0.f;
@@ -952,7 +952,7 @@ void MenuGame::initInput()
         static_cast<int>(Tid::Focus));
 
     game.addInput( // hardcoded
-        {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
+        {{k::Enter}}, [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
 
     game.addInput( // hardcoded
         {{k::Escape}},
@@ -982,7 +982,7 @@ void MenuGame::initInput()
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; });
 
     game.addInput(
-            {{k::LAlt, k::Return}},
+            {{k::LAlt, k::Enter}},
             [this](ssvu::FT /*unused*/)
             {
                 Config::setFullscreen(window, !window.getFullscreen());
@@ -992,7 +992,7 @@ void MenuGame::initInput()
         .setPriorityUser(-1000);
 
     game.addInput( // hardcoded
-        {{k::BackSpace}}, [this](ssvu::FT /*unused*/) { eraseAction(); },
+        {{k::Backspace}}, [this](ssvu::FT /*unused*/) { eraseAction(); },
         t::Once);
 
     game.addInput( // hardcoded
