@@ -165,7 +165,7 @@ private:
     sf::Text messageText;
     sf::Text pbText;
 
-    ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
+    Utils::FastVertexVectorTris flashPolygon;
 
     struct Particle
     {

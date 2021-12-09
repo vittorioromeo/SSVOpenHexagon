@@ -875,9 +875,9 @@ void HexagonGame::updateFlash(ssvu::FT mFT)
 
     status.flashEffect = ssvu::getClamped(status.flashEffect, 0.f, 255.f);
 
-    for(auto i(0u); i < 4; ++i)
+    for(sf::Vertex& vertex : flashPolygon)
     {
-        flashPolygon[i].color.a = status.flashEffect;
+        vertex.color.a = status.flashEffect;
     }
 }
 

@@ -151,11 +151,57 @@ public:
 
         return _data[i]._v;
     }
+
+    [[nodiscard, gnu::always_inline]] sf::Vertex* begin() noexcept
+    {
+        SSVOH_ASSERT(_data != nullptr);
+        return &(_data[0]._v);
+    }
+
+    [[nodiscard, gnu::always_inline]] const sf::Vertex* begin() const noexcept
+    {
+        SSVOH_ASSERT(_data != nullptr);
+        return &(_data[0]._v);
+    }
+
+    [[nodiscard, gnu::always_inline]] sf::Vertex* end() noexcept
+    {
+        return begin() + _size;
+    }
+
+    [[nodiscard, gnu::always_inline]] const sf::Vertex* end() const noexcept
+    {
+        return begin() + _size;
+    }
 };
 
 class FastVertexVectorTris
     : public FastVertexVector<sf::PrimitiveType::Triangles>
-{};
+{
+public:
+    [[gnu::always_inline]] void batch_unsafe_emplace_back_quad(
+        const sf::Color& color, const sf::Vector2f& nw, const sf::Vector2f& sw,
+        const sf::Vector2f& se, const sf::Vector2f& ne)
+    {
+        batch_unsafe_emplace_back(color, //
+            nw, sw, se,                  //
+            nw, se, ne);
+    }
+
+    [[gnu::always_inline]] void unsafe_emplace_back_quad( //
+        const sf::Vector2f& nw, const sf::Color& colorNW, //
+        const sf::Vector2f& sw, const sf::Color& colorSW, //
+        const sf::Vector2f& se, const sf::Color& colorSE, //
+        const sf::Vector2f& ne, const sf::Color& colorNE)
+    {
+        unsafe_emplace_back(nw, colorNW);
+        unsafe_emplace_back(sw, colorSW);
+        unsafe_emplace_back(se, colorSE);
+        unsafe_emplace_back(nw, colorNW);
+        unsafe_emplace_back(se, colorSE);
+        unsafe_emplace_back(ne, colorNE);
+    }
+};
 
 class FastVertexVectorQuads : public FastVertexVector<sf::PrimitiveType::Quads>
 {};
