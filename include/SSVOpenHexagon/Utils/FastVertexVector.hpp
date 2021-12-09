@@ -201,6 +201,16 @@ public:
         unsafe_emplace_back(se, colorSE);
         unsafe_emplace_back(ne, colorNE);
     }
+
+    [[gnu::always_inline]] void reserve_more_quad(const std::size_t n)
+    {
+        reserve_more(n * 6);
+    }
+
+    [[gnu::always_inline]] void reserve_quad(const std::size_t n)
+    {
+        reserve(n * 6);
+    }
 };
 
 class FastVertexVectorQuads : public FastVertexVector<sf::PrimitiveType::Quads>
