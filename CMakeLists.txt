@@ -95,7 +95,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 5ee213b93df7d5cf71a59919831dc617c88f1152
+    GIT_TAG 9794d442cacc612cfbb5bdb11ca01b27d6650d7e
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
