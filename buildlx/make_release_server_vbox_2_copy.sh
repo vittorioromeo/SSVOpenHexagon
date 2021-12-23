@@ -10,6 +10,7 @@ echo "--------------------------------------------------------------------"
 echo ""
 
 cp ./SSVOpenHexagon /media/sf_C_DRIVE/OHWorkspace/SSVOpenHexagon/_RELEASE/SSVOpenHexagonVbox
+cp ./SSVOpenHexagon /media/ohw/SSVOpenHexagon/SSVOpenHexagon/_RELEASE/SSVOpenHexagonVbox
 
 echo ""
 echo ""
