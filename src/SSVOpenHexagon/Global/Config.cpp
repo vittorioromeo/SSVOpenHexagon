@@ -147,30 +147,30 @@ using cil = std::initializer_list<cmb>;
     X(joystickAddToFavorites, uint, "j_add_favorite", 8) \
     X(joystickFavoritesMenu, uint, "j_favorite_menu", 9)
 
-#define X_LINKEDVALUES_BINDS_TRIGGERS                                       \
-    X(triggerRotateCCW, trig, "t_rotate_ccw",                               \
-        cil{cmb{{k::A}}, cmb{{k::Left}}, cmb{kil{}, mil{m::Left}}})         \
-    X(triggerRotateCW, trig, "t_rotate_cw",                                 \
-        cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})       \
-    X(triggerFocus, trig, "t_focus",                                        \
-        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::XButton1}}})                \
-    X(triggerSelect, trig, "t_select",                                      \
-        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                   \
-    X(triggerExit, trig, "t_exit",                                          \
-        cil{cmb{{k::T}}, cmb{kil{}, mil{m::XButton2}}})                     \
-    X(triggerForceRestart, trig, "t_force_restart",                         \
-        cil{cmb{{k::Up}}, cmb{{k::R}}})                                     \
-    X(triggerRestart, trig, "t_restart",                                    \
+#define X_LINKEDVALUES_BINDS_TRIGGERS                                      \
+    X(triggerRotateCCW, trig, "t_rotate_ccw",                              \
+        cil{cmb{{k::A}}, cmb{{k::Left}}, cmb{kil{}, mil{m::Left}}})        \
+    X(triggerRotateCW, trig, "t_rotate_cw",                                \
+        cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})      \
+    X(triggerFocus, trig, "t_focus",                                       \
+        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::XButton1}}})               \
+    X(triggerSelect, trig, "t_select",                                     \
+        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
+    X(triggerExit, trig, "t_exit",                                         \
+        cil{cmb{{k::T}}, cmb{kil{}, mil{m::XButton2}}})                    \
+    X(triggerForceRestart, trig, "t_force_restart",                        \
+        cil{cmb{{k::Up}}, cmb{{k::R}}})                                    \
+    X(triggerRestart, trig, "t_restart",                                   \
         cil{cmb{{k::Space}}, cmb{{k::Enter}}, cmb{kil{}, mil{m::Middle}}}) \
-    X(triggerReplay, trig, "t_replay", cil{cmb{{k::Y}}})                    \
-    X(triggerScreenshot, trig, "t_screenshot", cil{cmb{{k::F12}}})          \
-    X(triggerSwap, trig, "t_swap",                                          \
-        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                   \
-    X(triggerUp, trig, "t_up", cil{cmb{{k::W}}})                            \
-    X(triggerDown, trig, "t_down", cil{cmb{{k::S}}})                        \
-    X(triggerNextPack, trig, "t_next", cil{cmb{{k::PageDown}}})             \
-    X(triggerPreviousPack, trig, "t_previous", cil{cmb{{k::PageUp}}})       \
-    X(triggerLuaConsole, trig, "t_lua_console", cil{cmb{{k::F1}}})          \
+    X(triggerReplay, trig, "t_replay", cil{cmb{{k::Y}}})                   \
+    X(triggerScreenshot, trig, "t_screenshot", cil{cmb{{k::F12}}})         \
+    X(triggerSwap, trig, "t_swap",                                         \
+        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
+    X(triggerUp, trig, "t_up", cil{cmb{{k::W}}})                           \
+    X(triggerDown, trig, "t_down", cil{cmb{{k::S}}})                       \
+    X(triggerNextPack, trig, "t_next", cil{cmb{{k::PageDown}}})            \
+    X(triggerPreviousPack, trig, "t_previous", cil{cmb{{k::PageUp}}})      \
+    X(triggerLuaConsole, trig, "t_lua_console", cil{cmb{{k::F1}}})         \
     X(triggerPause, trig, "t_pause", cil{cmb{{k::F2}}})
 
 #define X_LINKEDVALUES_BINDS      \
