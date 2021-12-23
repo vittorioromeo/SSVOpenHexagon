@@ -12,7 +12,7 @@ class RenderWindow;
 
 namespace hg::Imgui {
 
-void initialize(sf::RenderWindow&);
+[[nodiscard]] bool initialize(sf::RenderWindow&);
 void shutdown();
 [[nodiscard]] bool wantCaptureKeyboard();
 [[nodiscard]] bool wantCaptureMouse();
