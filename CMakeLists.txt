@@ -38,9 +38,9 @@ endif()
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." FALSE)
 
 if(${FORCE_COLORED_OUTPUT})
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR (CMAKE_CXX_COMPILER MATCHES "g\\+\\+"))
        add_compile_options("-fdiagnostics-color=always")
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    elseif(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR (CMAKE_CXX_COMPILER MATCHES "clang\\+\\+"))
        add_compile_options("-fcolor-diagnostics")
     endif()
 endif()
@@ -95,7 +95,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 77d72ceb93be89d08b9691fbb177b8372600216d
+    GIT_TAG 8d88c9dc9c506760a37af0b1bd1f924ecdbd587f
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
