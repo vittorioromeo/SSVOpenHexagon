@@ -15,10 +15,10 @@
 
 namespace hg::Imgui {
 
-void initialize([[maybe_unused]] sf::RenderWindow& window)
+[[nodiscard]] bool initialize([[maybe_unused]] sf::RenderWindow& window)
 {
 #ifndef SSVOH_ANDROID
-    ImGui::SFML::Init(window);
+    return ImGui::SFML::Init(window);
 #endif
 }
 

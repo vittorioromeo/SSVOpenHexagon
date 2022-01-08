@@ -80,7 +80,7 @@ void HexagonGame::draw()
 
     if(!Config::getNoBackground())
     {
-        backgroundCamera->apply(*window);
+        window->setView(backgroundCamera->apply());
 
         backgroundTris.clear();
 
@@ -93,7 +93,7 @@ void HexagonGame::draw()
         render(backgroundTris);
     }
 
-    backgroundCamera->apply(*window);
+    window->setView(backgroundCamera->apply());
 
     wallQuads3D.clear();
     pivotQuads3D.clear();
@@ -104,7 +104,7 @@ void HexagonGame::draw()
     capTris.clear();
 
     // Reserve right amount of memory for all walls and custom walls
-    wallQuads.reserve_more(4 * walls.size() + 4 * cwManager.count());
+    wallQuads.reserve_more_quad(walls.size() + cwManager.count());
 
     for(CWall& w : walls)
     {
@@ -116,8 +116,8 @@ void HexagonGame::draw()
     if(status.started)
     {
         player.draw(getSides(), getColorMain(), getColorPlayer(), pivotQuads,
-            capTris, playerTris, getColorCap(),
-            Config::getAngleTiltIntensity());
+            capTris, playerTris, getColorCap(), Config::getAngleTiltIntensity(),
+            Config::getShowSwapBlinkingEffect());
     }
 
     if(Config::get3D())
@@ -237,12 +237,17 @@ void HexagonGame::draw()
         drawTrailParticles();
     }
 
+    if(Config::getShowSwapParticles())
+    {
+        drawSwapParticles();
+    }
+
     render(wallQuads);
     render(capTris);
     render(pivotQuads);
     render(playerTris);
 
-    overlayCamera->apply(*window);
+    window->setView(overlayCamera->apply());
 
     drawParticles();
     drawText();
@@ -293,7 +298,7 @@ void HexagonGame::drawImguiLuaConsole()
     }
 
     SSVOH_ASSERT(overlayCamera.has_value());
-    overlayCamera->unapply(*window);
+    window->setView(window->getRenderWindow().getDefaultView());
 
     Imgui::render(*window);
 }
@@ -301,21 +306,21 @@ void HexagonGame::drawImguiLuaConsole()
 void HexagonGame::initFlashEffect(int r, int g, int b)
 {
     flashPolygon.clear();
+    flashPolygon.reserve(6);
 
     const sf::Color color{static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g),
         static_cast<sf::Uint8>(b), 0};
 
-    flashPolygon.emplace_back(sf::Vector2f{-100.f, -100.f}, color);
+    const auto width = static_cast<float>(Config::getWidth());
+    const auto height = static_cast<float>(Config::getHeight());
+    const float offset = 100.f;
 
-    flashPolygon.emplace_back(
-        sf::Vector2f{Config::getWidth() + 100.f, -100.f}, color);
+    const sf::Vector2f nw{-offset, -offset};
+    const sf::Vector2f sw{-offset, height + offset};
+    const sf::Vector2f se{width + offset, height + offset};
+    const sf::Vector2f ne{width + offset, -offset};
 
-    flashPolygon.emplace_back(
-        sf::Vector2f{Config::getWidth() + 100.f, Config::getHeight() + 100.f},
-        color);
-
-    flashPolygon.emplace_back(
-        sf::Vector2f{-100.f, Config::getHeight() + 100.f}, color);
+    flashPolygon.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
 }
 
 void HexagonGame::drawKeyIcons()
@@ -368,6 +373,14 @@ void HexagonGame::drawParticles()
 void HexagonGame::drawTrailParticles()
 {
     for(TrailParticle& p : trailParticles)
+    {
+        render(p.sprite);
+    }
+}
+
+void HexagonGame::drawSwapParticles()
+{
+    for(SwapParticle& p : swapParticles)
     {
         render(p.sprite);
     }
@@ -509,7 +522,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
     // Set information text
     text.setString(os.str());
     text.setCharacterSize(getScaledCharacterSize(20.f));
-    text.setOrigin(0, 0);
+    text.setOrigin({0.f, 0.f});
 
     // Set FPS Text, if option is enabled.
     if(Config::getShowFPS())
@@ -519,11 +532,11 @@ void HexagonGame::updateText(ssvu::FT mFT)
     }
 
     messageText.setCharacterSize(getScaledCharacterSize(32.f));
-    messageText.setOrigin(ssvs::getGlobalWidth(messageText) / 2.f, 0);
+    messageText.setOrigin({ssvs::getGlobalWidth(messageText) / 2.f, 0});
 
     const float growth = std::sin(pbTextGrowth);
     pbText.setCharacterSize(getScaledCharacterSize(64.f) + growth * 10.f);
-    pbText.setOrigin(ssvs::getGlobalWidth(pbText) / 2.f, 0);
+    pbText.setOrigin({ssvs::getGlobalWidth(pbText) / 2.f, 0});
 
     // ------------------------------------------------------------------------
     if(mustShowReplayUI())
@@ -586,7 +599,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     {
         timeText.setFillColor(colorText);
         timeText.setOrigin(ssvs::getLocalNW(timeText));
-        timeText.setPosition(sf::Vector2f{padding, padding});
+        timeText.setPosition({padding, padding});
 
         render(timeText);
     }
@@ -595,8 +608,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     {
         text.setFillColor(colorText);
         text.setOrigin(ssvs::getLocalNW(text));
-        text.setPosition(
-            sf::Vector2f{padding, ssvs::getGlobalBottom(timeText) + padding});
+        text.setPosition({padding, ssvs::getGlobalBottom(timeText) + padding});
 
         render(text);
     }
@@ -608,13 +620,12 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
 
         if(Config::getShowLevelInfo() || mustShowReplayUI())
         {
-            fpsText.setPosition(sf::Vector2f{
-                padding, ssvs::getGlobalTop(levelInfoRectangle) - padding});
+            fpsText.setPosition(
+                {padding, ssvs::getGlobalTop(levelInfoRectangle) - padding});
         }
         else
         {
-            fpsText.setPosition(
-                sf::Vector2f{padding, Config::getHeight() - padding});
+            fpsText.setPosition({padding, Config::getHeight() - padding});
         }
 
         render(fpsText);

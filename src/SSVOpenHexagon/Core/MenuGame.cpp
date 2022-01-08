@@ -291,7 +291,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
-    game.onEvent(sf::Event::EventType::MouseWheelMoved) +=
+    game.onEvent(sf::Event::EventType::MouseWheelScrolled) +=
         [this](const sf::Event& mEvent)
     {
         if(window.hasFocus())
@@ -314,11 +314,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         {
             if(focusHeld)
             {
-                changePackQuick(mEvent.mouseWheel.delta > 0 ? -1 : 1);
+                changePackQuick(mEvent.mouseWheelScroll.delta > 0 ? -1 : 1);
             }
             else if(lvlDrawer != nullptr)
             {
-                lvlDrawer->YScrollTo += mEvent.mouseWheel.delta * 48.f;
+                lvlDrawer->YScrollTo += mEvent.mouseWheelScroll.delta * 48.f;
 
                 if(lvlDrawer->YScrollTo > 0)
                 {
@@ -336,7 +336,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        wheelProgress += mEvent.mouseWheel.delta;
+        wheelProgress += mEvent.mouseWheelScroll.delta;
         if(wheelProgress > 1.f)
         {
             wheelProgress = 0.f;
@@ -952,7 +952,7 @@ void MenuGame::initInput()
         static_cast<int>(Tid::Focus));
 
     game.addInput( // hardcoded
-        {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
+        {{k::Enter}}, [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
 
     game.addInput( // hardcoded
         {{k::Escape}},
@@ -982,7 +982,7 @@ void MenuGame::initInput()
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; });
 
     game.addInput(
-            {{k::LAlt, k::Return}},
+            {{k::LAlt, k::Enter}},
             [this](ssvu::FT /*unused*/)
             {
                 Config::setFullscreen(window, !window.getFullscreen());
@@ -992,7 +992,7 @@ void MenuGame::initInput()
         .setPriorityUser(-1000);
 
     game.addInput( // hardcoded
-        {{k::BackSpace}}, [this](ssvu::FT /*unused*/) { eraseAction(); },
+        {{k::Backspace}}, [this](ssvu::FT /*unused*/) { eraseAction(); },
         t::Once);
 
     game.addInput( // hardcoded
@@ -1412,6 +1412,10 @@ void MenuGame::initMenus()
     playervisfx.create<i::Toggle>("trail has swap color",
         &Config::getPlayerTrailHasSwapColor,
         &Config::setPlayerTrailHasSwapColor);
+    playervisfx.create<i::Toggle>("show swap particles",
+        &Config::getShowSwapParticles, &Config::setShowSwapParticles);
+    playervisfx.create<i::Toggle>("swap blinking effect",
+        &Config::getShowSwapBlinkingEffect, &Config::setShowSwapBlinkingEffect);
     playervisfx.create<i::GoBack>("back");
 
     auto& fps(optionsMenu.createCategory("fps settings"));
@@ -1509,6 +1513,8 @@ void MenuGame::initMenus()
         [](float mValue) { Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f,
         0.05f) |
         whenMusicEnabled;
+    sfx.create<i::Toggle>("play swap ready blip sound",
+        &Config::getPlaySwapReadySound, &Config::setPlaySwapReadySound);
     sfx.create<i::GoBack>("back");
 
 
@@ -1777,8 +1783,7 @@ void MenuGame::playLocally()
 MenuGame::pickRandomMainMenuBackgroundStyle()
 {
     // If there is no `menubackgrounds.json` abort
-    if(!ssvufs::Path{"Assets/menubackgrounds.json"}
-            .exists<ssvufs::Type::File>())
+    if(!ssvufs::Path{"Assets/menubackgrounds.json"}.isFile())
     {
         ssvu::lo("MenuGame::$")
             << "File 'Assets/menubackgrounds.json' does not exist" << std::endl;
@@ -3119,7 +3124,7 @@ void MenuGame::refreshCamera()
         {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
                               Config::getSizeY() * Config::getZoomFactor()}});
 
-    overlayCamera.setView(sf::View{sf::FloatRect(0, 0, w, h)});
+    overlayCamera.setView(sf::View{sf::FloatRect({0, 0}, {w, h})});
 
     titleBar.setOrigin(ssvs::zeroVec2f);
     titleBar.setScale({0.5f, 0.5f});
@@ -3275,7 +3280,7 @@ void MenuGame::renderTextCentered(
     const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
 {
     mText.setString(mStr);
-    mText.setPosition(mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
+    mText.setPosition({mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y});
     render(mText);
 }
 
@@ -3311,7 +3316,7 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
 {
     mText.setString(mStr);
     mText.setPosition(
-        xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
+        {xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y});
     render(mText);
 }
 
@@ -3498,10 +3503,8 @@ void MenuGame::calcMenuItemOffset(float& offset, bool selected)
 void MenuGame::createQuad(const sf::Color& color, const float x1,
     const float x2, const float y1, const float y2)
 {
-    sf::Vector2f topLeft{x1, y1}, topRight{x2, y1}, bottomRight{x2, y2},
-        bottomLeft{x1, y2};
-    menuQuads.batch_unsafe_emplace_back(
-        color, topLeft, topRight, bottomRight, bottomLeft);
+    sf::Vector2f nw{x1, y1}, ne{x2, y1}, se{x2, y2}, sw{x1, y2};
+    menuQuads.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
 }
 
 void MenuGame::createQuad(
@@ -3514,23 +3517,24 @@ void MenuGame::createQuadTrapezoid(const sf::Color& color, const float x1,
     const float x2, const float x3, const float y1, const float y2,
     const bool left)
 {
-    sf::Vector2f topLeft, topRight, bottomRight, bottomLeft;
+    sf::Vector2f nw, ne, se, sw;
+
     if(left)
     {
-        topLeft = {x1, y1};
-        topRight = {x2, y1};
-        bottomRight = {x3, y2};
-        bottomLeft = {x1, y2};
+        nw = {x1, y1};
+        ne = {x2, y1};
+        se = {x3, y2};
+        sw = {x1, y2};
     }
     else
     {
-        topLeft = {x1, y1};
-        topRight = {x2, y1};
-        bottomRight = {x2, y2};
-        bottomLeft = {x3, y2};
+        nw = {x1, y1};
+        ne = {x2, y1};
+        se = {x2, y2};
+        sw = {x3, y2};
     }
-    menuQuads.batch_unsafe_emplace_back(
-        color, topLeft, topRight, bottomRight, bottomLeft);
+
+    menuQuads.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
 }
 
 [[nodiscard]] std::pair<int, int> MenuGame::getScrollbarNotches(
@@ -3556,7 +3560,7 @@ void MenuGame::drawScrollbar(const float totalHeight, const int size,
         startHeight{y + notchHeight * scrollbarOffset};
 
     menuQuads.clear();
-    menuQuads.reserve(4);
+    menuQuads.reserve_quad(1);
     createQuad(
         color, x, x + textToQuadBorder, startHeight, startHeight + barHeight);
     render(menuQuads);
@@ -3703,7 +3707,7 @@ void MenuGame::drawMainMenu(
 
     // Draw the quads that surround the text
     menuQuads.clear();
-    menuQuads.reserve(4 * size);
+    menuQuads.reserve_quad(size);
 
     static std::vector<bool> mouseOverlaps;
     mouseOverlaps.resize(size);
@@ -3782,7 +3786,7 @@ void MenuGame::drawOptionsSubmenus(
 
     // Draw the quads that surround the text
     menuQuads.clear();
-    menuQuads.reserve(8);
+    menuQuads.reserve_quad(2);
 
     createQuad(menuTextColor, 0, indent + doubleBorder, quadHeight,
         quadHeight + totalHeight);
@@ -3916,7 +3920,7 @@ void MenuGame::drawProfileSelection(
 
     // Draw the quads that surround the text and the scroll bar if needed
     menuQuads.clear();
-    menuQuads.reserve(8);
+    menuQuads.reserve_quad(2);
 
     createQuad(menuTextColor, indent - doubleBorder,
         indent + doubleBorder + textWidth, quadHeight,
@@ -4085,7 +4089,7 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
 
     // Draw the quads that surround the text
     menuQuads.clear();
-    menuQuads.reserve(8);
+    menuQuads.reserve_quad(2);
 
     createQuad(menuTextColor, indent - doubleFrame,
         indent + doubleFrame + textWidth, quadHeight, quadHeight + totalHeight);
@@ -4148,28 +4152,28 @@ void MenuGame::drawLoadResults()
     menuQuads.clear();
 
     int i;
-    menuQuads.reserve(4 * 6);
+    menuQuads.reserve_quad(6);
     for(i = 0; i < 6; ++i)
     {
         const float sAngle{div * 2.f * (i + hexagonRotation)};
 
-        const sf::Vector2f topLeft{
+        const sf::Vector2f nw{
             ssvs::getOrbitRad(centerPos, sAngle - div, hexagonRadius)};
-        const sf::Vector2f topRight{
+        const sf::Vector2f ne{
             ssvs::getOrbitRad(centerPos, sAngle + div, hexagonRadius)};
-        const sf::Vector2f bottomRight{
+        const sf::Vector2f se{
             ssvs::getOrbitRad(centerPos, sAngle + div, hexagonRadius + 10.f)};
-        const sf::Vector2f bottomLeft{
+        const sf::Vector2f sw{
             ssvs::getOrbitRad(centerPos, sAngle - div, hexagonRadius + 10.f)};
 
-        menuQuads.batch_unsafe_emplace_back(
-            sf::Color::White, topLeft, topRight, bottomRight, bottomLeft);
+        menuQuads.batch_unsafe_emplace_back_quad(
+            sf::Color::White, nw, sw, se, ne);
     }
 
     //--------------------------------------
     // Vertical separators
 
-    menuQuads.reserve_more(4 * 3);
+    menuQuads.reserve_more_quad(3);
     const float xOffset{w / 4.f};
     float topHeight{h / 2.f - h / 15.f}, bottomHeight{h / 2.f + h / 15.f};
 
@@ -4950,7 +4954,7 @@ void MenuGame::drawLevelSelectionRightSide(
         //-------------------------------------
         // Quads
         menuQuads.clear();
-        menuQuads.reserve(12);
+        menuQuads.reserve_quad(3);
 
         // If the list is folding give all level labels the same alignment
         if(packChangeState != PackChange::Rest)
@@ -5053,7 +5057,7 @@ void MenuGame::drawLevelSelectionRightSide(
             const float width = 50.f;
 
             menuQuads.clear();
-            menuQuads.reserve(4);
+            menuQuads.reserve_quad(1);
 
             createQuad(menuQuadColor, w - width - padding, w,
                 height - textToQuadBorder,
@@ -5086,7 +5090,7 @@ void MenuGame::drawLevelSelectionRightSide(
 
     // Bottom frame for the last element
     menuQuads.clear();
-    menuQuads.reserve(4);
+    menuQuads.reserve_quad(1);
     createQuad(
         menuQuadColor, prevLevelIndent, w, height, height + slctFrameSize);
     render(menuQuads);
@@ -5107,7 +5111,7 @@ void MenuGame::drawLevelSelectionRightSide(
     {
         // Quads
         menuQuads.clear();
-        menuQuads.reserve(8);
+        menuQuads.reserve_quad(2);
 
         float temp = quadsIndent - outerFrame + panelOffset;
 
@@ -5161,7 +5165,7 @@ void MenuGame::drawLevelSelectionRightSide(
         txtSelectionMedium.font.setFillColor(oldC);
 
         menuQuads.clear();
-        menuQuads.reserve(8);
+        menuQuads.reserve_quad(2);
 
         if(i == drawer.packIdx)
         {
@@ -5181,7 +5185,7 @@ void MenuGame::drawLevelSelectionRightSide(
             topRight = {temp, height};
             bottomRight = {temp, height + 2.f * slctFrameSize};
 
-            menuQuads.batch_unsafe_emplace_back(
+            menuQuads.batch_unsafe_emplace_back_quad(
                 menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
             topLeft = {temp, height};
@@ -5193,7 +5197,7 @@ void MenuGame::drawLevelSelectionRightSide(
             topRight = {temp, height};
             bottomRight = {temp, height + 2.f * slctFrameSize};
 
-            menuQuads.batch_unsafe_emplace_back(
+            menuQuads.batch_unsafe_emplace_back_quad(
                 menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
             render(menuQuads);
@@ -5212,8 +5216,8 @@ void MenuGame::drawLevelSelectionRightSide(
             bottomLeft = {temp, height};
             bottomRight = {temp + 2.f * slctFrameSize, height};
 
-            menuQuads.batch_unsafe_emplace_back(
-                menuTextColor, topLeft, topRight, bottomRight, bottomLeft);
+            menuQuads.batch_unsafe_emplace_back_quad(
+                menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
             topLeft = {temp, height};
             topRight = {temp + 2.f * slctFrameSize, height};
@@ -5225,8 +5229,8 @@ void MenuGame::drawLevelSelectionRightSide(
             bottomRight = {
                 temp + 2.f * slctFrameSize, height - textToQuadBorder};
 
-            menuQuads.batch_unsafe_emplace_back(
-                menuTextColor, topLeft, topRight, bottomRight, bottomLeft);
+            menuQuads.batch_unsafe_emplace_back_quad(
+                menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
             render(menuQuads);
             height -= slctFrameSize / 2.f;
@@ -5269,7 +5273,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     // Backdrop - Right border
 
     menuQuads.clear();
-    menuQuads.reserve(8);
+    menuQuads.reserve_quad(2);
     createQuad({menuTextColor.r, menuTextColor.g, menuTextColor.b, 150}, 0,
         width, 0, h);
     createQuad(menuQuadColor, width, width + lineThickness, 0, h);
@@ -5310,7 +5314,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     //-------------------------------------
     // Difficulty
 
-    menuQuads.reserve_more(8);
+    menuQuads.reserve_more_quad(2);
 
     // Top line
     height += lineThickness;
@@ -5336,13 +5340,13 @@ void MenuGame::drawLevelSelectionLeftSide(
     const float difficultyBumpFactor =
         1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
     txtSelectionMedium.font.setScale(
-        difficultyBumpFactor, difficultyBumpFactor);
+        {difficultyBumpFactor, difficultyBumpFactor});
 
     renderText(tempString, txtSelectionMedium.font,
         {textXPos + txtSelectionMedium.font.getGlobalBounds().width,
             difficultyHeight});
 
-    txtSelectionMedium.font.setScale(1.f, 1.f);
+    txtSelectionMedium.font.setScale({1.f, 1.f});
 
     // Bottom line
     height += txtSelectionMedium.height + textToQuadBorder + lineThickness;
@@ -5387,7 +5391,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Bottom line
-    menuQuads.reserve_more(4);
+    menuQuads.reserve_more_quad(1);
     height += txtSelectionSmall.height + txtSelectionMedium.height / 2.f +
               lineThickness;
 
@@ -5437,7 +5441,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     //-------------------------------------
     // Favorite "button"
 
-    menuQuads.reserve_more(8 * 5);
+    menuQuads.reserve_more_quad(10);
     const float favoriteButtonBottom{height + 3.f * txtSelectionMedium.height};
 
     // Frame
@@ -5514,7 +5518,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     // Line
     height += txtSelectionSmall.height + textToQuadBorder + lineThickness;
-    menuQuads.reserve(4);
+    menuQuads.reserve_quad(1);
     createQuad(menuQuadColor, 0, width, height, height - lineThickness);
 
     // "LEADERBOARD"
@@ -5526,7 +5530,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     // Line
     height += txtSelectionScore.height + txtSelectionBig.height / 2.f + 3.f;
-    menuQuads.reserve_more(4);
+    menuQuads.reserve_more_quad(1);
     createQuad(menuQuadColor, 0, width, height, height + lineThickness);
     height += lineThickness;
 
@@ -5649,7 +5653,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
         // Line
         height += txtSelectionScore.height + txtSelectionBig.height / 2.f;
-        menuQuads.reserve_more(4);
+        menuQuads.reserve_more_quad(1);
         createQuad(menuQuadColor, 0, width, height, height + lineThickness);
         height += lineThickness;
 
@@ -5706,7 +5710,7 @@ void MenuGame::draw()
     styleData.computeColors();
     window.clear(sf::Color{0, 0, 0, 255});
 
-    backgroundCamera.apply(window);
+    window.setView(backgroundCamera.apply());
     const bool mainOrAbove{state >= States::SMain};
 
     // Only draw the hexagon background past the loading screens.
@@ -5723,7 +5727,7 @@ void MenuGame::draw()
         render(menuBackgroundTris);
     }
 
-    overlayCamera.apply(window);
+    window.setView(overlayCamera.apply());
 
     // Draw the profile name.
     if(mainOrAbove && state != States::LevelSelection)
@@ -5904,7 +5908,7 @@ void MenuGame::draw()
 
     if(!dialogBox.empty())
     {
-        overlayCamera.apply(window);
+        window.setView(overlayCamera.apply());
         dialogBox.draw(dialogBoxTextColor, styleData.getColor(0));
     }
 
@@ -5936,7 +5940,7 @@ void MenuGame::drawGraphics()
 void MenuGame::drawOnlineStatus()
 {
     window.getRenderWindow().setView(
-        sf::View{{0.f, 0.f, getWindowWidth(), getWindowHeight()}});
+        sf::View{{{0.f, 0.f}, {getWindowWidth(), getWindowHeight()}}});
 
     const float onlineStatusScaling = 1.5f;
     const float scaling = onlineStatusScaling / Config::getZoomFactor();
@@ -6021,7 +6025,7 @@ void MenuGame::drawOnlineStatus()
 
     sOnline.setScale(sf::Vector2f{spriteScale, spriteScale});
     sOnline.setOrigin(ssvs::getLocalSW(sOnline));
-    sOnline.setPosition(0 + padding, getWindowHeight() - padding);
+    sOnline.setPosition({0 + padding, getWindowHeight() - padding});
 
     rsOnlineStatus.setSize(
         sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
@@ -6029,12 +6033,12 @@ void MenuGame::drawOnlineStatus()
     rsOnlineStatus.setFillColor(sf::Color::Black);
     rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));
     rsOnlineStatus.setPosition(
-        ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y);
+        {ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y});
 
     txtOnlineStatus.setOrigin(ssvs::getLocalCenterW(txtOnlineStatus));
     txtOnlineStatus.setPosition(
-        ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
-        ssvs::getGlobalCenter(rsOnlineStatus).y);
+        {ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
+            ssvs::getGlobalCenter(rsOnlineStatus).y});
 
     render(sOnline);
     render(rsOnlineStatus);

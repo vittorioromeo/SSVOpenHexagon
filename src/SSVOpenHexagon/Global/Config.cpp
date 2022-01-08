@@ -114,7 +114,27 @@ defaultServerLevelWhitelist()
         "vanitylevels_Vipre_Vanity_10006_technology_m_1.001",
         "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1",
         "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.001",
-        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.002" //
+        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.002",
+
+        // clang-format off
+        // Morxemplum - Rotationality Remastered [Steam Workshop]
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_1",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_2",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_3",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_5",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_6.66",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_1",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_2",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_3",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_5",
+        // clang-format on
+
+        // Syyrion - Travel [Steam Workshop]
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_0.8",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1.2",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1.4",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_spl_m_1" //
     };
 
     return result;
@@ -147,30 +167,30 @@ using cil = std::initializer_list<cmb>;
     X(joystickAddToFavorites, uint, "j_add_favorite", 8) \
     X(joystickFavoritesMenu, uint, "j_favorite_menu", 9)
 
-#define X_LINKEDVALUES_BINDS_TRIGGERS                                       \
-    X(triggerRotateCCW, trig, "t_rotate_ccw",                               \
-        cil{cmb{{k::A}}, cmb{{k::Left}}, cmb{kil{}, mil{m::Left}}})         \
-    X(triggerRotateCW, trig, "t_rotate_cw",                                 \
-        cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})       \
-    X(triggerFocus, trig, "t_focus",                                        \
-        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::XButton1}}})                \
-    X(triggerSelect, trig, "t_select",                                      \
-        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                   \
-    X(triggerExit, trig, "t_exit",                                          \
-        cil{cmb{{k::T}}, cmb{kil{}, mil{m::XButton2}}})                     \
-    X(triggerForceRestart, trig, "t_force_restart",                         \
-        cil{cmb{{k::Up}}, cmb{{k::R}}})                                     \
-    X(triggerRestart, trig, "t_restart",                                    \
-        cil{cmb{{k::Space}}, cmb{{k::Return}}, cmb{kil{}, mil{m::Middle}}}) \
-    X(triggerReplay, trig, "t_replay", cil{cmb{{k::Y}}})                    \
-    X(triggerScreenshot, trig, "t_screenshot", cil{cmb{{k::F12}}})          \
-    X(triggerSwap, trig, "t_swap",                                          \
-        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                   \
-    X(triggerUp, trig, "t_up", cil{cmb{{k::W}}})                            \
-    X(triggerDown, trig, "t_down", cil{cmb{{k::S}}})                        \
-    X(triggerNextPack, trig, "t_next", cil{cmb{{k::PageDown}}})             \
-    X(triggerPreviousPack, trig, "t_previous", cil{cmb{{k::PageUp}}})       \
-    X(triggerLuaConsole, trig, "t_lua_console", cil{cmb{{k::F1}}})          \
+#define X_LINKEDVALUES_BINDS_TRIGGERS                                      \
+    X(triggerRotateCCW, trig, "t_rotate_ccw",                              \
+        cil{cmb{{k::A}}, cmb{{k::Left}}, cmb{kil{}, mil{m::Left}}})        \
+    X(triggerRotateCW, trig, "t_rotate_cw",                                \
+        cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})      \
+    X(triggerFocus, trig, "t_focus",                                       \
+        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::XButton1}}})               \
+    X(triggerSelect, trig, "t_select",                                     \
+        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
+    X(triggerExit, trig, "t_exit",                                         \
+        cil{cmb{{k::T}}, cmb{kil{}, mil{m::XButton2}}})                    \
+    X(triggerForceRestart, trig, "t_force_restart",                        \
+        cil{cmb{{k::Up}}, cmb{{k::R}}})                                    \
+    X(triggerRestart, trig, "t_restart",                                   \
+        cil{cmb{{k::Space}}, cmb{{k::Enter}}, cmb{kil{}, mil{m::Middle}}}) \
+    X(triggerReplay, trig, "t_replay", cil{cmb{{k::Y}}})                   \
+    X(triggerScreenshot, trig, "t_screenshot", cil{cmb{{k::F12}}})         \
+    X(triggerSwap, trig, "t_swap",                                         \
+        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
+    X(triggerUp, trig, "t_up", cil{cmb{{k::W}}})                           \
+    X(triggerDown, trig, "t_down", cil{cmb{{k::S}}})                       \
+    X(triggerNextPack, trig, "t_next", cil{cmb{{k::PageDown}}})            \
+    X(triggerPreviousPack, trig, "t_previous", cil{cmb{{k::PageUp}}})      \
+    X(triggerLuaConsole, trig, "t_lua_console", cil{cmb{{k::F1}}})         \
     X(triggerPause, trig, "t_pause", cil{cmb{{k::F2}}})
 
 #define X_LINKEDVALUES_BINDS      \
@@ -246,6 +266,9 @@ using cil = std::initializer_list<cmb>;
     X(playerTrailScale, float, "player_trail_scale", 0.9f)                 \
     X(playerTrailDecay, float, "player_trail_decay", 3.0f)                 \
     X(playerTrailHasSwapColor, bool, "player_trail_has_swap_color", true)  \
+    X(showSwapParticles, bool, "show_swap_particles", true)                \
+    X(playSwapReadySound, bool, "play_swap_ready_sound", true)             \
+    X(showSwapBlinkingEffect, bool, "show_swap_blinking_effect", true)     \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -254,7 +277,7 @@ namespace hg::Config {
 {
     static ssvuj::Obj res = []
     {
-        if(ssvufs::Path{"config.json"}.exists<ssvufs::Type::File>())
+        if(ssvufs::Path{"config.json"}.isFile())
         {
             ssvu::lo("hg::Config::root()")
                 << "User-defined `config.json` file found\n";
@@ -367,7 +390,7 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
 {
     ssvu::lo("::loadConfig") << "loading config\n";
 
-    if(ssvufs::Path{"ConfigOverrides/"}.exists<ssvufs::Type::Folder>())
+    if(ssvufs::Path{"ConfigOverrides/"}.isFolder())
     {
         for(const ssvufs::Path& p :
             ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
@@ -797,6 +820,21 @@ void setPlayerTrailHasSwapColor(bool x)
     playerTrailHasSwapColor() = x;
 }
 
+void setShowSwapParticles(bool x)
+{
+    showSwapParticles() = x;
+}
+
+void setPlaySwapReadySound(bool x)
+{
+    playSwapReadySound() = x;
+}
+
+void setShowSwapBlinkingEffect(bool x)
+{
+    showSwapBlinkingEffect() = x;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -1155,6 +1193,21 @@ void setPlayerTrailHasSwapColor(bool x)
 [[nodiscard]] bool getPlayerTrailHasSwapColor()
 {
     return playerTrailHasSwapColor();
+}
+
+[[nodiscard]] bool getShowSwapParticles()
+{
+    return showSwapParticles();
+}
+
+[[nodiscard]] bool getPlaySwapReadySound()
+{
+    return playSwapReadySound();
+}
+
+[[nodiscard]] bool getShowSwapBlinkingEffect()
+{
+    return showSwapBlinkingEffect();
 }
 
 //***********************************************************

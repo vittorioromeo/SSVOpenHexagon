@@ -3,6 +3,19 @@ cmake_minimum_required(VERSION 3.9)
 #
 #
 # -----------------------------------------------------------------------------
+# Produce Lua Metadata
+# -----------------------------------------------------------------------------
+
+if(FALSE)
+    set(SSVOH_PRODUCE_LUA_METADATA TRUE)
+    add_definitions(-DSSVOH_PRODUCE_LUA_METADATA)
+else()
+    set(SSVOH_PRODUCE_LUA_METADATA FALSE)
+endif()
+
+#
+#
+# -----------------------------------------------------------------------------
 # Android build
 # -----------------------------------------------------------------------------
 
@@ -25,9 +38,9 @@ endif()
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." FALSE)
 
 if(${FORCE_COLORED_OUTPUT})
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR (CMAKE_CXX_COMPILER MATCHES "g\\+\\+"))
        add_compile_options("-fdiagnostics-color=always")
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    elseif(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR (CMAKE_CXX_COMPILER MATCHES "clang\\+\\+"))
        add_compile_options("-fcolor-diagnostics")
     endif()
 endif()
@@ -50,7 +63,7 @@ endif()
 # CPM
 # -----------------------------------------------------------------------------
 
-set(CPM_DOWNLOAD_VERSION 0.32.0)
+set(CPM_DOWNLOAD_VERSION 0.34.0)
 
 if(CPM_SOURCE_CACHE)
     set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
@@ -81,13 +94,13 @@ set(SFML_STATIC_LIBRARIES false)
 
 CPMAddPackage(
     NAME SFML
-    GITHUB_REPOSITORY SuperV1234/SFML
-    GIT_TAG c815ee19e42c313edee37f395f75aae88f4a6762
+    GITHUB_REPOSITORY vittorioromeo/SFML
+    GIT_TAG 596955141c9d6550aeeea196297d07f8b9143645
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-window PROPERTIES UNITY_BUILD OFF)
-set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
 
@@ -103,8 +116,8 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 
 CPMAddPackage(
     NAME luajit
-    GIT_REPOSITORY https://github.com/SuperV1234/LuaJIT
-    GIT_TAG 43cbd9b5f40c472eb9602b66b203057d0f08231b
+    GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
+    GIT_TAG 6979458f60adb6e95a8b781035c7a11913861178
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -144,7 +157,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 19c3773cc09fffdf950c3e88273f0a15adad1176
+        GIT_TAG afffcd5810d030e24056c1a61f27a6eb632f50ed
         DOWNLOAD_ONLY YES
     )
 
@@ -169,8 +182,8 @@ endif()
 if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
-        GITHUB_REPOSITORY eliasdaler/imgui-sfml
-        GIT_TAG 8bc196c5eaadb342712407eb06fc2f53edfde227
+        GITHUB_REPOSITORY vittorioromeo/imgui-sfml
+        GIT_TAG 4129d276d45845581b6ba99ede50db6f761e5089
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
@@ -187,8 +200,8 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 
 CPMAddPackage(
     NAME libsodium-cmake
-    GITHUB_REPOSITORY SuperV1234/libsodium-cmake
-    GIT_TAG c33e05c9bcf7fa1ef0291cf4f35ea1a677a5b7f0
+    GITHUB_REPOSITORY vittorioromeo/libsodium-cmake
+    GIT_TAG 6afc5beec300bd28589e2e3cb22732e8123fe30f
     OPTIONS "SODIUM_DISABLE_TESTS ON" "SODIUM_DISABLE_TESTS ON CACHE BOOL \"\" FORCE"
 )
 
@@ -264,6 +277,7 @@ message(STATUS "initialized project ${PROJECT_NAME}")
 # -----------------------------------------------------------------------------
 
 set(CMAKE_UNITY_BUILD ON)
+set(CMAKE_UNITY_BUILD_BATCH_SIZE 4)
 
 #
 #

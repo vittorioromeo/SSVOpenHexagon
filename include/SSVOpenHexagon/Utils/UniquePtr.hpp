@@ -37,6 +37,16 @@ public:
         rhs._ptr = nullptr;
     }
 
+    [[nodiscard, gnu::always_inline]] T* get() noexcept
+    {
+        return _ptr;
+    }
+
+    [[nodiscard, gnu::always_inline]] const T* get() const noexcept
+    {
+        return _ptr;
+    }
+
     [[nodiscard, gnu::always_inline]] T& operator*() noexcept
     {
         SSVOH_ASSERT(_ptr != nullptr);

@@ -119,10 +119,10 @@ void HexagonGame::updateKeyIcons()
 
     const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
 
-    keyIconLeft.setScale(scaling, scaling);
-    keyIconRight.setScale(scaling, scaling);
-    keyIconFocus.setScale(scaling, scaling);
-    keyIconSwap.setScale(scaling, scaling);
+    keyIconLeft.setScale({scaling, scaling});
+    keyIconRight.setScale({scaling, scaling});
+    keyIconFocus.setScale({scaling, scaling});
+    keyIconSwap.setScale({scaling, scaling});
 
     const float scaledHalfSize = halfSize * scaling;
     const float scaledSize = size * scaling;
@@ -142,7 +142,7 @@ void HexagonGame::updateKeyIcons()
     // ------------------------------------------------------------------------
 
     replayIcon.setOrigin({size, size});
-    replayIcon.setScale(scaling / 2.f, scaling / 2.f);
+    replayIcon.setScale({scaling / 2.f, scaling / 2.f});
 
     const sf::Vector2f topRight{Config::getWidth() - padding - scaledHalfSize,
         padding + scaledHalfSize};
@@ -166,7 +166,7 @@ void HexagonGame::updateLevelInfo()
     const sf::Vector2f scaledHalfSize{halfSize * scaling};
 
     levelInfoRectangle.setSize(size);
-    levelInfoRectangle.setScale(scaling, scaling);
+    levelInfoRectangle.setScale({scaling, scaling});
 
     const sf::Color offsetColor{
         Config::getBlackAndWhite() || styleData.getColors().empty()
@@ -317,7 +317,6 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
     }
 
-
     game.onUpdate +=
         [this](ssvu::FT mFT) { update(mFT, Config::getTimescale()); };
 
@@ -420,14 +419,14 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
                 if(debugPause)
                 {
-                    if(audio != nullptr)
+                    if(shouldPlayMusic())
                     {
                         audio->pauseMusic();
                     }
                 }
                 else if(!status.hasDied)
                 {
-                    if(audio != nullptr)
+                    if(shouldPlayMusic())
                     {
                         audio->resumeMusic();
                     }
@@ -441,7 +440,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     Config::loadAllJoystickBinds();
 
     // ------------------------------------------------------------------------
-    // key icons
+    // Key icons
+
     initKeyIcons();
 }
 
@@ -666,9 +666,11 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Particles cleanup
     pbTextGrowth = 0.f;
     mustSpawnPBParticles = false;
+    swapParticlesSpawnInfo.reset();
     nextPBParticleSpawn = 0.f;
     particles.clear();
     trailParticles.clear();
+    swapParticles.clear();
 
     // Re-init default flash effect
     initFlashEffect(255, 255, 255);
@@ -694,6 +696,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     // Lua context and game status cleanup
     inputImplCCW = inputImplCW = false;
+    playerNowReadyToSwap = false;
 
     lua = Lua::LuaContext{};
     calledDeprecatedFunctions.clear();
@@ -1395,6 +1398,28 @@ auto HexagonGame::getColorPlayer() const -> sf::Color
     }
 
     return styleData.getPlayerColor();
+}
+
+auto HexagonGame::getColorPlayerAdjustedForSwap() const -> sf::Color
+{
+    if(Config::getBlackAndWhite())
+    {
+        return sf::Color(255, 255, 255, styleData.getPlayerColor().a);
+    }
+
+    if(!Config::getShowSwapBlinkingEffect())
+    {
+        return getColorPlayer();
+    }
+
+    return player.getColorAdjustedForSwap(getColorPlayer());
+}
+
+auto HexagonGame::getColorPlayerTrail() const -> sf::Color
+{
+    return Config::getPlayerTrailHasSwapColor()
+               ? getColorPlayerAdjustedForSwap()
+               : getColorPlayer();
 }
 
 auto HexagonGame::getColorText() const -> sf::Color
