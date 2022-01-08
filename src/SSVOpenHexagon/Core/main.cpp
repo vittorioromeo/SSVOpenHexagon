@@ -64,7 +64,7 @@ void createFolderIfNonExistant(const std::string& folderName)
 {
     const ssvu::FileSystem::Path path{folderName};
 
-    if(path.exists<ssvufs::Type::Folder>())
+    if(path.isFolder())
     {
         return;
     }
@@ -344,7 +344,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     if(!headless)
     {
         SSVOH_ASSERT(window.has_value());
-        hg::Imgui::initialize(*window);
+        if(!hg::Imgui::initialize(*window))
+        {
+            ssvu::lo("::main") << "Failed to initialize ImGui...\n";
+        }
     }
 
     HG_SCOPE_GUARD({
