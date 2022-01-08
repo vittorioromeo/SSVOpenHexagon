@@ -145,7 +145,7 @@
 		"vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.002"
 	],
 	"server_port" : 50505,
-	"show_fps" : false,
+	"show_fps" : true,
 	"show_key_icons" : false,
 	"show_level_info" : false,
 	"show_login_at_startup" : false,
