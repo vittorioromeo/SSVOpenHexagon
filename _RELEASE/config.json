@@ -44,8 +44,7 @@
 	"no_music" : false,
 	"no_rotation" : false,
 	"no_sound" : false,
-	"official" : false,
-	"online" : true,
+	"official" : true,
 	"pixel_multiplier" : 1,
 	"play_swap_ready_sound" : true,
 	"player_focus_speed" : 4.6250,
@@ -58,7 +57,6 @@
 	"pulse_enabled" : true,
 	"rotate_to_start" : false,
 	"save_last_login_username" : true,
-	"save_local_best_replay_to_file" : true,
 	"server_control_port" : 50506,
 	"server_ip" : "139.162.199.162",
 	"server_level_whitelist" :
@@ -146,9 +144,7 @@
 		"vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.001",
 		"vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.002"
 	],
-	"server_local" : true,
 	"server_port" : 50505,
-	"server_verbose" : true,
 	"show_fps" : false,
 	"show_key_icons" : false,
 	"show_level_info" : false,
@@ -191,31 +187,19 @@
 	],
 	"t_lua_console" :
 	[
-		[ "kF1" ],
-		[ "" ],
-		[ "" ],
-		[ "" ]
+		[ "kF1" ]
 	],
 	"t_next" :
 	[
-		[ "kPageDown" ],
-		[ "" ],
-		[ "" ],
-		[ "" ]
+		[ "kPageDown" ]
 	],
 	"t_pause" :
 	[
-		[ "kF2" ],
-		[ "" ],
-		[ "" ],
-		[ "" ]
+		[ "kF2" ]
 	],
 	"t_previous" :
 	[
-		[ "kPageUp" ],
-		[ "" ],
-		[ "" ],
-		[ "" ]
+		[ "kPageUp" ]
 	],
 	"t_replay" :
 	[
@@ -227,7 +211,7 @@
 	"t_restart" :
 	[
 		[ "kSpace" ],
-		[ "kReturn" ],
+		[ "kEnter" ],
 		[ "bMiddle" ],
 		[ "" ]
 	],
@@ -275,11 +259,10 @@
 	],
 	"text_padding" : 8.0,
 	"text_scaling" : 1.0,
-	"timer_static" : true,
 	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 720,
-	"windowed_width" : 1280,
-	"zoom_factor" : 1.066666722297668
+	"windowed_height" : 763,
+	"windowed_width" : 1206,
+	"zoom_factor" : 1.006553053855896
 }

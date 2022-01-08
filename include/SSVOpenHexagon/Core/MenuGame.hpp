@@ -257,7 +257,7 @@ private:
     sf::Color menuSelectionColor;
     sf::Color dialogBoxTextColor;
     Utils::FastVertexVectorTris menuBackgroundTris;
-    Utils::FastVertexVectorQuads menuQuads;
+    Utils::FastVertexVectorTris menuQuads;
 
     // Mouse control
     HRTimePoint lastMouseClick{};

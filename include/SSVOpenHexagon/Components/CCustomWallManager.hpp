@@ -90,7 +90,7 @@ public:
     [[nodiscard]] std::uint8_t getKillingSide(const CCustomWallHandle cwHandle);
 
     void clear();
-    void draw(Utils::FastVertexVectorQuads& wallQuads);
+    void draw(Utils::FastVertexVectorTris& wallQuads);
 
     [[nodiscard]] bool handleCollision(
         const int movement, const float radius, CPlayer& mPlayer, ssvu::FT mFT);
