@@ -78,7 +78,7 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
 }
 
 void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
-    const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
+    const sf::Color& colorPlayer, Utils::FastVertexVectorTris& wallQuads,
     Utils::FastVertexVectorTris& capTris,
     Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor,
     const float angleTiltIntensity, const bool swapBlinkingEffect)
@@ -107,7 +107,7 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
 }
 
 void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
-    Utils::FastVertexVectorQuads& wallQuads,
+    Utils::FastVertexVectorTris& wallQuads,
     Utils::FastVertexVectorTris& capTris, const sf::Color& capColor)
 {
     const float div{ssvu::tau / sides * 0.5f};
@@ -126,15 +126,15 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
         const sf::Vector2f p4{ssvs::getOrbitRad(
             _startPos, sAngle - div, pRadius + baseThickness)};
 
-        wallQuads.reserve_more(4);
-        wallQuads.batch_unsafe_emplace_back(colorMain, p1, p2, p3, p4);
+        wallQuads.reserve_more_quad(1);
+        wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
 
         capTris.reserve_more(3);
         capTris.batch_unsafe_emplace_back(capColor, p1, p2, _startPos);
     }
 }
 
-void CPlayer::drawDeathEffect(Utils::FastVertexVectorQuads& wallQuads)
+void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
 {
     const float div{ssvu::tau / 6 * 0.5f};
     const float dRadius{_hue / 8.f};
@@ -153,8 +153,8 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorQuads& wallQuads)
         const sf::Vector2f p4{
             ssvs::getOrbitRad(_pos, sAngle - div, dRadius + thickness)};
 
-        wallQuads.reserve_more(4);
-        wallQuads.batch_unsafe_emplace_back(colorMain, p1, p2, p3, p4);
+        wallQuads.reserve_more_quad(1);
+        wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
     }
 }
 

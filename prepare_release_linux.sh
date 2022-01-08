@@ -23,11 +23,11 @@ cp ./_RELEASE/libImGui-SFML.so ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libdiscord_game_sdk.so ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libluajit.so ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libsdkencryptedappticket.so ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/libsfml-audio.so.2.5 ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/libsfml-graphics.so.2.5 ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/libsfml-network.so.2.5 ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/libsfml-system.so.2.5 ./_PREPARED_RELEASE_LINUX
-cp ./_RELEASE/libsfml-window.so.2.5 ./_PREPARED_RELEASE_LINUX
+cp ./_RELEASE/libsfml-audio.so.3.0 ./_PREPARED_RELEASE_LINUX
+cp ./_RELEASE/libsfml-graphics.so.3.0 ./_PREPARED_RELEASE_LINUX
+cp ./_RELEASE/libsfml-network.so.3.0 ./_PREPARED_RELEASE_LINUX
+cp ./_RELEASE/libsfml-system.so.3.0 ./_PREPARED_RELEASE_LINUX
+cp ./_RELEASE/libsfml-window.so.3.0 ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libsodium.so ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libstdc++.so.6 ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libsteam_api.so ./_PREPARED_RELEASE_LINUX

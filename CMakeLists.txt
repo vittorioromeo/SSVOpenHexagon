@@ -38,9 +38,9 @@ endif()
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." FALSE)
 
 if(${FORCE_COLORED_OUTPUT})
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR (CMAKE_CXX_COMPILER MATCHES "g\\+\\+"))
        add_compile_options("-fdiagnostics-color=always")
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    elseif(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR (CMAKE_CXX_COMPILER MATCHES "clang\\+\\+"))
        add_compile_options("-fcolor-diagnostics")
     endif()
 endif()
@@ -63,7 +63,7 @@ endif()
 # CPM
 # -----------------------------------------------------------------------------
 
-set(CPM_DOWNLOAD_VERSION 0.32.0)
+set(CPM_DOWNLOAD_VERSION 0.34.0)
 
 if(CPM_SOURCE_CACHE)
     set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
@@ -94,13 +94,13 @@ set(SFML_STATIC_LIBRARIES false)
 
 CPMAddPackage(
     NAME SFML
-    GITHUB_REPOSITORY SuperV1234/SFML
-    GIT_TAG ab41e083f6de91c3440bd04341b73f89d69f7975
+    GITHUB_REPOSITORY vittorioromeo/SFML
+    GIT_TAG 596955141c9d6550aeeea196297d07f8b9143645
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-window PROPERTIES UNITY_BUILD OFF)
-set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
 
@@ -116,8 +116,8 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 
 CPMAddPackage(
     NAME luajit
-    GIT_REPOSITORY https://github.com/SuperV1234/LuaJIT
-    GIT_TAG 1fc4827feffea4f687a3f102871a3630a5ca9ee2
+    GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
+    GIT_TAG 6979458f60adb6e95a8b781035c7a11913861178
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -157,7 +157,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 764f9e606d106591072a8e5a79d4e801c4c699fb
+        GIT_TAG afffcd5810d030e24056c1a61f27a6eb632f50ed
         DOWNLOAD_ONLY YES
     )
 
@@ -182,8 +182,8 @@ endif()
 if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
-        GITHUB_REPOSITORY eliasdaler/imgui-sfml
-        GIT_TAG 9cc8c57a4565551087be0d9aeb3ae55490aa1207
+        GITHUB_REPOSITORY vittorioromeo/imgui-sfml
+        GIT_TAG 4129d276d45845581b6ba99ede50db6f761e5089
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
@@ -200,7 +200,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 
 CPMAddPackage(
     NAME libsodium-cmake
-    GITHUB_REPOSITORY SuperV1234/libsodium-cmake
+    GITHUB_REPOSITORY vittorioromeo/libsodium-cmake
     GIT_TAG 6afc5beec300bd28589e2e3cb22732e8123fe30f
     OPTIONS "SODIUM_DISABLE_TESTS ON" "SODIUM_DISABLE_TESTS ON CACHE BOOL \"\" FORCE"
 )

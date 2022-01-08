@@ -829,9 +829,21 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
 
 void HexagonGame::updateCameraShake(ssvu::FT mFT)
 {
-    if(!backgroundCamera.has_value() || !overlayCamera.has_value() ||
-        status.cameraShake <= 0)
+    if(!backgroundCamera.has_value() || !overlayCamera.has_value())
     {
+        return;
+    }
+
+    if(status.cameraShake <= 0.f)
+    {
+        if(preShakeCenters.has_value())
+        {
+            backgroundCamera->setCenter(preShakeCenters->background);
+            overlayCamera->setCenter(preShakeCenters->overlay);
+
+            preShakeCenters.reset();
+        }
+
         return;
     }
 
@@ -839,18 +851,6 @@ void HexagonGame::updateCameraShake(ssvu::FT mFT)
 
     if(!preShakeCenters.has_value())
     {
-        if(status.cameraShake <= 0)
-        {
-            backgroundCamera->setCenter(
-                preShakeCenters->backgroundCameraPreShakeCenter);
-
-            overlayCamera->setCenter(
-                preShakeCenters->overlayCameraPreShakeCenter);
-
-            preShakeCenters.reset();
-            return;
-        }
-
         preShakeCenters = PreShakeCenters{
             backgroundCamera->getCenter(), overlayCamera->getCenter()};
     }
@@ -865,11 +865,8 @@ void HexagonGame::updateCameraShake(ssvu::FT mFT)
         return sf::Vector2f(rng.get_real(-i, i), rng.get_real(-i, i));
     };
 
-    backgroundCamera->setCenter(
-        preShakeCenters->backgroundCameraPreShakeCenter + makeShakeVec());
-
-    overlayCamera->setCenter(
-        preShakeCenters->overlayCameraPreShakeCenter + makeShakeVec());
+    backgroundCamera->setCenter(preShakeCenters->background + makeShakeVec());
+    overlayCamera->setCenter(preShakeCenters->overlay + makeShakeVec());
 }
 
 void HexagonGame::updateFlash(ssvu::FT mFT)
@@ -881,9 +878,9 @@ void HexagonGame::updateFlash(ssvu::FT mFT)
 
     status.flashEffect = ssvu::getClamped(status.flashEffect, 0.f, 255.f);
 
-    for(auto i(0u); i < 4; ++i)
+    for(sf::Vertex& vertex : flashPolygon)
     {
-        flashPolygon[i].color.a = status.flashEffect;
+        vertex.color.a = status.flashEffect;
     }
 }
 

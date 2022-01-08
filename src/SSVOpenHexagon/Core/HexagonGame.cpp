@@ -322,7 +322,6 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
     }
 
-
     game.onUpdate +=
         [this](ssvu::FT mFT) { update(mFT, Config::getTimescale()); };
 
@@ -446,7 +445,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     Config::loadAllJoystickBinds();
 
     // ------------------------------------------------------------------------
-    // key icons
+    // Key icons
+
     initKeyIcons();
 }
 

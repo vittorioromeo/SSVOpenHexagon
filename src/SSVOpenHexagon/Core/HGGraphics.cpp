@@ -124,7 +124,7 @@ void HexagonGame::draw()
     capTris.clear();
 
     // Reserve right amount of memory for all walls and custom walls
-    wallQuads.reserve_more(4 * walls.size() + 4 * cwManager.count());
+    wallQuads.reserve_more_quad(walls.size() + cwManager.count());
 
     for(CWall& w : walls)
     {
@@ -328,21 +328,21 @@ void HexagonGame::drawImguiLuaConsole()
 void HexagonGame::initFlashEffect(int r, int g, int b)
 {
     flashPolygon.clear();
+    flashPolygon.reserve(6);
 
     const sf::Color color{static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g),
         static_cast<sf::Uint8>(b), 0};
 
-    flashPolygon.emplace_back(sf::Vector2f{-100.f, -100.f}, color);
+    const auto width = static_cast<float>(Config::getWidth());
+    const auto height = static_cast<float>(Config::getHeight());
+    const float offset = 100.f;
 
-    flashPolygon.emplace_back(
-        sf::Vector2f{Config::getWidth() + 100.f, -100.f}, color);
+    const sf::Vector2f nw{-offset, -offset};
+    const sf::Vector2f sw{-offset, height + offset};
+    const sf::Vector2f se{width + offset, height + offset};
+    const sf::Vector2f ne{width + offset, -offset};
 
-    flashPolygon.emplace_back(
-        sf::Vector2f{Config::getWidth() + 100.f, Config::getHeight() + 100.f},
-        color);
-
-    flashPolygon.emplace_back(
-        sf::Vector2f{-100.f, Config::getHeight() + 100.f}, color);
+    flashPolygon.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
 }
 
 void HexagonGame::drawKeyIcons()

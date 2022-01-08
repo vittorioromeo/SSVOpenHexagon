@@ -134,8 +134,8 @@ private:
 
     struct PreShakeCenters
     {
-        sf::Vector2f backgroundCameraPreShakeCenter;
-        sf::Vector2f overlayCameraPreShakeCenter;
+        sf::Vector2f background;
+        sf::Vector2f overlay;
     };
 
     std::optional<PreShakeCenters> preShakeCenters;
@@ -166,7 +166,7 @@ private:
     sf::Text messageText;
     sf::Text pbText;
 
-    ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
+    Utils::FastVertexVectorTris flashPolygon;
 
     struct Particle
     {
@@ -426,12 +426,12 @@ private:
     void performPlayerKill();
 
     Utils::FastVertexVectorTris backgroundTris;
-    Utils::FastVertexVectorQuads wallQuads;
-    Utils::FastVertexVectorQuads pivotQuads;
+    Utils::FastVertexVectorTris wallQuads;
+    Utils::FastVertexVectorTris pivotQuads;
     Utils::FastVertexVectorTris playerTris;
     Utils::FastVertexVectorTris capTris;
-    Utils::FastVertexVectorQuads wallQuads3D;
-    Utils::FastVertexVectorQuads pivotQuads3D;
+    Utils::FastVertexVectorTris wallQuads3D;
+    Utils::FastVertexVectorTris pivotQuads3D;
     Utils::FastVertexVectorTris playerTris3D;
 
 public:

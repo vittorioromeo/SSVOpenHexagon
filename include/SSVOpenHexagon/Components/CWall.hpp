@@ -48,7 +48,7 @@ public:
         ssvs::rotateRadAround(vertex, centerPos, _curve._speed / 60.f * ft);
     }
 
-    void draw(sf::Color color, Utils::FastVertexVectorQuads& wallQuads);
+    void draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads);
 
     void setHueMod(float hueMod) noexcept;
 
