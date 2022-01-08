@@ -63,7 +63,7 @@ endif()
 # CPM
 # -----------------------------------------------------------------------------
 
-set(CPM_DOWNLOAD_VERSION 0.32.0)
+set(CPM_DOWNLOAD_VERSION 0.34.0)
 
 if(CPM_SOURCE_CACHE)
     set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
@@ -95,7 +95,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 8d88c9dc9c506760a37af0b1bd1f924ecdbd587f
+    GIT_TAG 596955141c9d6550aeeea196297d07f8b9143645
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -117,7 +117,7 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME luajit
     GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
-    GIT_TAG 1fc4827feffea4f687a3f102871a3630a5ca9ee2
+    GIT_TAG 6979458f60adb6e95a8b781035c7a11913861178
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -157,7 +157,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 270d4d0855ea3b2f66833ab1124ec475abe9df9c
+        GIT_TAG afffcd5810d030e24056c1a61f27a6eb632f50ed
         DOWNLOAD_ONLY YES
     )
 
