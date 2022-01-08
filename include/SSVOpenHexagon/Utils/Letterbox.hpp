@@ -43,7 +43,7 @@ inline sf::View getLetterboxView(
         posY = (1 - sizeY) / 2.f;
     }
 
-    view.setViewport(sf::FloatRect(posX, posY, sizeX, sizeY));
+    view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
 
     return view;
 }
