@@ -114,7 +114,27 @@ defaultServerLevelWhitelist()
         "vanitylevels_Vipre_Vanity_10006_technology_m_1.001",
         "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1",
         "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.001",
-        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.002" //
+        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.002",
+
+        // clang-format off
+        // Morxemplum - Rotationality Remastered [Steam Workshop]
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_1",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_2",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_3",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_5",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_6.66",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_1",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_2",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_3",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_5",
+        // clang-format on
+
+        // Syyrion - Travel [Steam Workshop]
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_0.8",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1.2",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1.4",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_spl_m_1" //
     };
 
     return result;

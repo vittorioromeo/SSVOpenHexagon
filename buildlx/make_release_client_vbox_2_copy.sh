@@ -29,15 +29,15 @@ echo "| COPYING DEPS TO VBOX DRIVE                                       |"
 echo "--------------------------------------------------------------------"
 echo ""
 
-cp ./_deps/sfml-build/lib/libsfml-audio.so.2.5 ../_RELEASE
-cp ./_deps/sfml-build/lib/libsfml-network.so.2.5 ../_RELEASE
+cp ./_deps/sfml-build/lib/libsfml-audio.so.3.0 ../_RELEASE
+cp ./_deps/sfml-build/lib/libsfml-network.so.3.0 ../_RELEASE
 cp ./_deps/luajit-build/src/libluajit.so ../_RELEASE
 cp ./_deps/zlib-build/libz.so.1 ../_RELEASE
 cp ./_deps/libsodium-cmake-build/libsodium.so ../_RELEASE
 cp ./_deps/imgui-sfml-build/libImGui-SFML.so ../_RELEASE
-cp ./_deps/sfml-build/lib/libsfml-graphics.so.2.5 ../_RELEASE
-cp ./_deps/sfml-build/lib/libsfml-window.so.2.5 ../_RELEASE
-cp ./_deps/sfml-build/lib/libsfml-system.so.2.5 ../_RELEASE
+cp ./_deps/sfml-build/lib/libsfml-graphics.so.3.0 ../_RELEASE
+cp ./_deps/sfml-build/lib/libsfml-window.so.3.0 ../_RELEASE
+cp ./_deps/sfml-build/lib/libsfml-system.so.3.0 ../_RELEASE
 
 echo ""
 echo ""

@@ -3124,7 +3124,7 @@ void MenuGame::refreshCamera()
         {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
                               Config::getSizeY() * Config::getZoomFactor()}});
 
-    overlayCamera.setView(sf::View{sf::FloatRect(0, 0, w, h)});
+    overlayCamera.setView(sf::View{sf::FloatRect({0, 0}, {w, h})});
 
     titleBar.setOrigin(ssvs::zeroVec2f);
     titleBar.setScale({0.5f, 0.5f});
@@ -5940,7 +5940,7 @@ void MenuGame::drawGraphics()
 void MenuGame::drawOnlineStatus()
 {
     window.getRenderWindow().setView(
-        sf::View{{0.f, 0.f, getWindowWidth(), getWindowHeight()}});
+        sf::View{{{0.f, 0.f}, {getWindowWidth(), getWindowHeight()}}});
 
     const float onlineStatusScaling = 1.5f;
     const float scaling = onlineStatusScaling / Config::getZoomFactor();
