@@ -12,7 +12,13 @@
 
 5. Run `./vbox/build_and_upload_server.sh`
 
-5. Verify that the server is working with `ssh vittorioromeo@139.162.199.162`, `sudo journalctl -u openhexagon-server -f`
+6. Copy libs with:
+
+    ```bash
+    for d in $(find _deps | grep "\.so"); do scp $d vittorioromeo@139.162.199.162:/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/buildlx; done
+    ```
+
+7. Verify that the server is working with `ssh vittorioromeo@139.162.199.162`, `sudo journalctl -u openhexagon-server -f`
 
 ## Linux Client
 
@@ -52,13 +58,15 @@
 
 ## Lua Reference
 
-1. Go to `SSVOpenHexagon/_RELEASE`
+1. Temporarily change `CMakeLists.txt` to enable Lua Reference code
 
-2. Run `./SSVOpenHexagon.exe -printLuaDocs > temp.md`
+2. Go to `SSVOpenHexagon/_RELEASE`
 
-3. Open `temp.md` with an editor, find `## Utility Function` as the starting point and copy the Lua docs
+3. Run `./SSVOpenHexagon.exe -printLuaDocs > temp.md`
 
-4. Go to <https://github.com/SuperV1234/SSVOpenHexagon/wiki/Lua-Reference/_edit> and paste them there, after the `<!-- START GENERATED DOCS HERE -->` marker
+4. Open `temp.md` with an editor, find `## Utility Function` as the starting point and copy the Lua docs
+
+5. Go to <https://github.com/SuperV1234/SSVOpenHexagon/wiki/Lua-Reference/_edit> and paste them there, after the `<!-- START GENERATED DOCS HERE -->` marker
 
 ## Patch Notes
 
