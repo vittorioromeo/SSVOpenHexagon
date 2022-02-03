@@ -1427,7 +1427,7 @@ void MenuGame::initMenus()
     fps.create<i::Slider>(
         "max fps", &Config::getMaxFPS,
         [this](unsigned int mValue) { Config::setMaxFPS(window, mValue); }, 30u,
-        200u, 5u);
+        1000u, 5u);
     fps.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
     fps.create<i::GoBack>("back");
 
@@ -1856,7 +1856,15 @@ void MenuGame::leftAction()
         return;
     }
 
-    getCurrentMenu()->decrease();
+    const bool modifier = (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
+                           sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ||
+                           focusHeld || wasFocusHeld);
+
+    for(int i = 0; i < (modifier ? 2 : 1); ++i)
+    {
+        getCurrentMenu()->decrease();
+    }
+
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
 }
@@ -1885,7 +1893,15 @@ void MenuGame::rightAction()
         return;
     }
 
-    getCurrentMenu()->increase();
+    const bool modifier = (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
+                           sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ||
+                           focusHeld || wasFocusHeld);
+
+    for(int i = 0; i < (modifier ? 2 : 1); ++i)
+    {
+        getCurrentMenu()->increase();
+    }
+
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
 }
