@@ -1832,7 +1832,7 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
 //
 //*****************************************************
 
-void MenuGame::leftAction()
+void MenuGame::leftRightActionImpl(bool left)
 {
     if(state == States::SLPSelectBoot)
     {
@@ -1843,9 +1843,18 @@ void MenuGame::leftAction()
     // Change difficulty in the level selection menu.
     if(state == States::LevelSelection)
     {
-        --diffMultIdx;
+        if(left)
+        {
+            --diffMultIdx;
+            playSoundOverride("difficultyMultDown.ogg");
+        }
+        else
+        {
+            ++diffMultIdx;
+            playSoundOverride("difficultyMultUp.ogg");
+        }
+
         difficultyBumpEffect = difficultyBumpEffectMax;
-        playSoundOverride("difficultyMultDown.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1862,48 +1871,28 @@ void MenuGame::leftAction()
 
     for(int i = 0; i < (modifier ? 2 : 1); ++i)
     {
-        getCurrentMenu()->decrease();
+        if(left)
+        {
+            getCurrentMenu()->decrease();
+        }
+        else
+        {
+            getCurrentMenu()->increase();
+        }
     }
 
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
 }
 
+void MenuGame::leftAction()
+{
+    leftRightActionImpl(true /* left */);
+}
+
 void MenuGame::rightAction()
 {
-    if(state == States::SLPSelectBoot)
-    {
-        okAction();
-        return;
-    }
-
-    // Change difficulty in the level selection menu.
-    if(state == States::LevelSelection)
-    {
-        ++diffMultIdx;
-        difficultyBumpEffect = difficultyBumpEffectMax;
-        playSoundOverride("difficultyMultUp.ogg");
-        touchDelay = 50.f;
-        return;
-    }
-
-    // If there is no valid action abort.
-    if(!isInMenu() || !getCurrentMenu()->getItem().canIncrease())
-    {
-        return;
-    }
-
-    const bool modifier = (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
-                           sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ||
-                           focusHeld || wasFocusHeld);
-
-    for(int i = 0; i < (modifier ? 2 : 1); ++i)
-    {
-        getCurrentMenu()->increase();
-    }
-
-    playSoundOverride("beep.ogg");
-    touchDelay = 50.f;
+    leftRightActionImpl(false /* left */);
 }
 
 inline constexpr int maxProfilesOnScreen{6};
