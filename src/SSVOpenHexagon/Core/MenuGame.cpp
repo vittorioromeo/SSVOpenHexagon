@@ -37,7 +37,6 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
-#include "SSVOpenHexagon/Utils/Letterbox.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Match.hpp"
@@ -5710,8 +5709,7 @@ void MenuGame::draw()
     styleData.computeColors();
     window.clear(sf::Color{0, 0, 0, 255});
 
-    window.setView(getLetterboxView(
-        backgroundCamera.apply(), getWindowWidth(), getWindowHeight()));
+    window.setView(backgroundCamera.apply());
 
     const bool mainOrAbove{state >= States::SMain};
 
@@ -5729,8 +5727,7 @@ void MenuGame::draw()
         render(menuBackgroundTris);
     }
 
-    window.setView(getLetterboxView(
-        overlayCamera.apply(), getWindowWidth(), getWindowHeight()));
+    window.setView(overlayCamera.apply());
 
     // Draw the profile name.
     if(mainOrAbove && state != States::LevelSelection)
@@ -5911,9 +5908,7 @@ void MenuGame::draw()
 
     if(!dialogBox.empty())
     {
-        window.setView(getLetterboxView(
-            overlayCamera.apply(), getWindowWidth(), getWindowHeight()));
-
+        window.setView(overlayCamera.apply());
         dialogBox.draw(dialogBoxTextColor, styleData.getColor(0));
     }
 

@@ -12,7 +12,6 @@
 #include "SSVOpenHexagon/Global/Imgui.hpp"
 
 #include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/Utils/Letterbox.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
 #include "SSVStart/Utils/SFML.hpp"
@@ -100,7 +99,7 @@ void HexagonGame::draw()
 
     if(!Config::getNoBackground())
     {
-        window->setView(getLetterboxView(backgroundCamera->apply(), 1440, 900));
+        window->setView(backgroundCamera->apply());
 
         backgroundTris.clear();
 
@@ -113,7 +112,7 @@ void HexagonGame::draw()
         render(backgroundTris, getRenderStates(RenderStage::BackgroundTris));
     }
 
-    window->setView(getLetterboxView(backgroundCamera->apply(), 1440, 900));
+    window->setView(backgroundCamera->apply());
 
     wallQuads3D.clear();
     pivotQuads3D.clear();
@@ -267,7 +266,7 @@ void HexagonGame::draw()
     render(pivotQuads, getRenderStates(RenderStage::PivotQuads));
     render(playerTris, getRenderStates(RenderStage::PlayerTris));
 
-    window->setView(getLetterboxView(overlayCamera->apply(), 1440, 900));
+    window->setView(overlayCamera->apply());
 
     drawParticles();
     drawText();
@@ -320,7 +319,7 @@ void HexagonGame::drawImguiLuaConsole()
     SSVOH_ASSERT(overlayCamera.has_value());
 
     sf::RenderWindow& renderWindow = window->getRenderWindow();
-    window->setView(getLetterboxView(renderWindow.getDefaultView(), 1440, 900));
+    window->setView(renderWindow.getDefaultView());
 
     Imgui::render(*window);
 }
