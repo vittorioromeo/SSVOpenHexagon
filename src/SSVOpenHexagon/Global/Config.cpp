@@ -206,6 +206,7 @@ using cil = std::initializer_list<cmb>;
     X(blackAndWhite, bool, "black_and_white", false)                       \
     X(pulseEnabled, bool, "pulse_enabled", true)                           \
     X(_3DEnabled, bool, "3D_enabled", true)                                \
+    X(shadersEnabled, bool, "shaders_enabled", true)                       \
     X(_3DMultiplier, float, "3D_multiplier", 1.f)                          \
     X(_3DMaxDepth, uint, "3D_max_depth", 100)                              \
     X(invincible, bool, "invincible", false)                               \
@@ -645,6 +646,11 @@ void set3D(bool m3D)
     _3DEnabled() = m3D;
 }
 
+void setShaders(bool mX)
+{
+    shadersEnabled() = mX;
+}
+
 void setInvincible(bool mInvincible)
 {
     invincible() = mInvincible;
@@ -1008,6 +1014,11 @@ void setShowSwapBlinkingEffect(bool x)
 [[nodiscard]] bool get3D()
 {
     return _3DEnabled();
+}
+
+[[nodiscard]] bool getShaders()
+{
+    return shadersEnabled();
 }
 
 [[nodiscard]] float get3DMultiplier()

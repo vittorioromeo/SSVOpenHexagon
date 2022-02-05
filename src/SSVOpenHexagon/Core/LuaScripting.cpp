@@ -753,9 +753,14 @@ static void initLevelControl(
         "set this "
         "to ``true`` if your level relies on 3D effects to work as intended.");
 
-    // Commenting this one out. This property seems to have NO USE in the actual
-    // game itself. lsVar("3dEffectMultiplier",
-    // &LevelStatus::_3dEffectMultiplier);
+    lsVar("ShadersRequired", &LevelStatus::shadersRequired,
+        "Gets whether shaders must be enabled in order to have a valid score "
+        "in this level. "
+        "By default, this value is ``false``.",
+
+        "Sets whether shaders must be enabled to `$0` to have a valid score. "
+        "Only set this to ``true`` if your level relies on shader effects to "
+        "work as intended.");
 
     lsVar("CameraShake", &LevelStatus::cameraShake,
         "Gets the intensity of the camera shaking in a level.",

@@ -18,6 +18,7 @@
 
 #include <SFML/Config.hpp>
 
+#include <SFML/Graphics/RenderStates.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 
@@ -58,6 +59,11 @@ void HexagonGame::draw()
     const auto getRenderStates = [this](
                                      const RenderStage rs) -> sf::RenderStates
     {
+        if(!Config::getShaders())
+        {
+            return sf::RenderStates::Default;
+        }
+
         const std::optional<std::size_t> fragmentShaderId =
             status.fragmentShaderIds[static_cast<std::size_t>(rs)];
 

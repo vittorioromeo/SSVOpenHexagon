@@ -411,6 +411,11 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
         {
             invalidateScore("3D REQUIRED");
         }
+
+        if(!Config::getShaders() && levelStatus.shadersRequired)
+        {
+            invalidateScore("SHADERS REQUIRED");
+        }
     }
 }
 
