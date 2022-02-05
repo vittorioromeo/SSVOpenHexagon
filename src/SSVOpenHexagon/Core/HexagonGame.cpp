@@ -1555,11 +1555,6 @@ void HexagonGame::setSides(unsigned int mSides)
     return levelStatus.wallAngleRight;
 }
 
-[[nodiscard]] float HexagonGame::get3DEffectMult() const noexcept
-{
-    return levelStatus._3dEffectMultiplier;
-}
-
 [[nodiscard]] HexagonGameStatus& HexagonGame::getStatus() noexcept
 {
     return status;

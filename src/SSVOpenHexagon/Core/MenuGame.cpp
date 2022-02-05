@@ -1374,6 +1374,8 @@ void MenuGame::initMenus()
     gfx.create<i::Goto>("visual fxs", visfx);
     visfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
     visfx.create<i::Toggle>(
+        "shader effects", &Config::getShaders, &Config::setShaders);
+    visfx.create<i::Toggle>(
         "no rotation", &Config::getNoRotation, &Config::setNoRotation) |
         whenNotOfficial;
     visfx.create<i::Toggle>(
