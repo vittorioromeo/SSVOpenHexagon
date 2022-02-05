@@ -1427,7 +1427,7 @@ void MenuGame::initMenus()
     fps.create<i::Slider>(
         "max fps", &Config::getMaxFPS,
         [this](unsigned int mValue) { Config::setMaxFPS(window, mValue); }, 30u,
-        200u, 5u);
+        1000u, 5u);
     fps.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
     fps.create<i::GoBack>("back");
 
@@ -1832,7 +1832,7 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
 //
 //*****************************************************
 
-void MenuGame::leftAction()
+void MenuGame::leftRightActionImpl(bool left)
 {
     if(state == States::SLPSelectBoot)
     {
@@ -1843,9 +1843,18 @@ void MenuGame::leftAction()
     // Change difficulty in the level selection menu.
     if(state == States::LevelSelection)
     {
-        --diffMultIdx;
+        if(left)
+        {
+            --diffMultIdx;
+            playSoundOverride("difficultyMultDown.ogg");
+        }
+        else
+        {
+            ++diffMultIdx;
+            playSoundOverride("difficultyMultUp.ogg");
+        }
+
         difficultyBumpEffect = difficultyBumpEffectMax;
-        playSoundOverride("difficultyMultDown.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1856,38 +1865,34 @@ void MenuGame::leftAction()
         return;
     }
 
-    getCurrentMenu()->decrease();
+    const bool modifier = (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
+                           sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ||
+                           focusHeld || wasFocusHeld);
+
+    for(int i = 0; i < (modifier ? 2 : 1); ++i)
+    {
+        if(left)
+        {
+            getCurrentMenu()->decrease();
+        }
+        else
+        {
+            getCurrentMenu()->increase();
+        }
+    }
+
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
 }
 
+void MenuGame::leftAction()
+{
+    leftRightActionImpl(true /* left */);
+}
+
 void MenuGame::rightAction()
 {
-    if(state == States::SLPSelectBoot)
-    {
-        okAction();
-        return;
-    }
-
-    // Change difficulty in the level selection menu.
-    if(state == States::LevelSelection)
-    {
-        ++diffMultIdx;
-        difficultyBumpEffect = difficultyBumpEffectMax;
-        playSoundOverride("difficultyMultUp.ogg");
-        touchDelay = 50.f;
-        return;
-    }
-
-    // If there is no valid action abort.
-    if(!isInMenu() || !getCurrentMenu()->getItem().canIncrease())
-    {
-        return;
-    }
-
-    getCurrentMenu()->increase();
-    playSoundOverride("beep.ogg");
-    touchDelay = 50.f;
+    leftRightActionImpl(false /* left */);
 }
 
 inline constexpr int maxProfilesOnScreen{6};
