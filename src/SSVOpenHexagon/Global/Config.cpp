@@ -199,6 +199,7 @@ using cil = std::initializer_list<cmb>;
 
 #define X_LINKEDVALUES                                                     \
     X(official, bool, "official", true)                                    \
+    X(noPulse, bool, "no_pulse", false)                                    \
     X(noRotation, bool, "no_rotation", false)                              \
     X(noBackground, bool, "no_background", false)                          \
     X(noSound, bool, "no_sound", false)                                    \
@@ -505,6 +506,12 @@ bool isEligibleForScore()
         return false;
     }
 
+    if(getNoPulse())
+    {
+        uneligibilityReason = "pulse off";
+        return false;
+    }
+
     if(getNoRotation())
     {
         uneligibilityReason = "rotation off";
@@ -611,6 +618,11 @@ void setDebug(bool mDebug)
     debug() = mDebug;
 }
 
+void setNoPulse(bool mNoPulse)
+{
+    noPulse() = mNoPulse;
+}
+
 void setNoRotation(bool mNoRotation)
 {
     noRotation() = mNoRotation;
@@ -634,11 +646,6 @@ void setNoSound(bool mNoSound)
 void setNoMusic(bool mNoMusic)
 {
     noMusic() = mNoMusic;
-}
-
-void setPulse(bool mPulse)
-{
-    pulseEnabled() = mPulse;
 }
 
 void set3D(bool m3D)
@@ -891,6 +898,11 @@ void setShowSwapBlinkingEffect(bool x)
     return getOfficial() ? playerSize().getDefault() : playerSize();
 }
 
+[[nodiscard]] bool getNoPulse()
+{
+    return getOfficial() ? noPulse().getDefault() : noPulse();
+}
+
 [[nodiscard]] bool getNoRotation()
 {
     return getOfficial() ? noRotation().getDefault() : noRotation();
@@ -994,11 +1006,6 @@ void setShowSwapBlinkingEffect(bool x)
 [[nodiscard]] bool getDebug()
 {
     return getOfficial() ? debug().getDefault() : debug();
-}
-
-[[nodiscard]] bool getPulse()
-{
-    return getOfficial() ? pulseEnabled().getDefault() : pulseEnabled();
 }
 
 [[nodiscard]] bool getBeatPulse()

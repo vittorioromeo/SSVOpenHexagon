@@ -42,9 +42,10 @@
 	"music_volume" : 100.0,
 	"no_background" : false,
 	"no_music" : false,
+	"no_pulse" : true,
 	"no_rotation" : false,
 	"no_sound" : false,
-	"official" : true,
+	"official" : false,
 	"pixel_multiplier" : 1,
 	"play_swap_ready_sound" : true,
 	"player_focus_speed" : 4.6250,
@@ -148,7 +149,7 @@
 	"shaders_enabled" : true,
 	"show_fps" : true,
 	"show_key_icons" : false,
-	"show_level_info" : false,
+	"show_level_info" : true,
 	"show_login_at_startup" : false,
 	"show_messages" : true,
 	"show_player_trail" : true,
@@ -264,6 +265,6 @@
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 763,
-	"windowed_width" : 1206,
+	"windowed_width" : 1152,
 	"zoom_factor" : 1.006553053855896
 }

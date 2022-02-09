@@ -45,6 +45,7 @@
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVStart/Utils/SFML.hpp"
 
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/SFML.hpp>
@@ -205,6 +206,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       txtRandomTip{.font{"", openSquare}},
       // For the Main Menu
       txtMenuBig{.font{"", openSquare}},
+      txtMenuTiny{.font{"", openSquare}},
       txtMenuSmall{.font{"", openSquare}},
       txtProfile{.font{"", openSquare, 32}},
       txtInstructionsBig{.font{"", openSquare, 46}},
@@ -1136,8 +1138,6 @@ void MenuGame::initMenus()
     namespace i = ssvms::Items;
 
     auto whenNotOfficial = [] { return !Config::getOfficial(); };
-    auto whenSoundEnabled = [] { return !Config::getNoSound(); };
-    auto whenMusicEnabled = [] { return !Config::getNoMusic(); };
 
     // Welcome menu
     auto& wlcm(welcomeMenu.createCategory("welcome"));
@@ -1376,6 +1376,9 @@ void MenuGame::initMenus()
     visfx.create<i::Toggle>(
         "shader effects", &Config::getShaders, &Config::setShaders);
     visfx.create<i::Toggle>(
+        "no pulse", &Config::getNoPulse, &Config::setNoPulse) |
+        whenNotOfficial;
+    visfx.create<i::Toggle>(
         "no rotation", &Config::getNoRotation, &Config::setNoRotation) |
         whenNotOfficial;
     visfx.create<i::Toggle>(
@@ -1384,8 +1387,7 @@ void MenuGame::initMenus()
     visfx.create<i::Toggle>(
         "b&w colors", &Config::getBlackAndWhite, &Config::setBlackAndWhite) |
         whenNotOfficial;
-    visfx.create<i::Toggle>("pulse", &Config::getPulse, &Config::setPulse) |
-        whenNotOfficial;
+
     visfx.create<i::Toggle>("flash", &Config::getFlash, &Config::setFlash);
     visfx.create<i::Slider>("shake mult.", &Config::getCameraShakeMultiplier,
         &Config::setCameraShakeMultiplier, 0.f, 5.f, 0.1f);
@@ -1488,8 +1490,7 @@ void MenuGame::initMenus()
             Config::setSoundVolume(mValue);
             audio.setSoundVolume(mValue);
         },
-        0u, 100u, 5u) |
-        whenSoundEnabled;
+        0u, 100u, 5u);
     sfx.create<i::Slider>(
         "music volume", &Config::getMusicVolume,
         [this](unsigned int mValue)
@@ -1497,16 +1498,13 @@ void MenuGame::initMenus()
             Config::setMusicVolume(mValue);
             audio.setMusicVolume(mValue);
         },
-        0u, 100u, 5u) |
-        whenMusicEnabled;
+        0u, 100u, 5u);
     sfx.create<i::Toggle>("sync music with difficulty",
-        &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync) |
-        whenMusicEnabled;
+        &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync);
     sfx.create<i::Slider>(
         "music speed multiplier", &Config::getMusicSpeedMult,
         [](float mValue) { Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f,
-        0.05f) |
-        whenMusicEnabled;
+        0.05f);
     sfx.create<i::Toggle>("play swap ready blip sound",
         &Config::getPlaySwapReadySound, &Config::setPlaySwapReadySound);
     sfx.create<i::GoBack>("back");
@@ -3191,6 +3189,7 @@ void MenuGame::refreshCamera()
     if(fourByThree)
     {
         txtMenuBig.font.setCharacterSize(26);
+        txtMenuTiny.font.setCharacterSize(9);
         txtMenuSmall.font.setCharacterSize(16);
 
         txtSelectionBig.font.setCharacterSize(24);
@@ -3205,6 +3204,7 @@ void MenuGame::refreshCamera()
     else
     {
         txtMenuBig.font.setCharacterSize(36);
+        txtMenuTiny.font.setCharacterSize(14);
         txtMenuSmall.font.setCharacterSize(24);
 
         txtSelectionBig.font.setCharacterSize(28);
@@ -3219,7 +3219,7 @@ void MenuGame::refreshCamera()
 
     // txtVersion and txtProfile are not in here cause they do not need it.
     for(auto f : {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig,
-            &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
+            &txtMenuTiny, &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
             &txtInstructionsMedium, &txtInstructionsSmall, &txtEnteringText,
             &txtSelectionBig, &txtSelectionMedium, &txtSelectionSmall,
             &txtSelectionScore, &txtSelectionRanked})
@@ -3814,6 +3814,14 @@ void MenuGame::drawOptionsSubmenus(
         renderText(itemName, txtMenuSmall.font, {quadBorder, txtHeight},
             !items[i]->isEnabled() ? sf::Color{150, 150, 150, 255}
                                    : menuTextColor);
+
+        if(!items[i]->isEnabled())
+        {
+            renderText("[OFFICIAL MODE ENABLED]", txtMenuTiny.font,
+                {ssvs::getGlobalRight(txtMenuSmall.font) + 6.f,
+                    ssvs::getGlobalTop(txtMenuSmall.font) - 2.f},
+                sf::Color{150, 150, 150, 255});
+        }
 
         txtHeight += interline;
     }
