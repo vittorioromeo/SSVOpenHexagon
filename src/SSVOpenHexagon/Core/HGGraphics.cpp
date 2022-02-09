@@ -156,8 +156,9 @@ void HexagonGame::draw()
         pivotQuads3D.reserve(numPivotQuads * depth);
         playerTris3D.reserve(numPlayerTris * depth);
 
+        const float pulse3D{Config::getNoPulse() ? 1.f : status.pulse3D};
         const float effect{
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
+            styleData._3dSkew * Config::get3DMultiplier() * pulse3D};
 
         const sf::Vector2f skew{1.f, 1.f + effect};
         backgroundCamera->setSkew(skew);

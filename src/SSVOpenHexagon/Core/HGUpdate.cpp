@@ -304,10 +304,7 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
                     updateBeatPulse(mFT);
                 }
 
-                if(Config::getPulse())
-                {
-                    updatePulse(mFT);
-                }
+                updatePulse(mFT);
 
                 if(!Config::getBlackAndWhite())
                 {
@@ -771,7 +768,8 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
     {
         SSVOH_ASSERT(backgroundCamera.has_value());
 
-        const float p{status.pulse / levelStatus.pulseMin};
+        const float p{
+            Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
         const float rotation{backgroundCamera->getRotation()};
 
         backgroundCamera->setView(sf::View{ssvs::zeroVec2f,
