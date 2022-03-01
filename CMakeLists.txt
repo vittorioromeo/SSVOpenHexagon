@@ -95,7 +95,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 65a049a45f2b2b5d058f71ae1b3cb866f98391da
+    GIT_TAG 3f6068251b7d00e4ab35ac08845222f44651dd5e
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -157,7 +157,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 43177324c081868116a99f634e2d5bf38b54056b
+        GIT_TAG fa2b318dd6190852a6fe7ebc952b6551e93899e0
         DOWNLOAD_ONLY YES
     )
 
@@ -309,8 +309,8 @@ file(GLOB_RECURSE C_SRC_LIST
 
 list(REMOVE_ITEM SRC_LIST ${MAIN_FILE})
 
-set_source_files_properties("public/sqlite/sqlite3.c" PROPERTIES COMPILE_FLAGS "-w")
-set_source_files_properties("public/sqlite/shell.c" PROPERTIES COMPILE_FLAGS "-w")
+set_source_files_properties("public/sqlite/sqlite3.c"
+                            "public/sqlite/shell.c" PROPERTIES COMPILE_FLAGS "-w")
 
 #
 #
