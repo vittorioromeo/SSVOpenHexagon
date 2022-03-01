@@ -115,7 +115,7 @@ void HexagonGame::updateKeyIcons()
     keyIconFocus.setOrigin({halfSize, halfSize});
     keyIconSwap.setOrigin({halfSize, halfSize});
 
-    keyIconLeft.setRotation(180);
+    keyIconLeft.setRotation(sf::degrees(180));
 
     const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
 

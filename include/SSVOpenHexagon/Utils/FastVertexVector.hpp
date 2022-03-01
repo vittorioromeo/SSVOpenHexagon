@@ -120,7 +120,7 @@ public:
     }
 
     void draw(sf::RenderTarget& mRenderTarget,
-        sf::RenderStates mRenderStates) const override
+        const sf::RenderStates& mRenderStates) const override
     {
         if(SSVU_UNLIKELY(_data == nullptr))
         {

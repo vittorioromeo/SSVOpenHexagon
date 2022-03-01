@@ -919,7 +919,7 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
         p.sprite.setTexture(*txStarParticle);
         p.sprite.setPosition(
             {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
-        p.sprite.setRotation(ssvu::getRndR(0.f, 360.f));
+        p.sprite.setRotation(sf::degrees(ssvu::getRndR(0.f, 360.f)));
 
         const float scale = ssvu::getRndR(0.75f, 1.35f);
         p.sprite.setScale({scale, scale});
@@ -940,7 +940,7 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
     {
         sf::Sprite& sp = p.sprite;
         sp.setPosition(sp.getPosition() + p.velocity * mFT);
-        sp.setRotation(sp.getRotation() + p.angularVelocity * mFT);
+        sp.setRotation(sp.getRotation() + sf::degrees(p.angularVelocity * mFT));
     }
 
     if(mustSpawnPBParticles)

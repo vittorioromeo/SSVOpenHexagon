@@ -687,7 +687,7 @@ void HGAssets::loadPackAssets_loadShaders(
         {
             auto shader = Utils::makeUnique<sf::Shader>();
 
-            if(!shader->loadFromFile(p, shaderType))
+            if(!shader->loadFromFile(p.getStr(), shaderType))
             {
                 ssvu::lo("hg::loadPackAssets_loadShaders")
                     << "Failed to load shader '" << p << "'\n";
