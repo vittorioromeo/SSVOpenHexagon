@@ -36,11 +36,11 @@ echo "Copying build artifacts to ${releaseFolder}"
 cp ${dependenciesFolder}/imgui-sfml-build/libImGui-SFML.dll ${releaseFolder}
 cp ${dependenciesFolder}/zlib-build/libzlib1.dll ${releaseFolder}
 cp ${dependenciesFolder}/luajit-build/src/libluajit.dll ${releaseFolder}
-cp ${dependenciesFolder}/sfml-build/lib/sfml-audio-2.dll ${releaseFolder}
-cp ${dependenciesFolder}/sfml-build/lib/sfml-graphics-2.dll ${releaseFolder}
-cp ${dependenciesFolder}/sfml-build/lib/sfml-network-2.dll ${releaseFolder}
-cp ${dependenciesFolder}/sfml-build/lib/sfml-system-2.dll ${releaseFolder}
-cp ${dependenciesFolder}/sfml-build/lib/sfml-window-2.dll ${releaseFolder}
+cp ${dependenciesFolder}/sfml-build/lib/sfml-audio-3.dll ${releaseFolder}
+cp ${dependenciesFolder}/sfml-build/lib/sfml-graphics-3.dll ${releaseFolder}
+cp ${dependenciesFolder}/sfml-build/lib/sfml-network-3.dll ${releaseFolder}
+cp ${dependenciesFolder}/sfml-build/lib/sfml-system-3.dll ${releaseFolder}
+cp ${dependenciesFolder}/sfml-build/lib/sfml-window-3.dll ${releaseFolder}
 cp ${dependenciesFolder}/libsodium-cmake-build/libsodium.dll ${releaseFolder}
 cp ${dependenciesFolder}/sfml-src/extlibs/bin/x64/openal32.dll ${releaseFolder}
 # Copy some DLLs from our MSYS system
