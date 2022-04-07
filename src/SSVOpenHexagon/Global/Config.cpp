@@ -199,6 +199,7 @@ using cil = std::initializer_list<cmb>;
 
 #define X_LINKEDVALUES                                                     \
     X(official, bool, "official", true)                                    \
+    X(noPulse, bool, "no_pulse", false)                                    \
     X(noRotation, bool, "no_rotation", false)                              \
     X(noBackground, bool, "no_background", false)                          \
     X(noSound, bool, "no_sound", false)                                    \
@@ -206,6 +207,7 @@ using cil = std::initializer_list<cmb>;
     X(blackAndWhite, bool, "black_and_white", false)                       \
     X(pulseEnabled, bool, "pulse_enabled", true)                           \
     X(_3DEnabled, bool, "3D_enabled", true)                                \
+    X(shadersEnabled, bool, "shaders_enabled", true)                       \
     X(_3DMultiplier, float, "3D_multiplier", 1.f)                          \
     X(_3DMaxDepth, uint, "3D_max_depth", 100)                              \
     X(invincible, bool, "invincible", false)                               \
@@ -504,6 +506,12 @@ bool isEligibleForScore()
         return false;
     }
 
+    if(getNoPulse())
+    {
+        uneligibilityReason = "pulse off";
+        return false;
+    }
+
     if(getNoRotation())
     {
         uneligibilityReason = "rotation off";
@@ -610,6 +618,11 @@ void setDebug(bool mDebug)
     debug() = mDebug;
 }
 
+void setNoPulse(bool mNoPulse)
+{
+    noPulse() = mNoPulse;
+}
+
 void setNoRotation(bool mNoRotation)
 {
     noRotation() = mNoRotation;
@@ -635,14 +648,14 @@ void setNoMusic(bool mNoMusic)
     noMusic() = mNoMusic;
 }
 
-void setPulse(bool mPulse)
-{
-    pulseEnabled() = mPulse;
-}
-
 void set3D(bool m3D)
 {
     _3DEnabled() = m3D;
+}
+
+void setShaders(bool mX)
+{
+    shadersEnabled() = mX;
 }
 
 void setInvincible(bool mInvincible)
@@ -885,6 +898,11 @@ void setShowSwapBlinkingEffect(bool x)
     return getOfficial() ? playerSize().getDefault() : playerSize();
 }
 
+[[nodiscard]] bool getNoPulse()
+{
+    return getOfficial() ? noPulse().getDefault() : noPulse();
+}
+
 [[nodiscard]] bool getNoRotation()
 {
     return getOfficial() ? noRotation().getDefault() : noRotation();
@@ -990,11 +1008,6 @@ void setShowSwapBlinkingEffect(bool x)
     return getOfficial() ? debug().getDefault() : debug();
 }
 
-[[nodiscard]] bool getPulse()
-{
-    return getOfficial() ? pulseEnabled().getDefault() : pulseEnabled();
-}
-
 [[nodiscard]] bool getBeatPulse()
 {
     return getOfficial() ? beatPulse().getDefault() : beatPulse();
@@ -1008,6 +1021,11 @@ void setShowSwapBlinkingEffect(bool x)
 [[nodiscard]] bool get3D()
 {
     return _3DEnabled();
+}
+
+[[nodiscard]] bool getShaders()
+{
+    return shadersEnabled();
 }
 
 [[nodiscard]] float get3DMultiplier()
