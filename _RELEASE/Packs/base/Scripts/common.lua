@@ -101,11 +101,8 @@ end
 
 -- cWallEx: creates a wall with mExtra walls attached to it
 function cWallEx(mSide, mExtra)
-    cWall(mSide)
-    local exLoopDir = 1
-
-    if mExtra < 0 then exLoopDir = -1 end
-    for i = 0, mExtra, exLoopDir do cWall(mSide + i) end
+    local loopDir = mExtra > 0 and 1 or -1
+    for i = 0, mExtra, loopDir do cWall(mSide + i) end
 end
 
 -- oWallEx: creates a wall with mExtra walls opposite to mSide
@@ -121,7 +118,7 @@ end
 
 -- cBarrageN: spawns a barrage of walls, with a free mSide plus mNeighbors
 function cBarrageN(mSide, mNeighbors)
-    for i = mNeighbors, l_getSides() - 2 - mNeighbors, 1 do
+    for i = mNeighbors, l_getSides() - 2 - mNeighbors do
         cWall(mSide + i + 1)
     end
 end
