@@ -2401,8 +2401,8 @@ void MenuGame::eraseAction()
         }
 
         // Remove the profile .json
-        const std::string fileName{"Profiles/" + name + ".json"};
-        if(std::remove(fileName.c_str()) != 0)
+        if(const std::string fileName{"Profiles/" + name + ".json"};
+            std::remove(fileName.c_str()) != 0)
         {
             ssvu::lo("eraseAction()")
                 << "Error: file " << fileName << " does not exist\n";

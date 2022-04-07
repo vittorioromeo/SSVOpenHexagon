@@ -58,8 +58,6 @@ int main(int argc, char* argv[])
 
             sendToServer();
         }
-
-        return 0;
     }
 
     if(argc == 2) // One-off send
