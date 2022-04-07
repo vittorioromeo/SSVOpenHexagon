@@ -19,7 +19,6 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 
 #include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/Utils/Letterbox.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
@@ -116,7 +115,7 @@ void HexagonGame::updateKeyIcons()
     keyIconFocus.setOrigin({halfSize, halfSize});
     keyIconSwap.setOrigin({halfSize, halfSize});
 
-    keyIconLeft.setRotation(180);
+    keyIconLeft.setRotation(sf::degrees(180));
 
     const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
 
@@ -308,15 +307,11 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
 
-        backgroundCamera.emplace(getLetterboxView(
-            sf::View{ssvs::zeroVec2f,
-                sf::Vector2f{width * zoomFactor, height * zoomFactor}},
-            1440, 900));
+        backgroundCamera.emplace(sf::View{ssvs::zeroVec2f,
+            sf::Vector2f{width * zoomFactor, height * zoomFactor}});
 
-        overlayCamera.emplace(
-            getLetterboxView(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
-                                 sf::Vector2f{width, height}},
-                1440, 900));
+        overlayCamera.emplace(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
+            sf::Vector2f{width, height}});
 
         txStarParticle = &assets.getTextureOrNullTexture("starParticle.png");
         txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
@@ -686,16 +681,13 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         SSVOH_ASSERT(backgroundCamera.has_value());
 
         // Reset zoom
-        overlayCamera->setView(getLetterboxView(
+        overlayCamera->setView(
             sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                sf::Vector2f(Config::getWidth(), Config::getHeight())},
-            1440, 900));
+                sf::Vector2f(Config::getWidth(), Config::getHeight())});
 
-        backgroundCamera->setView(getLetterboxView(
-            sf::View{ssvs::zeroVec2f,
-                {Config::getWidth() * Config::getZoomFactor(),
-                    Config::getHeight() * Config::getZoomFactor()}},
-            1440, 900));
+        backgroundCamera->setView(sf::View{ssvs::zeroVec2f,
+            {Config::getWidth() * Config::getZoomFactor(),
+                Config::getHeight() * Config::getZoomFactor()}});
 
         backgroundCamera->setRotation(0);
 
@@ -803,10 +795,9 @@ void HexagonGame::death_shakeCamera()
     SSVOH_ASSERT(overlayCamera.has_value());
     SSVOH_ASSERT(backgroundCamera.has_value());
 
-    overlayCamera->setView(getLetterboxView(
+    overlayCamera->setView(
         sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            sf::Vector2f(Config::getWidth(), Config::getHeight())},
-        1440, 900));
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
 
     backgroundCamera->setCenter(ssvs::zeroVec2f);
 
@@ -1562,11 +1553,6 @@ void HexagonGame::setSides(unsigned int mSides)
 [[nodiscard]] float HexagonGame::getWallAngleRight() const noexcept
 {
     return levelStatus.wallAngleRight;
-}
-
-[[nodiscard]] float HexagonGame::get3DEffectMult() const noexcept
-{
-    return levelStatus._3dEffectMultiplier;
 }
 
 [[nodiscard]] HexagonGameStatus& HexagonGame::getStatus() noexcept

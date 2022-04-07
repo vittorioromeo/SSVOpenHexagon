@@ -516,7 +516,6 @@ public:
     [[nodiscard]] float getWallSkewRight() const noexcept;
     [[nodiscard]] float getWallAngleLeft() const noexcept;
     [[nodiscard]] float getWallAngleRight() const noexcept;
-    [[nodiscard]] float get3DEffectMult() const noexcept;
     [[nodiscard]] HexagonGameStatus& getStatus() noexcept;
     [[nodiscard]] const HexagonGameStatus& getStatus() const noexcept;
     [[nodiscard]] LevelStatus& getLevelStatus();

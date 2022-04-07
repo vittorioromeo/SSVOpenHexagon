@@ -12,13 +12,13 @@
 #include "SSVOpenHexagon/Global/Imgui.hpp"
 
 #include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/Utils/Letterbox.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
 #include "SSVStart/Utils/SFML.hpp"
 
 #include <SFML/Config.hpp>
 
+#include <SFML/Graphics/RenderStates.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 
@@ -59,6 +59,11 @@ void HexagonGame::draw()
     const auto getRenderStates = [this](
                                      const RenderStage rs) -> sf::RenderStates
     {
+        if(!Config::getShaders())
+        {
+            return sf::RenderStates::Default;
+        }
+
         const std::optional<std::size_t> fragmentShaderId =
             status.fragmentShaderIds[static_cast<std::size_t>(rs)];
 
@@ -100,7 +105,7 @@ void HexagonGame::draw()
 
     if(!Config::getNoBackground())
     {
-        window->setView(getLetterboxView(backgroundCamera->apply(), 1440, 900));
+        window->setView(backgroundCamera->apply());
 
         backgroundTris.clear();
 
@@ -113,7 +118,7 @@ void HexagonGame::draw()
         render(backgroundTris, getRenderStates(RenderStage::BackgroundTris));
     }
 
-    window->setView(getLetterboxView(backgroundCamera->apply(), 1440, 900));
+    window->setView(backgroundCamera->apply());
 
     wallQuads3D.clear();
     pivotQuads3D.clear();
@@ -151,8 +156,9 @@ void HexagonGame::draw()
         pivotQuads3D.reserve(numPivotQuads * depth);
         playerTris3D.reserve(numPlayerTris * depth);
 
+        const float pulse3D{Config::getNoPulse() ? 1.f : status.pulse3D};
         const float effect{
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
+            styleData._3dSkew * Config::get3DMultiplier() * pulse3D};
 
         const sf::Vector2f skew{1.f, 1.f + effect};
         backgroundCamera->setSkew(skew);
@@ -267,7 +273,7 @@ void HexagonGame::draw()
     render(pivotQuads, getRenderStates(RenderStage::PivotQuads));
     render(playerTris, getRenderStates(RenderStage::PlayerTris));
 
-    window->setView(getLetterboxView(overlayCamera->apply(), 1440, 900));
+    window->setView(overlayCamera->apply());
 
     drawParticles();
     drawText();
@@ -320,7 +326,7 @@ void HexagonGame::drawImguiLuaConsole()
     SSVOH_ASSERT(overlayCamera.has_value());
 
     sf::RenderWindow& renderWindow = window->getRenderWindow();
-    window->setView(getLetterboxView(renderWindow.getDefaultView(), 1440, 900));
+    window->setView(renderWindow.getDefaultView());
 
     Imgui::render(*window);
 }
