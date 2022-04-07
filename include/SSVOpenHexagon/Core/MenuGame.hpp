@@ -175,6 +175,7 @@ private:
     States state;
     int packChangeDirection;
 
+    void leftRightActionImpl(bool left);
     void leftAction();
     void rightAction();
     void upAction();

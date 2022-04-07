@@ -176,10 +176,8 @@ end
 
 -- Converts HSV color values to RGB color values in a 0 - 255 range (alpha not included).
 function fromHSV(h, s, v)
-    -- Saturation and Value are optional parameters
-    s = s or 1
-    v = v or 1
-
+    -- All parameters are optional. Hue defaults to 0, Saturation anf value default to 1
+    h, s, v = type(h) == 'number' and h or 0, type(s) == 'number' and clamp(s, 0, 1) or 1, type(v) == 'number' and clamp(v, 0, 1) or 1
     local r, g, b = fromHS(h, s)
     r = math.floor(r * v * 255)
     g = math.floor(g * v * 255)
@@ -189,48 +187,34 @@ end
 
 -- Returns coordinates (x, y) adjusted with the level rotation using polar coordinate math.
 function getAbsolutePosition(x, y)
-    local r, a = (x ^ 2 + y ^ 2) ^ 0.5, math.atan(y, x)
+    local r, a = (x ^ 2 + y ^ 2) ^ 0.5, math.atan(y)
     a = a + math.rad(l_getRotation())
     return r * math.cos(a), r * math.sin(a)
 end
 
 -- Takes a number and returns it's sign value.
 -- Negatives return -1, positives return 1, and zero returns 0.
-function getSign(number)
-    if number < 0 then
-        return -1
-    elseif number > 0 then
-        return 1
-    end
-    return 0
+function getSign(x)
+    return x > 0 and 1 or x == 0 and 0 or -1
 end
 
 -- A data structure that stores results for prime numbers as a way to "cache" results.
 -- This helps make isPrime run faster by knocking out calculations that were already done.
-local prime_memoization = {
-    [0] = false,
-    [1] = false,
-    [2] = true
-}
+local prime_memoization = {[2] = true, [3] = true, [5] = true, [7] = true, [11] = true, [13] = true}
 -- Checks whether an integer is a prime number or not
+-- More cursed but more concise and memory efficient
 function isPrime(integer)
-    -- Check if our argument is an integer
-    if (integer % 1 ~= 0) then
-        return false
-    end
-    if (prime_memoization[integer]) then
-        return prime_memoization[integer]
-    end
-    local divisor = 2
-    while (divisor ^ 2 <= integer) do
-        if (integer % divisor == 0) then
-            prime_memoization[integer] = false
-            return false
-          end
-          divisor = divisor + 1
-    end
-    prime_memoization[integer] = true
-    return true
+    return integer % 1 == 0 and (prime_memoization[integer] or (function ()
+        local divisor = 2
+        while (divisor ^ 2 <= integer) do
+            if (integer % divisor == 0) then
+                return false
+            end
+            divisor = divisor + 1
+        end
+        prime_memoization[integer] = true
+        return true
+    end)()) or false
 end
 
 -- Inverse linear interpolation function. Takes two number values, initial
@@ -296,211 +280,152 @@ end
 
 -- Sine
 function easeInSine(x)
-    x = clamp(x, 0, 1)
-    return 1 - math.cos((x * math.pi) / 2)
+    return 1 - math.cos((clamp(x, 0, 1) * math.pi) / 2)
 end
 
 function easeInOutSine(x)
-    x = clamp(x, 0, 1)
-    return -(math.cos(math.pi * x) - 1) / 2
+    return (1 - math.cos(math.pi * clamp(x, 0, 1))) / 2
 end
 
 function easeOutSine(x)
-    x = clamp(x, 0, 1)
-    return math.sin((x * math.pi) / 2)
+    return math.sin((clamp(x, 0, 1) * math.pi) / 2)
 end
 
 -- Quadratic
 function easeInQuad(x)
     x = clamp(x, 0, 1)
-    return x ^ 2
+    return x * x
 end
 
 function easeInOutQuad(x)
     x = clamp(x, 0, 1)
-    if (x < 0.5) then
-        return 2 * x * x
-    end
-    return 1 - (-2 * x + 2) ^ 2 / 2
+    return x < 0.5 and (2 * x * x) or (1 - (-2 * x + 2) ^ 2 / 2)
 end
 
 function easeOutQuad(x)
-    x = clamp(x, 0, 1)
-    return 1 - (1 - x) * (1 - x)
+    x = 1 - clamp(x, 0, 1)
+    return 1 - x * x
 end
 
 -- Cubic
 function easeInCubic(x)
     x = clamp(x, 0, 1)
-    return x ^ 3
+    return x * x * x
 end
 
 function easeInOutCubic(x)
     x = clamp(x, 0, 1)
-    if (x < 0.5) then
-        return 4 * x * x * x
-    end
-    return 1 - (-2 * x + 2) ^ 3 / 2
+    return x < 0.5 and (4 * x * x * x) or (1 - (-2 * x + 2) ^ 3 / 2)
 end
 
 function easeOutCubic(x)
-    x = clamp(x, 0, 1)
-    return 1 - (1 - x) ^ 3
+    x = 1 - clamp(x, 0, 1)
+    return 1 - x * x * x
 end
 
 -- Quartic
 function easeInQuart(x)
     x = clamp(x, 0, 1)
-    return x ^ 4
+    return x * x * x * x
 end
 
 function easeInOutQuart(x)
     x = clamp(x, 0, 1)
-    if (x < 0.5) then
-        return 8 * x * x * x * x
-    end
-    return 1 - (-2 * x + 2) ^ 4 / 2
+    return x < 0.5 and (8 * x * x * x * x) or (1 - (-2 * x + 2) ^ 4 / 2)
 end
 
 function easeOutQuart(x)
-    x = clamp(x, 0, 1)
-    return 1 - (1 - x) ^ 4
+    x = 1 - clamp(x, 0, 1)
+    return 1 - x * x * x * x
 end
 
 -- Quintic
 function easeInQuint(x)
     x = clamp(x, 0, 1)
-    return x ^ 4
+    return x * x * x * x * x
 end
 
 function easeInOutQuint(x)
     x = clamp(x, 0, 1)
-    if (x < 0.5) then
-        return 16 * x * x * x * x * x
-    end
-    return 1 - (-2 * x + 2) ^ 5 / 2
+    return x < 0.5 and (16 * x * x * x * x * x) or (1 - (-2 * x + 2) ^ 5 / 2)
 end
 
 function easeOutQuint(x)
-    x = clamp(x, 0, 1)
-    return 1 - (1 - x) ^ 5
+    x = 1 - clamp(x, 0, 1)
+    return 1 - x * x * x * x * x
 end
 
 -- Exponential
 function easeInExpo(x)
     x = clamp(x, 0, 1)
-    if (x == 0) then
-        return 0
-    end
-    return 2 ^ (10 * x - 10)
+    return x == 0 and 0 or 2 ^ (10 * x - 10)
 end
 
 function easeInOutExpo(x)
     x = clamp(x, 0, 1)
-    if (x == 0) then
-        return 0
-    elseif (x < 0.5) then
-        return 2 ^ (20 * x - 10) / 2
-    elseif (x == 1) then
-        return 1
-    end
-    return (2 - 2 ^ (-20 * x + 10)) / 2
+    return x < 0.5 and (x == 0 and 0 or 2 ^ (20 * x - 10) / 2) or (x == 1  and 1 or (2 - 2 ^ (-20 * x + 10)) / 2)
 end
 
 -- Easings.net has this formula WRONG. This is the actual formula right here.
 function easeOutExpo(x)
     x = clamp(x, 0, 1)
-    if (x == 1) then
-        return 1
-    end
-    return -2 ^ (-10 * x) + 1
+    return x == 1 and 1 or -2 ^ (-10 * x) + 1
 end
 
 -- Circle
 function easeInCirc(x)
     x = clamp(x, 0, 1)
-    return 1 - math.sqrt(1 - (x^2))
+    return 1 - math.sqrt(1 - x * x)
 end
 
 function easeInOutCirc(x)
-    x = clamp(x, 0, 1)
-    if (x < 0.5) then
-        return (1 - math.sqrt(1 - (2 * x) ^ 2)) / 2
-    end
-    return (math.sqrt(1 - (-2 * x + 2) ^ 2) + 1) / 2
+    x = 2 * clamp(x, 0, 1)
+    return x < 1 and (1 - math.sqrt(1 - x * x)) / 2 or (math.sqrt(1 - (2 - x) ^ 2) + 1) / 2
 end
 
 function easeOutCirc(x)
-    x = clamp(x, 0, 1)
-    return math.sqrt(1 - (x - 1) ^ 2)
+    x = 1 - clamp(x, 0, 1)
+    return math.sqrt(1 - x * x)
 end
 
 -- Back Functions
+local BACK_CONST_ONE = 1.70158
+local BACK_CONST_TWO = BACK_CONST_ONE * 1.525
+local BACK_CONST_THREE = BACK_CONST_ONE + 1
+
 function easeInBack(x)
     x = clamp(x, 0, 1)
-    local CONST_ONE = 1.70158
-    local CONST_THREE = CONST_ONE + 1
-
-    return CONST_THREE * x * x * x - CONST_ONE * x * x
+    return BACK_CONST_THREE * x * x * x - BACK_CONST_ONE * x * x
 end
 
 function easeInOutBack(x)
-    x = clamp(x, 0, 1)
-    local CONST_ONE = 1.70158
-    local CONST_TWO = CONST_ONE * 1.525
-
-    if (x < 0.5) then
-        return ((2 * x) ^ 2 * ((CONST_TWO + 1) * 2 * x - CONST_TWO)) / 2
-    end
-    return ((2 * x - 2) ^ 2 * ((CONST_TWO + 1) * (x * 2 - 2) + CONST_TWO) + 2) / 2
+    x = 2 * clamp(x, 0, 1)
+    return x < 1 and (x * x * ((BACK_CONST_TWO + 1) * x - BACK_CONST_TWO)) / 2 or ((x - 2) ^ 2 * ((BACK_CONST_TWO + 1) * (x - 2) + BACK_CONST_TWO) + 2) / 2
 end
 
 function easeOutBack(x)
-    x = clamp(x, 0, 1)
-    local CONST_ONE = 1.70158
-    local CONST_THREE = CONST_ONE + 1
-
-    return 1 + CONST_THREE * (x - 1) ^ 3 +
-            CONST_ONE * (x - 1) ^ 2
+    x = clamp(x, 0, 1) - 1
+    return 1 + BACK_CONST_THREE * x * x * x + BACK_CONST_ONE * x * x
 end
 
 -- Elastic
-function easeInElastic(x)
-    x = clamp(x, 0, 1)
-    local CONST_FOUR = (2 * math.pi) / 3
 
-    if (x == 0) then
-        return 0
-    elseif (x == 1) then
-        return 1
-    end
-    return -(2 ^ (10 * x - 10)) * math.sin((x * 10 - 10.75) * CONST_FOUR)
+local ELASTIC_CONST_ONE = math.tau / 3
+local ELASTIC_CONST_TWO = ELASTIC_CONST_ONE / 1.5
+
+function easeInElastic(x)
+    x = 10 * clamp(x, 0, 1)
+    return x == 0 and 0 or (x == 10 and 1 or -(2 ^ (x - 10)) * math.sin((x - 10.75) * ELASTIC_CONST_ONE))
 end
 
 function easeInOutElastic(x)
-    x = clamp(x, 0, 1)
-    local CONST_FIVE = (2 * math.pi) / 4.5
-
-    if (x == 0) then
-        return 0
-    elseif (x == 1) then
-        return 1
-    elseif (x < 0.5) then
-        return -(2 ^ (20 * x - 10)) * math.sin((20 * x - 11.125) * CONST_FIVE) / 2
-    end
-    return (2 ^ (-20 * x + 10) * math.sin((20 * x - 11.125) * CONST_FIVE)) / 2 + 1
+    x = 20 * clamp(x, 0, 1)
+    return x < 10 and (x == 0 and 0 or -(2 ^ (x - 10)) * math.sin((x - 11.125) * ELASTIC_CONST_TWO) / 2) or (x == 20 and 1 or 2 ^ (-x + 10) * math.sin((x - 11.125) * ELASTIC_CONST_TWO) / 2 + 1)
 end
 
 function easeOutElastic(x)
-    x = clamp(x, 0, 1)
-    local CONST_FOUR = (2 * math.pi) / 3
-
-    if (x == 0) then
-        return 0
-    elseif (x == 1) then
-        return 1
-    end
-    return 2 ^ (-10 * x) * math.sin((x * 10 - 0.75) * CONST_FOUR) + 1
+    x = 10 * clamp(x, 0, 1)
+    return x == 0 and 0 or (x == 10 and 1 or 2 ^ (-x) * math.sin((x - 0.75) * ELASTIC_CONST_ONE) + 1)
 end
 
 -- Bounce
@@ -509,26 +434,17 @@ end
 function easeInBounce(x, bounceFactor)
     bounceFactor = bounceFactor or 1 -- Optional parameter
     x = clamp(x, 0, 1)
-    if (x == 0) then
-        return 0
-    end
-    return math.abs(math.cos(bounceFactor * (1 - 1/x) * math.pi) * math.sin(x * math.pi/2) ^ 2)
+    return x == 0 and 0 or math.abs(math.cos(bounceFactor * (1 - 1 / x) * math.pi) * math.sin(x * math.pi / 2) ^ 2)
 end
 
 function easeInOutBounce(x)
     x = clamp(x, 0, 1)
-    if (x < 0.5) then
-        return easeInBounce(x)
-    end
-    return easeOutBounce(x)
+    return x < 0.5 and easeInBounce(x) or easeOutBounce(x)
 end
 
 function easeOutBounce(x, bounceFactor)
     x = clamp(x, 0, 1)
-    if (x == 1) then
-        return 1
-    end
-    return -easeInBounce(1 - x, bounceFactor) + 1
+    return x == 1 and 1 or -easeInBounce(1 - x, bounceFactor) + 1
 end
 
 -- From: https://stackoverflow.com/questions/12394841/
