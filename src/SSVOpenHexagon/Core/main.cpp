@@ -29,6 +29,8 @@
 #include <SSVUtils/Core/Log/Log.inl>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
+#include <SFML/Graphics/Image.hpp>
+
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
@@ -304,10 +306,11 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
                 if(!icon.loadFromFile("Assets/icon.png"))
                 {
                     ssvu::lo("::main") << "Failed to load icon image\n";
+                    return;
                 }
 
                 window->getRenderWindow().setIcon(
-                    icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+                    {icon.getSize().x, icon.getSize().y}, icon.getPixelsPtr());
             };
 
             window->onRecreation += resetIcon;

@@ -377,15 +377,15 @@ std::string uneligibilityReason;
 static void applyAutoWindowedResolution()
 {
     auto d(sf::VideoMode::getDesktopMode());
-    windowedWidth() = d.width;
-    windowedHeight() = d.height;
+    windowedWidth() = d.size.x;
+    windowedHeight() = d.size.y;
 }
 
 static void applyAutoFullscreenResolution()
 {
     auto d(sf::VideoMode::getDesktopMode());
-    fullscreenWidth() = d.width;
-    fullscreenHeight() = d.height;
+    fullscreenWidth() = d.size.x;
+    fullscreenHeight() = d.size.y;
 }
 
 void loadConfig(const std::vector<std::string>& mOverridesIds)

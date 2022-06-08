@@ -5,6 +5,9 @@
 #ifndef SSVUJ_OH_JSONCPP_INL
 #define SSVUJ_OH_JSONCPP_INL
 
+// Include as system header to suppress dependency warnings.
+#pragma GCC system_header
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include <cstring>
