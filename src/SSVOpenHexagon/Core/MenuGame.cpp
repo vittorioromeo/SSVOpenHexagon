@@ -45,7 +45,6 @@
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVStart/Utils/SFML.hpp"
 
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/SFML.hpp>
@@ -1329,29 +1328,29 @@ void MenuGame::initMenus()
     {
         if(vm.bitsPerPixel == 32)
         {
-            ratio = 10.f * vm.width / vm.height;
+            ratio = 10.f * vm.size.x / vm.size.y;
 
             switch(ratio)
             {
                 case 17: // 16:9
                     sixByNine.create<i::Single>(
-                        ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
+                        ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y),
                         [this, &vm]
-                        { changeResolutionTo(vm.width, vm.height); });
+                        { changeResolutionTo(vm.size.x, vm.size.y); });
                     break;
 
                 case 13: // 4:3
                     fourByThree.create<i::Single>(
-                        ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
+                        ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y),
                         [this, &vm]
-                        { changeResolutionTo(vm.width, vm.height); });
+                        { changeResolutionTo(vm.size.x, vm.size.y); });
                     break;
 
                 default: // 16:10 and uncommon
                     sixByTen.create<i::Single>(
-                        ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
+                        ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y),
                         [this, &vm]
-                        { changeResolutionTo(vm.width, vm.height); });
+                        { changeResolutionTo(vm.size.x, vm.size.y); });
                     break;
             }
         }

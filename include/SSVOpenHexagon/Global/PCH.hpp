@@ -4,6 +4,9 @@
 
 #pragma once
 
+// Include as system header to suppress dependency warnings.
+#pragma GCC system_header
+
 #ifdef _WIN32
 
 #ifndef NOMINMAX
