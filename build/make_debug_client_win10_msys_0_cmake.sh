@@ -18,8 +18,10 @@ cmake .. -G"Ninja" \
          -DCMAKE_CXX_FLAGS="\
             -fuse-ld=lld \
             -Og -g3 -fno-omit-frame-pointer \
-            -Wall -Wextra -Wpedantic -Wno-braced-scalar-init -Wno-missing-field-initializers \
+            -Wall -Wextra -Wpedantic -Wno-braced-scalar-init \
+            -Wno-pragmas -Wno-missing-field-initializers \
+            -Wno-stringop-overflow \
             -D_GLIBCXX_ASSERTIONS=1 -D_FORTIFY_SOURCE=2 \
-            -fstack-protector -Wno-pragmas\
+            -fstack-protector -Wno-pragmas \
             -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off"
 

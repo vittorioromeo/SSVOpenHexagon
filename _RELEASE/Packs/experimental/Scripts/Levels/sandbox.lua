@@ -93,10 +93,6 @@ function onInit()
 
     enableSwapIfDMGreaterThan(3)
     disableSpeedIncIfDMGreaterThan(3)
-
-    -- TODO (P0): remove
-    a = shdr_getShaderId("pixelate.frag")
-    shdr_log(a)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted

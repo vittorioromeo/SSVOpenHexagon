@@ -56,6 +56,8 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
+#include <SFML/Window/VideoMode.hpp>
+
 #include <utility>
 #include <array>
 #include <tuple>
@@ -205,8 +207,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       txtRandomTip{.font{"", openSquare}},
       // For the Main Menu
       txtMenuBig{.font{"", openSquare}},
-      txtMenuTiny{.font{"", openSquare}},
       txtMenuSmall{.font{"", openSquare}},
+      txtMenuTiny{.font{"", openSquare}},
       txtProfile{.font{"", openSquare, 32}},
       txtInstructionsBig{.font{"", openSquare, 46}},
       txtInstructionsMedium{.font{"", openSquare}},
@@ -1073,13 +1075,6 @@ void MenuGame::initLua()
     lua.writeVariable("u_getDelayMultDM", [] { return 1; });
 
     lua.writeVariable("u_getPlayerAngle", [] { return 0; });
-
-    // TODO (P0): repetition
-    lua.writeVariable("u_getWidth", //
-        [] { return Config::getWidth(); });
-
-    lua.writeVariable("u_getHeight", //
-        [] { return Config::getHeight(); });
 
     // Unused functions
     for(const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
