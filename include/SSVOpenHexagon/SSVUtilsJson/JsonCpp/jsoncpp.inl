@@ -954,12 +954,16 @@ inline Value::CZString& Value::CZString::operator=(const CZString& other)
 }
 inline bool Value::CZString::operator<(const CZString& other) const
 {
-    if(cstr_ != nullptr) return std::strcmp(cstr_, other.cstr_) < 0;
+    if(cstr_ != nullptr && other.cstr_ != nullptr)
+        return std::strcmp(cstr_, other.cstr_) < 0;
+
     return index_ < other.index_;
 }
 inline bool Value::CZString::operator==(const CZString& other) const
 {
-    if(cstr_ != nullptr) return std::strcmp(cstr_, other.cstr_) == 0;
+    if(cstr_ != nullptr && other.cstr_ != nullptr)
+        return std::strcmp(cstr_, other.cstr_) == 0;
+
     return index_ == other.index_;
 }
 inline ArrayIndex Value::CZString::index() const
