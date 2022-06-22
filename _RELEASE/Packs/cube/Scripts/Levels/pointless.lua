@@ -54,7 +54,6 @@ shuffle(keys)
 index = 0
 achievementUnlocked = false
 hardAchievementUnlocked = false
-gradientShaderId = shdr_getShaderId("gradient.frag")
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -106,45 +105,6 @@ function onInit()
 
     enableSwapIfDMGreaterThan(3)
     disableSpeedIncIfDMGreaterThan(3)
-
-    shdr_setActiveFragmentShader(RenderStage.BACKGROUNDTRIS, gradientShaderId)
-    shdr_setActiveFragmentShader(RenderStage.WALLQUADS3D, gradientShaderId)
-    shdr_setActiveFragmentShader(RenderStage.PIVOTQUADS3D, gradientShaderId)
-    shdr_setActiveFragmentShader(RenderStage.PLAYERTRIS3D, gradientShaderId)
-    shdr_setActiveFragmentShader(RenderStage.WALLQUADS, gradientShaderId)
-    shdr_setActiveFragmentShader(RenderStage.CAPTRIS, gradientShaderId)
-    shdr_setActiveFragmentShader(RenderStage.PIVOTQUADS, gradientShaderId)
-    shdr_setActiveFragmentShader(RenderStage.PLAYERTRIS, gradientShaderId)
-end
-
-function onRenderStage(rs)
-    if rs == RenderStage.BACKGROUNDTRIS then
-        shdr_setUniformFVec2(gradientShaderId, "u_resolution", u_getWidth(), u_getHeight());
-        shdr_setUniformFVec3(gradientShaderId, "u_color0", -0.35, -0.35, -0.35);
-        shdr_setUniformFVec3(gradientShaderId, "u_color1", 0.35, 0.35, 0.35);
-        shdr_setUniformF(gradientShaderId, "u_blend", 0.35);
-    end
-
-    if rs == RenderStage.WALLQUADS3D or rs == RenderStage.PIVOTQUADS3D or rs == RenderStage.PLAYERTRIS3D then
-        shdr_setUniformFVec2(gradientShaderId, "u_resolution", u_getWidth(), u_getHeight());
-        shdr_setUniformFVec3(gradientShaderId, "u_color0", -0.75, -0.75, -0.75);
-        shdr_setUniformFVec3(gradientShaderId, "u_color1", 0.75, 0.75, 0.75);
-        shdr_setUniformF(gradientShaderId, "u_blend", 0.50);
-    end
-
-    if rs == RenderStage.WALLQUADS or rs == RenderStage.PIVOTQUADS or rs == RenderStage.PLAYERTRIS then
-        shdr_setUniformFVec2(gradientShaderId, "u_resolution", u_getWidth(), u_getHeight());
-        shdr_setUniformFVec3(gradientShaderId, "u_color0", 1.0, 1.0, 1.0);
-        shdr_setUniformFVec3(gradientShaderId, "u_color1", 0.8, 0.0, 0.8);
-        shdr_setUniformF(gradientShaderId, "u_blend", 0.50);
-    end
-
-    if rs == RenderStage.CAPTRIS then
-        shdr_setUniformFVec2(gradientShaderId, "u_resolution", u_getWidth(), u_getHeight());
-        shdr_setUniformFVec3(gradientShaderId, "u_color0", 1.0, 1.0, 1.0);
-        shdr_setUniformFVec3(gradientShaderId, "u_color1", 0.8, 0.0, 0.8);
-        shdr_setUniformF(gradientShaderId, "u_blend", 0.20);
-    end
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
