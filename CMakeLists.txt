@@ -95,7 +95,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 97832f001165baefe26ca54c39ca9ee5338790a7
+    GIT_TAG 6cd07a043fc36ae75f8f094414d110a5f5333dbf
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -117,7 +117,7 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME luajit
     GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
-    GIT_TAG fb171a20b8c4c4e4e71339e85581e82868367a97
+    GIT_TAG 7a28320ca6974d914d25a8d39e8edffd1368f885
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -157,7 +157,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 65c4c0a490f64e7929a63c43be05748b34ec6228
+        GIT_TAG 9aae45eb4a05a5a1f96be1ef37eb503a12ceb889
         DOWNLOAD_ONLY YES
     )
 
@@ -201,7 +201,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME libsodium-cmake
     GITHUB_REPOSITORY vittorioromeo/libsodium-cmake
-    GIT_TAG a0e9d152bc82ccbdfa6c8df3f8dd146cfa83d7e2
+    GIT_TAG 0c7f10f3a8a279a9bf731d243ea8e09c7292019b
     OPTIONS "SODIUM_DISABLE_TESTS ON" "SODIUM_DISABLE_TESTS ON CACHE BOOL \"\" FORCE"
 )
 
