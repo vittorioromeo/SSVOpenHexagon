@@ -43,6 +43,7 @@ struct GameVersion
     }
 };
 
+// TODO (P0): update this for release
 inline constexpr GameVersion GAME_VERSION{2, 1, 4};
 inline constexpr auto& GAME_VERSION_STR = "2.1.4";
 
