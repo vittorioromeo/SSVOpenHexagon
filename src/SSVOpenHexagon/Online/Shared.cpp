@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 
@@ -739,7 +740,7 @@ template <typename T>
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
     return makeEncryptedPacketImpl([](auto&&... xs)
-        { makeClientToServerPacket(std::forward<decltype(xs)>(xs)...); },
+        { makeClientToServerPacket(SSVOH_FWD(xs)...); },
         keyTransmit, p, data);
 }
 
@@ -887,7 +888,7 @@ template <typename T>
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
     return makeEncryptedPacketImpl([](auto&&... xs)
-        { makeServerToClientPacket(std::forward<decltype(xs)>(xs)...); },
+        { makeServerToClientPacket(SSVOH_FWD(xs)...); },
         keyTransmit, p, data);
 }
 

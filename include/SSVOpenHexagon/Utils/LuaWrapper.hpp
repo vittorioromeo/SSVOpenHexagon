@@ -35,6 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include <cstring>
 #include <limits>
@@ -83,7 +84,7 @@ struct FnTupleWrapper<void(TArgs...)>
     [[nodiscard, gnu::always_inline]] inline static constexpr std::tuple<> call(
         T&& fn, ParamsType&& mTpl)
     {
-        std::apply(std::forward<T>(fn), std::move(mTpl));
+        std::apply(SSVOH_FWD(fn), SSVOH_MOVE(mTpl));
         return {};
     }
 };
@@ -102,7 +103,7 @@ struct FnTupleWrapper<R(TArgs...)>
     [[nodiscard, gnu::always_inline]] inline static constexpr std::tuple<R>
     call(T&& fn, ParamsType&& mTpl)
     {
-        return std::tuple<R>{std::apply(std::forward<T>(fn), std::move(mTpl))};
+        return std::tuple<R>{std::apply(SSVOH_FWD(fn), SSVOH_MOVE(mTpl))};
     }
 };
 
@@ -301,7 +302,7 @@ public:
     [[gnu::always_inline]] inline void registerFunction(
         const std::string& name, T&& fn, decltype(&T::operator())* = nullptr)
     {
-        _registerFunction(name, std::forward<T>(fn));
+        _registerFunction(name, SSVOH_FWD(fn));
     }
 
     /// \brief Inverse operation of registerFunction
@@ -322,7 +323,7 @@ public:
         const std::string& mVarName, Args&&... args)
     {
         _getGlobal(mVarName);
-        return _call<R>(std::make_tuple(std::forward<Args>(args)...));
+        return _call<R>(std::make_tuple(SSVOH_FWD(args)...));
     }
 
     /// \brief Returns true if the value of the variable is an array \param
@@ -403,7 +404,7 @@ public:
         static_assert(!std::is_same_v<std::tuple<T>, T>,
             "Error: you can't use LuaContext::writeVariable with a tuple");
 
-        const int pushedElems = _push(std::forward<T>(data));
+        const int pushedElems = _push(static_cast<T&&>(data));
 
         try
         {
@@ -636,7 +637,7 @@ private:
         // now we have our functions list on top of the stack, we write the
         // function here
         lua_pushstring(_state, name.c_str());
-        _push(std::forward<T>(function));
+        _push(SSVOH_FWD(function));
         lua_settable(_state, -3);
         lua_pop(_state, 1);
     }
@@ -881,7 +882,7 @@ public:
         template <typename... Args>
         explicit Table(Args&&... args)
         {
-            insert(std::forward<Args>(args)...);
+            insert(SSVOH_FWD(args)...);
         }
 
         friend void swap(Table& a, Table& b)
@@ -895,10 +896,10 @@ public:
             using RKey = typename ToPushableType<std::decay_t<Key>>::type;
             using RValue = typename ToPushableType<std::decay_t<Value>>::type;
 
-            _elements.emplace_back(new Element<RKey, RValue>(
-                std::forward<Key>(k), std::forward<Value>(v)));
+            _elements.emplace_back(
+                new Element<RKey, RValue>(SSVOH_FWD(k), SSVOH_FWD(v)));
 
-            insert(std::forward<Args>(args)...);
+            insert(SSVOH_FWD(args)...);
         }
 
         void insert()
@@ -945,8 +946,7 @@ public:
             Key key;
             Value value;
 
-            Element(Key&& k, Value&& v)
-                : key(std::forward<Key>(k)), value(std::forward<Value>(v))
+            Element(Key&& k, Value&& v) : key(SSVOH_FWD(k)), value(SSVOH_FWD(v))
             {}
 
             void push(LuaContext& ctxt) const
@@ -1045,7 +1045,7 @@ private:
 
         try
         {
-            ((p += _push(std::forward<Ts>(xs))), ...);
+            ((p += _push(SSVOH_FWD(xs))), ...);
         }
         catch(...)
         {
@@ -1182,7 +1182,7 @@ private:
             _state, sizeof(FunctionPushType));
 
         new(functionLocation)
-            FunctionPushType{._ctx = this, ._fn = std::forward<T>(fn)};
+            FunctionPushType{._ctx = this, ._fn = SSVOH_FWD(fn)};
 
         // creating the metatable (over the object on the stack)
         // lua_settable pops the key and value we just pushed, so stack
@@ -1220,7 +1220,7 @@ private:
     template <typename T>
     int _push(std::unique_ptr<T>&& mObj)
     {
-        return _push(std::shared_ptr<T>(std::move(mObj)));
+        return _push(std::shared_ptr<T>(SSVOH_MOVE(mObj)));
     }
 
     // when pushing a shared_ptr, we create a custom type
@@ -1261,7 +1261,7 @@ private:
 
         try
         {
-            new(pointerLocation) std::shared_ptr<T>(std::move(mObj));
+            new(pointerLocation) std::shared_ptr<T>(SSVOH_MOVE(mObj));
 
             // creating the metatable (over the object on the stack)
             // lua_settable pops the key and value we just pushed, so stack

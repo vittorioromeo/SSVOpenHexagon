@@ -16,6 +16,7 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
@@ -42,7 +43,7 @@ Utils::LuaMetadataProxy addLuaFn(
     Lua::LuaContext& lua, const std::string& name, F&& f)
 {
     // TODO (P2): reduce instantiations by using captureless lambdas
-    lua.writeVariable(name, std::forward<F>(f));
+    lua.writeVariable(name, SSVOH_FWD(f));
     return Utils::LuaMetadataProxy{
         Utils::TypeWrapper<F>{}, LuaScripting::getMetadata(), name};
 }
