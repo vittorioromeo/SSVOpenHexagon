@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -129,12 +130,11 @@ public:
     }
 
     template <typename... TFwdTs>
-    auto operator()(TFwdTs&&... xs) noexcept(noexcept(
-        _method_ptr(_storage, _function_ptr, std::forward<TFwdTs>(xs)...)))
+    auto operator()(TFwdTs&&... xs) noexcept(
+        noexcept(_method_ptr(_storage, _function_ptr, SSVOH_FWD(xs)...)))
     {
         SSVOH_ASSERT(_method_ptr != nullptr);
-        return _method_ptr(
-            _storage, _function_ptr, std::forward<TFwdTs>(xs)...);
+        return _method_ptr(_storage, _function_ptr, SSVOH_FWD(xs)...);
     }
 };
 

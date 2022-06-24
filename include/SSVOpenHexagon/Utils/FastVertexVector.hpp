@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include "SSVOpenHexagon/Utils/UniquePtrArray.hpp"
 
@@ -106,7 +107,7 @@ public:
         SSVOH_ASSERT(_size <= _capacity);
         SSVOH_ASSERT(_data != nullptr);
 
-        new(&_data[_size++]._v) sf::Vertex{std::forward<Ts>(xs)...};
+        new(&_data[_size++]._v) sf::Vertex{SSVOH_FWD(xs)...};
     }
 
     template <typename... Ts>
