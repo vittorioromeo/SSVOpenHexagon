@@ -404,7 +404,7 @@ public:
         static_assert(!std::is_same_v<std::tuple<T>, T>,
             "Error: you can't use LuaContext::writeVariable with a tuple");
 
-        const int pushedElems = _push(static_cast<T&&>(data));
+        const int pushedElems = _push(SSVOH_FWD(data));
 
         try
         {

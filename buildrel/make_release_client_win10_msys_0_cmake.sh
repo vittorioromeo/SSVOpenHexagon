@@ -31,9 +31,10 @@ cmake .. -G"Ninja" \
          -DCMAKE_C_FLAGS="-fuse-ld=lld" \
          -DCMAKE_CXX_COMPILER="clang++" \
          -DCMAKE_CXX_FLAGS="\
+             -ftime-trace \
              -fuse-ld=lld \
              -Wall -Wextra -Wpedantic -Wno-braced-scalar-init \
              -Wno-pragmas -Wno-missing-field-initializers \
              -O3 -DNDEBUG \
              -frounding-math -ffp-contract=off \
-             -g3" # TODO (P0): for profiling, remove
+             -g3 -ftime-trace" # TODO (P0): for profiling, remove
