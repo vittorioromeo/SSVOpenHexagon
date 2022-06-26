@@ -296,9 +296,10 @@ namespace hg::Config {
     return res;
 }
 
-
+#if defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbraced-scalar-init"
+#endif
 
 #define X(name, type, key, ...)                                               \
     [[nodiscard]] static auto& name() noexcept                                \
@@ -309,7 +310,9 @@ namespace hg::Config {
 X_LINKEDVALUES
 #undef X
 
+#if defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
 
 static void fixupMissingTriggers()
 {
