@@ -1,0 +1,17 @@
+{
+    "disambiguator": "thing",
+    "name": "Artwork",
+    "author": "Synth Morxemplum",
+    "version": 1,
+    "priority": -99999.02,
+
+    "dependencies":
+    [
+        {
+            "disambiguator": "ohvrvanilla",
+            "name": "base",
+            "author": "vittorio romeo",
+            "min_version": 1
+        }
+    ]
+}

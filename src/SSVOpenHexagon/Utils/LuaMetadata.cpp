@@ -19,6 +19,7 @@ namespace hg::Utils {
         // Return the last index: the miscellaneous index.
         return NUM_CATEGORIES - 1;
     }
+
     const std::string_view prefix = fnName.substr(0, underscoreIndex + 1);
 
     // Find the category it should be placed in, otherwise it'll be
@@ -39,6 +40,7 @@ void LuaMetadata::addFnEntry(const std::string& fnRet,
     const std::string& fnDocs)
 {
     const std::size_t categoryIndex = getCategoryIndexFromName(fnName);
+
     fnEntries.at(categoryIndex)
         .push_back(FnEntry{fnRet, fnName, fnArgs, fnDocs});
 }

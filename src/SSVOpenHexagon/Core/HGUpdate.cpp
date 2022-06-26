@@ -304,10 +304,7 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
                     updateBeatPulse(mFT);
                 }
 
-                if(Config::getPulse())
-                {
-                    updatePulse(mFT);
-                }
+                updatePulse(mFT);
 
                 if(!Config::getBlackAndWhite())
                 {
@@ -410,6 +407,11 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
         if(!Config::get3D() && levelStatus._3DRequired)
         {
             invalidateScore("3D REQUIRED");
+        }
+
+        if(!Config::getShaders() && levelStatus.shadersRequired)
+        {
+            invalidateScore("SHADERS REQUIRED");
         }
     }
 }
@@ -766,10 +768,11 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
     {
         SSVOH_ASSERT(backgroundCamera.has_value());
 
-        const float p{status.pulse / levelStatus.pulseMin};
+        const float p{
+            Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
         const float rotation{backgroundCamera->getRotation()};
 
-        backgroundCamera->setView({ssvs::zeroVec2f,
+        backgroundCamera->setView(sf::View{ssvs::zeroVec2f,
             {(Config::getWidth() * Config::getZoomFactor()) * p,
                 (Config::getHeight() * Config::getZoomFactor()) * p}});
 
@@ -916,7 +919,7 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
         p.sprite.setTexture(*txStarParticle);
         p.sprite.setPosition(
             {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
-        p.sprite.setRotation(ssvu::getRndR(0.f, 360.f));
+        p.sprite.setRotation(sf::degrees(ssvu::getRndR(0.f, 360.f)));
 
         const float scale = ssvu::getRndR(0.75f, 1.35f);
         p.sprite.setScale({scale, scale});
@@ -937,7 +940,7 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
     {
         sf::Sprite& sp = p.sprite;
         sp.setPosition(sp.getPosition() + p.velocity * mFT);
-        sp.setRotation(sp.getRotation() + p.angularVelocity * mFT);
+        sp.setRotation(sp.getRotation() + sf::degrees(p.angularVelocity * mFT));
     }
 
     if(mustSpawnPBParticles)

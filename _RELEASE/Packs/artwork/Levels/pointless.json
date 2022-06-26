@@ -1,0 +1,12 @@
+{
+    "id": "shadertest",
+    "name": "Shader Test",
+    "description": "GIMME PRIZE MONEY",
+    "author": "Synth Morxemplum",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "pointless",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/pointless.lua",
+    "difficultyMults": [0.5, 3, 5]
+}

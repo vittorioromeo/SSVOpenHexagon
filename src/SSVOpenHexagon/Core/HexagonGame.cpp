@@ -18,11 +18,11 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 
-#include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
@@ -115,7 +115,7 @@ void HexagonGame::updateKeyIcons()
     keyIconFocus.setOrigin({halfSize, halfSize});
     keyIconSwap.setOrigin({halfSize, halfSize});
 
-    keyIconLeft.setRotation(180);
+    keyIconLeft.setRotation(sf::degrees(180));
 
     const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
 
@@ -682,11 +682,13 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
         // Reset zoom
         overlayCamera->setView(
-            {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+            sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
                 sf::Vector2f(Config::getWidth(), Config::getHeight())});
-        backgroundCamera->setView({ssvs::zeroVec2f,
+
+        backgroundCamera->setView(sf::View{ssvs::zeroVec2f,
             {Config::getWidth() * Config::getZoomFactor(),
                 Config::getHeight() * Config::getZoomFactor()}});
+
         backgroundCamera->setRotation(0);
 
         // Reset skew
@@ -794,7 +796,7 @@ void HexagonGame::death_shakeCamera()
     SSVOH_ASSERT(backgroundCamera.has_value());
 
     overlayCamera->setView(
-        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+        sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
             sf::Vector2f(Config::getWidth(), Config::getHeight())});
 
     backgroundCamera->setCenter(ssvs::zeroVec2f);
@@ -1551,11 +1553,6 @@ void HexagonGame::setSides(unsigned int mSides)
 [[nodiscard]] float HexagonGame::getWallAngleRight() const noexcept
 {
     return levelStatus.wallAngleRight;
-}
-
-[[nodiscard]] float HexagonGame::get3DEffectMult() const noexcept
-{
-    return levelStatus._3dEffectMultiplier;
 }
 
 [[nodiscard]] HexagonGameStatus& HexagonGame::getStatus() noexcept

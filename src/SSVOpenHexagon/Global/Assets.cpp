@@ -27,6 +27,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Shader.hpp>
 
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
@@ -151,7 +152,7 @@ HGAssets::HGAssets(
         return;
     }
 
-    if(!loadAllPackAssets())
+    if(!loadAllPackAssets(mHeadless))
     {
         ssvu::lo("HGAssets::HGAssets") << "Error loading all pack assets\n";
         std::terminate();
@@ -289,7 +290,8 @@ HGAssets::~HGAssets()
     return true;
 }
 
-[[nodiscard]] bool HGAssets::loadPackAssets(const PackData& packData)
+[[nodiscard]] bool HGAssets::loadPackAssets(
+    const PackData& packData, const bool headless)
 {
     const std::string& packPath{packData.folderPath};
     const std::string& packId{packData.id};
@@ -298,9 +300,26 @@ HGAssets::~HGAssets()
 
     try
     {
+        if(!headless)
+        {
+            if(ssvufs::Path{packPath + "Shaders/"}.isFolder() && !levelsOnly)
+            {
+                loadPackAssets_loadShaders(packId, packPath);
+            }
+
+            if(!levelsOnly && ssvufs::Path{packPath + "Sounds/"}.isFolder())
+            {
+                loadPackAssets_loadCustomSounds(packId, packPath);
+            }
+        }
+
         if(ssvufs::Path{packPath + "Music/"}.isFolder() && !levelsOnly)
         {
-            loadPackAssets_loadMusic(packId, packPath);
+            if(!headless)
+            {
+                loadPackAssets_loadMusic(packId, packPath);
+            }
+
             loadPackAssets_loadMusicData(packId, packPath);
         }
 
@@ -312,11 +331,6 @@ HGAssets::~HGAssets()
         if(ssvufs::Path{packPath + "Levels/"}.isFolder())
         {
             loadPackAssets_loadLevelData(packId, packPath);
-        }
-
-        if(!levelsOnly && ssvufs::Path(packPath + "Sounds/").isFolder())
-        {
-            loadPackAssets_loadCustomSounds(packId, packPath);
         }
     }
     catch(const std::runtime_error& mEx)
@@ -561,11 +575,11 @@ HGAssets::getSelectablePackInfos() const noexcept
     return true;
 }
 
-[[nodiscard]] bool HGAssets::loadAllPackAssets()
+[[nodiscard]] bool HGAssets::loadAllPackAssets(const bool headless)
 {
     for(const auto& [packId, packData] : packDatas)
     {
-        if(loadPackAssets(packData))
+        if(loadPackAssets(packData, headless))
         {
             continue;
         }
@@ -661,6 +675,47 @@ void HGAssets::addLocalProfile(ProfileData&& profileData)
     }
 
     return true;
+}
+
+void HGAssets::loadPackAssets_loadShaders(
+    const std::string& mPackId, const ssvufs::Path& mPath)
+{
+    const auto loadShadersOfType =
+        [&](const char* const extension, sf::Shader::Type shaderType)
+    {
+        for(const auto& p : scanSingleByExt(mPath + "Shaders/", extension))
+        {
+            auto shader = Utils::makeUnique<sf::Shader>();
+
+            if(!shader->loadFromFile(p.getStr(), shaderType))
+            {
+                ssvu::lo("hg::loadPackAssets_loadShaders")
+                    << "Failed to load shader '" << p << "'\n";
+
+                continue;
+            }
+
+            shadersById.push_back(shader.get());
+            SSVOH_ASSERT(shadersById.size() > 0);
+            const std::size_t shaderId = shadersById.size() - 1;
+
+            LoadedShader ls{.shader{std::move(shader)},
+                .path{p},
+                .shaderType{shaderType},
+                .id{shaderId}};
+
+            shaders.emplace(
+                concatIntoBuf(mPackId, '_', p.getFileName()), std::move(ls));
+
+            shadersPathToId.emplace(p, shaderId);
+
+            ++loadInfo.assets;
+        }
+    };
+
+    loadShadersOfType(".vert", sf::Shader::Type::Vertex);
+    loadShadersOfType(".geom", sf::Shader::Type::Geometry);
+    loadShadersOfType(".frag", sf::Shader::Type::Fragment);
 }
 
 void HGAssets::loadPackAssets_loadCustomSounds(
@@ -837,8 +892,84 @@ void HGAssets::saveAllProfiles()
     return it->second;
 }
 
+[[nodiscard]] sf::Shader* HGAssets::getShader(
+    const std::string& mPackId, const std::string& mId)
+{
+    const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
+
+    const auto it = shaders.find(assetId);
+    if(it == shaders.end())
+    {
+        ssvu::lo("getShader") << "Asset '" << assetId << "' not found\n";
+        return nullptr;
+    }
+
+    return it->second.shader.get();
+}
+
+[[nodiscard]] std::optional<std::size_t> HGAssets::getShaderId(
+    const std::string& mPackId, const std::string& mId)
+{
+    const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
+
+    const auto it = shaders.find(assetId);
+    if(it == shaders.end())
+    {
+        ssvu::lo("getShaderId") << "Asset '" << assetId << "' not found\n";
+        return std::nullopt;
+    }
+
+    return it->second.id;
+}
+
+[[nodiscard]] std::optional<std::size_t> HGAssets::getShaderIdByPath(
+    const std::string& mShaderPath)
+{
+    const auto it = shadersPathToId.find(mShaderPath);
+    if(it == shadersPathToId.end())
+    {
+        ssvu::lo("getShaderIdByPath") << "Shader with path '" << mShaderPath
+                                      << "' not found, couldn't get id\n";
+
+        return std::nullopt;
+    }
+
+    return it->second;
+}
+
+[[nodiscard]] sf::Shader* HGAssets::getShaderByShaderId(
+    const std::size_t mShaderId)
+{
+    if(!isValidShaderId(mShaderId))
+    {
+        return nullptr;
+    }
+
+    return shadersById[mShaderId];
+}
+
+[[nodiscard]] bool HGAssets::isValidShaderId(const std::size_t mShaderId) const
+{
+    return mShaderId < shadersById.size();
+}
+
 //**********************************************
 // RELOAD
+
+void HGAssets::reloadAllShaders()
+{
+    for(auto& [id, loadedShader] : shaders)
+    {
+        if(!loadedShader.shader->loadFromFile(
+               loadedShader.path, loadedShader.shaderType))
+        {
+            ssvu::lo("hg::HGAssets::reloadAllShaders")
+                << "Failed to load shader '" << loadedShader.path << "'\n";
+
+            continue;
+        }
+    }
+}
 
 [[nodiscard]] std::string HGAssets::reloadPack(
     const std::string& mPackId, const std::string& mPath)

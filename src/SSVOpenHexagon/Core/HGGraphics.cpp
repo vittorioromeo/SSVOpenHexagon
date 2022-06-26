@@ -7,21 +7,26 @@
 #include "SSVOpenHexagon/Components/CWall.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Imgui.hpp"
 
-#include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
 
 #include "SSVStart/Utils/SFML.hpp"
 
 #include <SFML/Config.hpp>
 
+#include <SFML/Graphics/RenderStates.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Utils/Rnd.hpp>
+
+#include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
 
 namespace hg {
 
@@ -50,6 +55,26 @@ void HexagonGame::draw()
     {
         return;
     }
+
+    const auto getRenderStates = [this](
+                                     const RenderStage rs) -> sf::RenderStates
+    {
+        if(!Config::getShaders())
+        {
+            return sf::RenderStates::Default;
+        }
+
+        const std::optional<std::size_t> fragmentShaderId =
+            status.fragmentShaderIds[static_cast<std::size_t>(rs)];
+
+        if(!fragmentShaderId.has_value())
+        {
+            return sf::RenderStates::Default;
+        }
+
+        runLuaFunctionIfExists<int>("onRenderStage", static_cast<int>(rs));
+        return sf::RenderStates{assets.getShaderByShaderId(*fragmentShaderId)};
+    };
 
     SSVOH_ASSERT(backgroundCamera.has_value());
     SSVOH_ASSERT(overlayCamera.has_value());
@@ -90,7 +115,7 @@ void HexagonGame::draw()
                 levelStatus.darkenUnevenBackgroundChunk,
             Config::getBlackAndWhite());
 
-        render(backgroundTris);
+        render(backgroundTris, getRenderStates(RenderStage::BackgroundTris));
     }
 
     window->setView(backgroundCamera->apply());
@@ -131,8 +156,9 @@ void HexagonGame::draw()
         pivotQuads3D.reserve(numPivotQuads * depth);
         playerTris3D.reserve(numPlayerTris * depth);
 
+        const float pulse3D{Config::getNoPulse() ? 1.f : status.pulse3D};
         const float effect{
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
+            styleData._3dSkew * Config::get3DMultiplier() * pulse3D};
 
         const sf::Vector2f skew{1.f, 1.f + effect};
         backgroundCamera->setSkew(skew);
@@ -228,9 +254,9 @@ void HexagonGame::draw()
         }
     }
 
-    render(wallQuads3D);
-    render(pivotQuads3D);
-    render(playerTris3D);
+    render(wallQuads3D, getRenderStates(RenderStage::WallQuads3D));
+    render(pivotQuads3D, getRenderStates(RenderStage::PivotQuads3D));
+    render(playerTris3D, getRenderStates(RenderStage::PlayerTris3D));
 
     if(Config::getShowPlayerTrail() && status.showPlayerTrail)
     {
@@ -242,10 +268,10 @@ void HexagonGame::draw()
         drawSwapParticles();
     }
 
-    render(wallQuads);
-    render(capTris);
-    render(pivotQuads);
-    render(playerTris);
+    render(wallQuads, getRenderStates(RenderStage::WallQuads));
+    render(capTris, getRenderStates(RenderStage::CapTris));
+    render(pivotQuads, getRenderStates(RenderStage::PivotQuads));
+    render(playerTris, getRenderStates(RenderStage::PlayerTris));
 
     window->setView(overlayCamera->apply());
 
@@ -298,7 +324,9 @@ void HexagonGame::drawImguiLuaConsole()
     }
 
     SSVOH_ASSERT(overlayCamera.has_value());
-    window->setView(window->getRenderWindow().getDefaultView());
+
+    sf::RenderWindow& renderWindow = window->getRenderWindow();
+    window->setView(renderWindow.getDefaultView());
 
     Imgui::render(*window);
 }
@@ -532,11 +560,11 @@ void HexagonGame::updateText(ssvu::FT mFT)
     }
 
     messageText.setCharacterSize(getScaledCharacterSize(32.f));
-    messageText.setOrigin({ssvs::getGlobalWidth(messageText) / 2.f, 0});
+    messageText.setOrigin({ssvs::getGlobalWidth(messageText) / 2.f, 0.f});
 
     const float growth = std::sin(pbTextGrowth);
     pbText.setCharacterSize(getScaledCharacterSize(64.f) + growth * 10.f);
-    pbText.setOrigin({ssvs::getGlobalWidth(pbText) / 2.f, 0});
+    pbText.setOrigin({ssvs::getGlobalWidth(pbText) / 2.f, 0.f});
 
     // ------------------------------------------------------------------------
     if(mustShowReplayUI())

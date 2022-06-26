@@ -243,6 +243,7 @@ private:
     MenuFont txtRandomTip;
     MenuFont txtMenuBig;
     MenuFont txtMenuSmall;
+    MenuFont txtMenuTiny;
     MenuFont txtProfile;
     MenuFont txtInstructionsBig;
     MenuFont txtInstructionsMedium;
