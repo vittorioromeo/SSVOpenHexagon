@@ -10,7 +10,7 @@ echo "--------------------------------------------------------------------"
 echo ""
 
 ./copylibs.sh
-(cd ./test && rm -R ./Packs/ && ln -sf ../../_RELEASE/Packs .)
+(cd ./test && rm -Rf ./Packs/ && ln -sf ../../_RELEASE/Packs .)
 echo "Done."
 
 echo ""
