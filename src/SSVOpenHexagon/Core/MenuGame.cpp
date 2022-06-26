@@ -56,6 +56,8 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
+#include <SFML/Window/VideoMode.hpp>
+
 #include <utility>
 #include <array>
 #include <tuple>
@@ -206,6 +208,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       // For the Main Menu
       txtMenuBig{.font{"", openSquare}},
       txtMenuSmall{.font{"", openSquare}},
+      txtMenuTiny{.font{"", openSquare}},
       txtProfile{.font{"", openSquare, 32}},
       txtInstructionsBig{.font{"", openSquare, 46}},
       txtInstructionsMedium{.font{"", openSquare}},
@@ -1054,31 +1057,16 @@ void MenuGame::initLua()
     static random_number_generator rng{0};
     static HexagonGameStatus hexagonGameStatus;
 
-    LuaScripting::init(lua, rng, true /* inMenu */, cwManager, levelStatus,
-        hexagonGameStatus, styleData);
+    LuaScripting::init(
+        lua, rng, true /* inMenu */, cwManager, levelStatus, hexagonGameStatus,
+        styleData, assets,
+        [this](const std::string& filename) { runLuaFile(filename); },
+        execScriptPackPathContext,
+        [this]() -> const std::string& { return levelData->packPath; },
+        [this]() -> const PackData& { return *currentPack; });
 
     lua.writeVariable("u_log",
         [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
-
-    lua.writeVariable("u_execScript",
-        [this](const std::string& mScriptName)
-        {
-            runLuaFile(Utils::getDependentScriptFilename(
-                execScriptPackPathContext, levelData->packPath, mScriptName));
-        });
-
-    lua.writeVariable("u_execDependencyScript", //
-        [this](const std::string& mPackDisambiguator,
-            const std::string& mPackName, const std::string& mPackAuthor,
-            const std::string& mScriptName)
-        {
-            SSVOH_ASSERT(currentPack != nullptr);
-
-            Utils::withDependencyScriptFilename(
-                [this](const std::string& filename) { runLuaFile(filename); },
-                execScriptPackPathContext, assets, *currentPack,
-                mPackDisambiguator, mPackName, mPackAuthor, mScriptName);
-        });
 
     lua.writeVariable("u_getDifficultyMult", [] { return 1; });
 
@@ -1144,8 +1132,6 @@ void MenuGame::initMenus()
     namespace i = ssvms::Items;
 
     auto whenNotOfficial = [] { return !Config::getOfficial(); };
-    auto whenSoundEnabled = [] { return !Config::getNoSound(); };
-    auto whenMusicEnabled = [] { return !Config::getNoMusic(); };
 
     // Welcome menu
     auto& wlcm(welcomeMenu.createCategory("welcome"));
@@ -1337,29 +1323,29 @@ void MenuGame::initMenus()
     {
         if(vm.bitsPerPixel == 32)
         {
-            ratio = 10.f * vm.width / vm.height;
+            ratio = 10.f * vm.size.x / vm.size.y;
 
             switch(ratio)
             {
                 case 17: // 16:9
                     sixByNine.create<i::Single>(
-                        ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
+                        ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y),
                         [this, &vm]
-                        { changeResolutionTo(vm.width, vm.height); });
+                        { changeResolutionTo(vm.size.x, vm.size.y); });
                     break;
 
                 case 13: // 4:3
                     fourByThree.create<i::Single>(
-                        ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
+                        ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y),
                         [this, &vm]
-                        { changeResolutionTo(vm.width, vm.height); });
+                        { changeResolutionTo(vm.size.x, vm.size.y); });
                     break;
 
                 default: // 16:10 and uncommon
                     sixByTen.create<i::Single>(
-                        ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
+                        ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y),
                         [this, &vm]
-                        { changeResolutionTo(vm.width, vm.height); });
+                        { changeResolutionTo(vm.size.x, vm.size.y); });
                     break;
             }
         }
@@ -1382,6 +1368,11 @@ void MenuGame::initMenus()
     gfx.create<i::Goto>("visual fxs", visfx);
     visfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
     visfx.create<i::Toggle>(
+        "shader effects", &Config::getShaders, &Config::setShaders);
+    visfx.create<i::Toggle>(
+        "no pulse", &Config::getNoPulse, &Config::setNoPulse) |
+        whenNotOfficial;
+    visfx.create<i::Toggle>(
         "no rotation", &Config::getNoRotation, &Config::setNoRotation) |
         whenNotOfficial;
     visfx.create<i::Toggle>(
@@ -1390,8 +1381,7 @@ void MenuGame::initMenus()
     visfx.create<i::Toggle>(
         "b&w colors", &Config::getBlackAndWhite, &Config::setBlackAndWhite) |
         whenNotOfficial;
-    visfx.create<i::Toggle>("pulse", &Config::getPulse, &Config::setPulse) |
-        whenNotOfficial;
+
     visfx.create<i::Toggle>("flash", &Config::getFlash, &Config::setFlash);
     visfx.create<i::Slider>("shake mult.", &Config::getCameraShakeMultiplier,
         &Config::setCameraShakeMultiplier, 0.f, 5.f, 0.1f);
@@ -1494,8 +1484,7 @@ void MenuGame::initMenus()
             Config::setSoundVolume(mValue);
             audio.setSoundVolume(mValue);
         },
-        0u, 100u, 5u) |
-        whenSoundEnabled;
+        0u, 100u, 5u);
     sfx.create<i::Slider>(
         "music volume", &Config::getMusicVolume,
         [this](unsigned int mValue)
@@ -1503,16 +1492,13 @@ void MenuGame::initMenus()
             Config::setMusicVolume(mValue);
             audio.setMusicVolume(mValue);
         },
-        0u, 100u, 5u) |
-        whenMusicEnabled;
+        0u, 100u, 5u);
     sfx.create<i::Toggle>("sync music with difficulty",
-        &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync) |
-        whenMusicEnabled;
+        &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync);
     sfx.create<i::Slider>(
         "music speed multiplier", &Config::getMusicSpeedMult,
         [](float mValue) { Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f,
-        0.05f) |
-        whenMusicEnabled;
+        0.05f);
     sfx.create<i::Toggle>("play swap ready blip sound",
         &Config::getPlaySwapReadySound, &Config::setPlaySwapReadySound);
     sfx.create<i::GoBack>("back");
@@ -2409,8 +2395,8 @@ void MenuGame::eraseAction()
         }
 
         // Remove the profile .json
-        const std::string fileName{"Profiles/" + name + ".json"};
-        if(std::remove(fileName.c_str()) != 0)
+        if(const std::string fileName{"Profiles/" + name + ".json"};
+            std::remove(fileName.c_str()) != 0)
         {
             ssvu::lo("eraseAction()")
                 << "Error: file " << fileName << " does not exist\n";
@@ -3089,6 +3075,8 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
         return;
     }
 
+    assets.reloadAllShaders();
+
     // Do the necessary asset reload operation and get the log
     // of the results.
     std::string reloadOutput;
@@ -3195,6 +3183,7 @@ void MenuGame::refreshCamera()
     if(fourByThree)
     {
         txtMenuBig.font.setCharacterSize(26);
+        txtMenuTiny.font.setCharacterSize(9);
         txtMenuSmall.font.setCharacterSize(16);
 
         txtSelectionBig.font.setCharacterSize(24);
@@ -3209,6 +3198,7 @@ void MenuGame::refreshCamera()
     else
     {
         txtMenuBig.font.setCharacterSize(36);
+        txtMenuTiny.font.setCharacterSize(14);
         txtMenuSmall.font.setCharacterSize(24);
 
         txtSelectionBig.font.setCharacterSize(28);
@@ -3223,7 +3213,7 @@ void MenuGame::refreshCamera()
 
     // txtVersion and txtProfile are not in here cause they do not need it.
     for(auto f : {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig,
-            &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
+            &txtMenuTiny, &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
             &txtInstructionsMedium, &txtInstructionsSmall, &txtEnteringText,
             &txtSelectionBig, &txtSelectionMedium, &txtSelectionSmall,
             &txtSelectionScore, &txtSelectionRanked})
@@ -3818,6 +3808,14 @@ void MenuGame::drawOptionsSubmenus(
         renderText(itemName, txtMenuSmall.font, {quadBorder, txtHeight},
             !items[i]->isEnabled() ? sf::Color{150, 150, 150, 255}
                                    : menuTextColor);
+
+        if(!items[i]->isEnabled())
+        {
+            renderText("[OFFICIAL MODE ENABLED]", txtMenuTiny.font,
+                {ssvs::getGlobalRight(txtMenuSmall.font) + 6.f,
+                    ssvs::getGlobalTop(txtMenuSmall.font) - 2.f},
+                sf::Color{150, 150, 150, 255});
+        }
 
         txtHeight += interline;
     }
@@ -5716,6 +5714,7 @@ void MenuGame::draw()
     window.clear(sf::Color{0, 0, 0, 255});
 
     window.setView(backgroundCamera.apply());
+
     const bool mainOrAbove{state >= States::SMain};
 
     // Only draw the hexagon background past the loading screens.
@@ -6028,12 +6027,12 @@ void MenuGame::drawOnlineStatus()
         sOnline.setTexture(assets.getTexture("onlineIconFail.png"));
     }
 
-    sOnline.setScale(sf::Vector2f{spriteScale, spriteScale});
+    sOnline.setScale({spriteScale, spriteScale});
     sOnline.setOrigin(ssvs::getLocalSW(sOnline));
-    sOnline.setPosition({0 + padding, getWindowHeight() - padding});
+    sOnline.setPosition({0.f + padding, getWindowHeight() - padding});
 
     rsOnlineStatus.setSize(
-        sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
+        {ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
             txtHeight + padding * 2.f});
     rsOnlineStatus.setFillColor(sf::Color::Black);
     rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));

@@ -374,6 +374,8 @@ bool HexagonServer::runIteration_Control()
         }
     }
 
+// TODO (P1): conditionally enable in debug mode
+#if 0
     if(splitted[0] == "db")
     {
         if(splitted.size() < 2)
@@ -382,7 +384,6 @@ bool HexagonServer::runIteration_Control()
 
             return true;
         }
-
         if(splitted[1] == "exec")
         {
             if(splitted.size() < 3)
@@ -410,6 +411,7 @@ bool HexagonServer::runIteration_Control()
             }
         }
     }
+#endif
 
     return true;
 }
@@ -421,7 +423,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
         return false;
     }
 
-    SSVOH_SLOG_VERBOSE << "Listener is ready\n";
+    SSVOH_SLOG << "Listener is ready, attempting to accept new client\n";
 
     ConnectedClient& potentialClient =
         _connectedClients.emplace_back(Utils::SCClock::now());
@@ -431,6 +433,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     const void* potentialClientAddress = static_cast<void*>(&potentialClient);
 
+    // TODO (P1): potential hanging spot?
     // The listener is ready: there is a pending connection
     if(_listener.accept(potentialSocket) != sf::Socket::Done)
     {
@@ -447,7 +450,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     potentialClient._state = ConnectedClient::State::Connected;
 
-    // Add the new client to the selector so that we will  be notified when he
+    // Add the new client to the selector so that we will be notified when he
     // sends something
     _socketSelector.add(potentialSocket);
     return true;
@@ -471,6 +474,8 @@ void HexagonServer::runIteration_LoopOverSockets()
 
         // The client has sent some data, we can receive it
         _packetBuffer.clear();
+
+        // TODO (P1): potential hanging spot?
         if(clientSocket.receive(_packetBuffer) == sf::Socket::Done)
         {
             SSVOH_SLOG_VERBOSE << "Successfully received data from client '"
@@ -571,16 +576,18 @@ void HexagonServer::runIteration_PurgeTokens()
             ConnectedClient& c = *it;
             const void* clientAddr = static_cast<void*>(&c);
 
-            if(c._loginData.has_value())
+            if(!c._loginData.has_value())
             {
-                if(c._loginData->_userId == lt.userId)
-                {
-                    SSVOH_SLOG << "Kicking stale token client '" << clientAddr
-                               << "'\n";
+                continue;
+            }
 
-                    kickAndRemoveClient(c);
-                    it = _connectedClients.erase(it);
-                }
+            if(c._loginData->_userId == lt.userId)
+            {
+                SSVOH_SLOG << "Kicking stale token client '" << clientAddr
+                           << "'\n";
+
+                kickAndRemoveClient(c);
+                it = _connectedClients.erase(it);
             }
         }
     }

@@ -6,6 +6,9 @@
 #ifndef SSVUJ_OH_JSONCPP_JSON
 #define SSVUJ_OH_JSONCPP_JSON
 
+// Include as system header to suppress dependency warnings.
+#pragma GCC system_header
+
 #include <vector>
 #include <string>
 #include <sstream>

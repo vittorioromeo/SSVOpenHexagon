@@ -26,6 +26,18 @@ CURVE_ROTATION_FOCUS = 2.0436
 -- easier to memorize over pure integers.
 -- Use an enumator such as "EnumeratorName.VALUE" (e.g. KeyCode.LEFT)
 
+-- Render stages for shaders
+RenderStage = {
+    BACKGROUNDTRIS = 0,
+    WALLQUADS3D = 1,
+    PIVOTQUADS3D = 2,
+    PLAYERTRIS3D = 3,
+    WALLQUADS = 4,
+    CAPTRIS = 5,
+    PIVOTQUADS = 6,
+    PLAYERTRIS = 7
+}
+
 -- An enumerator that defines basic movement values for onInput
 Movement = {
     LEFT = -1,

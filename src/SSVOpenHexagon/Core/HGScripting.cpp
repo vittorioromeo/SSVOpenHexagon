@@ -16,6 +16,7 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
@@ -42,7 +43,7 @@ Utils::LuaMetadataProxy addLuaFn(
     Lua::LuaContext& lua, const std::string& name, F&& f)
 {
     // TODO (P2): reduce instantiations by using captureless lambdas
-    lua.writeVariable(name, std::forward<F>(f));
+    lua.writeVariable(name, SSVOH_FWD(f));
     return Utils::LuaMetadataProxy{
         Utils::TypeWrapper<F>{}, LuaScripting::getMetadata(), name};
 }
@@ -77,34 +78,6 @@ void HexagonGame::initLua_Utils()
         })
         .arg("message")
         .doc("Print out `$0` to the console.");
-
-    addLuaFn(lua, "u_execScript", //
-        [this](const std::string& mScriptName)
-        {
-            runLuaFile(Utils::getDependentScriptFilename(
-                execScriptPackPathContext, levelData->packPath, mScriptName));
-        })
-        .arg("scriptFilename")
-        .doc("Execute the script located at `<pack>/Scripts/$0`.");
-
-    addLuaFn(lua, "u_execDependencyScript", //
-        [this](const std::string& mPackDisambiguator,
-            const std::string& mPackName, const std::string& mPackAuthor,
-            const std::string& mScriptName)
-        {
-            Utils::withDependencyScriptFilename(
-                [this](const std::string& filename) { runLuaFile(filename); },
-                execScriptPackPathContext, assets, getPackData(),
-                mPackDisambiguator, mPackName, mPackAuthor, mScriptName);
-        })
-        .arg("packDisambiguator")
-        .arg("packName")
-        .arg("packAuthor")
-        .arg("scriptFilename")
-        .doc(
-            "Execute the script provided by the dependee pack with "
-            "disambiguator `$0`, name `$1`, author `$2`, located at "
-            "`<dependeePack>/Scripts/$3`.");
 
     addLuaFn(lua, "u_isKeyPressed",
         [this](int mKey)
@@ -1106,8 +1079,13 @@ void HexagonGame::initLua_Deprecated()
 
 void HexagonGame::initLua()
 {
-    LuaScripting::init(lua, rng, false /* inMenu */, cwManager, levelStatus,
-        status, styleData);
+    LuaScripting::init(
+        lua, rng, false /* inMenu */, cwManager, levelStatus, status, styleData,
+        assets,
+        [this](const std::string& filename) -> void { runLuaFile(filename); },
+        execScriptPackPathContext,
+        [this]() -> const std::string& { return levelData->packPath; },
+        [this]() -> const PackData& { return getPackData(); });
 
     initLua_Utils();
     initLua_AudioControl();

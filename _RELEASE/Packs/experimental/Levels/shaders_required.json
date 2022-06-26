@@ -1,0 +1,12 @@
+{
+    "id": "ThreeDimensions-shRequired-test",
+    "name": "shaders Required",
+    "description": "You have to play this level with shaders enabled\nfor your score to count",
+    "author": "Morxemplum",
+    "menuPriority": 20,
+    "selectable": true,
+    "styleId": "cw",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/shaders_required.lua",
+    "difficultyMults": []
+}
