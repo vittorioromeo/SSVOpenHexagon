@@ -17,6 +17,11 @@
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/Joystick.hpp>
+
+#include <SFML/System/Vector2.hpp>
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -379,14 +384,14 @@ std::string uneligibilityReason;
 
 static void applyAutoWindowedResolution()
 {
-    auto d(sf::VideoMode::getDesktopMode());
+    auto d = sf::VideoMode::getDesktopMode();
     windowedWidth() = d.size.x;
     windowedHeight() = d.size.y;
 }
 
 static void applyAutoFullscreenResolution()
 {
-    auto d(sf::VideoMode::getDesktopMode());
+    auto d = sf::VideoMode::getDesktopMode();
     fullscreenWidth() = d.size.x;
     fullscreenHeight() = d.size.y;
 }
