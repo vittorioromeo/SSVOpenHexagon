@@ -8,6 +8,8 @@
 
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <stdint.h> // Steam API needs this.
