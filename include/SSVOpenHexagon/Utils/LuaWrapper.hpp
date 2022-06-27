@@ -37,9 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include <cstring>
+#include <algorithm>
 #include <limits>
-#include <lua.h>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -48,6 +47,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <tuple>
 #include <type_traits>
 #include <vector>
+
+#include <cstring>
 
 #include <lua.hpp>
 

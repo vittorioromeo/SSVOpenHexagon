@@ -117,7 +117,7 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME luajit
     GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
-    GIT_TAG 7a28320ca6974d914d25a8d39e8edffd1368f885
+    GIT_TAG 7783f436f330ac231aae47d1c949c7a215a47ae6
 )
 
 set(LUAJIT_DISABLE_FFI true)
