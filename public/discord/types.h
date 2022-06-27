@@ -3,6 +3,9 @@
 #include "ffi.h"
 #include "event.h"
 
+#include <cstddef>
+#include <cstdint>
+
 namespace discord {
 
 enum class Result {
