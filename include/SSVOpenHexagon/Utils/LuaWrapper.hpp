@@ -37,22 +37,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include <cstring>
+#include <algorithm>
 #include <limits>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <sstream>
 #include <tuple>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
-extern "C" {
-#include <luajit.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
+#include <cstring>
+
+#include <lua.hpp>
 
 namespace Lua {
 
