@@ -4384,9 +4384,9 @@ void MenuGame::calcLevelChangeScroll(const int dir)
 {
     scrollSpeed = baseScrollSpeed;
 
-    // When in the favorites menu the packIdx variable stores the index
+    // When in the favorites menu, the packIdx variable stores the index
     // of the pack the currently selected level belongs to. However
-    // the favorite levels are displayed belonging to a single pack
+    // the favorite levels are displayed as if they belonged to a single pack,
     // so for the purposes of this function the pack index of the
     // favorites menu is always 0.
     const int actualPackIdx{isFavoriteLevels() ? 0 : lvlDrawer->packIdx};
@@ -4465,9 +4465,15 @@ void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
 void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
 {
     float scrollTop, scrollBottom;
+	std::function<void(const float)> action{
+		[this](const float target)
+			{ lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }
+	};
+
     if(packChangeDirection == -2)
     {
-        // Scrolling for all packs except the last one of the list.
+        // The last pack does not have a "next pack", therefore it gets a special treatement,
+		// which comes after this if statement.
         if(lvlDrawer->packIdx !=
             static_cast<int>(getSelectablePackInfosSize()) - 1)
         {
@@ -4476,43 +4482,49 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
             // Height of the bottom of the next pack label.
             scrollBottom = scrollTop + 2.f * (packLabelHeight + slctFrameSize) +
                            std::max(0.f, mLevelListHeight - packChangeOffset);
-
-            if(scrollBottom > h - lvlDrawer->YOffset)
+			
+			// With particularly long lists it only makes sense to show
+			// the stretch animation for as long as we can see the pack
+			// label on screen. After the pack label is outside of the draw
+			// window we only see a standing still list since we no more
+			// have a point of reference and the list is programmed to keep
+			// scrollBottom inside the window. If this occurs cut the
+			// animation short.
+			std::function<void(const float)> specialAction{
+				[this, action, scrollTop, mLevelListHeight](const float target) {
+					if(scrollTop < -lvlDrawer->YOffset)
+					{
+						packChangeOffset = 0.f;
+						action(h - (scrollTop +
+								2.f * (packLabelHeight + slctFrameSize) +
+								std::max(0.f, mLevelListHeight)));
+						return;
+					}
+					action(target);
+				}
+			};
+			
+			// The bottom must prevail.
+			if(!checkWindowBottomScrollWithResult(scrollBottom, specialAction))
             {
-                // With particularly long lists it only makes sense to show
-                // the stretch animation for as long as we can see the pack
-                // label on screen. After the pack label is outside of the draw
-                // window we only see a standing still list since we no more
-                // have a point of reference and the list is programmed to keep
-                // scrollBottom inside the window. If this occurs cut the
-                // animation short.
-                if(scrollTop < -lvlDrawer->YOffset)
-                {
-                    packChangeOffset = 0.f;
-                    scrollBottom = scrollTop +
-                                   2.f * (packLabelHeight + slctFrameSize) +
-                                   std::max(0.f, mLevelListHeight);
-                }
-                lvlDrawer->YScrollTo = lvlDrawer->YOffset = h - scrollBottom;
+				checkWindowTopScroll(scrollTop, action);
             }
-            else if(scrollTop < -lvlDrawer->YOffset)
-            {
-                lvlDrawer->YScrollTo = lvlDrawer->YOffset = -scrollTop;
-            }
+			
             return;
         }
 
-        // Bottom of the pack label.
-        scrollTop =
-            packLabelHeight * getSelectablePackInfosSize() + slctFrameSize;
+		// Top of the pack label.
+		scrollTop =
+			packLabelHeight * getSelectablePackInfosSize() + slctFrameSize;
         // Bottom of the level list.
         scrollBottom =
             scrollTop + std::max(0.f, mLevelListHeight - packChangeOffset);
 
-        checkWindowBottomScroll(scrollBottom, [this](const float target)
-            { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
-        checkWindowTopScroll(scrollTop, [this](const float target)
-            { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
+		// The bottom must prevail.
+		if(!checkWindowBottomScrollWithResult(scrollBottom, action))
+		{
+			checkWindowTopScroll(scrollTop, action);
+		}
         return;
     }
 
@@ -4525,10 +4537,8 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
                                 packChangeOffset,
                        h);
 
-    checkWindowBottomScroll(scrollBottom, [this](const float target)
-        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
-    checkWindowTopScroll(scrollTop, [this](const float target)
-        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
+    checkWindowBottomScroll(scrollBottom, action);
+    checkWindowTopScroll(scrollTop, action);
 }
 
 void MenuGame::quickPackFoldStretch()
@@ -4594,6 +4604,19 @@ void MenuGame::checkWindowBottomScroll(
     }
 
     action(target);
+}
+
+bool MenuGame::checkWindowBottomScrollWithResult(
+    const float scroll, std::function<void(const float)> action)
+{
+    const float target{h - scroll};
+    if(target >= lvlDrawer->YOffset)
+    {
+        return false;
+    }
+
+    action(target);
+	return true;
 }
 
 void MenuGame::resetNamesScrolls()
