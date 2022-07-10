@@ -3440,7 +3440,7 @@ inline constexpr float offsetSnap{0.25f};
 [[nodiscard]] float MenuGame::calcMenuOffset(float& offset,
     const float maxOffset, const bool revertOffset, const bool speedUp)
 {
-    // Adjust the offset of the menu depending on wherever it
+    // Adjust the offset of the menu depending on whether it
     // is being opened or closed.
 
     float speed;
@@ -4684,7 +4684,7 @@ void MenuGame::formatLevelDescription()
         }
     }
 
-    // Group words into lines depending on wherever
+    // Group words into lines depending on whether
     // they fit within the maximum width.
     const float maxWidth{getMaximumTextWidth()};
     std::string candidate;
