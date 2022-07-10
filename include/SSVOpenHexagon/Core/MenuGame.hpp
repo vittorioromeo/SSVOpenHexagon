@@ -459,6 +459,8 @@ private:
 
     void checkWindowBottomScroll(
         const float scroll, std::function<void(const float)> action);
+	bool checkWindowBottomScrollWithResult(
+        const float scroll, std::function<void(const float)> action);
 
     void scrollName(std::string& text, float& scroller);
 
