@@ -456,6 +456,8 @@ private:
 
     void checkWindowTopScroll(
         const float scroll, std::function<void(const float)> action);
+	bool checkWindowTopScrollWithResult(
+        const float scroll, std::function<void(const float)> action);
 
     void checkWindowBottomScroll(
         const float scroll, std::function<void(const float)> action);
