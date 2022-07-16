@@ -169,6 +169,15 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
             "`true`, the swap sound will be played.");
+
+    addLuaFn(lua, "u_getScore",
+        [this](const std::string& mId)
+        {
+            return assets.getCurrentLocalProfile().getScore(mId);
+        }
+    )
+    .arg("levelId")
+    .doc("Gets the score of a level. A levelId is for example `pointless_m_3`");
 }
 
 void HexagonGame::initLua_AudioControl()
