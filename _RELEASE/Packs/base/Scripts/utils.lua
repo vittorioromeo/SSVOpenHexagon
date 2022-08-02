@@ -261,8 +261,8 @@ end
 
 -- "Shuffles" an array by swapping elements randomly across a table.
 function shuffle(t)
-    for i = #t, 3, -1 do
-        local j = u_rndIntUpper(i - 1)
+    for i = #t, 2, -1 do
+        local j = u_rndIntUpper(i)
         t[i], t[j] = t[j], t[i]
     end
 end
