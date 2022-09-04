@@ -120,6 +120,9 @@ void HexagonGame::draw()
 
     window->setView(backgroundCamera->apply());
 
+    wallQuads3DTop.clear();
+    pivotQuads3DTop.clear();
+    playerTris3DTop.clear();
     wallQuads3D.clear();
     pivotQuads3D.clear();
     playerTris3D.clear();
@@ -147,10 +150,20 @@ void HexagonGame::draw()
 
     if(Config::get3D())
     {
-        const float depth(styleData._3dDepth);
+        const float aboveMain(-styleData._3dLayerOffset - 1);
+        const bool renderAbove(aboveMain > 0);
+        const float layerOffset(renderAbove ? -1.f : styleData._3dLayerOffset);
+        const float depth(styleData._3dDepth - renderAbove * aboveMain);
         const std::size_t numWallQuads(wallQuads.size());
         const std::size_t numPivotQuads(pivotQuads.size());
         const std::size_t numPlayerTris(playerTris.size());
+
+        if(renderAbove)
+        {
+            wallQuads3DTop.reserve(numWallQuads * aboveMain);
+            pivotQuads3DTop.reserve(numPivotQuads * aboveMain);
+            playerTris3DTop.reserve(numPlayerTris * aboveMain);
+        }
 
         wallQuads3D.reserve(numWallQuads * depth);
         pivotQuads3D.reserve(numPivotQuads * depth);
@@ -175,6 +188,13 @@ void HexagonGame::draw()
             playerTris3D.unsafe_emplace_other(playerTris);
         }
 
+        for(std::size_t i = 0; i < aboveMain; ++i)
+        {
+            wallQuads3DTop.unsafe_emplace_other(wallQuads);
+            pivotQuads3DTop.unsafe_emplace_other(pivotQuads);
+            playerTris3DTop.unsafe_emplace_other(playerTris);
+        }
+
         const auto adjustAlpha = [&](sf::Color& c, const float i)
         {
             SSVOH_ASSERT(styleData._3dAlphaMult != 0.f);
@@ -186,14 +206,17 @@ void HexagonGame::draw()
             c.a = Utils::componentClamp(newAlpha);
         };
 
-        for(int j(0); j < static_cast<int>(depth); ++j)
+        for(int j(0);
+            j < static_cast<int>(renderAbove ? depth + aboveMain : depth); ++j)
         {
+            const bool renderingAbove(j >= depth);
             const float i(depth - j - 1);
+            const float jAdj(j - depth * renderingAbove);
 
-            const float offset(styleData._3dSpacing *
-                               (float(i + 1.f + styleData._3dLayerOffset) *
-				styleData._3dPerspectiveMult) * (effect * 3.6f)
-			       * 1.4f);
+            const float offset(
+                styleData._3dSpacing *
+                (float(i + 1.f + layerOffset) * styleData._3dPerspectiveMult) *
+                (effect * 3.6f) * 1.4f);
 
             const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
@@ -213,11 +236,19 @@ void HexagonGame::draw()
             adjustAlpha(overrideColor, i);
 
             // Draw pivot layers
-            for(std::size_t k = j * numPivotQuads; k < (j + 1) * numPivotQuads;
-                ++k)
+            for(std::size_t k = jAdj * numPivotQuads;
+                k < (jAdj + 1) * numPivotQuads; ++k)
             {
-                pivotQuads3D[k].position += newPos;
-                pivotQuads3D[k].color = overrideColor;
+                if(renderingAbove)
+                {
+                    pivotQuads3DTop[k].position += newPos;
+                    pivotQuads3DTop[k].color = overrideColor;
+                }
+                else
+                {
+                    pivotQuads3D[k].position += newPos;
+                    pivotQuads3D[k].color = overrideColor;
+                }
             }
 
             if(styleData.get3DOverrideColor() == styleData.getMainColor())
@@ -229,11 +260,19 @@ void HexagonGame::draw()
             }
 
             // Draw wall layers
-            for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
-                ++k)
+            for(std::size_t k = jAdj * numWallQuads;
+                k < (jAdj + 1) * numWallQuads; ++k)
             {
-                wallQuads3D[k].position += newPos;
-                wallQuads3D[k].color = overrideColor;
+                if(renderingAbove)
+                {
+                    wallQuads3DTop[k].position += newPos;
+                    wallQuads3DTop[k].color = overrideColor;
+                }
+                else
+                {
+                    wallQuads3D[k].position += newPos;
+                    wallQuads3D[k].color = overrideColor;
+                }
             }
 
             // Apply player color if no 3D override is present.
@@ -246,11 +285,19 @@ void HexagonGame::draw()
             }
 
             // Draw player layers
-            for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
-                ++k)
+            for(std::size_t k = jAdj * numPlayerTris;
+                k < (jAdj + 1) * numPlayerTris; ++k)
             {
-                playerTris3D[k].position += newPos;
-                playerTris3D[k].color = overrideColor;
+                if(renderingAbove)
+                {
+                    playerTris3DTop[k].position += newPos;
+                    playerTris3DTop[k].color = overrideColor;
+                }
+                else
+                {
+                    playerTris3D[k].position += newPos;
+                    playerTris3D[k].color = overrideColor;
+                }
             }
         }
     }
@@ -273,6 +320,10 @@ void HexagonGame::draw()
     render(capTris, getRenderStates(RenderStage::CapTris));
     render(pivotQuads, getRenderStates(RenderStage::PivotQuads));
     render(playerTris, getRenderStates(RenderStage::PlayerTris));
+
+    render(wallQuads3DTop, getRenderStates(RenderStage::WallQuads3D));
+    render(pivotQuads3DTop, getRenderStates(RenderStage::PivotQuads3D));
+    render(playerTris3DTop, getRenderStates(RenderStage::PlayerTris3D));
 
     window->setView(overlayCamera->apply());
 
