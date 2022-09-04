@@ -44,6 +44,7 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
       maxSwapTime{ssvuj::getExtr<float>(mRoot, "max_swap_time", 100.f)},
 
       _3dDepth{ssvuj::getExtr<float>(mRoot, "3D_depth", 15.f)},
+      _3dLayerOffset{ssvuj::getExtr<float>(mRoot, "3D_layer_offset", 0.f)},
       _3dSkew{ssvuj::getExtr<float>(mRoot, "3D_skew", 0.18f)},
       _3dSpacing{ssvuj::getExtr<float>(mRoot, "3D_spacing", 1.f)},
       _3dDarkenMult{ssvuj::getExtr<float>(mRoot, "3D_darken_multiplier", 1.5f)},

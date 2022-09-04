@@ -77,6 +77,7 @@ public:
     float maxSwapTime{};
 
     float _3dDepth{};
+    float _3dLayerOffset{};
     float _3dSkew{};
     float _3dSpacing{};
     float _3dDarkenMult{};

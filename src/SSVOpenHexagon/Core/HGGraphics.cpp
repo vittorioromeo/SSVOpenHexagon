@@ -191,8 +191,9 @@ void HexagonGame::draw()
             const float i(depth - j - 1);
 
             const float offset(styleData._3dSpacing *
-                               (float(i + 1.f) * styleData._3dPerspectiveMult) *
-                               (effect * 3.6f) * 1.4f);
+                               (float(i + 1.f + styleData._3dLayerOffset) *
+				styleData._3dPerspectiveMult) * (effect * 3.6f)
+			       * 1.4f);
 
             const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 

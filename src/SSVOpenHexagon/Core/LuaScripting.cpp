@@ -1038,6 +1038,11 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
 
         "Sets the amount of 3D layers in a style to `$0`.");
 
+    sdVar("3dLayerOffset", &StyleData::_3dLayerOffset,
+        "Gets the current offset of the 3D layers compared to where they usually are in layers (partial layers are valid too).",
+
+        "Sets the current offset of the 3D layers to `$0`.");
+
     sdVar("3dSkew", &StyleData::_3dSkew,
         "Gets the current value of where the 3D skew is in the style. The Skew "
         "is what gives the 3D effect in the first "
