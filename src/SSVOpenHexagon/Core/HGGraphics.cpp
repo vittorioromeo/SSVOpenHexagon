@@ -165,9 +165,12 @@ void HexagonGame::draw()
             playerTris3DTop.reserve(numPlayerTris * aboveMain);
         }
 
-        wallQuads3D.reserve(numWallQuads * depth);
-        pivotQuads3D.reserve(numPivotQuads * depth);
-        playerTris3D.reserve(numPlayerTris * depth);
+        if(depth > 0)
+        {
+            wallQuads3D.reserve(numWallQuads * depth);
+            pivotQuads3D.reserve(numPivotQuads * depth);
+            playerTris3D.reserve(numPlayerTris * depth);
+        }
 
         const float pulse3D{Config::getNoPulse() ? 1.f : status.pulse3D};
         const float effect{
@@ -214,7 +217,7 @@ void HexagonGame::draw()
             j < static_cast<int>(renderAbove ? depth + aboveMain : depth); ++j)
         {
             const bool renderingAbove(j >= depth && renderAbove);
-            const float jAdj(j - depth * renderingAbove);
+            const float jAdj(j - depth * renderingAbove * (depth >= 0));
             const float i(depth - j - 1 + layerOffset);
 
             const float offset(styleData._3dSpacing *
