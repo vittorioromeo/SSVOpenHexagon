@@ -78,6 +78,8 @@ public:
 
     float _3dDepth{};
     float _3dLayerOffset{};
+    bool _3dAlphaMirror{};
+    bool _3dMainOnTop{};
     float _3dSkew{};
     float _3dSpacing{};
     float _3dDarkenMult{};

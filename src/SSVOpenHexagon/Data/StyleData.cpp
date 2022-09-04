@@ -45,6 +45,8 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
 
       _3dDepth{ssvuj::getExtr<float>(mRoot, "3D_depth", 15.f)},
       _3dLayerOffset{ssvuj::getExtr<float>(mRoot, "3D_layer_offset", 0.f)},
+      _3dAlphaMirror{ssvuj::getExtr<bool>(mRoot, "3D_alpha_mirror", true)},
+      _3dMainOnTop{ssvuj::getExtr<bool>(mRoot, "3D_main_on_top", false)},
       _3dSkew{ssvuj::getExtr<float>(mRoot, "3D_skew", 0.18f)},
       _3dSpacing{ssvuj::getExtr<float>(mRoot, "3D_spacing", 1.f)},
       _3dDarkenMult{ssvuj::getExtr<float>(mRoot, "3D_darken_multiplier", 1.5f)},

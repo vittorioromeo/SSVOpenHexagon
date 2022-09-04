@@ -151,7 +151,7 @@ void HexagonGame::draw()
     if(Config::get3D())
     {
         const float aboveMain(-styleData._3dLayerOffset - 1);
-        const bool renderAbove(aboveMain > 0);
+        const bool renderAbove(aboveMain > 0 && !styleData._3dMainOnTop);
         const float layerOffset(renderAbove ? -1.f : styleData._3dLayerOffset);
         const float depth(styleData._3dDepth - renderAbove * aboveMain);
         const std::size_t numWallQuads(wallQuads.size());
@@ -188,11 +188,14 @@ void HexagonGame::draw()
             playerTris3D.unsafe_emplace_other(playerTris);
         }
 
-        for(std::size_t i = 0; i < aboveMain; ++i)
+        if(renderAbove)
         {
-            wallQuads3DTop.unsafe_emplace_other(wallQuads);
-            pivotQuads3DTop.unsafe_emplace_other(pivotQuads);
-            playerTris3DTop.unsafe_emplace_other(playerTris);
+            for(std::size_t i = 0; i < aboveMain; ++i)
+            {
+                wallQuads3DTop.unsafe_emplace_other(wallQuads);
+                pivotQuads3DTop.unsafe_emplace_other(pivotQuads);
+                playerTris3DTop.unsafe_emplace_other(playerTris);
+            }
         }
 
         const auto adjustAlpha = [&](sf::Color& c, const float i)
@@ -201,7 +204,8 @@ void HexagonGame::draw()
 
             const float newAlpha =
                 (static_cast<float>(c.a) / styleData._3dAlphaMult) -
-                i * styleData._3dAlphaFalloff;
+                (styleData._3dAlphaMirror ? std::abs(i + 1) : i) *
+                    styleData._3dAlphaFalloff;
 
             c.a = Utils::componentClamp(newAlpha);
         };
@@ -209,14 +213,13 @@ void HexagonGame::draw()
         for(int j(0);
             j < static_cast<int>(renderAbove ? depth + aboveMain : depth); ++j)
         {
-            const bool renderingAbove(j >= depth);
-            const float i(depth - j - 1);
+            const bool renderingAbove(j >= depth && renderAbove);
             const float jAdj(j - depth * renderingAbove);
+            const float i(depth - j - 1 + layerOffset);
 
-            const float offset(
-                styleData._3dSpacing *
-                (float(i + 1.f + layerOffset) * styleData._3dPerspectiveMult) *
-                (effect * 3.6f) * 1.4f);
+            const float offset(styleData._3dSpacing *
+                               (float(i + 1.f) * styleData._3dPerspectiveMult) *
+                               (effect * 3.6f) * 1.4f);
 
             const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
