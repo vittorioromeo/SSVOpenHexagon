@@ -169,6 +169,19 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
             "`true`, the swap sound will be played.");
+
+    addLuaFn(lua, "u_setMessageFont", //
+        [this](std::string mFontId) {
+            messageText.setFont(
+                assets.getFontOrNullFont(getPackId() + "_" + mFontId));
+        })
+        .arg("fontId")
+        .doc("");
+
+    addLuaFn(lua, "u_setMessageFontSize", //
+        [this](float mSize) { messageTextCharacterSize = mSize; })
+        .arg("size")
+        .doc("");
 }
 
 void HexagonGame::initLua_AudioControl()

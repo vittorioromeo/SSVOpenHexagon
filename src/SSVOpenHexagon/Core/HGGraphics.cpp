@@ -559,7 +559,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
         fpsText.setCharacterSize(getScaledCharacterSize(20.f));
     }
 
-    messageText.setCharacterSize(getScaledCharacterSize(32.f));
+    messageText.setCharacterSize(getScaledCharacterSize(messageTextCharacterSize));
     messageText.setOrigin({ssvs::getGlobalWidth(messageText) / 2.f, 0.f});
 
     const float growth = std::sin(pbTextGrowth);

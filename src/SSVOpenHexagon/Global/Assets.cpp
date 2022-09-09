@@ -311,6 +311,11 @@ HGAssets::~HGAssets()
             {
                 loadPackAssets_loadCustomSounds(packId, packPath);
             }
+
+            if(!levelsOnly && ssvufs::Path{packPath + "Fonts/"}.isFolder())
+            {
+                loadPackAssets_loadCustomFonts(packId, packPath);
+            }
         }
 
         if(ssvufs::Path{packPath + "Music/"}.isFolder() && !levelsOnly)
@@ -734,6 +739,22 @@ void HGAssets::loadPackAssets_loadCustomSounds(
     }
 }
 
+void HGAssets::loadPackAssets_loadCustomFonts(
+    const std::string& mPackId, const ssvufs::Path& mPath)
+{
+    for(const auto& p : scanSingleByExt(mPath + "Fonts/", ".ttf"))
+    {
+        if(!assetStorage->loadFont(
+               concatIntoBuf(mPackId, '_', p.getFileName()), p))
+        {
+            ssvu::lo("hg::loadPackAssets_loadCustomFonts")
+                << "Failed to load font '" << p << "'\n";
+        }
+
+        ++loadInfo.assets;
+    }
+}
+
 void HGAssets::loadPackAssets_loadMusic(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {
@@ -1072,6 +1093,27 @@ void HGAssets::reloadAllShaders()
             }
         }
         output += "Custom sound files successfully reloaded\n";
+    }
+
+    // Custom fonts
+    temp = mPath + "Fonts/";
+    if(!ssvufs::Path{temp}.isFolder())
+    {
+        output += "invalid custom font path\n";
+    }
+    else
+    {
+        for(const auto& p : scanSingleByExt(mPath + "Fonts/", ".ttf"))
+        {
+            temp = mPackId + "_" + p.getFileName();
+            if(!assetStorage->loadFont(temp, p))
+            {
+                output += "Failed to load font '";
+                output += p;
+                output += "'\n";
+            }
+        }
+        output += "Custom font files successfully reloaded\n";
     }
 
     return output;

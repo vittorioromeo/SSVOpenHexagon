@@ -633,6 +633,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     debugPause = false;
 
+    // Font cleanup
+    messageText.setFont(font);
+
     // Events cleanup
     messageText.setString("");
     pbText.setString("");

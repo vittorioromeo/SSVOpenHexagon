@@ -205,6 +205,7 @@ private:
     std::optional<SwapParticleSpawnInfo> swapParticlesSpawnInfo;
     float nextPBParticleSpawn{0.f};
     float pbTextGrowth{0.f};
+    float messageTextCharacterSize{32.f};
 
     sf::Sprite keyIconLeft;
     sf::Sprite keyIconRight;
