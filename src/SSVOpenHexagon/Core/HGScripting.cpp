@@ -176,12 +176,14 @@ void HexagonGame::initLua_Utils()
                 assets.getFontOrNullFont(getPackId() + "_" + mFontId));
         })
         .arg("fontId")
-        .doc("");
+        .doc(
+            "Sets the font messages will use to `$0` which is the filename of "
+            "a file inside the `Fonts` folder in your pack.");
 
     addLuaFn(lua, "u_setMessageFontSize", //
         [this](float mSize) { messageTextCharacterSize = mSize; })
         .arg("size")
-        .doc("");
+        .doc("Sets the font size messages will use to `$0`.");
 }
 
 void HexagonGame::initLua_AudioControl()
