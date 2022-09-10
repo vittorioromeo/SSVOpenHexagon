@@ -173,7 +173,7 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_setMessageFont", //
         [this](const std::string& mFontId) {
             messageText.setFont(
-                assets.getFontOrNullFont(getPackId() + "_" + mFontId));
+                assets.getFontOrNullFont(Utils::concat(getPackId(), "_", mFontId)));
         })
         .arg("fontId")
         .doc(
