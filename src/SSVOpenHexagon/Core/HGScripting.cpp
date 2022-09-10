@@ -181,7 +181,7 @@ void HexagonGame::initLua_Utils()
             "a file inside the `Fonts` folder in your pack.");
 
     addLuaFn(lua, "u_setMessageFontSize", //
-        [this](float mSize) { messageTextCharacterSize = mSize; })
+        [this](float mSize) { status.messageTextCharacterSize = mSize; })
         .arg("size")
         .doc("Sets the font size messages will use to `$0`.");
 }
