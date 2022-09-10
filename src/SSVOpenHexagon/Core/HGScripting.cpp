@@ -171,7 +171,7 @@ void HexagonGame::initLua_Utils()
             "`true`, the swap sound will be played.");
 
     addLuaFn(lua, "u_setMessageFont", //
-        [this](std::string mFontId) {
+        [this](const std::string& mFontId) {
             messageText.setFont(
                 assets.getFontOrNullFont(getPackId() + "_" + mFontId));
         })
