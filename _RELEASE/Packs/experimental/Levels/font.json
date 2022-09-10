@@ -1,0 +1,12 @@
+{
+    "id": "font",
+    "name": "Test custom fonts",
+    "description": "",
+    "author": "Baum",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "sandbox",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/font.lua",
+    "difficultyMults": []
+}
