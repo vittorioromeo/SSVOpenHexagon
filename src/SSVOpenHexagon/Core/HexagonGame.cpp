@@ -700,7 +700,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     inputImplCCW = inputImplCW = false;
     playerNowReadyToSwap = false;
 
-    runLuaFunctionIfExists<void>("onPreUnload");
+    if(!firstPlay) runLuaFunctionIfExists<void>("onPreUnload");
     lua = Lua::LuaContext{};
     calledDeprecatedFunctions.clear();
     initLua();
