@@ -77,6 +77,7 @@ struct LevelStatus
 
     bool manualPulseControl{false};
     bool manualBeatPulseControl{false};
+    bool manual3DPulseControl{false};
 
     unsigned long currentIncrements{0u};
 

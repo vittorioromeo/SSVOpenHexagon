@@ -886,14 +886,18 @@ void HexagonGame::updateFlash(ssvu::FT mFT)
 
 void HexagonGame::updatePulse3D(ssvu::FT mFT)
 {
-    status.pulse3D += styleData._3dPulseSpeed * status.pulse3DDirection * mFT;
-    if(status.pulse3D > styleData._3dPulseMax)
+    if(!levelStatus.manual3DPulseControl)
     {
-        status.pulse3DDirection = -1.f;
-    }
-    else if(status.pulse3D < styleData._3dPulseMin)
-    {
-        status.pulse3DDirection = 1.f;
+        status.pulse3D +=
+            styleData._3dPulseSpeed * status.pulse3DDirection * mFT;
+        if(status.pulse3D > styleData._3dPulseMax)
+        {
+            status.pulse3DDirection = -1.f;
+        }
+        else if(status.pulse3D < styleData._3dPulseMin)
+        {
+            status.pulse3DDirection = 1.f;
+        }
     }
 }
 
