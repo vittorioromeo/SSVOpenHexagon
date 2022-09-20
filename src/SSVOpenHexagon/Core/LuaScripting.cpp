@@ -909,12 +909,6 @@ static void initLevelControl(
 
     const auto sVar = makeLuaAccessor(lua, status, "l");
 
-    sVar("Pulse", &HexagonGameStatus::pulse,
-        "Gets the current pulse value, which will vary between "
-        "`l_getPulseMin()` and `l_getPulseMax()` unless manually overridden.",
-
-        "Sets the current pulse value to `$0`.");
-
     sVar("PulseDirection", &HexagonGameStatus::pulseDirection,
         "Gets the current pulse direction value, which will either be `-1` or "
         "`1` unless manually overridden.",
@@ -927,12 +921,6 @@ static void initLevelControl(
         "`0` and `l_getPulseDelayMax()` unless manually overridden.",
 
         "Sets the current pulse delay value to `$0`.");
-
-    sVar("BeatPulse", &HexagonGameStatus::beatPulse,
-        "Gets the current beat pulse value, which will vary between `0` and "
-        "`l_getBeatPulseMax()` unless manually overridden.",
-
-        "Sets the current beat pulse value to `$0`.");
 
     sVar("BeatPulseDelay", &HexagonGameStatus::beatPulseDelay,
         "Gets the current beat pulse delay value, which will vary between "
