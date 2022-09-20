@@ -353,7 +353,9 @@ private:
     void updateCustomTimelines();
     void updateCustomWalls(ssvu::FT mFT);
     void updatePulse(ssvu::FT mFT);
+    void setPulse();
     void updateBeatPulse(ssvu::FT mFT);
+    void setBeatPulse();
     void updateRotation(ssvu::FT mFT);
     void updateCameraShake(ssvu::FT mFT);
     void updateFlash(ssvu::FT mFT);

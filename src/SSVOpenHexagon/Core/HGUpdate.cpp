@@ -762,8 +762,12 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
         }
 
         status.pulseDelay -= mFT * getMusicDMSyncFactor();
+        setPulse();
     }
+}
 
+void HexagonGame::setPulse()
+{
     if(window != nullptr)
     {
         SSVOH_ASSERT(backgroundCamera.has_value());
@@ -799,8 +803,12 @@ void HexagonGame::updateBeatPulse(ssvu::FT mFT)
             status.beatPulse -= (2.f * mFT * getMusicDMSyncFactor()) *
                                 levelStatus.beatPulseSpeedMult;
         }
+        setBeatPulse();
     }
+}
 
+void HexagonGame::setBeatPulse()
+{
     const float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
     status.radius =
         radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
