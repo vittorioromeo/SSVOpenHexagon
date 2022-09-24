@@ -670,7 +670,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor, const sf:
         replayText.setOrigin(ssvs::getLocalCenterE(replayText));
         replayText.setPosition(ssvs::getGlobalCenterW(replayIcon) -
                                sf::Vector2f{replayPadding, 0});
-        render(replayText);
+        render(replayText, mStates);
     }
 }
 
