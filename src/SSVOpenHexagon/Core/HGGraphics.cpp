@@ -276,7 +276,7 @@ void HexagonGame::draw()
     window->setView(overlayCamera->apply());
 
     drawParticles();
-    drawText();
+    drawText(getRenderStates(RenderStage::Text));
 
     // ------------------------------------------------------------------------
     // Draw key icons.
@@ -289,7 +289,7 @@ void HexagonGame::draw()
     // Draw level info.
     if(Config::getShowLevelInfo() || mustShowReplayUI())
     {
-        drawLevelInfo();
+        drawLevelInfo(getRenderStates(RenderStage::Text));
     }
 
     // ------------------------------------------------------------------------
@@ -380,14 +380,14 @@ void HexagonGame::drawKeyIcons()
     }
 }
 
-void HexagonGame::drawLevelInfo()
+void HexagonGame::drawLevelInfo(const sf::RenderStates& mStates)
 {
-    render(levelInfoRectangle);
-    render(levelInfoTextLevel);
-    render(levelInfoTextPack);
-    render(levelInfoTextAuthor);
-    render(levelInfoTextBy);
-    render(levelInfoTextDM);
+    render(levelInfoRectangle, mStates);
+    render(levelInfoTextLevel, mStates);
+    render(levelInfoTextPack, mStates);
+    render(levelInfoTextAuthor, mStates);
+    render(levelInfoTextBy, mStates);
+    render(levelInfoTextDM, mStates);
 }
 
 void HexagonGame::drawParticles()
@@ -595,7 +595,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
+void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     if(Config::getDrawTextOutlines())
     {
@@ -629,7 +629,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         timeText.setOrigin(ssvs::getLocalNW(timeText));
         timeText.setPosition({padding, padding});
 
-        render(timeText);
+        render(timeText, mStates);
     }
 
     if(Config::getShowStatusText())
@@ -638,7 +638,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         text.setOrigin(ssvs::getLocalNW(text));
         text.setPosition({padding, ssvs::getGlobalBottom(timeText) + padding});
 
-        render(text);
+        render(text, mStates);
     }
 
     if(Config::getShowFPS())
@@ -656,7 +656,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
             fpsText.setPosition({padding, Config::getHeight() - padding});
         }
 
-        render(fpsText);
+        render(fpsText, mStates);
     }
 
     if(mustShowReplayUI())
@@ -700,32 +700,32 @@ static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
     fRender(text);
 }
 
-void HexagonGame::drawText_Message(const sf::Color& offsetColor)
+void HexagonGame::drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(messageText, offsetColor,
         {Config::getWidth() / 2.f, Config::getHeight() / 5.5f}, getColorText(),
-        1.f /* outlineThickness */, [this](sf::Text& t) { render(t); });
+        1.f /* outlineThickness */, [this, &mStates](sf::Text& t) { render(t, mStates); });
 }
 
-void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor)
+void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(pbText, offsetColor,
         {Config::getWidth() / 2.f,
             Config::getHeight() - Config::getHeight() / 4.f},
         getColorText(), 4.f /* outlineThickness */,
-        [this](sf::Text& t) { render(t); });
+        [this, &mStates](sf::Text& t) { render(t, mStates); });
 }
 
-void HexagonGame::drawText()
+void HexagonGame::drawText(const sf::RenderStates& mStates)
 {
     const sf::Color offsetColor{
         Config::getBlackAndWhite() || styleData.getColors().empty()
             ? sf::Color::Black
             : getColor(0)};
 
-    drawText_TimeAndStatus(offsetColor);
-    drawText_Message(offsetColor);
-    drawText_PersonalBest(offsetColor);
+    drawText_TimeAndStatus(offsetColor, mStates);
+    drawText_Message(offsetColor, mStates);
+    drawText_PersonalBest(offsetColor, mStates);
 }
 
 } // namespace hg
