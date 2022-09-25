@@ -63,7 +63,7 @@ endif()
 # CPM
 # -----------------------------------------------------------------------------
 
-set(CPM_DOWNLOAD_VERSION 0.34.0)
+set(CPM_DOWNLOAD_VERSION 0.35.6)
 
 if(CPM_SOURCE_CACHE)
     set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
@@ -95,7 +95,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG fd3526f74287dd9824d565d50363ca950f05d789
+    GIT_TAG c565daccaef9c277aa97b17d3ae6f4c295042c09
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
