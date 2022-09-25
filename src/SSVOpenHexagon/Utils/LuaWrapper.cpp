@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include <algorithm>
 #include <cstring>

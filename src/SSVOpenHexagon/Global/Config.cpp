@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
