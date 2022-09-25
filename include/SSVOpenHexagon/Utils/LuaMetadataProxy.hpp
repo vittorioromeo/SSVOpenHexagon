@@ -4,7 +4,10 @@
 
 #pragma once
 
+#ifdef SSVOH_PRODUCE_LUA_METADATA
 #include "SSVOpenHexagon/Utils/ArgExtractor.hpp"
+#endif
+
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
 #include <string>
