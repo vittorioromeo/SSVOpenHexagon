@@ -1,8 +1,9 @@
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "utils.lua")
+
+
 function onInit()
 	text_shader = shdr_getShaderId("text.frag")
-
-	-- RenderStage 8 is text
-	shdr_setActiveFragmentShader(8, text_shader)
+	shdr_setActiveFragmentShader(RenderStage.TEXT, text_shader)
 
 	-- make sure the text outline color isn't swapping
 	s_setMaxSwapTime(0)
