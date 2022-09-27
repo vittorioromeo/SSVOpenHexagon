@@ -31,14 +31,16 @@
 #include <boost/pfr.hpp>
 
 #include <chrono>
-#include <csignal>
-#include <cstdlib>
 #include <optional>
-#include <cstdio>
 #include <sstream>
 #include <string>
 #include <type_traits>
 #include <stdexcept>
+
+#include <csignal>
+#include <cstdlib>
+#include <cstdint>
+#include <cstdio>
 
 static auto& slog(const char* funcName)
 {
@@ -176,9 +178,9 @@ template <typename T>
 {
     return sendEncrypted(c, //
         STCPLoginSuccess{
-            .loginToken = static_cast<sf::Uint64>(loginToken), //
-            .loginName = loginName                             //
-        }                                                      //
+            .loginToken = static_cast<std::uint64_t>(loginToken), //
+            .loginName = loginName                                //
+        }                                                         //
     );
 }
 
@@ -316,7 +318,7 @@ bool HexagonServer::runIteration_Control()
         return fail();
     }
 
-    sf::IpAddress senderIp;
+    std::optional<sf::IpAddress> senderIp;
     unsigned short senderPort;
 
     if(_controlSocket.receive(_packetBuffer, senderIp, senderPort) !=
@@ -332,7 +334,7 @@ bool HexagonServer::runIteration_Control()
         return fail("Failure decoding control packet");
     }
 
-    SSVOH_SLOG << "Received control packet from '" << senderIp << ':'
+    SSVOH_SLOG << "Received control packet from '" << senderIp.value() << ':'
                << senderPort << "', contents: '" << controlMsg << "'\n";
 
     if(controlMsg.empty())
@@ -608,7 +610,7 @@ void HexagonServer::runIteration_FlushLogs()
 }
 
 [[nodiscard]] bool HexagonServer::validateLogin(
-    ConnectedClient& c, const char* context, const sf::Uint64 ctspLoginToken)
+    ConnectedClient& c, const char* context, const std::uint64_t ctspLoginToken)
 {
     const void* clientAddr = static_cast<void*>(&c);
 
@@ -634,7 +636,7 @@ void HexagonServer::runIteration_FlushLogs()
 }
 
 [[nodiscard]] bool HexagonServer::processReplay(
-    ConnectedClient& c, const sf::Uint64 loginToken, const replay_file& rf)
+    ConnectedClient& c, const std::uint64_t loginToken, const replay_file& rf)
 {
     const void* clientAddr = static_cast<void*>(&c);
 
@@ -1344,12 +1346,6 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
     // Check initialization failures
 #define SSVOH_SLOG_INIT_ERROR \
     SSVOH_SLOG_ERROR << "Failure initializing server: "
-
-    if(_serverIp == sf::IpAddress::None)
-    {
-        SSVOH_SLOG_INIT_ERROR << "Invalid IP '" << _serverIp << "'\n";
-        return;
-    }
 
     if(!initializeControlSocket())
     {

@@ -35,9 +35,9 @@ struct IsCharArray<const char (&)[N]> : std::true_type
 {};
 
 template <typename... Ts>
-inline constexpr bool AllConvertibleToStringView = ((
-    std::is_convertible_v<Ts, std::string_view> || IsCharArray<Ts>::value ||
-    std::is_same_v<Ts, char>)&&...);
+inline constexpr bool AllConvertibleToStringView =
+    ((std::is_convertible_v<Ts, std::string_view> || IsCharArray<Ts>::value ||
+        std::is_same_v<Ts, char>)&&...);
 
 template <std::size_t N>
 [[nodiscard, gnu::always_inline]] constexpr inline std::size_t getSize(
