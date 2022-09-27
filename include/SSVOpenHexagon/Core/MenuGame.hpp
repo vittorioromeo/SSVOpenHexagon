@@ -456,12 +456,12 @@ private:
 
     void checkWindowTopScroll(
         const float scroll, std::function<void(const float)> action);
-	bool checkWindowTopScrollWithResult(
+    bool checkWindowTopScrollWithResult(
         const float scroll, std::function<void(const float)> action);
 
     void checkWindowBottomScroll(
         const float scroll, std::function<void(const float)> action);
-	bool checkWindowBottomScrollWithResult(
+    bool checkWindowBottomScrollWithResult(
         const float scroll, std::function<void(const float)> action);
 
     void scrollName(std::string& text, float& scroller);

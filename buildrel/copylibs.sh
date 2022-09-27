@@ -4,11 +4,11 @@ function copyTo
 {
     cp ./_deps/imgui-sfml-build/libImGui-SFML.dll $1 &
 
-    cp ./_deps/sfml-build/lib/sfml-graphics-3.dll $1 &
-    cp ./_deps/sfml-build/lib/sfml-system-3.dll $1 &
-    cp ./_deps/sfml-build/lib/sfml-window-3.dll $1 &
-    cp ./_deps/sfml-build/lib/sfml-network-3.dll $1 &
-    cp ./_deps/sfml-build/lib/sfml-audio-3.dll $1 &
+    cp ./_deps/sfml-build/bin/sfml-graphics-3.dll $1 &
+    cp ./_deps/sfml-build/bin/sfml-system-3.dll $1 &
+    cp ./_deps/sfml-build/bin/sfml-window-3.dll $1 &
+    cp ./_deps/sfml-build/bin/sfml-network-3.dll $1 &
+    cp ./_deps/sfml-build/bin/sfml-audio-3.dll $1 &
 
     cp ./_deps/sfml-src/extlibs/bin/x64/openal32.dll $1 &
     cp ./_deps/libsodium-cmake-build/libsodium.dll $1 &

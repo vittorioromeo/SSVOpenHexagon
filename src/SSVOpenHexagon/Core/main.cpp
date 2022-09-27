@@ -214,10 +214,11 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         nullptr /* client */          //
     };
 
+    // TODO (P0): handle `resolve` errors
     hg::HexagonServer hs{
         assets,                                                          //
         hg,                                                              //
-        hg::Config::getServerIp(),                                       //
+        sf::IpAddress::resolve(hg::Config::getServerIp()).value(),       //
         hg::Config::getServerPort(),                                     //
         hg::Config::getServerControlPort(),                              //
         hg::Utils::toUnorderedSet(hg::Config::getServerLevelWhitelist()) //
@@ -392,8 +393,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
     // ------------------------------------------------------------------------
     // Initialize hexagon client
-    hg::HexagonClient hc{
-        steamManager, hg::Config::getServerIp(), hg::Config::getServerPort()};
+    // TODO (P0): handle `resolve` errors
+    hg::HexagonClient hc{steamManager,
+        sf::IpAddress::resolve(hg::Config::getServerIp()).value(),
+        hg::Config::getServerPort()};
 
     //
     //

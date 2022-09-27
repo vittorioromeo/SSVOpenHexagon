@@ -14,7 +14,6 @@
 #include <SFML/Network/Packet.hpp>
 
 #include <chrono>
-#include <cstdint>
 #include <deque>
 #include <list>
 #include <optional>
@@ -22,6 +21,8 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
+
+#include <cstdint>
 
 namespace hg::Steam {
 class steam_manager;
@@ -133,18 +134,18 @@ private:
     [[nodiscard]] bool sendDeleteAccount(
         const std::uint64_t steamId, const std::string& passwordHash);
     [[nodiscard]] bool sendRequestTopScores(
-        const sf::Uint64 loginToken, const std::string& levelValidator);
+        const std::uint64_t loginToken, const std::string& levelValidator);
     [[nodiscard]] bool sendRequestOwnScore(
-        const sf::Uint64 loginToken, const std::string& levelValidator);
+        const std::uint64_t loginToken, const std::string& levelValidator);
     [[nodiscard]] bool sendRequestTopScoresAndOwnScore(
-        const sf::Uint64 loginToken, const std::string& levelValidator);
+        const std::uint64_t loginToken, const std::string& levelValidator);
     [[nodiscard]] bool sendStartedGame(
-        const sf::Uint64 loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendCompressedReplay(const sf::Uint64 loginToken,
+        const std::uint64_t loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendCompressedReplay(const std::uint64_t loginToken,
         const std::string& levelValidator,
         const compressed_replay_file& compressedReplayFile);
-    [[nodiscard]] bool sendRequestServerStatus(const sf::Uint64 loginToken);
-    [[nodiscard]] bool sendReady(const sf::Uint64 loginToken);
+    [[nodiscard]] bool sendRequestServerStatus(const std::uint64_t loginToken);
+    [[nodiscard]] bool sendReady(const std::uint64_t loginToken);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
