@@ -1,0 +1,12 @@
+{
+    "id": "text_shader",
+    "name": "Text shader test",
+    "description": "",
+    "author": "Baum",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "cw",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/text_shader.lua",
+    "difficultyMults": []
+}

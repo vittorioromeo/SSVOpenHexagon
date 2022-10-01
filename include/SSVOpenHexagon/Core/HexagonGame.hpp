@@ -377,12 +377,12 @@ private:
     void sideChange(unsigned int mSideNumber);
 
     // Draw methods
-    void drawText_TimeAndStatus(const sf::Color& offsetColor);
-    void drawText_Message(const sf::Color& offsetColor);
-    void drawText_PersonalBest(const sf::Color& offsetColor);
-    void drawText();
+    void drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText(const sf::RenderStates& mStates);
     void drawKeyIcons();
-    void drawLevelInfo();
+    void drawLevelInfo(const sf::RenderStates& mStates);
     void drawParticles();
     void drawTrailParticles();
     void drawSwapParticles();
