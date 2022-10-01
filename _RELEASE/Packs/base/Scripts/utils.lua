@@ -35,7 +35,8 @@ RenderStage = {
     WALLQUADS = 4,
     CAPTRIS = 5,
     PIVOTQUADS = 6,
-    PLAYERTRIS = 7
+    PLAYERTRIS = 7,
+    TEXT = 8
 }
 
 -- An enumerator that defines basic movement values for onInput
