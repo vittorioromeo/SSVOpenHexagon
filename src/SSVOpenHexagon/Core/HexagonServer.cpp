@@ -437,7 +437,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     // TODO (P1): potential hanging spot?
     // The listener is ready: there is a pending connection
-    if(_listener.accept(potentialSocket) != sf::Socket::Done)
+    if(_listener.accept(potentialSocket) != sf::Socket::Status::Done)
     {
         SSVOH_SLOG << "Listener failed to accept new client '"
                    << potentialClientAddress << "'\n";
@@ -478,7 +478,7 @@ void HexagonServer::runIteration_LoopOverSockets()
         _packetBuffer.clear();
 
         // TODO (P1): potential hanging spot?
-        if(clientSocket.receive(_packetBuffer) == sf::Socket::Done)
+        if(clientSocket.receive(_packetBuffer) == sf::Socket::Status::Done)
         {
             SSVOH_SLOG_VERBOSE << "Successfully received data from client '"
                                << clientAddr << "'\n";
