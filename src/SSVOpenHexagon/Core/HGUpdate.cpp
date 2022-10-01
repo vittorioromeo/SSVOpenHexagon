@@ -1270,6 +1270,12 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         return;
     }
 
+    if(!Config::getDebug() || Config::getOfficial())
+    {
+        ilcShowConsole = ilcShowConsoleNext = false;
+        return;
+    }
+
     if(ilcShowConsoleNext)
     {
         ilcShowConsole = !ilcShowConsole;
