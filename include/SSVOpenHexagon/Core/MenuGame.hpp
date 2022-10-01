@@ -35,7 +35,6 @@
 #include <chrono>
 #include <cctype>
 #include <functional>
-#include <memory>
 #include <optional>
 #include <string_view>
 #include <string>
@@ -329,11 +328,11 @@ private:
         const sf::Color& color);
 
     void drawMainSubmenus(
-        const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
+        const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
         const float indent);
 
     void drawSubmenusSmall(
-        const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
+        const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
         const float indent);
 
     // Load menu
