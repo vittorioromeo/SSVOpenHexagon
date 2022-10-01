@@ -3562,7 +3562,7 @@ void MenuGame::drawScrollbar(const float totalHeight, const int size,
 }
 
 void MenuGame::drawMainSubmenus(
-    const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
+    const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
     const float indent)
 {
     bool currentlySelected, hasOffset;
@@ -3582,7 +3582,7 @@ void MenuGame::drawMainSubmenus(
 }
 
 void MenuGame::drawSubmenusSmall(
-    const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
+    const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
     const float indent)
 {
     bool currentlySelected, hasOffset;

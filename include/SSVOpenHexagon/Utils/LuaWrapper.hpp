@@ -37,6 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
+
 #include <limits>
 #include <map>
 #include <memory>
@@ -586,9 +588,10 @@ public:
             using Key2 = typename ToPushableType<Key>::type;
             using Value2 = typename ToPushableType<Value>::type;
 
-            for(auto i = _elements.rbegin(); i != _elements.rend(); ++i)
+            for(int k = static_cast<int>(_elements.size()) - 1; k >= 0; --k)
             {
-                auto element = dynamic_cast<Element<Key2, Value2>*>(i->get());
+                auto element =
+                    dynamic_cast<Element<Key2, Value2>*>(_elements[k].get());
 
                 if(element != nullptr && element->key == key)
                 {
@@ -658,7 +661,7 @@ public:
         }
 
         // elements storage
-        std::vector<std::unique_ptr<ElementBase>> _elements;
+        std::vector<hg::Utils::UniquePtr<ElementBase>> _elements;
     };
 
 private:
