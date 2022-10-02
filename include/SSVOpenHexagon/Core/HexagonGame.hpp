@@ -387,7 +387,6 @@ private:
     void drawTrailParticles();
     void drawSwapParticles();
     void drawImguiLuaConsole();
-    void drawMainLayer(const auto getRenderStates);
 
     // Data-related methods
     void setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay);

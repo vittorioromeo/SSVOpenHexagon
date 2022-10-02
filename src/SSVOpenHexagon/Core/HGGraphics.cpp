@@ -150,21 +150,34 @@ void HexagonGame::draw()
 
     if(Config::get3D())
     {
-        const float aboveMain(-styleData._3dLayerOffset - 1);
-        const bool renderAbove(aboveMain > 0 && !styleData._3dMainOnTop);
-        const float layerOffset(renderAbove ? -1.f : styleData._3dLayerOffset);
-        const float depth(styleData._3dDepth - renderAbove * aboveMain);
+        const bool mustRender3DAboveMain(
+            styleData._3dLayerOffset < -1 && !styleData._3dMainOnTop);
+
+        // subtract the layers above main from the normal depth if there are any
+        const float depth(
+            styleData._3dDepth +
+            mustRender3DAboveMain * (styleData._3dLayerOffset + 1));
+
+        // The amount of layers above the main layer is how much it is offset
+        // above until the amount of layers is used up. In that case the amount
+        // is just 3D depth (all layers are floating above the main layer)
+        const float layersAboveMain(
+            depth >= 0 ? -(styleData._3dLayerOffset + 1) : styleData._3dDepth);
         const std::size_t numWallQuads(wallQuads.size());
         const std::size_t numPivotQuads(pivotQuads.size());
         const std::size_t numPlayerTris(playerTris.size());
 
-        if(renderAbove)
+        // only reserve space for upper layers if there are any
+        if(mustRender3DAboveMain)
         {
-            wallQuads3DTop.reserve(numWallQuads * aboveMain);
-            pivotQuads3DTop.reserve(numPivotQuads * aboveMain);
-            playerTris3DTop.reserve(numPlayerTris * aboveMain);
+            wallQuads3DTop.reserve(numWallQuads * layersAboveMain);
+            pivotQuads3DTop.reserve(numPivotQuads * layersAboveMain);
+            playerTris3DTop.reserve(numPlayerTris * layersAboveMain);
         }
 
+        // only reserve space for lower layers if there are any, otherwise due
+        // to the above logic the depth value could be negative, which should be
+        // ignored here
         if(depth > 0)
         {
             wallQuads3D.reserve(numWallQuads * depth);
@@ -191,9 +204,9 @@ void HexagonGame::draw()
             playerTris3D.unsafe_emplace_other(playerTris);
         }
 
-        if(renderAbove)
+        if(mustRender3DAboveMain)
         {
-            for(std::size_t i = 0; i < aboveMain; ++i)
+            for(std::size_t i = 0; i < layersAboveMain; ++i)
             {
                 wallQuads3DTop.unsafe_emplace_other(wallQuads);
                 pivotQuads3DTop.unsafe_emplace_other(pivotQuads);
@@ -205,20 +218,90 @@ void HexagonGame::draw()
         {
             SSVOH_ASSERT(styleData._3dAlphaMult != 0.f);
 
+            // modify the layer value here to mirror the alpha falloff if needed
+            // (-1 is the layer inside the main layer, so it should be 0, that's
+            // why 1 is added)
+            const float layer = styleData._3dAlphaMirror ? std::abs(i + 1) : i;
             const float newAlpha =
                 (static_cast<float>(c.a) / styleData._3dAlphaMult) -
-                (styleData._3dAlphaMirror ? std::abs(i + 1) : i) *
-                    styleData._3dAlphaFalloff;
+                layer * styleData._3dAlphaFalloff;
 
             c.a = Utils::componentClamp(newAlpha);
         };
 
-        for(int j(0);
-            j < static_cast<int>(renderAbove ? depth + aboveMain : depth); ++j)
+        for(int j(0); j < layersAboveMain; ++j)
         {
-            const bool renderingAbove(j >= depth && renderAbove);
-            const float jAdj(j - depth * renderingAbove * (depth >= 0));
-            const float i(depth - j - 1 + layerOffset);
+            const int i(layersAboveMain - j - 1 + styleData._3dLayerOffset);
+            const float offset(styleData._3dSpacing *
+                               (float(i + 1.f) * styleData._3dPerspectiveMult) *
+                               (effect * 3.6f) * 1.4f);
+
+            const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
+
+            sf::Color overrideColor;
+
+            if(!Config::getBlackAndWhite())
+            {
+                overrideColor = Utils::getColorDarkened(
+                    styleData.get3DOverrideColor(), styleData._3dDarkenMult);
+            }
+            else
+            {
+                overrideColor = Utils::getColorDarkened(
+                    sf::Color(255, 255, 255, styleData.getMainColor().a),
+                    styleData._3dDarkenMult);
+            }
+            adjustAlpha(overrideColor, i);
+
+            // Draw pivot layers
+            for(std::size_t k = j * numPivotQuads; k < (j + 1) * numPivotQuads;
+                ++k)
+            {
+                pivotQuads3DTop[k].position += newPos;
+                pivotQuads3DTop[k].color = overrideColor;
+            }
+
+            if(styleData.get3DOverrideColor() == styleData.getMainColor())
+            {
+                overrideColor = Utils::getColorDarkened(
+                    getColorWall(), styleData._3dDarkenMult);
+
+                adjustAlpha(overrideColor, i);
+            }
+
+            // Draw wall layers
+            for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
+                ++k)
+            {
+                wallQuads3DTop[k].position += newPos;
+                wallQuads3DTop[k].color = overrideColor;
+            }
+
+            // Apply player color if no 3D override is present.
+            if(styleData.get3DOverrideColor() == styleData.getMainColor())
+            {
+                overrideColor = Utils::getColorDarkened(
+                    getColorPlayer(), styleData._3dDarkenMult);
+
+                adjustAlpha(overrideColor, i);
+            }
+
+            // Draw player layers
+            for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
+                ++k)
+            {
+                playerTris3DTop[k].position += newPos;
+                playerTris3DTop[k].color = overrideColor;
+            }
+        }
+        // If layers are rendered above the lower layers, they should only be
+        // shifted by -1 instead of the actual offset since the other layers
+        // will be processed in the above loop instead of being shifted here
+        const float lowerLayerOffset(
+            mustRender3DAboveMain ? -1.f : styleData._3dLayerOffset);
+        for(int j(0); j < depth; ++j)
+        {
+            const float i(depth - j - 1 + lowerLayerOffset);
 
             const float offset(styleData._3dSpacing *
                                (float(i + 1.f) * styleData._3dPerspectiveMult) *
@@ -242,19 +325,11 @@ void HexagonGame::draw()
             adjustAlpha(overrideColor, i);
 
             // Draw pivot layers
-            for(std::size_t k = jAdj * numPivotQuads;
-                k < (jAdj + 1) * numPivotQuads; ++k)
+            for(std::size_t k = j * numPivotQuads; k < (j + 1) * numPivotQuads;
+                ++k)
             {
-                if(renderingAbove)
-                {
-                    pivotQuads3DTop[k].position += newPos;
-                    pivotQuads3DTop[k].color = overrideColor;
-                }
-                else
-                {
-                    pivotQuads3D[k].position += newPos;
-                    pivotQuads3D[k].color = overrideColor;
-                }
+                pivotQuads3D[k].position += newPos;
+                pivotQuads3D[k].color = overrideColor;
             }
 
             if(styleData.get3DOverrideColor() == styleData.getMainColor())
@@ -266,19 +341,11 @@ void HexagonGame::draw()
             }
 
             // Draw wall layers
-            for(std::size_t k = jAdj * numWallQuads;
-                k < (jAdj + 1) * numWallQuads; ++k)
+            for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
+                ++k)
             {
-                if(renderingAbove)
-                {
-                    wallQuads3DTop[k].position += newPos;
-                    wallQuads3DTop[k].color = overrideColor;
-                }
-                else
-                {
-                    wallQuads3D[k].position += newPos;
-                    wallQuads3D[k].color = overrideColor;
-                }
+                wallQuads3D[k].position += newPos;
+                wallQuads3D[k].color = overrideColor;
             }
 
             // Apply player color if no 3D override is present.
@@ -291,19 +358,11 @@ void HexagonGame::draw()
             }
 
             // Draw player layers
-            for(std::size_t k = jAdj * numPlayerTris;
-                k < (jAdj + 1) * numPlayerTris; ++k)
+            for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
+                ++k)
             {
-                if(renderingAbove)
-                {
-                    playerTris3DTop[k].position += newPos;
-                    playerTris3DTop[k].color = overrideColor;
-                }
-                else
-                {
-                    playerTris3D[k].position += newPos;
-                    playerTris3D[k].color = overrideColor;
-                }
+                playerTris3D[k].position += newPos;
+                playerTris3D[k].color = overrideColor;
             }
         }
     }
