@@ -1039,17 +1039,22 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
         "Sets the amount of 3D layers in a style to `$0`.");
 
     sdVar("3dLayerOffset", &StyleData::_3dLayerOffset,
-        "Gets the current offset of the 3D layers compared to where they usually are in layers.",
+        "Gets the current offset of the 3D layers compared to where they "
+        "usually are in layers.",
 
         "Sets the current offset of the 3D layers to `$0`.");
 
     sdVar("3dAlphaMirror", &StyleData::_3dAlphaMirror,
-        "Gets if the alpha of the 3D layers above the main layer should be mirrored (has no effect with 3dLayerOffset >= -1).",
+        "Gets if the alpha of the 3D layers above the main layer should be "
+        "mirrored (just makes alpha falloff start one layer earlier with "
+        "3dLayerOffset >= -1).",
 
-        "Sets if the alpha of the 3D layers above the main layer should be mirrored.");
+        "Sets if the alpha of the 3D layers above the main layer should be "
+        "mirrored.");
 
     sdVar("3dMainOnTop", &StyleData::_3dMainOnTop,
-        "Gets if the main layer should be rendered on top of all 3D layers (has no effect with 3_3dLayerOffset >= -1).",
+        "Gets if the main layer should be rendered on top of all 3D layers "
+        "(has no effect with 3dLayerOffset >= -1).",
 
         "Sets if the main layer should be rendered on top of all 3D layers.");
 
