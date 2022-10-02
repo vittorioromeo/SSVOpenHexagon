@@ -537,6 +537,17 @@ void HexagonGame::playPackSoundOverride(
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
+    // Save replay when restarting without having died
+    if(!mFirstPlay && shouldSaveScore() && !status.hasDied)
+    {
+        (void)death_saveScoreIfNeeded(); // Saves local best
+
+        const replay_file rf = death_createReplayFile();
+
+        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+        death_sendAndSaveReplay(rf);
+    }
+
     SSVOH_ASSERT(assets.isValidPackId(mPackId));
     SSVOH_ASSERT(assets.isValidLevelId(mId));
 
@@ -1220,7 +1231,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 
     calledDeprecatedFunctions.clear();
 
-    if(mSendScores && !mError && shouldSaveScore())
+    if(mSendScores && !mError && shouldSaveScore() && !status.hasDied)
     {
         (void)death_saveScoreIfNeeded(); // Saves local best
 
