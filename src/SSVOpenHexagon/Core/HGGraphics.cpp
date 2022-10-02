@@ -148,11 +148,11 @@ void HexagonGame::draw()
             Config::getShowSwapBlinkingEffect());
     }
 
+    const bool mustRender3DAboveMain(Config::get3D() &&
+                                     styleData._3dLayerOffset < -1 &&
+                                     !styleData._3dMainOnTop);
     if(Config::get3D())
     {
-        const bool mustRender3DAboveMain(
-            styleData._3dLayerOffset < -1 && !styleData._3dMainOnTop);
-
         // subtract the layers above main from the normal depth if there are any
         const float depth(
             styleData._3dDepth +
@@ -365,11 +365,13 @@ void HexagonGame::draw()
                 playerTris3D[k].color = overrideColor;
             }
         }
+        if(depth > 0)
+        {
+            render(wallQuads3D, getRenderStates(RenderStage::WallQuads3D));
+            render(pivotQuads3D, getRenderStates(RenderStage::PivotQuads3D));
+            render(playerTris3D, getRenderStates(RenderStage::PlayerTris3D));
+        }
     }
-
-    render(wallQuads3D, getRenderStates(RenderStage::WallQuads3D));
-    render(pivotQuads3D, getRenderStates(RenderStage::PivotQuads3D));
-    render(playerTris3D, getRenderStates(RenderStage::PlayerTris3D));
 
     if(Config::getShowPlayerTrail() && status.showPlayerTrail)
     {
@@ -386,9 +388,12 @@ void HexagonGame::draw()
     render(pivotQuads, getRenderStates(RenderStage::PivotQuads));
     render(playerTris, getRenderStates(RenderStage::PlayerTris));
 
-    render(wallQuads3DTop, getRenderStates(RenderStage::WallQuads3D));
-    render(pivotQuads3DTop, getRenderStates(RenderStage::PivotQuads3D));
-    render(playerTris3DTop, getRenderStates(RenderStage::PlayerTris3D));
+    if(Config::get3D() && mustRender3DAboveMain)
+    {
+        render(wallQuads3DTop, getRenderStates(RenderStage::WallQuads3D));
+        render(pivotQuads3DTop, getRenderStates(RenderStage::PivotQuads3D));
+        render(playerTris3DTop, getRenderStates(RenderStage::PlayerTris3D));
+    }
 
     window->setView(overlayCamera->apply());
 
