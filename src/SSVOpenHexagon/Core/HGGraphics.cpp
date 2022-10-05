@@ -72,7 +72,8 @@ void HexagonGame::draw()
             return sf::RenderStates::Default;
         }
 
-        runLuaFunctionIfExists<int>("onRenderStage", static_cast<int>(rs));
+        runLuaFunctionIfExists<int, float>(
+            "onRenderStage", static_cast<int>(rs), 60.f / window->getFPS());
         return sf::RenderStates{assets.getShaderByShaderId(*fragmentShaderId)};
     };
 
