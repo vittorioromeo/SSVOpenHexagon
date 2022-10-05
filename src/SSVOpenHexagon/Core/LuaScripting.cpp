@@ -934,7 +934,6 @@ static void initLevelControl(
 
         "Sets the current beat pulse value to `$0`.");
 
-
     sVar("BeatPulseDelay", &HexagonGameStatus::beatPulseDelay,
         "Gets the current beat pulse delay value, which will vary between "
         "`0` and `l_getBeatPulseDelayMax()` unless manually overridden.",
