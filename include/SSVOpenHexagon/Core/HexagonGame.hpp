@@ -424,6 +424,7 @@ private:
 private:
     void performPlayerSwap(const bool mPlaySound);
     void performPlayerKill();
+    void saveReplay();
 
     Utils::FastVertexVectorTris backgroundTris;
     Utils::FastVertexVectorTris wallQuads;
