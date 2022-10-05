@@ -534,11 +534,9 @@ void HexagonGame::playPackSoundOverride(
     }
 }
 
-void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
-    bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
+void HexagonGame::saveReplay()
 {
-    // Save replay when restarting without having died
-    if(!mFirstPlay && shouldSaveScore() && !status.hasDied)
+    if(shouldSaveScore() && !status.hasDied)
     {
         (void)death_saveScoreIfNeeded(); // Saves local best
 
@@ -546,6 +544,16 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
         ssvu::lo("Replay") << "Attempting to send and save replay...\n";
         death_sendAndSaveReplay(rf);
+    }
+}
+
+void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
+    bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
+{
+    // Save replay when restarting without having died
+    if(!mFirstPlay)
+    {
+        saveReplay();
     }
 
     SSVOH_ASSERT(assets.isValidPackId(mPackId));
@@ -1231,14 +1239,9 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 
     calledDeprecatedFunctions.clear();
 
-    if(mSendScores && !mError && shouldSaveScore() && !status.hasDied)
+    if(mSendScores && !mError)
     {
-        (void)death_saveScoreIfNeeded(); // Saves local best
-
-        const replay_file rf = death_createReplayFile();
-
-        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
-        death_sendAndSaveReplay(rf);
+        saveReplay();
     }
 
     // Stop infinite feedback from occurring if the error is happening on
