@@ -1076,34 +1076,22 @@ void HexagonGame::initLua_Deprecated()
             "**This function is deprecated and will be removed in a future "
             "version. Please use e_clearMessages instead!**");
 
-    addLuaFn(lua, "l_getPulse", [this] { return status.pulse; })
-        .doc(
-            "Gets the current pulse value, which will vary between "
-            "`l_getPulseMin()` and `l_getPulseMax()` unless manually "
-            "overridden.");
-
-    addLuaFn(lua, "l_setPulse",
+    addLuaFn(lua, "l_forceSetPulse",
         [this](const float mValue)
         {
             status.pulse = mValue;
-            setPulse();
+            refreshPulse();
         })
-        .doc("Sets the current pulse value to `$0`.");
+        .doc("Immediately sets the current pulse value to `$0`.");
 
-    addLuaFn(lua, "l_getBeatPulse", [this] { return status.beatPulse; })
-        .doc(
-            "Gets the current beat pulse value, which will vary between `0` "
-            "and "
-            "`l_getBeatPulseMax()` unless manually overridden.");
-
-    addLuaFn(lua, "l_setBeatPulse",
+    addLuaFn(lua, "l_forceSetBeatPulse",
         [this](const float mValue)
         {
             status.beatPulse = mValue;
-            setBeatPulse();
+            refreshBeatPulse();
             player.updatePosition(status.radius);
         })
-        .doc("Sets the current beat pulse value to `$0`.");
+        .doc("Immediately sets the current beat pulse value to `$0`.");
 }
 
 void HexagonGame::initLua()
