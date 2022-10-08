@@ -150,8 +150,6 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
 
     // ------------------------------------------------------------------------
 
-    updateText(mFT);
-
     if(mustStart)
     {
         mustStart = false;
@@ -375,6 +373,8 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
             backgroundCamera->update(mFT);
         }
     }
+
+    updateText(mFT);
 
     if(status.started)
     {
