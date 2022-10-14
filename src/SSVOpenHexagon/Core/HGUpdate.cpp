@@ -763,8 +763,8 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
         }
 
         status.pulseDelay -= mFT * getMusicDMSyncFactor();
-        refreshPulse();
     }
+    refreshPulse();
 }
 
 void HexagonGame::refreshPulse()
@@ -804,8 +804,8 @@ void HexagonGame::updateBeatPulse(ssvu::FT mFT)
             status.beatPulse -= (2.f * mFT * getMusicDMSyncFactor()) *
                                 levelStatus.beatPulseSpeedMult;
         }
-        refreshBeatPulse();
     }
+    refreshBeatPulse();
 }
 
 void HexagonGame::refreshBeatPulse()
