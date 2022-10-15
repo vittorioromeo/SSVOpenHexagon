@@ -1,0 +1,17 @@
+{
+    // Music data id
+    "id": "impactRover",
+
+    // Music file
+    "file_name": "impactRover.ogg",
+
+    // Music information
+    "name": "Impact Rover (intro)",
+    "author": "fentorazu",
+
+    // Segments
+    "segments":
+    [
+        { "time": 0 }
+    ]
+}

@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <vector>
+#include <functional>
 #include <string>
+#include <vector>
 
 namespace Lua {
 class LuaContext;
@@ -17,6 +18,8 @@ class CCustomWallManager;
 struct LevelStatus;
 struct HexagonGameStatus;
 class StyleData;
+class HGAssets;
+struct PackData;
 } // namespace hg
 
 namespace hg::Utils {
@@ -29,7 +32,12 @@ namespace hg::LuaScripting {
 
 void init(Lua::LuaContext& lua, random_number_generator& rng, const bool inMenu,
     CCustomWallManager& cwManager, LevelStatus& levelStatus,
-    HexagonGameStatus& hexagonGameStatus, StyleData& styleData);
+    HexagonGameStatus& hexagonGameStatus, StyleData& styleData,
+    HGAssets& assets,
+    const std::function<void(const std::string&)>& fRunLuaFile,
+    std::vector<std::string>& execScriptPackPathContext,
+    const std::function<const std::string&()>& fPackPathGetter,
+    const std::function<const PackData&()>& fGetPackData);
 
 void printDocs();
 

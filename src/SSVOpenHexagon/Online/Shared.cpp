@@ -5,8 +5,11 @@
 #include "SSVOpenHexagon/Online/Shared.hpp"
 
 #include "SSVOpenHexagon/Online/Sodium.hpp"
-#include "SSVOpenHexagon/Global/Version.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
+#include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
 
 #include <SFML/Network/Packet.hpp>
 
@@ -64,7 +67,7 @@ template <typename T, typename... Ts>
     return indexOfType<T>(TypeList<Ts...>{});
 }
 
-using PacketType = sf::Uint8;
+using PacketType = std::uint8_t;
 
 template <typename T>
 [[nodiscard]] constexpr PacketType getPacketType()
@@ -83,34 +86,40 @@ template <typename T>
     }
 }
 
-static constexpr sf::Uint8 preamble1stByte{'o'};
-static constexpr sf::Uint8 preamble2ndByte{'h'};
+static constexpr std::uint8_t preamble1stByte{'o'};
+static constexpr std::uint8_t preamble2ndByte{'h'};
 
 void encodePreamble(sf::Packet& p)
 {
-    p << static_cast<sf::Uint8>(preamble1stByte)
-      << static_cast<sf::Uint8>(preamble2ndByte);
+    p << static_cast<std::uint8_t>(preamble1stByte)
+      << static_cast<std::uint8_t>(preamble2ndByte);
+}
+
+void encodeProtocolVersion(sf::Packet& p)
+{
+    p << static_cast<std::uint8_t>(PROTOCOL_VERSION);
 }
 
 void encodeVersion(sf::Packet& p)
 {
-    p << static_cast<sf::Uint8>(GAME_VERSION.major)
-      << static_cast<sf::Uint8>(GAME_VERSION.minor)
-      << static_cast<sf::Uint8>(GAME_VERSION.micro);
+    p << static_cast<std::uint8_t>(GAME_VERSION.major)
+      << static_cast<std::uint8_t>(GAME_VERSION.minor)
+      << static_cast<std::uint8_t>(GAME_VERSION.micro);
 }
 
-void clearPacketAndEncodePreambleAndVersion(sf::Packet& p)
+void clearPacketAndEncodePreambleAndProtocolVersionAndGameVersion(sf::Packet& p)
 {
     p.clear();
 
     encodePreamble(p);
+    encodeProtocolVersion(p);
     encodeVersion(p);
 }
 
 template <typename T>
 void encodePacketType(sf::Packet& p, const T&)
 {
-    p << static_cast<sf::Uint8>(getPacketType<T>());
+    p << static_cast<std::uint8_t>(getPacketType<T>());
 }
 
 template <typename T>
@@ -196,7 +205,7 @@ struct Extractor<std::vector<T>>
     [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
-        sf::Uint64 size;
+        std::uint64_t size;
         if(!(p >> size))
         {
             errorOss << "Error extracting vector size\n";
@@ -299,21 +308,21 @@ struct Extractor<hg::GameVersion>
     [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
-        sf::Int32 major;
+        std::int32_t major;
         if(!(p >> major))
         {
             errorOss << "Error deserializing major version\n";
             return false;
         }
 
-        sf::Int32 minor;
+        std::int32_t minor;
         if(!(p >> minor))
         {
             errorOss << "Error deserializing minor version\n";
             return false;
         }
 
-        sf::Int32 micro;
+        std::int32_t micro;
         if(!(p >> micro))
         {
             errorOss << "Error deserializing micro version\n";
@@ -350,24 +359,16 @@ template <typename T>
 }
 
 template <typename T>
-[[nodiscard]] auto makeMatcher(std::ostringstream& errorOss, sf::Packet& p)
+[[nodiscard]] auto makeAlwaysTrueMatcher(
+    std::ostringstream& errorOss, sf::Packet& p)
 {
-    return [&](const char* name, const T& expected) -> bool
+    return [&](const char* name) -> bool
     {
         T temp;
 
         if(!extractInto<T>(temp, errorOss, p))
         {
             errorOss << "Error extracting " << name << '\n';
-            return false;
-        }
-
-        if(temp != expected)
-        {
-            errorOss << "Error, " << name << " has value '" << temp
-                     << ", which doesn't match expected value '" << expected
-                     << "'\n";
-
             return false;
         }
 
@@ -375,40 +376,121 @@ template <typename T>
     };
 }
 
-template <typename T>
-[[nodiscard]] auto makeExtractor(std::ostringstream& errorOss, sf::Packet& p)
+class AdvancedMatcher
 {
-    return [&](const char* name) -> std::optional<T>
+private:
+    std::ostringstream& _errorOss;
+    sf::Packet& _p;
+
+public:
+    [[nodiscard]] explicit AdvancedMatcher(
+        std::ostringstream& errorOss, sf::Packet& p)
+        : _errorOss{errorOss}, _p{p}
+    {}
+
+    template <typename T>
+    [[nodiscard]] bool extractIntoOrPrintError(const char* name, T& target)
+    {
+        if(!extractInto<T>(target, _errorOss, _p))
+        {
+            _errorOss << "Error extracting " << name << '\n';
+            return false;
+        }
+
+        return true;
+    }
+
+    template <typename T>
+    [[nodiscard]] bool extractAndMatchOrPrintError(
+        const char* name, T& target, const T& expected)
+    {
+        if(!extractIntoOrPrintError(name, target))
+        {
+            return false;
+        }
+
+        if(target != expected)
+        {
+            _errorOss << "Error, " << name << " has value '" << target
+                      << ", which doesn't match expected value '" << expected
+                      << "'\n";
+
+            return false;
+        }
+
+        return true;
+    }
+
+    template <typename T>
+    [[nodiscard]] bool skipOrPrintError(const char* name)
+    {
+        T temp;
+        return extractIntoOrPrintError(name, temp);
+    }
+
+    template <typename T>
+    [[nodiscard]] std::optional<T> extractOrPrintError(const char* name)
     {
         T temp;
 
-        if(!extractInto<T>(temp, errorOss, p))
+        if(!extractIntoOrPrintError(name, temp))
         {
-            errorOss << "Error extracting " << name << '\n';
             return std::nullopt;
         }
 
         return {std::move(temp)};
+    }
+
+    template <typename T>
+    [[nodiscard]] bool matchOrPrintError(const char* name, const T& expected)
+    {
+        T temp;
+        return extractAndMatchOrPrintError(name, temp, expected);
+    }
+};
+
+template <typename T>
+[[nodiscard]] auto makeMatcher(std::ostringstream& errorOss, sf::Packet& p)
+{
+    return [&](const char* name, const T& expected) -> bool {
+        return AdvancedMatcher{errorOss, p}.matchOrPrintError<T>(
+            name, expected);
     };
 }
 
-[[nodiscard]] bool verifyReceivedPacketPreambleAndVersion(
+template <typename T>
+[[nodiscard]] auto makeExtractor(std::ostringstream& errorOss, sf::Packet& p)
+{
+    return [&](const char* name) -> std::optional<T> {
+        return AdvancedMatcher{errorOss, p}.extractOrPrintError<T>(name);
+    };
+}
+
+[[nodiscard]] bool verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
     std::ostringstream& errorOss, sf::Packet& p)
 {
-    const auto matchByte = makeMatcher<sf::Uint8>(errorOss, p);
+    AdvancedMatcher m{errorOss, p};
 
-    return matchByte("preamble 1st byte", preamble1stByte) &&
-           matchByte("preamble 2nd byte", preamble2ndByte) &&
-           matchByte("major version", GAME_VERSION.major) &&
-           matchByte("minor version", GAME_VERSION.minor) &&
-           matchByte("micro version", GAME_VERSION.micro);
+    return
+        // Preamble bytes and protocol version must match.
+        m.matchOrPrintError<std::uint8_t>(
+            "preamble 1st byte", preamble1stByte) &&
+        m.matchOrPrintError<std::uint8_t>(
+            "preamble 2st byte", preamble2ndByte) &&
+        m.matchOrPrintError<std::uint8_t>(
+            "protocol version", PROTOCOL_VERSION) &&
+
+        // Game version is currently ignored.
+        m.skipOrPrintError<std::uint8_t>("major version") &&
+        m.skipOrPrintError<std::uint8_t>("minor version") &&
+        m.skipOrPrintError<std::uint8_t>("micro version");
 }
 
 [[nodiscard]] std::optional<PacketType> extractPacketType(
     std::ostringstream& errorOss, sf::Packet& p)
 {
-    const std::optional<sf::Uint8> extracted =
-        makeExtractor<sf::Uint8>(errorOss, p)("packet type");
+    const std::optional<std::uint8_t> extracted =
+        makeExtractor<std::uint8_t>(errorOss, p)("packet type");
 
     if(!extracted.has_value())
     {
@@ -430,15 +512,15 @@ void encodeFirstNVectorElements(
     }
 }
 
-std::vector<sf::Uint8>& getStaticMessageBuffer()
+std::vector<std::uint8_t>& getStaticMessageBuffer()
 {
-    thread_local std::vector<sf::Uint8> result;
+    thread_local std::vector<std::uint8_t> result;
     return result;
 }
 
-std::vector<sf::Uint8>& getStaticCiphertextBuffer()
+std::vector<std::uint8_t>& getStaticCiphertextBuffer()
 {
-    thread_local std::vector<sf::Uint8> result;
+    thread_local std::vector<std::uint8_t> result;
     return result;
 }
 
@@ -487,7 +569,7 @@ void encodeField(sf::Packet& p, const TData& data, const std::array<T, N>& arr)
 template <typename TData, typename T>
 void encodeField(sf::Packet& p, const TData& data, const std::vector<T>& vec)
 {
-    encodeField(p, data, static_cast<sf::Uint64>(vec.size()));
+    encodeField(p, data, static_cast<std::uint64_t>(vec.size()));
 
     for(const T& x : vec)
     {
@@ -525,8 +607,9 @@ template <typename TData>
 void encodeField(sf::Packet& p, const TData& data, const hg::GameVersion& gv)
 {
     (void)data;
-    p << static_cast<sf::Int32>(gv.major) << static_cast<sf::Int32>(gv.minor)
-      << static_cast<sf::Int32>(gv.micro);
+    p << static_cast<std::int32_t>(gv.major)
+      << static_cast<std::int32_t>(gv.minor)
+      << static_cast<std::int32_t>(gv.micro);
 }
 
 template <typename TData>
@@ -558,21 +641,21 @@ void encodeOHPacket(sf::Packet& p, const T& data)
         return false;
     }
 
-    sf::Uint64 messageLength;
+    std::uint64_t messageLength;
     if(!extractInto(messageLength, errorOss, p))
     {
         errorOss << "Error decoding client message length\n";
         return false;
     }
 
-    sf::Uint64 ciphertextLength;
+    std::uint64_t ciphertextLength;
     if(!extractInto(ciphertextLength, errorOss, p))
     {
         errorOss << "Error decoding client ciphertext length\n";
         return false;
     }
 
-    std::vector<sf::Uint8>& ciphertext = getStaticCiphertextBuffer();
+    std::vector<std::uint8_t>& ciphertext = getStaticCiphertextBuffer();
     ciphertext.resize(ciphertextLength);
 
     for(std::size_t i = 0; i < ciphertextLength; ++i)
@@ -587,7 +670,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
         return false;
     }
 
-    std::vector<sf::Uint8>& message = getStaticMessageBuffer();
+    std::vector<std::uint8_t>& message = getStaticMessageBuffer();
     message.resize(messageLength);
 
     if(crypto_secretbox_open_easy(message.data(), ciphertext.data(),
@@ -623,7 +706,7 @@ template <typename F, typename T>
     encryptedMsg.ciphertext.ptr->resize(encryptedMsg.ciphertextLength);
 
     if(crypto_secretbox_easy(encryptedMsg.ciphertext.ptr->data(),
-           static_cast<const sf::Uint8*>(packetToEncrypt.getData()),
+           static_cast<const std::uint8_t*>(packetToEncrypt.getData()),
            encryptedMsg.messageLength, encryptedMsg.nonce.data(),
            keyTransmit.data()) != 0)
     {
@@ -641,7 +724,7 @@ template <typename F, typename T>
 template <typename T>
 void makeClientToServerPacket(sf::Packet& p, const T& data)
 {
-    clearPacketAndEncodePreambleAndVersion(p);
+    clearPacketAndEncodePreambleAndProtocolVersionAndGameVersion(p);
     encodeOHPacket(p, data);
 }
 
@@ -660,7 +743,7 @@ template <typename T>
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
     return makeEncryptedPacketImpl([](auto&&... xs)
-        { makeClientToServerPacket(std::forward<decltype(xs)>(xs)...); },
+        { makeClientToServerPacket(SSVOH_FWD(xs)...); },
         keyTransmit, p, data);
 }
 
@@ -775,7 +858,8 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
-    if(!verifyReceivedPacketPreambleAndVersion(errorOss, p))
+    if(!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
+           errorOss, p))
     {
         return {PInvalid{.error = errorOss.str()}};
     }
@@ -788,7 +872,7 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
 template <typename T>
 void makeServerToClientPacket(sf::Packet& p, const T& data)
 {
-    clearPacketAndEncodePreambleAndVersion(p);
+    clearPacketAndEncodePreambleAndProtocolVersionAndGameVersion(p);
     encodeOHPacket(p, data);
 }
 
@@ -807,7 +891,7 @@ template <typename T>
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
     return makeEncryptedPacketImpl([](auto&&... xs)
-        { makeServerToClientPacket(std::forward<decltype(xs)>(xs)...); },
+        { makeServerToClientPacket(SSVOH_FWD(xs)...); },
         keyTransmit, p, data);
 }
 
@@ -837,7 +921,8 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
-    if(!verifyReceivedPacketPreambleAndVersion(errorOss, p))
+    if(!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
+           errorOss, p))
     {
         return {PInvalid{.error = errorOss.str()}};
     }

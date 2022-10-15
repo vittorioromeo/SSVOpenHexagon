@@ -4,20 +4,29 @@
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
-#include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/String.hpp"
-#include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 
-#include <imgui.h>
-#include <imgui-SFML.h>
+#include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Imgui.hpp"
 
+#include "SSVOpenHexagon/Utils/Color.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
+
+#include "SSVStart/Utils/SFML.hpp"
+
+#include <SFML/Graphics/RenderStates.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Utils/Rnd.hpp>
+
+#include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
+
+#include <cstdint>
 
 namespace hg {
 
@@ -46,6 +55,27 @@ void HexagonGame::draw()
     {
         return;
     }
+
+    const auto getRenderStates = [this](
+                                     const RenderStage rs) -> sf::RenderStates
+    {
+        if(!Config::getShaders())
+        {
+            return sf::RenderStates::Default;
+        }
+
+        const std::optional<std::size_t> fragmentShaderId =
+            status.fragmentShaderIds[static_cast<std::size_t>(rs)];
+
+        if(!fragmentShaderId.has_value())
+        {
+            return sf::RenderStates::Default;
+        }
+
+        runLuaFunctionIfExists<int, float>(
+            "onRenderStage", static_cast<int>(rs), 60.f / window->getFPS());
+        return sf::RenderStates{assets.getShaderByShaderId(*fragmentShaderId)};
+    };
 
     SSVOH_ASSERT(backgroundCamera.has_value());
     SSVOH_ASSERT(overlayCamera.has_value());
@@ -76,7 +106,7 @@ void HexagonGame::draw()
 
     if(!Config::getNoBackground())
     {
-        backgroundCamera->apply();
+        window->setView(backgroundCamera->apply());
 
         backgroundTris.clear();
 
@@ -86,10 +116,10 @@ void HexagonGame::draw()
                 levelStatus.darkenUnevenBackgroundChunk,
             Config::getBlackAndWhite());
 
-        render(backgroundTris);
+        render(backgroundTris, getRenderStates(RenderStage::BackgroundTris));
     }
 
-    backgroundCamera->apply();
+    window->setView(backgroundCamera->apply());
 
     wallQuads3D.clear();
     pivotQuads3D.clear();
@@ -100,11 +130,11 @@ void HexagonGame::draw()
     capTris.clear();
 
     // Reserve right amount of memory for all walls and custom walls
-    wallQuads.reserve_more(4 * walls.size() + 4 * cwManager.count());
+    wallQuads.reserve_more_quad(walls.size() + cwManager.count());
 
     for(CWall& w : walls)
     {
-        w.draw(styleData.getWallColor(), wallQuads);
+        w.draw(getColorWall(), wallQuads);
     }
 
     cwManager.draw(wallQuads);
@@ -112,7 +142,8 @@ void HexagonGame::draw()
     if(status.started)
     {
         player.draw(getSides(), getColorMain(), getColorPlayer(), pivotQuads,
-            capTris, playerTris, styleData.getCapColorResult());
+            capTris, playerTris, getColorCap(), Config::getAngleTiltIntensity(),
+            Config::getShowSwapBlinkingEffect());
     }
 
     if(Config::get3D())
@@ -126,8 +157,9 @@ void HexagonGame::draw()
         pivotQuads3D.reserve(numPivotQuads * depth);
         playerTris3D.reserve(numPlayerTris * depth);
 
+        const float pulse3D{Config::getNoPulse() ? 1.f : status.pulse3D};
         const float effect{
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
+            styleData._3dSkew * Config::get3DMultiplier() * pulse3D};
 
         const sf::Vector2f skew{1.f, 1.f + effect};
         backgroundCamera->setSkew(skew);
@@ -165,8 +197,19 @@ void HexagonGame::draw()
 
             const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
-            sf::Color overrideColor{Utils::getColorDarkened(
-                styleData.get3DOverrideColor(), styleData._3dDarkenMult)};
+            sf::Color overrideColor;
+
+            if(!Config::getBlackAndWhite())
+            {
+                overrideColor = Utils::getColorDarkened(
+                    styleData.get3DOverrideColor(), styleData._3dDarkenMult);
+            }
+            else
+            {
+                overrideColor = Utils::getColorDarkened(
+                    sf::Color(255, 255, 255, styleData.getMainColor().a),
+                    styleData._3dDarkenMult);
+            }
             adjustAlpha(overrideColor, i);
 
             // Draw pivot layers
@@ -180,7 +223,7 @@ void HexagonGame::draw()
             if(styleData.get3DOverrideColor() == styleData.getMainColor())
             {
                 overrideColor = Utils::getColorDarkened(
-                    styleData.getWallColor(), styleData._3dDarkenMult);
+                    getColorWall(), styleData._3dDarkenMult);
 
                 adjustAlpha(overrideColor, i);
             }
@@ -197,7 +240,7 @@ void HexagonGame::draw()
             if(styleData.get3DOverrideColor() == styleData.getMainColor())
             {
                 overrideColor = Utils::getColorDarkened(
-                    styleData.getPlayerColor(), styleData._3dDarkenMult);
+                    getColorPlayer(), styleData._3dDarkenMult);
 
                 adjustAlpha(overrideColor, i);
             }
@@ -212,18 +255,29 @@ void HexagonGame::draw()
         }
     }
 
-    render(wallQuads3D);
-    render(pivotQuads3D);
-    render(playerTris3D);
-    render(wallQuads);
-    render(capTris);
-    render(pivotQuads);
-    render(playerTris);
+    render(wallQuads3D, getRenderStates(RenderStage::WallQuads3D));
+    render(pivotQuads3D, getRenderStates(RenderStage::PivotQuads3D));
+    render(playerTris3D, getRenderStates(RenderStage::PlayerTris3D));
 
-    overlayCamera->apply();
+    if(Config::getShowPlayerTrail() && status.showPlayerTrail)
+    {
+        drawTrailParticles();
+    }
+
+    if(Config::getShowSwapParticles())
+    {
+        drawSwapParticles();
+    }
+
+    render(wallQuads, getRenderStates(RenderStage::WallQuads));
+    render(capTris, getRenderStates(RenderStage::CapTris));
+    render(pivotQuads, getRenderStates(RenderStage::PivotQuads));
+    render(playerTris, getRenderStates(RenderStage::PlayerTris));
+
+    window->setView(overlayCamera->apply());
 
     drawParticles();
-    drawText();
+    drawText(getRenderStates(RenderStage::Text));
 
     // ------------------------------------------------------------------------
     // Draw key icons.
@@ -236,7 +290,7 @@ void HexagonGame::draw()
     // Draw level info.
     if(Config::getShowLevelInfo() || mustShowReplayUI())
     {
-        drawLevelInfo();
+        drawLevelInfo(getRenderStates(RenderStage::Text));
     }
 
     // ------------------------------------------------------------------------
@@ -271,33 +325,37 @@ void HexagonGame::drawImguiLuaConsole()
     }
 
     SSVOH_ASSERT(overlayCamera.has_value());
-    overlayCamera->unapply();
 
-    ImGui::SFML::Render(*window);
+    sf::RenderWindow& renderWindow = window->getRenderWindow();
+    window->setView(renderWindow.getDefaultView());
+
+    Imgui::render(*window);
 }
 
-void HexagonGame::initFlashEffect()
+void HexagonGame::initFlashEffect(int r, int g, int b)
 {
     flashPolygon.clear();
+    flashPolygon.reserve(6);
 
-    flashPolygon.emplace_back(
-        sf::Vector2f{-100.f, -100.f}, sf::Color{255, 255, 255, 0});
+    const sf::Color color{static_cast<std::uint8_t>(r),
+        static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b), 0};
 
-    flashPolygon.emplace_back(sf::Vector2f{Config::getWidth() + 100.f, -100.f},
-        sf::Color{255, 255, 255, 0});
+    const auto width = static_cast<float>(Config::getWidth());
+    const auto height = static_cast<float>(Config::getHeight());
+    const float offset = 100.f;
 
-    flashPolygon.emplace_back(
-        sf::Vector2f{Config::getWidth() + 100.f, Config::getHeight() + 100.f},
-        sf::Color{255, 255, 255, 0});
+    const sf::Vector2f nw{-offset, -offset};
+    const sf::Vector2f sw{-offset, height + offset};
+    const sf::Vector2f se{width + offset, height + offset};
+    const sf::Vector2f ne{width + offset, -offset};
 
-    flashPolygon.emplace_back(sf::Vector2f{-100.f, Config::getHeight() + 100.f},
-        sf::Color{255, 255, 255, 0});
+    flashPolygon.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
 }
 
 void HexagonGame::drawKeyIcons()
 {
-    constexpr sf::Uint8 offOpacity = 90;
-    constexpr sf::Uint8 onOpacity = 255;
+    constexpr std::uint8_t offOpacity = 90;
+    constexpr std::uint8_t onOpacity = 255;
 
     const sf::Color colorText = getColorText();
 
@@ -323,19 +381,35 @@ void HexagonGame::drawKeyIcons()
     }
 }
 
-void HexagonGame::drawLevelInfo()
+void HexagonGame::drawLevelInfo(const sf::RenderStates& mStates)
 {
-    render(levelInfoRectangle);
-    render(levelInfoTextLevel);
-    render(levelInfoTextPack);
-    render(levelInfoTextAuthor);
-    render(levelInfoTextBy);
-    render(levelInfoTextDM);
+    render(levelInfoRectangle, mStates);
+    render(levelInfoTextLevel, mStates);
+    render(levelInfoTextPack, mStates);
+    render(levelInfoTextAuthor, mStates);
+    render(levelInfoTextBy, mStates);
+    render(levelInfoTextDM, mStates);
 }
 
 void HexagonGame::drawParticles()
 {
     for(Particle& p : particles)
+    {
+        render(p.sprite);
+    }
+}
+
+void HexagonGame::drawTrailParticles()
+{
+    for(TrailParticle& p : trailParticles)
+    {
+        render(p.sprite);
+    }
+}
+
+void HexagonGame::drawSwapParticles()
+{
+    for(SwapParticle& p : swapParticles)
     {
         render(p.sprite);
     }
@@ -473,26 +547,25 @@ void HexagonGame::updateText(ssvu::FT mFT)
     };
 
     timeText.setCharacterSize(getScaledCharacterSize(70.f));
-    timeText.setOrigin(0, 0);
 
     // Set information text
     text.setString(os.str());
-    text.setCharacterSize(getScaledCharacterSize(25.f));
-    text.setOrigin(0, 0);
+    text.setCharacterSize(getScaledCharacterSize(20.f));
+    text.setOrigin({0.f, 0.f});
 
     // Set FPS Text, if option is enabled.
     if(Config::getShowFPS())
     {
         fpsText.setString(ssvu::toStr(window->getFPS()));
-        fpsText.setCharacterSize(getScaledCharacterSize(25.f));
+        fpsText.setCharacterSize(getScaledCharacterSize(20.f));
     }
 
-    messageText.setCharacterSize(getScaledCharacterSize(38.f));
-    messageText.setOrigin(ssvs::getGlobalWidth(messageText) / 2.f, 0);
+    messageText.setCharacterSize(getScaledCharacterSize(32.f));
+    messageText.setOrigin({ssvs::getGlobalWidth(messageText) / 2.f, 0.f});
 
     const float growth = std::sin(pbTextGrowth);
     pbText.setCharacterSize(getScaledCharacterSize(64.f) + growth * 10.f);
-    pbText.setOrigin(ssvs::getGlobalWidth(pbText) / 2.f, 0);
+    pbText.setOrigin({ssvs::getGlobalWidth(pbText) / 2.f, 0.f});
 
     // ------------------------------------------------------------------------
     if(mustShowReplayUI())
@@ -514,7 +587,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
 
         os.flush();
 
-        replayText.setCharacterSize(getScaledCharacterSize(20.f));
+        replayText.setCharacterSize(getScaledCharacterSize(16.f));
         replayText.setString(os.str());
     }
     else
@@ -523,7 +596,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
+void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     if(Config::getDrawTextOutlines())
     {
@@ -545,59 +618,60 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         replayText.setOutlineThickness(0.f);
     }
 
-    const float padding = Config::getTextPadding() * Config::getTextScaling();
-    const float offsetRatio = Config::getHeight() / 720.f;
+    const float padding =
+        (Config::getTextPadding() * Config::getTextScaling()) /
+        Config::getZoomFactor();
 
     const sf::Color colorText = getColorText();
 
     if(Config::getShowTimer())
     {
         timeText.setFillColor(colorText);
-        timeText.setPosition(sf::Vector2f{
-            padding, -22.f * offsetRatio * Config::getTextScaling()});
-        render(timeText);
+        timeText.setOrigin(ssvs::getLocalNW(timeText));
+        timeText.setPosition({padding, padding});
+
+        render(timeText, mStates);
     }
 
     if(Config::getShowStatusText())
     {
         text.setFillColor(colorText);
-        text.setPosition(
-            sf::Vector2f{padding, ssvs::getGlobalBottom(timeText)});
-        render(text);
+        text.setOrigin(ssvs::getLocalNW(text));
+        text.setPosition({padding, ssvs::getGlobalBottom(timeText) + padding});
+
+        render(text, mStates);
     }
 
     if(Config::getShowFPS())
     {
         fpsText.setFillColor(colorText);
-        fpsText.setOrigin(0, ssvs::getGlobalHeight(fpsText));
+        fpsText.setOrigin(ssvs::getLocalSW(fpsText));
 
         if(Config::getShowLevelInfo() || mustShowReplayUI())
         {
-            fpsText.setPosition(sf::Vector2f{padding,
-                ssvs::getGlobalTop(levelInfoRectangle) -
-                    ((8.f * (2.f * offsetRatio))) * Config::getTextScaling()});
+            fpsText.setPosition(
+                {padding, ssvs::getGlobalTop(levelInfoRectangle) - padding});
         }
         else
         {
-            fpsText.setPosition(sf::Vector2f{
-                padding, Config::getHeight() - ((8.f * (2.f * offsetRatio))) *
-                                                   Config::getTextScaling()});
+            fpsText.setPosition({padding, Config::getHeight() - padding});
         }
 
-        render(fpsText);
+        render(fpsText, mStates);
     }
 
     if(mustShowReplayUI())
     {
         const float scaling =
             Config::getKeyIconsScale() / Config::getZoomFactor();
+
         const float replayPadding = 8.f * scaling;
 
         replayText.setFillColor(colorText);
         replayText.setOrigin(ssvs::getLocalCenterE(replayText));
         replayText.setPosition(ssvs::getGlobalCenterW(replayIcon) -
                                sf::Vector2f{replayPadding, 0});
-        render(replayText);
+        render(replayText, mStates);
     }
 }
 
@@ -627,32 +701,32 @@ static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
     fRender(text);
 }
 
-void HexagonGame::drawText_Message(const sf::Color& offsetColor)
+void HexagonGame::drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(messageText, offsetColor,
-        {Config::getWidth() / 2.f, Config::getHeight() / 6.f}, getColorText(),
-        1.f /* outlineThickness */, [this](sf::Text& t) { render(t); });
+        {Config::getWidth() / 2.f, Config::getHeight() / 5.5f}, getColorText(),
+        1.f /* outlineThickness */, [this, &mStates](sf::Text& t) { render(t, mStates); });
 }
 
-void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor)
+void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(pbText, offsetColor,
         {Config::getWidth() / 2.f,
             Config::getHeight() - Config::getHeight() / 4.f},
         getColorText(), 4.f /* outlineThickness */,
-        [this](sf::Text& t) { render(t); });
+        [this, &mStates](sf::Text& t) { render(t, mStates); });
 }
 
-void HexagonGame::drawText()
+void HexagonGame::drawText(const sf::RenderStates& mStates)
 {
     const sf::Color offsetColor{
         Config::getBlackAndWhite() || styleData.getColors().empty()
             ? sf::Color::Black
             : getColor(0)};
 
-    drawText_TimeAndStatus(offsetColor);
-    drawText_Message(offsetColor);
-    drawText_PersonalBest(offsetColor);
+    drawText_TimeAndStatus(offsetColor, mStates);
+    drawText_Message(offsetColor, mStates);
+    drawText_PersonalBest(offsetColor, mStates);
 }
 
 } // namespace hg

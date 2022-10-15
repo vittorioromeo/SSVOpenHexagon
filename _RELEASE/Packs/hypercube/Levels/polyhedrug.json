@@ -3,10 +3,10 @@
     "name": "polyhedrug",
     "description": "ready to experience something different?",
     "author": "vittorio romeo",
-    "menuPriority": 60,
+    "menuPriority": 30,
     "selectable": true,
     "styleId": "polyhedrug",
     "musicId": "johnnyDerp",
     "luaFile": "Scripts/Levels/polyhedrug.lua",
-    "difficultyMults": [0.75, 1.25, 1.5, 1.8]
+    "difficultyMults": [0.75, 1.8]
 }

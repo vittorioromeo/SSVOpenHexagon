@@ -18,7 +18,7 @@ end
 -- onStep should contain your pattern spawning logic
 function onStep()
     cBarrage(getRandomSide())
-    t_wait(getPerfectDelayDM(THICKNESS) * 6.55)
+    t_wait(getPerfectDelay(THICKNESS) * 6.55)
 end
 
 -- onInit is an hardcoded function that is called when the level is first loaded

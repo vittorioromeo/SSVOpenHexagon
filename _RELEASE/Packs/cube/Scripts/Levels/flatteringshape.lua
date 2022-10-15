@@ -29,7 +29,7 @@ function addPattern(mKey)
         mKey = 5
     end
 
-        if mKey == 0 then pAltBarrage(u_rndInt(2, 4), 2)
+        if mKey == 0 then pAltBarrage(u_rndInt(3, 5), 2)
     elseif mKey == 1 then
         adjustThicknessForLowDM(2)
         pMirrorSpiral(u_rndInt(3, 6), 0)

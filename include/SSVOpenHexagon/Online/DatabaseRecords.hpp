@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include <SFML/Config.hpp>
-
-#include <cstdint>
 #include <string>
 #include <vector>
+
+#include <cstdint>
 
 namespace hg::Database {
 
@@ -39,9 +38,9 @@ struct Score
 
 struct ProcessedScore // not stored in database
 {
-    sf::Uint32 position;
+    std::uint32_t position;
     std::string userName;
-    sf::Uint64 scoreTimestamp;
+    std::uint64_t scoreTimestamp;
     double scoreValue;
 };
 

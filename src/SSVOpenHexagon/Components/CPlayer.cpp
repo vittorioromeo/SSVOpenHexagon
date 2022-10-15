@@ -3,21 +3,27 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
-#include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
+#include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/Utils/Ticker.hpp"
-#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
-#include "SSVOpenHexagon/Utils/Geometry.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
+#include "SSVOpenHexagon/Utils/Geometry.hpp"
+#include "SSVOpenHexagon/Utils/MoveTowards.hpp"
+#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
+#include "SSVOpenHexagon/Utils/Ticker.hpp"
 
 #include <SSVStart/Utils/SFML.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Math.hpp>
 
-#include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
+
+#include <algorithm>
+#include <cmath>
 
 namespace hg {
 
@@ -42,18 +48,40 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
       _dead{false},
       _justSwapped{false},
       _forcedMove{false},
+      _radius{0.f},
+      _maxSafeDistance{0.f},
       _currentSpeed{0.f},
       _triangleWidth{unfocusedTriangleWidth},
       _triangleWidthTransitionTime{0.f},
       _swapTimer{swapCooldown},
-      _swapBlinkTimer{swapCooldown / 6.f},
-      _deadEffectTimer{80.f, false}
+      _swapBlinkTimer{6.f},
+      _deadEffectTimer{80.f, false},
+      _currTiltedAngle{0}
 {}
 
+[[nodiscard]] sf::Color CPlayer::getColor(const sf::Color& colorPlayer) const
+{
+    return !_deadEffectTimer.isRunning() ? colorPlayer
+                                         : Utils::getColorFromHue(_hue / 360.f);
+}
+
+[[nodiscard]] sf::Color CPlayer::getColorAdjustedForSwap(
+    const sf::Color& colorPlayer) const
+{
+    if(!_swapTimer.isRunning() && !_dead)
+    {
+        return Utils::getColorFromHue(
+            std::fmod(_swapBlinkTimer.getCurrent() / 12.f, 0.2f));
+    }
+
+    return getColor(colorPlayer);
+}
+
 void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
-    const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
+    const sf::Color& colorPlayer, Utils::FastVertexVectorTris& wallQuads,
     Utils::FastVertexVectorTris& capTris,
-    Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor)
+    Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor,
+    const float angleTiltIntensity, const bool swapBlinkingEffect)
 {
     drawPivot(sides, colorMain, wallQuads, capTris, capColor);
 
@@ -62,29 +90,24 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
         drawDeathEffect(wallQuads);
     }
 
-    sf::Color adjustedColorMain{!_deadEffectTimer.isRunning()
-                                    ? colorPlayer
-                                    : Utils::getColorFromHue(_hue / 360.f)};
+    const float tiltedAngle =
+        _angle + (_currTiltedAngle * ssvu::toRad(24.f) * angleTiltIntensity);
 
     const sf::Vector2f pLeft = ssvs::getOrbitRad(
-        _pos, _angle - ssvu::toRad(100.f), _size + _triangleWidth);
+        _pos, tiltedAngle - ssvu::toRad(100.f), _size + _triangleWidth);
 
     const sf::Vector2f pRight = ssvs::getOrbitRad(
-        _pos, _angle + ssvu::toRad(100.f), _size + _triangleWidth);
-
-    if(!_swapTimer.isRunning() && !_dead)
-    {
-        adjustedColorMain =
-            Utils::getColorFromHue((_swapBlinkTimer.getCurrent() * 15) / 360.f);
-    }
+        _pos, tiltedAngle + ssvu::toRad(100.f), _size + _triangleWidth);
 
     playerTris.reserve_more(3);
-    playerTris.batch_unsafe_emplace_back(adjustedColorMain,
-        ssvs::getOrbitRad(_pos, _angle, _size), pLeft, pRight);
+    playerTris.batch_unsafe_emplace_back(
+        swapBlinkingEffect ? getColorAdjustedForSwap(colorPlayer)
+                           : getColor(colorPlayer),
+        ssvs::getOrbitRad(_pos, tiltedAngle, _size), pLeft, pRight);
 }
 
 void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
-    Utils::FastVertexVectorQuads& wallQuads,
+    Utils::FastVertexVectorTris& wallQuads,
     Utils::FastVertexVectorTris& capTris, const sf::Color& capColor)
 {
     const float div{ssvu::tau / sides * 0.5f};
@@ -103,15 +126,15 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
         const sf::Vector2f p4{ssvs::getOrbitRad(
             _startPos, sAngle - div, pRadius + baseThickness)};
 
-        wallQuads.reserve_more(4);
-        wallQuads.batch_unsafe_emplace_back(colorMain, p1, p2, p3, p4);
+        wallQuads.reserve_more_quad(1);
+        wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
 
         capTris.reserve_more(3);
         capTris.batch_unsafe_emplace_back(capColor, p1, p2, _startPos);
     }
 }
 
-void CPlayer::drawDeathEffect(Utils::FastVertexVectorQuads& wallQuads)
+void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
 {
     const float div{ssvu::tau / 6 * 0.5f};
     const float dRadius{_hue / 8.f};
@@ -130,8 +153,8 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorQuads& wallQuads)
         const sf::Vector2f p4{
             ssvs::getOrbitRad(_pos, sAngle - div, dRadius + thickness)};
 
-        wallQuads.reserve_more(4);
-        wallQuads.batch_unsafe_emplace_back(colorMain, p1, p2, p3, p4);
+        wallQuads.reserve_more_quad(1);
+        wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
     }
 }
 
@@ -147,6 +170,15 @@ void CPlayer::kill(const bool fatal)
     if(fatal)
     {
         _dead = true;
+
+        // Avoid moving back position if the player had just swapped or the
+        // player was forcibly moved by a lot via Lua scripting.
+        if(!_justSwapped && ssvs::getDistEuclidean(_pos, _lastPos) < 24.f)
+        {
+            // Move back position to graphically show the tip of the triangle
+            // hitting the wall rather than the center of the triangle.
+            _pos = ssvs::getOrbitRad(_lastPos, _angle, -_size);
+        }
     }
 }
 
@@ -377,19 +409,11 @@ void CPlayer::updateTriangleWidthTransition(
 {
     if(focused && _triangleWidthTransitionTime < 1.f)
     {
-        _triangleWidthTransitionTime += ft * 0.1f;
-        if(_triangleWidthTransitionTime > 1.f)
-        {
-            _triangleWidthTransitionTime = 1.f;
-        }
+        Utils::moveTowards(_triangleWidthTransitionTime, 1.f, ft * 0.1f);
     }
     else if(!focused && _triangleWidthTransitionTime > 0.f)
     {
-        _triangleWidthTransitionTime -= ft * 0.1f;
-        if(_triangleWidthTransitionTime < 0.f)
-        {
-            _triangleWidthTransitionTime = 0.f;
-        }
+        Utils::moveTowardsZero(_triangleWidthTransitionTime, ft * 0.1f);
     }
 
     _triangleWidth =
@@ -425,7 +449,7 @@ void CPlayer::update(
         }
     }
 
-    _swapBlinkTimer.update(ft);
+    _swapBlinkTimer.update(ft / 3.f);
 
     if(swapEnabled && _swapTimer.update(ft))
     {
@@ -441,12 +465,19 @@ void CPlayer::updateInputMovement(const float movementDir,
 {
     _currentSpeed = playerSpeedMult * (focused ? _focusSpeed : _speed) * ft;
     _angle += ssvu::toRad(_currentSpeed * movementDir);
+
+    const float inc = ft / 10.f;
+
+    _currTiltedAngle =
+        (movementDir == 0.f)
+            ? Utils::getMoveTowardsZero(_currTiltedAngle, inc)
+            : Utils::getMoveTowards(_currTiltedAngle, movementDir, inc * 2.f);
 }
 
 void CPlayer::resetSwap(const float swapCooldown)
 {
     _swapTimer.restart(swapCooldown);
-    _swapBlinkTimer.restart(swapCooldown / 6.f);
+    _swapBlinkTimer.restart(6.f);
 }
 
 void CPlayer::setJustSwapped(const bool value)

@@ -22,29 +22,6 @@
 
 namespace hg::Utils {
 
-void shakeCamera(ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera)
-{
-    constexpr int s{7};
-    sf::Vector2f oldCenter{mCamera.getCenter()};
-    ssvu::Timeline& timeline(mTimelineManager.create());
-
-    for(int i{s}; i > 0; --i)
-    {
-        timeline.append<ssvu::Do>(
-            [&mCamera, oldCenter, i]
-            {
-                mCamera.setCenter(oldCenter + sf::Vector2f(ssvu::getRndI(-i, i),
-                                                  ssvu::getRndI(-i, i)));
-            });
-        timeline.append<ssvu::Wait>(1);
-        timeline.append<ssvu::Go>(0, 3);
-    }
-
-    timeline.append<ssvu::Do>(
-        [&mCamera, oldCenter] { mCamera.setCenter(oldCenter); });
-}
-
-
 void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode)
 {
     try
@@ -154,12 +131,24 @@ const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
     return *dependencyData;
 }
 
-void withDependencyScriptFilename(
+[[nodiscard]] static std::string getDependentAssetFilename(
+    const char* assetSubfolder,
+    std::vector<std::string>& execScriptPackPathContext,
+    const std::string& currentPackPath, const std::string& mAssetName)
+{
+    const std::string& context = execScriptPackPathContext.empty()
+                                     ? currentPackPath
+                                     : execScriptPackPathContext.back();
+
+    return concat(context, assetSubfolder, '/', mAssetName);
+}
+
+static void withDependencyAssetFilename(const char* assetSubfolder,
     const std::function<void(const std::string&)> f,
     std::vector<std::string>& execScriptPackPathContext, HGAssets& assets,
     const PackData& currentPack, const std::string& mPackDisambiguator,
     const std::string& mPackName, const std::string& mPackAuthor,
-    const std::string& mScriptName)
+    const std::string& mAssetName)
 try
 {
     const PackData& dependencyData = findDependencyPackDataOrThrow(
@@ -168,11 +157,12 @@ try
     execScriptPackPathContext.emplace_back(dependencyData.folderPath);
     HG_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
 
-    return f(concat(dependencyData.folderPath, "Scripts/", mScriptName));
+    return f(
+        concat(dependencyData.folderPath, assetSubfolder, '/', mAssetName));
 }
 catch(const std::runtime_error& err)
 {
-    ssvu::lo("hg::Utils::getDependencyScriptFilename")
+    ssvu::lo("hg::Utils::withDependencyAssetFilename")
         << "Fatal error while looking for Lua dependency\nError: " << err.what()
         << std::endl;
 
@@ -180,21 +170,48 @@ catch(const std::runtime_error& err)
 }
 catch(...)
 {
-    ssvu::lo("hg::Utils::getDependencyScriptFilename")
+    ssvu::lo("hg::Utils::withDependencyAssetFilename")
         << "Fatal unknown error while looking for Lua dependency" << std::endl;
 
     throw;
+}
+
+void withDependencyScriptFilename(
+    const std::function<void(const std::string&)> f,
+    std::vector<std::string>& execScriptPackPathContext, HGAssets& assets,
+    const PackData& currentPack, const std::string& mPackDisambiguator,
+    const std::string& mPackName, const std::string& mPackAuthor,
+    const std::string& mScriptName)
+{
+    withDependencyAssetFilename("Scripts", f, execScriptPackPathContext, assets,
+        currentPack, mPackDisambiguator, mPackName, mPackAuthor, mScriptName);
 }
 
 [[nodiscard]] std::string getDependentScriptFilename(
     std::vector<std::string>& execScriptPackPathContext,
     const std::string& currentPackPath, const std::string& mScriptName)
 {
-    const std::string& context = execScriptPackPathContext.empty()
-                                     ? currentPackPath
-                                     : execScriptPackPathContext.back();
+    return getDependentAssetFilename(
+        "Scripts", execScriptPackPathContext, currentPackPath, mScriptName);
+}
 
-    return concat(context, "Scripts/", mScriptName);
+void withDependencyShaderFilename(
+    const std::function<void(const std::string&)> f,
+    std::vector<std::string>& execScriptPackPathContext, HGAssets& assets,
+    const PackData& currentPack, const std::string& mPackDisambiguator,
+    const std::string& mPackName, const std::string& mPackAuthor,
+    const std::string& mShaderName)
+{
+    withDependencyAssetFilename("Shaders", f, execScriptPackPathContext, assets,
+        currentPack, mPackDisambiguator, mPackName, mPackAuthor, mShaderName);
+}
+
+[[nodiscard]] std::string getDependentShaderFilename(
+    std::vector<std::string>& execScriptPackPathContext,
+    const std::string& currentPackPath, const std::string& mShaderName)
+{
+    return getDependentAssetFilename(
+        "Shaders", execScriptPackPathContext, currentPackPath, mShaderName);
 }
 
 } // namespace hg::Utils

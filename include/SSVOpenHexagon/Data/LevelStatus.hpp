@@ -60,7 +60,6 @@ struct LevelStatus
     float wallAngleLeft{0.f};
     float wallAngleRight{0.f};
     float wallSpawnDistance{1600.f};
-    float _3dEffectMultiplier{1.f};
 
     float cameraShake{0};
 
@@ -71,6 +70,7 @@ struct LevelStatus
     bool swapEnabled{false};
     bool tutorialMode{false};
     bool _3DRequired{false};
+    bool shadersRequired{false};
     bool incEnabled{true};
     bool rndSideChangesEnabled{true};
     bool darkenUnevenBackgroundChunk{true};

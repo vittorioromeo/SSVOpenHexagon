@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
@@ -17,6 +16,11 @@
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/Joystick.hpp>
+
+#include <SFML/System/Vector2.hpp>
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -26,6 +30,7 @@
 defaultServerLevelWhitelist()
 {
     static const std::vector<std::string> result{
+        // Vittorio Romeo - Cube
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_0.35",
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1",
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1.6",
@@ -56,9 +61,85 @@ defaultServerLevelWhitelist()
         "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1",
         "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1.8",
         "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_2.2",
+
+        // Vittorio Romeo - Orthoplex
         "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_0.5",
         "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_1",
-        "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_1.8"};
+        "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_1.8",
+
+        // Vittorio Romeo - Hypercube
+        "ohvrvanilla_vittorio_romeo_hypercube_1_acceleradiant_m_0.85",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_acceleradiant_m_1",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_acceleradiant_m_1.8",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_acceleradiant_m_2.4",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_centrifugal_m_0.6",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_centrifugal_m_1",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_centrifugal_m_1.6",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_disc-o_m_0.5",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_disc-o_m_1",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_disc-o_m_2",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_disc-o_m_2.8",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_g-force_m_0.6",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_g-force_m_1",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_g-force_m_1.6",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_g-force_m_2.8",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_incongruence_m_0.5",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_incongruence_m_1",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_incongruence_m_1.8",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_massacre_m_0.5",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_massacre_m_1",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_massacre_m_1.6",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_polyhedrug_m_0.75",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_polyhedrug_m_1",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_polyhedrug_m_1.8",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_reppaws_m_0.5",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_reppaws_m_1",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_reppaws_m_1.8",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_slither_m_0.5",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_slither_m_1",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_slither_m_1.5",
+        "ohvrvanilla_vittorio_romeo_hypercube_1_slither_m_2",
+
+        // Vipre - Vanity [Steam Workshop]
+        "vanitylevels_Vipre_Vanity_10006_haunted_m_1",
+        "vanitylevels_Vipre_Vanity_10006_haunted_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_mantra_m_1",
+        "vanitylevels_Vipre_Vanity_10006_menace_m_1",
+        "vanitylevels_Vipre_Vanity_10006_menace_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_narcotics_m_1",
+        "vanitylevels_Vipre_Vanity_10006_narcotics_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_rocketscience_m_1",
+        "vanitylevels_Vipre_Vanity_10006_rocketscience_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_singlepulseremixv2remix_m_1",
+        "vanitylevels_Vipre_Vanity_10006_squarepractice_m_1",
+        "vanitylevels_Vipre_Vanity_10006_squarepractice_m_1.003",
+        "vanitylevels_Vipre_Vanity_10006_squarepractice_m_1.005",
+        "vanitylevels_Vipre_Vanity_10006_technology_m_1",
+        "vanitylevels_Vipre_Vanity_10006_technology_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1",
+        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.001",
+        "vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.002",
+
+        // clang-format off
+        // Morxemplum - Rotationality Remastered [Steam Workshop]
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_1",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_2",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_3",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_5",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_dragonMayhem_m_6.66",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_1",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_2",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_3",
+        "rotationality_SkyMidnight_Rotationality_(Remastered)_2_skyFasion_m_5",
+        // clang-format on
+
+        // Syyrion - Travel [Steam Workshop]
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_0.8",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1.2",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1.4",
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_spl_m_1" //
+    };
 
     return result;
 }
@@ -67,11 +148,14 @@ using uint = unsigned int;
 using ushort = unsigned short;
 
 using trig = ssvs::Input::Trigger;
+
 using k = ssvs::KKey;
 using m = ssvs::MBtn;
-using c = ssvs::Input::Combo;
+using cmb = ssvs::Input::Combo;
+
 using kil = std::initializer_list<ssvs::KKey>;
 using mil = std::initializer_list<ssvs::MBtn>;
+using cil = std::initializer_list<cmb>;
 
 #define X_LINKEDVALUES_BINDS_JOYSTICK                    \
     X(joystickSelect, uint, "j_select", 1)               \
@@ -87,38 +171,31 @@ using mil = std::initializer_list<ssvs::MBtn>;
     X(joystickAddToFavorites, uint, "j_add_favorite", 8) \
     X(joystickFavoritesMenu, uint, "j_favorite_menu", 9)
 
-#define X_LINKEDVALUES_BINDS_TRIGGERS                                         \
-    X(triggerRotateCCW, trig, "t_rotate_ccw",                                 \
-        std::initializer_list<c>{                                             \
-            c{{k::A}}, c{{k::Left}}, c{kil{}, mil{m::Left}}})                 \
-    X(triggerRotateCW, trig, "t_rotate_cw",                                   \
-        std::initializer_list<c>{                                             \
-            c{{k::D}}, c{{k::Right}}, c{kil{}, mil{m::Right}}})               \
-    X(triggerFocus, trig, "t_focus",                                          \
-        std::initializer_list<c>{c{{k::LShift}}, c{kil{}, mil{m::XButton1}}}) \
-    X(triggerSelect, trig, "t_select",                                        \
-        std::initializer_list<c>{c{{k::Space}}, c{kil{}, mil{m::Middle}}})    \
-    X(triggerExit, trig, "t_exit",                                            \
-        std::initializer_list<c>{c{{k::T}}, c{kil{}, mil{m::XButton2}}})      \
-    X(triggerForceRestart, trig, "t_force_restart",                           \
-        std::initializer_list<c>{c{{k::Up}}, c{{k::R}}})                      \
-    X(triggerRestart, trig, "t_restart",                                      \
-        std::initializer_list<c>{                                             \
-            c{{k::Space}}, c{{k::Return}}, c{kil{}, mil{m::Middle}}})         \
-    X(triggerReplay, trig, "t_replay", std::initializer_list<c>{c{{k::Y}}})   \
-    X(triggerScreenshot, trig, "t_screenshot",                                \
-        std::initializer_list<c>{c{{k::F12}}})                                \
-    X(triggerSwap, trig, "t_swap",                                            \
-        std::initializer_list<c>{c{{k::Space}}, c{kil{}, mil{m::Middle}}})    \
-    X(triggerUp, trig, "t_up", std::initializer_list<c>{c{{k::W}}})           \
-    X(triggerDown, trig, "t_down", std::initializer_list<c>{c{{k::S}}})       \
-    X(triggerNextPack, trig, "t_next",                                        \
-        std::initializer_list<c>{c{{k::PageDown}}})                           \
-    X(triggerPreviousPack, trig, "t_previous",                                \
-        std::initializer_list<c>{c{{k::PageUp}}})                             \
-    X(triggerLuaConsole, trig, "t_lua_console",                               \
-        std::initializer_list<c>{c{{k::F1}}})                                 \
-    X(triggerPause, trig, "t_pause", std::initializer_list<c>{c{{k::F2}}})
+#define X_LINKEDVALUES_BINDS_TRIGGERS                                      \
+    X(triggerRotateCCW, trig, "t_rotate_ccw",                              \
+        cil{cmb{{k::A}}, cmb{{k::Left}}, cmb{kil{}, mil{m::Left}}})        \
+    X(triggerRotateCW, trig, "t_rotate_cw",                                \
+        cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})      \
+    X(triggerFocus, trig, "t_focus",                                       \
+        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::XButton1}}})               \
+    X(triggerSelect, trig, "t_select",                                     \
+        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
+    X(triggerExit, trig, "t_exit",                                         \
+        cil{cmb{{k::T}}, cmb{kil{}, mil{m::XButton2}}})                    \
+    X(triggerForceRestart, trig, "t_force_restart",                        \
+        cil{cmb{{k::Up}}, cmb{{k::R}}})                                    \
+    X(triggerRestart, trig, "t_restart",                                   \
+        cil{cmb{{k::Space}}, cmb{{k::Enter}}, cmb{kil{}, mil{m::Middle}}}) \
+    X(triggerReplay, trig, "t_replay", cil{cmb{{k::Y}}})                   \
+    X(triggerScreenshot, trig, "t_screenshot", cil{cmb{{k::F12}}})         \
+    X(triggerSwap, trig, "t_swap",                                         \
+        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
+    X(triggerUp, trig, "t_up", cil{cmb{{k::W}}})                           \
+    X(triggerDown, trig, "t_down", cil{cmb{{k::S}}})                       \
+    X(triggerNextPack, trig, "t_next", cil{cmb{{k::PageDown}}})            \
+    X(triggerPreviousPack, trig, "t_previous", cil{cmb{{k::PageUp}}})      \
+    X(triggerLuaConsole, trig, "t_lua_console", cil{cmb{{k::F1}}})         \
+    X(triggerPause, trig, "t_pause", cil{cmb{{k::F2}}})
 
 #define X_LINKEDVALUES_BINDS      \
     X_LINKEDVALUES_BINDS_JOYSTICK \
@@ -126,6 +203,7 @@ using mil = std::initializer_list<ssvs::MBtn>;
 
 #define X_LINKEDVALUES                                                     \
     X(official, bool, "official", true)                                    \
+    X(noPulse, bool, "no_pulse", false)                                    \
     X(noRotation, bool, "no_rotation", false)                              \
     X(noBackground, bool, "no_background", false)                          \
     X(noSound, bool, "no_sound", false)                                    \
@@ -133,6 +211,7 @@ using mil = std::initializer_list<ssvs::MBtn>;
     X(blackAndWhite, bool, "black_and_white", false)                       \
     X(pulseEnabled, bool, "pulse_enabled", true)                           \
     X(_3DEnabled, bool, "3D_enabled", true)                                \
+    X(shadersEnabled, bool, "shaders_enabled", true)                       \
     X(_3DMultiplier, float, "3D_multiplier", 1.f)                          \
     X(_3DMaxDepth, uint, "3D_max_depth", 100)                              \
     X(invincible, bool, "invincible", false)                               \
@@ -183,6 +262,19 @@ using mil = std::initializer_list<ssvs::MBtn>;
     X(serverControlPort, ushort, "server_control_port", 50506)             \
     X(serverLevelWhitelist, std::vector<std::string>,                      \
         "server_level_whitelist", defaultServerLevelWhitelist())           \
+    X(saveLastLoginUsername, bool, "save_last_login_username", true)       \
+    X(lastLoginUsername, std::string, "last_login_username", "")           \
+    X(showLoginAtStartup, bool, "show_login_at_startup", false)            \
+    X(cameraShakeMultiplier, float, "camera_shake_multiplier", 1.f)        \
+    X(angleTiltIntensity, float, "angle_tilt_intensity", 1.f)              \
+    X(showPlayerTrail, bool, "show_player_trail", true)                    \
+    X(playerTrailAlpha, uint, "player_trail_alpha", 35)                    \
+    X(playerTrailScale, float, "player_trail_scale", 0.9f)                 \
+    X(playerTrailDecay, float, "player_trail_decay", 3.0f)                 \
+    X(playerTrailHasSwapColor, bool, "player_trail_has_swap_color", true)  \
+    X(showSwapParticles, bool, "show_swap_particles", true)                \
+    X(playSwapReadySound, bool, "play_swap_ready_sound", true)             \
+    X(showSwapBlinkingEffect, bool, "show_swap_blinking_effect", true)     \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -191,7 +283,7 @@ namespace hg::Config {
 {
     static ssvuj::Obj res = []
     {
-        if(ssvufs::Path{"config.json"}.exists<ssvufs::Type::File>())
+        if(ssvufs::Path{"config.json"}.isFile())
         {
             ssvu::lo("hg::Config::root()")
                 << "User-defined `config.json` file found\n";
@@ -208,9 +300,10 @@ namespace hg::Config {
     return res;
 }
 
-
+#if defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbraced-scalar-init"
+#endif
 
 #define X(name, type, key, ...)                                               \
     [[nodiscard]] static auto& name() noexcept                                \
@@ -221,7 +314,9 @@ namespace hg::Config {
 X_LINKEDVALUES
 #undef X
 
+#if defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
 
 static void fixupMissingTriggers()
 {
@@ -288,23 +383,23 @@ std::string uneligibilityReason;
 
 static void applyAutoWindowedResolution()
 {
-    auto d(sf::VideoMode::getDesktopMode());
-    windowedWidth() = d.width;
-    windowedHeight() = d.height;
+    auto d = sf::VideoMode::getDesktopMode();
+    windowedWidth() = d.size.x;
+    windowedHeight() = d.size.y;
 }
 
 static void applyAutoFullscreenResolution()
 {
-    auto d(sf::VideoMode::getDesktopMode());
-    fullscreenWidth() = d.width;
-    fullscreenHeight() = d.height;
+    auto d = sf::VideoMode::getDesktopMode();
+    fullscreenWidth() = d.size.x;
+    fullscreenHeight() = d.size.y;
 }
 
 void loadConfig(const std::vector<std::string>& mOverridesIds)
 {
     ssvu::lo("::loadConfig") << "loading config\n";
 
-    if(ssvufs::Path{"ConfigOverrides/"}.exists<ssvufs::Type::Folder>())
+    if(ssvufs::Path{"ConfigOverrides/"}.isFolder())
     {
         for(const ssvufs::Path& p :
             ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
@@ -327,6 +422,11 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
     }
 
     syncAllFromObj();
+}
+
+void reapplyResolution()
+{
+    ssvu::lo("::reapplyResolution") << "reapplying resolution\n";
 
     if(getWindowedAutoResolution())
     {
@@ -346,18 +446,7 @@ void resetConfigToDefaults()
     ssvu::lo("::resetConfigToDefaults") << "resetting configs\n";
 
     resetAllFromDefault();
-
-    if(getWindowedAutoResolution())
-    {
-        applyAutoWindowedResolution();
-    }
-
-    if(getFullscreenAutoResolution())
-    {
-        applyAutoFullscreenResolution();
-    }
-
-    recalculateSizes();
+    reapplyResolution();
 }
 
 void resetBindsToDefaults()
@@ -421,6 +510,12 @@ bool isEligibleForScore()
     if(getInvincible())
     {
         uneligibilityReason = "invincibility on";
+        return false;
+    }
+
+    if(getNoPulse())
+    {
+        uneligibilityReason = "pulse off";
         return false;
     }
 
@@ -530,6 +625,11 @@ void setDebug(bool mDebug)
     debug() = mDebug;
 }
 
+void setNoPulse(bool mNoPulse)
+{
+    noPulse() = mNoPulse;
+}
+
 void setNoRotation(bool mNoRotation)
 {
     noRotation() = mNoRotation;
@@ -555,14 +655,14 @@ void setNoMusic(bool mNoMusic)
     noMusic() = mNoMusic;
 }
 
-void setPulse(bool mPulse)
-{
-    pulseEnabled() = mPulse;
-}
-
 void set3D(bool m3D)
 {
     _3DEnabled() = m3D;
+}
+
+void setShaders(bool mX)
+{
+    shadersEnabled() = mX;
 }
 
 void setInvincible(bool mInvincible)
@@ -690,6 +790,71 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
     serverLevelWhitelist() = levelValidators;
 }
 
+void setSaveLastLoginUsername(bool mX)
+{
+    saveLastLoginUsername() = mX;
+}
+
+void setLastLoginUsername(const std::string& mX)
+{
+    lastLoginUsername() = mX;
+}
+
+void setShowLoginAtStartup(bool mX)
+{
+    showLoginAtStartup() = mX;
+}
+
+void setCameraShakeMultiplier(float x)
+{
+    cameraShakeMultiplier() = x;
+}
+
+void setAngleTiltIntensity(float x)
+{
+    angleTiltIntensity() = x;
+}
+
+void setShowPlayerTrail(bool x)
+{
+    showPlayerTrail() = x;
+}
+
+void setPlayerTrailAlpha(unsigned int x)
+{
+    playerTrailAlpha() = x;
+}
+
+void setPlayerTrailScale(float x)
+{
+    playerTrailScale() = x;
+}
+
+void setPlayerTrailDecay(float x)
+{
+    playerTrailDecay() = x;
+}
+
+void setPlayerTrailHasSwapColor(bool x)
+{
+    playerTrailHasSwapColor() = x;
+}
+
+void setShowSwapParticles(bool x)
+{
+    showSwapParticles() = x;
+}
+
+void setPlaySwapReadySound(bool x)
+{
+    playSwapReadySound() = x;
+}
+
+void setShowSwapBlinkingEffect(bool x)
+{
+    showSwapBlinkingEffect() = x;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -738,6 +903,11 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
 [[nodiscard]] float getPlayerSize()
 {
     return getOfficial() ? playerSize().getDefault() : playerSize();
+}
+
+[[nodiscard]] bool getNoPulse()
+{
+    return getOfficial() ? noPulse().getDefault() : noPulse();
 }
 
 [[nodiscard]] bool getNoRotation()
@@ -845,11 +1015,6 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
     return getOfficial() ? debug().getDefault() : debug();
 }
 
-[[nodiscard]] bool getPulse()
-{
-    return getOfficial() ? pulseEnabled().getDefault() : pulseEnabled();
-}
-
 [[nodiscard]] bool getBeatPulse()
 {
     return getOfficial() ? beatPulse().getDefault() : beatPulse();
@@ -863,6 +1028,11 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
 [[nodiscard]] bool get3D()
 {
     return _3DEnabled();
+}
+
+[[nodiscard]] bool getShaders()
+{
+    return shadersEnabled();
 }
 
 [[nodiscard]] float get3DMultiplier()
@@ -998,6 +1168,71 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
 [[nodiscard]] const std::vector<std::string> getServerLevelWhitelist()
 {
     return serverLevelWhitelist();
+}
+
+[[nodiscard]] bool getSaveLastLoginUsername()
+{
+    return saveLastLoginUsername();
+}
+
+[[nodiscard]] const std::string& getLastLoginUsername()
+{
+    return lastLoginUsername();
+}
+
+[[nodiscard]] bool getShowLoginAtStartup()
+{
+    return showLoginAtStartup();
+}
+
+[[nodiscard]] float getCameraShakeMultiplier()
+{
+    return cameraShakeMultiplier();
+}
+
+[[nodiscard]] float getAngleTiltIntensity()
+{
+    return angleTiltIntensity();
+}
+
+[[nodiscard]] bool getShowPlayerTrail()
+{
+    return showPlayerTrail();
+}
+
+[[nodiscard]] unsigned int getPlayerTrailAlpha()
+{
+    return playerTrailAlpha();
+}
+
+[[nodiscard]] float getPlayerTrailScale()
+{
+    return playerTrailScale();
+}
+
+[[nodiscard]] float getPlayerTrailDecay()
+{
+    return playerTrailDecay();
+}
+
+[[nodiscard]] bool getPlayerTrailHasSwapColor()
+{
+    return playerTrailHasSwapColor();
+}
+
+[[nodiscard]] bool getShowSwapParticles()
+{
+    return showSwapParticles();
+}
+
+[[nodiscard]] bool getPlaySwapReadySound()
+{
+    return playSwapReadySound();
+}
+
+[[nodiscard]] bool getShowSwapBlinkingEffect()
+{
+    return showSwapBlinkingEffect();
 }
 
 //***********************************************************

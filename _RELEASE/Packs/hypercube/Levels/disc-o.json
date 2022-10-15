@@ -3,10 +3,10 @@
     "name": "disc-o",
     "description": "dance!",
     "author": "vittorio romeo",
-    "menuPriority": 10,
+    "menuPriority": 40,
     "selectable": true,
     "styleId": "disc-o",
     "musicId": "dischipo",
     "luaFile": "Scripts/Levels/disc-o.lua",
-    "difficultyMults": [1.6, 2.2, 2.8, 0.6, 0.4]
+    "difficultyMults": [2, 2.8, 0.5]
 }

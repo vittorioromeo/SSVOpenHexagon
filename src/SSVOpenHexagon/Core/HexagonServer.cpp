@@ -4,18 +4,22 @@
 
 #include "SSVOpenHexagon/Core/HexagonServer.hpp"
 
-#include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/Match.hpp"
-#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
+
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
+#include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/StringToCharVec.hpp"
+#include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
+
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
@@ -27,14 +31,16 @@
 #include <boost/pfr.hpp>
 
 #include <chrono>
-#include <csignal>
-#include <cstdlib>
 #include <optional>
-#include <cstdio>
 #include <sstream>
 #include <string>
 #include <type_traits>
 #include <stdexcept>
+
+#include <csignal>
+#include <cstdlib>
+#include <cstdint>
+#include <cstdio>
 
 static auto& slog(const char* funcName)
 {
@@ -172,9 +178,9 @@ template <typename T>
 {
     return sendEncrypted(c, //
         STCPLoginSuccess{
-            .loginToken = static_cast<sf::Uint64>(loginToken), //
-            .loginName = loginName                             //
-        }                                                      //
+            .loginToken = static_cast<std::uint64_t>(loginToken), //
+            .loginName = loginName                                //
+        }                                                         //
     );
 }
 
@@ -243,11 +249,12 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient& c,
-    const GameVersion& gameVersion,
+    const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
     const std::vector<std::string> supportedLevelValidators)
 {
     return sendEncrypted(c, //
         STCPServerStatus{
+            .protocolVersion = protocolVersion,                  //
             .gameVersion = gameVersion,                          //
             .supportedLevelValidators = supportedLevelValidators //
         }                                                        //
@@ -311,7 +318,7 @@ bool HexagonServer::runIteration_Control()
         return fail();
     }
 
-    sf::IpAddress senderIp;
+    std::optional<sf::IpAddress> senderIp;
     unsigned short senderPort;
 
     if(_controlSocket.receive(_packetBuffer, senderIp, senderPort) !=
@@ -327,7 +334,7 @@ bool HexagonServer::runIteration_Control()
         return fail("Failure decoding control packet");
     }
 
-    SSVOH_SLOG << "Received control packet from '" << senderIp << ':'
+    SSVOH_SLOG << "Received control packet from '" << senderIp.value() << ':'
                << senderPort << "', contents: '" << controlMsg << "'\n";
 
     if(controlMsg.empty())
@@ -369,6 +376,8 @@ bool HexagonServer::runIteration_Control()
         }
     }
 
+// TODO (P1): conditionally enable in debug mode
+#if 0
     if(splitted[0] == "db")
     {
         if(splitted.size() < 2)
@@ -377,7 +386,6 @@ bool HexagonServer::runIteration_Control()
 
             return true;
         }
-
         if(splitted[1] == "exec")
         {
             if(splitted.size() < 3)
@@ -405,6 +413,7 @@ bool HexagonServer::runIteration_Control()
             }
         }
     }
+#endif
 
     return true;
 }
@@ -416,18 +425,19 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
         return false;
     }
 
-    SSVOH_SLOG_VERBOSE << "Listener is ready\n";
+    SSVOH_SLOG << "Listener is ready, attempting to accept new client\n";
 
     ConnectedClient& potentialClient =
-        _connectedClients.emplace_back(Clock::now());
+        _connectedClients.emplace_back(Utils::SCClock::now());
 
     sf::TcpSocket& potentialSocket = potentialClient._socket;
     potentialSocket.setBlocking(true);
 
     const void* potentialClientAddress = static_cast<void*>(&potentialClient);
 
+    // TODO (P1): potential hanging spot?
     // The listener is ready: there is a pending connection
-    if(_listener.accept(potentialSocket) != sf::Socket::Done)
+    if(_listener.accept(potentialSocket) != sf::Socket::Status::Done)
     {
         SSVOH_SLOG << "Listener failed to accept new client '"
                    << potentialClientAddress << "'\n";
@@ -442,7 +452,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     potentialClient._state = ConnectedClient::State::Connected;
 
-    // Add the new client to the selector so that we will  be notified when he
+    // Add the new client to the selector so that we will be notified when he
     // sends something
     _socketSelector.add(potentialSocket);
     return true;
@@ -466,14 +476,16 @@ void HexagonServer::runIteration_LoopOverSockets()
 
         // The client has sent some data, we can receive it
         _packetBuffer.clear();
-        if(clientSocket.receive(_packetBuffer) == sf::Socket::Done)
+
+        // TODO (P1): potential hanging spot?
+        if(clientSocket.receive(_packetBuffer) == sf::Socket::Status::Done)
         {
             SSVOH_SLOG_VERBOSE << "Successfully received data from client '"
                                << clientAddr << "'\n";
 
             if(processPacket(connectedClient, _packetBuffer))
             {
-                connectedClient._lastActivity = Clock::now();
+                connectedClient._lastActivity = Utils::SCClock::now();
                 connectedClient._consecutiveFailures = 0;
 
                 continue;
@@ -503,7 +515,7 @@ void HexagonServer::runIteration_PurgeClients()
 {
     constexpr std::chrono::duration maxInactivity = std::chrono::seconds(60);
 
-    const TimePoint now = Clock::now();
+    const Utils::SCTimePoint now = Utils::SCClock::now();
 
     for(auto it = _connectedClients.begin(); it != _connectedClients.end();
         ++it)
@@ -533,22 +545,23 @@ void HexagonServer::runIteration_PurgeClients()
     }
 }
 
-template <typename Duration>
+template <typename TDuration>
 [[nodiscard]] static bool checkAndUpdateLastElapsed(
-    HexagonServer::TimePoint& last, const Duration duration)
+    Utils::SCTimePoint& last, const TDuration duration)
 {
-    if(HexagonServer::Clock::now() - last < duration)
+    if(Utils::SCClock::now() - last < duration)
     {
         return false;
     }
 
-    last = HexagonServer::Clock::now();
+    last = Utils::SCClock::now();
     return true;
 }
 
 void HexagonServer::runIteration_PurgeTokens()
 {
-    if(!checkAndUpdateLastElapsed(_lastTokenPurge, std::chrono::seconds(1800)))
+    if(!checkAndUpdateLastElapsed(
+           _lastTokenPurge, std::chrono::seconds(3600) /* 1 hour */))
     {
         return;
     }
@@ -565,16 +578,18 @@ void HexagonServer::runIteration_PurgeTokens()
             ConnectedClient& c = *it;
             const void* clientAddr = static_cast<void*>(&c);
 
-            if(c._loginData.has_value())
+            if(!c._loginData.has_value())
             {
-                if(c._loginData->_userId == lt.userId)
-                {
-                    SSVOH_SLOG << "Kicking stale token client '" << clientAddr
-                               << "'\n";
+                continue;
+            }
 
-                    kickAndRemoveClient(c);
-                    it = _connectedClients.erase(it);
-                }
+            if(c._loginData->_userId == lt.userId)
+            {
+                SSVOH_SLOG << "Kicking stale token client '" << clientAddr
+                           << "'\n";
+
+                kickAndRemoveClient(c);
+                it = _connectedClients.erase(it);
             }
         }
     }
@@ -595,7 +610,7 @@ void HexagonServer::runIteration_FlushLogs()
 }
 
 [[nodiscard]] bool HexagonServer::validateLogin(
-    ConnectedClient& c, const char* context, const sf::Uint64 ctspLoginToken)
+    ConnectedClient& c, const char* context, const std::uint64_t ctspLoginToken)
 {
     const void* clientAddr = static_cast<void*>(&c);
 
@@ -621,11 +636,11 @@ void HexagonServer::runIteration_FlushLogs()
 }
 
 [[nodiscard]] bool HexagonServer::processReplay(
-    ConnectedClient& c, const sf::Uint64 loginToken, const replay_file& rf)
+    ConnectedClient& c, const std::uint64_t loginToken, const replay_file& rf)
 {
     const void* clientAddr = static_cast<void*>(&c);
 
-    const TimePoint receiveTime = Clock::now();
+    const Utils::SCTimePoint receiveTime = Utils::SCClock::now();
 
     if(!validateLogin(c, "replay", loginToken))
     {
@@ -667,8 +682,6 @@ void HexagonServer::runIteration_FlushLogs()
 
     SSVOH_SLOG << "Processing replay from client '" << clientAddr
                << "' for level '" << levelValidator << "'\n";
-
-    // TODO (P1): sometimes this seems to hang... should figure out why
 
     const std::optional<HexagonGame::GameExecutionResult> ger =
         _hexagonGame.runReplayUntilDeathAndGetScore(
@@ -716,7 +729,7 @@ void HexagonServer::runIteration_FlushLogs()
 
     SSVOH_SLOG << "Replay valid, adding to database\n";
 
-    Database::addScore(levelValidator, Database::nowTimestamp(),
+    Database::addScore(levelValidator, Utils::nowTimestamp(),
         c._loginData->_steamId, replayPlayedTime);
 
     return true;
@@ -1002,12 +1015,10 @@ void HexagonServer::printCTSPDataVerbose(
 
             Database::removeAllLoginTokensForUser(user->id);
 
-            static_assert(std::is_same_v<Clock, Database::Clock>);
-
             Database::addLoginToken( //
                 Database::LoginToken{
                     .userId = user->id,
-                    .timestamp = Database::nowTimestamp(),
+                    .timestamp = Utils::nowTimestamp(),
                     .token = loginToken //
                 });
 
@@ -1210,8 +1221,8 @@ void HexagonServer::printCTSPDataVerbose(
                        << "' started game for level '" << lv << "'\n";
 
             c._gameStatus = ConnectedClient::GameStatus{
-                ._startTP = Clock::now(), //
-                ._levelValidator = lv     //
+                ._startTP = Utils::SCClock::now(), //
+                ._levelValidator = lv              //
             };
 
             return true;
@@ -1253,8 +1264,8 @@ void HexagonServer::printCTSPDataVerbose(
                 return true;
             }
 
-            return sendServerStatus(
-                c, GAME_VERSION, _supportedLevelValidatorsVector);
+            return sendServerStatus(c, PROTOCOL_VERSION, GAME_VERSION,
+                _supportedLevelValidatorsVector);
         },
 
         [&](const CTSPReady& ctsp)
@@ -1319,7 +1330,7 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
       _running{true},
       _verbose{false},
       _serverPSKeys{generateSodiumPSKeys()},
-      _lastTokenPurge{Clock::now()}
+      _lastTokenPurge{Utils::SCClock::now()}
 {
     const auto sKeyPublic = sodiumKeyToString(_serverPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_serverPSKeys.keySecret);
@@ -1335,12 +1346,6 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
     // Check initialization failures
 #define SSVOH_SLOG_INIT_ERROR \
     SSVOH_SLOG_ERROR << "Failure initializing server: "
-
-    if(_serverIp == sf::IpAddress::None)
-    {
-        SSVOH_SLOG_INIT_ERROR << "Invalid IP '" << _serverIp << "'\n";
-        return;
-    }
 
     if(!initializeControlSocket())
     {

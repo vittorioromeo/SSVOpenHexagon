@@ -2,20 +2,29 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+
+#include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
+
+#include "SSVOpenHexagon/Core/CustomTimeline.hpp"
+#include "SSVOpenHexagon/Core/CustomTimelineHandle.hpp"
+#include "SSVOpenHexagon/Core/CustomTimelineManager.hpp"
+#include "SSVOpenHexagon/Core/LuaScripting.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
-#include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
-#include "SSVOpenHexagon/Core/LuaScripting.hpp"
+#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
+#include "SSVOpenHexagon/Utils/Timeline2.hpp"
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
@@ -34,7 +43,7 @@ Utils::LuaMetadataProxy addLuaFn(
     Lua::LuaContext& lua, const std::string& name, F&& f)
 {
     // TODO (P2): reduce instantiations by using captureless lambdas
-    lua.writeVariable(name, std::forward<F>(f));
+    lua.writeVariable(name, SSVOH_FWD(f));
     return Utils::LuaMetadataProxy{
         Utils::TypeWrapper<F>{}, LuaScripting::getMetadata(), name};
 }
@@ -53,6 +62,14 @@ void HexagonGame::initLua_Utils()
         .arg("value")
         .doc("Flash the screen with `$0` intensity (from 0 to 255).");
 
+    addLuaFn(lua, "u_setFlashColor", //
+        [this](int r, int g, int b) { initFlashEffect(r, g, b); })
+        .arg("r")
+        .arg("g")
+        .arg("b")
+        .doc("Set the color of the flash effect to `{$0, $1, $2}`.");
+    // ------------------------------------------------------------------------
+
     addLuaFn(lua, "u_log", //
         [this](const std::string& mLog)
         {
@@ -62,38 +79,13 @@ void HexagonGame::initLua_Utils()
         .arg("message")
         .doc("Print out `$0` to the console.");
 
-    addLuaFn(lua, "u_execScript", //
-        [this](const std::string& mScriptName)
-        {
-            runLuaFile(Utils::getDependentScriptFilename(
-                execScriptPackPathContext, levelData->packPath, mScriptName));
-        })
-        .arg("scriptFilename")
-        .doc("Execute the script located at `<pack>/Scripts/$0`.");
-
-    addLuaFn(lua, "u_execDependencyScript", //
-        [this](const std::string& mPackDisambiguator,
-            const std::string& mPackName, const std::string& mPackAuthor,
-            const std::string& mScriptName)
-        {
-            Utils::withDependencyScriptFilename(
-                [this](const std::string& filename) { runLuaFile(filename); },
-                execScriptPackPathContext, assets, getPackData(),
-                mPackDisambiguator, mPackName, mPackAuthor, mScriptName);
-        })
-        .arg("packDisambiguator")
-        .arg("packName")
-        .arg("packAuthor")
-        .arg("scriptFilename")
-        .doc(
-            "Execute the script provided by the dependee pack with "
-            "disambiguator `$0`, name `$1`, author `$2`, located at "
-            "`<dependeePack>/Scripts/$3`.");
-
     addLuaFn(lua, "u_isKeyPressed",
         [this](int mKey)
         {
-            // TODO (P2): this is not saved in replays. Deprecate?
+            raiseWarning("u_isKeyPressed",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace uses of this function with the "
+                "`onInput` callback.");
 
             return window != nullptr &&
                    window->getInputState()[ssvs::KKey(mKey)];
@@ -102,7 +94,8 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Return `true` if the keyboard key with code `$0` is being "
             "pressed, `false` otherwise. The key code must match the "
-            "definition of the SFML `sf::Keyboard::Key` enumeration.");
+            "definition of the SFML `sf::Keyboard::Key` enumeration. **This "
+            "function is deprecated and will be removed in a future version.");
 
     addLuaFn(lua, "u_haltTime", //
         [this](double mDuration)
@@ -126,7 +119,10 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_isMouseButtonPressed",
         [this](int mKey)
         {
-            // TODO (P2): this is not saved in replays. Deprecate?
+            raiseWarning("u_isMouseButtonPressed",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace uses of this function with the "
+                "`onInput` callback.");
 
             return window != nullptr &&
                    window->getInputState()[ssvs::MBtn(mKey)];
@@ -135,7 +131,9 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Return `true` if the mouse button with code `$0` is being "
             "pressed, `false` otherwise. The button code must match the "
-            "definition of the SFML `sf::Mouse::Button` enumeration.");
+            "definition of the SFML `sf::Mouse::Button` enumeration. **This "
+            "function is deprecated and will be removed in a future "
+            "version.");
 
     addLuaFn(lua, "u_isFastSpinning", //
         [this] { return status.fastSpin > 0; })
@@ -347,6 +345,18 @@ void HexagonGame::initLua_AudioControl()
             "applies to the particular level where this function is called.");
 }
 
+static void waitUntilSImpl(const double mDuration,
+    const HexagonGameStatus& status, Utils::timeline2& timeline)
+{
+    timeline.append_wait_until_fn(
+        [&status, mDuration]
+        {
+            return status.getLevelStartTP() +
+                   std::chrono::milliseconds(
+                       static_cast<int>(mDuration * 1000.0));
+        });
+}
+
 void HexagonGame::initLua_MainTimeline()
 {
     addLuaFn(lua, "t_eval",
@@ -380,15 +390,7 @@ void HexagonGame::initLua_MainTimeline()
 
     addLuaFn(lua, "t_waitUntilS", //
         [this](double mDuration)
-        {
-            timeline.append_wait_until_fn(
-                [this, mDuration]
-                {
-                    return status.getLevelStartTP() +
-                           std::chrono::milliseconds(
-                               static_cast<int>(mDuration * 1000.0));
-                });
-        })
+        { waitUntilSImpl(mDuration, status, timeline); })
         .arg("duration")
         .doc(
             "*Add to the main timeline*: wait until the timer reaches `$0` "
@@ -447,15 +449,7 @@ void HexagonGame::initLua_EventTimeline()
 
     addLuaFn(lua, "e_waitUntilS", //
         [this](double mDuration)
-        {
-            eventTimeline.append_wait_until_fn(
-                [this, mDuration]
-                {
-                    return status.getLevelStartTP() +
-                           std::chrono::milliseconds(
-                               static_cast<int>(mDuration * 1000.0));
-                });
-        })
+        { waitUntilSImpl(mDuration, status, eventTimeline); })
         .arg("duration")
         .doc(
             "*Add to the event timeline*: wait until the timer reaches `$0` "
@@ -509,6 +503,148 @@ void HexagonGame::initLua_EventTimeline()
     addLuaFn(lua, "e_clearMessages", //
         [this] { clearMessages(); })
         .doc("Remove all previously scheduled messages.");
+}
+
+void HexagonGame::initLua_CustomTimelines()
+{
+    addLuaFn(lua, "ct_create", //
+        [this]() -> CustomTimelineHandle
+        { return _customTimelineManager.create(); })
+        .doc(
+            "Create a new custom timeline and return a integer handle "
+            "to it.");
+
+
+    const auto checkHandle = [this](CustomTimelineHandle cth,
+                                 const char* title) -> bool
+    {
+        if(_customTimelineManager.isHandleValid(cth))
+        {
+            return true;
+        }
+
+        ssvu::lo("CustomTimelineManager")
+            << "Invalid handle '" << cth << "' during '" << title << "'\n";
+
+        return false;
+    };
+
+    addLuaFn(lua, "ct_eval",
+        [checkHandle, this](CustomTimelineHandle cth, const std::string& mCode)
+        {
+            if(!checkHandle(cth, "ct_eval"))
+            {
+                return;
+            }
+
+            _customTimelineManager.get(cth)._timeline.append_do(
+                [=, this] { Utils::runLuaCode(lua, mCode); });
+        })
+        .arg("handle")
+        .arg("code")
+        .doc(
+            "*Add to the custom timeline with handle `$0`*: evaluate the Lua "
+            "code specified in `$1`.");
+
+    addLuaFn(lua, "ct_kill", //
+        [checkHandle, this](CustomTimelineHandle cth)
+        {
+            if(!checkHandle(cth, "ct_kill"))
+            {
+                return;
+            }
+
+            _customTimelineManager.get(cth)._timeline.append_do(
+                [this] { death(true); });
+        })
+        .arg("handle")
+        .doc("*Add to the custom timeline with handle `$0`*: kill the player.");
+
+    addLuaFn(lua, "ct_stopTime", //
+        [checkHandle, this](CustomTimelineHandle cth, double mDuration)
+        {
+            if(!checkHandle(cth, "ct_stopTime"))
+            {
+                return;
+            }
+
+            _customTimelineManager.get(cth)._timeline.append_do([=, this]
+                { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
+        })
+        .arg("handle")
+        .arg("duration")
+        .doc(
+            "*Add to the custom timeline with handle `$0`*: pause the game "
+            "timer for `$1` frames (under the assumption of a 60 FPS frame "
+            "rate).");
+
+    addLuaFn(lua, "ct_stopTimeS", //
+        [checkHandle, this](CustomTimelineHandle cth, double mDuration)
+        {
+            if(!checkHandle(cth, "ct_stopTimeS"))
+            {
+                return;
+            }
+
+            _customTimelineManager.get(cth)._timeline.append_do(
+                [=, this] { status.pauseTime(mDuration); });
+        })
+        .arg("handle")
+        .arg("duration")
+        .doc(
+            "*Add to the custom timeline with handle `$0`*: pause the game "
+            "timer for `$1` seconds.");
+
+    addLuaFn(lua, "ct_wait",
+        [checkHandle, this](CustomTimelineHandle cth, double mDuration)
+        {
+            if(!checkHandle(cth, "ct_wait"))
+            {
+                return;
+            }
+
+            _customTimelineManager.get(cth)._timeline.append_wait_for_sixths(
+                mDuration);
+        })
+        .arg("handle")
+        .arg("duration")
+        .doc(
+            "*Add to the custom timeline with handle `$0`*: wait for `$1` "
+            "frames (under the assumption of a 60 FPS frame rate).");
+
+    addLuaFn(lua, "ct_waitS", //
+        [checkHandle, this](CustomTimelineHandle cth, double mDuration)
+        {
+            if(!checkHandle(cth, "ct_waitS"))
+            {
+                return;
+            }
+
+            _customTimelineManager.get(cth)._timeline.append_wait_for_seconds(
+                mDuration);
+        })
+        .arg("handle")
+        .arg("duration")
+        .doc(
+            "*Add to the custom timeline with handle `$0`*: wait for `$1` "
+            "seconds.");
+
+    addLuaFn(lua, "ct_waitUntilS", //
+        [checkHandle, this](CustomTimelineHandle cth, double mDuration)
+        {
+            if(!checkHandle(cth, "ct_waitUntilS"))
+            {
+                return;
+            }
+
+            waitUntilSImpl(
+                mDuration, status, _customTimelineManager.get(cth)._timeline);
+        })
+        .arg("handle")
+        .arg("duration")
+        .doc(
+            "*Add to the custom timeline with handle `$0`*: wait until the "
+            "timer reaches `$1` seconds.");
 }
 
 template <typename T>
@@ -571,7 +707,8 @@ void HexagonGame::initLua_LevelControl()
     addLuaFn(lua, "l_setRotation", //
         [this](float mValue)
         {
-            // TODO (P2): might break replays?
+            // TODO (P2): might break replays if someone uses this to control
+            // game logic
             if(backgroundCamera.has_value())
             {
                 backgroundCamera->setRotation(mValue);
@@ -583,7 +720,8 @@ void HexagonGame::initLua_LevelControl()
     addLuaFn(lua, "l_getRotation", //
         [this]
         {
-            // TODO (P2): might break replays?
+            // TODO (P2): might break replays if someone uses this to control
+            // game logic
             return backgroundCamera.has_value()
                        ? backgroundCamera->getRotation()
                        : 0.f;
@@ -991,17 +1129,40 @@ void HexagonGame::initLua_Deprecated()
             "Remove all previously scheduled messages. "
             "**This function is deprecated and will be removed in a future "
             "version. Please use e_clearMessages instead!**");
+
+    addLuaFn(lua, "l_forceSetPulse",
+        [this](const float mValue)
+        {
+            status.pulse = mValue;
+            refreshPulse();
+        })
+        .doc("Immediately sets the current pulse value to `$0`.");
+
+    addLuaFn(lua, "l_forceSetBeatPulse",
+        [this](const float mValue)
+        {
+            status.beatPulse = mValue;
+            refreshBeatPulse();
+            player.updatePosition(status.radius);
+        })
+        .doc("Immediately sets the current beat pulse value to `$0`.");
 }
 
 void HexagonGame::initLua()
 {
-    LuaScripting::init(lua, rng, false /* inMenu */, cwManager, levelStatus,
-        status, styleData);
+    LuaScripting::init(
+        lua, rng, false /* inMenu */, cwManager, levelStatus, status, styleData,
+        assets,
+        [this](const std::string& filename) -> void { runLuaFile(filename); },
+        execScriptPackPathContext,
+        [this]() -> const std::string& { return levelData->packPath; },
+        [this]() -> const PackData& { return getPackData(); });
 
     initLua_Utils();
     initLua_AudioControl();
     initLua_MainTimeline();
     initLua_EventTimeline();
+    initLua_CustomTimelines();
     initLua_LevelControl();
     initLua_StyleControl();
     initLua_WallCreation();

@@ -308,18 +308,6 @@ void CCustomWallManager::setVertexColor4Same(
     _customWalls[cwHandle].setVertexColor(3, color);
 }
 
-// TODO (P2): implement
-[[nodiscard]] bool CCustomWallManager::isOverlappingPlayer(
-    const CCustomWallHandle cwHandle)
-{
-    if(!checkValidHandle(cwHandle, "Attempted to check player overlap"))
-    {
-        return false;
-    }
-
-    return false; // _customWalls[cwHandle].isOverlappingPlayer();
-}
-
 void CCustomWallManager::clear()
 {
     _freeHandles.clear();
@@ -329,7 +317,7 @@ void CCustomWallManager::clear()
     _count = 0;
 }
 
-void CCustomWallManager::draw(Utils::FastVertexVectorQuads& wallQuads)
+void CCustomWallManager::draw(Utils::FastVertexVectorTris& wallQuads)
 {
     for(CCustomWallHandle h = 0; h < (int)_customWalls.size(); ++h)
     {

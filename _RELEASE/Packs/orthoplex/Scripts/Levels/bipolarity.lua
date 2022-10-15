@@ -13,6 +13,8 @@ lastRotationDir = 0
 swapped = false
 rotSpeed = 0.25
 rotSpeedMax = 0.9
+achievementUnlocked = false
+hardAchievementUnlocked = false
 
 FloatingWall = {}
 FloatingWall.__index = FloatingWall
@@ -149,7 +151,15 @@ function addPattern(mKey)
         end
 
         e_eval([[s_setCapColorMain()]])
-        e_eval([[u_setFlashEffect(100)]])
+
+        if style == 0 then
+            e_eval([[u_setFlashColor(255, 255, 255)]])
+            e_eval([[u_setFlashEffect(100)]])
+        else
+            e_eval([[u_setFlashColor(0, 0, 0)]])
+            e_eval([[u_setFlashEffect(215)]])
+        end
+
         e_wait(beat * 2)
         e_eval([[s_setCapColorByIndex(0)]])
         --        t_wait(10 * (dm ^ 0.2))
@@ -170,7 +180,7 @@ function addPattern(mKey)
             setDirection(direction + getRandomDir())
         end
 
-        -- local delay = getPerfectDelayDM(THICKNESS) * 5.6
+        -- local delay = getPerfectDelay(THICKNESS) * 5.6
         -- t_wait(delay)
 
         beat = getBPMToBeatPulseDelay(180) / getMusicDMSyncFactor()
@@ -296,6 +306,16 @@ function onUpdate(mFrameTime)
                 l_setSpeedMult(l_getSpeedMax())
             end
         end
+    end
+
+    if not achievementUnlocked and l_getLevelTime() > 45 and u_getDifficultyMult() >= 1 then
+        steam_unlockAchievement("a36_bipolarity")
+        achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 30 and u_getDifficultyMult() > 1.5 then
+        steam_unlockAchievement("a37_bipolarity_hard")
+        hardAchievementUnlocked = true
     end
 end
 

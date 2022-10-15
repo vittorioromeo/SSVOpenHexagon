@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
@@ -34,7 +35,6 @@
 #include <chrono>
 #include <cctype>
 #include <functional>
-#include <memory>
 #include <optional>
 #include <string_view>
 #include <string>
@@ -104,7 +104,8 @@ private:
     Steam::steam_manager& steamManager;
     Discord::discord_manager& discordManager;
     HGAssets& assets;
-    sf::Font& imagine;
+    sf::Font& openSquare;
+    sf::Font& openSquareBold;
     Audio& audio;
     ssvs::GameState game;
     ssvs::GameWindow& window;
@@ -173,6 +174,7 @@ private:
     States state;
     int packChangeDirection;
 
+    void leftRightActionImpl(bool left);
     void leftAction();
     void rightAction();
     void upAction();
@@ -188,6 +190,7 @@ private:
 
     [[nodiscard]] ssvms::Menu* getCurrentMenu() noexcept;
     [[nodiscard]] bool isInMenu() noexcept;
+    void ignoreInputsAfterMenuExec();
 
     //---------------------------------------
     // State changes
@@ -236,10 +239,11 @@ private:
     MenuFont txtProf;
     MenuFont txtLoadBig;
     MenuFont txtLoadSmall;
+    MenuFont txtRandomTip;
     MenuFont txtMenuBig;
     MenuFont txtMenuSmall;
+    MenuFont txtMenuTiny;
     MenuFont txtProfile;
-    MenuFont txtRandomTip;
     MenuFont txtInstructionsBig;
     MenuFont txtInstructionsMedium;
     MenuFont txtInstructionsSmall;
@@ -254,13 +258,10 @@ private:
     sf::Color menuSelectionColor;
     sf::Color dialogBoxTextColor;
     Utils::FastVertexVectorTris menuBackgroundTris;
-    Utils::FastVertexVectorQuads menuQuads;
+    Utils::FastVertexVectorTris menuQuads;
 
     // Mouse control
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = Clock::time_point;
-    using Duration = Clock::duration;
-    TimePoint lastMouseClick{};
+    HRTimePoint lastMouseClick{};
     bool mouseHovering{false};
     bool mouseWasPressed{false};
     bool mousePressed{false};
@@ -327,11 +328,11 @@ private:
         const sf::Color& color);
 
     void drawMainSubmenus(
-        const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
+        const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
         const float indent);
 
     void drawSubmenusSmall(
-        const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
+        const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
         const float indent);
 
     // Load menu
@@ -421,6 +422,10 @@ private:
     static inline constexpr float baseScrollSpeed{30.f};
     float scrollSpeed{baseScrollSpeed};
 
+    // Login at startup
+    bool mustShowLoginAtStartup{true};
+    void openLoginDialogBoxAndStartLoginProcess();
+
     // First timer tips
     bool showFirstTimeTips{false};
     bool mustShowFTTMainMenu{true};
@@ -450,8 +455,12 @@ private:
 
     void checkWindowTopScroll(
         const float scroll, std::function<void(const float)> action);
+    bool checkWindowTopScrollWithResult(
+        const float scroll, std::function<void(const float)> action);
 
     void checkWindowBottomScroll(
+        const float scroll, std::function<void(const float)> action);
+    bool checkWindowBottomScrollWithResult(
         const float scroll, std::function<void(const float)> action);
 
     void scrollName(std::string& text, float& scroller);
@@ -557,6 +566,9 @@ private:
     void showInputDialogBox(const std::string& msg);
     void showInputDialogBoxNice(const std::string& title,
         const std::string& inputType, const std::string& extra = "");
+    void showInputDialogBoxNiceWithDefault(const std::string& title,
+        const std::string& inputType, const std::string& def,
+        const std::string& extra = "");
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,

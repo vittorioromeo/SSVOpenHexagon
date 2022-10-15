@@ -1,0 +1,12 @@
+{
+    "id": "musicsync",
+    "name": "Music Sync",
+    "description": "Event synchronization to global music timeline",
+    "author": "fentras",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "cw",
+    "musicId": "impactRover",
+    "luaFile": "Scripts/Levels/music_sync.lua",
+    "difficultyMults": []
+}

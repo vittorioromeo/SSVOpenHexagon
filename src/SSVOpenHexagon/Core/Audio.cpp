@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
+#include <SFML/System/Time.hpp>
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
 #include <SSVUtils/Core/Log/Log.hpp>
@@ -105,6 +106,42 @@ public:
         }
     }
 
+    void setMusicPlayingOffsetSeconds(const float seconds)
+    {
+        if(_music.has_value())
+        {
+            _music->setPlayingOffset(sf::seconds(seconds));
+        }
+    }
+
+    void setMusicPlayingOffsetMilliseconds(const int milliseconds)
+    {
+        if(_music.has_value())
+        {
+            _music->setPlayingOffset(sf::milliseconds(milliseconds));
+        }
+    }
+
+    [[nodiscard]] float getMusicPlayingOffsetSeconds() const
+    {
+        if(_music.has_value())
+        {
+            return _music->getPlayingOffset().asSeconds();
+        }
+
+        return 0.f;
+    }
+
+    [[nodiscard]] int getMusicPlayingOffsetMilliseconds() const
+    {
+        if(_music.has_value())
+        {
+            return _music->getPlayingOffset().asMilliseconds();
+        }
+
+        return 0;
+    }
+
     void stopSounds()
     {
         _soundPlayer.stop();
@@ -166,7 +203,7 @@ public:
         }
 
         _music->setLoop(true);
-        _music->setPlayingOffset(sf::seconds(playingOffsetSeconds));
+        setMusicPlayingOffsetSeconds(playingOffsetSeconds);
         resumeMusic();
 
         return true;
@@ -227,6 +264,26 @@ void Audio::pauseMusic()
 void Audio::stopMusic()
 {
     impl().stopMusic();
+}
+
+void Audio::setMusicPlayingOffsetSeconds(const float seconds)
+{
+    impl().setMusicPlayingOffsetSeconds(seconds);
+}
+
+void Audio::setMusicPlayingOffsetMilliseconds(const int milliseconds)
+{
+    impl().setMusicPlayingOffsetMilliseconds(milliseconds);
+}
+
+[[nodiscard]] float Audio::getMusicPlayingOffsetSeconds() const
+{
+    return impl().getMusicPlayingOffsetSeconds();
+}
+
+[[nodiscard]] int Audio::getMusicPlayingOffsetMilliseconds() const
+{
+    return impl().getMusicPlayingOffsetMilliseconds();
 }
 
 void Audio::stopSounds()

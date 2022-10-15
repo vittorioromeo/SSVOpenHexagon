@@ -9,25 +9,27 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
+
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Imgui.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 
 #include <sodium.h>
 
-#include <imgui.h>
-#include <imgui-SFML.h>
-
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Log/Log.inl>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+
+#include <SFML/Graphics/Image.hpp>
 
 #include <csignal>
 #include <cstdio>
@@ -64,7 +66,7 @@ void createFolderIfNonExistant(const std::string& folderName)
 {
     const ssvu::FileSystem::Path path{folderName};
 
-    if(path.exists<ssvufs::Type::Folder>())
+    if(path.isFolder())
     {
         return;
     }
@@ -85,7 +87,7 @@ struct ParsedArgs
     bool server{false};
 };
 
-ParsedArgs parseArgs(const int argc, char* argv[])
+[[nodiscard]] ParsedArgs parseArgs(const int argc, char* argv[])
 {
     ParsedArgs result;
 
@@ -134,18 +136,18 @@ ParsedArgs parseArgs(const int argc, char* argv[])
     return result;
 }
 
-std::string makeWindowTitle()
+[[nodiscard]] std::string makeWindowTitle()
 {
     return hg::Utils::concat("Open Hexagon ", hg::GAME_VERSION_STR,
         " - by Vittorio Romeo - https://vittorioromeo.info");
 }
 
-std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
-    const std::vector<std::string>& args)
+[[nodiscard]] std::optional<std::string>
+getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 {
     for(const std::string& arg : args)
     {
-        if(arg.find(".ohreplay.gz") != std::string::npos)
+        if(arg.find(".ohr.z") != std::string::npos)
         {
             return arg;
         }
@@ -196,8 +198,7 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
 {
     hg::Steam::steam_manager steamManager;
 
-    // TODO (P0): tries to use X11 server, fix.
-    // hg::Config::loadConfig({} /* overrideIds */);
+    hg::Config::loadConfig({} /* overrideIds */);
 
     hg::HGAssets assets{
         &steamManager,      //
@@ -213,10 +214,11 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
         nullptr /* client */          //
     };
 
+    // TODO (P0): handle `resolve` errors
     hg::HexagonServer hs{
         assets,                                                          //
         hg,                                                              //
-        hg::Config::getServerIp(),                                       //
+        sf::IpAddress::resolve(hg::Config::getServerIp()).value(),       //
         hg::Config::getServerPort(),                                     //
         hg::Config::getServerControlPort(),                              //
         hg::Utils::toUnorderedSet(hg::Config::getServerLevelWhitelist()) //
@@ -271,12 +273,13 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
     // ------------------------------------------------------------------------
     // Load configuration (and overrides)
     hg::Config::loadConfig(args);
-    HG_SCOPE_GUARD(
-        {
-            ssvu::lo("::main") << "Saving config...\n";
-            hg::Config::saveConfig();
-            ssvu::lo("::main") << "Done saving config\n";
-        });
+    hg::Config::reapplyResolution();
+
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving config...\n";
+        hg::Config::saveConfig();
+        ssvu::lo("::main") << "Done saving config\n";
+    });
 
     //
     //
@@ -296,6 +299,24 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
         window->setVsync(hg::Config::getVsync());
         window->setFPSLimited(hg::Config::getLimitFPS());
         window->setMaxFPS(hg::Config::getMaxFPS());
+
+        {
+            const auto resetIcon = [&window]
+            {
+                sf::Image icon;
+                if(!icon.loadFromFile("Assets/icon.png"))
+                {
+                    ssvu::lo("::main") << "Failed to load icon image\n";
+                    return;
+                }
+
+                window->getRenderWindow().setIcon(
+                    {icon.getSize().x, icon.getSize().y}, icon.getPixelsPtr());
+            };
+
+            window->onRecreation += resetIcon;
+            resetIcon();
+        }
 
         // 240 ticks per second.
         window->setTimer<ssvs::TimerStatic>(
@@ -327,32 +348,33 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
     if(!headless)
     {
         SSVOH_ASSERT(window.has_value());
-        ImGui::SFML::Init(*window);
+        if(!hg::Imgui::initialize(*window))
+        {
+            ssvu::lo("::main") << "Failed to initialize ImGui...\n";
+        }
     }
 
-    HG_SCOPE_GUARD(
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Shutting down ImGui...\n";
+
+        if(!headless)
         {
-            ssvu::lo("::main") << "Shutting down ImGui...\n";
+            hg::Imgui::shutdown();
+        }
 
-            if(!headless)
-            {
-                ImGui::SFML::Shutdown();
-            }
-
-            ssvu::lo("::main") << "Done shutting down ImGui...\n";
-        });
+        ssvu::lo("::main") << "Done shutting down ImGui...\n";
+    });
 
     //
     //
     // ------------------------------------------------------------------------
     // Initialize assets
     hg::HGAssets assets{&steamManager, headless};
-    HG_SCOPE_GUARD(
-        {
-            ssvu::lo("::main") << "Saving all local profiles...\n";
-            assets.pSaveAll();
-            ssvu::lo("::main") << "Done saving all local profiles\n";
-        });
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving all local profiles...\n";
+        assets.pSaveAll();
+        ssvu::lo("::main") << "Done saving all local profiles\n";
+    });
 
     //
     //
@@ -360,12 +382,10 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
     // Initialize audio
     hg::Audio audio{
         //
-        [&assets](const std::string& assetId) -> sf::SoundBuffer* {
-            return assets.getSoundBuffer(assetId);
-        }, //
-        [&assets](const std::string& assetId) -> const std::string* {
-            return assets.getMusicPath(assetId);
-        } //
+        [&assets](const std::string& assetId) -> sf::SoundBuffer*
+        { return assets.getSoundBuffer(assetId); }, //
+        [&assets](const std::string& assetId) -> const std::string*
+        { return assets.getMusicPath(assetId); } //
     };
 
     audio.setSoundVolume(hg::Config::getSoundVolume());
@@ -373,8 +393,10 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
 
     // ------------------------------------------------------------------------
     // Initialize hexagon client
-    hg::HexagonClient hc{
-        steamManager, hg::Config::getServerIp(), hg::Config::getServerPort()};
+    // TODO (P0): handle `resolve` errors
+    hg::HexagonClient hc{steamManager,
+        sf::IpAddress::resolve(hg::Config::getServerIp()).value(),
+        hg::Config::getServerPort()};
 
     //
     //
@@ -445,7 +467,6 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
         const auto gotoMenu = [&]
         {
             mg->init(false /* mError */);
-
             window->setGameState(mg->getGame());
         };
 
@@ -607,15 +628,14 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Flush and save log (at the end of the scope)
-    HG_SCOPE_GUARD(
-        {
-            ssvu::lo("::main") << "Saving log to 'log.txt'...\n";
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving log to 'log.txt'...\n";
 
-            ssvu::lo().flush();
-            ssvu::saveLogToFile("log.txt");
+        ssvu::lo().flush();
+        ssvu::saveLogToFile("log.txt");
 
-            ssvu::lo("::main") << "Done saving log to 'log.txt'\n";
-        });
+        ssvu::lo("::main") << "Done saving log to 'log.txt'\n";
+    });
 
     //
     //

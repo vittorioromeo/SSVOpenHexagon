@@ -91,4 +91,15 @@ void withDependencyScriptFilename(
     std::vector<std::string>& execScriptPackPathContext,
     const std::string& currentPackPath, const std::string& mScriptName);
 
+void withDependencyShaderFilename(
+    const std::function<void(const std::string&)> f,
+    std::vector<std::string>& execScriptPackPathContext, HGAssets& assets,
+    const PackData& currentPack, const std::string& mPackDisambiguator,
+    const std::string& mPackName, const std::string& mPackAuthor,
+    const std::string& mShaderName);
+
+[[nodiscard]] std::string getDependentShaderFilename(
+    std::vector<std::string>& execScriptPackPathContext,
+    const std::string& currentPackPath, const std::string& mShaderName);
+
 } // namespace hg::Utils
