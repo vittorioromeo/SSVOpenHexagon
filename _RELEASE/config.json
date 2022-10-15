@@ -1,67 +1,65 @@
-
 {
-	"3D_enabled" : false,
-	"3D_max_depth" : 100,
-	"3D_multiplier" : 1.0,
-	"angle_tilt_intensity" : 1.0,
-	"antialiasing_level" : 4,
-	"auto_restart" : false,
-	"auto_zoom_factor" : true,
-	"beatpulse_enabled" : true,
-	"black_and_white" : false,
-	"camera_shake_multiplier" : 1.0,
-	"darken_uneven_background_chunk" : true,
-	"debug" : true,
-	"draw_text_outlines" : true,
-	"first_time_playing" : false,
-	"flash_enabled" : true,
-	"fullscreen" : true,
-	"fullscreen_auto_resolution" : false,
-	"fullscreen_height" : 1080,
-	"fullscreen_width" : 1920,
-	"invincible" : true,
-	"j_add_favorite" : 8,
-	"j_exit" : 2,
-	"j_favorite_menu" : 9,
-	"j_focus" : 4,
-	"j_force_restart" : 3,
-	"j_next" : 11,
-	"j_previous" : 10,
-	"j_replay" : 6,
-	"j_restart" : 0,
-	"j_screenshot" : 7,
-	"j_select" : 1,
-	"j_swap" : 5,
-	"joystick_deadzone" : 5.0,
-	"key_icons_scale" : 0.750,
-	"last_login_username" : "vee",
-	"limit_fps" : true,
-	"max_fps" : 200,
-	"music_speed_dm_sync" : true,
-	"music_speed_mult" : 1.0,
-	"music_volume" : 100.0,
-	"no_background" : false,
-	"no_music" : false,
-	"no_pulse" : false,
-	"no_rotation" : false,
-	"no_sound" : false,
-	"official" : false,
-	"pixel_multiplier" : 1,
-	"play_swap_ready_sound" : true,
-	"player_focus_speed" : 4.6250,
-	"player_size" : 7.300000190734863,
-	"player_speed" : 9.449999809265137,
-	"player_trail_alpha" : 35,
-	"player_trail_decay" : 3.0,
-	"player_trail_has_swap_color" : true,
-	"player_trail_scale" : 0.8999999761581421,
-	"pulse_enabled" : true,
-	"rotate_to_start" : false,
-	"save_last_login_username" : true,
-	"server_control_port" : 50506,
-	"server_ip" : "139.162.199.162",
-	"server_level_whitelist" : 
-	[
+	"3D_enabled": true,
+	"3D_max_depth": 100,
+	"3D_multiplier": 1.0,
+	"angle_tilt_intensity": 1.0,
+	"antialiasing_level": 4,
+	"auto_restart": false,
+	"auto_zoom_factor": true,
+	"beatpulse_enabled": true,
+	"black_and_white": false,
+	"camera_shake_multiplier": 1.0,
+	"darken_uneven_background_chunk": true,
+	"debug": false,
+	"draw_text_outlines": true,
+	"first_time_playing": false,
+	"flash_enabled": true,
+	"fullscreen": false,
+	"fullscreen_auto_resolution": false,
+	"fullscreen_height": 1080,
+	"fullscreen_width": 1920,
+	"invincible": false,
+	"j_add_favorite": 8,
+	"j_exit": 2,
+	"j_favorite_menu": 9,
+	"j_focus": 4,
+	"j_force_restart": 3,
+	"j_next": 11,
+	"j_previous": 10,
+	"j_replay": 6,
+	"j_restart": 0,
+	"j_screenshot": 7,
+	"j_select": 1,
+	"j_swap": 5,
+	"joystick_deadzone": 5.0,
+	"key_icons_scale": 0.750,
+	"last_login_username": "vee",
+	"limit_fps": true,
+	"max_fps": 200,
+	"music_speed_dm_sync": true,
+	"music_speed_mult": 1.0,
+	"music_volume": 100.0,
+	"no_background": false,
+	"no_music": false,
+	"no_pulse": true,
+	"no_rotation": false,
+	"no_sound": false,
+	"official": false,
+	"pixel_multiplier": 1,
+	"play_swap_ready_sound": true,
+	"player_focus_speed": 4.6250,
+	"player_size": 7.300000190734863,
+	"player_speed": 9.449999809265137,
+	"player_trail_alpha": 35,
+	"player_trail_decay": 3.0,
+	"player_trail_has_swap_color": true,
+	"player_trail_scale": 0.8999999761581421,
+	"pulse_enabled": true,
+	"rotate_to_start": false,
+	"save_last_login_username": true,
+	"server_control_port": 50506,
+	"server_ip": "139.162.199.162",
+	"server_level_whitelist": [
 		"ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_0.35",
 		"ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1",
 		"ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1.6",
@@ -145,126 +143,214 @@
 		"vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.001",
 		"vanitylevels_Vipre_Vanity_10006_troglodyte_m_1.002"
 	],
-	"server_port" : 50505,
-	"shaders_enabled" : true,
-	"show_fps" : true,
-	"show_key_icons" : false,
-	"show_level_info" : false,
-	"show_login_at_startup" : false,
-	"show_messages" : true,
-	"show_player_trail" : true,
-	"show_status_text" : true,
-	"show_swap_blinking_effect" : true,
-	"show_swap_particles" : true,
-	"show_timer" : true,
-	"show_tracked_variables" : true,
-	"sound_volume" : 100.0,
-	"t_down" : 
-	[
-		[ "kS" ],
-		[ "" ],
-		[ "" ],
-		[ "" ]
+	"server_port": 50505,
+	"shaders_enabled": true,
+	"show_fps": true,
+	"show_key_icons": false,
+	"show_level_info": true,
+	"show_login_at_startup": false,
+	"show_messages": true,
+	"show_player_trail": true,
+	"show_status_text": true,
+	"show_swap_blinking_effect": true,
+	"show_swap_particles": true,
+	"show_timer": true,
+	"show_tracked_variables": true,
+	"sound_volume": 100.0,
+	"t_down": [
+		[
+			"kS"
+		],
+		[
+			""
+		],
+		[
+			""
+		],
+		[
+			""
+		]
 	],
-	"t_exit" : 
-	[
-		[ "kT" ],
-		[ "bXButton2" ],
-		[ "" ],
-		[ "" ]
+	"t_exit": [
+		[
+			"kT"
+		],
+		[
+			"bXButton2"
+		],
+		[
+			""
+		],
+		[
+			""
+		]
 	],
-	"t_focus" : 
-	[
-		[ "kLShift" ],
-		[ "bXButton1" ],
-		[ "" ],
-		[ "" ]
+	"t_focus": [
+		[
+			"kLShift"
+		],
+		[
+			"bXButton1"
+		],
+		[
+			""
+		],
+		[
+			""
+		]
 	],
-	"t_force_restart" : 
-	[
-		[ "kUp" ],
-		[ "kR" ],
-		[ "" ],
-		[ "" ]
+	"t_force_restart": [
+		[
+			"kUp"
+		],
+		[
+			"kR"
+		],
+		[
+			""
+		],
+		[
+			""
+		]
 	],
-	"t_lua_console" : 
-	[
-		[ "kF1" ]
+	"t_lua_console": [
+		[
+			"kF1"
+		]
 	],
-	"t_next" : 
-	[
-		[ "kPageDown" ]
+	"t_next": [
+		[
+			"kPageDown"
+		]
 	],
-	"t_pause" : 
-	[
-		[ "kF2" ]
+	"t_pause": [
+		[
+			"kF2"
+		]
 	],
-	"t_previous" : 
-	[
-		[ "kPageUp" ]
+	"t_previous": [
+		[
+			"kPageUp"
+		]
 	],
-	"t_replay" : 
-	[
-		[ "kY" ],
-		[ "" ],
-		[ "" ],
-		[ "" ]
+	"t_replay": [
+		[
+			"kY"
+		],
+		[
+			""
+		],
+		[
+			""
+		],
+		[
+			""
+		]
 	],
-	"t_restart" : 
-	[
-		[ "kSpace" ],
-		[ "kEnter" ],
-		[ "bMiddle" ],
-		[ "" ]
+	"t_restart": [
+		[
+			"kSpace"
+		],
+		[
+			"kEnter"
+		],
+		[
+			"bMiddle"
+		],
+		[
+			""
+		]
 	],
-	"t_rotate_ccw" : 
-	[
-		[ "kA" ],
-		[ "kLeft" ],
-		[ "bLeft" ],
-		[ "" ]
+	"t_rotate_ccw": [
+		[
+			"kA"
+		],
+		[
+			"kLeft"
+		],
+		[
+			"bLeft"
+		],
+		[
+			""
+		]
 	],
-	"t_rotate_cw" : 
-	[
-		[ "kD" ],
-		[ "kRight" ],
-		[ "bRight" ],
-		[ "" ]
+	"t_rotate_cw": [
+		[
+			"kD"
+		],
+		[
+			"kRight"
+		],
+		[
+			"bRight"
+		],
+		[
+			""
+		]
 	],
-	"t_screenshot" : 
-	[
-		[ "kF12" ],
-		[ "" ],
-		[ "" ],
-		[ "" ]
+	"t_screenshot": [
+		[
+			"kF12"
+		],
+		[
+			""
+		],
+		[
+			""
+		],
+		[
+			""
+		]
 	],
-	"t_select" : 
-	[
-		[ "kSpace" ],
-		[ "bMiddle" ],
-		[ "" ],
-		[ "" ]
+	"t_select": [
+		[
+			"kSpace"
+		],
+		[
+			"bMiddle"
+		],
+		[
+			""
+		],
+		[
+			""
+		]
 	],
-	"t_swap" : 
-	[
-		[ "kSpace" ],
-		[ "bMiddle" ],
-		[ "" ],
-		[ "" ]
+	"t_swap": [
+		[
+			"kSpace"
+		],
+		[
+			"bMiddle"
+		],
+		[
+			""
+		],
+		[
+			""
+		]
 	],
-	"t_up" : 
-	[
-		[ "kW" ],
-		[ "" ],
-		[ "" ],
-		[ "" ]
+	"t_up": [
+		[
+			"kW"
+		],
+		[
+			""
+		],
+		[
+			""
+		],
+		[
+			""
+		]
 	],
-	"text_padding" : 8.0,
-	"text_scaling" : 1.0,
-	"timescale" : 1.0,
-	"vsync" : true,
-	"windowed_auto_resolution" : false,
-	"windowed_height" : 995,
-	"windowed_width" : 1920,
-	"zoom_factor" : 0.7111111283302307
+	"text_padding": 8.0,
+	"text_scaling": 1.0,
+	"timescale": 1.0,
+	"vsync": false,
+	"windowed_auto_resolution": false,
+	"windowed_height": 763,
+	"windowed_width": 1152,
+	"zoom_factor": 1.006553053855896
 }
