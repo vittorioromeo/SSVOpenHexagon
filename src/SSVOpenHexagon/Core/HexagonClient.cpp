@@ -21,6 +21,8 @@
 #include <thread>
 #include <chrono>
 
+#include <cstdint>
+
 static auto& clog(const char* funcName)
 {
     return ::ssvu::lo(::hg::Utils::concat("hg::HexagonClient::", funcName));
@@ -109,6 +111,7 @@ template <typename... Ts>
     _socket.setBlocking(false);
     _socketConnected = true;
 
+    SSVOH_CLOG << "Socket connected to server\n";
     return true;
 }
 
@@ -237,7 +240,7 @@ template <typename T>
         return fail();
     }
 
-    _lastHeartbeatTime = Clock::now();
+    _lastHeartbeatTime = HRClock::now();
     return true;
 }
 
@@ -299,7 +302,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestTopScores(
-    const sf::Uint64 loginToken, const std::string& levelValidator)
+    const std::uint64_t loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending top scores request to server...\n";
 
@@ -312,7 +315,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestOwnScore(
-    const sf::Uint64 loginToken, const std::string& levelValidator)
+    const std::uint64_t loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending own score request to server...\n";
 
@@ -325,7 +328,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestTopScoresAndOwnScore(
-    const sf::Uint64 loginToken, const std::string& levelValidator)
+    const std::uint64_t loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE
         << "Sending top scores and own score request to server...\n";
@@ -339,7 +342,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendStartedGame(
-    const sf::Uint64 loginToken, const std::string& levelValidator)
+    const std::uint64_t loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending started game packet to server...\n";
 
@@ -352,7 +355,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendCompressedReplay(
-    const sf::Uint64 loginToken, const std::string& levelValidator,
+    const std::uint64_t loginToken, const std::string& levelValidator,
     const compressed_replay_file& compressedReplayFile)
 {
     SSVOH_CLOG_VERBOSE << "Sending compressed replay for level validator '"
@@ -367,7 +370,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestServerStatus(
-    const sf::Uint64 loginToken)
+    const std::uint64_t loginToken)
 {
     SSVOH_CLOG_VERBOSE << "Sending status request to server...\n";
 
@@ -378,7 +381,7 @@ template <typename T>
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendReady(const sf::Uint64 loginToken)
+[[nodiscard]] bool HexagonClient::sendReady(const std::uint64_t loginToken)
 {
     SSVOH_CLOG_VERBOSE << "Sending ready to server...\n";
 
@@ -414,11 +417,13 @@ bool HexagonClient::connect()
         return failEvent("initializing TCP socket");
     }
 
+    SSVOH_CLOG << "Sending first heartbeat...\n";
     if(!sendHeartbeat())
     {
         return failEvent("sending first heartbeat");
     }
 
+    SSVOH_CLOG << "Sending public key...\n";
     if(!sendPublicKey())
     {
         return failEvent("sending public key");
@@ -455,15 +460,6 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager,
                << " - " << SSVOH_CLOG_VAR(_serverPort) << '\n'
                << " - " << SSVOH_CLOG_VAR(sKeyPublic) << '\n'
                << " - " << SSVOH_CLOG_VAR(sKeySecret) << '\n';
-
-    if(_serverIp == sf::IpAddress::None)
-    {
-        SSVOH_CLOG_ERROR << "Failure initializing client, invalid ip address '"
-                         << _serverIp << "'\n";
-
-        _state = State::InitError;
-        return;
-    }
 
     if(!initializeTicketSteamID())
     {
@@ -518,7 +514,7 @@ bool HexagonClient::sendHeartbeatIfNecessary()
 
     constexpr std::chrono::duration heatbeatInterval = std::chrono::seconds(45);
 
-    if(Clock::now() - _lastHeartbeatTime > heatbeatInterval)
+    if(HRClock::now() - _lastHeartbeatTime > heatbeatInterval)
     {
         if(!sendHeartbeat())
         {
@@ -748,12 +744,17 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         {
             SSVOH_CLOG << "Received server status from server\n";
 
-            const auto& [serverGameVersion, supportedLevelValidatorsVector] =
-                stcp;
+            const auto& [serverProtocolVersion, serverGameVersion,
+                supportedLevelValidatorsVector] = stcp;
 
             if(serverGameVersion != GAME_VERSION)
             {
-                addEvent(EVersionMismatch{});
+                addEvent(EGameVersionMismatch{});
+            }
+
+            if(serverProtocolVersion != PROTOCOL_VERSION)
+            {
+                addEvent(EProtocolVersionMismatch{});
                 disconnect();
                 return true;
             }

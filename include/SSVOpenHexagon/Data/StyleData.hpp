@@ -30,7 +30,7 @@ using Obj = Json::Value;
 namespace hg::Utils {
 
 class FastVertexVectorTris;
-class FastVertexVectorQuads;
+class FastVertexVectorTris;
 
 } // namespace hg::Utils
 
@@ -62,7 +62,7 @@ private:
 
     void drawBackgroundMenuHexagonImpl(Utils::FastVertexVectorTris& vertices,
         const sf::Vector2f& mCenterPos, const unsigned int sides,
-        const bool fourByThree) const;
+        const bool fourByThree, const bool blackAndWhite) const;
 
 public:
     std::string id{};

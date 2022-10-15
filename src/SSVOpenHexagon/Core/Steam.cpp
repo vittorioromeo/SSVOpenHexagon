@@ -8,12 +8,17 @@
 
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <stdint.h> // Steam API needs this.
+
+#ifndef SSVOH_ANDROID
 #include "steam/steam_api.h"
 #include "steam/steam_api_flat.h"
 #include "steam/steamencryptedappticket.h"
+#endif
 
 #include <array>
 #include <charconv>
@@ -24,6 +29,8 @@
 #include <string_view>
 #include <string>
 #include <unordered_set>
+
+#ifndef SSVOH_ANDROID
 
 namespace hg::Steam {
 
@@ -91,19 +98,24 @@ private:
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#if defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
     STEAM_CALLBACK(
         steam_manager_impl, on_user_stats_received, UserStatsReceived_t);
     STEAM_CALLBACK(steam_manager_impl, on_user_stats_stored, UserStatsStored_t);
     STEAM_CALLBACK(steam_manager_impl, on_user_achievement_stored,
         UserAchievementStored_t);
+#if defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
 #pragma GCC diagnostic pop
 
     bool update_hardcoded_achievement_cube_master();
     bool update_hardcoded_achievement_hypercube_master();
     bool update_hardcoded_achievement_cube_god();
+    bool update_hardcoded_achievement_hypercube_god();
 
     void load_workshop_data();
 
@@ -139,6 +151,7 @@ public:
     bool set_and_store_stat(std::string_view name, int data);
     [[nodiscard]] bool get_achievement(bool* out, std::string_view name);
     [[nodiscard]] bool get_stat(int* out, std::string_view name);
+    [[nodiscard]] std::optional<bool> is_achievement_unlocked(const char* name);
 
     bool update_hardcoded_achievements();
 
@@ -191,6 +204,8 @@ void steam_manager::steam_manager_impl::load_workshop_data()
     constexpr std::size_t folderBufSize = 512;
     char folderBuf[folderBufSize];
 
+    ssvuj::Obj cacheArray;
+
     for(PublishedFileId_t id : subscribedItemsIds)
     {
         ssvu::lo("Steam") << "Workshop subscribed item id: " << id << '\n';
@@ -203,13 +218,28 @@ void steam_manager::steam_manager_impl::load_workshop_data()
 
         if(installed)
         {
+            std::string folderBufStr{folderBuf};
+
             ssvu::lo("Steam")
                 << "Workshop id " << id << " is installed, with size "
-                << itemDiskSize << " at folder " << std::string{folderBuf}
-                << '\n';
+                << itemDiskSize << " at folder " << folderBufStr << '\n';
 
-            _workshop_pack_folders.emplace(std::string{folderBuf});
+            // Write the path to an element in a JSON array.
+            ssvuj::arch(
+                cacheArray, _workshop_pack_folders.size(), folderBufStr);
+
+            _workshop_pack_folders.emplace(std::move(folderBufStr));
         }
+    }
+
+    // Update the workshop cache with our loaded folders
+    if(_workshop_pack_folders.size() > 0)
+    {
+        ssvu::lo("Steam") << "Updating workshop cache\n";
+        ssvuj::Obj cacheObj;
+
+        ssvuj::arch(cacheObj, "cachedPacks", cacheArray);
+        ssvuj::writeToFile(cacheObj, "workshopCache.json");
     }
 }
 
@@ -361,10 +391,11 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
         return false;
     }
 
-    // Steam API seems to be bugged, and always needs floats even for integer
+    // Steam API seems to be bugged, and sometimes needs floats even for integer
     // stats.
     const float as_float = data;
-    if(!SteamUserStats()->SetStat(name.data(), as_float))
+    if(!SteamUserStats()->SetStat(name.data(), as_float) && // Try with float.
+        !SteamUserStats()->SetStat(name.data(), data))      // Try with integer.
     {
         ssvu::lo("Steam") << "Error setting stat '" << name << "' to '"
                           << as_float << "'\n";
@@ -378,12 +409,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
 [[nodiscard]] bool steam_manager::steam_manager_impl::get_achievement(
     bool* out, std::string_view name)
 {
-    if(!_initialized)
-    {
-        return false;
-    }
-
-    if(!_got_stats)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
@@ -400,54 +426,53 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
 [[nodiscard]] bool steam_manager::steam_manager_impl::get_stat(
     int* out, std::string_view name)
 {
-    if(!_initialized)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
 
-    if(!_got_stats)
-    {
-        return false;
-    }
-
-    // Steam API seems to be bugged, and always needs floats even for integer
+    // Steam API seems to be bugged, and sometimes needs floats even for integer
     // stats.
     float as_float;
-    if(!SteamUserStats()->GetStat(name.data(), &as_float))
+    if(SteamUserStats()->GetStat(name.data(), &as_float)) // Try with float.
     {
-        ssvu::lo("Steam") << "Error getting stat " << name.data() << '\n';
-        return false;
+        *out = as_float;
+        return true;
     }
 
-    *out = as_float;
-    return true;
+    if(SteamUserStats()->GetStat(name.data(), out)) // Try with integer.
+    {
+        return true;
+    }
+
+    ssvu::lo("Steam") << "Error getting stat " << name.data() << '\n';
+    return false;
+}
+
+[[nodiscard]] std::optional<bool>
+steam_manager::steam_manager_impl::is_achievement_unlocked(const char* name)
+{
+    bool res{false};
+    const bool rc = get_achievement(&res, name);
+
+    if(!rc)
+    {
+        return std::nullopt;
+    }
+
+    return res;
 }
 
 bool steam_manager::steam_manager_impl::
     update_hardcoded_achievement_cube_master()
 {
-    if(!_initialized)
-    {
-        return false;
-    }
-
-    if(!_got_stats)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
 
     const auto unlocked = [this](const char* name) -> int
-    {
-        bool res{false};
-        const bool rc = get_achievement(&res, name);
-
-        if(!rc)
-        {
-            return 0;
-        }
-
-        return res ? 1 : 0;
-    };
+    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
 
     // "Cube Master"
     {
@@ -485,28 +510,13 @@ bool steam_manager::steam_manager_impl::
 bool steam_manager::steam_manager_impl::
     update_hardcoded_achievement_hypercube_master()
 {
-    if(!_initialized)
-    {
-        return false;
-    }
-
-    if(!_got_stats)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
 
     const auto unlocked = [this](const char* name) -> int
-    {
-        bool res{false};
-        const bool rc = get_achievement(&res, name);
-
-        if(!rc)
-        {
-            return 0;
-        }
-
-        return res ? 1 : 0;
-    };
+    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
 
     // "Hypercube Master"
     {
@@ -541,31 +551,15 @@ bool steam_manager::steam_manager_impl::
     return true;
 }
 
-
 bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
 {
-    if(!_initialized)
-    {
-        return false;
-    }
-
-    if(!_got_stats)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
 
     const auto unlocked = [this](const char* name) -> int
-    {
-        bool res{false};
-        const bool rc = get_achievement(&res, name);
-
-        if(!rc)
-        {
-            return 0;
-        }
-
-        return res ? 1 : 0;
-    };
+    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
 
     // "Cube God"
     {
@@ -599,26 +593,62 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
     return true;
 }
 
+bool steam_manager::steam_manager_impl::
+    update_hardcoded_achievement_hypercube_god()
+{
+    if(!_initialized || !_got_stats)
+    {
+        return false;
+    }
+
+    const auto unlocked = [this](const char* name) -> int
+    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
+
+    // "Hypercube Master"
+    {
+        int stat;
+        const bool rc = get_stat(&stat, "s3_packprogress_hypercubegod");
+
+        if(!rc)
+        {
+            return false;
+        }
+
+        const int acc = unlocked("a38_disco_hard") +            //
+                        unlocked("a39_acceleradiant_hard") +    //
+                        unlocked("a40_gforce_hard") +           //
+                        unlocked("a41_incongruence_hard") +     //
+                        unlocked("a42_slither_hard") +          //
+                        unlocked("a43_polyhedrug_hard") +       //
+                        unlocked("a44_reppaws_hard") +          //
+                        unlocked("a45_centrifugalforce_hard") + //
+                        unlocked("a46_massacre_hard");
+
+        if(acc > stat)
+        {
+            if(!set_and_store_stat("s3_packprogress_hypercubegod", acc))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
 {
-    bool success = true;
+    // Intentionally not short-circuiting via boolean operators here.
 
-    if(!update_hardcoded_achievement_cube_master())
-    {
-        success = false;
-    }
+    int failures = 0;
 
-    if(!update_hardcoded_achievement_hypercube_master())
-    {
-        success = false;
-    }
+    failures +=
+        static_cast<int>(!update_hardcoded_achievement_cube_master()) +
+        static_cast<int>(!update_hardcoded_achievement_hypercube_master()) +
+        static_cast<int>(!update_hardcoded_achievement_cube_god()) +
+        static_cast<int>(!update_hardcoded_achievement_hypercube_god());
 
-    if(!update_hardcoded_achievement_cube_god())
-    {
-        success = false;
-    }
-
-    return success;
+    return failures == 0;
 }
 
 void steam_manager::steam_manager_impl::for_workshop_pack_folders(
@@ -821,7 +851,6 @@ steam_manager::steam_manager_impl::get_ticket_steam_id() const noexcept
 
 // ----------------------------------------------------------------------------
 
-
 [[nodiscard]] const steam_manager::steam_manager_impl&
 steam_manager::impl() const noexcept
 {
@@ -928,3 +957,106 @@ steam_manager::get_ticket_steam_id() const noexcept
 }
 
 } // namespace hg::Steam
+
+#else
+
+namespace hg::Steam {
+
+class steam_manager::steam_manager_impl
+{};
+
+steam_manager::steam_manager() : _impl{nullptr}
+{}
+
+steam_manager::~steam_manager() = default;
+
+[[nodiscard]] bool steam_manager::is_initialized() const noexcept
+{
+    return false;
+}
+
+bool steam_manager::request_stats_and_achievements()
+{
+    return false;
+}
+
+bool steam_manager::run_callbacks()
+{
+    return false;
+}
+
+bool steam_manager::store_stats()
+{
+    return false;
+}
+
+bool steam_manager::unlock_achievement([[maybe_unused]] std::string_view name)
+{
+    return false;
+}
+
+bool steam_manager::set_rich_presence_in_menu()
+{
+    return false;
+}
+
+bool steam_manager::set_rich_presence_in_game(
+    [[maybe_unused]] std::string_view level_name_format,
+    [[maybe_unused]] std::string_view difficulty_mult_format,
+    [[maybe_unused]] std::string_view time_format)
+{
+    return false;
+}
+
+bool steam_manager::set_and_store_stat(
+    [[maybe_unused]] std::string_view name, [[maybe_unused]] int data)
+{
+    return false;
+}
+
+[[nodiscard]] bool steam_manager::get_achievement(
+    [[maybe_unused]] bool* out, [[maybe_unused]] std::string_view name)
+{
+    return false;
+}
+
+[[nodiscard]] bool steam_manager::get_stat(
+    [[maybe_unused]] int* out, [[maybe_unused]] std::string_view name)
+{
+    return false;
+}
+
+bool steam_manager::update_hardcoded_achievements()
+{
+    return false;
+}
+
+void steam_manager::for_workshop_pack_folders(
+    [[maybe_unused]] const std::function<void(const std::string&)>& f) const
+{}
+
+bool steam_manager::request_encrypted_app_ticket()
+{
+    return false;
+}
+
+[[nodiscard]] bool
+steam_manager::got_encrypted_app_ticket_response() const noexcept
+{
+    return false;
+}
+
+[[nodiscard]] bool steam_manager::got_encrypted_app_ticket() const noexcept
+{
+    return false;
+}
+
+[[nodiscard]] std::optional<std::uint64_t>
+steam_manager::get_ticket_steam_id() const noexcept
+{
+    return std::nullopt;
+}
+
+} // namespace hg::Steam
+
+#endif

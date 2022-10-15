@@ -4,18 +4,23 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Core/CustomTimelineManager.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
+
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
+
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 #include "SSVOpenHexagon/Utils/TimelineGlobal.hpp"
+
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
@@ -29,6 +34,7 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -87,6 +93,7 @@ private:
 
     HGAssets& assets;
     sf::Font& font;
+    sf::Font& fontBold;
 
     Audio* audio;
     MusicData::Segment segment;
@@ -127,6 +134,15 @@ private:
     std::optional<ssvs::Camera> backgroundCamera;
     std::optional<ssvs::Camera> overlayCamera;
 
+    struct PreShakeCenters
+    {
+        sf::Vector2f background;
+        sf::Vector2f overlay;
+    };
+
+    std::optional<PreShakeCenters> preShakeCenters;
+
+
     ssvu::TimelineManager effectTimelineManager;
 
     const sf::Vector2f centerPos{0.f, 0.f};
@@ -150,10 +166,12 @@ private:
     Utils::timeline2 messageTimeline;
     Utils::timeline2_runner messageTimelineRunner;
 
+    CustomTimelineManager _customTimelineManager;
+
     sf::Text messageText;
     sf::Text pbText;
 
-    ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
+    Utils::FastVertexVectorTris flashPolygon;
 
     struct Particle
     {
@@ -162,8 +180,34 @@ private:
         float angularVelocity;
     };
 
+    struct TrailParticle
+    {
+        sf::Sprite sprite;
+        float angle;
+    };
+
+    struct SwapParticle
+    {
+        sf::Sprite sprite;
+        sf::Vector2f velocity;
+    };
+
+    sf::Texture* txStarParticle;
+    sf::Texture* txSmallCircle;
+
     std::vector<Particle> particles;
+    std::vector<TrailParticle> trailParticles;
+    std::vector<SwapParticle> swapParticles;
     bool mustSpawnPBParticles{false};
+
+    struct SwapParticleSpawnInfo
+    {
+        bool ready;
+        sf::Vector2f position;
+        float angle;
+    };
+
+    std::optional<SwapParticleSpawnInfo> swapParticlesSpawnInfo;
     float nextPBParticleSpawn{0.f};
     float pbTextGrowth{0.f};
 
@@ -216,6 +260,8 @@ private:
     int inputMovement{0};
     bool inputImplCW{false};
     bool inputImplCCW{false};
+    bool playerNowReadyToSwap{false};
+
     std::ostringstream os;
 
     sf::Text fpsText;
@@ -234,6 +280,7 @@ private:
     void initLua_AudioControl();
     void initLua_MainTimeline();
     void initLua_EventTimeline();
+    void initLua_CustomTimelines();
     void initLua_LevelControl();
     void initLua_StyleControl();
     void initLua_WallCreation();
@@ -249,18 +296,17 @@ private:
         const SpeedData& mCurve, float mHueMod);
 
 public:
-    // TODO (P2): For testing
+    // ------------------------------------------------------------------------
+    // Testing-related utilities
     std::function<void(const replay_file&)> onDeathReplayCreated;
 
-    // TODO (P2): For testing
-    void setMustStart(const bool x)
-    {
-        mustStart = x;
-    }
+    void setMustStart(const bool x);
 
-    // TODO (P2): For testing
     bool executeRandomInputs{false};
     bool alwaysSpinRight{false};
+
+    // ------------------------------------------------------------------------
+    // Lua stuff
 
     void initLuaAndPrintDocs();
 
@@ -275,8 +321,8 @@ public:
     catch(...)
     {
         luaExceptionLippincottHandler(mName);
-        return decltype(
-            Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...)){};
+        return decltype(Utils::runLuaFunctionIfExists<T, TArgs...>(
+            lua, mName, mArgs...)){};
     }
 
     void raiseWarning(
@@ -288,11 +334,15 @@ private:
     void start();
 
     void initKeyIcons();
-    void initFlashEffect();
+    void initFlashEffect(int r, int g, int b);
 
     // Fast-forward
     std::optional<double> fastForwardTarget;
     void fastForwardTo(const double target);
+
+    // Advance by ticks
+    std::optional<int> advanceTickCount;
+    void advanceByTicks(const int nTicks);
 
     // Update methods
     void update(ssvu::FT mFT, const float timescale);
@@ -306,16 +356,22 @@ private:
     void updateEvents(ssvu::FT mFT);
     void updateMusic(ssvu::FT mFT);
     void updateLevel(ssvu::FT mFT);
+    void updateCustomTimelines();
     void updateCustomWalls(ssvu::FT mFT);
     void updatePulse(ssvu::FT mFT);
+    void refreshPulse();
     void updateBeatPulse(ssvu::FT mFT);
+    void refreshBeatPulse();
     void updateRotation(ssvu::FT mFT);
+    void updateCameraShake(ssvu::FT mFT);
     void updateFlash(ssvu::FT mFT);
     void updatePulse3D(ssvu::FT mFT);
     void updateText(ssvu::FT mFT);
     void updateKeyIcons();
     void updateLevelInfo();
     void updateParticles(ssvu::FT mFT);
+    void updateTrailParticles(ssvu::FT mFT);
+    void updateSwapParticles(ssvu::FT mFT);
 
     // Post update methods
     void postUpdate();
@@ -329,13 +385,15 @@ private:
     void sideChange(unsigned int mSideNumber);
 
     // Draw methods
-    void drawText_TimeAndStatus(const sf::Color& offsetColor);
-    void drawText_Message(const sf::Color& offsetColor);
-    void drawText_PersonalBest(const sf::Color& offsetColor);
-    void drawText();
+    void drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText(const sf::RenderStates& mStates);
     void drawKeyIcons();
-    void drawLevelInfo();
+    void drawLevelInfo(const sf::RenderStates& mStates);
     void drawParticles();
+    void drawTrailParticles();
+    void drawSwapParticles();
     void drawImguiLuaConsole();
 
     // Data-related methods
@@ -374,14 +432,15 @@ private:
 private:
     void performPlayerSwap(const bool mPlaySound);
     void performPlayerKill();
+    void saveReplay();
 
     Utils::FastVertexVectorTris backgroundTris;
-    Utils::FastVertexVectorQuads wallQuads;
-    Utils::FastVertexVectorQuads pivotQuads;
+    Utils::FastVertexVectorTris wallQuads;
+    Utils::FastVertexVectorTris pivotQuads;
     Utils::FastVertexVectorTris playerTris;
     Utils::FastVertexVectorTris capTris;
-    Utils::FastVertexVectorQuads wallQuads3D;
-    Utils::FastVertexVectorQuads pivotQuads3D;
+    Utils::FastVertexVectorTris wallQuads3D;
+    Utils::FastVertexVectorTris pivotQuads3D;
     Utils::FastVertexVectorTris playerTris3D;
 
 public:
@@ -410,6 +469,7 @@ public:
 
     void death(bool mForce = false);
     void death_shakeCamera();
+    void death_flashEffect();
     [[nodiscard]] replay_file death_createReplayFile();
     void death_updateRichPresence();
     [[nodiscard]] SaveScoreIfNeededResult death_saveScoreIfNeeded();
@@ -465,14 +525,17 @@ public:
     [[nodiscard]] float getWallSkewRight() const noexcept;
     [[nodiscard]] float getWallAngleLeft() const noexcept;
     [[nodiscard]] float getWallAngleRight() const noexcept;
-    [[nodiscard]] float get3DEffectMult() const noexcept;
     [[nodiscard]] HexagonGameStatus& getStatus() noexcept;
     [[nodiscard]] const HexagonGameStatus& getStatus() const noexcept;
     [[nodiscard]] LevelStatus& getLevelStatus();
     [[nodiscard]] HGAssets& getAssets();
     [[nodiscard]] sf::Color getColorMain() const;
     [[nodiscard]] sf::Color getColorPlayer() const;
+    [[nodiscard]] sf::Color getColorPlayerAdjustedForSwap() const;
+    [[nodiscard]] sf::Color getColorPlayerTrail() const;
     [[nodiscard]] sf::Color getColorText() const;
+    [[nodiscard]] sf::Color getColorCap() const;
+    [[nodiscard]] sf::Color getColorWall() const;
     [[nodiscard]] float getMusicDMSyncFactor() const;
     [[nodiscard]] float getOptionalMusicDMSyncFactor() const;
 

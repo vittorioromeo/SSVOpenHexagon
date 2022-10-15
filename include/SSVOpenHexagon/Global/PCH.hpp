@@ -4,18 +4,40 @@
 
 #pragma once
 
+// Include as system header to suppress dependency warnings.
+#pragma GCC system_header
+
+//
+//
+// ----------------------------------------------------------------------------
+// Windows Header
+// ----------------------------------------------------------------------------
+
+#ifdef _WIN32
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include <windows.h>
+
+#endif
+
+//
+//
+// ----------------------------------------------------------------------------
+// C++ Standard Library
+// ----------------------------------------------------------------------------
+
 #include <algorithm>
 #include <array>
 #include <atomic>
 #include <bitset>
-#include <cctype>
 #include <chrono>
-#include <cmath>
-#include <csignal>
-#include <cstddef>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
 #include <deque>
 #include <exception>
 #include <filesystem>
@@ -41,16 +63,62 @@
 #include <variant>
 #include <vector>
 
+//
+//
+// ----------------------------------------------------------------------------
+// C Standard Library
+// ----------------------------------------------------------------------------
+
+#include <cctype>
+#include <cmath>
+#include <csignal>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+
+//
+//
+// ----------------------------------------------------------------------------
+// Boost
+// ----------------------------------------------------------------------------
+
 #include <boost/pfr.hpp>
+
+//
+//
+// ----------------------------------------------------------------------------
+// Libsodium
+// ----------------------------------------------------------------------------
 
 #include <sodium.h>
 
+//
+//
+// ----------------------------------------------------------------------------
+// ImGui and ImGui-SFML
+// ----------------------------------------------------------------------------
+
+#ifndef SSVOH_ANDROID
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <misc/cpp/imgui_stdlib.h>
+#endif
+
+//
+//
+// ----------------------------------------------------------------------------
+// SQLite and SQLiteORM
+// ----------------------------------------------------------------------------
 
 #include <sqlite3.h>
 #include <sqlite_orm.h>
+
+//
+//
+// ----------------------------------------------------------------------------
+// SFML
+// ----------------------------------------------------------------------------
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -58,7 +126,19 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 
+//
+//
+// ----------------------------------------------------------------------------
+// vrm-pp
+// ----------------------------------------------------------------------------
+
 #include <vrm/pp.hpp>
+
+//
+//
+// ----------------------------------------------------------------------------
+// SSVUtils
+// ----------------------------------------------------------------------------
 
 #include <SSVUtils/Core/Detection/Detection.hpp>
 #include <SSVUtils/Core/Common/Common.hpp>
@@ -73,6 +153,12 @@
 #include <SSVUtils/Internal/PCG/PCG.hpp>
 #include <SSVUtils/Timeline/Timeline.hpp>
 
+//
+//
+// ----------------------------------------------------------------------------
+// SSVStart
+// ----------------------------------------------------------------------------
+
 #include <SSVStart/Camera/Camera.hpp>
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/GameSystem/GameWindow.hpp>
@@ -82,10 +168,43 @@
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/VertexVector/VertexVector.hpp>
 
+//
+//
+// ----------------------------------------------------------------------------
+// SSVMenuSystem
+// ----------------------------------------------------------------------------
+
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
+
+//
+//
+// ----------------------------------------------------------------------------
+// SSVOpenHExagon
+// ----------------------------------------------------------------------------
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
+
+//
+//
+// ----------------------------------------------------------------------------
+// Explicit instantiation declarations (defined in `Instantiations.cpp`)
+// ----------------------------------------------------------------------------
+
+extern template class std::vector<std::string>;
+
+extern template class std::optional<int>;
+extern template class std::optional<std::size_t>;
+
+extern template class std::unordered_map<std::string, float>;
+extern template class std::unordered_map<float, std::string>;
+extern template class std::unordered_map<std::string, std::string>;
+
+extern template class std::unordered_set<std::string>;
+
+extern template class std::function<void()>;
+extern template class std::function<bool()>;
+extern template class std::function<std::string()>;

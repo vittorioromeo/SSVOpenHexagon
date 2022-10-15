@@ -1,0 +1,33 @@
+{
+    // Style data id
+    "id": "pointless",
+
+    // Hue options
+    "hue_min": 0,
+    "hue_max": 360,
+    "hue_ping_pong": false,
+    "hue_increment": 0.7,
+
+    // Pulse options
+    "pulse_min": 0.0,
+    "pulse_max": 1.0,
+    "pulse_increment": 0.0125,
+
+    // 3D options
+    "3D_depth": 8,
+    "3D_skew": 0.15,
+    "3D_spacing": 1,
+    "3D_darken_multiplier": 2.0,
+
+    // Main color
+    "main": { "main": true, "dynamic": false, "value": [255, 255, 255, 255], "pulse": [0, 0, 0, 0] },
+    "cap_color": { "legacy": false, "dynamic": false, "value": [0, 0, 0, 255], "pulse": [0, 0, 0, 0] },
+    "text_color": { "dynamic": false, "value": [255, 0, 113, 255], "pulse": [0, 198, -66, 0] },
+
+    // Background colors
+    "colors":
+    [
+        { "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 2.7, "value": [0, 0, 0, 255], "pulse": [0, 0, 0, 0]},
+        { "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 3.5, "value": [32, 32, 32, 255], "pulse": [0, 0, 0, 0]}
+    ]
+}

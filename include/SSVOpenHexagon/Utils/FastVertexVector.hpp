@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include "SSVOpenHexagon/Utils/UniquePtrArray.hpp"
 
@@ -106,7 +107,7 @@ public:
         SSVOH_ASSERT(_size <= _capacity);
         SSVOH_ASSERT(_data != nullptr);
 
-        new(&_data[_size++]._v) sf::Vertex{std::forward<Ts>(xs)...};
+        new(&_data[_size++]._v) sf::Vertex{SSVOH_FWD(xs)...};
     }
 
     template <typename... Ts>
@@ -120,7 +121,7 @@ public:
     }
 
     void draw(sf::RenderTarget& mRenderTarget,
-        sf::RenderStates mRenderStates) const override
+        const sf::RenderStates& mRenderStates) const override
     {
         if(SSVU_UNLIKELY(_data == nullptr))
         {
@@ -151,13 +152,66 @@ public:
 
         return _data[i]._v;
     }
+
+    [[nodiscard, gnu::always_inline]] sf::Vertex* begin() noexcept
+    {
+        SSVOH_ASSERT(_data != nullptr);
+        return &(_data[0]._v);
+    }
+
+    [[nodiscard, gnu::always_inline]] const sf::Vertex* begin() const noexcept
+    {
+        SSVOH_ASSERT(_data != nullptr);
+        return &(_data[0]._v);
+    }
+
+    [[nodiscard, gnu::always_inline]] sf::Vertex* end() noexcept
+    {
+        return begin() + _size;
+    }
+
+    [[nodiscard, gnu::always_inline]] const sf::Vertex* end() const noexcept
+    {
+        return begin() + _size;
+    }
 };
 
 class FastVertexVectorTris
     : public FastVertexVector<sf::PrimitiveType::Triangles>
-{};
+{
+public:
+    [[gnu::always_inline]] void batch_unsafe_emplace_back_quad(
+        const sf::Color& color, const sf::Vector2f& nw, const sf::Vector2f& sw,
+        const sf::Vector2f& se, const sf::Vector2f& ne)
+    {
+        batch_unsafe_emplace_back(color, //
+            nw, sw, se,                  //
+            nw, se, ne);
+    }
 
-class FastVertexVectorQuads : public FastVertexVector<sf::PrimitiveType::Quads>
-{};
+    [[gnu::always_inline]] void unsafe_emplace_back_quad( //
+        const sf::Vector2f& nw, const sf::Color& colorNW, //
+        const sf::Vector2f& sw, const sf::Color& colorSW, //
+        const sf::Vector2f& se, const sf::Color& colorSE, //
+        const sf::Vector2f& ne, const sf::Color& colorNE)
+    {
+        unsafe_emplace_back(nw, colorNW);
+        unsafe_emplace_back(sw, colorSW);
+        unsafe_emplace_back(se, colorSE);
+        unsafe_emplace_back(nw, colorNW);
+        unsafe_emplace_back(se, colorSE);
+        unsafe_emplace_back(ne, colorNE);
+    }
+
+    [[gnu::always_inline]] void reserve_more_quad(const std::size_t n)
+    {
+        reserve_more(n * 6);
+    }
+
+    [[gnu::always_inline]] void reserve_quad(const std::size_t n)
+    {
+        reserve(n * 6);
+    }
+};
 
 } // namespace hg::Utils

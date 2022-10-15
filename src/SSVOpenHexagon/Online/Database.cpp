@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
+#include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
@@ -79,23 +80,6 @@ inline auto& getStorage()
 }
 
 } // namespace Impl
-
-[[nodiscard]] std::uint64_t timestamp(const TimePoint tp)
-{
-    return std::chrono::duration_cast<std::chrono::seconds>(
-        tp.time_since_epoch())
-        .count();
-}
-
-[[nodiscard]] std::uint64_t nowTimestamp()
-{
-    return timestamp(Clock::now());
-}
-
-[[nodiscard]] TimePoint toTimepoint(const std::uint64_t timestamp)
-{
-    return TimePoint{} + std::chrono::seconds(timestamp);
-}
 
 void addUser(const User& user)
 {
@@ -221,9 +205,9 @@ constexpr int tokenValiditySeconds = 3600;
 
 [[nodiscard]] static bool isLoginTokenTimestampValid(const LoginToken& lt)
 {
-    const TimePoint now = Clock::now();
+    const Utils::SCTimePoint now = Utils::SCClock::now();
 
-    return (now - toTimepoint(lt.timestamp)) <
+    return (now - Utils::toTimepoint(lt.timestamp)) <
            std::chrono::seconds(tokenValiditySeconds);
 }
 

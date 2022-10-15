@@ -5,7 +5,7 @@ set -e
 echo ""
 echo ""
 echo "--------------------------------------------------------------------"
-echo "| RUNNING CMAKE IN RELEASE MODE (NINJA)                            |"
+echo "| RUNNING CMAKE IN RELEASE MODE (GCC + NINJA)                      |"
 echo "--------------------------------------------------------------------"
 echo ""
 
@@ -19,5 +19,7 @@ cmake .. -G"Ninja" \
              -fuse-ld=lld \
              -Wall -Wextra -Wpedantic -Wno-braced-scalar-init \
              -Wno-pragmas -Wno-missing-field-initializers \
-             -O3 -DNDEBUG\
-             -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off"
+             -Wno-stringop-overflow \
+             -O3 -DNDEBUG \
+             -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off \
+             -ffold-simple-inlines -fimplicit-constexpr"

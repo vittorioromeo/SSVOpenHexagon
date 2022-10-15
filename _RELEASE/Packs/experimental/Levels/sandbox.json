@@ -1,0 +1,12 @@
+{
+    "id": "sandbox",
+    "name": "sandbox",
+    "description": "dance!",
+    "author": "vittorio romeo",
+    "menuPriority": -10000,
+    "selectable": true,
+    "styleId": "sandbox",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/sandbox.lua",
+    "difficultyMults": []
+}

@@ -4,9 +4,14 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 
+#include <array>
 #include <chrono>
+#include <cstddef>
+#include <optional>
 #include <string>
 
 namespace hg {
@@ -18,11 +23,30 @@ enum class StateChange
     MustReplay
 };
 
+enum class RenderStage : std::size_t
+{
+    BackgroundTris = 0,
+    WallQuads3D = 1,
+    PivotQuads3D = 2,
+    PlayerTris3D = 3,
+    WallQuads = 4,
+    CapTris = 5,
+    PivotQuads = 6,
+    PlayerTris = 7,
+    Text = 8,
+
+    Count = 9
+};
+
 struct HexagonGameStatus
 {
 public:
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
+    struct FlashColor
+    {
+        int r;
+        int g;
+        int b;
+    };
 
 private:
     double totalFrametimeAccumulator{};  // Total time (including pauses)
@@ -44,6 +68,7 @@ public:
     float flashEffect{0};
     float radius{75};
     float fastSpin{0};
+    float cameraShake{0};
     bool hasDied{false};
     StateChange mustStateChange{StateChange::None};
     bool scoreInvalid{false};
@@ -51,27 +76,33 @@ public:
     bool started{false};
     std::string restartInput;
     std::string replayInput;
+    bool showPlayerTrail{true};
+
+    // Shaders
+    std::array<std::optional<std::size_t>,
+        static_cast<std::size_t>(RenderStage::Count)>
+        fragmentShaderIds;
 
     // Reset all the time points and signal that we started
     void start() noexcept;
 
     // Number of seconds that have passed since last increment
-    [[nodiscard]] double getIncrementTimeSeconds() noexcept;
+    [[nodiscard]] double getIncrementTimeSeconds() const noexcept;
 
     // Game timer, in seconds
-    [[nodiscard]] double getTimeSeconds() noexcept;
+    [[nodiscard]] double getTimeSeconds() const noexcept;
 
     // Absolute time, as time point
-    [[nodiscard]] TimePoint getCurrentTP() noexcept;
+    [[nodiscard]] HRTimePoint getCurrentTP() const noexcept;
 
     // Game timer, as time point
-    [[nodiscard]] TimePoint getTimeTP() noexcept;
+    [[nodiscard]] HRTimePoint getTimeTP() const noexcept;
 
     // Level start, as time point
-    [[nodiscard]] TimePoint getLevelStartTP() noexcept;
+    [[nodiscard]] HRTimePoint getLevelStartTP() const noexcept;
 
     // `true` if we are currently paused
-    [[nodiscard]] bool isTimePaused() noexcept;
+    [[nodiscard]] bool isTimePaused() const noexcept;
 
     // Start a new pause or extend the current pause by `seconds`
     void pauseTime(const double seconds) noexcept;

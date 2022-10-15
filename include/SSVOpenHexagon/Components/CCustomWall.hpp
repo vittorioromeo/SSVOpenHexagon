@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
+
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
@@ -48,12 +49,13 @@ public:
         _flags.reset();
     }
 
-    [[gnu::always_inline]] void draw(Utils::FastVertexVectorQuads& wallQuads)
+    [[gnu::always_inline]] void draw(Utils::FastVertexVectorTris& wallQuads)
     {
-        wallQuads.unsafe_emplace_back(_vertexPositions[0], _vertexColors[0]);
-        wallQuads.unsafe_emplace_back(_vertexPositions[1], _vertexColors[1]);
-        wallQuads.unsafe_emplace_back(_vertexPositions[2], _vertexColors[2]);
-        wallQuads.unsafe_emplace_back(_vertexPositions[3], _vertexColors[3]);
+        wallQuads.unsafe_emplace_back_quad(        //
+            _vertexPositions[0], _vertexColors[0], //
+            _vertexPositions[1], _vertexColors[1], //
+            _vertexPositions[2], _vertexColors[2], //
+            _vertexPositions[3], _vertexColors[3]);
     }
 
     [[nodiscard, gnu::always_inline]] bool isOverlapping(

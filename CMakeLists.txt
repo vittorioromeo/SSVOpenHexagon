@@ -3,6 +3,34 @@ cmake_minimum_required(VERSION 3.9)
 #
 #
 # -----------------------------------------------------------------------------
+# Produce Lua Metadata
+# -----------------------------------------------------------------------------
+
+if(FALSE)
+    set(SSVOH_PRODUCE_LUA_METADATA TRUE)
+    add_definitions(-DSSVOH_PRODUCE_LUA_METADATA)
+else()
+    set(SSVOH_PRODUCE_LUA_METADATA FALSE)
+endif()
+
+#
+#
+# -----------------------------------------------------------------------------
+# Android build
+# -----------------------------------------------------------------------------
+
+string(TOLOWER "${CMAKE_SYSTEM_NAME}" SSVOH_SYSTEM_NAME_LOWERCASE)
+
+if(SSVOH_SYSTEM_NAME_LOWERCASE STREQUAL "android")
+    set(SSVOH_ANDROID TRUE)
+    add_definitions(-DSSVOH_ANDROID)
+else()
+    set(SSVOH_ANDROID FALSE)
+endif()
+
+#
+#
+# -----------------------------------------------------------------------------
 # Colored output
 # -----------------------------------------------------------------------------
 
@@ -10,9 +38,17 @@ cmake_minimum_required(VERSION 3.9)
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." FALSE)
 
 if(${FORCE_COLORED_OUTPUT})
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        OR (CMAKE_CXX_COMPILER MATCHES "g\\+\\+")
+        OR ("${CMAKE_CXX_COMPILER}" STREQUAL "gcc")
+        OR ("${CMAKE_CXX_COMPILER}" STREQUAL "g++")
+    )
        add_compile_options("-fdiagnostics-color=always")
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    elseif(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        OR ("${CMAKE_CXX_COMPILER}" STREQUAL "clang")
+        OR ("${CMAKE_CXX_COMPILER}" STREQUAL "clang++")
+        OR (CMAKE_CXX_COMPILER MATCHES "clang\\+\\+")
+    )
        add_compile_options("-fcolor-diagnostics")
     endif()
 endif()
@@ -35,12 +71,22 @@ endif()
 # CPM
 # -----------------------------------------------------------------------------
 
-set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM.cmake")
-set(CPM_DOWNLOAD_VERSION 0.25.1)
+set(CPM_DOWNLOAD_VERSION 0.35.6)
 
-if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION} AND CPM_VERSION STREQUAL CPM_DOWNLOAD_VERSION))
-    message(STATUS "Downloading CPM.cmake")
-    file(DOWNLOAD https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake ${CPM_DOWNLOAD_LOCATION})
+if(CPM_SOURCE_CACHE)
+    set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+elseif(DEFINED ENV{CPM_SOURCE_CACHE})
+    set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+else()
+    set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+endif()
+
+if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
+    message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
+    file(DOWNLOAD
+        https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
+        ${CPM_DOWNLOAD_LOCATION}
+    )
 endif()
 
 include(${CPM_DOWNLOAD_LOCATION})
@@ -56,13 +102,13 @@ set(SFML_STATIC_LIBRARIES false)
 
 CPMAddPackage(
     NAME SFML
-    GITHUB_REPOSITORY SuperV1234/SFML
-    GIT_TAG 4e72e5d5bfa53310050b99bf69f73c5ff86419ac
+    GITHUB_REPOSITORY vittorioromeo/SFML
+    GIT_TAG 4970af89992951eb2b4973bf32447445e9b38f64
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-window PROPERTIES UNITY_BUILD OFF)
-set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
 
@@ -78,8 +124,8 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 
 CPMAddPackage(
     NAME luajit
-    GIT_REPOSITORY https://github.com/SuperV1234/LuaJIT
-    GIT_TAG 0591e7385dd6b3e346ef3a420561f5115da2ddf7
+    GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
+    GIT_TAG 5ebcf7478c5f309d016d868ee3c89e6eafc33a86
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -115,22 +161,26 @@ file(WRITE "${zlib_SOURCE_DIR}/CMakeLists.txt" "${STRIPPED1}")
 # CPM: imgui
 # -----------------------------------------------------------------------------
 
-CPMAddPackage(
-    NAME imgui
-    GITHUB_REPOSITORY ocornut/imgui
-    GIT_TAG 393941ceea61e1307ffad8e3a045ab384d1299bd
-    DOWNLOAD_ONLY YES
-)
+if(NOT SSVOH_ANDROID)
+    CPMAddPackage(
+        NAME imgui
+        GITHUB_REPOSITORY ocornut/imgui
+        GIT_TAG 04316bd223f98e4c40bd82dc5f2a35c4891e4e5f
+        DOWNLOAD_ONLY YES
+    )
 
-if (imgui_ADDED)
-    # imgui has no CMake support, so we create our own target
+    if (imgui_ADDED)
+        # imgui has no CMake support, so we create our own target
 
-    FILE(GLOB imgui_sources ${imgui_SOURCE_DIR}/*.cpp)
-    FILE(GLOB imgui_sources_cpp ${imgui_SOURCE_DIR}/misc/cpp/*.cpp)
+        file(GLOB imgui_sources "${imgui_SOURCE_DIR}/*.cpp")
+        file(GLOB imgui_sources_cpp "${imgui_SOURCE_DIR}/misc/cpp/*.cpp")
 
-    set(IMGUI_DIR ${imgui_SOURCE_DIR})
-    set(IMGUI_INCLUDE_DIR ${imgui_SOURCE_DIR})
-    set(IMGUI_SOURCES ${imgui_sources} ${imgui_sources_cpp})
+        list(REMOVE_ITEM imgui_sources "${imgui_SOURCE_DIR}/imgui_demo.cpp")
+
+        set(IMGUI_DIR ${imgui_SOURCE_DIR})
+        set(IMGUI_INCLUDE_DIR ${imgui_SOURCE_DIR})
+        set(IMGUI_SOURCES ${imgui_sources} ${imgui_sources_cpp})
+    endif()
 endif()
 
 #
@@ -139,13 +189,15 @@ endif()
 # CPM: imgui-sfml
 # -----------------------------------------------------------------------------
 
-CPMAddPackage(
-    NAME imgui-sfml
-    GITHUB_REPOSITORY eliasdaler/imgui-sfml
-    GIT_TAG 82dc2033e51b8323857c3ae1cf1f458b3a933c35
-    )
+if(NOT SSVOH_ANDROID)
+    CPMAddPackage(
+        NAME imgui-sfml
+        GITHUB_REPOSITORY vittorioromeo/imgui-sfml
+        GIT_TAG 6162deff9766258eff4059cd69508983bb3e93b9
+        )
 
-set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
+    set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
+endif()
 
 #
 #
@@ -158,8 +210,8 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 
 CPMAddPackage(
     NAME libsodium-cmake
-    GITHUB_REPOSITORY robinlinden/libsodium-cmake
-    GIT_TAG a8ac4509b22b84d6c2eb7d7448f08678e4a67da6
+    GITHUB_REPOSITORY vittorioromeo/libsodium-cmake
+    GIT_TAG fd76500b60fcaa341b6fad24cda88c3504df770d
     OPTIONS "SODIUM_DISABLE_TESTS ON" "SODIUM_DISABLE_TESTS ON CACHE BOOL \"\" FORCE"
 )
 
@@ -175,7 +227,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME boostpfr
     GITHUB_REPOSITORY boostorg/pfr
-    GIT_TAG ed82d60966436eefc8fce3ad9b87ab056a2321fd
+    GIT_TAG 69c5692cd666b1685a5eef00a4a79ca2e6093ff0
     DOWNLOAD_ONLY YES
 )
 
@@ -235,6 +287,7 @@ message(STATUS "initialized project ${PROJECT_NAME}")
 # -----------------------------------------------------------------------------
 
 set(CMAKE_UNITY_BUILD ON)
+set(CMAKE_UNITY_BUILD_BATCH_SIZE 4)
 
 #
 #
@@ -250,18 +303,24 @@ include_directories("./${INC_DIR}")
 
 file(GLOB_RECURSE MAIN_FILE "${SRC_DIR}/SSVOpenHexagon/*/main.cpp")
 
-file(GLOB_RECURSE SRC_LIST
-     "${INC_DIR}/SSVOpenHexagon/*"
-     "${SRC_DIR}/SSVOpenHexagon/*"
-     "public/discord/*")
+if(NOT SSVOH_ANDROID)
+    file(GLOB_RECURSE SRC_LIST
+        "${INC_DIR}/SSVOpenHexagon/*"
+        "${SRC_DIR}/SSVOpenHexagon/*"
+        "public/discord/*")
+else()
+    file(GLOB_RECURSE SRC_LIST
+        "${INC_DIR}/SSVOpenHexagon/*"
+        "${SRC_DIR}/SSVOpenHexagon/*")
+endif()
 
 file(GLOB_RECURSE C_SRC_LIST
      "public/sqlite/*.c")
 
 list(REMOVE_ITEM SRC_LIST ${MAIN_FILE})
 
-set_source_files_properties("public/sqlite/sqlite3.c" PROPERTIES COMPILE_FLAGS "-w")
-set_source_files_properties("public/sqlite/shell.c" PROPERTIES COMPILE_FLAGS "-w")
+set_source_files_properties("public/sqlite/sqlite3.c"
+                            "public/sqlite/shell.c" PROPERTIES COMPILE_FLAGS "-w")
 
 #
 #
@@ -277,6 +336,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 # Flags and extlibs
 # -----------------------------------------------------------------------------
 
+string(TOLOWER "${CMAKE_BUILD_TYPE}" vrm_cmake_build_type_lower)
 vrm_cmake_include_vc_dependency_once(vc_detection)
 
 # TODO: decide how to handle flags
@@ -288,17 +348,17 @@ vrm_cmake_include_vc_dependency_once(vc_detection)
 # LTO
 # -----------------------------------------------------------------------------
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT result)
-
-if(result)
-    if("${vrm_cmake_build_type_lower}" STREQUAL "release")
-        message(STATUS "Enabling LTO")
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif()
-else()
-    message(STATUS "LTO not supported")
-endif()
+# include(CheckIPOSupported)
+# check_ipo_supported(RESULT result)
+#
+# if(result)
+#     if("${vrm_cmake_build_type_lower}" STREQUAL "release")
+#         message(STATUS "Enabling LTO")
+#         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+#     endif()
+# else()
+#     message(STATUS "LTO not supported")
+# endif()
 
 #
 #
@@ -306,9 +366,21 @@ endif()
 # Targets
 # -----------------------------------------------------------------------------
 
+if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+    set(SSVOH_BUILD_WIN32_CONSOLE TRUE)
+else()
+    set(SSVOH_BUILD_WIN32_CONSOLE FALSE)
+endif()
+
 add_library(SSVOpenHexagonLibC STATIC ${C_SRC_LIST})
 add_library(SSVOpenHexagonLib STATIC ${SRC_LIST})
-add_executable(SSVOpenHexagon ${MAIN_FILE})
+
+if(SSVOH_BUILD_WIN32_CONSOLE)
+    add_executable(SSVOpenHexagon WIN32 ${MAIN_FILE})
+    add_executable(SSVOpenHexagon-Console ${MAIN_FILE})
+else()
+    add_executable(SSVOpenHexagon ${MAIN_FILE})
+endif()
 
 #
 #
@@ -323,6 +395,10 @@ target_precompile_headers(
 
 target_precompile_headers(SSVOpenHexagon REUSE_FROM SSVOpenHexagonLib)
 
+if(SSVOH_BUILD_WIN32_CONSOLE)
+    target_precompile_headers(SSVOpenHexagon-Console REUSE_FROM SSVOpenHexagonLib)
+endif()
+
 #
 #
 # -----------------------------------------------------------------------------
@@ -334,21 +410,25 @@ set(PUBLIC_INCLUDE_DIRS "public" "public/sqlite" "public/sqlite_orm")
 set(SFML_LIBRARIES
     sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 
-if(WIN32)
-    set(PUBLIC_LIBRARIES
-        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.lib"
-        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll.lib"
-        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/sdkencryptedappticket64.lib"
-        sodium
-    )
+if(NOT SSVOH_ANDROID)
+    if(WIN32)
+        set(PUBLIC_LIBRARIES
+            "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.lib"
+            "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll.lib"
+            "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/sdkencryptedappticket64.lib"
+            sodium
+        )
+    else()
+        set(PUBLIC_LIBRARIES
+            "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
+            "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libdiscord_game_sdk.so"
+            "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsdkencryptedappticket.so"
+            Xcursor
+            sodium
+        )
+    endif()
 else()
-    set(PUBLIC_LIBRARIES
-        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
-        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libdiscord_game_sdk.so"
-        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsdkencryptedappticket.so"
-        Xcursor
-        sodium
-    )
+    set(PUBLIC_LIBRARIES sodium)
 endif()
 
 target_include_directories(
@@ -357,7 +437,6 @@ target_include_directories(
                              PUBLIC ${zlib_SOURCE_DIR}
                              PUBLIC ${zlib_BINARY_DIR}
                              PUBLIC ${luajit_SOURCE_DIR}/src
-                             PUBLIC ${imgui_SOURCE_DIR}
                              PUBLIC ${boostpfr_INCLUDE_DIR}
 )
 
@@ -366,8 +445,12 @@ target_link_libraries(
                       libluajit
                       zlib
                       ${PUBLIC_LIBRARIES}
-                      ImGui-SFML::ImGui-SFML
 )
+
+if(NOT SSVOH_ANDROID)
+    target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${imgui_SOURCE_DIR})
+    target_link_libraries(SSVOpenHexagonLib ImGui-SFML::ImGui-SFML)
+endif()
 
 macro(ssvoh_find_extlib_for_target target extlib)
     list(APPEND CMAKE_MODULE_PATH
@@ -389,16 +472,34 @@ ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
 
 target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 
+if(SSVOH_BUILD_WIN32_CONSOLE)
+    target_link_libraries(SSVOpenHexagon "${CMAKE_SOURCE_DIR}/art/icon256.res" sfml-main)
+    target_compile_options(SSVOpenHexagon PRIVATE "-Wl,-subsystem,windows")
+    target_link_libraries(SSVOpenHexagon-Console SSVOpenHexagonLib SSVOpenHexagonLibC
+                                                 "${CMAKE_SOURCE_DIR}/art/icon256console.res")
+endif()
+
+set(SSVOH_INCLUDE_DIRECTORIES ${SFML_SOURCE_DIR}/include
+                              ${PUBLIC_INCLUDE_DIRS}
+                              ${zlib_SOURCE_DIR}
+                              ${zlib_BINARY_DIR}
+                              ${LUASRC})
+
+if(NOT SSVOH_ANDROID)
+    set(SSVOH_INCLUDE_DIRECTORIES "${SSVOH_INCLUDE_DIRECTORIES} ${imgui_SOURCE_DIR}")
+endif()
+
 target_include_directories(
-    SSVOpenHexagon SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
-                          PUBLIC ${PUBLIC_INCLUDE_DIRS}
-                          PUBLIC ${zlib_SOURCE_DIR}
-                          PUBLIC ${zlib_BINARY_DIR}
-                          PUBLIC ${LUASRC}
-                          PUBLIC ${imgui_SOURCE_DIR}
+    SSVOpenHexagon SYSTEM PUBLIC ${SSVOH_INCLUDE_DIRECTORIES}
 )
 
-if(UNIX AND NOT APPLE)
+if(SSVOH_BUILD_WIN32_CONSOLE)
+    target_include_directories(
+        SSVOpenHexagon-Console SYSTEM PUBLIC  ${SSVOH_INCLUDE_DIRECTORIES}
+    )
+endif()
+
+if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
     target_link_libraries(SSVOpenHexagonLib pthread)
 endif()
 
@@ -406,35 +507,44 @@ install(
     TARGETS SSVOpenHexagon RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
 )
 
+if(SSVOH_BUILD_WIN32_CONSOLE)
+    install(
+        TARGETS SSVOpenHexagon-Console RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
+    )
+endif()
+
+
 #
 #
 # -----------------------------------------------------------------------------
 # Workshop uploader tool
 # -----------------------------------------------------------------------------
 
-if(WIN32)
-    set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.lib")
-else()
-    set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so")
+if(NOT SSVOH_ANDROID)
+    if(WIN32)
+        set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.lib")
+    else()
+        set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so")
+    endif()
+
+    add_executable(
+        OHWorkshopUploader "${CMAKE_CURRENT_SOURCE_DIR}/src/OHWorkshopUploader/main.cpp"
+    )
+
+    target_include_directories(
+        OHWorkshopUploader SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS}
+    )
+
+    target_link_libraries(OHWorkshopUploader ${STEAM_LIBRARIES})
+
+    if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
+        target_link_libraries(OHWorkshopUploader pthread)
+    endif()
+
+    install(
+        TARGETS OHWorkshopUploader RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
+    )
 endif()
-
-add_executable(
-    OHWorkshopUploader "${CMAKE_CURRENT_SOURCE_DIR}/src/OHWorkshopUploader/main.cpp"
-)
-
-target_include_directories(
-    OHWorkshopUploader SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS}
-)
-
-target_link_libraries(OHWorkshopUploader ${STEAM_LIBRARIES})
-
-if(UNIX AND NOT APPLE)
-    target_link_libraries(OHWorkshopUploader pthread)
-endif()
-
-install(
-    TARGETS OHWorkshopUploader RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
-)
 
 #
 #
@@ -442,23 +552,25 @@ install(
 # Server control tool
 # -----------------------------------------------------------------------------
 
-add_executable(
-    OHServerControl "${CMAKE_CURRENT_SOURCE_DIR}/src/OHServerControl/main.cpp"
-)
+if(NOT SSVOH_ANDROID)
+    add_executable(
+        OHServerControl "${CMAKE_CURRENT_SOURCE_DIR}/src/OHServerControl/main.cpp"
+    )
 
-target_include_directories(
-    OHServerControl SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
-)
+    target_include_directories(
+        OHServerControl SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
+    )
 
-target_link_libraries(OHServerControl sfml-system sfml-network)
+    target_link_libraries(OHServerControl sfml-system sfml-network)
 
-if(UNIX AND NOT APPLE)
-    target_link_libraries(OHServerControl pthread)
+    if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
+        target_link_libraries(OHServerControl pthread)
+    endif()
+
+    install(
+        TARGETS OHServerControl RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
+    )
 endif()
-
-install(
-    TARGETS OHServerControl RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
-)
 
 #
 #

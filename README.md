@@ -1,12 +1,23 @@
 <a href="https://openhexagon.org" target="_blank">
     <p align="center">
-        <img src="https://vittorioromeo.info/Misc/Linked/githubohlogo.png">
+        <img src="https://vittorioromeo.info/Misc/Linked/githubohlogo2.png">
     </p>
 </a>
 
-> **Open Hexagon is a fast-paced and adrenaline-inducing paced arcade experience by [Vittorio Romeo](https://vittorioromeo.info). Designed for moddability and custom level creation.** Now available on [Steam](https://store.steampowered.com/app/1358090/)!
+> **Four buttons, one goal: survive. Are you ready for a real challenge? -- Become the best and climb the leaderboards in Open Hexagon, a fast-paced adrenalinic arcade game that's easy to learn but hard to master!** *Now available on [Steam](https://store.steampowered.com/app/1358090/)*.
+
+<a href="https://www.youtube.com/watch?v=06y7mEsAMHM" target="_blank">
+    <p align="center">
+        <img src="https://img.youtube.com/vi/06y7mEsAMHM/0.jpg">
+    </p>
+</a>   
 
 ## Credits
+
+### Original Inspiration
+
+- Open Hexagon is inspired by the excellent [Super Hexagon](https://store.steampowered.com/app/221640/Super_Hexagon/), created by [Terry Cavanagh](https://distractionware.com/). 
+- **Terry [fully supports Open Hexagon](https://twitter.com/terrycavanagh/status/1397373413329571845) -- thank you!**
 
 ### Source Contributors
 
@@ -15,6 +26,7 @@
 - AlphaPromethium
 - Misa "Info Teddy" Elizabeth | [@Info__Teddy](https://twitter.com/Info__Teddy)
 - Ivory Duke
+- MultHub
 
 ### Testing
 

@@ -4,7 +4,10 @@
 
 #pragma once
 
+#ifdef SSVOH_PRODUCE_LUA_METADATA
 #include "SSVOpenHexagon/Utils/ArgExtractor.hpp"
+#endif
+
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
 #include <string>
@@ -21,10 +24,14 @@ class LuaMetadata;
 class LuaMetadataProxy
 {
 private:
-    LuaMetadata& luaMetadata;
-    std::string name;
-    std::string (*erasedRet)(LuaMetadataProxy*);
-    std::string (*erasedArgs)(LuaMetadataProxy*);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+    [[maybe_unused]] LuaMetadata& luaMetadata;
+    [[maybe_unused]] std::string name;
+    [[maybe_unused]] std::string (*erasedRet)(LuaMetadataProxy*);
+    [[maybe_unused]] std::string (*erasedArgs)(LuaMetadataProxy*);
+#pragma GCC diagnostic pop
+
     std::string docs;
     std::vector<std::string> argNames;
 
@@ -35,8 +42,10 @@ private:
     [[nodiscard]] static std::string typeToStr(TypeWrapper<std::tuple<Ts...>>);
 
     template <typename FOp>
-    [[nodiscard]] static std::string makeArgsString(LuaMetadataProxy* self)
+    [[nodiscard]] static std::string makeArgsString(
+        [[maybe_unused]] LuaMetadataProxy* self)
     {
+#ifdef SSVOH_PRODUCE_LUA_METADATA
         using AE = Utils::ArgExtractor<FOp>;
 
         if constexpr(AE::numArgs == 0)
@@ -76,6 +85,9 @@ private:
 
             return res;
         }
+#else
+        return "";
+#endif
     }
 
     [[nodiscard]] std::string resolveArgNames(const std::string& docs);
@@ -83,10 +95,15 @@ private:
     template <typename Ret>
     [[nodiscard]] static std::string makeErasedRet(LuaMetadataProxy*)
     {
+#ifdef SSVOH_PRODUCE_LUA_METADATA
         return typeToStr(TypeWrapper<std::decay_t<Ret>>{});
+#else
+        return "";
+#endif
     }
 
 public:
+#ifdef SSVOH_PRODUCE_LUA_METADATA
     template <typename F, typename FOp = decltype(&std::decay_t<F>::operator())>
     explicit LuaMetadataProxy(
         TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName)
@@ -95,6 +112,16 @@ public:
           erasedRet{&makeErasedRet<typename Utils::ArgExtractor<FOp>::Return>},
           erasedArgs{&makeArgsString<FOp>}
     {}
+#else
+    template <typename F>
+    explicit LuaMetadataProxy(TypeWrapper<F>, LuaMetadata& mLuaMetadata,
+        [[maybe_unused]] const std::string& mName)
+        : luaMetadata{mLuaMetadata},
+          name{""},
+          erasedRet{nullptr},
+          erasedArgs{nullptr}
+    {}
+#endif
 
     ~LuaMetadataProxy();
 

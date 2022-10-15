@@ -5,55 +5,71 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+
+#include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
+#include "SSVOpenHexagon/Utils/MoveTowards.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
-#include "SSVOpenHexagon/Core/HexagonClient.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
+
 #include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVUtils/Core/Utils/Rnd.hpp"
 
+#ifndef SSVOH_ANDROID
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include <imgui-SFML.h>
+#endif
 
 #include <SSVStart/Utils/Vector2.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
 
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
+
 #include <array>
-#include <cstring>
 #include <optional>
 #include <stdexcept>
+
+#include <cstring>
+#include <cstdint>
 
 namespace hg {
 
 void HexagonGame::fastForwardTo(const double target)
 {
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
-    const TimePoint tpBegin = Clock::now();
+    const HRTimePoint tpBegin = HRClock::now();
 
     const auto exceededProcessingTime = [&]
     {
         constexpr int maxProcessingSeconds = 3;
-
-        return std::chrono::duration_cast<std::chrono::seconds>(
-                   Clock::now() - tpBegin)
-                   .count() > maxProcessingSeconds;
+        return hrSecondsSince(tpBegin) > maxProcessingSeconds;
     };
 
     while(!status.hasDied && status.getTimeSeconds() < target &&
           !exceededProcessingTime())
+    {
+        update(Config::TIME_STEP, 1.0f /* timescale */);
+        postUpdate();
+    }
+}
+
+void HexagonGame::advanceByTicks(const int nTicks)
+{
+    for(int i = 0; i < nTicks; ++i)
     {
         update(Config::TIME_STEP, 1.0f /* timescale */);
         postUpdate();
@@ -70,6 +86,30 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
         fastForwardTarget.reset();
 
         fastForwardTo(target);
+
+        if(audio != nullptr)
+        {
+            audio->setMusicPlayingOffsetSeconds(
+                audio->getMusicPlayingOffsetSeconds() +
+                status.getTimeSeconds());
+        }
+
+        return;
+    }
+
+    // ------------------------------------------------------------------------
+    // Advance by ticks for level testing
+    if(advanceTickCount.has_value())
+    {
+        const int nTicks = advanceTickCount.value();
+        advanceTickCount.reset();
+
+        const bool wasPaused = debugPause;
+
+        debugPause = false;
+        advanceByTicks(nTicks);
+        debugPause = wasPaused;
+
         return;
     }
 
@@ -110,8 +150,6 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
 
     // ------------------------------------------------------------------------
 
-    updateText(mFT);
-
     if(mustStart)
     {
         mustStart = false;
@@ -133,6 +171,12 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
 
             if(!status.started)
             {
+                if(window != nullptr && window->hasTimer())
+                {
+                    // This avoids initial speedup when viewing replays.
+                    window->getTimerBase().reset();
+                }
+
                 mustStart = true;
             }
             else
@@ -199,12 +243,35 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
                     player.updateInputMovement(getInputMovement(),
                         getPlayerSpeedMult(), getInputFocused(), mFT);
 
+                    // Play "swap ready blip" sound and create particles
+                    if(!playerNowReadyToSwap && player.isReadyToSwap())
+                    {
+                        playerNowReadyToSwap = true;
+
+                        if(Config::getPlaySwapReadySound())
+                        {
+                            playSoundOverride("swapBlip.ogg");
+                        }
+
+                        swapParticlesSpawnInfo =
+                            SwapParticleSpawnInfo{.ready{true},
+                                .position{player.getPosition()},
+                                .angle{player.getPlayerAngle()}};
+                    }
+
+                    // Create particles after swap
                     if(getLevelStatus().swapEnabled && getInputSwap() &&
                         player.isReadyToSwap())
                     {
+                        swapParticlesSpawnInfo =
+                            SwapParticleSpawnInfo{.ready{false},
+                                .position{player.getPosition()},
+                                .angle{player.getPlayerAngle()}};
+
                         performPlayerSwap(true /* mPlaySound */);
                         player.resetSwap(getSwapCooldown());
                         player.setJustSwapped(true);
+                        playerNowReadyToSwap = false;
                     }
                     else
                     {
@@ -230,16 +297,14 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
 
                 updateMusic(mFT);
                 updateLevel(mFT);
+                updateCustomTimelines();
 
                 if(Config::getBeatPulse())
                 {
                     updateBeatPulse(mFT);
                 }
 
-                if(Config::getPulse())
-                {
-                    updatePulse(mFT);
-                }
+                updatePulse(mFT);
 
                 if(!Config::getBlackAndWhite())
                 {
@@ -268,6 +333,8 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
                 updateRotation(mFT);
             }
 
+            updateCameraShake(mFT);
+
             if(!status.hasDied)
             {
                 const auto fixup =
@@ -292,10 +359,23 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
             SSVOH_ASSERT(backgroundCamera.has_value());
 
             updateParticles(mFT);
+
+            if(Config::getShowPlayerTrail() && status.showPlayerTrail)
+            {
+                updateTrailParticles(mFT);
+            }
+
+            if(Config::getShowSwapParticles())
+            {
+                updateSwapParticles(mFT);
+            }
+
             overlayCamera->update(mFT);
             backgroundCamera->update(mFT);
         }
     }
+
+    updateText(mFT);
 
     if(status.started)
     {
@@ -329,6 +409,11 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
         if(!Config::get3D() && levelStatus._3DRequired)
         {
             invalidateScore("3D REQUIRED");
+        }
+
+        if(!Config::getShaders() && levelStatus.shadersRequired)
+        {
+            invalidateScore("SHADERS REQUIRED");
         }
     }
 }
@@ -613,6 +698,11 @@ void HexagonGame::updateMusic(ssvu::FT)
     musicTimelineRunner.update(musicTimeline, status.getMusicTime());
 }
 
+void HexagonGame::updateCustomTimelines()
+{
+    _customTimelineManager.updateAllTimelines(status.getCurrentTP());
+}
+
 void HexagonGame::updateIncrement()
 {
     if(!levelStatus.incEnabled)
@@ -680,15 +770,20 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
 
         status.pulseDelay -= mFT * getMusicDMSyncFactor();
     }
+    refreshPulse();
+}
 
+void HexagonGame::refreshPulse()
+{
     if(window != nullptr)
     {
         SSVOH_ASSERT(backgroundCamera.has_value());
 
-        const float p{status.pulse / levelStatus.pulseMin};
+        const float p{
+            Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
         const float rotation{backgroundCamera->getRotation()};
 
-        backgroundCamera->setView({ssvs::zeroVec2f,
+        backgroundCamera->setView(sf::View{ssvs::zeroVec2f,
             {(Config::getWidth() * Config::getZoomFactor()) * p,
                 (Config::getHeight() * Config::getZoomFactor()) * p}});
 
@@ -716,7 +811,11 @@ void HexagonGame::updateBeatPulse(ssvu::FT mFT)
                                 levelStatus.beatPulseSpeedMult;
         }
     }
+    refreshBeatPulse();
+}
 
+void HexagonGame::refreshBeatPulse()
+{
     const float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
     status.radius =
         radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
@@ -743,6 +842,48 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
     }
 }
 
+void HexagonGame::updateCameraShake(ssvu::FT mFT)
+{
+    if(!backgroundCamera.has_value() || !overlayCamera.has_value())
+    {
+        return;
+    }
+
+    if(status.cameraShake <= 0.f)
+    {
+        if(preShakeCenters.has_value())
+        {
+            backgroundCamera->setCenter(preShakeCenters->background);
+            overlayCamera->setCenter(preShakeCenters->overlay);
+
+            preShakeCenters.reset();
+        }
+
+        return;
+    }
+
+    status.cameraShake -= mFT;
+
+    if(!preShakeCenters.has_value())
+    {
+        preShakeCenters = PreShakeCenters{
+            backgroundCamera->getCenter(), overlayCamera->getCenter()};
+    }
+
+    SSVOH_ASSERT(backgroundCamera.has_value());
+    SSVOH_ASSERT(overlayCamera.has_value());
+    SSVOH_ASSERT(preShakeCenters.has_value());
+
+    const auto makeShakeVec = [this]
+    {
+        const float i = status.cameraShake;
+        return sf::Vector2f(rng.get_real(-i, i), rng.get_real(-i, i));
+    };
+
+    backgroundCamera->setCenter(preShakeCenters->background + makeShakeVec());
+    overlayCamera->setCenter(preShakeCenters->overlay + makeShakeVec());
+}
+
 void HexagonGame::updateFlash(ssvu::FT mFT)
 {
     if(status.flashEffect > 0)
@@ -752,9 +893,9 @@ void HexagonGame::updateFlash(ssvu::FT mFT)
 
     status.flashEffect = ssvu::getClamped(status.flashEffect, 0.f, 255.f);
 
-    for(auto i(0u); i < 4; ++i)
+    for(sf::Vertex& vertex : flashPolygon)
     {
-        flashPolygon[i].color.a = status.flashEffect;
+        vertex.color.a = status.flashEffect;
     }
 }
 
@@ -789,10 +930,11 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
     {
         Particle p;
 
-        p.sprite.setTexture(assets.getTextureOrNullTexture("starParticle.png"));
+        SSVOH_ASSERT(txStarParticle != nullptr);
+        p.sprite.setTexture(*txStarParticle);
         p.sprite.setPosition(
             {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
-        p.sprite.setRotation(ssvu::getRndR(0.f, 360.f));
+        p.sprite.setRotation(sf::degrees(ssvu::getRndR(0.f, 360.f)));
 
         const float scale = ssvu::getRndR(0.75f, 1.35f);
         p.sprite.setScale({scale, scale});
@@ -813,7 +955,7 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
     {
         sf::Sprite& sp = p.sprite;
         sp.setPosition(sp.getPosition() + p.velocity * mFT);
-        sp.setRotation(sp.getRotation() + p.angularVelocity * mFT);
+        sp.setRotation(sp.getRotation() + sf::degrees(p.angularVelocity * mFT));
     }
 
     if(mustSpawnPBParticles)
@@ -827,6 +969,144 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
     }
 }
 
+void HexagonGame::updateTrailParticles(ssvu::FT mFT)
+{
+    SSVOH_ASSERT(window != nullptr);
+
+    const auto isDead = [&](const TrailParticle& p)
+    { return p.sprite.getColor().a <= 3; };
+
+    const auto makeTrailParticle = [this]
+    {
+        TrailParticle p;
+
+        SSVOH_ASSERT(txSmallCircle != nullptr);
+        p.sprite.setTexture(*txSmallCircle);
+        p.sprite.setPosition(player.getPosition());
+        p.sprite.setOrigin(sf::Vector2f{txSmallCircle->getSize()} / 2.f);
+
+        const float scale = Config::getPlayerTrailScale();
+        p.sprite.setScale({scale, scale});
+
+        sf::Color c = getColorPlayerTrail();
+
+        c.a = Config::getPlayerTrailAlpha();
+        p.sprite.setColor(c);
+
+        p.angle = player.getPlayerAngle();
+
+        return p;
+    };
+
+    ssvu::eraseRemoveIf(trailParticles, isDead);
+
+    for(TrailParticle& p : trailParticles)
+    {
+        sf::Color color = p.sprite.getColor();
+
+        const float newAlpha = Utils::getMoveTowardsZero(
+            static_cast<float>(color.a), Config::getPlayerTrailDecay() * mFT);
+
+        color.a = static_cast<std::uint8_t>(newAlpha);
+        p.sprite.setColor(color);
+
+        p.sprite.setScale(p.sprite.getScale() * 0.98f);
+
+        p.sprite.setPosition(
+            ssvs::getVecFromRad(p.angle, status.radius + 2.4f));
+    }
+
+    if(player.hasChangedAngle())
+    {
+        trailParticles.emplace_back(makeTrailParticle());
+    }
+}
+
+void HexagonGame::updateSwapParticles(ssvu::FT mFT)
+{
+    SSVOH_ASSERT(window != nullptr);
+
+    const auto isDead = [&](const SwapParticle& p)
+    { return p.sprite.getColor().a <= 3; };
+
+    const auto makeSwapParticle = [this](const SwapParticleSpawnInfo& si,
+                                      const float expand, const float speedMult,
+                                      const float scaleMult, const float alpha)
+    {
+        SwapParticle p;
+
+        SSVOH_ASSERT(txSmallCircle != nullptr);
+        p.sprite.setTexture(*txSmallCircle);
+        p.sprite.setPosition(si.position);
+        p.sprite.setOrigin(sf::Vector2f{txSmallCircle->getSize()} / 2.f);
+
+        const float scale = ssvu::getRndR(0.65f, 1.35f) * scaleMult;
+        p.sprite.setScale({scale, scale});
+
+        sf::Color c = getColorPlayerTrail();
+
+        c.a = alpha;
+        p.sprite.setColor(c);
+
+        p.velocity =
+            ssvs::getVecFromRad(si.angle + ssvu::getRndR(-expand, expand),
+                ssvu::getRndR(0.1f, 10.f) * speedMult);
+
+        return p;
+    };
+
+    ssvu::eraseRemoveIf(swapParticles, isDead);
+
+    for(SwapParticle& p : swapParticles)
+    {
+        sf::Color color = p.sprite.getColor();
+
+        const float newAlpha =
+            Utils::getMoveTowardsZero(static_cast<float>(color.a), 3.5f * mFT);
+
+        color.a = static_cast<std::uint8_t>(newAlpha);
+        p.sprite.setColor(color);
+
+        p.sprite.setScale(p.sprite.getScale() * 0.98f);
+        p.sprite.setPosition(p.sprite.getPosition() + p.velocity * mFT);
+    }
+
+    if(swapParticlesSpawnInfo.has_value())
+    {
+        if(swapParticlesSpawnInfo->ready == false)
+        {
+            for(int i = 0; i < 20; ++i)
+            {
+                swapParticles.emplace_back(
+                    makeSwapParticle(*swapParticlesSpawnInfo,
+                        0.45f /* expand */, 1.f /* speedMult */,
+                        1.f /* scaleMult */, 45.f /* alpha */));
+            }
+
+            for(int i = 0; i < 10; ++i)
+            {
+                swapParticles.emplace_back(
+                    makeSwapParticle(*swapParticlesSpawnInfo,
+                        3.14f /* expand */, 0.45f /* speedMult */,
+                        0.75f /* scaleMult */, 35.f /* alpha */));
+            }
+        }
+        else
+        {
+            for(int i = 0; i < 14; ++i)
+            {
+                swapParticles.emplace_back(
+                    makeSwapParticle(*swapParticlesSpawnInfo,
+                        3.14f /* expand */, 1.3f /* speedMult */,
+                        0.4f /* scaleMult */, 140.f /* alpha */));
+            }
+        }
+
+        swapParticlesSpawnInfo.reset();
+    }
+}
+
+#ifndef SSVOH_ANDROID
 static int ilcTextEditCallbackStub(ImGuiInputTextCallbackData* data)
 {
     auto hg = (HexagonGame*)data->UserData;
@@ -855,9 +1135,12 @@ static int Strnicmp(const char* s1, const char* s2, int n)
     }
     return d;
 }
+#endif
 
-int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
+int HexagonGame::ilcTextEditCallback(
+    [[maybe_unused]] ImGuiInputTextCallbackData* data)
 {
+#ifndef SSVOH_ANDROID
     switch(data->EventFlag)
     {
         case ImGuiInputTextFlags_CallbackCompletion:
@@ -988,14 +1271,22 @@ int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
             }
         }
     }
+#endif
 
     return 0;
 }
 
 void HexagonGame::postUpdate_ImguiLuaConsole()
 {
+#ifndef SSVOH_ANDROID
     if(window == nullptr)
     {
+        return;
+    }
+
+    if(!Config::getDebug() || Config::getOfficial())
+    {
+        ilcShowConsole = ilcShowConsoleNext = false;
         return;
     }
 
@@ -1156,6 +1447,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 !clear          Clears the console
 !help           Display this help
 !ff <seconds>   Fast-forward simulation to specified time
+!advt <ticks>   Advance simulation by specified number of ticks
 ?fn             Display Lua docs for function `fn`
 )");
         }
@@ -1170,6 +1462,28 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
                     Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
 
                 fastForwardTarget = seconds;
+            }
+            catch(const std::invalid_argument&)
+            {
+                ilcCmdLog.emplace_back(
+                    "[error]: invalid argument for <seconds>\n");
+            }
+            catch(const std::out_of_range&)
+            {
+                ilcCmdLog.emplace_back("[error]: out of range for <seconds>\n");
+            }
+        }
+        else if(cmdSplit.size() > 1 && cmdSplit.at(0) == "!advt")
+        {
+            try
+            {
+                const std::string& ticksStr = cmdSplit.at(1);
+                const int ticks = std::stoi(ticksStr);
+
+                ilcCmdLog.emplace_back(Utils::concat(
+                    "[advt]: advancing simulation by ", ticks, " ticks\n"));
+
+                advanceTickCount = ticks >= 0 ? ticks : 0;
             }
             catch(const std::invalid_argument&)
             {
@@ -1320,6 +1634,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     }
 
     ImGui::End();
+#endif
 }
 
 void HexagonGame::postUpdate()

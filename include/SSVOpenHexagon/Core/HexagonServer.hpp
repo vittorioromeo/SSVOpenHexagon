@@ -4,15 +4,19 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
+
+#include "SSVOpenHexagon/Utils/Timestamp.hpp"
+
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
 #include <SFML/Network/IpAddress.hpp>
+#include <SFML/Network/Packet.hpp>
+#include <SFML/Network/SocketSelector.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/UdpSocket.hpp>
-#include <SFML/Network/SocketSelector.hpp>
-#include <SFML/Network/Packet.hpp>
 
 #include <chrono>
 #include <list>
@@ -20,6 +24,8 @@
 #include <sstream>
 #include <string>
 #include <unordered_set>
+
+#include <cstdint>
 
 namespace hg {
 
@@ -30,10 +36,6 @@ struct replay_file;
 
 class HexagonServer
 {
-public:
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
 private:
     HGAssets& _assets;
     HexagonGame& _hexagonGame;
@@ -65,7 +67,7 @@ private:
         };
 
         sf::TcpSocket _socket;
-        TimePoint _lastActivity;
+        Utils::SCTimePoint _lastActivity;
         int _consecutiveFailures;
         bool _mustDisconnect;
         std::optional<SodiumPublicKeyArray> _clientPublicKey;
@@ -86,13 +88,13 @@ private:
 
         struct GameStatus
         {
-            TimePoint _startTP;
+            Utils::SCTimePoint _startTP;
             std::string _levelValidator;
         };
 
         std::optional<GameStatus> _gameStatus;
 
-        explicit ConnectedClient(const TimePoint lastActivity)
+        explicit ConnectedClient(const Utils::SCTimePoint lastActivity)
             : _socket{},
               _lastActivity{lastActivity},
               _consecutiveFailures{0},
@@ -115,8 +117,8 @@ private:
 
     const SodiumPSKeys _serverPSKeys;
 
-    TimePoint _lastTokenPurge;
-    TimePoint _lastLogsFlush;
+    Utils::SCTimePoint _lastTokenPurge;
+    Utils::SCTimePoint _lastLogsFlush;
 
     [[nodiscard]] bool initializeControlSocket();
     [[nodiscard]] bool initializeTcpListener();
@@ -152,7 +154,7 @@ private:
         const std::vector<Database::ProcessedScore>& scores,
         const std::optional<Database::ProcessedScore>& ownScore);
     [[nodiscard]] bool sendServerStatus(ConnectedClient& c,
-        const GameVersion& gameVersion,
+        const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
         const std::vector<std::string> supportedLevelValidators);
 
     void kickAndRemoveClient(ConnectedClient& c);
@@ -167,10 +169,10 @@ private:
     void runIteration_FlushLogs();
 
     [[nodiscard]] bool validateLogin(ConnectedClient& c, const char* context,
-        const sf::Uint64 ctspLoginToken);
+        const std::uint64_t ctspLoginToken);
 
-    [[nodiscard]] bool processReplay(
-        ConnectedClient& c, const sf::Uint64 loginToken, const replay_file& rf);
+    [[nodiscard]] bool processReplay(ConnectedClient& c,
+        const std::uint64_t loginToken, const replay_file& rf);
 
     template <typename T>
     void printCTSPDataVerbose(

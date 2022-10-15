@@ -15,9 +15,9 @@
 
 namespace hg {
 
-[[nodiscard]] static Utils::FastVertexVectorQuads& getDialogFrame()
+[[nodiscard]] static Utils::FastVertexVectorTris& getDialogFrame()
 {
-    thread_local Utils::FastVertexVectorQuads result;
+    thread_local Utils::FastVertexVectorTris result;
     return result;
 }
 
@@ -107,17 +107,16 @@ void HexagonDialogBox::draw(
     }
 }
 
-void HexagonDialogBox::drawBox(Utils::FastVertexVectorQuads& quads,
+void HexagonDialogBox::drawBox(Utils::FastVertexVectorTris& quads,
     const sf::Color& frameColor, const float x1, const float x2, const float y1,
     const float y2)
 {
-    const sf::Vector2f topLeft{x1, y1};
-    const sf::Vector2f topRight{x2, y1};
-    const sf::Vector2f bottomRight{x2, y2};
-    const sf::Vector2f bottomLeft{x1, y2};
+    const sf::Vector2f nw{x1, y1};
+    const sf::Vector2f sw{x1, y2};
+    const sf::Vector2f se{x2, y2};
+    const sf::Vector2f ne{x2, y1};
 
-    quads.batch_unsafe_emplace_back(
-        frameColor, topLeft, topRight, bottomRight, bottomLeft);
+    quads.batch_unsafe_emplace_back_quad(frameColor, nw, sw, se, ne);
 }
 
 void HexagonDialogBox::drawText(
@@ -134,7 +133,7 @@ void HexagonDialogBox::drawText(
             txtDialog.setString(str);
             txtDialog.setPosition(
                 {xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
-                    yOffset + heightOffset});
+                    yOffset + heightOffset + 5.f});
             window.draw(txtDialog);
         }
 
@@ -155,7 +154,7 @@ void HexagonDialogBox::drawText(
         }
 
         txtDialog.setPosition({xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
-            yOffset + heightOffset});
+            yOffset + heightOffset + 5.f});
         window.draw(txtDialog);
     }
 }
@@ -165,9 +164,9 @@ inline constexpr float fontHeightDifferential = 0.9f;
 void HexagonDialogBox::drawTopLeft(
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
-    Utils::FastVertexVectorQuads& dialogFrame = getDialogFrame();
+    Utils::FastVertexVectorTris& dialogFrame = getDialogFrame();
     dialogFrame.clear();
-    dialogFrame.reserve(8);
+    dialogFrame.reserve_quad(2);
 
     // outer frame
     drawBox(dialogFrame, txtColor, xPos,
@@ -211,9 +210,9 @@ void HexagonDialogBox::drawCenter(
                 rightBorder = (w + dialogWidth) / 2.f + xPos,
                 halfHeight = totalHeight / 2.f;
 
-    Utils::FastVertexVectorQuads& dialogFrame = getDialogFrame();
+    Utils::FastVertexVectorTris& dialogFrame = getDialogFrame();
     dialogFrame.clear();
-    dialogFrame.reserve(8);
+    dialogFrame.reserve_quad(2);
 
     // outer frame
     drawBox(dialogFrame, txtColor, leftBorder - doubleFrameSize,
@@ -240,9 +239,9 @@ void HexagonDialogBox::drawCenterUpperHalf(
     const float leftBorder = (w - dialogWidth) / 2.f + xPos,
                 rightBorder = (w + dialogWidth) / 2.f + xPos;
 
-    Utils::FastVertexVectorQuads& dialogFrame = getDialogFrame();
+    Utils::FastVertexVectorTris& dialogFrame = getDialogFrame();
     dialogFrame.clear();
-    dialogFrame.reserve(8);
+    dialogFrame.reserve_quad(2);
 
     // outer frame
     drawBox(dialogFrame, txtColor, leftBorder - doubleFrameSize,

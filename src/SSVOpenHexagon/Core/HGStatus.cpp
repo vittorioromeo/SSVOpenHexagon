@@ -18,37 +18,34 @@ void HexagonGameStatus::start() noexcept
     started = true;
 }
 
-[[nodiscard]] double HexagonGameStatus::getIncrementTimeSeconds() noexcept
+[[nodiscard]] double HexagonGameStatus::getIncrementTimeSeconds() const noexcept
 {
     return currentIncrementTime / 60.0;
 }
 
-[[nodiscard]] double HexagonGameStatus::getTimeSeconds() noexcept
+[[nodiscard]] double HexagonGameStatus::getTimeSeconds() const noexcept
 {
     return getPlayedAccumulatedFrametimeInSeconds();
 }
 
-[[nodiscard]] HexagonGameStatus::TimePoint
-HexagonGameStatus::getCurrentTP() noexcept
+[[nodiscard]] HRTimePoint HexagonGameStatus::getCurrentTP() const noexcept
 {
-    return HexagonGameStatus::TimePoint{std::chrono::milliseconds{
+    return HRTimePoint{std::chrono::milliseconds{
         (int64_t)(getTotalAccumulatedFrametimeInSeconds() * 1000.0)}};
 }
 
-[[nodiscard]] HexagonGameStatus::TimePoint
-HexagonGameStatus::getTimeTP() noexcept
+[[nodiscard]] HRTimePoint HexagonGameStatus::getTimeTP() const noexcept
 {
-    return HexagonGameStatus::TimePoint{std::chrono::milliseconds{
+    return HRTimePoint{std::chrono::milliseconds{
         (int64_t)(getPlayedAccumulatedFrametimeInSeconds() * 1000.0)}};
 }
 
-[[nodiscard]] HexagonGameStatus::TimePoint
-HexagonGameStatus::getLevelStartTP() noexcept
+[[nodiscard]] HRTimePoint HexagonGameStatus::getLevelStartTP() const noexcept
 {
-    return HexagonGameStatus::TimePoint{};
+    return HRTimePoint{};
 }
 
-[[nodiscard]] bool HexagonGameStatus::isTimePaused() noexcept
+[[nodiscard]] bool HexagonGameStatus::isTimePaused() const noexcept
 {
     return currentPause > 0.0;
 }

@@ -27,7 +27,7 @@ struct SpeedData
 
     void update(const ssvu::FT ft) noexcept
     {
-        if(_accel == 0)
+        if(_accel == 0.f)
         {
             return;
         }

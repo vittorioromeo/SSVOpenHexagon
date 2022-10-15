@@ -1,0 +1,12 @@
+{
+    "id": "customtimeline",
+    "name": "customtimeline",
+    "description": "test",
+    "author": "vittorio romeo",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "cw",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/customtimeline.lua",
+    "difficultyMults": []
+}

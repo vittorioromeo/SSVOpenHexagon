@@ -13,8 +13,11 @@
 
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
+#include <SFML/Graphics/Shader.hpp>
+
 #include <cstddef>
 #include <map>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -23,6 +26,7 @@ namespace sf {
 class SoundBuffer;
 class Font;
 class Texture;
+class Shader;
 } // namespace sf
 
 namespace ssvu::FileSystem {
@@ -66,20 +70,36 @@ private:
 
     std::unordered_set<std::string> packIdsWithMissingDependencies;
 
+    struct LoadedShader
+    {
+        Utils::UniquePtr<sf::Shader> shader;
+        std::string path;
+        sf::Shader::Type shaderType;
+        std::size_t id;
+    };
+
+    std::unordered_map<std::string, LoadedShader> shaders;
+    std::unordered_map<std::string, std::size_t> shadersPathToId;
+    std::vector<sf::Shader*> shadersById;
+
     std::string buf;
 
     template <typename... Ts>
     [[nodiscard]] std::string& concatIntoBuf(const Ts&...);
 
     [[nodiscard]] bool loadAllPackDatas();
-    [[nodiscard]] bool loadAllPackAssets();
+    [[nodiscard]] bool loadAllPackAssets(const bool headless);
+    [[nodiscard]] bool loadWorkshopPackDatasFromCache();
     [[nodiscard]] bool verifyAllPackDependencies();
     [[nodiscard]] bool loadAllLocalProfiles();
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
 
-    [[nodiscard]] bool loadPackAssets(const PackData& packData);
+    [[nodiscard]] bool loadPackAssets(
+        const PackData& packData, const bool headless);
 
+    void loadPackAssets_loadShaders(
+        const std::string& mPackId, const ssvufs::Path& mPath);
     void loadPackAssets_loadMusic(
         const std::string& mPackId, const ssvufs::Path& mPath);
     void loadPackAssets_loadMusicData(
@@ -101,6 +121,10 @@ public:
         bool mLevelsOnly = false);
 
     ~HGAssets();
+
+    // When the Steam API can not be retrieved, this set holds pack ids
+    // retrieved from the cache to try and load the workshop packs installed
+    std::unordered_set<std::string> cachedWorkshopPackIds;
 
     [[nodiscard]] LoadInfo& getLoadResults();
 
@@ -139,7 +163,17 @@ public:
         const std::string& mPackId, const std::string& mId);
     [[nodiscard]] const StyleData& getStyleData(
         const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] sf::Shader* getShader(
+        const std::string& mPackId, const std::string& mId);
 
+    [[nodiscard]] std::optional<std::size_t> getShaderId(
+        const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] std::optional<std::size_t> getShaderIdByPath(
+        const std::string& mShaderPath);
+    [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
+    [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
+
+    void reloadAllShaders();
     [[nodiscard]] std::string reloadPack(
         const std::string& mPackId, const std::string& mPath);
     [[nodiscard]] std::string reloadLevel(const std::string& mPackId,

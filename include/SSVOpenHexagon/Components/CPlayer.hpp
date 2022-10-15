@@ -64,11 +64,13 @@ private:
     Ticker _swapBlinkTimer;
     Ticker _deadEffectTimer;
 
+    float _currTiltedAngle;
+
     void drawPivot(const unsigned int sides, const sf::Color& colorMain,
-        Utils::FastVertexVectorQuads& wallQuads,
+        Utils::FastVertexVectorTris& wallQuads,
         Utils::FastVertexVectorTris& capTris, const sf::Color& capColor);
 
-    void drawDeathEffect(Utils::FastVertexVectorQuads& wallQuads);
+    void drawDeathEffect(Utils::FastVertexVectorTris& wallQuads);
 
     template <typename Wall>
     [[nodiscard]] bool checkWallCollisionEscape(
@@ -112,10 +114,16 @@ public:
 
     void updatePosition(const float radius);
 
+    [[nodiscard]] sf::Color getColor(const sf::Color& colorPlayer) const;
+
+    [[nodiscard]] sf::Color getColorAdjustedForSwap(
+        const sf::Color& colorPlayer) const;
+
     void draw(const unsigned int sides, const sf::Color& colorMain,
-        const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
+        const sf::Color& colorPlayer, Utils::FastVertexVectorTris& wallQuads,
         Utils::FastVertexVectorTris& capTris,
-        Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor);
+        Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor,
+        const float angleTiltIntensity, const bool swapBlinkingEffect);
 
     [[nodiscard]] bool push(const int movementDir, const float radius,
         const CWall& wall, const sf::Vector2f& mCenterPos,
@@ -126,9 +134,14 @@ public:
 
     [[nodiscard]] bool getJustSwapped() const noexcept;
 
-    [[nodiscard]] bool isReadyToSwap() const noexcept
+    [[nodiscard, gnu::always_inline]] bool isReadyToSwap() const noexcept
     {
         return !_swapTimer.isRunning();
+    }
+
+    [[nodiscard, gnu::always_inline]] bool hasChangedAngle() const noexcept
+    {
+        return _angle != _lastAngle;
     }
 };
 
