@@ -58,9 +58,21 @@ void HexagonGame::initLua_Utils()
 
     // ------------------------------------------------------------------------
     addLuaFn(lua, "u_setFlashEffect", //
+        [this](float mIntensity)
+        {
+            if(Config::getFlash()) status.flashEffect = mIntensity;
+        })
+        .arg("value")
+        .doc(
+            "Flash the screen with `$0` intensity (from 0 to 255) if the user "
+            "has not disabled the flash effect.");
+
+    addLuaFn(lua, "u_forceSetFlashEffect", //
         [this](float mIntensity) { status.flashEffect = mIntensity; })
         .arg("value")
-        .doc("Flash the screen with `$0` intensity (from 0 to 255).");
+        .doc(
+            "Flash the screen with `$0` intensity (from 0 to 255) regardless "
+            "of user settings .");
 
     addLuaFn(lua, "u_setFlashColor", //
         [this](int r, int g, int b) { initFlashEffect(r, g, b); })
