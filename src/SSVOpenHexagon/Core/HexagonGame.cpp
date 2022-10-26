@@ -392,7 +392,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         notInConsole(
             [this]
             {
-                if(deathInputIgnore <= 0.f && status.hasDied)
+                if((deathInputIgnore <= 0.f && status.hasDied) || inReplay())
                 {
                     status.mustStateChange = StateChange::MustReplay;
                 }
@@ -1053,7 +1053,8 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 [[nodiscard]] bool HexagonGame::death_saveReplay(
     const std::string& filename, const compressed_replay_file& crf)
 {
-    std::string dirPath = "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
+    std::string dirPath =
+        "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
     std::filesystem::create_directories(dirPath);
     std::filesystem::path p;
     p /= dirPath;
