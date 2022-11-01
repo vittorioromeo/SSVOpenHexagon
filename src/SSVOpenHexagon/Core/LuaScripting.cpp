@@ -1156,15 +1156,37 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
                 " color computed by the level style."));
     };
 
+    const auto sdColorSetter =
+        [&lua, &styleData](const char* name, const char* docName, auto pmd)
+    {
+        addLuaFn(lua, name,
+            [&styleData, pmd](int r, int g, int b, int a)
+            { (styleData.*pmd) = sf::Color(r, g, b, a); })
+            .doc(Utils::concat(
+                "Set the ", docName, " color (only used if alpha is not 0)"));
+    };
+
     sdColorGetter("s_getMainColor", "main", &StyleData::getMainColor);
     sdColorGetter("s_getPlayerColor", "player", &StyleData::getPlayerColor);
     sdColorGetter("s_getTextColor", "text", &StyleData::getTextColor);
-
+    sdColorGetter("s_getWallColor", "wall", &StyleData::getWallColor);
     sdColorGetter(
         "s_get3DOverrideColor", "3D override", &StyleData::get3DOverrideColor);
-
     sdColorGetter("s_getCapColorResult", "cap color result",
         &StyleData::getCapColorResult);
+
+    sdColorSetter("s_setMainOverrideColor", "main override",
+        &StyleData::_mainOverrideColor);
+    sdColorSetter("s_setPlayerOverrideColor", "player override",
+        &StyleData::_playerOverrideColor);
+    sdColorSetter("s_setTextOverrideColor", "text override",
+        &StyleData::_textOverrideColor);
+    sdColorSetter("s_setWallOverrideColor", "wall override",
+        &StyleData::_wallOverrideColor);
+    sdColorSetter(
+        "s_set3DOverrideColor", "3D override", &StyleData::_3dOverrideColor);
+    sdColorSetter(
+        "s_setCapOverrideColor", "cap override", &StyleData::_capOverrideColor);
 
     addLuaFn(lua, "s_getColor",
         [&styleData, &colorToTuple](int mIndex)

@@ -87,12 +87,18 @@ public:
     float _3dPulseSpeed{};
     float _3dPerspectiveMult{};
 
+    sf::Color _mainOverrideColor;
+    sf::Color _playerOverrideColor;
+    sf::Color _textOverrideColor;
+    sf::Color _wallOverrideColor;
+    sf::Color _capOverrideColor;
+    sf::Color _3dOverrideColor;
+
     float bgTileRadius{10000.f};
     unsigned int BGColorOffset{0};
     float BGRotOff{0}; // In degrees
 
 private:
-    sf::Color _3dOverrideColor;
     ColorData mainColorData;
     ColorData playerColor;
     ColorData textColor;

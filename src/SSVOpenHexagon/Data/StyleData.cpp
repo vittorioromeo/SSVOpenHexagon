@@ -54,6 +54,11 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
       _3dPulseSpeed{ssvuj::getExtr<float>(mRoot, "3D_pulse_speed", 0.01f)},
       _3dPerspectiveMult{
           ssvuj::getExtr<float>(mRoot, "3D_perspective_multiplier", 1.f)},
+      _mainOverrideColor{sf::Color::Transparent},
+      _playerOverrideColor{sf::Color::Transparent},
+      _textOverrideColor{sf::Color::Transparent},
+      _wallOverrideColor{sf::Color::Transparent},
+      _capOverrideColor{sf::Color::Transparent},
       _3dOverrideColor{ssvuj::getExtr<sf::Color>(
           mRoot, "3D_override_color", sf::Color::Transparent)},
       mainColorData{ssvuj::getObj(mRoot, "main")}, //
@@ -171,10 +176,20 @@ void StyleData::update(ssvu::FT mFT, float mMult)
 
 void StyleData::computeColors()
 {
-    currentMainColor = calculateColor(currentHue, pulseFactor, mainColorData);
-    currentPlayerColor = calculateColor(currentHue, pulseFactor, playerColor);
-    currentTextColor = calculateColor(currentHue, pulseFactor, textColor);
-    currentWallColor = calculateColor(currentHue, pulseFactor, wallColor);
+    currentMainColor =
+        _mainOverrideColor.a != 0
+            ? _mainOverrideColor
+            : calculateColor(currentHue, pulseFactor, mainColorData);
+    currentPlayerColor =
+        _playerOverrideColor.a != 0
+            ? _playerOverrideColor
+            : calculateColor(currentHue, pulseFactor, playerColor);
+    currentTextColor = _textOverrideColor.a != 0
+                           ? _textOverrideColor
+                           : calculateColor(currentHue, pulseFactor, textColor);
+    currentWallColor = _wallOverrideColor.a != 0
+                           ? _wallOverrideColor
+                           : calculateColor(currentHue, pulseFactor, wallColor);
 
     current3DOverrideColor =
         _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
@@ -341,14 +356,18 @@ StyleData::getColors() const noexcept
 
 sf::Color StyleData::getCapColorResult() const noexcept
 {
-    return Utils::match(
-        capColor,                                              //
-        [this](CapColorMode::Main) { return getMainColor(); }, //
-        [this](CapColorMode::MainDarkened)
-        { return Utils::getColorDarkened(getMainColor(), 1.4f); },      //
-        [this](CapColorMode::ByIndex x) { return getColor(x._index); }, //
-        [this](const ColorData& data)
-        { return calculateColor(currentHue, pulseFactor, data); });
+    return _capOverrideColor.a != 0
+               ? _capOverrideColor
+               : Utils::match(
+                     capColor,                                              //
+                     [this](CapColorMode::Main) { return getMainColor(); }, //
+                     [this](CapColorMode::MainDarkened) {
+                         return Utils::getColorDarkened(getMainColor(), 1.4f);
+                     }, //
+                     [this](CapColorMode::ByIndex x)
+                     { return getColor(x._index); }, //
+                     [this](const ColorData& data)
+                     { return calculateColor(currentHue, pulseFactor, data); });
 }
 
 } // namespace hg
