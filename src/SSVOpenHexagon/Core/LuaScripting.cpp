@@ -1162,8 +1162,12 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
         addLuaFn(lua, name,
             [&styleData, pmd](int r, int g, int b, int a)
             { (styleData.*pmd) = sf::Color(r, g, b, a); })
+            .arg("r")
+            .arg("g")
+            .arg("b")
+            .arg("a")
             .doc(Utils::concat(
-                "Set the ", docName, " color (only used if alpha is not 0)"));
+                "Set the ", docName, " color (only used if `$3` is not 0)"));
     };
 
     sdColorGetter("s_getMainColor", "main", &StyleData::getMainColor);
@@ -1202,6 +1206,26 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
         .doc(
             "Return the current color with index `$0` computed by the level "
             "style.");
+    addLuaFn(lua, "s_setOverrideColor",
+        [&styleData](int mIndex, int r, int g, int b, int a)
+        {
+            if(mIndex < styleData._overrideColors.size() && mIndex >= 0)
+            {
+                styleData._overrideColors[mIndex] = sf::Color(r, g, b, a);
+            }
+            else
+            {
+                ssvu::lo("hg::LuaScripting::initStyleControl")
+                    << "`s_setOverrideColor` failed, no color found at index "
+                    << mIndex << "\n";
+            }
+        })
+        .arg("index")
+        .arg("r")
+        .arg("g")
+        .arg("b")
+        .arg("a")
+        .doc("Set the color with index `$0` (only used if `$4` is not 0)");
 }
 
 static void initExecScript(Lua::LuaContext& lua, HGAssets& assets,

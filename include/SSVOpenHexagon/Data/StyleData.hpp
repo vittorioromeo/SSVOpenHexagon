@@ -93,6 +93,7 @@ public:
     sf::Color _wallOverrideColor;
     sf::Color _capOverrideColor;
     sf::Color _3dOverrideColor;
+    std::vector<sf::Color> _overrideColors;
 
     float bgTileRadius{10000.f};
     unsigned int BGColorOffset{0};

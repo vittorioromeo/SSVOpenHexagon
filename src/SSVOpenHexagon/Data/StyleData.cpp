@@ -75,9 +75,11 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
     const auto& colorCount(ssvuj::getObjSize(objColors));
 
     colorDatas.reserve(colorCount);
+    _overrideColors.reserve(colorCount);
     for(auto i(0u); i < colorCount; i++)
     {
         colorDatas.emplace_back(ssvuj::getObj(objColors, i));
+	_overrideColors.emplace_back(sf::Color::Transparent);
     }
 }
 
@@ -196,9 +198,12 @@ void StyleData::computeColors()
 
     currentColors.clear();
 
-    for(const ColorData& cd : colorDatas)
+    for(auto i(0u); i < colorDatas.size(); ++i)
     {
-        currentColors.emplace_back(calculateColor(currentHue, pulseFactor, cd));
+        currentColors.emplace_back(
+            _overrideColors[i].a != 0
+                ? _overrideColors[i]
+                : calculateColor(currentHue, pulseFactor, colorDatas[i]));
     }
 
     if(currentColors.size() > 1)
