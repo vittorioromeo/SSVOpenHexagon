@@ -198,11 +198,15 @@ void HexagonGame::draw()
             const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
             sf::Color overrideColor;
+            bool mustOverride{styleData._3dOverrideColors[i].a != 0};
 
             if(!Config::getBlackAndWhite())
             {
-                overrideColor = Utils::getColorDarkened(
-                    styleData.get3DOverrideColor(), styleData._3dDarkenMult);
+                overrideColor = mustOverride
+                                    ? styleData._3dOverrideColors[i]
+                                    : Utils::getColorDarkened(
+                                          styleData.get3DOverrideColor(),
+                                          styleData._3dDarkenMult);
             }
             else
             {
@@ -210,7 +214,10 @@ void HexagonGame::draw()
                     sf::Color(255, 255, 255, styleData.getMainColor().a),
                     styleData._3dDarkenMult);
             }
-            adjustAlpha(overrideColor, i);
+            if(!mustOverride)
+            {
+                adjustAlpha(overrideColor, i);
+            }
 
             // Draw pivot layers
             for(std::size_t k = j * numPivotQuads; k < (j + 1) * numPivotQuads;
@@ -220,7 +227,7 @@ void HexagonGame::draw()
                 pivotQuads3D[k].color = overrideColor;
             }
 
-            if(styleData.get3DOverrideColor() == styleData.getMainColor())
+            if(styleData.get3DOverrideColor() == styleData.getMainColor() && !mustOverride)
             {
                 overrideColor = Utils::getColorDarkened(
                     getColorWall(), styleData._3dDarkenMult);
@@ -237,7 +244,7 @@ void HexagonGame::draw()
             }
 
             // Apply player color if no 3D override is present.
-            if(styleData.get3DOverrideColor() == styleData.getMainColor())
+            if(styleData.get3DOverrideColor() == styleData.getMainColor() && !mustOverride)
             {
                 overrideColor = Utils::getColorDarkened(
                     getColorPlayer(), styleData._3dDarkenMult);
@@ -596,7 +603,8 @@ void HexagonGame::updateText(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates)
+void HexagonGame::drawText_TimeAndStatus(
+    const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     if(Config::getDrawTextOutlines())
     {
@@ -701,14 +709,17 @@ static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
     fRender(text);
 }
 
-void HexagonGame::drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates)
+void HexagonGame::drawText_Message(
+    const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(messageText, offsetColor,
         {Config::getWidth() / 2.f, Config::getHeight() / 5.5f}, getColorText(),
-        1.f /* outlineThickness */, [this, &mStates](sf::Text& t) { render(t, mStates); });
+        1.f /* outlineThickness */,
+        [this, &mStates](sf::Text& t) { render(t, mStates); });
 }
 
-void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates)
+void HexagonGame::drawText_PersonalBest(
+    const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(pbText, offsetColor,
         {Config::getWidth() / 2.f,

@@ -94,6 +94,7 @@ public:
     sf::Color _capOverrideColor;
     sf::Color _3dOverrideColor;
     std::vector<sf::Color> _overrideColors;
+    std::vector<sf::Color> _3dOverrideColors;
 
     float bgTileRadius{10000.f};
     unsigned int BGColorOffset{0};
@@ -108,6 +109,8 @@ private:
     CapColor capColor;
 
     std::vector<ColorData> colorDatas;
+
+    float last3dDepth{};
 
 public:
     explicit StyleData();

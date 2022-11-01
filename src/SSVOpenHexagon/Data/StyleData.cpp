@@ -67,7 +67,8 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
       textColor{
           colorDataFromObjOrDefault(mRoot, "text_color", mainColorData)}, //
       wallColor{colorDataFromObjOrDefault(mRoot, "wall_color", mainColorData)},
-      capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))}
+      capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))},
+      last3dDepth{_3dDepth}
 {
     currentHue = hueMin;
 
@@ -79,7 +80,12 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
     for(auto i(0u); i < colorCount; i++)
     {
         colorDatas.emplace_back(ssvuj::getObj(objColors, i));
-	_overrideColors.emplace_back(sf::Color::Transparent);
+        _overrideColors.emplace_back(sf::Color::Transparent);
+    }
+    _3dOverrideColors.reserve(_3dDepth);
+    for(auto i(0u); i < _3dDepth; i++)
+    {
+        _3dOverrideColors.emplace_back(sf::Color::Transparent);
     }
 }
 
@@ -173,6 +179,16 @@ void StyleData::update(ssvu::FT mFT, float mMult)
     {
         pulseIncrement *= -1.f;
         pulseFactor = pulseMax;
+    }
+
+    if(_3dDepth != last3dDepth)
+    {
+        _3dOverrideColors.clear();
+        for(auto i(0u); i < _3dDepth; i++)
+        {
+            _3dOverrideColors.emplace_back(sf::Color::Transparent);
+        }
+	last3dDepth = _3dDepth;
     }
 }
 
