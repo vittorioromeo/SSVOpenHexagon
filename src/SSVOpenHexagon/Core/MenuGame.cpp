@@ -63,6 +63,8 @@
 #include <tuple>
 #include <string_view>
 
+#include <cstdint>
+
 namespace hg {
 
 [[nodiscard]] static bool anyItemEnabled(const ssvms::Menu& menu)
@@ -2136,26 +2138,24 @@ void MenuGame::changePackQuick(const int direction)
     // Height of the top of the pack label that is one index before the current
     // one.
     float scroll{packLabelHeight * (lvlDrawer->packIdx - 1)};
-    
-    std::function<void(const float)> action{
-        [this](const float target)
-            { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }
-    };
+
+    std::function<void(const float)> action{[this](const float target)
+        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }};
 
     // If the height is lower than the offset of the level selection
-    // the level list must be scrolled to show the labels before the current one.
-    // The top must prevail. 
+    // the level list must be scrolled to show the labels before the current
+    // one. The top must prevail.
     if(!checkWindowTopScrollWithResult(scroll, action))
     {
         // Height of the bottom of the pack label that is one index after the
         // current one.
-        scroll =
-            packLabelHeight * std::min(lvlDrawer->packIdx + 2,
-                                  static_cast<int>(getSelectablePackInfosSize())) +
-            levelLabelHeight + 3.f * slctFrameSize;
+        scroll = packLabelHeight *
+                     std::min(lvlDrawer->packIdx + 2,
+                         static_cast<int>(getSelectablePackInfosSize())) +
+                 levelLabelHeight + 3.f * slctFrameSize;
 
-        // If the bottom is outside the boundaries of the screen adjust offset to
-        // show it.
+        // If the bottom is outside the boundaries of the screen adjust offset
+        // to show it.
         checkWindowBottomScroll(scroll, action);
     }
 }
@@ -3562,7 +3562,7 @@ void MenuGame::drawScrollbar(const float totalHeight, const int size,
 }
 
 void MenuGame::drawMainSubmenus(
-    const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
+    const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
     const float indent)
 {
     bool currentlySelected, hasOffset;
@@ -3582,7 +3582,7 @@ void MenuGame::drawMainSubmenus(
 }
 
 void MenuGame::drawSubmenusSmall(
-    const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
+    const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
     const float indent)
 {
     bool currentlySelected, hasOffset;
@@ -3664,9 +3664,9 @@ void MenuGame::setMouseCursorVisible(const bool x)
     }
 
     return sf::Color{
-        static_cast<sf::Uint8>(255 - c.r), //
-        static_cast<sf::Uint8>(255 - c.g), //
-        static_cast<sf::Uint8>(255 - c.b)  //
+        static_cast<std::uint8_t>(255 - c.r), //
+        static_cast<std::uint8_t>(255 - c.g), //
+        static_cast<std::uint8_t>(255 - c.b)  //
     };
 }
 
@@ -4464,15 +4464,13 @@ void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
 void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
 {
     float scrollTop, scrollBottom;
-    std::function<void(const float)> action{
-        [this](const float target)
-            { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }
-    };
+    std::function<void(const float)> action{[this](const float target)
+        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }};
 
     if(packChangeDirection == -2)
     {
-        // The last pack does not have a "next pack", therefore it gets a special treatement,
-        // which comes after this if statement.
+        // The last pack does not have a "next pack", therefore it gets a
+        // special treatement, which comes after this if statement.
         if(lvlDrawer->packIdx !=
             static_cast<int>(getSelectablePackInfosSize()) - 1)
         {
@@ -4481,7 +4479,7 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
             // Height of the bottom of the next pack label.
             scrollBottom = scrollTop + 2.f * (packLabelHeight + slctFrameSize) +
                            std::max(0.f, mLevelListHeight - packChangeOffset);
-            
+
             // With particularly long lists it only makes sense to show
             // the stretch animation for as long as we can see the pack
             // label on screen. After the pack label is outside of the draw
@@ -4490,25 +4488,25 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
             // scrollBottom inside the window. If this occurs cut the
             // animation short.
             std::function<void(const float)> specialAction{
-                [this, action, scrollTop, mLevelListHeight](const float target) {
+                [this, action, scrollTop, mLevelListHeight](const float target)
+                {
                     if(scrollTop < -lvlDrawer->YOffset)
                     {
                         packChangeOffset = 0.f;
                         action(h - (scrollTop +
-                                2.f * (packLabelHeight + slctFrameSize) +
-                                std::max(0.f, mLevelListHeight)));
+                                       2.f * (packLabelHeight + slctFrameSize) +
+                                       std::max(0.f, mLevelListHeight)));
                         return;
                     }
                     action(target);
-                }
-            };
-            
+                }};
+
             // The bottom must prevail.
             if(!checkWindowBottomScrollWithResult(scrollBottom, specialAction))
             {
                 checkWindowTopScroll(scrollTop, action);
             }
-            
+
             return;
         }
 
@@ -4533,7 +4531,8 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
     scrollTop = packLabelHeight * (lvlDrawer->packIdx - 1);
     scrollBottom = scrollTop + packLabelHeight +
                    std::min(packLabelHeight + slctFrameSize + mLevelListHeight -
-                    packChangeOffset, h);
+                                packChangeOffset,
+                       h);
 
     checkWindowBottomScroll(scrollBottom, action);
     checkWindowTopScroll(scrollTop, action);
@@ -4855,8 +4854,9 @@ void MenuGame::addRemoveFavoriteLevel()
             // Make sure there is no empty space between the end of the list
             // and the bottom of the window. Needed to ensure the selected
             // level is always on screen.
-            const float scroll{h - (packLabelHeight + 2.f * slctFrameSize +
-                               levelLabelHeight * favSlct.levelDataIds->size())};
+            const float scroll{
+                h - (packLabelHeight + 2.f * slctFrameSize +
+                        levelLabelHeight * favSlct.levelDataIds->size())};
             if(scroll > lvlDrawer->YOffset)
             {
                 favSlct.YOffset = favSlct.YScrollTo = scroll;

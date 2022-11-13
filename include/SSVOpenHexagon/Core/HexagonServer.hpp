@@ -25,6 +25,8 @@
 #include <string>
 #include <unordered_set>
 
+#include <cstdint>
+
 namespace hg {
 
 class HGAssets;
@@ -167,10 +169,10 @@ private:
     void runIteration_FlushLogs();
 
     [[nodiscard]] bool validateLogin(ConnectedClient& c, const char* context,
-        const sf::Uint64 ctspLoginToken);
+        const std::uint64_t ctspLoginToken);
 
-    [[nodiscard]] bool processReplay(
-        ConnectedClient& c, const sf::Uint64 loginToken, const replay_file& rf);
+    [[nodiscard]] bool processReplay(ConnectedClient& c,
+        const std::uint64_t loginToken, const replay_file& rf);
 
     template <typename T>
     void printCTSPDataVerbose(

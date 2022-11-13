@@ -37,35 +37,28 @@ public:
         rhs._ptr = nullptr;
     }
 
-    [[nodiscard, gnu::always_inline]] T* get() noexcept
+    [[nodiscard, gnu::always_inline]] UniquePtr& operator=(UniquePtr&& rhs) noexcept
+    {
+        delete _ptr;
+
+        _ptr = rhs._ptr;
+        rhs._ptr = nullptr;
+
+        return *this;
+    }
+
+    [[nodiscard, gnu::always_inline]] T* get() const noexcept
     {
         return _ptr;
     }
 
-    [[nodiscard, gnu::always_inline]] const T* get() const noexcept
-    {
-        return _ptr;
-    }
-
-    [[nodiscard, gnu::always_inline]] T& operator*() noexcept
+    [[nodiscard, gnu::always_inline]] T& operator*() const noexcept
     {
         SSVOH_ASSERT(_ptr != nullptr);
         return *_ptr;
     }
 
-    [[nodiscard, gnu::always_inline]] const T& operator*() const noexcept
-    {
-        SSVOH_ASSERT(_ptr != nullptr);
-        return *_ptr;
-    }
-
-    [[nodiscard, gnu::always_inline]] T* operator->() noexcept
-    {
-        SSVOH_ASSERT(_ptr != nullptr);
-        return _ptr;
-    }
-
-    [[nodiscard, gnu::always_inline]] const T* operator->() const noexcept
+    [[nodiscard, gnu::always_inline]] T* operator->() const noexcept
     {
         SSVOH_ASSERT(_ptr != nullptr);
         return _ptr;

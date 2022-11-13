@@ -33,8 +33,9 @@ enum class RenderStage : std::size_t
     CapTris = 5,
     PivotQuads = 6,
     PlayerTris = 7,
+    Text = 8,
 
-    Count = 8
+    Count = 9
 };
 
 struct HexagonGameStatus

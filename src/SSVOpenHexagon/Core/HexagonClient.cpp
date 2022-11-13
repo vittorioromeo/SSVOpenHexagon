@@ -21,6 +21,8 @@
 #include <thread>
 #include <chrono>
 
+#include <cstdint>
+
 static auto& clog(const char* funcName)
 {
     return ::ssvu::lo(::hg::Utils::concat("hg::HexagonClient::", funcName));
@@ -300,7 +302,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestTopScores(
-    const sf::Uint64 loginToken, const std::string& levelValidator)
+    const std::uint64_t loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending top scores request to server...\n";
 
@@ -313,7 +315,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestOwnScore(
-    const sf::Uint64 loginToken, const std::string& levelValidator)
+    const std::uint64_t loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending own score request to server...\n";
 
@@ -326,7 +328,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestTopScoresAndOwnScore(
-    const sf::Uint64 loginToken, const std::string& levelValidator)
+    const std::uint64_t loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE
         << "Sending top scores and own score request to server...\n";
@@ -340,7 +342,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendStartedGame(
-    const sf::Uint64 loginToken, const std::string& levelValidator)
+    const std::uint64_t loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending started game packet to server...\n";
 
@@ -353,7 +355,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendCompressedReplay(
-    const sf::Uint64 loginToken, const std::string& levelValidator,
+    const std::uint64_t loginToken, const std::string& levelValidator,
     const compressed_replay_file& compressedReplayFile)
 {
     SSVOH_CLOG_VERBOSE << "Sending compressed replay for level validator '"
@@ -368,7 +370,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestServerStatus(
-    const sf::Uint64 loginToken)
+    const std::uint64_t loginToken)
 {
     SSVOH_CLOG_VERBOSE << "Sending status request to server...\n";
 
@@ -379,7 +381,7 @@ template <typename T>
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendReady(const sf::Uint64 loginToken)
+[[nodiscard]] bool HexagonClient::sendReady(const std::uint64_t loginToken)
 {
     SSVOH_CLOG_VERBOSE << "Sending ready to server...\n";
 
@@ -458,15 +460,6 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager,
                << " - " << SSVOH_CLOG_VAR(_serverPort) << '\n'
                << " - " << SSVOH_CLOG_VAR(sKeyPublic) << '\n'
                << " - " << SSVOH_CLOG_VAR(sKeySecret) << '\n';
-
-    if(_serverIp == sf::IpAddress::None)
-    {
-        SSVOH_CLOG_ERROR << "Failure initializing client, invalid ip address '"
-                         << _serverIp << "'\n";
-
-        _state = State::InitError;
-        return;
-    }
 
     if(!initializeTicketSteamID())
     {

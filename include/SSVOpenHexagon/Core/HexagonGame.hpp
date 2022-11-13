@@ -353,7 +353,9 @@ private:
     void updateCustomTimelines();
     void updateCustomWalls(ssvu::FT mFT);
     void updatePulse(ssvu::FT mFT);
+    void refreshPulse();
     void updateBeatPulse(ssvu::FT mFT);
+    void refreshBeatPulse();
     void updateRotation(ssvu::FT mFT);
     void updateCameraShake(ssvu::FT mFT);
     void updateFlash(ssvu::FT mFT);
@@ -377,12 +379,12 @@ private:
     void sideChange(unsigned int mSideNumber);
 
     // Draw methods
-    void drawText_TimeAndStatus(const sf::Color& offsetColor);
-    void drawText_Message(const sf::Color& offsetColor);
-    void drawText_PersonalBest(const sf::Color& offsetColor);
-    void drawText();
+    void drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText(const sf::RenderStates& mStates);
     void drawKeyIcons();
-    void drawLevelInfo();
+    void drawLevelInfo(const sf::RenderStates& mStates);
     void drawParticles();
     void drawTrailParticles();
     void drawSwapParticles();
@@ -424,6 +426,7 @@ private:
 private:
     void performPlayerSwap(const bool mPlaySound);
     void performPlayerKill();
+    void saveReplay();
 
     Utils::FastVertexVectorTris backgroundTris;
     Utils::FastVertexVectorTris wallQuads;
