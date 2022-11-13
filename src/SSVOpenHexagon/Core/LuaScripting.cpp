@@ -1283,7 +1283,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                 return;
             };
 
-            Utils::withDependencyScriptFilename(setResult,
+            Utils::withDependencyShaderFilename(setResult,
                 execScriptPackPathContext, assets, fGetPackData(),
                 packDisambiguator, packName, packAuthor, shaderFilename);
 
