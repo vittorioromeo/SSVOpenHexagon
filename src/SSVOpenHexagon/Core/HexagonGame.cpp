@@ -863,12 +863,27 @@ void HexagonGame::death_updateRichPresence()
     nameFormat(nameStr);
 
     const std::string diffStr = diffFormat(difficultyMult);
-    const std::string timeStr = timeFormat(status.getTimeSeconds());
-
-    if(discordManager != nullptr)
+    if(levelStatus.scoreOverridden)
     {
-        discordManager->set_rich_presence_in_game(
-            nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
+        const std::string scoreStr = std::to_string(status.getCustomScore());
+
+        if(discordManager != nullptr)
+        {
+            discordManager->set_rich_presence_in_game(
+                nameStr + " [x" + diffStr + "]", "Score " + scoreStr + "s",
+                true);
+        }
+    }
+    else
+    {
+        const std::string timeStr = timeFormat(status.getTimeSeconds());
+
+        if(discordManager != nullptr)
+        {
+            discordManager->set_rich_presence_in_game(
+                nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s",
+                true);
+        }
     }
 }
 
@@ -888,7 +903,8 @@ HexagonGame::death_saveScoreIfNeeded()
     const std::string validatorWithoutPackid =
         levelData->getValidatorWithoutPackId(difficultyMult);
 
-    const double score = status.getTimeSeconds();
+    const double score = levelStatus.scoreOverridden ? status.getCustomScore()
+                                                     : status.getTimeSeconds();
 
     const bool isPersonalBest =
         score > assets.getLocalScore(validatorWithoutPackid);
@@ -1053,7 +1069,8 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 [[nodiscard]] bool HexagonGame::death_saveReplay(
     const std::string& filename, const compressed_replay_file& crf)
 {
-    std::string dirPath = "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
+    std::string dirPath =
+        "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
     std::filesystem::create_directories(dirPath);
     std::filesystem::path p;
     p /= dirPath;
