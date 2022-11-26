@@ -379,9 +379,12 @@ private:
     void sideChange(unsigned int mSideNumber);
 
     // Draw methods
-    void drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates);
-    void drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates);
-    void drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_TimeAndStatus(
+        const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_Message(
+        const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_PersonalBest(
+        const sf::Color& offsetColor, const sf::RenderStates& mStates);
     void drawText(const sf::RenderStates& mStates);
     void drawKeyIcons();
     void drawLevelInfo(const sf::RenderStates& mStates);
@@ -472,7 +475,7 @@ public:
     [[nodiscard]] bool death_sendReplay(
         const std::string& levelValidator, const compressed_replay_file& crf);
     [[nodiscard]] bool death_saveReplay(
-        const std::string& filename, const compressed_replay_file& crf);
+        std::string filename, const compressed_replay_file& crf);
 
     struct GameExecutionResult
     {
