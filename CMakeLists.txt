@@ -71,7 +71,7 @@ endif()
 # CPM
 # -----------------------------------------------------------------------------
 
-set(CPM_DOWNLOAD_VERSION 0.35.6)
+set(CPM_DOWNLOAD_VERSION 0.37.0)
 
 if(CPM_SOURCE_CACHE)
     set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
@@ -103,7 +103,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 4970af89992951eb2b4973bf32447445e9b38f64
+    GIT_TAG a7e7c414880030f963d5e0c3d8babd9f7fda9a5a
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -125,7 +125,7 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME luajit
     GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
-    GIT_TAG 5ebcf7478c5f309d016d868ee3c89e6eafc33a86
+    GIT_TAG fa8feeb9580f233a397fb484d84c2108e26b2a00
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -193,7 +193,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
         GITHUB_REPOSITORY vittorioromeo/imgui-sfml
-        GIT_TAG 6162deff9766258eff4059cd69508983bb3e93b9
+        GIT_TAG 8796042cf23ca300396b1f26cea88b1c640ed289
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
@@ -227,7 +227,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME boostpfr
     GITHUB_REPOSITORY boostorg/pfr
-    GIT_TAG 69c5692cd666b1685a5eef00a4a79ca2e6093ff0
+    GIT_TAG ed28602c2cc7b330140e67412552ed7ec2e4fe8d
     DOWNLOAD_ONLY YES
 )
 
