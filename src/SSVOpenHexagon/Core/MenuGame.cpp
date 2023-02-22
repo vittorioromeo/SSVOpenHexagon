@@ -1065,7 +1065,8 @@ void MenuGame::initLua()
         [this](const std::string& filename) { runLuaFile(filename); },
         execScriptPackPathContext,
         [this]() -> const std::string& { return levelData->packPath; },
-        [this]() -> const PackData& { return *currentPack; });
+        [this]() -> const PackData& { return *currentPack; },
+        false /* headless */);
 
     lua.writeVariable("u_log",
         [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });

@@ -1102,7 +1102,8 @@ void HexagonGame::initLua()
         [this](const std::string& filename) -> void { runLuaFile(filename); },
         execScriptPackPathContext,
         [this]() -> const std::string& { return levelData->packPath; },
-        [this]() -> const PackData& { return getPackData(); });
+        [this]() -> const PackData& { return getPackData(); },
+        (window == nullptr) /* headless */);
 
     initLua_Utils();
     initLua_AudioControl();

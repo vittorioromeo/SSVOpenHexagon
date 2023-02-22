@@ -218,13 +218,21 @@ static void destroyMaliciousFunctions(Lua::LuaContext& lua)
     lua.clearVariable("package.loaders");
 }
 
-static void initUtils(Lua::LuaContext& lua, const bool inMenu)
+static void initUtils(
+    Lua::LuaContext& lua, const bool inMenu, const bool headless)
 {
     addLuaFn(lua, "u_inMenu", //
         [inMenu] { return inMenu; })
         .doc(
             "Returns `true` if the script is being executed in the menu, "
             "`false` otherwise.");
+
+    addLuaFn(lua, "u_isHeadless", //
+        [headless] { return headless; })
+        .doc(
+            "Returns `true` if the script is being executed in an headless "
+            "context (e.g. online replay validation server), `false` "
+            "otherwise.");
 
     addLuaFn(lua, "u_getVersionMajor", //
         [] { return GAME_VERSION.major; })
@@ -1221,15 +1229,21 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
     std::vector<std::string>& execScriptPackPathContext,
     const std::function<const std::string&()>& fPackPathGetter,
     const std::function<const PackData&()>& fGetPackData,
-    HexagonGameStatus& hexagonGameStatus)
+    HexagonGameStatus& hexagonGameStatus, const bool headless)
 {
     // ------------------------------------------------------------------------
     // Shader id retrieval
 
     addLuaFn(lua, "shdr_getShaderId",
-        [&assets, &execScriptPackPathContext, fPackPathGetter](
+        [&assets, &execScriptPackPathContext, fPackPathGetter, headless](
             const std::string& shaderFilename) -> std::size_t
         {
+            if(headless)
+            {
+                // Always return early in headless mode.
+                return static_cast<std::size_t>(-1);
+            }
+
             // With format "Packs/<PACK>/Shaders/<SHADER>"
             const std::string shaderPath = Utils::getDependentShaderFilename(
                 execScriptPackPathContext, fPackPathGetter(), shaderFilename);
@@ -1257,11 +1271,17 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             "`.geom`).");
 
     addLuaFn(lua, "shdr_getDependencyShaderId",
-        [&assets, &execScriptPackPathContext, fGetPackData](
+        [&assets, &execScriptPackPathContext, fGetPackData, headless](
             const std::string& packDisambiguator, const std::string& packName,
             const std::string& packAuthor,
             const std::string& shaderFilename) -> std::size_t
         {
+            if(headless)
+            {
+                // Always return early in headless mode.
+                return static_cast<std::size_t>(-1);
+            }
+
             std::size_t result = static_cast<std::size_t>(-1);
 
             auto setResult = [&assets, &result](const std::string& shaderPath)
@@ -1304,9 +1324,15 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
     // ------------------------------------------------------------------------
     // Utility functions
 
-    auto withValidShaderId =
-        [&assets](const char* caller, const std::size_t shaderId, auto&& f)
+    auto withValidShaderId = [&assets, headless](const char* caller,
+                                 const std::size_t shaderId, auto&& f)
     {
+        if(headless)
+        {
+            // Always return early in headless mode.
+            return;
+        }
+
         if(!assets.isValidShaderId(shaderId))
         {
             ssvu::lo("hg::LuaScripting::initShaders")
@@ -1322,9 +1348,16 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         f(*shader);
     };
 
-    const auto checkValidRenderStage =
-        [](const char* caller, const std::size_t renderStage, auto& ids) -> bool
+    const auto checkValidRenderStage = [headless](const char* caller,
+                                           const std::size_t renderStage,
+                                           auto& ids) -> bool
     {
+        if(headless)
+        {
+            // Always return early in headless mode.
+            return false;
+        }
+
         if(renderStage >= ids.size())
         {
             ssvu::lo("hg::LuaScripting::initShaders")
@@ -1555,7 +1588,7 @@ void init(Lua::LuaContext& lua, random_number_generator& rng, const bool inMenu,
     const std::function<void(const std::string&)>& fRunLuaFile,
     std::vector<std::string>& execScriptPackPathContext,
     const std::function<const std::string&()>& fPackPathGetter,
-    const std::function<const PackData&()>& fGetPackData)
+    const std::function<const PackData&()>& fGetPackData, const bool headless)
 {
     initRandom(lua, rng);
     redefineIoOpen(lua);
@@ -1565,14 +1598,14 @@ void init(Lua::LuaContext& lua, random_number_generator& rng, const bool inMenu,
     // Remove potentially malicious Lua functions, including `math.randomseed`:
     destroyMaliciousFunctions(lua);
 
-    initUtils(lua, inMenu);
+    initUtils(lua, inMenu, headless);
     initCustomWalls(lua, cwManager);
     initLevelControl(lua, levelStatus, hexagonGameStatus);
     initStyleControl(lua, styleData);
     initExecScript(lua, assets, fRunLuaFile, execScriptPackPathContext,
         fPackPathGetter, fGetPackData);
     initShaders(lua, assets, execScriptPackPathContext, fPackPathGetter,
-        fGetPackData, hexagonGameStatus);
+        fGetPackData, hexagonGameStatus, headless);
     initConfig(lua);
 }
 
