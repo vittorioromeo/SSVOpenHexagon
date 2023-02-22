@@ -1056,11 +1056,11 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     std::string dirPath =
         "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
 
-    // Replace invalid characters for windows file paths
-    for(const auto c : {':', '*', '?', '"', '<', '>', '|'})
+    // Replace invalid characters for Windows file paths.
+    for(const char c : {':', '*', '?', '"', '<', '>', '|'})
     {
-        std::replace(dirPath.begin(), dirPath.end(), c, ' ');
-        std::replace(filename.begin(), filename.end(), c, ' ');
+        std::replace(dirPath.begin(), dirPath.end(), c, '_');
+        std::replace(filename.begin(), filename.end(), c, '_');
     }
 
     std::filesystem::create_directories(dirPath);
