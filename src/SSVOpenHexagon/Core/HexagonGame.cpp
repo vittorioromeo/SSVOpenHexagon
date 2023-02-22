@@ -216,8 +216,10 @@ void HexagonGame::updateLevelInfo()
     levelInfoTextPack.setPosition(
         ssvs::getGlobalSW(levelInfoTextLevel) + sf::Vector2f{0.f, tPadding});
 
+    SSVOH_ASSERT(levelData != nullptr);
+
     prepareText(
-        levelInfoTextAuthor, 20.f, trim(Utils::toUppercase(getPackAuthor())));
+        levelInfoTextAuthor, 20.f, trim(Utils::toUppercase(levelData->author)));
     levelInfoTextAuthor.setOrigin(ssvs::getLocalSE(levelInfoTextAuthor));
     levelInfoTextAuthor.setPosition(ssvs::getGlobalSE(levelInfoRectangle) -
                                     sf::Vector2f{tPadding, tPadding});
