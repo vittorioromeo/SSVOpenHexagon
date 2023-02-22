@@ -304,7 +304,7 @@ HGAssets::~HGAssets()
         {
             if(ssvufs::Path{packPath + "Shaders/"}.isFolder() && !levelsOnly)
             {
-                loadPackAssets_loadShaders(packId, packPath);
+                loadPackAssets_loadShaders(packId, packPath, headless);
             }
 
             if(!levelsOnly && ssvufs::Path{packPath + "Sounds/"}.isFolder())
@@ -678,8 +678,14 @@ void HGAssets::addLocalProfile(ProfileData&& profileData)
 }
 
 void HGAssets::loadPackAssets_loadShaders(
-    const std::string& mPackId, const ssvufs::Path& mPath)
+    const std::string& mPackId, const ssvufs::Path& mPath, const bool headless)
 {
+    if(headless)
+    {
+        // Always return early in headless mode.
+        return;
+    }
+
     const auto loadShadersOfType =
         [&](const char* const extension, sf::Shader::Type shaderType)
     {
