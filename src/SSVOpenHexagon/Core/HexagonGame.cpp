@@ -384,7 +384,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         notInConsole(
             [this]
             {
-                if(deathInputIgnore <= 0.f && status.hasDied)
+                if((deathInputIgnore <= 0.f && status.hasDied) || inReplay())
                 {
                     status.mustStateChange = StateChange::MustRestart;
                 }
