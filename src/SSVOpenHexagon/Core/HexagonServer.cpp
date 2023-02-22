@@ -705,8 +705,8 @@ void HexagonServer::runIteration_FlushLogs()
     const double difference = std::fabs(replayTotalTime - elapsedSecs);
     const double ratio = replayTotalTime / elapsedSecs;
 
-    const bool goodDifference = difference < 3.5;
-    const bool goodRatio = ratio > 0.75 && ratio < 1.25;
+    const bool goodDifference = difference < 5.0;
+    const bool goodRatio = ratio > 0.65 && ratio < 1.35;
 
     const auto printDifferenceAndRatio = [&]
     {
