@@ -596,7 +596,8 @@ void HexagonGame::updateText(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates)
+void HexagonGame::drawText_TimeAndStatus(
+    const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     if(Config::getDrawTextOutlines())
     {
@@ -701,14 +702,17 @@ static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
     fRender(text);
 }
 
-void HexagonGame::drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates)
+void HexagonGame::drawText_Message(
+    const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(messageText, offsetColor,
         {Config::getWidth() / 2.f, Config::getHeight() / 5.5f}, getColorText(),
-        1.f /* outlineThickness */, [this, &mStates](sf::Text& t) { render(t, mStates); });
+        1.f /* outlineThickness */,
+        [this, &mStates](sf::Text& t) { render(t, mStates); });
 }
 
-void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates)
+void HexagonGame::drawText_PersonalBest(
+    const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(pbText, offsetColor,
         {Config::getWidth() / 2.f,
