@@ -37,7 +37,8 @@ public:
         rhs._ptr = nullptr;
     }
 
-    [[nodiscard, gnu::always_inline]] UniquePtr& operator=(UniquePtr&& rhs) noexcept
+    [[nodiscard, gnu::always_inline]] UniquePtr& operator=(
+        UniquePtr&& rhs) noexcept
     {
         delete _ptr;
 
