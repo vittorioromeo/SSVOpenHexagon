@@ -98,8 +98,8 @@ private:
     [[nodiscard]] bool loadPackAssets(
         const PackData& packData, const bool headless);
 
-    void loadPackAssets_loadShaders(
-        const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadPackAssets_loadShaders(const std::string& mPackId,
+        const ssvufs::Path& mPath, const bool headless);
     void loadPackAssets_loadMusic(
         const std::string& mPackId, const ssvufs::Path& mPath);
     void loadPackAssets_loadMusicData(
