@@ -53,8 +53,6 @@ namespace hg::Utils {
 [[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Color getColorFromHue(
     const float hue) noexcept
 {
-    SSVOH_ASSERT(hue >= 0.f && hue <= 1.f);
-
     const int i = std::floor(hue * 6.f);
 
     const float f = (hue * 6.f) - i;
