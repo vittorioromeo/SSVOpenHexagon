@@ -356,6 +356,11 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     const std::filesystem::path& p)
 {
     std::ifstream is(p, std::ios::binary | std::ios::in);
+    if(!static_cast<bool>(is))
+    {
+        std::cerr << "Couldn't open replay path '" << p << "'\n";
+        return false;
+    }
 
     is.seekg(0, std::ios::end);
     const std::size_t bytes_to_read = is.tellg();
@@ -440,6 +445,11 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     const std::filesystem::path& p)
 {
     std::ifstream is(p, std::ios::binary | std::ios::in);
+    if(!static_cast<bool>(is))
+    {
+        std::cerr << "Couldn't open compressed replay path '" << p << "'\n";
+        return false;
+    }
 
     is.seekg(0, std::ios::end);
     const std::size_t bytes_to_read = is.tellg();
