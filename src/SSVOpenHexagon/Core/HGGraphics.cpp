@@ -178,7 +178,10 @@ void HexagonGame::draw()
 
         const auto adjustAlpha = [&](sf::Color& c, const float i)
         {
-            SSVOH_ASSERT(styleData._3dAlphaMult != 0.f);
+            if(styleData._3dAlphaMult == 0.f)
+            {
+                return;
+            }
 
             const float newAlpha =
                 (static_cast<float>(c.a) / styleData._3dAlphaMult) -
