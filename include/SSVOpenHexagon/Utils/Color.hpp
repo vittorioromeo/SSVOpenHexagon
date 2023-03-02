@@ -17,11 +17,12 @@ namespace hg::Utils {
 [[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Color getColorDarkened(
     sf::Color mColor, const float mMultiplier) noexcept
 {
-    SSVOH_ASSERT(mMultiplier != 0.f);
-
-    mColor.r = static_cast<float>(mColor.r) / mMultiplier;
-    mColor.b = static_cast<float>(mColor.b) / mMultiplier;
-    mColor.g = static_cast<float>(mColor.g) / mMultiplier;
+    if(mMultiplier != 0.f)
+    {
+        mColor.r = static_cast<float>(mColor.r) / mMultiplier;
+        mColor.b = static_cast<float>(mColor.b) / mMultiplier;
+        mColor.g = static_cast<float>(mColor.g) / mMultiplier;
+    }
 
     return mColor;
 }
