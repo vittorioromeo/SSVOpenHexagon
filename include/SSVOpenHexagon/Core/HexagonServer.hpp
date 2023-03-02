@@ -155,7 +155,7 @@ private:
         const std::optional<Database::ProcessedScore>& ownScore);
     [[nodiscard]] bool sendServerStatus(ConnectedClient& c,
         const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
-        const std::vector<std::string> supportedLevelValidators);
+        const std::vector<std::string>& supportedLevelValidators);
 
     void kickAndRemoveClient(ConnectedClient& c);
 

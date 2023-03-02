@@ -54,7 +54,7 @@ static auto& slog(const char* funcName)
 
 #define SSVOH_SLOG_ERROR ::slog(__func__) << "[ERROR] "
 
-#define SSVOH_SLOG_VAR(x) '\'' << #x << "': '" << x << '\''
+#define SSVOH_SLOG_VAR(x) '\'' << #x << "': '" << (x) << '\''
 
 namespace hg {
 
@@ -250,7 +250,7 @@ template <typename T>
 
 [[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient& c,
     const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
-    const std::vector<std::string> supportedLevelValidators)
+    const std::vector<std::string>& supportedLevelValidators)
 {
     return sendEncrypted(c, //
         STCPServerStatus{
@@ -333,6 +333,8 @@ bool HexagonServer::runIteration_Control()
     {
         return fail("Failure decoding control packet");
     }
+
+    SSVOH_ASSERT(senderIp.has_value());
 
     SSVOH_SLOG << "Received control packet from '" << senderIp.value() << ':'
                << senderPort << "', contents: '" << controlMsg << "'\n";
@@ -728,6 +730,8 @@ void HexagonServer::runIteration_FlushLogs()
     }
 
     SSVOH_SLOG << "Replay valid, adding to database\n";
+
+    SSVOH_ASSERT(c._loginData.has_value());
 
     Database::addScore(levelValidator, Utils::nowTimestamp(),
         c._loginData->_steamId, replayPlayedTime);
