@@ -79,3 +79,11 @@
 ## Discord
 
 1. Make post in `#announcements`
+
+## Making a pack ranked
+
+1. Get level validator strings, it's easy by adding a print in `LevelData::LevelData`.
+
+2. Put level validator strings in `Config.cpp`.
+
+3. TODO
