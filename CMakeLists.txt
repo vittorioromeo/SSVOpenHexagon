@@ -193,7 +193,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
         GITHUB_REPOSITORY vittorioromeo/imgui-sfml
-        GIT_TAG 8796042cf23ca300396b1f26cea88b1c640ed289
+        GIT_TAG f35f353376281c0a891a4d614a241914ddfcbe29
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
