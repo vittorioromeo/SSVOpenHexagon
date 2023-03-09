@@ -36,7 +36,7 @@ struct scope_guard : F
 
     ~scope_guard() noexcept
     {
-        static_cast<F&> (*this)();
+        static_cast<F&>(*this)();
     }
 };
 

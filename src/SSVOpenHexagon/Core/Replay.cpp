@@ -20,6 +20,8 @@
 #include <type_traits>
 #include <utility>
 
+#include <cstdint>
+
 namespace hg {
 
 [[gnu::cold]] static void printTryFailure(const char* code)
@@ -354,6 +356,11 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     const std::filesystem::path& p)
 {
     std::ifstream is(p, std::ios::binary | std::ios::in);
+    if(!static_cast<bool>(is))
+    {
+        std::cerr << "Couldn't open replay path '" << p << "'\n";
+        return false;
+    }
 
     is.seekg(0, std::ios::end);
     const std::size_t bytes_to_read = is.tellg();
@@ -382,7 +389,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
         return false;
     }
 
-    const sf::Uint64 written_bytes = sr.written_bytes();
+    const std::uint64_t written_bytes = sr.written_bytes();
 
     p << written_bytes;
     p.append(static_cast<const void*>(buf), written_bytes);
@@ -391,10 +398,10 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
 [[nodiscard]] bool replay_file::deserialize_from_packet(sf::Packet& p)
 {
-    static_assert(sizeof(sf::Uint8) == sizeof(std::byte));
-    static_assert(alignof(sf::Uint8) == alignof(std::byte));
+    static_assert(sizeof(std::uint8_t) == sizeof(std::byte));
+    static_assert(alignof(std::uint8_t) == alignof(std::byte));
 
-    sf::Uint64 bytes_to_read;
+    std::uint64_t bytes_to_read;
     if(!(p >> bytes_to_read))
     {
         return false;
@@ -402,9 +409,9 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
     std::byte* buf = get_static_buf();
 
-    for(sf::Uint64 i = 0; i < bytes_to_read; ++i)
+    for(std::uint64_t i = 0; i < bytes_to_read; ++i)
     {
-        if(!(p >> reinterpret_cast<sf::Uint8&>(buf[i])))
+        if(!(p >> reinterpret_cast<std::uint8_t&>(buf[i])))
         {
             return false;
         }
@@ -438,6 +445,11 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     const std::filesystem::path& p)
 {
     std::ifstream is(p, std::ios::binary | std::ios::in);
+    if(!static_cast<bool>(is))
+    {
+        std::cerr << "Couldn't open compressed replay path '" << p << "'\n";
+        return false;
+    }
 
     is.seekg(0, std::ios::end);
     const std::size_t bytes_to_read = is.tellg();
@@ -452,7 +464,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 [[nodiscard]] bool compressed_replay_file::serialize_to_packet(
     sf::Packet& p) const
 {
-    p << static_cast<sf::Uint64>(_data.size());
+    p << static_cast<std::uint64_t>(_data.size());
     p.append(static_cast<const void*>(_data.data()), _data.size());
     return true;
 }
@@ -460,10 +472,10 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 [[nodiscard]] bool compressed_replay_file::deserialize_from_packet(
     sf::Packet& p)
 {
-    static_assert(sizeof(sf::Uint8) == sizeof(char));
-    static_assert(alignof(sf::Uint8) == alignof(char));
+    static_assert(sizeof(std::uint8_t) == sizeof(char));
+    static_assert(alignof(std::uint8_t) == alignof(char));
 
-    sf::Uint64 bytes_to_read;
+    std::uint64_t bytes_to_read;
     if(!(p >> bytes_to_read))
     {
         return false;
@@ -471,9 +483,9 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
     _data.resize(bytes_to_read);
 
-    for(sf::Uint64 i = 0; i < bytes_to_read; ++i)
+    for(std::uint64_t i = 0; i < bytes_to_read; ++i)
     {
-        if(!(p >> reinterpret_cast<sf::Uint8&>(_data[i])))
+        if(!(p >> reinterpret_cast<std::uint8_t&>(_data[i])))
         {
             return false;
         }

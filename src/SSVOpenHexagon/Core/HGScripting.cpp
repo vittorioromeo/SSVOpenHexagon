@@ -1075,6 +1075,23 @@ void HexagonGame::initLua_Deprecated()
             "Remove all previously scheduled messages. "
             "**This function is deprecated and will be removed in a future "
             "version. Please use e_clearMessages instead!**");
+
+    addLuaFn(lua, "l_forceSetPulse",
+        [this](const float mValue)
+        {
+            status.pulse = mValue;
+            refreshPulse();
+        })
+        .doc("Immediately sets the current pulse value to `$0`.");
+
+    addLuaFn(lua, "l_forceSetBeatPulse",
+        [this](const float mValue)
+        {
+            status.beatPulse = mValue;
+            refreshBeatPulse();
+            player.updatePosition(status.radius);
+        })
+        .doc("Immediately sets the current beat pulse value to `$0`.");
 }
 
 void HexagonGame::initLua()
@@ -1085,7 +1102,8 @@ void HexagonGame::initLua()
         [this](const std::string& filename) -> void { runLuaFile(filename); },
         execScriptPackPathContext,
         [this]() -> const std::string& { return levelData->packPath; },
-        [this]() -> const PackData& { return getPackData(); });
+        [this]() -> const PackData& { return getPackData(); },
+        (window == nullptr) /* headless */);
 
     initLua_Utils();
     initLua_AudioControl();

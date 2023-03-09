@@ -16,8 +16,6 @@
 
 #include "SSVStart/Utils/SFML.hpp"
 
-#include <SFML/Config.hpp>
-
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
@@ -27,6 +25,8 @@
 
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
+
+#include <cstdint>
 
 namespace hg {
 
@@ -72,7 +72,8 @@ void HexagonGame::draw()
             return sf::RenderStates::Default;
         }
 
-        runLuaFunctionIfExists<int>("onRenderStage", static_cast<int>(rs));
+        runLuaFunctionIfExists<int, float>(
+            "onRenderStage", static_cast<int>(rs), 60.f / window->getFPS());
         return sf::RenderStates{assets.getShaderByShaderId(*fragmentShaderId)};
     };
 
@@ -177,7 +178,10 @@ void HexagonGame::draw()
 
         const auto adjustAlpha = [&](sf::Color& c, const float i)
         {
-            SSVOH_ASSERT(styleData._3dAlphaMult != 0.f);
+            if(styleData._3dAlphaMult == 0.f)
+            {
+                return;
+            }
 
             const float newAlpha =
                 (static_cast<float>(c.a) / styleData._3dAlphaMult) -
@@ -276,7 +280,7 @@ void HexagonGame::draw()
     window->setView(overlayCamera->apply());
 
     drawParticles();
-    drawText();
+    drawText(getRenderStates(RenderStage::Text));
 
     // ------------------------------------------------------------------------
     // Draw key icons.
@@ -289,7 +293,7 @@ void HexagonGame::draw()
     // Draw level info.
     if(Config::getShowLevelInfo() || mustShowReplayUI())
     {
-        drawLevelInfo();
+        drawLevelInfo(getRenderStates(RenderStage::Text));
     }
 
     // ------------------------------------------------------------------------
@@ -336,8 +340,8 @@ void HexagonGame::initFlashEffect(int r, int g, int b)
     flashPolygon.clear();
     flashPolygon.reserve(6);
 
-    const sf::Color color{static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g),
-        static_cast<sf::Uint8>(b), 0};
+    const sf::Color color{static_cast<std::uint8_t>(r),
+        static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b), 0};
 
     const auto width = static_cast<float>(Config::getWidth());
     const auto height = static_cast<float>(Config::getHeight());
@@ -353,8 +357,8 @@ void HexagonGame::initFlashEffect(int r, int g, int b)
 
 void HexagonGame::drawKeyIcons()
 {
-    constexpr sf::Uint8 offOpacity = 90;
-    constexpr sf::Uint8 onOpacity = 255;
+    constexpr std::uint8_t offOpacity = 90;
+    constexpr std::uint8_t onOpacity = 255;
 
     const sf::Color colorText = getColorText();
 
@@ -380,14 +384,14 @@ void HexagonGame::drawKeyIcons()
     }
 }
 
-void HexagonGame::drawLevelInfo()
+void HexagonGame::drawLevelInfo(const sf::RenderStates& mStates)
 {
-    render(levelInfoRectangle);
-    render(levelInfoTextLevel);
-    render(levelInfoTextPack);
-    render(levelInfoTextAuthor);
-    render(levelInfoTextBy);
-    render(levelInfoTextDM);
+    render(levelInfoRectangle, mStates);
+    render(levelInfoTextLevel, mStates);
+    render(levelInfoTextPack, mStates);
+    render(levelInfoTextAuthor, mStates);
+    render(levelInfoTextBy, mStates);
+    render(levelInfoTextDM, mStates);
 }
 
 void HexagonGame::drawParticles()
@@ -595,7 +599,8 @@ void HexagonGame::updateText(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
+void HexagonGame::drawText_TimeAndStatus(
+    const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     if(Config::getDrawTextOutlines())
     {
@@ -629,7 +634,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         timeText.setOrigin(ssvs::getLocalNW(timeText));
         timeText.setPosition({padding, padding});
 
-        render(timeText);
+        render(timeText, mStates);
     }
 
     if(Config::getShowStatusText())
@@ -638,7 +643,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         text.setOrigin(ssvs::getLocalNW(text));
         text.setPosition({padding, ssvs::getGlobalBottom(timeText) + padding});
 
-        render(text);
+        render(text, mStates);
     }
 
     if(Config::getShowFPS())
@@ -656,7 +661,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
             fpsText.setPosition({padding, Config::getHeight() - padding});
         }
 
-        render(fpsText);
+        render(fpsText, mStates);
     }
 
     if(mustShowReplayUI())
@@ -670,7 +675,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         replayText.setOrigin(ssvs::getLocalCenterE(replayText));
         replayText.setPosition(ssvs::getGlobalCenterW(replayIcon) -
                                sf::Vector2f{replayPadding, 0});
-        render(replayText);
+        render(replayText, mStates);
     }
 }
 
@@ -700,32 +705,35 @@ static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
     fRender(text);
 }
 
-void HexagonGame::drawText_Message(const sf::Color& offsetColor)
+void HexagonGame::drawText_Message(
+    const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(messageText, offsetColor,
         {Config::getWidth() / 2.f, Config::getHeight() / 5.5f}, getColorText(),
-        1.f /* outlineThickness */, [this](sf::Text& t) { render(t); });
+        1.f /* outlineThickness */,
+        [this, &mStates](sf::Text& t) { render(t, mStates); });
 }
 
-void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor)
+void HexagonGame::drawText_PersonalBest(
+    const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
     drawTextMessagePBImpl(pbText, offsetColor,
         {Config::getWidth() / 2.f,
             Config::getHeight() - Config::getHeight() / 4.f},
         getColorText(), 4.f /* outlineThickness */,
-        [this](sf::Text& t) { render(t); });
+        [this, &mStates](sf::Text& t) { render(t, mStates); });
 }
 
-void HexagonGame::drawText()
+void HexagonGame::drawText(const sf::RenderStates& mStates)
 {
     const sf::Color offsetColor{
         Config::getBlackAndWhite() || styleData.getColors().empty()
             ? sf::Color::Black
             : getColor(0)};
 
-    drawText_TimeAndStatus(offsetColor);
-    drawText_Message(offsetColor);
-    drawText_PersonalBest(offsetColor);
+    drawText_TimeAndStatus(offsetColor, mStates);
+    drawText_Message(offsetColor, mStates);
+    drawText_PersonalBest(offsetColor, mStates);
 }
 
 } // namespace hg

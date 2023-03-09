@@ -37,14 +37,15 @@
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
 
-#include <SFML/Config.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <array>
-#include <cstring>
 #include <optional>
 #include <stdexcept>
+
+#include <cstring>
+#include <cstdint>
 
 namespace hg {
 
@@ -148,8 +149,6 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
     updateRichPresenceCallbacks();
 
     // ------------------------------------------------------------------------
-
-    updateText(mFT);
 
     if(mustStart)
     {
@@ -374,6 +373,8 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
             backgroundCamera->update(mFT);
         }
     }
+
+    updateText(mFT);
 
     if(status.started)
     {
@@ -763,7 +764,11 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
 
         status.pulseDelay -= mFT * getMusicDMSyncFactor();
     }
+    refreshPulse();
+}
 
+void HexagonGame::refreshPulse()
+{
     if(window != nullptr)
     {
         SSVOH_ASSERT(backgroundCamera.has_value());
@@ -800,7 +805,11 @@ void HexagonGame::updateBeatPulse(ssvu::FT mFT)
                                 levelStatus.beatPulseSpeedMult;
         }
     }
+    refreshBeatPulse();
+}
 
+void HexagonGame::refreshBeatPulse()
+{
     const float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
     status.radius =
         radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
@@ -992,7 +1001,7 @@ void HexagonGame::updateTrailParticles(ssvu::FT mFT)
         const float newAlpha = Utils::getMoveTowardsZero(
             static_cast<float>(color.a), Config::getPlayerTrailDecay() * mFT);
 
-        color.a = static_cast<sf::Uint8>(newAlpha);
+        color.a = static_cast<std::uint8_t>(newAlpha);
         p.sprite.setColor(color);
 
         p.sprite.setScale(p.sprite.getScale() * 0.98f);
@@ -1049,7 +1058,7 @@ void HexagonGame::updateSwapParticles(ssvu::FT mFT)
         const float newAlpha =
             Utils::getMoveTowardsZero(static_cast<float>(color.a), 3.5f * mFT);
 
-        color.a = static_cast<sf::Uint8>(newAlpha);
+        color.a = static_cast<std::uint8_t>(newAlpha);
         p.sprite.setColor(color);
 
         p.sprite.setScale(p.sprite.getScale() * 0.98f);
@@ -1266,6 +1275,12 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 #ifndef SSVOH_ANDROID
     if(window == nullptr)
     {
+        return;
+    }
+
+    if(!Config::getDebug() || Config::getOfficial())
+    {
+        ilcShowConsole = ilcShowConsoleNext = false;
         return;
     }
 

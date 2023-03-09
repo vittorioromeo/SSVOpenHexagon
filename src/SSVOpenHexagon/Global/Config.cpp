@@ -138,7 +138,32 @@ defaultServerLevelWhitelist()
         "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1",
         "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1.2",
         "1D2B-E31E-EC19_Syyrion_Travel_13103_ti84_m_1.4",
-        "1D2B-E31E-EC19_Syyrion_Travel_13103_spl_m_1" //
+        "1D2B-E31E-EC19_Syyrion_Travel_13103_spl_m_1",
+
+        // NDigger - Delta [Steam Workshop]
+        "ndeltalevels_NDigger_delta_1_escape_m_1",
+        "ndeltalevels_NDigger_delta_1_escape_m_1.001",
+        "ndeltalevels_NDigger_delta_1_fusionZ_m_1",
+        "ndeltalevels_NDigger_delta_1_fusionZ_m_1.001",
+        "ndeltalevels_NDigger_delta_1_fusionZ_m_1.002",
+        "ndeltalevels_NDigger_delta_1_hyperbounce_m_1",
+        "ndeltalevels_NDigger_delta_1_hyperbounce_m_1.001",
+        "ndeltalevels_NDigger_delta_1_matrix_m_1",
+        "ndeltalevels_NDigger_delta_1_matrix_m_1.001",
+        "ndeltalevels_NDigger_delta_1_nocturnal_m_1",
+        "ndeltalevels_NDigger_delta_1_nocturnal_m_1.001",
+        "ndeltalevels_NDigger_delta_1_radioactive_m_1",
+        "ndeltalevels_NDigger_delta_1_radioactive_m_1.001",
+        "ndeltalevels_NDigger_delta_1_snowstorm_m_1",
+        "ndeltalevels_NDigger_delta_1_snowstorm_m_1.001",
+        "ndeltalevels_NDigger_delta_1_synergic_m_1",
+        "ndeltalevels_NDigger_delta_1_synergic_m_1.001",
+        "ndeltalevels_NDigger_delta_1_underworld_m_1",
+        "ndeltalevels_NDigger_delta_1_underworld_m_1.001",
+        "ndeltalevels_NDigger_delta_1_viper_m_1",
+        "ndeltalevels_NDigger_delta_1_viper_m_1.001"
+
+        //
     };
 
     return result;

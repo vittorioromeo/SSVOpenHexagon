@@ -216,8 +216,10 @@ void HexagonGame::updateLevelInfo()
     levelInfoTextPack.setPosition(
         ssvs::getGlobalSW(levelInfoTextLevel) + sf::Vector2f{0.f, tPadding});
 
+    SSVOH_ASSERT(levelData != nullptr);
+
     prepareText(
-        levelInfoTextAuthor, 20.f, trim(Utils::toUppercase(getPackAuthor())));
+        levelInfoTextAuthor, 20.f, trim(Utils::toUppercase(levelData->author)));
     levelInfoTextAuthor.setOrigin(ssvs::getLocalSE(levelInfoTextAuthor));
     levelInfoTextAuthor.setPosition(ssvs::getGlobalSE(levelInfoRectangle) -
                                     sf::Vector2f{tPadding, tPadding});
@@ -382,7 +384,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         notInConsole(
             [this]
             {
-                if(deathInputIgnore <= 0.f && status.hasDied)
+                if((deathInputIgnore <= 0.f && status.hasDied) || inReplay())
                 {
                     status.mustStateChange = StateChange::MustRestart;
                 }
@@ -534,9 +536,28 @@ void HexagonGame::playPackSoundOverride(
     }
 }
 
+void HexagonGame::saveReplay()
+{
+    if(shouldSaveScore() && !status.hasDied)
+    {
+        (void)death_saveScoreIfNeeded(); // Saves local best
+
+        const replay_file rf = death_createReplayFile();
+
+        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+        death_sendAndSaveReplay(rf);
+    }
+}
+
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
+    // Save replay when restarting without having died
+    if(!mFirstPlay)
+    {
+        saveReplay();
+    }
+
     SSVOH_ASSERT(assets.isValidPackId(mPackId));
     SSVOH_ASSERT(assets.isValidLevelId(mId));
 
@@ -700,6 +721,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     inputImplCCW = inputImplCW = false;
     playerNowReadyToSwap = false;
 
+    if(!firstPlay) runLuaFunctionIfExists<void>("onPreUnload");
     lua = Lua::LuaContext{};
     calledDeprecatedFunctions.clear();
     initLua();
@@ -1031,9 +1053,18 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 }
 
 [[nodiscard]] bool HexagonGame::death_saveReplay(
-    const std::string& filename, const compressed_replay_file& crf)
+    std::string filename, const compressed_replay_file& crf)
 {
-    std::string dirPath = "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
+    std::string dirPath =
+        "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
+
+    // Replace invalid characters for Windows file paths.
+    for(const char c : {':', '*', '?', '"', '<', '>', '|'})
+    {
+        std::replace(dirPath.begin(), dirPath.end(), c, '_');
+        std::replace(filename.begin(), filename.end(), c, '_');
+    }
+
     std::filesystem::create_directories(dirPath);
     std::filesystem::path p;
     p /= dirPath;
@@ -1219,14 +1250,9 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 
     calledDeprecatedFunctions.clear();
 
-    if(mSendScores && !mError && shouldSaveScore())
+    if(mSendScores && !mError)
     {
-        (void)death_saveScoreIfNeeded(); // Saves local best
-
-        const replay_file rf = death_createReplayFile();
-
-        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
-        death_sendAndSaveReplay(rf);
+        saveReplay();
     }
 
     // Stop infinite feedback from occurring if the error is happening on
