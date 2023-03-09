@@ -31,14 +31,16 @@
 #include <boost/pfr.hpp>
 
 #include <chrono>
-#include <csignal>
-#include <cstdlib>
 #include <optional>
-#include <cstdio>
 #include <sstream>
 #include <string>
 #include <type_traits>
 #include <stdexcept>
+
+#include <csignal>
+#include <cstdlib>
+#include <cstdint>
+#include <cstdio>
 
 static auto& slog(const char* funcName)
 {
@@ -52,7 +54,7 @@ static auto& slog(const char* funcName)
 
 #define SSVOH_SLOG_ERROR ::slog(__func__) << "[ERROR] "
 
-#define SSVOH_SLOG_VAR(x) '\'' << #x << "': '" << x << '\''
+#define SSVOH_SLOG_VAR(x) '\'' << #x << "': '" << (x) << '\''
 
 namespace hg {
 
@@ -176,9 +178,9 @@ template <typename T>
 {
     return sendEncrypted(c, //
         STCPLoginSuccess{
-            .loginToken = static_cast<sf::Uint64>(loginToken), //
-            .loginName = loginName                             //
-        }                                                      //
+            .loginToken = static_cast<std::uint64_t>(loginToken), //
+            .loginName = loginName                                //
+        }                                                         //
     );
 }
 
@@ -248,7 +250,7 @@ template <typename T>
 
 [[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient& c,
     const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
-    const std::vector<std::string> supportedLevelValidators)
+    const std::vector<std::string>& supportedLevelValidators)
 {
     return sendEncrypted(c, //
         STCPServerStatus{
@@ -316,7 +318,7 @@ bool HexagonServer::runIteration_Control()
         return fail();
     }
 
-    sf::IpAddress senderIp;
+    std::optional<sf::IpAddress> senderIp;
     unsigned short senderPort;
 
     if(_controlSocket.receive(_packetBuffer, senderIp, senderPort) !=
@@ -332,7 +334,9 @@ bool HexagonServer::runIteration_Control()
         return fail("Failure decoding control packet");
     }
 
-    SSVOH_SLOG << "Received control packet from '" << senderIp << ':'
+    SSVOH_ASSERT(senderIp.has_value());
+
+    SSVOH_SLOG << "Received control packet from '" << senderIp.value() << ':'
                << senderPort << "', contents: '" << controlMsg << "'\n";
 
     if(controlMsg.empty())
@@ -435,7 +439,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     // TODO (P1): potential hanging spot?
     // The listener is ready: there is a pending connection
-    if(_listener.accept(potentialSocket) != sf::Socket::Done)
+    if(_listener.accept(potentialSocket) != sf::Socket::Status::Done)
     {
         SSVOH_SLOG << "Listener failed to accept new client '"
                    << potentialClientAddress << "'\n";
@@ -476,7 +480,7 @@ void HexagonServer::runIteration_LoopOverSockets()
         _packetBuffer.clear();
 
         // TODO (P1): potential hanging spot?
-        if(clientSocket.receive(_packetBuffer) == sf::Socket::Done)
+        if(clientSocket.receive(_packetBuffer) == sf::Socket::Status::Done)
         {
             SSVOH_SLOG_VERBOSE << "Successfully received data from client '"
                                << clientAddr << "'\n";
@@ -608,7 +612,7 @@ void HexagonServer::runIteration_FlushLogs()
 }
 
 [[nodiscard]] bool HexagonServer::validateLogin(
-    ConnectedClient& c, const char* context, const sf::Uint64 ctspLoginToken)
+    ConnectedClient& c, const char* context, const std::uint64_t ctspLoginToken)
 {
     const void* clientAddr = static_cast<void*>(&c);
 
@@ -634,7 +638,7 @@ void HexagonServer::runIteration_FlushLogs()
 }
 
 [[nodiscard]] bool HexagonServer::processReplay(
-    ConnectedClient& c, const sf::Uint64 loginToken, const replay_file& rf)
+    ConnectedClient& c, const std::uint64_t loginToken, const replay_file& rf)
 {
     const void* clientAddr = static_cast<void*>(&c);
 
@@ -703,8 +707,8 @@ void HexagonServer::runIteration_FlushLogs()
     const double difference = std::fabs(replayTotalTime - elapsedSecs);
     const double ratio = replayTotalTime / elapsedSecs;
 
-    const bool goodDifference = difference < 3.5;
-    const bool goodRatio = ratio > 0.75 && ratio < 1.25;
+    const bool goodDifference = difference < 5.0;
+    const bool goodRatio = ratio > 0.65 && ratio < 1.35;
 
     const auto printDifferenceAndRatio = [&]
     {
@@ -726,6 +730,8 @@ void HexagonServer::runIteration_FlushLogs()
     }
 
     SSVOH_SLOG << "Replay valid, adding to database\n";
+
+    SSVOH_ASSERT(c._loginData.has_value());
 
     Database::addScore(levelValidator, Utils::nowTimestamp(),
         c._loginData->_steamId, replayPlayedTime);
@@ -1344,12 +1350,6 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
     // Check initialization failures
 #define SSVOH_SLOG_INIT_ERROR \
     SSVOH_SLOG_ERROR << "Failure initializing server: "
-
-    if(_serverIp == sf::IpAddress::None)
-    {
-        SSVOH_SLOG_INIT_ERROR << "Invalid IP '" << _serverIp << "'\n";
-        return;
-    }
 
     if(!initializeControlSocket())
     {

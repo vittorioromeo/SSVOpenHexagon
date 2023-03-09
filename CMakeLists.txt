@@ -38,9 +38,17 @@ endif()
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." FALSE)
 
 if(${FORCE_COLORED_OUTPUT})
-    if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR (CMAKE_CXX_COMPILER MATCHES "g\\+\\+"))
+    if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        OR (CMAKE_CXX_COMPILER MATCHES "g\\+\\+")
+        OR ("${CMAKE_CXX_COMPILER}" STREQUAL "gcc")
+        OR ("${CMAKE_CXX_COMPILER}" STREQUAL "g++")
+    )
        add_compile_options("-fdiagnostics-color=always")
-    elseif(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR (CMAKE_CXX_COMPILER MATCHES "clang\\+\\+"))
+    elseif(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        OR ("${CMAKE_CXX_COMPILER}" STREQUAL "clang")
+        OR ("${CMAKE_CXX_COMPILER}" STREQUAL "clang++")
+        OR (CMAKE_CXX_COMPILER MATCHES "clang\\+\\+")
+    )
        add_compile_options("-fcolor-diagnostics")
     endif()
 endif()
@@ -63,7 +71,7 @@ endif()
 # CPM
 # -----------------------------------------------------------------------------
 
-set(CPM_DOWNLOAD_VERSION 0.35.6)
+set(CPM_DOWNLOAD_VERSION 0.37.0)
 
 if(CPM_SOURCE_CACHE)
     set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
@@ -95,7 +103,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG c565daccaef9c277aa97b17d3ae6f4c295042c09
+    GIT_TAG 13860e9fe428aaccaaef958d748d1c42083d1a3c
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -117,7 +125,7 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME luajit
     GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
-    GIT_TAG 7783f436f330ac231aae47d1c949c7a215a47ae6
+    GIT_TAG fa8feeb9580f233a397fb484d84c2108e26b2a00
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -157,15 +165,17 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 9aae45eb4a05a5a1f96be1ef37eb503a12ceb889
+        GIT_TAG 04316bd223f98e4c40bd82dc5f2a35c4891e4e5f
         DOWNLOAD_ONLY YES
     )
 
     if (imgui_ADDED)
         # imgui has no CMake support, so we create our own target
 
-        FILE(GLOB imgui_sources ${imgui_SOURCE_DIR}/*.cpp)
-        FILE(GLOB imgui_sources_cpp ${imgui_SOURCE_DIR}/misc/cpp/*.cpp)
+        file(GLOB imgui_sources "${imgui_SOURCE_DIR}/*.cpp")
+        file(GLOB imgui_sources_cpp "${imgui_SOURCE_DIR}/misc/cpp/*.cpp")
+
+        list(REMOVE_ITEM imgui_sources "${imgui_SOURCE_DIR}/imgui_demo.cpp")
 
         set(IMGUI_DIR ${imgui_SOURCE_DIR})
         set(IMGUI_INCLUDE_DIR ${imgui_SOURCE_DIR})
@@ -183,7 +193,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
         GITHUB_REPOSITORY vittorioromeo/imgui-sfml
-        GIT_TAG 4aa899737ded790bccc1dc2a8659d3c9db642bfe
+        GIT_TAG f35f353376281c0a891a4d614a241914ddfcbe29
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
@@ -201,7 +211,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME libsodium-cmake
     GITHUB_REPOSITORY vittorioromeo/libsodium-cmake
-    GIT_TAG 0c7f10f3a8a279a9bf731d243ea8e09c7292019b
+    GIT_TAG fd76500b60fcaa341b6fad24cda88c3504df770d
     OPTIONS "SODIUM_DISABLE_TESTS ON" "SODIUM_DISABLE_TESTS ON CACHE BOOL \"\" FORCE"
 )
 
@@ -217,7 +227,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME boostpfr
     GITHUB_REPOSITORY boostorg/pfr
-    GIT_TAG 8a8b5bc8d3ff673c4b278d145f6bf6973844d8e9
+    GIT_TAG ed28602c2cc7b330140e67412552ed7ec2e4fe8d
     DOWNLOAD_ONLY YES
 )
 

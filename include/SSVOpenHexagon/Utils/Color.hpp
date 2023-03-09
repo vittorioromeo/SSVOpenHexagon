@@ -10,17 +10,19 @@
 #include <SFML/Graphics/Glsl.hpp>
 
 #include <cmath>
+#include <cstdint>
 
 namespace hg::Utils {
 
 [[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Color getColorDarkened(
     sf::Color mColor, const float mMultiplier) noexcept
 {
-    SSVOH_ASSERT(mMultiplier != 0.f);
-
-    mColor.r = static_cast<float>(mColor.r) / mMultiplier;
-    mColor.b = static_cast<float>(mColor.b) / mMultiplier;
-    mColor.g = static_cast<float>(mColor.g) / mMultiplier;
+    if(mMultiplier != 0.f)
+    {
+        mColor.r = static_cast<float>(mColor.r) / mMultiplier;
+        mColor.b = static_cast<float>(mColor.b) / mMultiplier;
+        mColor.g = static_cast<float>(mColor.g) / mMultiplier;
+    }
 
     return mColor;
 }
@@ -33,27 +35,25 @@ namespace hg::Utils {
 
     return sf::Color{
         //
-        static_cast<sf::Uint8>((.701 * u + .168 * w) * in.r +
-                               (-.587 * u + .330 * w) * in.g +
-                               (-.114 * u - .497 * w) * in.b),
+        static_cast<std::uint8_t>((.701 * u + .168 * w) * in.r +
+                                  (-.587 * u + .330 * w) * in.g +
+                                  (-.114 * u - .497 * w) * in.b),
 
-        static_cast<sf::Uint8>((-.299 * u - .328 * w) * in.r +
-                               (.413 * u + .035 * w) * in.g +
-                               (-.114 * u + .292 * w) * in.b),
+        static_cast<std::uint8_t>((-.299 * u - .328 * w) * in.r +
+                                  (.413 * u + .035 * w) * in.g +
+                                  (-.114 * u + .292 * w) * in.b),
 
-        static_cast<sf::Uint8>((-.3 * u + 1.25 * w) * in.r +
-                               (-.588 * u - 1.05 * w) * in.g +
-                               (.886 * u - .203 * w) * in.b),
+        static_cast<std::uint8_t>((-.3 * u + 1.25 * w) * in.r +
+                                  (-.588 * u - 1.05 * w) * in.g +
+                                  (.886 * u - .203 * w) * in.b),
 
-        static_cast<sf::Uint8>(255) //
+        static_cast<std::uint8_t>(255) //
     };
 }
 
 [[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Color getColorFromHue(
     const float hue) noexcept
 {
-    SSVOH_ASSERT(hue >= 0.f && hue <= 1.f);
-
     const int i = std::floor(hue * 6.f);
 
     const float f = (hue * 6.f) - i;
@@ -75,20 +75,20 @@ namespace hg::Utils {
     return ret(1.f, 0.f, q);
 }
 
-[[nodiscard, gnu::always_inline, gnu::pure]] inline constexpr sf::Uint8
+[[nodiscard, gnu::always_inline, gnu::pure]] inline constexpr std::uint8_t
 componentClamp(const float value) noexcept
 {
     if(value > 255.f)
     {
-        return sf::Uint8(255);
+        return std::uint8_t(255);
     }
 
     if(value < 0.f)
     {
-        return sf::Uint8(0);
+        return std::uint8_t(0);
     }
 
-    return static_cast<sf::Uint8>(value);
+    return static_cast<std::uint8_t>(value);
 }
 
 [[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Glsl::Vec3 toGLSLVec3(

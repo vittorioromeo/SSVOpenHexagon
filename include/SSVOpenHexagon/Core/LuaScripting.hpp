@@ -37,7 +37,7 @@ void init(Lua::LuaContext& lua, random_number_generator& rng, const bool inMenu,
     const std::function<void(const std::string&)>& fRunLuaFile,
     std::vector<std::string>& execScriptPackPathContext,
     const std::function<const std::string&()>& fPackPathGetter,
-    const std::function<const PackData&()>& fGetPackData);
+    const std::function<const PackData&()>& fGetPackData, const bool headless);
 
 void printDocs();
 
