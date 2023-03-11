@@ -169,6 +169,61 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
             "`true`, the swap sound will be played.");
+
+    addLuaFn(lua, "u_setMessageFont", //
+        [this](const std::string& mFontId)
+        {
+            messageText.setFont(assets.getFontOrNullFont(
+                Utils::concat(getPackId(), "_", mFontId)));
+        })
+        .arg("fontId")
+        .doc(
+            "Sets the font messages will use to `$0` which is the filename of "
+            "a file inside the `Fonts` folder in your pack.");
+
+    addLuaFn(lua, "u_setDependencyMessageFont", //
+        [this](const std::string& mPackDisambiguator,
+            const std::string& mPackName, const std::string& mPackAuthor,
+            const std::string& mFontId)
+        {
+            try
+            {
+                const PackData& dependencyData =
+                    Utils::findDependencyPackDataOrThrow(assets, getPackData(),
+                        mPackDisambiguator, mPackName, mPackAuthor);
+                const auto path =
+                    Utils::concat(dependencyData.id, "_", mFontId);
+                messageText.setFont(assets.getFontOrNullFont(path));
+            }
+            catch(const std::runtime_error& err)
+            {
+                ssvu::lo("hg::Utils::findDependencyPackDataOrThrow")
+                    << "Fatal error while looking for Lua dependency\nError: "
+                    << err.what() << std::endl;
+
+                throw;
+            }
+            catch(...)
+            {
+                ssvu::lo("hg::Utils::findDependencyPackDataOrThrow")
+                    << "Fatal unknown error while looking for Lua dependency"
+                    << std::endl;
+
+                throw;
+            }
+        })
+        .arg("packDisambiguator")
+        .arg("packName")
+        .arg("packAuthor")
+        .arg("fontId")
+        .doc(
+            "Sets the font messages will use to `$3` which is the filename of "
+            "a file inside the `Fonts` folder in the specified pack.");
+
+    addLuaFn(lua, "u_setMessageFontSize", //
+        [this](float mSize) { status.messageTextCharacterSize = mSize; })
+        .arg("size")
+        .doc("Sets the font size messages will use to `$0`.");
 }
 
 void HexagonGame::initLua_AudioControl()

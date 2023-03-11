@@ -68,6 +68,7 @@ public:
     float radius{75};
     float fastSpin{0};
     float cameraShake{0};
+    float messageTextCharacterSize{32.f};
     bool hasDied{false};
     StateChange mustStateChange{StateChange::None};
     bool scoreInvalid{false};

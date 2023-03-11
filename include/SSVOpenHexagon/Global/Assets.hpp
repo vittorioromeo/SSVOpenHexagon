@@ -110,6 +110,8 @@ private:
         const std::string& mPackId, const ssvufs::Path& mPath);
     void loadPackAssets_loadCustomSounds(
         const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadPackAssets_loadCustomFonts(
+        const std::string& mPackId, const ssvufs::Path& mPath);
 
     [[nodiscard]] std::string getCurrentLocalProfileFilePath();
 
