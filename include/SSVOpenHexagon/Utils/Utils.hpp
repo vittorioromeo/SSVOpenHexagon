@@ -38,8 +38,8 @@ void shakeCamera(
     ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
 
 void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode);
-
 void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName);
+bool runLuaFileCached(Lua::LuaContext& mLua, const std::string& mFileName);
 
 struct Nothing
 {};
@@ -49,14 +49,14 @@ using VoidToNothing = std::conditional_t<std::is_same_v<T, void>, Nothing, T>;
 
 template <typename T, typename... TArgs>
 T runLuaFunction(
-    Lua::LuaContext& mLua, const std::string& mName, const TArgs&... mArgs)
+    Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
 {
     return mLua.callLuaFunction<T>(mName, std::make_tuple(mArgs...));
 }
 
 template <typename T, typename... TArgs>
 auto runLuaFunctionIfExists(
-    Lua::LuaContext& mLua, const std::string& mName, const TArgs&... mArgs)
+    Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
 {
     using Ret = std::optional<VoidToNothing<T>>;
 
