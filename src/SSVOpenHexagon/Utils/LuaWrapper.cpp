@@ -284,7 +284,8 @@ void LuaContext::_load(std::istream& code)
 
 void LuaContext::_load(std::string_view code)
 {
-    const int loadReturnValue = luaL_loadstring(_state, code.data());
+    const int loadReturnValue =
+        luaL_loadbuffer(_state, code.data(), code.size(), "chunk");
 
     // now we have to check return value
     if(loadReturnValue != 0)
