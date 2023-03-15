@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <vector>
@@ -261,7 +262,7 @@ public:
     /// \param ... Parameters to pass to the function
     template <typename R, typename... Args>
     [[nodiscard, gnu::always_inline]] inline R callLuaFunction(
-        const std::string& mVarName, Args&&... args)
+        std::string_view mVarName, Args&&... args)
     {
         _getGlobal(mVarName);
         return _call<R>(std::make_tuple(SSVOH_FWD(args)...));
@@ -292,7 +293,7 @@ public:
 
     /// \brief Returns true if variable exists (ie. not nil)
     [[nodiscard, gnu::always_inline]] inline bool doesVariableExist(
-        const std::string& mVarName) const
+        std::string_view mVarName) const
     {
         _getGlobal(mVarName);
 
@@ -383,7 +384,7 @@ private:
     // important: _setGlobal will pop the value even if it throws an
     // exception, while _getGlobal won't push the value if it throws an
     // exception
-    void _getGlobal(const std::string& mVarName) const;
+    void _getGlobal(std::string_view mVarName) const;
     void _setGlobal(const std::string& mVarName);
 
     // simple function that reads the top # elements of the stack, pops
