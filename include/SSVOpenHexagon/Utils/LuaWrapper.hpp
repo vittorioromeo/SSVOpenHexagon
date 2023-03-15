@@ -385,7 +385,7 @@ private:
     // exception, while _getGlobal won't push the value if it throws an
     // exception
     void _getGlobal(std::string_view mVarName) const;
-    void _setGlobal(const std::string& mVarName);
+    void _setGlobal(std::string_view mVarName);
 
     // simple function that reads the top # elements of the stack, pops
     // them, and returns them

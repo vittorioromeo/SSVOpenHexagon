@@ -164,62 +164,60 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
     while(nextVar != mVarName.end());
 }
 
-void LuaContext::_setGlobal(const std::string& mVarName)
+void LuaContext::_setGlobal(std::string_view mVarName)
+try
 {
+    SSVOH_ASSERT(lua_gettop(_state) >= 1); // making sure there's
+                                           // something on the stack
+                                           // (ie. the value to set)
+
+    // two possibilities: either "variable" is a global variable, or
+    // a member of an array
+    std::size_t lastDot = mVarName.find_last_of('.');
+
+    if(lastDot == std::string::npos)
+    {
+        // this is the first case, we simply call setglobal (which
+        // cleans the stack)
+        lua_setglobal(_state, mVarName.data());
+        return;
+    }
+
+    const auto tableName = mVarName.substr(0, lastDot);
+
+    // in the second case, we call _getGlobal on the table name
+    _getGlobal(tableName);
+
     try
     {
-        SSVOH_ASSERT(lua_gettop(_state) >= 1); // making sure there's
-                                               // something on the stack
-                                               // (ie. the value to set)
-
-        // two possibilities: either "variable" is a global variable, or
-        // a member of an array
-        std::size_t lastDot = mVarName.find_last_of('.');
-
-        if(lastDot == std::string::npos)
+        if(!lua_istable(_state, -1))
         {
-            // this is the first case, we simply call setglobal (which
-            // cleans the stack)
-            lua_setglobal(_state, mVarName.c_str());
+            throw VariableDoesntExistException(std::string{mVarName});
         }
-        else
-        {
-            const auto tableName = mVarName.substr(0, lastDot);
 
-            // in the second case, we call _getGlobal on the table name
-            _getGlobal(tableName);
-
-            try
-            {
-                if(!lua_istable(_state, -1))
-                {
-                    throw VariableDoesntExistException(mVarName);
-                }
-
-                // now we have our value at -2 (was pushed before
-                // _setGlobal is called) and our table at -1
-                lua_pushstring(_state,
-                    mVarName.substr(lastDot + 1).c_str()); // value at -3,
-                                                           // table at -2,
-                                                           // key at -1
-                lua_pushvalue(_state, -3); // value at -4, table at -3,
-                                           // key at -2, value at -1
-                lua_settable(_state, -3);  // value at -2, table at -1
-                lua_pop(_state, 2);        // stack empty \o/
-            }
-            catch(...)
-            {
-                lua_pop(_state, 2);
-                throw;
-            }
-        }
+        // now we have our value at -2 (was pushed before
+        // _setGlobal is called) and our table at -1
+        lua_pushstring(_state,
+            std::string{mVarName.substr(lastDot + 1)}.c_str()); // value at -3,
+                                                                // table at -2,
+                                                                // key at -1
+        lua_pushvalue(_state, -3); // value at -4, table at -3,
+                                   // key at -2, value at -1
+        lua_settable(_state, -3);  // value at -2, table at -1
+        lua_pop(_state, 2);        // stack empty \o/
     }
     catch(...)
     {
-        lua_pop(_state, 1);
+        lua_pop(_state, 2);
         throw;
     }
 }
+catch(...)
+{
+    lua_pop(_state, 1);
+    throw;
+}
+
 
 void LuaContext::_load(std::istream& code)
 {
