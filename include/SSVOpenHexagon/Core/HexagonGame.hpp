@@ -305,7 +305,7 @@ public:
 
     void initLuaAndPrintDocs();
 
-    void luaExceptionLippincottHandler(const std::string& mName);
+    void luaExceptionLippincottHandler(std::string_view mName);
 
     template <typename T, typename... TArgs>
     auto runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs)
