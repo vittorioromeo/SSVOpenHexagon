@@ -53,12 +53,12 @@ LuaContext::LuaContext(bool openDefaultLibs)
     }
 }
 
-LuaContext::LuaContext(LuaContext&& s) : _state(s._state)
+LuaContext::LuaContext(LuaContext&& s) noexcept : _state(s._state)
 {
     s._state = nullptr;
 }
 
-LuaContext& LuaContext::operator=(LuaContext&& s)
+LuaContext& LuaContext::operator=(LuaContext&& s) noexcept
 {
     std::swap(_state, s._state);
     return *this;
