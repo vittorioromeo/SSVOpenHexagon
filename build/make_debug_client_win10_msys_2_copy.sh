@@ -10,7 +10,7 @@ echo "--------------------------------------------------------------------"
 echo ""
 
 cp ./SSVOpenHexagon.exe ../_RELEASE
-cp ./SSVOpenHexagon-Console.exe ../_RELEASE
+cp ./SSVOpenHexagon.exe ../_RELEASE/SSVOpenHexagon-Console.exe
 cp ./OHWorkshopUploader.exe ../_RELEASE
 cp ./OHServerControl.exe ../_RELEASE
 
