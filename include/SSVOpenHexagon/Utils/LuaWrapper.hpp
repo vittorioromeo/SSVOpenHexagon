@@ -131,8 +131,8 @@ public:
     LuaContext(const LuaContext&) = delete;
     LuaContext& operator=(const LuaContext&) = delete;
 
-    LuaContext(LuaContext&& s);
-    LuaContext& operator=(LuaContext&& s);
+    LuaContext(LuaContext&& s) noexcept;
+    LuaContext& operator=(LuaContext&& s) noexcept;
 
     ~LuaContext();
 
@@ -545,17 +545,8 @@ public:
     {
     public:
         Table() = default;
-
-        Table(Table&& t)
-        {
-            swap(t, *this);
-        }
-
-        Table& operator=(Table&& t)
-        {
-            swap(t, *this);
-            return *this;
-        }
+        Table(Table&& t) noexcept = default;
+        Table& operator=(Table&& t) noexcept = default;
 
         template <typename... Args>
         explicit Table(Args&&... args)
@@ -628,7 +619,7 @@ public:
             Element(Key&& k, Value&& v) : key(SSVOH_FWD(k)), value(SSVOH_FWD(v))
             {}
 
-            void push(LuaContext& ctxt) const
+            void push(LuaContext& ctxt) const override
             {
                 SSVOH_ASSERT(lua_istable(ctxt._state, -1));
 
