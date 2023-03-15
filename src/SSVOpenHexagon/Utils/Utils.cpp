@@ -46,9 +46,12 @@ catch(...)
     throw;
 }
 
-bool runLuaFileCached(Lua::LuaContext& mLua, const std::string& mFileName)
+bool runLuaFileCached(
+    HGAssets& assets, Lua::LuaContext& mLua, const std::string& mFileName)
 {
-    static std::unordered_map<std::string, std::string> cache;
+    std::unordered_map<std::string, std::string>& cache =
+        assets.getLuaFileCache();
+
     static std::string buffer;
 
     auto it = cache.find(mFileName);

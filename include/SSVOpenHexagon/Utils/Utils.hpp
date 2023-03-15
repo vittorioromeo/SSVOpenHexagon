@@ -39,7 +39,8 @@ void shakeCamera(
 
 void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode);
 void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName);
-bool runLuaFileCached(Lua::LuaContext& mLua, const std::string& mFileName);
+bool runLuaFileCached(
+    HGAssets& assets, Lua::LuaContext& mLua, const std::string& mFileName);
 
 struct Nothing
 {};

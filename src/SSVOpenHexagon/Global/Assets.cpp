@@ -1389,4 +1389,16 @@ HGAssets::getPackIdsWithMissingDependencies() const noexcept
     return packIdsWithMissingDependencies;
 }
 
+[[nodiscard]] std::unordered_map<std::string, std::string>&
+HGAssets::getLuaFileCache()
+{
+    return luaFileCache;
+}
+
+[[nodiscard]] const std::unordered_map<std::string, std::string>&
+HGAssets::getLuaFileCache() const
+{
+    return luaFileCache;
+}
+
 } // namespace hg
