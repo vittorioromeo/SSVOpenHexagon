@@ -261,7 +261,6 @@ void LuaContext::_load(std::istream& code)
     // we create an instance of Reader, and we call lua_load
     Reader reader(code);
 
-
     const int loadReturnValue =
         lua_load(_state, &Reader::read, &reader, "chunk");
 
@@ -283,46 +282,9 @@ void LuaContext::_load(std::istream& code)
     }
 }
 
-void LuaContext::_load(const std::string& code)
+void LuaContext::_load(std::string_view code)
 {
-    // since the lua_load function requires a static function, we use
-    // this structure
-    // the Reader structure is at the same time an object storing an
-    // std::istream and a buffer,
-    // and a static function provider
-    struct SReader
-    {
-        const std::string& str;
-        bool consumed;
-
-        SReader(const std::string& s) : str(s), consumed{false}
-        {}
-
-        // read function; "data" must be an instance of Reader
-        static const char* read(lua_State*, void* data, std::size_t* size)
-        {
-            SSVOH_ASSERT(size != nullptr);
-            SSVOH_ASSERT(data != nullptr);
-
-            SReader& me = *((SReader*)data);
-
-            if(me.consumed || me.str.empty())
-            {
-                *size = 0;
-                return nullptr;
-            }
-
-            me.consumed = true;
-
-            *size = me.str.size();
-            return me.str.data();
-        }
-    };
-
-    // we create an instance of Reader, and we call lua_load
-    SReader sReader(code);
-    const int loadReturnValue =
-        lua_load(_state, &SReader::read, &sReader, "chunk");
+    const int loadReturnValue = luaL_loadstring(_state, code.data());
 
     // now we have to check return value
     if(loadReturnValue != 0)
