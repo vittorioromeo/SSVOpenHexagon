@@ -1120,7 +1120,30 @@ void HexagonGame::initLua()
 void HexagonGame::runLuaFile(const std::string& mFileName)
 try
 {
-    Utils::runLuaFile(lua, mFileName);
+    const bool headless = window == nullptr;
+
+    if(headless || Config::getUseLuaFileCache())
+    {
+        const bool wasCached = Utils::runLuaFileCached(lua, mFileName);
+
+        if(Config::getDebug())
+        {
+            if(wasCached)
+            {
+                ssvu::lo("runLuaFile")
+                    << "Loaded '" << mFileName << "' from cache" << '\n';
+            }
+            else
+            {
+                ssvu::lo("runLuaFile") << "Loaded '" << mFileName
+                                       << "' from file into cache" << '\n';
+            }
+        }
+    }
+    else
+    {
+        Utils::runLuaFile(lua, mFileName);
+    }
 }
 catch(...)
 {
