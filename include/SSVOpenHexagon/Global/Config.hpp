@@ -93,6 +93,7 @@ void setPlayerTrailHasSwapColor(bool x);
 void setShowSwapParticles(bool x);
 void setPlaySwapReadySound(bool x);
 void setShowSwapBlinkingEffect(bool x);
+void setUseLuaFileCache(bool x);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -170,6 +171,7 @@ void setShowSwapBlinkingEffect(bool x);
 [[nodiscard]] bool getShowSwapParticles();
 [[nodiscard]] bool getPlaySwapReadySound();
 [[nodiscard]] bool getShowSwapBlinkingEffect();
+[[nodiscard]] bool getUseLuaFileCache();
 
 // keyboard binds
 
