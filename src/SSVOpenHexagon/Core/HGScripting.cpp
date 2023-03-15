@@ -1159,7 +1159,7 @@ void HexagonGame::initLuaAndPrintDocs()
     LuaScripting::printDocs();
 }
 
-void HexagonGame::luaExceptionLippincottHandler(const std::string& mName)
+void HexagonGame::luaExceptionLippincottHandler(std::string_view mName)
 try
 {
     throw;
