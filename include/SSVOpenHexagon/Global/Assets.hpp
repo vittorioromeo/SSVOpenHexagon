@@ -84,6 +84,8 @@ private:
 
     std::string buf;
 
+    std::unordered_map<std::string, std::string> luaFileCache;
+
     template <typename... Ts>
     [[nodiscard]] std::string& concatIntoBuf(const Ts&...);
 
@@ -215,6 +217,12 @@ public:
     getPackIdsWithMissingDependencies() const noexcept;
 
     void addLocalProfile(ProfileData&& profileData);
+
+    [[nodiscard]] std::unordered_map<std::string, std::string>&
+    getLuaFileCache();
+
+    [[nodiscard]] const std::unordered_map<std::string, std::string>&
+    getLuaFileCache() const;
 };
 
 } // namespace hg

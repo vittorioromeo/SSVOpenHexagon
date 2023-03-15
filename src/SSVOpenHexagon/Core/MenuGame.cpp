@@ -1020,7 +1020,14 @@ void MenuGame::initInput()
 void MenuGame::runLuaFile(const std::string& mFileName)
 try
 {
-    Utils::runLuaFile(lua, mFileName);
+    if(Config::getUseLuaFileCache())
+    {
+        Utils::runLuaFileCached(assets, lua, mFileName);
+    }
+    else
+    {
+        Utils::runLuaFile(lua, mFileName);
+    }
 }
 catch(...)
 {
@@ -1153,12 +1160,14 @@ void MenuGame::initMenus()
     auto& resolution(optionsMenu.createCategory("resolution"));
     auto& gfx(optionsMenu.createCategory("graphics"));
     auto& sfx(optionsMenu.createCategory("audio"));
+    auto& advanced(optionsMenu.createCategory("advanced"));
 
     options.create<i::Goto>("GAMEPLAY", play);
     options.create<i::Goto>("CONTROLS", controls);
     options.create<i::Goto>("RESOLUTION", resolution);
     options.create<i::Goto>("GRAPHICS", gfx);
     options.create<i::Goto>("AUDIO", sfx);
+    options.create<i::Goto>("ADVANCED", advanced);
     options.create<i::Single>("RESET CONFIG",
         [this]
         {
@@ -1506,6 +1515,17 @@ void MenuGame::initMenus()
         &Config::getPlaySwapReadySound, &Config::setPlaySwapReadySound);
     sfx.create<i::GoBack>("back");
 
+    //--------------------------------
+    // Advanced
+
+    advanced.create<i::Toggle>("cache lua files", &Config::getUseLuaFileCache,
+        &Config::setUseLuaFileCache);
+
+    advanced.create<i::Single>(
+        "clear lua file cache", [this] { assets.getLuaFileCache().clear(); });
+
+    advanced.create<i::Toggle>("disable game rendering",
+        &Config::getDisableGameRendering, &Config::setDisableGameRendering);
 
     //--------------------------------
     // MAIN MENU
@@ -3037,7 +3057,7 @@ void MenuGame::setIndex(const int mIdx)
 
     try
     {
-        Utils::runLuaFile(lua, levelData->luaScriptPath);
+        runLuaFile(levelData->luaScriptPath);
         Utils::runLuaFunctionIfExists<void>(lua, "onInit");
         Utils::runLuaFunctionIfExists<void>(lua, "onLoad");
     }

@@ -1124,21 +1124,7 @@ try
 
     if(headless || Config::getUseLuaFileCache())
     {
-        const bool wasCached = Utils::runLuaFileCached(lua, mFileName);
-
-        if(Config::getDebug())
-        {
-            if(wasCached)
-            {
-                ssvu::lo("runLuaFile")
-                    << "Loaded '" << mFileName << "' from cache" << '\n';
-            }
-            else
-            {
-                ssvu::lo("runLuaFile") << "Loaded '" << mFileName
-                                       << "' from file into cache" << '\n';
-            }
-        }
+        Utils::runLuaFileCached(assets, lua, mFileName);
     }
     else
     {

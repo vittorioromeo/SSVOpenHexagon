@@ -51,7 +51,7 @@ void HexagonGame::render(
 
 void HexagonGame::draw()
 {
-    if(window == nullptr)
+    if(window == nullptr || Config::getDisableGameRendering())
     {
         return;
     }
