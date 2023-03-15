@@ -183,7 +183,8 @@ try
         return;
     }
 
-    const auto tableName = mVarName.substr(0, lastDot);
+    std::string varNameAsStr{mVarName}; // needed for null-terminated substrs
+    const auto tableName = varNameAsStr.substr(0, lastDot);
 
     // in the second case, we call _getGlobal on the table name
     _getGlobal(tableName);
@@ -192,15 +193,15 @@ try
     {
         if(!lua_istable(_state, -1))
         {
-            throw VariableDoesntExistException(std::string{mVarName});
+            throw VariableDoesntExistException(varNameAsStr);
         }
 
         // now we have our value at -2 (was pushed before
         // _setGlobal is called) and our table at -1
         lua_pushstring(_state,
-            std::string{mVarName.substr(lastDot + 1)}.c_str()); // value at -3,
-                                                                // table at -2,
-                                                                // key at -1
+            varNameAsStr.substr(lastDot + 1).c_str()); // value at -3,
+                                                       // table at -2,
+                                                       // key at -1
         lua_pushvalue(_state, -3); // value at -4, table at -3,
                                    // key at -2, value at -1
         lua_settable(_state, -3);  // value at -2, table at -1
