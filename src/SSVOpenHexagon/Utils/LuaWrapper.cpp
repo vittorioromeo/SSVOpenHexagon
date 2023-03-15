@@ -93,13 +93,13 @@ LuaContext::WrongTypeException::WrongTypeException()
     : std::runtime_error("Trying to cast a lua variable to an invalid type")
 {}
 
-void LuaContext::_getGlobal(const std::string& mVarName) const
+void LuaContext::_getGlobal(std::string_view mVarName) const
 {
     // first a little optimization: if mVarName contains no dot, we can
     // directly call lua_getglobal
     if(std::find(mVarName.begin(), mVarName.end(), '.') == mVarName.end())
     {
-        lua_getglobal(_state, mVarName.c_str());
+        lua_getglobal(_state, mVarName.data());
         return;
     }
 
@@ -139,7 +139,7 @@ void LuaContext::_getGlobal(const std::string& mVarName) const
             if(!lua_istable(_state, -1))
             {
                 lua_pop(_state, 1);
-                throw VariableDoesntExistException(mVarName);
+                throw VariableDoesntExistException(std::string{mVarName});
             }
 
             // replacing the current table in the stack by its member
@@ -156,7 +156,7 @@ void LuaContext::_getGlobal(const std::string& mVarName) const
         if(lua_isnil(_state, -1))
         {
             lua_pop(_state, 1);
-            throw VariableDoesntExistException(mVarName);
+            throw VariableDoesntExistException(std::string{mVarName});
         }
 
         currentVar = nextVar; // updating currentVar
