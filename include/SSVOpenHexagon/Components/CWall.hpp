@@ -8,7 +8,6 @@
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
-#include <SSVStart/Utils/Vector2.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <array>
@@ -45,7 +44,16 @@ public:
     [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vector2f& vertex,
         const sf::Vector2f& centerPos, const ssvu::FT ft) const
     {
-        ssvs::rotateRadAround(vertex, centerPos, _curve._speed / 60.f * ft);
+        constexpr float divBy60 = 1.f / 60.f;
+
+        const float rad = _curve._speed * divBy60 * ft;
+        const float s = std::sin(rad);
+        const float c = std::cos(rad);
+
+        vertex -= centerPos;
+        vertex.x = vertex.x * c - vertex.y * s;
+        vertex.y = vertex.x * s + vertex.y * c;
+        vertex += centerPos;
     }
 
     void draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads);
