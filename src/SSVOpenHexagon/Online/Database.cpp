@@ -41,31 +41,31 @@ inline auto makeStorage()
 {
     using namespace sqlite_orm;
 
-    auto storage = make_storage("ohdb.sqlite",                            //
-                                                                          //
-        make_table("users",                                               //
-            make_column("id", &User::id, autoincrement(), primary_key()), //
-            make_column("steamId", &User::steamId, unique()),             //
-            make_column("name", &User::name),                             //
-            make_column("passwordHash", &User::passwordHash)              //
-            ),                                                            //
-                                                                          //
-        make_table("loginTokens",                                         //
-            make_column(                                                  //
-                "id", &LoginToken::id, autoincrement(), primary_key()),   //
-            make_column("userId", &LoginToken::userId, unique()),         //
-            make_column("timestamp", &LoginToken::timestamp),             //
-            make_column("token", &LoginToken::token)                      //
-            ),                                                            //
-                                                                          //
-        make_table("scores",                                              //
-            make_column(                                                  //
-                "id", &Score::id, autoincrement(), primary_key()),        //
-            make_column("levelValidator", &Score::levelValidator),        //
-            make_column("timestamp", &Score::timestamp),                  //
-            make_column("userSteamId", &Score::userSteamId),              //
-            make_column("value", &Score::value)                           //
-            )                                                             //
+    auto storage = make_storage("ohdb.sqlite",                           //
+                                                                         //
+        make_table("users",                                              //
+            make_column("id", &User::id, primary_key().autoincrement()), //
+            make_column("steamId", &User::steamId, unique()),            //
+            make_column("name", &User::name),                            //
+            make_column("passwordHash", &User::passwordHash)             //
+            ),                                                           //
+                                                                         //
+        make_table("loginTokens",                                        //
+            make_column(                                                 //
+                "id", &LoginToken::id, primary_key().autoincrement()),   //
+            make_column("userId", &LoginToken::userId, unique()),        //
+            make_column("timestamp", &LoginToken::timestamp),            //
+            make_column("token", &LoginToken::token)                     //
+            ),                                                           //
+                                                                         //
+        make_table("scores",                                             //
+            make_column(                                                 //
+                "id", &Score::id, primary_key().autoincrement()),        //
+            make_column("levelValidator", &Score::levelValidator),       //
+            make_column("timestamp", &Score::timestamp),                 //
+            make_column("userSteamId", &Score::userSteamId),             //
+            make_column("value", &Score::value)                          //
+            )                                                            //
         //
     );
 
