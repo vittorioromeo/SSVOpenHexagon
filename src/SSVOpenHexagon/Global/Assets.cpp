@@ -7,6 +7,10 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
 #include "SSVOpenHexagon/Data/MusicData.hpp"
+#include "SSVOpenHexagon/Data/LevelData.hpp"
+#include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/Data/PackData.hpp"
+#include "SSVOpenHexagon/Data/PackInfo.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
@@ -35,6 +39,14 @@
 #include <chrono>
 
 namespace hg {
+
+struct HGAssets::LoadedShader
+{
+    Utils::UniquePtr<sf::Shader> shader;
+    std::string path;
+    sf::Shader::Type shaderType;
+    std::size_t id;
+};
 
 static void loadAssetsFromJson(AssetStorage& assetStorage,
     const ssvu::FileSystem::Path& mRootPath, const ssvuj::Obj& mObj)

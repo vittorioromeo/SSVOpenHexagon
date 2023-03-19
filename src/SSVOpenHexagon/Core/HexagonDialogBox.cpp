@@ -9,6 +9,8 @@
 #include <SSVStart/Utils/SFML.hpp>
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
+#include <SFML/Graphics/Font.hpp>
+
 #include <algorithm>
 #include <string>
 #include <tuple>

@@ -4,6 +4,8 @@
 
 #include "SSVOpenHexagon/Core/HexagonServer.hpp"
 
+#include "SSVOpenHexagon/Data/LevelData.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"

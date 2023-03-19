@@ -4,16 +4,10 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Data/LevelData.hpp"
-#include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-#include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Data/LoadInfo.hpp"
-#include "SSVOpenHexagon/Data/PackInfo.hpp"
 
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
-
-#include <SFML/Graphics/Shader.hpp>
 
 #include <cstddef>
 #include <map>
@@ -43,6 +37,10 @@ class steam_manager;
 
 class MusicData;
 class AssetStorage;
+struct LevelData;
+struct PackData;
+struct PackInfo;
+class StyleData;
 
 class HGAssets
 {
@@ -70,13 +68,7 @@ private:
 
     std::unordered_set<std::string> packIdsWithMissingDependencies;
 
-    struct LoadedShader
-    {
-        Utils::UniquePtr<sf::Shader> shader;
-        std::string path;
-        sf::Shader::Type shaderType;
-        std::size_t id;
-    };
+    struct LoadedShader;
 
     std::unordered_map<std::string, LoadedShader> shaders;
     std::unordered_map<std::string, std::size_t> shadersPathToId;
@@ -85,6 +77,7 @@ private:
     std::string buf;
 
     std::unordered_map<std::string, std::string> luaFileCache;
+    LoadInfo loadInfo;
 
     template <typename... Ts>
     [[nodiscard]] std::string& concatIntoBuf(const Ts&...);
@@ -114,9 +107,6 @@ private:
         const std::string& mPackId, const ssvufs::Path& mPath);
 
     [[nodiscard]] std::string getCurrentLocalProfileFilePath();
-
-private:
-    LoadInfo loadInfo;
 
 public:
     HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless,
