@@ -13,6 +13,8 @@
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
+#include "SSVOpenHexagon/Data/LevelData.hpp"
+
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"

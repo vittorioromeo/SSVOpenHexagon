@@ -5,12 +5,15 @@
 #pragma once
 
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 #include <string>
 #include <vector>
+
+namespace sf {
+class Font;
+}
 
 namespace ssvs {
 class GameWindow;
