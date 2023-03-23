@@ -128,7 +128,7 @@ enum class AxisDir : int
 
 void update(const float deadzone)
 {
-    sf::Joystick::update();
+    sf::Joystick::update(); // TODO: no need to call???
 
     constexpr unsigned int joyId = 0;
     auto& s = getJoystickState();
