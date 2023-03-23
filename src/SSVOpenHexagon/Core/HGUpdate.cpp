@@ -523,12 +523,14 @@ void HexagonGame::start()
                 nameStr + " [x" + diffStr + "]", packStr);
         }
 
+        const std::string& validator = levelData->getValidator(difficultyMult);
+
         if(hexagonClient != nullptr &&
             hexagonClient->getState() == HexagonClient::State::LoggedIn_Ready &&
-            Config::getOfficial())
+            Config::getOfficial() && !levelData->unscored &&
+            hexagonClient->isLevelSupportedByServer(validator))
         {
-            hexagonClient->trySendStartedGame(
-                levelData->getValidator(difficultyMult));
+            hexagonClient->trySendStartedGame(validator);
         }
     }
     else
@@ -557,6 +559,11 @@ static void setInputImplIfFalse(bool& var, const bool x)
 
 void HexagonGame::updateInput_UpdateJoystickControls()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     Joystick::update(Config::getJoystickDeadzone());
 
     setInputImplIfFalse(inputImplCCW, Joystick::pressed(Joystick::Jdir::Left));
