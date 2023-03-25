@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <SFML/System/Vector2.hpp>
 namespace hg::Utils {
 
 template <typename TC, typename T>
@@ -13,7 +14,7 @@ template <typename TC, typename T>
     bool result{false};
     const auto size{mVertices.size()};
 
-    for(decltype(mVertices.size()) i{0}, j{size - 1}; i < size; j = i++)
+    for(decltype(size) i{0}, j{size - 1}; i < size; j = i++)
     {
         const auto& vI{mVertices[i]};
         const auto& vJ{mVertices[j]};
@@ -26,6 +27,32 @@ template <typename TC, typename T>
     }
 
     return result;
+}
+
+[[gnu::always_inline, gnu::pure, nodiscard]] inline bool
+pointInFourVertexPolygon(const sf::Vector2f& a, const sf::Vector2f& b,
+    const sf::Vector2f& c, const sf::Vector2f& d,
+    const sf::Vector2f& point) noexcept
+{
+    const sf::Vector2f ab = b - a;
+    const sf::Vector2f bc = c - b;
+    const sf::Vector2f cd = d - c;
+    const sf::Vector2f da = a - d;
+
+    const sf::Vector2f ap_ab = point - a;
+    const sf::Vector2f bp_bc = point - b;
+    const sf::Vector2f cp_cd = point - c;
+    const sf::Vector2f dp_da = point - d;
+
+    const float ab_x_ap = ab.cross(ap_ab);
+    const float bc_x_bp = bc.cross(bp_bc);
+    const float cd_x_cp = cd.cross(cp_cd);
+    const float da_x_dp = da.cross(dp_da);
+
+    return (ab_x_ap <= 0.f && bc_x_bp <= 0.f && cd_x_cp <= 0.f &&
+               da_x_dp <= 0.f) ||
+           (ab_x_ap >= 0.f && bc_x_bp >= 0.f && cd_x_cp >= 0.f &&
+               da_x_dp >= 0.f);
 }
 
 } // namespace hg::Utils

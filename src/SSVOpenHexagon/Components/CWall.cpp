@@ -97,9 +97,13 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
 
 void CWall::moveCurve(const sf::Vector2f& centerPos, const ssvu::FT ft)
 {
+    const float rad = getCurveRadians(ft);
+    const float radSin = std::sin(rad);
+    const float radCos = std::cos(rad);
+
     for(sf::Vector2f& vp : _vertexPositions)
     {
-        moveVertexAlongCurve(vp, centerPos, ft);
+        moveVertexAlongCurveImpl(vp, centerPos, radSin, radCos);
     }
 }
 

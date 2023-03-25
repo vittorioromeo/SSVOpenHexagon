@@ -41,19 +41,30 @@ public:
     void update(const float wallSpawnDist, const float radius,
         const sf::Vector2f& centerPos, const ssvu::FT ft);
 
-    [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vector2f& vertex,
-        const sf::Vector2f& centerPos, const ssvu::FT ft) const
+    [[gnu::always_inline]] void moveVertexAlongCurveImpl(sf::Vector2f& vertex,
+        const sf::Vector2f& centerPos, const float xSin,
+        const float xCos) const noexcept
+    {
+        const float tempX = vertex.x - centerPos.x;
+        const float tempY = vertex.y - centerPos.y;
+        vertex.x = tempX * xCos - tempY * xSin + centerPos.x;
+        vertex.y = tempX * xSin + tempY * xCos + centerPos.y;
+    }
+
+    [[gnu::always_inline]] float getCurveRadians(
+        const ssvu::FT ft) const noexcept
     {
         constexpr float divBy60 = 1.f / 60.f;
+        return _curve._speed * divBy60 * ft;
+    }
 
-        const float rad = _curve._speed * divBy60 * ft;
-        const float s = std::sin(rad);
-        const float c = std::cos(rad);
+    [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vector2f& vertex,
+        const sf::Vector2f& centerPos, const ssvu::FT ft) const noexcept
+    {
+        const float rad = getCurveRadians(ft);
 
-        vertex -= centerPos;
-        vertex.x = vertex.x * c - vertex.y * s;
-        vertex.y = vertex.x * s + vertex.y * c;
-        vertex += centerPos;
+        moveVertexAlongCurveImpl(
+            vertex, centerPos, std::sin(rad), std::cos(rad));
     }
 
     void draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads);
@@ -79,7 +90,9 @@ public:
     [[nodiscard, gnu::always_inline]] bool isOverlapping(
         const sf::Vector2f& point) const noexcept
     {
-        return Utils::pointInPolygon(_vertexPositions, point.x, point.y);
+        return Utils::pointInFourVertexPolygon(_vertexPositions[0],
+            _vertexPositions[1], _vertexPositions[2], _vertexPositions[3],
+            point);
     }
 
     [[nodiscard, gnu::always_inline]] constexpr bool
