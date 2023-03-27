@@ -1164,15 +1164,41 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
                 " color computed by the level style."));
     };
 
+    const auto sdColorSetter =
+        [&lua, &styleData](const char* name, const char* docName, auto pmd)
+    {
+        addLuaFn(lua, name,
+            [&styleData, pmd](int r, int g, int b, int a)
+            { (styleData.*pmd) = sf::Color(r, g, b, a); })
+            .arg("r")
+            .arg("g")
+            .arg("b")
+            .arg("a")
+            .doc(Utils::concat(
+                "Set the ", docName, " color (only used if `$3` is not 0)"));
+    };
+
     sdColorGetter("s_getMainColor", "main", &StyleData::getMainColor);
     sdColorGetter("s_getPlayerColor", "player", &StyleData::getPlayerColor);
     sdColorGetter("s_getTextColor", "text", &StyleData::getTextColor);
-
+    sdColorGetter("s_getWallColor", "wall", &StyleData::getWallColor);
     sdColorGetter(
         "s_get3DOverrideColor", "3D override", &StyleData::get3DOverrideColor);
-
     sdColorGetter("s_getCapColorResult", "cap color result",
         &StyleData::getCapColorResult);
+
+    sdColorSetter("s_setMainOverrideColor", "main override",
+        &StyleData::_mainOverrideColor);
+    sdColorSetter("s_setPlayerOverrideColor", "player override",
+        &StyleData::_playerOverrideColor);
+    sdColorSetter("s_setTextOverrideColor", "text override",
+        &StyleData::_textOverrideColor);
+    sdColorSetter("s_setWallOverrideColor", "wall override",
+        &StyleData::_wallOverrideColor);
+    sdColorSetter(
+        "s_set3DOverrideColor", "3D override", &StyleData::_3dOverrideColor);
+    sdColorSetter(
+        "s_setCapOverrideColor", "cap override", &StyleData::_capOverrideColor);
 
     addLuaFn(lua, "s_getColor",
         [&styleData, &colorToTuple](int mIndex)
@@ -1188,6 +1214,50 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
         .doc(
             "Return the current color with index `$0` computed by the level "
             "style.");
+    addLuaFn(lua, "s_setOverrideColor",
+        [&styleData](int mIndex, int r, int g, int b, int a)
+        {
+            if(mIndex < styleData._overrideColors.size() && mIndex >= 0)
+            {
+                styleData._overrideColors[mIndex] = sf::Color(r, g, b, a);
+            }
+            else
+            {
+                ssvu::lo("hg::LuaScripting::initStyleControl")
+                    << "`s_setOverrideColor` failed, no color found at index "
+                    << mIndex << "\n";
+            }
+        })
+        .arg("index")
+        .arg("r")
+        .arg("g")
+        .arg("b")
+        .arg("a")
+        .doc("Set the color with index `$0` (only used if `$4` is not 0)");
+
+    addLuaFn(lua, "s_set3DLayerOverrideColor",
+        [&styleData](int mIndex, int r, int g, int b, int a)
+        {
+            if(mIndex < styleData._3dOverrideColors.size() && mIndex >= 0)
+            {
+                styleData._3dOverrideColors[mIndex] = sf::Color(r, g, b, a);
+            }
+            else
+            {
+                ssvu::lo("hg::LuaScripting::initStyleControl")
+                    << "`s_set3DLayerOverrideColor` failed, no color found at "
+                       "index "
+                    << mIndex << "\n";
+            }
+        })
+        .arg("index")
+        .arg("r")
+        .arg("g")
+        .arg("b")
+        .arg("a")
+        .doc(
+            "Set the 3D layer color with index `$0` (only used if `$4` is not "
+            "0)");
 }
 
 static void initExecScript(Lua::LuaContext& lua, HGAssets& assets,

@@ -201,11 +201,15 @@ void HexagonGame::draw()
             const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
             sf::Color overrideColor;
+            bool mustOverride{styleData._3dOverrideColors[i].a != 0};
 
             if(!Config::getBlackAndWhite())
             {
-                overrideColor = Utils::getColorDarkened(
-                    styleData.get3DOverrideColor(), styleData._3dDarkenMult);
+                overrideColor = mustOverride
+                                    ? styleData._3dOverrideColors[i]
+                                    : Utils::getColorDarkened(
+                                          styleData.get3DOverrideColor(),
+                                          styleData._3dDarkenMult);
             }
             else
             {
@@ -213,7 +217,10 @@ void HexagonGame::draw()
                     sf::Color(255, 255, 255, styleData.getMainColor().a),
                     styleData._3dDarkenMult);
             }
-            adjustAlpha(overrideColor, i);
+            if(!mustOverride)
+            {
+                adjustAlpha(overrideColor, i);
+            }
 
             // Draw pivot layers
             for(std::size_t k = j * numPivotQuads; k < (j + 1) * numPivotQuads;
@@ -223,7 +230,7 @@ void HexagonGame::draw()
                 pivotQuads3D[k].color = overrideColor;
             }
 
-            if(styleData.get3DOverrideColor() == styleData.getMainColor())
+            if(styleData.get3DOverrideColor() == styleData.getMainColor() && !mustOverride)
             {
                 overrideColor = Utils::getColorDarkened(
                     getColorWall(), styleData._3dDarkenMult);
@@ -240,7 +247,7 @@ void HexagonGame::draw()
             }
 
             // Apply player color if no 3D override is present.
-            if(styleData.get3DOverrideColor() == styleData.getMainColor())
+            if(styleData.get3DOverrideColor() == styleData.getMainColor() && !mustOverride)
             {
                 overrideColor = Utils::getColorDarkened(
                     getColorPlayer(), styleData._3dDarkenMult);
