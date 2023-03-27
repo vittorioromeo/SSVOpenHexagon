@@ -61,6 +61,7 @@ public:
     [[nodiscard, gnu::always_inline]] bool isOverlapping(
         const sf::Vector2f& point) const noexcept
     {
+        // TODO: use quadrilateral optimization here?
         return Utils::pointInPolygon(_vertexPositions, point.x, point.y);
     }
 
