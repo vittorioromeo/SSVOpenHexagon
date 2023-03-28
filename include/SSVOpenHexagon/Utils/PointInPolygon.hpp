@@ -5,16 +5,16 @@
 #pragma once
 
 #include <SFML/System/Vector2.hpp>
+
 namespace hg::Utils {
 
-template <typename TC, typename T>
+template <std::size_t N, typename TC, typename T>
 [[gnu::always_inline, gnu::pure, nodiscard]] inline bool pointInPolygon(
-    const TC& mVertices, T x, T y) noexcept
+    const TC& mVertices, const T x, const T y) noexcept
 {
     bool result{false};
-    const auto size{mVertices.size()};
 
-    for(decltype(size) i{0}, j{size - 1}; i < size; j = i++)
+    for(std::size_t i{0}, j{N - 1}; i < N; j = i++)
     {
         const auto& vI{mVertices[i]};
         const auto& vJ{mVertices[j]};
@@ -28,6 +28,7 @@ template <typename TC, typename T>
 
     return result;
 }
+
 
 [[gnu::always_inline, gnu::pure, nodiscard]] inline bool
 pointInFourVertexPolygon(const sf::Vector2f& a, const sf::Vector2f& b,

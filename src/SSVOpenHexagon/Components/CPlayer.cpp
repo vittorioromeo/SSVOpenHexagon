@@ -353,7 +353,7 @@ template <typename Wall>
         const std::array<sf::Vector2f, 4> collisionPolygon{
             wVertexes[i], wOldVertexes[i], wOldVertexes[j], wVertexes[j]};
 
-        if(Utils::pointInPolygon(collisionPolygon, _lastPos.x, _lastPos.y))
+        if(Utils::pointInPolygon<4>(collisionPolygon, _lastPos.x, _lastPos.y))
         {
             // For a side to be an effective source of push it must have
             // intersected the player's positions circle both now and the
