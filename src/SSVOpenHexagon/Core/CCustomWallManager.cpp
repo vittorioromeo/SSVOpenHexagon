@@ -319,7 +319,7 @@ void CCustomWallManager::clear()
 
 void CCustomWallManager::draw(Utils::FastVertexVectorTris& wallQuads)
 {
-    for(CCustomWallHandle h = 0; h < (int)_customWalls.size(); ++h)
+    for(CCustomWallHandle h = 0; h < static_cast<int>(_customWalls.size()); ++h)
     {
         if(!_handleAvailable[h])
         {
