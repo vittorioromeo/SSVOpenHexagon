@@ -61,7 +61,7 @@ jobs:
         mkdir -p buildlx/test
         cp -R _RELEASE/Packs buildlx/test
         ninja -C buildlx check
-      
+
     - name: Check ldd
       run: |
         ldd buildlx/test/test.Replay.t
