@@ -2,9 +2,12 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Data/ProfileData.hpp"
+
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
+
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 #include "TestUtils.hpp"
@@ -62,9 +65,7 @@ try
         std::optional<hg::replay_file> rf;
 
         hg.onDeathReplayCreated = [&](const hg::replay_file& newRf)
-        {
-            rf.emplace(newRf);
-        };
+        { rf.emplace(newRf); };
 
         hg.newGame(packs[i % packs.size()], levels[i % levels.size()],
             true /* firstPlay */, 1.f /* diffMult */,
