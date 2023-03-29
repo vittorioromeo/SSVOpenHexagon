@@ -69,7 +69,13 @@ private:
 
     std::unordered_set<std::string> packIdsWithMissingDependencies;
 
-    struct LoadedShader;
+    struct LoadedShader
+    {
+        Utils::UniquePtr<sf::Shader> shader;
+        std::string path;
+        sf::Shader::Type shaderType;
+        std::size_t id;
+    };
 
     std::unordered_map<std::string, LoadedShader> shaders;
     std::unordered_map<std::string, std::size_t> shadersPathToId;
@@ -214,14 +220,6 @@ public:
 
     [[nodiscard]] const std::unordered_map<std::string, std::string>&
     getLuaFileCache() const;
-};
-
-struct HGAssets::HGAssetsImpl::LoadedShader
-{
-    Utils::UniquePtr<sf::Shader> shader;
-    std::string path;
-    sf::Shader::Type shaderType;
-    std::size_t id;
 };
 
 static void loadAssetsFromJson(AssetStorage& assetStorage,
