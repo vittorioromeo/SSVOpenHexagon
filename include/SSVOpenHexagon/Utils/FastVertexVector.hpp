@@ -69,7 +69,7 @@ public:
             SSVOH_ASSERT(_capacity == 0);
         }
 
-        _data = std::move(new_data);
+        _data = SSVOH_MOVE(new_data);
         _capacity = n;
     }
 

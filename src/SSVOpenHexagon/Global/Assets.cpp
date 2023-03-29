@@ -6,14 +6,17 @@
 
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
-#include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
-#include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/Data/LoadInfo.hpp"
+#include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/PackInfo.hpp"
+#include "SSVOpenHexagon/Data/ProfileData.hpp"
+#include "SSVOpenHexagon/Data/StyleData.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 
@@ -40,7 +43,180 @@
 
 namespace hg {
 
-struct HGAssets::LoadedShader
+class HGAssets::HGAssetsImpl
+{
+private:
+    Steam::steam_manager* steamManager;
+
+    bool levelsOnly{false};
+
+    Utils::UniquePtr<AssetStorage> assetStorage;
+
+    std::unordered_map<std::string, LevelData> levelDatas;
+    std::unordered_map<std::string, std::vector<std::string>>
+        levelDataIdsByPack;
+
+    std::unordered_map<std::string, PackData> packDatas;
+
+    std::vector<PackInfo> packInfos;
+    std::vector<PackInfo> selectablePackInfos;
+
+    std::unordered_map<std::string, std::string> musicPathMap;
+    std::map<std::string, MusicData> musicDataMap;
+    std::map<std::string, StyleData> styleDataMap;
+    std::map<std::string, ProfileData> profileDataMap;
+    ProfileData* currentProfilePtr{nullptr};
+
+    std::unordered_set<std::string> packIdsWithMissingDependencies;
+
+    struct LoadedShader;
+
+    std::unordered_map<std::string, LoadedShader> shaders;
+    std::unordered_map<std::string, std::size_t> shadersPathToId;
+    std::vector<sf::Shader*> shadersById;
+
+    std::string buf;
+
+    std::unordered_map<std::string, std::string> luaFileCache;
+    LoadInfo loadInfo;
+
+    // When the Steam API can not be retrieved, this set holds pack ids
+    // retrieved from the cache to try and load the workshop packs installed
+    std::unordered_set<std::string> cachedWorkshopPackIds;
+
+    template <typename... Ts>
+    [[nodiscard]] std::string& concatIntoBuf(const Ts&...);
+
+    [[nodiscard]] bool loadAllPackDatas();
+    [[nodiscard]] bool loadAllPackAssets(const bool headless);
+    [[nodiscard]] bool loadWorkshopPackDatasFromCache();
+    [[nodiscard]] bool verifyAllPackDependencies();
+    [[nodiscard]] bool loadAllLocalProfiles();
+
+    [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
+
+    [[nodiscard]] bool loadPackAssets(
+        const PackData& packData, const bool headless);
+
+    void loadPackAssets_loadShaders(const std::string& mPackId,
+        const ssvufs::Path& mPath, const bool headless);
+    void loadPackAssets_loadMusic(
+        const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadPackAssets_loadMusicData(
+        const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadPackAssets_loadStyleData(
+        const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadPackAssets_loadLevelData(
+        const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadPackAssets_loadCustomSounds(
+        const std::string& mPackId, const ssvufs::Path& mPath);
+
+    [[nodiscard]] std::string getCurrentLocalProfileFilePath();
+
+public:
+    HGAssetsImpl(Steam::steam_manager* mSteamManager, bool mHeadless,
+        bool mLevelsOnly = false);
+
+    ~HGAssetsImpl();
+
+    [[nodiscard]] LoadInfo& getLoadResults();
+
+    [[nodiscard]] sf::Texture& getTexture(const std::string& mId);
+    [[nodiscard]] sf::Texture& getTextureOrNullTexture(const std::string& mId);
+
+    [[nodiscard]] sf::Font& getFont(const std::string& mId);
+    [[nodiscard]] sf::Font& getFontOrNullFont(const std::string& mId);
+
+    [[nodiscard]] bool isValidLevelId(
+        const std::string& mLevelId) const noexcept;
+
+    [[nodiscard]] const LevelData& getLevelData(
+        const std::string& mAssetId) const;
+
+    [[nodiscard]] bool packHasLevels(const std::string& mPackId);
+
+    [[nodiscard]] const std::vector<std::string>& getLevelIdsByPack(
+        const std::string& mPackId);
+
+    [[nodiscard]] const std::unordered_map<std::string, PackData>&
+    getPackDatas();
+
+    [[nodiscard]] bool isValidPackId(const std::string& mPackId) const noexcept;
+
+    [[nodiscard]] const PackData& getPackData(const std::string& mPackId);
+
+    [[nodiscard]] const std::vector<PackInfo>&
+    getSelectablePackInfos() const noexcept;
+
+    [[nodiscard]] const PackData* findPackData(
+        const std::string& mPackDisambiguator, const std::string& mPackName,
+        const std::string& mPackAuthor) const noexcept;
+
+    [[nodiscard]] const MusicData& getMusicData(
+        const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] const StyleData& getStyleData(
+        const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] sf::Shader* getShader(
+        const std::string& mPackId, const std::string& mId);
+
+    [[nodiscard]] std::optional<std::size_t> getShaderId(
+        const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] std::optional<std::size_t> getShaderIdByPath(
+        const std::string& mShaderPath);
+    [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
+    [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
+
+    void reloadAllShaders();
+    [[nodiscard]] std::string reloadPack(
+        const std::string& mPackId, const std::string& mPath);
+    [[nodiscard]] std::string reloadLevel(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
+
+    [[nodiscard]] float getLocalScore(const std::string& mId);
+    void setLocalScore(const std::string& mId, float mScore);
+
+    void saveCurrentLocalProfile();
+    void saveAllProfiles();
+
+    [[nodiscard]] bool anyLocalProfileActive() const;
+    [[nodiscard]] ProfileData& getCurrentLocalProfile();
+    [[nodiscard]] const ProfileData& getCurrentLocalProfile() const;
+    [[nodiscard]] ProfileData* getLocalProfileByName(const std::string& mName);
+    [[nodiscard]] const ProfileData* getLocalProfileByName(
+        const std::string& mName) const;
+    [[nodiscard]] std::size_t getLocalProfilesSize();
+    [[nodiscard]] std::vector<std::string> getLocalProfileNames();
+
+    [[nodiscard]] bool pIsValidLocalProfile() const;
+    [[nodiscard]] const std::string& pGetName() const;
+
+    void pSaveCurrent();
+    void pSaveAll();
+    void pSetCurrent(const std::string& mName);
+    void pCreate(const std::string& mName);
+    void pRemove(const std::string& mName);
+
+    [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const std::string& assetId);
+
+    [[nodiscard]] const std::string* getMusicPath(
+        const std::string& assetId) const;
+
+    [[nodiscard]] const std::unordered_map<std::string, LevelData>&
+    getLevelDatas() const noexcept;
+
+    [[nodiscard]] const std::unordered_set<std::string>&
+    getPackIdsWithMissingDependencies() const noexcept;
+
+    void addLocalProfile(ProfileData&& profileData);
+
+    [[nodiscard]] std::unordered_map<std::string, std::string>&
+    getLuaFileCache();
+
+    [[nodiscard]] const std::unordered_map<std::string, std::string>&
+    getLuaFileCache() const;
+};
+
+struct HGAssets::HGAssetsImpl::LoadedShader
 {
     Utils::UniquePtr<sf::Shader> shader;
     std::string path;
@@ -123,14 +299,15 @@ static void loadAssetsFromJson(AssetStorage& assetStorage,
 }
 
 template <typename... Ts>
-[[nodiscard]] std::string& HGAssets::concatIntoBuf(const Ts&... xs)
+[[nodiscard]] std::string& HGAssets::HGAssetsImpl::concatIntoBuf(
+    const Ts&... xs)
 {
     buf.clear();
     Utils::concatInto(buf, xs...);
     return buf;
 }
 
-HGAssets::HGAssets(
+HGAssets::HGAssetsImpl::HGAssetsImpl(
     Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
     : steamManager{mSteamManager},
       levelsOnly{mLevelsOnly},
@@ -215,12 +392,13 @@ HGAssets::HGAssets(
         << "ms\n";
 }
 
-HGAssets::~HGAssets()
+HGAssets::HGAssetsImpl::~HGAssetsImpl()
 {
     ssvu::lo("HGAssets::~HGAssets") << "Cleaning up assets...\n";
 }
 
-[[nodiscard]] bool HGAssets::loadPackData(const ssvufs::Path& packPath)
+[[nodiscard]] bool HGAssets::HGAssetsImpl::loadPackData(
+    const ssvufs::Path& packPath)
 {
     if(!ssvufs::Path{packPath + "/pack.json"}.isFile())
     {
@@ -288,21 +466,21 @@ HGAssets::~HGAssets()
 
     packDatas.emplace(packId, //
         PackData{
-            .folderPath{packPath.getStr()},               //
-            .id{packId},                                  //
-            .disambiguator{std::move(packDisambiguator)}, //
-            .name{std::move(packName)},                   //
-            .author{std::move(packAuthor)},               //
-            .description{std::move(packDescription)},     //
-            .version{packVersion},                        //
-            .priority{packPriority},                      //
-            .dependencies{getPackDependencies()}          //
+            .folderPath{packPath.getStr()},                //
+            .id{packId},                                   //
+            .disambiguator{SSVOH_MOVE(packDisambiguator)}, //
+            .name{SSVOH_MOVE(packName)},                   //
+            .author{SSVOH_MOVE(packAuthor)},               //
+            .description{SSVOH_MOVE(packDescription)},     //
+            .version{packVersion},                         //
+            .priority{packPriority},                       //
+            .dependencies{getPackDependencies()}           //
         });
 
     return true;
 }
 
-[[nodiscard]] bool HGAssets::loadPackAssets(
+[[nodiscard]] bool HGAssets::HGAssetsImpl::loadPackAssets(
     const PackData& packData, const bool headless)
 {
     const std::string& packPath{packData.folderPath};
@@ -375,12 +553,13 @@ HGAssets::~HGAssets()
 //**********************************************
 // LOAD
 
-[[nodiscard]] LoadInfo& HGAssets::getLoadResults()
+[[nodiscard]] LoadInfo& HGAssets::HGAssetsImpl::getLoadResults()
 {
     return loadInfo;
 }
 
-[[nodiscard]] sf::Texture& HGAssets::getTexture(const std::string& mId)
+[[nodiscard]] sf::Texture& HGAssets::HGAssetsImpl::getTexture(
+    const std::string& mId)
 {
     sf::Texture* ptr = assetStorage->getTexture(mId);
     SSVOH_ASSERT(ptr);
@@ -388,7 +567,7 @@ HGAssets::~HGAssets()
     return *ptr;
 }
 
-[[nodiscard]] sf::Texture& HGAssets::getTextureOrNullTexture(
+[[nodiscard]] sf::Texture& HGAssets::HGAssetsImpl::getTextureOrNullTexture(
     const std::string& mId)
 {
     static sf::Texture nullTexture;
@@ -397,7 +576,7 @@ HGAssets::~HGAssets()
     return ptr ? *ptr : nullTexture;
 }
 
-[[nodiscard]] sf::Font& HGAssets::getFont(const std::string& mId)
+[[nodiscard]] sf::Font& HGAssets::HGAssetsImpl::getFont(const std::string& mId)
 {
     sf::Font* ptr = assetStorage->getFont(mId);
     SSVOH_ASSERT(ptr);
@@ -405,7 +584,8 @@ HGAssets::~HGAssets()
     return *ptr;
 }
 
-[[nodiscard]] sf::Font& HGAssets::getFontOrNullFont(const std::string& mId)
+[[nodiscard]] sf::Font& HGAssets::HGAssetsImpl::getFontOrNullFont(
+    const std::string& mId)
 {
     static sf::Font nullFont;
     sf::Font* ptr = assetStorage->getFont(mId);
@@ -413,56 +593,58 @@ HGAssets::~HGAssets()
     return ptr ? *ptr : nullFont;
 }
 
-[[nodiscard]] bool HGAssets::isValidLevelId(
+[[nodiscard]] bool HGAssets::HGAssetsImpl::isValidLevelId(
     const std::string& mLevelId) const noexcept
 {
     return levelDatas.find(mLevelId) != levelDatas.end();
 }
 
-[[nodiscard]] const LevelData& HGAssets::getLevelData(
+[[nodiscard]] const LevelData& HGAssets::HGAssetsImpl::getLevelData(
     const std::string& mAssetId) const
 {
     SSVOH_ASSERT(isValidLevelId(mAssetId));
     return levelDatas.at(mAssetId);
 }
 
-[[nodiscard]] bool HGAssets::packHasLevels(const std::string& mPackId)
+[[nodiscard]] bool HGAssets::HGAssetsImpl::packHasLevels(
+    const std::string& mPackId)
 {
     return levelDataIdsByPack.count(mPackId) > 0;
 }
 
-[[nodiscard]] const std::vector<std::string>& HGAssets::getLevelIdsByPack(
-    const std::string& mPackId)
+[[nodiscard]] const std::vector<std::string>&
+HGAssets::HGAssetsImpl::getLevelIdsByPack(const std::string& mPackId)
 {
     SSVOH_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
     return levelDataIdsByPack.at(mPackId);
 }
 
 [[nodiscard]] const std::unordered_map<std::string, PackData>&
-HGAssets::getPackDatas()
+HGAssets::HGAssetsImpl::getPackDatas()
 {
     return packDatas;
 }
 
-[[nodiscard]] bool HGAssets::isValidPackId(
+[[nodiscard]] bool HGAssets::HGAssetsImpl::isValidPackId(
     const std::string& mPackId) const noexcept
 {
     return packDatas.find(mPackId) != packDatas.end();
 }
 
-[[nodiscard]] const PackData& HGAssets::getPackData(const std::string& mPackId)
+[[nodiscard]] const PackData& HGAssets::HGAssetsImpl::getPackData(
+    const std::string& mPackId)
 {
     SSVOH_ASSERT(isValidPackId(mPackId));
     return packDatas.at(mPackId);
 }
 
 [[nodiscard]] const std::vector<PackInfo>&
-HGAssets::getSelectablePackInfos() const noexcept
+HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
 {
     return selectablePackInfos;
 }
 
-[[nodiscard]] const PackData* HGAssets::findPackData(
+[[nodiscard]] const PackData* HGAssets::HGAssetsImpl::findPackData(
     const std::string& mPackDisambiguator, const std::string& mPackName,
     const std::string& mPackAuthor) const noexcept
 {
@@ -479,7 +661,7 @@ HGAssets::getSelectablePackInfos() const noexcept
     return nullptr;
 }
 
-[[nodiscard]] bool HGAssets::loadWorkshopPackDatasFromCache()
+[[nodiscard]] bool HGAssets::HGAssetsImpl::loadWorkshopPackDatasFromCache()
 {
     if(!ssvufs::Path{"workshopCache.json"}.isFile())
     {
@@ -532,7 +714,7 @@ HGAssets::getSelectablePackInfos() const noexcept
     return true;
 }
 
-[[nodiscard]] bool HGAssets::loadAllPackDatas()
+[[nodiscard]] bool HGAssets::HGAssetsImpl::loadAllPackDatas()
 {
     if(!ssvufs::Path{"Packs/"}.isFolder())
     {
@@ -587,7 +769,8 @@ HGAssets::getSelectablePackInfos() const noexcept
     return true;
 }
 
-[[nodiscard]] bool HGAssets::loadAllPackAssets(const bool headless)
+[[nodiscard]] bool HGAssets::HGAssetsImpl::loadAllPackAssets(
+    const bool headless)
 {
     for(const auto& [packId, packData] : packDatas)
     {
@@ -608,7 +791,7 @@ HGAssets::getSelectablePackInfos() const noexcept
     return true;
 }
 
-[[nodiscard]] bool HGAssets::verifyAllPackDependencies()
+[[nodiscard]] bool HGAssets::HGAssetsImpl::verifyAllPackDependencies()
 {
     // ------------------------------------------------------------------------
     // Verify pack dependencies.
@@ -655,17 +838,17 @@ HGAssets::getSelectablePackInfos() const noexcept
     return true;
 }
 
-void HGAssets::addLocalProfile(ProfileData&& profileData)
+void HGAssets::HGAssetsImpl::addLocalProfile(ProfileData&& profileData)
 {
     // Remove invalid level ids that might have been added to the files.
     Utils::erase_if(profileData.getFavoriteLevelIds(),
         [this](const std::string& favId)
         { return levelDatas.find(favId) == levelDatas.end(); });
 
-    profileDataMap.emplace(profileData.getName(), std::move(profileData));
+    profileDataMap.emplace(profileData.getName(), SSVOH_MOVE(profileData));
 }
 
-[[nodiscard]] bool HGAssets::loadAllLocalProfiles()
+[[nodiscard]] bool HGAssets::HGAssetsImpl::loadAllLocalProfiles()
 {
     if(!ssvufs::Path{"Profiles/"}.isFolder())
     {
@@ -683,13 +866,13 @@ void HGAssets::addLocalProfile(ProfileData&& profileData)
         loadInfo.addFormattedError(error);
 
         ProfileData profileData{Utils::loadProfileFromJson(object)};
-        addLocalProfile(std::move(profileData));
+        addLocalProfile(SSVOH_MOVE(profileData));
     }
 
     return true;
 }
 
-void HGAssets::loadPackAssets_loadShaders(
+void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
     const std::string& mPackId, const ssvufs::Path& mPath, const bool headless)
 {
     if(headless)
@@ -717,13 +900,13 @@ void HGAssets::loadPackAssets_loadShaders(
             SSVOH_ASSERT(shadersById.size() > 0);
             const std::size_t shaderId = shadersById.size() - 1;
 
-            LoadedShader ls{.shader{std::move(shader)},
+            LoadedShader ls{.shader{SSVOH_MOVE(shader)},
                 .path{p},
                 .shaderType{shaderType},
                 .id{shaderId}};
 
             shaders.emplace(
-                concatIntoBuf(mPackId, '_', p.getFileName()), std::move(ls));
+                concatIntoBuf(mPackId, '_', p.getFileName()), SSVOH_MOVE(ls));
 
             shadersPathToId.emplace(p, shaderId);
 
@@ -736,7 +919,7 @@ void HGAssets::loadPackAssets_loadShaders(
     loadShadersOfType(".frag", sf::Shader::Type::Fragment);
 }
 
-void HGAssets::loadPackAssets_loadCustomSounds(
+void HGAssets::HGAssetsImpl::loadPackAssets_loadCustomSounds(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
@@ -752,7 +935,7 @@ void HGAssets::loadPackAssets_loadCustomSounds(
     }
 }
 
-void HGAssets::loadPackAssets_loadMusic(
+void HGAssets::HGAssetsImpl::loadPackAssets_loadMusic(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
@@ -764,7 +947,7 @@ void HGAssets::loadPackAssets_loadMusic(
     }
 }
 
-void HGAssets::loadPackAssets_loadMusicData(
+void HGAssets::HGAssetsImpl::loadPackAssets_loadMusicData(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".json"))
@@ -774,13 +957,13 @@ void HGAssets::loadPackAssets_loadMusicData(
 
         MusicData musicData{Utils::loadMusicFromJson(object)};
         musicDataMap.emplace(
-            concatIntoBuf(mPackId, '_', musicData.id), std::move(musicData));
+            concatIntoBuf(mPackId, '_', musicData.id), SSVOH_MOVE(musicData));
 
         ++loadInfo.assets;
     }
 }
 
-void HGAssets::loadPackAssets_loadStyleData(
+void HGAssets::HGAssetsImpl::loadPackAssets_loadStyleData(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Styles/", ".json"))
@@ -790,13 +973,13 @@ void HGAssets::loadPackAssets_loadStyleData(
 
         StyleData styleData{object};
         styleDataMap.emplace(
-            concatIntoBuf(mPackId, '_', styleData.id), std::move(styleData));
+            concatIntoBuf(mPackId, '_', styleData.id), SSVOH_MOVE(styleData));
 
         ++loadInfo.assets;
     }
 }
 
-void HGAssets::loadPackAssets_loadLevelData(
+void HGAssets::HGAssetsImpl::loadPackAssets_loadLevelData(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
@@ -808,7 +991,7 @@ void HGAssets::loadPackAssets_loadLevelData(
         const std::string& assetId = concatIntoBuf(mPackId, '_', levelData.id);
 
         levelDataIdsByPack[mPackId].emplace_back(assetId);
-        levelDatas.emplace(std::move(assetId), std::move(levelData));
+        levelDatas.emplace(assetId, SSVOH_MOVE(levelData));
 
         ++loadInfo.levels;
     }
@@ -817,7 +1000,7 @@ void HGAssets::loadPackAssets_loadLevelData(
 //**********************************************
 // PROFILE
 
-void HGAssets::saveCurrentLocalProfile()
+void HGAssets::HGAssetsImpl::saveCurrentLocalProfile()
 {
     if(currentProfilePtr == nullptr)
     {
@@ -843,7 +1026,7 @@ void HGAssets::saveCurrentLocalProfile()
     ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
 }
 
-void HGAssets::saveAllProfiles()
+void HGAssets::HGAssetsImpl::saveAllProfiles()
 {
     ssvuj::Obj currentVersion;
 
@@ -876,7 +1059,7 @@ void HGAssets::saveAllProfiles()
 //**********************************************
 // GET
 
-[[nodiscard]] const MusicData& HGAssets::getMusicData(
+[[nodiscard]] const MusicData& HGAssets::HGAssetsImpl::getMusicData(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
@@ -893,7 +1076,7 @@ void HGAssets::saveAllProfiles()
     return it->second;
 }
 
-[[nodiscard]] const StyleData& HGAssets::getStyleData(
+[[nodiscard]] const StyleData& HGAssets::HGAssetsImpl::getStyleData(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
@@ -910,7 +1093,7 @@ void HGAssets::saveAllProfiles()
     return it->second;
 }
 
-[[nodiscard]] sf::Shader* HGAssets::getShader(
+[[nodiscard]] sf::Shader* HGAssets::HGAssetsImpl::getShader(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
@@ -925,7 +1108,7 @@ void HGAssets::saveAllProfiles()
     return it->second.shader.get();
 }
 
-[[nodiscard]] std::optional<std::size_t> HGAssets::getShaderId(
+[[nodiscard]] std::optional<std::size_t> HGAssets::HGAssetsImpl::getShaderId(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
@@ -940,8 +1123,8 @@ void HGAssets::saveAllProfiles()
     return it->second.id;
 }
 
-[[nodiscard]] std::optional<std::size_t> HGAssets::getShaderIdByPath(
-    const std::string& mShaderPath)
+[[nodiscard]] std::optional<std::size_t>
+HGAssets::HGAssetsImpl::getShaderIdByPath(const std::string& mShaderPath)
 {
     const auto it = shadersPathToId.find(mShaderPath);
     if(it == shadersPathToId.end())
@@ -955,7 +1138,7 @@ void HGAssets::saveAllProfiles()
     return it->second;
 }
 
-[[nodiscard]] sf::Shader* HGAssets::getShaderByShaderId(
+[[nodiscard]] sf::Shader* HGAssets::HGAssetsImpl::getShaderByShaderId(
     const std::size_t mShaderId)
 {
     if(!isValidShaderId(mShaderId))
@@ -966,7 +1149,8 @@ void HGAssets::saveAllProfiles()
     return shadersById[mShaderId];
 }
 
-[[nodiscard]] bool HGAssets::isValidShaderId(const std::size_t mShaderId) const
+[[nodiscard]] bool HGAssets::HGAssetsImpl::isValidShaderId(
+    const std::size_t mShaderId) const
 {
     return mShaderId < shadersById.size();
 }
@@ -974,14 +1158,14 @@ void HGAssets::saveAllProfiles()
 //**********************************************
 // RELOAD
 
-void HGAssets::reloadAllShaders()
+void HGAssets::HGAssetsImpl::reloadAllShaders()
 {
     for(auto& [id, loadedShader] : shaders)
     {
         if(!loadedShader.shader->loadFromFile(
                loadedShader.path, loadedShader.shaderType))
         {
-            ssvu::lo("hg::HGAssets::reloadAllShaders")
+            ssvu::lo("hg::HGAssetsImplImpl::reloadAllShaders")
                 << "Failed to load shader '" << loadedShader.path << "'\n";
 
             continue;
@@ -989,7 +1173,7 @@ void HGAssets::reloadAllShaders()
     }
 }
 
-[[nodiscard]] std::string HGAssets::reloadPack(
+[[nodiscard]] std::string HGAssets::HGAssetsImpl::reloadPack(
     const std::string& mPackId, const std::string& mPath)
 {
     std::string temp, output;
@@ -1009,7 +1193,7 @@ void HGAssets::reloadAllShaders()
         if(it == levelDatas.end())
         {
             levelDataIdsByPack[mPackId].emplace_back(temp);
-            levelDatas.emplace(temp, std::move(levelData));
+            levelDatas.emplace(temp, SSVOH_MOVE(levelData));
         }
         else
         {
@@ -1031,7 +1215,7 @@ void HGAssets::reloadAllShaders()
             StyleData styleData{ssvuj::getFromFile(p)};
             temp = mPackId + "_" + styleData.id;
 
-            styleDataMap[temp] = std::move(styleData);
+            styleDataMap[temp] = SSVOH_MOVE(styleData);
         }
         output += "Styles successfully reloaded\n";
     }
@@ -1050,7 +1234,7 @@ void HGAssets::reloadAllShaders()
                 Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
             temp = mPackId + "_" + musicData.id;
 
-            musicDataMap[temp] = std::move(musicData);
+            musicDataMap[temp] = SSVOH_MOVE(musicData);
         }
         output += "Music data successfully reloaded\n";
     }
@@ -1095,8 +1279,9 @@ void HGAssets::reloadAllShaders()
     return output;
 }
 
-[[nodiscard]] std::string HGAssets::reloadLevel(const std::string& mPackId,
-    const std::string& mPath, const std::string& mId)
+[[nodiscard]] std::string HGAssets::HGAssetsImpl::reloadLevel(
+    const std::string& mPackId, const std::string& mPath,
+    const std::string& mId)
 {
     std::string temp, output;
 
@@ -1123,7 +1308,7 @@ void HGAssets::reloadAllShaders()
     if(it == levelDatas.end())
     {
         levelDataIdsByPack[mPackId].emplace_back(temp);
-        levelDatas.emplace(temp, std::move(levelData));
+        levelDatas.emplace(temp, SSVOH_MOVE(levelData));
     }
     else
     {
@@ -1150,7 +1335,7 @@ void HGAssets::reloadAllShaders()
             StyleData styleData{ssvuj::getFromFile(styleFile[0])};
             temp = mPackId + "_" + levelData.styleId;
 
-            styleDataMap[temp] = std::move(styleData);
+            styleDataMap[temp] = SSVOH_MOVE(styleData);
 
             output += "style data " + levelData.styleId +
                       ".json successfully loaded\n";
@@ -1178,7 +1363,7 @@ void HGAssets::reloadAllShaders()
                 Utils::loadMusicFromJson(ssvuj::getFromFile(musicDataFile[0]))};
             temp = mPackId + "_" + levelData.musicId;
 
-            musicDataMap[temp] = std::move(musicData);
+            musicDataMap[temp] = SSVOH_MOVE(musicData);
 
             output += "music data " + levelData.musicId +
                       ".json successfully loaded\n";
@@ -1260,12 +1445,12 @@ void HGAssets::reloadAllShaders()
 //**********************************************
 // LOCAL SCORE
 
-float HGAssets::getLocalScore(const std::string& mId)
+float HGAssets::HGAssetsImpl::getLocalScore(const std::string& mId)
 {
     return getCurrentLocalProfile().getScore(mId);
 }
 
-void HGAssets::setLocalScore(const std::string& mId, float mScore)
+void HGAssets::HGAssetsImpl::setLocalScore(const std::string& mId, float mScore)
 {
     getCurrentLocalProfile().setScore(mId, mScore);
 }
@@ -1273,79 +1458,85 @@ void HGAssets::setLocalScore(const std::string& mId, float mScore)
 //**********************************************
 // LOCAL PROFILE
 
-[[nodiscard]] bool HGAssets::anyLocalProfileActive() const
+[[nodiscard]] bool HGAssets::HGAssetsImpl::anyLocalProfileActive() const
 {
     return currentProfilePtr != nullptr;
 }
 
-ProfileData& HGAssets::getCurrentLocalProfile()
+ProfileData& HGAssets::HGAssetsImpl::getCurrentLocalProfile()
 {
     SSVOH_ASSERT(currentProfilePtr != nullptr);
     return *currentProfilePtr;
 }
 
-ProfileData* HGAssets::getLocalProfileByName(const std::string& mName)
+ProfileData* HGAssets::HGAssetsImpl::getLocalProfileByName(
+    const std::string& mName)
 {
     SSVOH_ASSERT(profileDataMap.contains(mName));
     return &profileDataMap.find(mName)->second;
 }
 
-const ProfileData& HGAssets::getCurrentLocalProfile() const
+const ProfileData& HGAssets::HGAssetsImpl::getCurrentLocalProfile() const
 {
     SSVOH_ASSERT(currentProfilePtr != nullptr);
     return *currentProfilePtr;
 }
 
-const ProfileData* HGAssets::getLocalProfileByName(
+const ProfileData* HGAssets::HGAssetsImpl::getLocalProfileByName(
     const std::string& mName) const
 {
     SSVOH_ASSERT(profileDataMap.contains(mName));
     return &profileDataMap.find(mName)->second;
 }
 
-[[nodiscard]] std::string HGAssets::getCurrentLocalProfileFilePath()
+[[nodiscard]] std::string
+HGAssets::HGAssetsImpl::getCurrentLocalProfileFilePath()
 {
     return "Profiles/" + currentProfilePtr->getName() + ".json";
 }
 
 
-[[nodiscard]] std::size_t HGAssets::getLocalProfilesSize()
+[[nodiscard]] std::size_t HGAssets::HGAssetsImpl::getLocalProfilesSize()
 {
     return profileDataMap.size();
 }
 
-[[nodiscard]] std::vector<std::string> HGAssets::getLocalProfileNames()
+[[nodiscard]] std::vector<std::string>
+HGAssets::HGAssetsImpl::getLocalProfileNames()
 {
     std::vector<std::string> result;
+    result.reserve(profileDataMap.size());
+
     for(auto& pair : profileDataMap)
     {
         result.emplace_back(pair.second.getName());
     }
+
     return result;
 }
 
 
-[[nodiscard]] bool HGAssets::pIsValidLocalProfile() const
+[[nodiscard]] bool HGAssets::HGAssetsImpl::pIsValidLocalProfile() const
 {
     return currentProfilePtr != nullptr;
 }
 
-[[nodiscard]] const std::string& HGAssets::pGetName() const
+[[nodiscard]] const std::string& HGAssets::HGAssetsImpl::pGetName() const
 {
     return getCurrentLocalProfile().getName();
 }
 
-void HGAssets::pSaveCurrent()
+void HGAssets::HGAssetsImpl::pSaveCurrent()
 {
     saveCurrentLocalProfile();
 }
 
-void HGAssets::pSaveAll()
+void HGAssets::HGAssetsImpl::pSaveAll()
 {
     saveAllProfiles();
 }
 
-void HGAssets::pSetCurrent(const std::string& mName)
+void HGAssets::HGAssetsImpl::pSetCurrent(const std::string& mName)
 {
     const auto it = profileDataMap.find(mName);
 
@@ -1353,7 +1544,7 @@ void HGAssets::pSetCurrent(const std::string& mName)
     currentProfilePtr = &it->second;
 }
 
-void HGAssets::pCreate(const std::string& mName)
+void HGAssets::HGAssetsImpl::pCreate(const std::string& mName)
 {
     ssvuj::Obj root;
     ssvuj::arch(root, "name", mName);
@@ -1371,18 +1562,18 @@ void HGAssets::pCreate(const std::string& mName)
     }
 }
 
-void HGAssets::pRemove(const std::string& mName)
+void HGAssets::HGAssetsImpl::pRemove(const std::string& mName)
 {
     profileDataMap.erase(mName);
 }
 
-[[nodiscard]] sf::SoundBuffer* HGAssets::getSoundBuffer(
+[[nodiscard]] sf::SoundBuffer* HGAssets::HGAssetsImpl::getSoundBuffer(
     const std::string& assetId)
 {
     return assetStorage->getSoundBuffer(assetId);
 }
 
-[[nodiscard]] const std::string* HGAssets::getMusicPath(
+[[nodiscard]] const std::string* HGAssets::HGAssetsImpl::getMusicPath(
     const std::string& assetId) const
 {
     auto it = musicPathMap.find(assetId);
@@ -1390,27 +1581,296 @@ void HGAssets::pRemove(const std::string& mName)
 }
 
 [[nodiscard]] const std::unordered_map<std::string, LevelData>&
-HGAssets::getLevelDatas() const noexcept
+HGAssets::HGAssetsImpl::getLevelDatas() const noexcept
 {
     return levelDatas;
 }
 
 [[nodiscard]] const std::unordered_set<std::string>&
-HGAssets::getPackIdsWithMissingDependencies() const noexcept
+HGAssets::HGAssetsImpl::getPackIdsWithMissingDependencies() const noexcept
 {
     return packIdsWithMissingDependencies;
 }
 
 [[nodiscard]] std::unordered_map<std::string, std::string>&
-HGAssets::getLuaFileCache()
+HGAssets::HGAssetsImpl::getLuaFileCache()
 {
     return luaFileCache;
 }
 
 [[nodiscard]] const std::unordered_map<std::string, std::string>&
-HGAssets::getLuaFileCache() const
+HGAssets::HGAssetsImpl::getLuaFileCache() const
 {
     return luaFileCache;
 }
+
+// ----------------------------------------------------------------------------
+
+HGAssets::HGAssets(
+    Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
+    : _impl(Utils::makeUnique<HGAssetsImpl>(
+          mSteamManager, mHeadless, mLevelsOnly))
+{}
+
+HGAssets::~HGAssets() = default;
+
+LoadInfo& HGAssets::getLoadResults()
+{
+    return _impl->getLoadResults();
+}
+
+sf::Texture& HGAssets::getTexture(const std::string& mId)
+{
+    return _impl->getTexture(mId);
+}
+
+sf::Texture& HGAssets::getTextureOrNullTexture(const std::string& mId)
+{
+    return _impl->getTextureOrNullTexture(mId);
+}
+
+sf::Font& HGAssets::getFont(const std::string& mId)
+{
+    return _impl->getFont(mId);
+}
+
+sf::Font& HGAssets::getFontOrNullFont(const std::string& mId)
+{
+    return _impl->getFontOrNullFont(mId);
+}
+
+bool HGAssets::isValidLevelId(const std::string& mLevelId) const noexcept
+{
+    return _impl->isValidLevelId(mLevelId);
+}
+
+const LevelData& HGAssets::getLevelData(const std::string& mAssetId) const
+{
+    return _impl->getLevelData(mAssetId);
+}
+
+bool HGAssets::packHasLevels(const std::string& mPackId)
+{
+    return _impl->packHasLevels(mPackId);
+}
+
+const std::vector<std::string>& HGAssets::getLevelIdsByPack(
+    const std::string& mPackId)
+{
+    return _impl->getLevelIdsByPack(mPackId);
+}
+
+const std::unordered_map<std::string, PackData>& HGAssets::getPackDatas()
+{
+    return _impl->getPackDatas();
+}
+
+bool HGAssets::isValidPackId(const std::string& mPackId) const noexcept
+{
+    return _impl->isValidPackId(mPackId);
+}
+
+const PackData& HGAssets::getPackData(const std::string& mPackId)
+{
+    return _impl->getPackData(mPackId);
+}
+
+const std::vector<PackInfo>& HGAssets::getSelectablePackInfos() const noexcept
+{
+    return _impl->getSelectablePackInfos();
+}
+
+const PackData* HGAssets::findPackData(const std::string& mPackDisambiguator,
+    const std::string& mPackName, const std::string& mPackAuthor) const noexcept
+{
+    return _impl->findPackData(mPackDisambiguator, mPackName, mPackAuthor);
+}
+
+const MusicData& HGAssets::getMusicData(
+    const std::string& mPackId, const std::string& mId)
+{
+    return _impl->getMusicData(mPackId, mId);
+}
+
+const StyleData& HGAssets::getStyleData(
+    const std::string& mPackId, const std::string& mId)
+{
+    return _impl->getStyleData(mPackId, mId);
+}
+
+sf::Shader* HGAssets::getShader(
+    const std::string& mPackId, const std::string& mId)
+{
+    return _impl->getShader(mPackId, mId);
+}
+
+std::optional<std::size_t> HGAssets::getShaderId(
+    const std::string& mPackId, const std::string& mId)
+{
+    return _impl->getShaderId(mPackId, mId);
+}
+
+std::optional<std::size_t> HGAssets::getShaderIdByPath(
+    const std::string& mShaderPath)
+{
+    return _impl->getShaderIdByPath(mShaderPath);
+}
+
+sf::Shader* HGAssets::getShaderByShaderId(const std::size_t mShaderId)
+{
+    return _impl->getShaderByShaderId(mShaderId);
+}
+
+bool HGAssets::isValidShaderId(const std::size_t mShaderId) const
+{
+    return _impl->isValidShaderId(mShaderId);
+}
+
+void HGAssets::reloadAllShaders()
+{
+    return _impl->reloadAllShaders();
+}
+
+std::string HGAssets::reloadPack(
+    const std::string& mPackId, const std::string& mPath)
+{
+    return _impl->reloadPack(mPackId, mPath);
+}
+
+std::string HGAssets::reloadLevel(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
+{
+    return _impl->reloadLevel(mPackId, mPath, mId);
+}
+
+float HGAssets::getLocalScore(const std::string& mId)
+{
+    return _impl->getLocalScore(mId);
+}
+
+void HGAssets::setLocalScore(const std::string& mId, float mScore)
+{
+    return _impl->setLocalScore(mId, mScore);
+}
+
+void HGAssets::saveCurrentLocalProfile()
+{
+    return _impl->saveCurrentLocalProfile();
+}
+
+void HGAssets::saveAllProfiles()
+{
+    return _impl->saveAllProfiles();
+}
+
+bool HGAssets::anyLocalProfileActive() const
+{
+    return _impl->anyLocalProfileActive();
+}
+
+ProfileData& HGAssets::getCurrentLocalProfile()
+{
+    return _impl->getCurrentLocalProfile();
+}
+
+const ProfileData& HGAssets::getCurrentLocalProfile() const
+{
+    return _impl->getCurrentLocalProfile();
+}
+
+ProfileData* HGAssets::getLocalProfileByName(const std::string& mName)
+{
+    return _impl->getLocalProfileByName(mName);
+}
+
+const ProfileData* HGAssets::getLocalProfileByName(
+    const std::string& mName) const
+{
+    return _impl->getLocalProfileByName(mName);
+}
+
+std::size_t HGAssets::getLocalProfilesSize()
+{
+    return _impl->getLocalProfilesSize();
+}
+
+std::vector<std::string> HGAssets::getLocalProfileNames()
+{
+    return _impl->getLocalProfileNames();
+}
+
+bool HGAssets::pIsValidLocalProfile() const
+{
+    return _impl->pIsValidLocalProfile();
+}
+
+const std::string& HGAssets::pGetName() const
+{
+    return _impl->pGetName();
+}
+
+void HGAssets::pSaveCurrent()
+{
+    return _impl->pSaveCurrent();
+}
+
+void HGAssets::pSaveAll()
+{
+    return _impl->pSaveAll();
+}
+
+void HGAssets::pSetCurrent(const std::string& mName)
+{
+    return _impl->pSetCurrent(mName);
+}
+
+void HGAssets::pCreate(const std::string& mName)
+{
+    return _impl->pCreate(mName);
+}
+
+void HGAssets::pRemove(const std::string& mName)
+{
+    return _impl->pRemove(mName);
+}
+
+sf::SoundBuffer* HGAssets::getSoundBuffer(const std::string& assetId)
+{
+    return _impl->getSoundBuffer(assetId);
+}
+
+const std::string* HGAssets::getMusicPath(const std::string& assetId) const
+{
+    return _impl->getMusicPath(assetId);
+}
+
+const std::unordered_map<std::string, LevelData>&
+HGAssets::getLevelDatas() const noexcept
+{
+    return _impl->getLevelDatas();
+}
+
+const std::unordered_set<std::string>&
+HGAssets::getPackIdsWithMissingDependencies() const noexcept
+{
+    return _impl->getPackIdsWithMissingDependencies();
+}
+
+void HGAssets::addLocalProfile(ProfileData&& profileData)
+{
+    return _impl->addLocalProfile(SSVOH_MOVE(profileData));
+}
+
+std::unordered_map<std::string, std::string>& HGAssets::getLuaFileCache()
+{
+    return _impl->getLuaFileCache();
+}
+
+const std::unordered_map<std::string, std::string>&
+HGAssets::getLuaFileCache() const
+{
+    return _impl->getLuaFileCache();
+}
+
 
 } // namespace hg
