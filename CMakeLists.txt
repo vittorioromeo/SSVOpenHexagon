@@ -103,7 +103,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG b00e5fcd76327ea2ff1c3ae23786a3d21d4449a1
+    GIT_TAG c2c580a9c1b63f9fce55c93764965e39fdb263ab
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -125,7 +125,7 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME luajit
     GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
-    GIT_TAG fa8feeb9580f233a397fb484d84c2108e26b2a00
+    GIT_TAG 4dc5ffbf60b16e54274c470fcc022165685c96fe
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -227,7 +227,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME boostpfr
     GITHUB_REPOSITORY boostorg/pfr
-    GIT_TAG ed28602c2cc7b330140e67412552ed7ec2e4fe8d
+    GIT_TAG b0bf18798c7037ca8a91a1cd2ad2e5798d8f6d46
     DOWNLOAD_ONLY YES
 )
 
@@ -286,7 +286,7 @@ message(STATUS "initialized project ${PROJECT_NAME}")
 # Global unity builds
 # -----------------------------------------------------------------------------
 
-set(CMAKE_UNITY_BUILD ON)
+set(CMAKE_UNITY_BUILD OFF)
 set(CMAKE_UNITY_BUILD_BATCH_SIZE 4)
 
 #
