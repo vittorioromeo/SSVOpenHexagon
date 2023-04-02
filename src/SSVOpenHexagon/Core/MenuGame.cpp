@@ -1974,7 +1974,7 @@ void MenuGame::upAction()
             // and scroll the menu to show it.
             if(prevIdx < 0)
             {
-                setIndex(lvlDrawer->levelDataIds->size() - 1); //*/
+                setIndex(lvlDrawer->levelDataIds->size() - 1);
                 calcScrollSpeed();
 
                 const float scroll{
@@ -5036,7 +5036,7 @@ void MenuGame::drawLevelSelectionRightSide(
                                     : "PRESS F2 TO SHOW FAVORITE LEVELS";
     renderTextCentered(tempString, txtSelectionSmall.font, topLeft);
 
-    tempString = "\nPRESS RCONTROL TO SELECT A RANDOM LEVEL\nHOLD FOCUS TO JUMP BETWEEN PACKS";
+    tempString = "\nPRESS LCONTROL TO SELECT A RANDOM LEVEL\nHOLD FOCUS TO JUMP BETWEEN PACKS";
     renderTextCentered(tempString, txtSelectionSmall.font, topLeft);
 
     //----------------------------------------
