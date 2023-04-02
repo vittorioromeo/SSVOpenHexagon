@@ -337,7 +337,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     lvlDrawer->YScrollTo = 0;
                 }
             }
-
             return;
         }
 
@@ -1015,6 +1014,49 @@ void MenuGame::initInput()
     game.addInput( // hardcoded
         {{k::F4}}, [this](ssvu::FT /*unused*/) { reloadAssets(true); },
         t::Once);
+
+    game.addInput( // hardcoded
+        {{k::LControl}}, [this](ssvu::FT /*unused*/) {
+            int randomLevel;
+
+            if (lvlDrawer->levelDataIds->size() == 1)
+                return;
+
+            randomLevel = ssvu::getRndI(0, lvlDrawer->levelDataIds->size());
+
+            if (randomLevel >= lvlDrawer->levelDataIds->size())
+                setIndex(0);
+            else
+                setIndex(randomLevel);
+            playSoundOverride("beep.ogg");
+        },
+    t::Once);
+
+    game.addInput( // hardcoded
+        {{k::LControl, k::LShift}}, [this](ssvu::FT /*unused*/) {
+            int randomCollection;
+
+            if (getSelectablePackInfosSize() == 1)
+                return;
+            randomCollection = ssvu::getRndI(0, getSelectablePackInfosSize());
+
+            changePackTo(randomCollection);
+            playSoundOverride("beep.ogg");
+        },
+    t::Once);
+
+    game.addInput( // hardcoded
+        {{k::LControl, k::RShift}}, [this](ssvu::FT /*unused*/) {
+            int randomCollection;
+
+            if (getSelectablePackInfosSize() == 1)
+                return;
+            randomCollection = ssvu::getRndI(0, getSelectablePackInfosSize());
+
+            changePackTo(randomCollection);
+            playSoundOverride("beep.ogg");
+        },
+    t::Once);
 }
 
 void MenuGame::runLuaFile(const std::string& mFileName)
@@ -1932,7 +1974,7 @@ void MenuGame::upAction()
             // and scroll the menu to show it.
             if(prevIdx < 0)
             {
-                setIndex(lvlDrawer->levelDataIds->size() - 1);
+                setIndex(lvlDrawer->levelDataIds->size() - 1); //*/
                 calcScrollSpeed();
 
                 const float scroll{
@@ -4993,7 +5035,8 @@ void MenuGame::drawLevelSelectionRightSide(
     tempString = isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS"
                                     : "PRESS F2 TO SHOW FAVORITE LEVELS";
     renderTextCentered(tempString, txtSelectionSmall.font, topLeft);
-    tempString = "\nHOLD FOCUS TO JUMP BETWEEN PACKS";
+
+    tempString = "\nPRESS RCONTROL TO SELECT A RANDOM LEVEL\nHOLD FOCUS TO JUMP BETWEEN PACKS";
     renderTextCentered(tempString, txtSelectionSmall.font, topLeft);
 
     //----------------------------------------
