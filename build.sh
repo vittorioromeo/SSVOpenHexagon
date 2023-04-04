@@ -101,6 +101,7 @@ case $OSTYPE in
         rm -f "$RELEASE_DIR/sfml-system-3.dll"
         rm -f "$RELEASE_DIR/sfml-window-3.dll"
         rm -f "$RELEASE_DIR/openal32.dll"
+        rm -f "$RELEASE_DIR/libzlib.dll"
         rm -f "$RELEASE_DIR/libzlib1.dll"
         rm -f "$RELEASE_DIR/OHWorkshopUploader.exe"
         rm -f "$RELEASE_DIR/SSVOpenHexagon.exe"
@@ -128,6 +129,7 @@ case $OSTYPE in
         mv ./_deps/sfml-build/lib/sfml-system-3.dll $RELEASE_DIR
         mv ./_deps/sfml-build/lib/sfml-window-3.dll $RELEASE_DIR
         cp ./_deps/sfml-src/extlibs/bin/x64/openal32.dll $RELEASE_DIR
+        mv ./_deps/zlib-build/libzlib.dll $RELEASE_DIR
         mv ./_deps/zlib-build/libzlib1.dll $RELEASE_DIR
         mv ./OHWorkshopUploader.exe $RELEASE_DIR
         mv ./SSVOpenHexagon.exe $RELEASE_DIR

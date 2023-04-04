@@ -304,6 +304,8 @@ using cil = std::initializer_list<cmb>;
     X(disableGameRendering, bool, "disable_game_rendering", false)         \
     X_LINKEDVALUES_BINDS
 
+// TODO: enable cache on server
+
 namespace hg::Config {
 
 [[nodiscard]] static ssvuj::Obj& root() noexcept

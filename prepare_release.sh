@@ -19,6 +19,7 @@ mkdir -p ./_PREPARED_RELEASE/Profiles
 cp ./_RELEASE/SSVOpenHexagon.exe ./_PREPARED_RELEASE
 cp ./_RELEASE/SSVOpenHexagon-Console.exe ./_PREPARED_RELEASE
 
+cp ./_RELEASE/libzlib.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/libzlib1.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/openal32.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/sfml-audio-3.dll ./_PREPARED_RELEASE
