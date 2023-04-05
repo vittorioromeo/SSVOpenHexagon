@@ -39,14 +39,11 @@ jobs:
     - name: Copy artifacts
       run: |
         cp build/SSVOpenHexagon*.exe build/OHWorkshopUploader.exe _RELEASE
-        cp build/_deps/sfml-src/extlibs/bin/x64/openal32.dll _RELEASE
-        cp build/_deps/libsodium-cmake-build/libsodium.dll _RELEASE
         cp build/_deps/zlib-build/libzlib.dll _RELEASE
-        cp build/_deps/imgui-sfml-build/libImGui-SFML.dll _RELEASE
-        cp build/_deps/luajit-build/src/libluajit.dll _RELEASE
         cp /mingw64/bin/libwinpthread-1.dll _RELEASE
         cp /mingw64/bin/libstdc++-6.dll _RELEASE
         cp /mingw64/bin/libgcc_s_seh-1.dll _RELEASE
+        cp /mingw64/bin/libopenal-1.dll _RELEASE
         cp _RELEASE/*.dll build/test
 
     - name: Upload artifacts
