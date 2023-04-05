@@ -18,7 +18,7 @@ cmake .. -G"Ninja" \
          -DCMAKE_CXX_FLAGS="\
              -fuse-ld=lld \
              -Wall -Wextra -Wpedantic -Wno-braced-scalar-init \
-             -Wno-pragmas -Wno-missing-field-initializers \
+             -Wno-pragmas -Wno-missing-field-initializers -Wno-array-bounds -Wno-restrict \
              -Wno-stringop-overflow \
              -O3 -DNDEBUG \
              -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off \

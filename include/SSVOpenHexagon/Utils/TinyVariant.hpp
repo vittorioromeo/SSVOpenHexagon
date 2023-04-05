@@ -314,7 +314,7 @@ private:
     alignas(max_alignment) byte _buffer[max_size];
     index_type _index;
 
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ >= 10)
 #define TINYVARIANT_ALWAYS_INLINE_LAMBDA [[gnu::always_inline]]
 #else
 #define TINYVARIANT_ALWAYS_INLINE_LAMBDA
@@ -517,7 +517,7 @@ public:
         TINYVARIANT_DO_WITH_CURRENT_INDEX(I, destroy_at<I>());
 
         TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ(
-            rhs, I, (new(_buffer) nth_type<I>(rhs.as<nth_type<I>>())));
+            rhs, I, (new(_buffer) nth_type<I>(rhs.template as<nth_type<I>>())));
         _index = rhs._index;
 
         return *this;
@@ -534,7 +534,7 @@ public:
 
         TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ(rhs, I,
             (new(_buffer) nth_type<I>(
-                static_cast<nth_type<I>&&>(rhs.as<nth_type<I>>()))));
+                static_cast<nth_type<I>&&>(rhs.template as<nth_type<I>>()))));
         _index = rhs._index;
 
         return *this;
