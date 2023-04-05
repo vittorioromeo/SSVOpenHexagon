@@ -21,12 +21,12 @@ namespace hg {
 
         if(str == "main")
         {
-            return CapColorMode::Main{};
+            return CapColor{CapColorMode::Main{}};
         }
 
         if(str == "main_darkened")
         {
-            return CapColorMode::MainDarkened{};
+            return CapColor{CapColorMode::MainDarkened{}};
         }
     }
 
@@ -36,22 +36,23 @@ namespace hg {
         if(legacy)
         {
             const int index = ssvuj::getExtr<int>(obj, "index", 0);
-            return CapColorMode::ByIndex{index};
+            return CapColor{CapColorMode::ByIndex{index}};
         }
         else
         {
-            return ColorData{false, ssvuj::getExtr<bool>(obj, "dynamic", false),
-                ssvuj::getExtr<bool>(obj, "dynamic_offset", false),
-                ssvuj::getExtr<float>(obj, "dynamic_darkness", 1.f),
-                ssvuj::getExtr<float>(obj, "hue_shift", 0.f),
-                ssvuj::getExtr<float>(obj, "offset", 0.f),
-                ssvuj::getExtr<sf::Color>(obj, "value", sf::Color::White),
-                hg::pulse_from_json(obj)};
+            return CapColor{
+                ColorData{false, ssvuj::getExtr<bool>(obj, "dynamic", false),
+                    ssvuj::getExtr<bool>(obj, "dynamic_offset", false),
+                    ssvuj::getExtr<float>(obj, "dynamic_darkness", 1.f),
+                    ssvuj::getExtr<float>(obj, "hue_shift", 0.f),
+                    ssvuj::getExtr<float>(obj, "offset", 0.f),
+                    ssvuj::getExtr<sf::Color>(obj, "value", sf::Color::White),
+                    hg::pulse_from_json(obj)}};
         }
     }
 
     // Fallback case:
-    return CapColorMode::ByIndex{0};
+    return CapColor{CapColorMode::ByIndex{0}};
 }
 
 } // namespace hg

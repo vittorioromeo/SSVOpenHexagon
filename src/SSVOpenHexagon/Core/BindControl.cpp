@@ -166,7 +166,7 @@ void JoystickBindControl::newJoystickBind(const unsigned int joy)
 [[nodiscard]] std::string JoystickBindControl::getName() const
 {
     std::string bindName =
-        Config::getJoystickBindNames(static_cast<Joystick::Jid>(ID));
+        Config::getJoystickBindName(static_cast<Joystick::Jid>(ID));
 
     if(waitingForBind)
     {

@@ -97,13 +97,14 @@ include(${CPM_DOWNLOAD_LOCATION})
 # CPM: SFML
 # -----------------------------------------------------------------------------
 
-set(BUILD_SHARED_LIBS true)
-set(SFML_STATIC_LIBRARIES false)
+set(BUILD_SHARED_LIBS false)
+set(SFML_STATIC_LIBRARIES true)
+set(SFML_ENABLE_PCH true)
 
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG c2c580a9c1b63f9fce55c93764965e39fdb263ab
+    GIT_TAG dacceddbd1adee49c7bfd120266e200800550394
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)

@@ -124,7 +124,10 @@ public:
 
 	// Retrieve ticket to be sent to the entity who wishes to authenticate you. 
 	// pcbTicket retrieves the length of the actual ticket.
-	virtual HAuthTicket GetAuthSessionTicket( void *pTicket, int cbMaxTicket, uint32 *pcbTicket ) = 0;
+	// SteamNetworkingIdentity is an optional input parameter to hold the public IP address or SteamID of the entity you are connecting to
+	// if an IP address is passed Steam will only allow the ticket to be used by an entity with that IP address
+	// if a Steam ID is passed Steam will only allow the ticket to be used by that Steam ID
+	virtual HAuthTicket GetAuthSessionTicket( void *pTicket, int cbMaxTicket, uint32 *pcbTicket, const SteamNetworkingIdentity *pSteamNetworkingIdentity ) = 0;
 
 	// Authenticate ticket from entity steamID to be sure it is valid and isnt reused
 	// Registers for callbacks if the entity goes offline or cancels the ticket ( see ValidateAuthTicketResponse_t callback and EAuthSessionResponse )
@@ -210,7 +213,7 @@ public:
 
 };
 
-#define STEAMUSER_INTERFACE_VERSION "SteamUser021"
+#define STEAMUSER_INTERFACE_VERSION "SteamUser022"
 
 // Global interface accessor
 inline ISteamUser *SteamUser();
@@ -225,12 +228,13 @@ STEAM_DEFINE_USER_INTERFACE_ACCESSOR( ISteamUser *, SteamUser, STEAMUSER_INTERFA
 #error steam_api_common.h should define VALVE_CALLBACK_PACK_xxx
 #endif 
 
+
 //-----------------------------------------------------------------------------
-// Purpose: called when a connections to the Steam back-end has been established
-//			this means the Steam client now has a working connection to the Steam servers
-//			usually this will have occurred before the game has launched, and should
+// Purpose: Called when an authenticated connection to the Steam back-end has been established.
+//			This means the Steam client now has a working connection to the Steam servers.
+//			Usually this will have occurred before the game has launched, and should
 //			only be seen if the user has dropped connection due to a networking issue
-//			or a Steam server update
+//			or a Steam server update.
 //-----------------------------------------------------------------------------
 struct SteamServersConnected_t
 {
