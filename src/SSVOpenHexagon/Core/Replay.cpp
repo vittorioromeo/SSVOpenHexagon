@@ -8,8 +8,6 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
-#include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
-
 #include <SFML/Network/Packet.hpp>
 
 #include <zlib.h>
@@ -29,17 +27,17 @@ namespace hg {
     ::std::cerr << "Failed [de]serialization operation '" << code << "'\n";
 }
 
-#define SSVOH_TRY(...)                      \
-    do                                      \
-    {                                       \
-        __VA_ARGS__;                        \
-                                            \
-        if(SSVU_UNLIKELY(!result._success)) \
-        {                                   \
-            printTryFailure(#__VA_ARGS__);  \
-            return result;                  \
-        }                                   \
-    }                                       \
+#define SSVOH_TRY(...)                     \
+    do                                     \
+    {                                      \
+        __VA_ARGS__;                       \
+                                           \
+        if(!result._success) [[unlikely]]  \
+        {                                  \
+            printTryFailure(#__VA_ARGS__); \
+            return result;                 \
+        }                                  \
+    }                                      \
     while(false)
 
 static auto make_write(serialization_result& result, std::byte*& buffer,
