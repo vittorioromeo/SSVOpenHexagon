@@ -5,10 +5,18 @@
 #include <initializer_list> // TODO: remove dependency?
 #include <new>              // TODO: remove dependency?
 
+#if ((__GNUC__ >= 10) || defined(__clang__)) && !defined(_MSC_VER)
+#define TINYVARIANT_SUPPORTS_HAS_BUILTIN
+#endif
+
+#ifdef TINYVARIANT_SUPPORTS_HAS_BUILTIN
 #if __has_builtin(__make_integer_seq)
 #define TINYVARIANT_USE_MAKE_INTEGER_SEQ
 #elif __has_builtin(__integer_pack)
 #define TINYVARIANT_USE_INTEGER_PACK
+#else
+#define TINYVARIANT_USE_STD_INDEX_SEQUENCE
+#endif
 #else
 #define TINYVARIANT_USE_STD_INDEX_SEQUENCE
 #endif
