@@ -40,6 +40,7 @@ cp ./_RELEASE/noaudio.bat ./_PREPARED_RELEASE
 cp ./_RELEASE/OHWorkshopUploader.exe ./_PREPARED_RELEASE
 
 cd ./_PREPARED_RELEASE
+
 echo "PACKING WITH UPX"
 
 for x in ./*.dll; do

@@ -29,18 +29,19 @@ cp ./_RELEASE/steam_appid.txt ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/run_ssvopenhexagon_linux.sh ./_PREPARED_RELEASE_LINUX
 
 cd ./_PREPARED_RELEASE_LINUX
-echo "PACKING WITH UPX"
-chmod +x ./*.so
 
-for x in ./*.so; do
-    upx -9 $x &
-done
-
-upx -9 ./SSVOpenHexagonLinux &
-upx -9 ./OHWorkshopUploaderLinux &
-
-wait
-echo "DONE PACKING WITH UPX"
+# echo "PACKING WITH UPX"
+# chmod +x ./*.so
+#
+# for x in ./*.so; do
+#     upx -9 $x &
+# done
+#
+# upx -9 ./SSVOpenHexagonLinux &
+# upx -9 ./OHWorkshopUploaderLinux &
+#
+# wait
+# echo "DONE PACKING WITH UPX"
 
 cd ..
 
