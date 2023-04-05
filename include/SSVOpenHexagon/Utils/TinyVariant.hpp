@@ -5,6 +5,10 @@
 #include <initializer_list> // TODO: remove dependency?
 #include <new>              // TODO: remove dependency?
 
+#if !__has_builtin(__make_integer_seq) && !__has_builtin(__integer_pack)
+#include <utility>
+#endif
+
 namespace vittorioromeo::impl {
 
 template <typename T>
@@ -40,7 +44,7 @@ struct index_sequence
 
 #if __has_builtin(__make_integer_seq)
 
-template <class, sz_t... X>
+template <typename, sz_t... X>
 struct index_sequence_helper
 {
     using type = index_sequence<X...>;
@@ -56,7 +60,10 @@ template <sz_t N>
 using index_sequence_up_to = index_sequence<__integer_pack(N)...>;
 
 #else
-#error "No integer sequence generation available."
+
+template <sz_t N>
+using index_sequence_up_to = std::make_index_sequence<N>;
+
 #endif
 
 template <typename, typename>
