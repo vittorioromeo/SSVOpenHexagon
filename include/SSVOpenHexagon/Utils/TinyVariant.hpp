@@ -38,9 +38,18 @@ struct common_type_between<T, U, Rest...>
 
 using sz_t = decltype(sizeof(int));
 
+#if !__has_builtin(__make_integer_seq) && !__has_builtin(__integer_pack)
+
+template <sz_t... Is>
+using index_sequence = std::index_sequence<Is...>;
+
+#else
+
 template <sz_t...>
 struct index_sequence
 {};
+
+#endif
 
 #if __has_builtin(__make_integer_seq)
 
