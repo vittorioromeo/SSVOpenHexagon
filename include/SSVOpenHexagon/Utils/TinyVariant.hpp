@@ -5,7 +5,15 @@
 #include <initializer_list> // TODO: remove dependency?
 #include <new>              // TODO: remove dependency?
 
-#if !__has_builtin(__make_integer_seq) && !__has_builtin(__integer_pack)
+#if __has_builtin(__make_integer_seq)
+#define TINYVARIANT_USE_MAKE_INTEGER_SEQ
+#elif __has_builtin(__integer_pack)
+#define TINYVARIANT_USE_INTEGER_PACK
+#else
+#define TINYVARIANT_USE_STD_INDEX_SEQUENCE
+#endif
+
+#ifdef TINYVARIANT_USE_STD_INDEX_SEQUENCE
 #include <utility>
 #endif
 
@@ -38,7 +46,7 @@ struct common_type_between<T, U, Rest...>
 
 using sz_t = decltype(sizeof(int));
 
-#if !__has_builtin(__make_integer_seq) && !__has_builtin(__integer_pack)
+#ifdef TINYVARIANT_USE_STD_INDEX_SEQUENCE
 
 template <sz_t... Is>
 using index_sequence = std::index_sequence<Is...>;
@@ -51,7 +59,7 @@ struct index_sequence
 
 #endif
 
-#if __has_builtin(__make_integer_seq)
+#ifdef TINYVARIANT_USE_MAKE_INTEGER_SEQ
 
 template <typename, sz_t... X>
 struct index_sequence_helper
@@ -63,15 +71,19 @@ template <sz_t N>
 using index_sequence_up_to =
     typename __make_integer_seq<index_sequence_helper, sz_t, N>::type;
 
-#elif __has_builtin(__integer_pack)
+#elif defined(TINYVARIANT_USE_INTEGER_PACK)
 
 template <sz_t N>
 using index_sequence_up_to = index_sequence<__integer_pack(N)...>;
 
-#else
+#elif defined(TINYVARIANT_USE_STD_INDEX_SEQUENCE
 
 template <sz_t N>
 using index_sequence_up_to = std::make_index_sequence<N>;
+
+#else
+
+#error "No integer sequence generation available."
 
 #endif
 
@@ -710,5 +722,9 @@ public:
 
 #undef TINYVARIANT_DO_WITH_CURRENT_INDEX
 #undef TINYVARIANT_STATIC_ASSERT_INDEX_VALIDITY
+
+#undef TINYVARIANT_USE_STD_INDEX_SEQUENCE
+#undef TINYVARIANT_USE_INTEGER_PACK
+#undef TINYVARIANT_USE_MAKE_INTEGER_SEQ
 
 } // namespace vittorioromeo
