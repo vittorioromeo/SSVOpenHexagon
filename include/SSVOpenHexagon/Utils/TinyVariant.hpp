@@ -76,7 +76,7 @@ using index_sequence_up_to =
 template <sz_t N>
 using index_sequence_up_to = index_sequence<__integer_pack(N)...>;
 
-#elif defined(TINYVARIANT_USE_STD_INDEX_SEQUENCE
+#elif defined(TINYVARIANT_USE_STD_INDEX_SEQUENCE)
 
 template <sz_t N>
 using index_sequence_up_to = std::make_index_sequence<N>;
