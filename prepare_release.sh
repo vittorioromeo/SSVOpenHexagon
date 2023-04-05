@@ -20,13 +20,7 @@ cp ./_RELEASE/SSVOpenHexagon.exe ./_PREPARED_RELEASE
 cp ./_RELEASE/SSVOpenHexagon-Console.exe ./_PREPARED_RELEASE
 
 cp ./_RELEASE/libzlib.dll ./_PREPARED_RELEASE
-cp ./_RELEASE/libzlib1.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/openal32.dll ./_PREPARED_RELEASE
-cp ./_RELEASE/sfml-audio-3.dll ./_PREPARED_RELEASE
-cp ./_RELEASE/sfml-graphics-3.dll ./_PREPARED_RELEASE
-cp ./_RELEASE/sfml-network-3.dll ./_PREPARED_RELEASE
-cp ./_RELEASE/sfml-system-3.dll ./_PREPARED_RELEASE
-cp ./_RELEASE/sfml-window-3.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/libImGui-SFML.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/libluajit.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/steam_api64.dll ./_PREPARED_RELEASE

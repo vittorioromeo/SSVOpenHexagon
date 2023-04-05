@@ -8,11 +8,11 @@ jobs:
     name: Build and test (windows)
 
     runs-on: windows-latest
-    
+
     defaults:
       run:
         shell: msys2 {0}
-        
+
     steps:
     - name: Install dependencies
       uses: msys2/setup-msys2@v2
@@ -39,10 +39,9 @@ jobs:
     - name: Copy artifacts
       run: |
         cp build/SSVOpenHexagon*.exe build/OHWorkshopUploader.exe _RELEASE
-        cp build/_deps/sfml-build/bin/sfml-*-3.dll _RELEASE
         cp build/_deps/sfml-src/extlibs/bin/x64/openal32.dll _RELEASE
         cp build/_deps/libsodium-cmake-build/libsodium.dll _RELEASE
-        cp build/_deps/zlib-build/libzlib1.dll _RELEASE
+        cp build/_deps/zlib-build/libzlib.dll _RELEASE
         cp build/_deps/imgui-sfml-build/libImGui-SFML.dll _RELEASE
         cp build/_deps/luajit-build/src/libluajit.dll _RELEASE
         cp /mingw64/bin/libwinpthread-1.dll _RELEASE
