@@ -1014,49 +1014,61 @@ void MenuGame::initInput()
     game.addInput( // hardcoded
         {{k::F4}}, [this](ssvu::FT /*unused*/) { reloadAssets(true); },
         t::Once);
+    
+    //////////
+    // Will move to bindable keys shortly
 
-    game.addInput( // hardcoded
-        {{k::LControl}}, [this](ssvu::FT /*unused*/) {
-            int randomLevel;
+        game.addInput( // hardcoded
+            {{k::LControl}}, [this](ssvu::FT /*unused*/) {
+                int randomLevel;
+                int oldIndex = lvlDrawer->currentIndex;
 
-            if (lvlDrawer->levelDataIds->size() == 1)
-                return;
+                if (lvlDrawer->levelDataIds->size() == 1) //if there is only 1 index, skip
+                    return;
 
-            randomLevel = ssvu::getRndI(0, lvlDrawer->levelDataIds->size());
+                randomLevel = ssvu::getRndI(0, lvlDrawer->levelDataIds->size());
 
-            if (randomLevel >= lvlDrawer->levelDataIds->size())
-                setIndex(0);
-            else
+                while (oldIndex == randomLevel) //prevents random from landing back on current index 
+                    randomLevel = ssvu::getRndI(0, lvlDrawer->levelDataIds->size());
+
                 setIndex(randomLevel);
-            playSoundOverride("beep.ogg");
-        },
-    t::Once);
+                playSoundOverride("beep.ogg");
+            },
+        t::Once);
 
-    game.addInput( // hardcoded
-        {{k::LControl, k::LShift}}, [this](ssvu::FT /*unused*/) {
+        auto focusRandom = [this]() { //lambda for LCtrl + L/RShift (Focus)
+
             int randomCollection;
+            std::string oldIndex = currentPack->name;
 
-            if (getSelectablePackInfosSize() == 1)
+            if (getSelectablePackInfosSize() == 1) //if there is only 1 collection, skip
                 return;
+
             randomCollection = ssvu::getRndI(0, getSelectablePackInfosSize());
-
             changePackTo(randomCollection);
+
+            while (oldIndex == currentPack->name){ //prevents random from landing back on current collection
+
+                randomCollection = ssvu::getRndI(0, getSelectablePackInfosSize());
+                changePackTo(randomCollection);
+            }
+
             playSoundOverride("beep.ogg");
-        },
-    t::Once);
+        };
 
-    game.addInput( // hardcoded
-        {{k::LControl, k::RShift}}, [this](ssvu::FT /*unused*/) {
-            int randomCollection;
+        game.addInput( // hardcoded
+            {{k::LControl, k::LShift}}, [this, focusRandom](ssvu::FT /*unused*/) {
+                focusRandom();
+            },
+        t::Once);
 
-            if (getSelectablePackInfosSize() == 1)
-                return;
-            randomCollection = ssvu::getRndI(0, getSelectablePackInfosSize());
+        game.addInput( // hardcoded
+            {{k::LControl, k::RShift}}, [this, focusRandom](ssvu::FT /*unused*/) {
+               focusRandom();
+            },
+        t::Once);
 
-            changePackTo(randomCollection);
-            playSoundOverride("beep.ogg");
-        },
-    t::Once);
+    //////////
 }
 
 void MenuGame::runLuaFile(const std::string& mFileName)
