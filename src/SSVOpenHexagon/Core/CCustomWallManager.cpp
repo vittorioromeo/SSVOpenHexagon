@@ -9,7 +9,6 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
-#include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
 namespace hg {
 
@@ -24,7 +23,7 @@ namespace hg {
 [[nodiscard]] bool CCustomWallManager::checkValidHandle(
     const CCustomWallHandle h, const char* msg)
 {
-    if(SSVU_UNLIKELY(_handleAvailable[h]))
+    if(_handleAvailable[h]) [[unlikely]]
     {
         ssvu::lo("CustomWallManager")
             << "Attempted to " << msg << " of invalid custom wall " << h
@@ -41,7 +40,7 @@ namespace hg {
 [[nodiscard]] bool CCustomWallManager::checkValidVertexIdx(
     const CCustomWallHandle h, const int vertexIdx, const char* msg)
 {
-    if(SSVU_UNLIKELY(vertexIdx < 0 || vertexIdx > 3))
+    if(vertexIdx < 0 || vertexIdx > 3) [[unlikely]]
     {
         ssvu::lo("CustomWallManager")
             << "Invalid vertex index " << vertexIdx << " for custom wall " << h
@@ -62,7 +61,7 @@ namespace hg {
 [[nodiscard]] CCustomWallHandle CCustomWallManager::create(
     void (*fAfterCreate)(CCustomWall&))
 {
-    if(SSVU_UNLIKELY(_freeHandles.empty()))
+    if(_freeHandles.empty()) [[unlikely]]
     {
         const std::size_t reserveSize = 32 + _nextFreeHandle * 2;
         const std::size_t maxHandleIndex = _nextFreeHandle + reserveSize;
@@ -109,7 +108,7 @@ void CCustomWallManager::destroyUnchecked(const CCustomWallHandle cwHandle)
 
 void CCustomWallManager::destroy(const CCustomWallHandle cwHandle)
 {
-    if(SSVU_UNLIKELY(_handleAvailable[cwHandle]))
+    if(_handleAvailable[cwHandle]) [[unlikely]]
     {
         ssvu::lo("CustomWallManager")
             << "Attempted to destroy invalid wall " << cwHandle << '\n';
@@ -178,7 +177,7 @@ void CCustomWallManager::setDeadly(
 void CCustomWallManager::setKillingSide(
     const CCustomWallHandle cwHandle, const std::uint8_t side)
 {
-    if(SSVU_UNLIKELY(side > 3u))
+    if(side > 3u) [[unlikely]]
     {
         ssvu::lo("CustomWallManager")
             << "Attempted to set killing side with invalid value " << side
