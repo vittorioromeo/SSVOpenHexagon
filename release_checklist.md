@@ -36,6 +36,10 @@
 
 7. The Linux client build will automatically be copied to the main development machine's drive
 
+8. Run `/c/OHWorkspace/steamworks/sdk/tools/SteamPipeGUI.exe` and upload to Steam
+
+    - Use depot ID `1358092`, build path `C:\OHWorkspace\SSVOpenHexagon\_PREPARED_RELEASE_LINUX`
+-
 ## Windows Client
 
 1. Run `SSVOpenHexagon/buildrel/make_release_client_win10_msys.sh`
@@ -53,6 +57,8 @@
     - Verify replays
 
 4. Run `/c/OHWorkspace/steamworks/sdk/tools/SteamPipeGUI.exe` and upload to Steam
+
+    - Use depot ID `1358091`, build path `C:\OHWorkspace\SSVOpenHexagon\_PREPARED_RELEASE`
 
 5. For non-betas, go to <https://partner.steamgames.com/apps/builds/1358090>, log in with build account (not personal one), and put the latest build live
 
