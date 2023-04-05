@@ -385,7 +385,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         [&assets](const std::string& assetId) -> sf::SoundBuffer*
         { return assets.getSoundBuffer(assetId); }, //
         [&assets](const std::string& assetId) -> const std::string*
-        { return assets.getMusicPath(assetId); } //
+        { return assets.getMusicPath(assetId); }    //
     };
 
     audio.setSoundVolume(hg::Config::getSoundVolume());
@@ -427,7 +427,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         mg->fnHGTriggerRefresh = [&](const ssvs::Input::Trigger& trigger,
                                      int bindId) //
         {
-            hg.refreshTrigger(trigger, bindId); //
+            hg.refreshTrigger(trigger, bindId);  //
         };
 
         mg->fnHGNewGame = [&](const std::string& packId,

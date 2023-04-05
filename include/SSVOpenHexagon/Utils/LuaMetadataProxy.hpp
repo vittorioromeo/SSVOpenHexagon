@@ -70,15 +70,14 @@ private:
 
             [&]<std::size_t... Is>(std::index_sequence<Is...>)
             {
-                (( //
+                ((                                                           //
                      res += typeToStr(TypeWrapper<
                          std::decay_t<typename AE::template NthArg<Is>>>{}), //
                      res += ' ',                                             //
                      res += self->argNames.at(Is),                           //
                      res += ", "),
                     ...);
-            }
-            (std::make_index_sequence<AE::numArgs>{});
+            }(std::make_index_sequence<AE::numArgs>{});
 
             res.pop_back();
             res.pop_back();
