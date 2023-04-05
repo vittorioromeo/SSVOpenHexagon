@@ -3053,7 +3053,8 @@ void MenuGame::setIndex(const int mIdx)
     // Set gameplay values
     diffMultIdx = 0;
     for(; levelData->difficultyMults.at(diffMultIdx) != 1.f; ++diffMultIdx)
-    {}
+    {
+    }
 
     try
     {
