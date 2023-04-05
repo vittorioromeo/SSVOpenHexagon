@@ -123,14 +123,8 @@ case $OSTYPE in
         make $THREAD_MAKE_COUNT
 
         # Moves artifacts to release folder
-        mv ./_deps/sfml-build/lib/sfml-audio-3.dll $RELEASE_DIR
-        mv ./_deps/sfml-build/lib/sfml-graphics-3.dll $RELEASE_DIR
-        mv ./_deps/sfml-build/lib/sfml-network-3.dll $RELEASE_DIR
-        mv ./_deps/sfml-build/lib/sfml-system-3.dll $RELEASE_DIR
-        mv ./_deps/sfml-build/lib/sfml-window-3.dll $RELEASE_DIR
         cp ./_deps/sfml-src/extlibs/bin/x64/openal32.dll $RELEASE_DIR
         mv ./_deps/zlib-build/libzlib.dll $RELEASE_DIR
-        mv ./_deps/zlib-build/libzlib1.dll $RELEASE_DIR
         mv ./OHWorkshopUploader.exe $RELEASE_DIR
         mv ./SSVOpenHexagon.exe $RELEASE_DIR
         ;;
