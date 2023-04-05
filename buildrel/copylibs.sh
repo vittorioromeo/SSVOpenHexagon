@@ -2,10 +2,6 @@
 
 function copyTo
 {
-    cp ./_deps/imgui-sfml-build/libImGui-SFML.dll $1 &
-    cp ./_deps/sfml-src/extlibs/bin/x64/openal32.dll $1 &
-    cp ./_deps/libsodium-cmake-build/libsodium.dll $1 &
-    cp ./_deps/luajit-build/src/libluajit.dll $1 &
     cp ./_deps/zlib-build/libzlib.dll $1 &
     cp /c/msys64/mingw64/bin/libssp-0.dll $1 &
     cp /c/msys64/mingw64/bin/libstdc++-6.dll $1 &
