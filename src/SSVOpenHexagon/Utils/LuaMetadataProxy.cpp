@@ -174,7 +174,8 @@ catch(...)
     ssvu::lo("LuaMetadataProxy") << "Failed to generate documentation\n";
 }
 #else
-{}
+{
+}
 #endif
 
 LuaMetadataProxy& LuaMetadataProxy::arg(

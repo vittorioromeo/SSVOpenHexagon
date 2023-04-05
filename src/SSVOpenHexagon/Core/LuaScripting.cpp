@@ -1130,20 +1130,21 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
         "Sets the rotation offset of the background panels to `$0` degrees.");
 
     addLuaFn(lua, "s_setCapColorMain", //
-        [&styleData] { styleData.setCapColor(CapColorMode::Main{}); })
+        [&styleData] { styleData.setCapColor(CapColor{CapColorMode::Main{}}); })
         .doc(
             "Set the color of the center polygon to match the main style "
             "color.");
 
     addLuaFn(lua, "s_setCapColorMainDarkened", //
-        [&styleData] { styleData.setCapColor(CapColorMode::MainDarkened{}); })
+        [&styleData]
+        { styleData.setCapColor(CapColor{CapColorMode::MainDarkened{}}); })
         .doc(
             "Set the color of the center polygon to match the main style "
             "color, darkened.");
 
     addLuaFn(lua, "s_setCapColorByIndex", //
         [&styleData](int mIndex)
-        { styleData.setCapColor(CapColorMode::ByIndex{mIndex}); })
+        { styleData.setCapColor(CapColor{CapColorMode::ByIndex{mIndex}}); })
         .arg("index")
         .doc(
             "Set the color of the center polygon to match the style color with "

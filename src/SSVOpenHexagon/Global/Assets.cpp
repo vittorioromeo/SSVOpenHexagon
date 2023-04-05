@@ -462,7 +462,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 
     packInfos.emplace_back(PackInfo{packId, packPath});
 
-    packDatas.emplace(packId, //
+    packDatas.emplace(packId,                              //
         PackData{
             .folderPath{packPath.getStr()},                //
             .id{packId},                                   //
