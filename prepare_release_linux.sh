@@ -30,8 +30,11 @@ cp ./_RELEASE/run_ssvopenhexagon_linux.sh ./_PREPARED_RELEASE_LINUX
 
 cd ./_PREPARED_RELEASE_LINUX
 
+chmod +x ./*.so
+chmod +x ./SSVOpenHexagonLinux
+chmod +x ./OHWorkshopUploaderLinux
+
 # echo "PACKING WITH UPX"
-# chmod +x ./*.so
 #
 # for x in ./*.so; do
 #     upx -9 $x &
