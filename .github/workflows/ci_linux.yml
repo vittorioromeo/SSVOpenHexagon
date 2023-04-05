@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v1
       with:
         submodules: recursive
-
+        
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -30,17 +30,25 @@ jobs:
 
     - name: CMake configure
       run: |
-        cd build
+        cd buildlx
         export LD_RUN_PATH="/opt/gcc-latest/lib64"
         cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE -DSSVOH_HEADLESS_TESTS=1 ..
-
+        
     - name: Build
-      run: ninja -C build
+      run: ninja -C buildlx
 
     - name: Copy artifacts
       run: |
-        cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
-
+        cp buildlx/SSVOpenHexagon buildlx/OHWorkshopUploader _RELEASE
+        cp buildlx/_deps/sfml-build/lib/libsfml-audio.so.3.0.0 _RELEASE/libsfml-audio.so.3.0
+        cp buildlx/_deps/sfml-build/lib/libsfml-graphics.so.3.0.0 _RELEASE/libsfml-graphics.so.3.0
+        cp buildlx/_deps/sfml-build/lib/libsfml-network.so.3.0.0 _RELEASE/libsfml-network.so.3.0
+        cp buildlx/_deps/sfml-build/lib/libsfml-system.so.3.0.0 _RELEASE/libsfml-system.so.3.0
+        cp buildlx/_deps/sfml-build/lib/libsfml-window.so.3.0.0 _RELEASE/libsfml-window.so.3.0
+        cp buildlx/_deps/libsodium-cmake-build/libsodium.so _RELEASE
+        cp -L buildlx/_deps/zlib-build/libz.so.1 _RELEASE/libz.so.1
+        cp buildlx/_deps/imgui-sfml-build/libImGui-SFML.so _RELEASE
+        cp buildlx/_deps/luajit-build/src/libluajit.so _RELEASE
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
@@ -49,12 +57,10 @@ jobs:
 
     - name: Run tests
       run: |
-        mkdir -p build/test
-        cp -R _RELEASE/Packs .
-        cp -R _RELEASE/Packs build
-        cp -R _RELEASE/Packs build/test
-        ninja -C build check
-
+        mkdir -p buildlx/test
+        cp -R _RELEASE/Packs buildlx/test
+        ninja -C buildlx check
+      
     - name: Check ldd
       run: |
-        ldd build/test/test.Replay.t
+        ldd buildlx/test/test.Replay.t
