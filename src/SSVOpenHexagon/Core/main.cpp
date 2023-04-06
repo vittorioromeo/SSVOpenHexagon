@@ -275,6 +275,9 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     hg::Config::loadConfig(args);
     hg::Config::reapplyResolution();
 
+    // TODO (P0): call this in server as well
+    // TODO (P0): server gets ALSA errors during asset load, is it loading
+    // musics/sounds?
     HG_SCOPE_GUARD({
         ssvu::lo("::main") << "Saving config...\n";
         hg::Config::saveConfig();
