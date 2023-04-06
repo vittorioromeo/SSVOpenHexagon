@@ -32,3 +32,4 @@ echo ""
 cp ./_deps/zlib-build/libz.so.1 ../_RELEASE
 cp /lib/x86_64-linux-gnu/libopenal.so.1 ../_RELEASE
 cp /lib/x86_64-linux-gnu/libFLAC.so.8 ../_RELEASE
+cp /lib/x86_64-linux-gnu/libsndio.so.7 ./_RELEASE

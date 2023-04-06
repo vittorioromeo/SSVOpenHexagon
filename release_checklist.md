@@ -24,7 +24,7 @@
 
 1. `git push` from main development machine, check the branch
 
-2. Start the `endeavouros64` VirtualBox virtual machine
+2. Start the `ubuntu2204lts` VirtualBox virtual machine
 
 3. Go into `SSVOpenHexagon` directory
 
@@ -93,3 +93,9 @@
 2. Put level validator strings in `Config.cpp`.
 
 3. TODO
+
+## Other
+
+- Ubuntu machine packages:
+
+    - sudo apt-get install build-essential clang++-12 g++ g++-12 git libfreetype6-dev libgl1-mesa-dev libglew-dev libjpeg-dev libopenal-dev libpthread-stubs0-dev libsndfile1-dev libx11-dev libxrandr-dev lld ninja-build xorg-dev xserver-xorg-dev libudev-dev vim steam
