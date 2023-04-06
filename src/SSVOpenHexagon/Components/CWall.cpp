@@ -5,6 +5,8 @@
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 
+#include <SFML/System/Vector2.hpp>
+
 namespace hg {
 
 CWall::CWall(const unsigned int sides, const float wallAngleLeft,
@@ -14,15 +16,25 @@ CWall::CWall(const unsigned int sides, const float wallAngleLeft,
     const SpeedData& curve, const float hueMod)
     : _speed{speed}, _curve{curve}, _hueMod{hueMod}, _killed{false}
 {
-    const float div{ssvu::tau / sides * 0.5f};
-    const float angle{div * 2.f * side};
+    const float div{ssvu::tau / static_cast<float>(sides) * 0.5f};
+    const float angle{div * 2.f * static_cast<float>(side)};
 
-    _vertexPositions[0] = ssvs::getOrbitRad(centerPos, angle - div, distance);
-    _vertexPositions[1] = ssvs::getOrbitRad(centerPos, angle + div, distance);
-    _vertexPositions[2] = ssvs::getOrbitRad(centerPos,
-        angle + div + wallAngleLeft, distance + thickness + wallSkewLeft);
-    _vertexPositions[3] = ssvs::getOrbitRad(centerPos,
-        angle - div + wallAngleRight, distance + thickness + wallSkewRight);
+    const float angleN = angle - div;
+    const float angleP = angle + div;
+
+    const auto vecFromRad = [](const float rad, const float dist) {
+        return sf::Vector2f{dist * std::cos(rad), dist * std::sin(rad)};
+    };
+
+    _vertexPositions[0] = centerPos + vecFromRad(angleN, distance);
+
+    _vertexPositions[1] = centerPos + vecFromRad(angleP, distance);
+
+    _vertexPositions[2] = centerPos + vecFromRad(angleP + wallAngleLeft,
+                                          distance + thickness + wallSkewLeft);
+
+    _vertexPositions[3] = centerPos + vecFromRad(angleN + wallAngleRight,
+                                          distance + thickness + wallSkewRight);
 }
 
 void CWall::draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads)
@@ -74,7 +86,7 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
             ++pointsOutOfBounds;
         }
 
-        ssvs::moveTowards(vp, centerPos, _speed._speed * 5.f * ft);
+        vp += (centerPos - vp).normalized() * _speed._speed * 5.f * ft;
     }
 
     if(pointsOnCenter == 4 || pointsOutOfBounds == 4)
@@ -85,9 +97,13 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
 
 void CWall::moveCurve(const sf::Vector2f& centerPos, const ssvu::FT ft)
 {
+    const float rad = getCurveRadians(ft);
+    const float radSin = std::sin(rad);
+    const float radCos = std::cos(rad);
+
     for(sf::Vector2f& vp : _vertexPositions)
     {
-        moveVertexAlongCurve(vp, centerPos, ft);
+        moveVertexAlongCurveImpl(vp, centerPos, radSin, radCos);
     }
 }
 

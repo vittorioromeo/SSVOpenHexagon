@@ -1,0 +1,60 @@
+name: CI Windows
+
+# Trigger this workflow on push or pull request
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build and test (windows)
+
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - name: Install dependencies
+      uses: msys2/setup-msys2@v2
+      with:
+        install: >-
+          git
+          base-devel
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-openal
+        update: true
+
+    - uses: actions/checkout@v1
+      with:
+        submodules: recursive
+
+    - name: CMake configure
+      run: |
+        cd build
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE -DSSVOH_HEADLESS_TESTS=1 ..
+
+    - name: Build
+      run: ninja -C build
+
+    - name: Copy artifacts
+      run: |
+        cp build/SSVOpenHexagon*.exe build/OHWorkshopUploader.exe _RELEASE
+        cp build/_deps/zlib-build/libzlib.dll _RELEASE
+        cp /mingw64/bin/libwinpthread-1.dll _RELEASE
+        cp /mingw64/bin/libstdc++-6.dll _RELEASE
+        cp /mingw64/bin/libgcc_s_seh-1.dll _RELEASE
+        cp /mingw64/bin/libopenal-1.dll _RELEASE
+        cp _RELEASE/*.dll build/test
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: OpenHexagon-Windows
+        path: _RELEASE
+
+    - name: Run tests
+      run: |
+        mkdir -p build/test
+        cp -R _RELEASE/Packs build/test
+        ninja -C build check

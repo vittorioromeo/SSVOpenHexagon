@@ -6,6 +6,8 @@
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
 
+#include "SSVOpenHexagon/Data/LevelData.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
@@ -127,26 +129,31 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
     // ------------------------------------------------------------------------
     // Update Discord and Steam "rich presence".
     // Discord "rich presence" is also updated in `HexagonGame::start`.
-    std::string nameStr = levelData->name;
-    nameFormat(nameStr);
 
-    const std::string diffStr = diffFormat(difficultyMult);
-    const std::string timeStr = timeFormat(status.getTimeSeconds());
-
-    constexpr float DELAY_TO_UPDATE = 5.f; // X seconds
-    timeUntilRichPresenceUpdate -= ssvu::getFTToSeconds(mFT);
-
-    if(timeUntilRichPresenceUpdate <= 0.f)
+    if(window != nullptr)
     {
-        if(steamManager != nullptr)
+        std::string nameStr = levelData->name;
+        nameFormat(nameStr);
+
+        const std::string diffStr = diffFormat(difficultyMult);
+        const std::string timeStr = timeFormat(status.getTimeSeconds());
+
+        constexpr float DELAY_TO_UPDATE = 5.f; // X seconds
+        timeUntilRichPresenceUpdate -= ssvu::getFTToSeconds(mFT);
+
+        if(timeUntilRichPresenceUpdate <= 0.f)
         {
-            steamManager->set_rich_presence_in_game(nameStr, diffStr, timeStr);
+            if(steamManager != nullptr)
+            {
+                steamManager->set_rich_presence_in_game(
+                    nameStr, diffStr, timeStr);
+            }
+
+            timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
         }
 
-        timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
+        updateRichPresenceCallbacks();
     }
-
-    updateRichPresenceCallbacks();
 
     // ------------------------------------------------------------------------
 
@@ -516,12 +523,14 @@ void HexagonGame::start()
                 nameStr + " [x" + diffStr + "]", packStr);
         }
 
+        const std::string& validator = levelData->getValidator(difficultyMult);
+
         if(hexagonClient != nullptr &&
             hexagonClient->getState() == HexagonClient::State::LoggedIn_Ready &&
-            Config::getOfficial())
+            Config::getOfficial() && !levelData->unscored &&
+            hexagonClient->isLevelSupportedByServer(validator))
         {
-            hexagonClient->trySendStartedGame(
-                levelData->getValidator(difficultyMult));
+            hexagonClient->trySendStartedGame(validator);
         }
     }
     else
@@ -550,6 +559,11 @@ static void setInputImplIfFalse(bool& var, const bool x)
 
 void HexagonGame::updateInput_UpdateJoystickControls()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     Joystick::update(Config::getJoystickDeadzone());
 
     setInputImplIfFalse(inputImplCCW, Joystick::pressed(Joystick::Jdir::Left));

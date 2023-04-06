@@ -259,7 +259,7 @@ template <typename T>
 {
     SSVOH_CLOG_VERBOSE << "Sending registration request to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(                //
         CTSPRegister{
             .steamId = steamId,          //
             .name = name,                //
@@ -273,7 +273,7 @@ template <typename T>
 {
     SSVOH_CLOG_VERBOSE << "Sending login request to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(                //
         CTSPLogin{
             .steamId = steamId,          //
             .name = name,                //
@@ -293,7 +293,7 @@ template <typename T>
 {
     SSVOH_CLOG_VERBOSE << "Sending delete account request to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(                //
         CTSPDeleteAccount{
             .steamId = steamId,          //
             .passwordHash = passwordHash //
@@ -306,7 +306,7 @@ template <typename T>
 {
     SSVOH_CLOG_VERBOSE << "Sending top scores request to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(                    //
         CTSPRequestTopScores{
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
@@ -319,7 +319,7 @@ template <typename T>
 {
     SSVOH_CLOG_VERBOSE << "Sending own score request to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(                    //
         CTSPRequestOwnScore{
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
@@ -333,7 +333,7 @@ template <typename T>
     SSVOH_CLOG_VERBOSE
         << "Sending top scores and own score request to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(                    //
         CTSPRequestTopScoresAndOwnScore{
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
@@ -346,7 +346,7 @@ template <typename T>
 {
     SSVOH_CLOG_VERBOSE << "Sending started game packet to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(                    //
         CTSPStartedGame{
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
@@ -361,7 +361,7 @@ template <typename T>
     SSVOH_CLOG_VERBOSE << "Sending compressed replay for level validator '"
                        << levelValidator << "' to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(                                //
         CTSPCompressedReplay{
             .loginToken = loginToken,                    //
             .compressedReplayFile = compressedReplayFile //
@@ -374,7 +374,7 @@ template <typename T>
 {
     SSVOH_CLOG_VERBOSE << "Sending status request to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(             //
         CTSPRequestServerStatus{
             .loginToken = loginToken, //
         }                             //
@@ -385,7 +385,7 @@ template <typename T>
 {
     SSVOH_CLOG_VERBOSE << "Sending ready to server...\n";
 
-    return sendEncrypted( //
+    return sendEncrypted(             //
         CTSPReady{
             .loginToken = loginToken, //
         }                             //

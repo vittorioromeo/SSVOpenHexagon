@@ -53,12 +53,12 @@ LuaContext::LuaContext(bool openDefaultLibs)
     }
 }
 
-LuaContext::LuaContext(LuaContext&& s) : _state(s._state)
+LuaContext::LuaContext(LuaContext&& s) noexcept : _state(s._state)
 {
     s._state = nullptr;
 }
 
-LuaContext& LuaContext::operator=(LuaContext&& s)
+LuaContext& LuaContext::operator=(LuaContext&& s) noexcept
 {
     std::swap(_state, s._state);
     return *this;
@@ -93,13 +93,13 @@ LuaContext::WrongTypeException::WrongTypeException()
     : std::runtime_error("Trying to cast a lua variable to an invalid type")
 {}
 
-void LuaContext::_getGlobal(const std::string& mVarName) const
+void LuaContext::_getGlobal(std::string_view mVarName) const
 {
     // first a little optimization: if mVarName contains no dot, we can
     // directly call lua_getglobal
     if(std::find(mVarName.begin(), mVarName.end(), '.') == mVarName.end())
     {
-        lua_getglobal(_state, mVarName.c_str());
+        lua_getglobal(_state, mVarName.data());
         return;
     }
 
@@ -139,7 +139,7 @@ void LuaContext::_getGlobal(const std::string& mVarName) const
             if(!lua_istable(_state, -1))
             {
                 lua_pop(_state, 1);
-                throw VariableDoesntExistException(mVarName);
+                throw VariableDoesntExistException(std::string{mVarName});
             }
 
             // replacing the current table in the stack by its member
@@ -156,7 +156,7 @@ void LuaContext::_getGlobal(const std::string& mVarName) const
         if(lua_isnil(_state, -1))
         {
             lua_pop(_state, 1);
-            throw VariableDoesntExistException(mVarName);
+            throw VariableDoesntExistException(std::string{mVarName});
         }
 
         currentVar = nextVar; // updating currentVar
@@ -164,62 +164,61 @@ void LuaContext::_getGlobal(const std::string& mVarName) const
     while(nextVar != mVarName.end());
 }
 
-void LuaContext::_setGlobal(const std::string& mVarName)
+void LuaContext::_setGlobal(std::string_view mVarName)
+try
 {
+    SSVOH_ASSERT(lua_gettop(_state) >= 1); // making sure there's
+                                           // something on the stack
+                                           // (ie. the value to set)
+
+    // two possibilities: either "variable" is a global variable, or
+    // a member of an array
+    std::size_t lastDot = mVarName.find_last_of('.');
+
+    if(lastDot == std::string::npos)
+    {
+        // this is the first case, we simply call setglobal (which
+        // cleans the stack)
+        lua_setglobal(_state, mVarName.data());
+        return;
+    }
+
+    std::string varNameAsStr{mVarName}; // needed for null-terminated substrs
+    const auto tableName = varNameAsStr.substr(0, lastDot);
+
+    // in the second case, we call _getGlobal on the table name
+    _getGlobal(tableName);
+
     try
     {
-        SSVOH_ASSERT(lua_gettop(_state) >= 1); // making sure there's
-                                               // something on the stack
-                                               // (ie. the value to set)
-
-        // two possibilities: either "variable" is a global variable, or
-        // a member of an array
-        std::size_t lastDot = mVarName.find_last_of('.');
-
-        if(lastDot == std::string::npos)
+        if(!lua_istable(_state, -1))
         {
-            // this is the first case, we simply call setglobal (which
-            // cleans the stack)
-            lua_setglobal(_state, mVarName.c_str());
+            throw VariableDoesntExistException(varNameAsStr);
         }
-        else
-        {
-            const auto tableName = mVarName.substr(0, lastDot);
 
-            // in the second case, we call _getGlobal on the table name
-            _getGlobal(tableName);
-
-            try
-            {
-                if(!lua_istable(_state, -1))
-                {
-                    throw VariableDoesntExistException(mVarName);
-                }
-
-                // now we have our value at -2 (was pushed before
-                // _setGlobal is called) and our table at -1
-                lua_pushstring(_state,
-                    mVarName.substr(lastDot + 1).c_str()); // value at -3,
-                                                           // table at -2,
-                                                           // key at -1
-                lua_pushvalue(_state, -3); // value at -4, table at -3,
-                                           // key at -2, value at -1
-                lua_settable(_state, -3);  // value at -2, table at -1
-                lua_pop(_state, 2);        // stack empty \o/
-            }
-            catch(...)
-            {
-                lua_pop(_state, 2);
-                throw;
-            }
-        }
+        // now we have our value at -2 (was pushed before
+        // _setGlobal is called) and our table at -1
+        lua_pushstring(_state,
+            varNameAsStr.substr(lastDot + 1).c_str()); // value at -3,
+                                                       // table at -2,
+                                                       // key at -1
+        lua_pushvalue(_state, -3); // value at -4, table at -3,
+                                   // key at -2, value at -1
+        lua_settable(_state, -3);  // value at -2, table at -1
+        lua_pop(_state, 2);        // stack empty \o/
     }
     catch(...)
     {
-        lua_pop(_state, 1);
+        lua_pop(_state, 2);
         throw;
     }
 }
+catch(...)
+{
+    lua_pop(_state, 1);
+    throw;
+}
+
 
 void LuaContext::_load(std::istream& code)
 {
@@ -262,7 +261,6 @@ void LuaContext::_load(std::istream& code)
     // we create an instance of Reader, and we call lua_load
     Reader reader(code);
 
-
     const int loadReturnValue =
         lua_load(_state, &Reader::read, &reader, "chunk");
 
@@ -284,46 +282,10 @@ void LuaContext::_load(std::istream& code)
     }
 }
 
-void LuaContext::_load(const std::string& code)
+void LuaContext::_load(std::string_view code)
 {
-    // since the lua_load function requires a static function, we use
-    // this structure
-    // the Reader structure is at the same time an object storing an
-    // std::istream and a buffer,
-    // and a static function provider
-    struct SReader
-    {
-        const std::string& str;
-        bool consumed;
-
-        SReader(const std::string& s) : str(s), consumed{false}
-        {}
-
-        // read function; "data" must be an instance of Reader
-        static const char* read(lua_State*, void* data, std::size_t* size)
-        {
-            SSVOH_ASSERT(size != nullptr);
-            SSVOH_ASSERT(data != nullptr);
-
-            SReader& me = *((SReader*)data);
-
-            if(me.consumed || me.str.empty())
-            {
-                *size = 0;
-                return nullptr;
-            }
-
-            me.consumed = true;
-
-            *size = me.str.size();
-            return me.str.data();
-        }
-    };
-
-    // we create an instance of Reader, and we call lua_load
-    SReader sReader(code);
     const int loadReturnValue =
-        lua_load(_state, &SReader::read, &sReader, "chunk");
+        luaL_loadbuffer(_state, code.data(), code.size(), "chunk");
 
     // now we have to check return value
     if(loadReturnValue != 0)

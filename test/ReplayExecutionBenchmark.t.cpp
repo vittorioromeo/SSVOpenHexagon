@@ -21,17 +21,17 @@ int main()
 try
 {
     constexpr std::array packs{
-        // "ohvrvanilla_vittorio_romeo_cube_1",        //
-        // "ohvrvanilla_vittorio_romeo_cube_1",        //
-        "ohvrvanilla_vittorio_romeo_cube_1",        //
-        "ohvrvanilla_vittorio_romeo_experimental_1" //
+        "ohvrvanilla_vittorio_romeo_cube_1",         //
+        "ohvrvanilla_vittorio_romeo_experimental_1", //
+        "ohvrvanilla_vittorio_romeo_orthoplex_1",    //
+        "ohvrvanilla_vittorio_romeo_orthoplex_1"     //
     };
 
     constexpr std::array levels{
-        // "ohvrvanilla_vittorio_romeo_cube_1_pointless",        //
-        // "ohvrvanilla_vittorio_romeo_cube_1_seconddimension",  //
-        "ohvrvanilla_vittorio_romeo_cube_1_apeirogon",        //
-        "ohvrvanilla_vittorio_romeo_experimental_1_autotest0" //
+        "ohvrvanilla_vittorio_romeo_cube_1_apeirogon",         //
+        "ohvrvanilla_vittorio_romeo_experimental_1_autotest0", //
+        "ohvrvanilla_vittorio_romeo_orthoplex_1_arcadia",      //
+        "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity"    //
     };
 
     hg::Config::loadConfig({});
@@ -104,25 +104,16 @@ try
         TEST_ASSERT(score2.has_value());
         const double replayPlayedTimeSeconds = score2.value().playedTimeSeconds;
 
-        std::cerr << score << " == " << replayPlayedTimeSeconds << std::endl;
+        // std::cerr << score << " == " << replayPlayedTimeSeconds << std::endl;
 
         TEST_ASSERT_EQ(score, replayPlayedTimeSeconds);
     };
 
-    for(int i = 0; i < 25; ++i)
+    for(int i = 0; i < 100; ++i)
     {
         doTest(i, false, nullptr);
         doTest(i, true, nullptr);
     }
-
-#ifndef SSVOH_HEADLESS_TESTS
-    ssvs::GameWindow gw;
-    for(int i = 0; i < 25; ++i)
-    {
-        doTest(i, false, &gw);
-        doTest(i, true, &gw);
-    }
-#endif
 
     return 0;
 }

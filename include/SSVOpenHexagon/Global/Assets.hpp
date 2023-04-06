@@ -4,19 +4,9 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Data/LevelData.hpp"
-#include "SSVOpenHexagon/Data/PackData.hpp"
-#include "SSVOpenHexagon/Data/ProfileData.hpp"
-#include "SSVOpenHexagon/Data/StyleData.hpp"
-#include "SSVOpenHexagon/Data/LoadInfo.hpp"
-#include "SSVOpenHexagon/Data/PackInfo.hpp"
-
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
-#include <SFML/Graphics/Shader.hpp>
-
 #include <cstddef>
-#include <map>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -41,90 +31,26 @@ namespace Steam {
 class steam_manager;
 }
 
+class ProfileData;
+struct LoadInfo;
 class MusicData;
 class AssetStorage;
+struct LevelData;
+struct PackData;
+struct PackInfo;
+class StyleData;
 
 class HGAssets
 {
 private:
-    Steam::steam_manager* steamManager;
-
-    bool levelsOnly{false};
-
-    Utils::UniquePtr<AssetStorage> assetStorage;
-
-    std::unordered_map<std::string, LevelData> levelDatas;
-    std::unordered_map<std::string, std::vector<std::string>>
-        levelDataIdsByPack;
-
-    std::unordered_map<std::string, PackData> packDatas;
-
-    std::vector<PackInfo> packInfos;
-    std::vector<PackInfo> selectablePackInfos;
-
-    std::unordered_map<std::string, std::string> musicPathMap;
-    std::map<std::string, MusicData> musicDataMap;
-    std::map<std::string, StyleData> styleDataMap;
-    std::map<std::string, ProfileData> profileDataMap;
-    ProfileData* currentProfilePtr{nullptr};
-
-    std::unordered_set<std::string> packIdsWithMissingDependencies;
-
-    struct LoadedShader
-    {
-        Utils::UniquePtr<sf::Shader> shader;
-        std::string path;
-        sf::Shader::Type shaderType;
-        std::size_t id;
-    };
-
-    std::unordered_map<std::string, LoadedShader> shaders;
-    std::unordered_map<std::string, std::size_t> shadersPathToId;
-    std::vector<sf::Shader*> shadersById;
-
-    std::string buf;
-
-    template <typename... Ts>
-    [[nodiscard]] std::string& concatIntoBuf(const Ts&...);
-
-    [[nodiscard]] bool loadAllPackDatas();
-    [[nodiscard]] bool loadAllPackAssets(const bool headless);
-    [[nodiscard]] bool loadWorkshopPackDatasFromCache();
-    [[nodiscard]] bool verifyAllPackDependencies();
-    [[nodiscard]] bool loadAllLocalProfiles();
-
-    [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
-
-    [[nodiscard]] bool loadPackAssets(
-        const PackData& packData, const bool headless);
-
-    void loadPackAssets_loadShaders(const std::string& mPackId,
-        const ssvufs::Path& mPath, const bool headless);
-    void loadPackAssets_loadMusic(
-        const std::string& mPackId, const ssvufs::Path& mPath);
-    void loadPackAssets_loadMusicData(
-        const std::string& mPackId, const ssvufs::Path& mPath);
-    void loadPackAssets_loadStyleData(
-        const std::string& mPackId, const ssvufs::Path& mPath);
-    void loadPackAssets_loadLevelData(
-        const std::string& mPackId, const ssvufs::Path& mPath);
-    void loadPackAssets_loadCustomSounds(
-        const std::string& mPackId, const ssvufs::Path& mPath);
-
-    [[nodiscard]] std::string getCurrentLocalProfileFilePath();
-
-private:
-    LoadInfo loadInfo;
+    class HGAssetsImpl;
+    Utils::UniquePtr<HGAssetsImpl> _impl;
 
 public:
     HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless,
         bool mLevelsOnly = false);
 
     ~HGAssets();
-
-    // When the Steam API can not be retrieved, this set holds pack ids
-    // retrieved from the cache to try and load the workshop packs installed
-    std::unordered_set<std::string> cachedWorkshopPackIds;
 
     [[nodiscard]] LoadInfo& getLoadResults();
 
@@ -215,6 +141,12 @@ public:
     getPackIdsWithMissingDependencies() const noexcept;
 
     void addLocalProfile(ProfileData&& profileData);
+
+    [[nodiscard]] std::unordered_map<std::string, std::string>&
+    getLuaFileCache();
+
+    [[nodiscard]] const std::unordered_map<std::string, std::string>&
+    getLuaFileCache() const;
 };
 
 } // namespace hg

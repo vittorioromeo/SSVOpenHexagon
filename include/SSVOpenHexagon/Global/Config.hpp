@@ -93,6 +93,8 @@ void setPlayerTrailHasSwapColor(bool x);
 void setShowSwapParticles(bool x);
 void setPlaySwapReadySound(bool x);
 void setShowSwapBlinkingEffect(bool x);
+void setUseLuaFileCache(bool x);
+void setDisableGameRendering(bool x);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -156,7 +158,7 @@ void setShowSwapBlinkingEffect(bool x);
 [[nodiscard]] const std::string& getServerIp();
 [[nodiscard]] unsigned short getServerPort();
 [[nodiscard]] unsigned short getServerControlPort();
-[[nodiscard]] const std::vector<std::string> getServerLevelWhitelist();
+[[nodiscard]] const std::vector<std::string>& getServerLevelWhitelist();
 [[nodiscard]] bool getSaveLastLoginUsername();
 [[nodiscard]] const std::string& getLastLoginUsername();
 [[nodiscard]] bool getShowLoginAtStartup();
@@ -170,6 +172,8 @@ void setShowSwapBlinkingEffect(bool x);
 [[nodiscard]] bool getShowSwapParticles();
 [[nodiscard]] bool getPlaySwapReadySound();
 [[nodiscard]] bool getShowSwapBlinkingEffect();
+[[nodiscard]] bool getUseLuaFileCache();
+[[nodiscard]] bool getDisableGameRendering();
 
 // keyboard binds
 
@@ -214,8 +218,7 @@ void clearTriggerBind(ssvs::Input::Trigger& trig, const int index);
 
 void joystickBindsSanityCheck();
 
-[[nodiscard]] const std::string getJoystickBindNames(
-    const Joystick::Jid bindID);
+[[nodiscard]] std::string getJoystickBindName(const Joystick::Jid bindID);
 
 using JoystickTriggerGetter = unsigned int (*)();
 extern const std::array<JoystickTriggerGetter,

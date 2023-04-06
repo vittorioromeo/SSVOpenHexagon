@@ -6,6 +6,12 @@
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
 
+#include "SSVOpenHexagon/Data/LevelData.hpp"
+#include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/Data/PackData.hpp"
+#include "SSVOpenHexagon/Data/PackInfo.hpp"
+#include "SSVOpenHexagon/Data/ProfileData.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
@@ -384,7 +390,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         notInConsole(
             [this]
             {
-                if((deathInputIgnore <= 0.f && status.hasDied) || inReplay())
+                if(deathInputIgnore <= 0.f && status.hasDied)
                 {
                     status.mustStateChange = StateChange::MustRestart;
                 }
@@ -394,7 +400,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         notInConsole(
             [this]
             {
-                if(deathInputIgnore <= 0.f && status.hasDied)
+                if((deathInputIgnore <= 0.f && status.hasDied) || inReplay())
                 {
                     status.mustStateChange = StateChange::MustReplay;
                 }
@@ -748,62 +754,68 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     status.beatPulseDelay += levelStatus.beatPulseInitialDelay;
     timeUntilRichPresenceUpdate = -1.f; // immediate update
 
-    // Store the keys/buttons to be pressed to replay and restart after you
-    // die.
-    using Tid = Config::Tid;
-    status.restartInput = Config::getKeyboardBindNames(Tid::Restart);
-    status.replayInput = Config::getKeyboardBindNames(Tid::Replay);
+    // Prepare text for input hints on restart/replay
+    if(window != nullptr)
+    {
+        // Store the keys/buttons to be pressed to replay and restart after you
+        // die.
+        using Tid = Config::Tid;
+        status.restartInput = Config::getKeyboardBindNames(Tid::Restart);
+        status.replayInput = Config::getKeyboardBindNames(Tid::Replay);
 
-    // Format strings to only show the first key to avoid extremely long
-    // messages
-    int commaPos = status.restartInput.find(',');
-    if(commaPos > 0)
-    {
-        status.restartInput.erase(commaPos);
-    }
-    commaPos = status.replayInput.find(',');
-    if(commaPos > 0)
-    {
-        status.replayInput.erase(commaPos);
-    }
+        // Format strings to only show the first key to avoid extremely long
+        // messages
+        int commaPos = status.restartInput.find(',');
+        if(commaPos > 0)
+        {
+            status.restartInput.erase(commaPos);
+        }
+        commaPos = status.replayInput.find(',');
+        if(commaPos > 0)
+        {
+            status.replayInput.erase(commaPos);
+        }
 
-    // Add joystick buttons if any and finalize message
-    std::string joystickButton =
-        Config::getJoystickBindNames(Joystick::Jid::Restart);
-    if(!status.restartInput.empty())
-    {
-        if(!joystickButton.empty())
+        // Add joystick buttons if any and finalize message
+        std::string joystickButton =
+            Config::getJoystickBindName(Joystick::Jid::Restart);
+        if(!status.restartInput.empty())
         {
-            status.restartInput += " OR JOYSTICK " + joystickButton;
+            if(!joystickButton.empty())
+            {
+                status.restartInput += " OR JOYSTICK " + joystickButton;
+            }
+            status.restartInput =
+                "PRESS " + status.restartInput + " TO RESTART\n";
         }
-        status.restartInput = "PRESS " + status.restartInput + " TO RESTART\n";
-    }
-    else if(!joystickButton.empty())
-    {
-        status.restartInput =
-            "PRESS JOYSTICK " + joystickButton + " TO RESTART\n";
-    }
-    else
-    {
-        status.restartInput = "NO RESTART BUTTON SET\n";
-    }
-    joystickButton = Config::getJoystickBindNames(Joystick::Jid::Replay);
-    if(!status.replayInput.empty())
-    {
-        if(!joystickButton.empty())
+        else if(!joystickButton.empty())
         {
-            status.replayInput += " OR JOYSTICK " + joystickButton;
+            status.restartInput =
+                "PRESS JOYSTICK " + joystickButton + " TO RESTART\n";
         }
-        status.replayInput = "PRESS " + status.replayInput + " TO REPLAY\n";
-    }
-    else if(!joystickButton.empty())
-    {
-        status.replayInput =
-            "PRESS JOYSTICK " + joystickButton + " TO REPLAY\n";
-    }
-    else
-    {
-        status.replayInput = "NO REPLAY BUTTON SET\n";
+        else
+        {
+            status.restartInput = "NO RESTART BUTTON SET\n";
+        }
+
+        joystickButton = Config::getJoystickBindName(Joystick::Jid::Replay);
+        if(!status.replayInput.empty())
+        {
+            if(!joystickButton.empty())
+            {
+                status.replayInput += " OR JOYSTICK " + joystickButton;
+            }
+            status.replayInput = "PRESS " + status.replayInput + " TO REPLAY\n";
+        }
+        else if(!joystickButton.empty())
+        {
+            status.replayInput =
+                "PRESS JOYSTICK " + joystickButton + " TO REPLAY\n";
+        }
+        else
+        {
+            status.replayInput = "NO REPLAY BUTTON SET\n";
+        }
     }
 }
 

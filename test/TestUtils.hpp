@@ -17,8 +17,6 @@
 #define SA_TYPE(value, type) \
     static_assert(::std::is_same_v<decltype value, TEST_IMPL_DEPARENS type>)
 
-#define VRM_CORE_LIKELY(...) __builtin_expect(!!(__VA_ARGS__), 1)
-
 namespace test_impl::impl {
 
 inline auto& get_ostringstream() noexcept
@@ -81,7 +79,10 @@ void output_expected(TStream& s, const char* expected, const T& rhs_result)
 template <typename TF>
 void do_test(bool x, TF&& f)
 {
-    if(VRM_CORE_LIKELY(x)) return;
+    if(x) [[likely]]
+    {
+        return;
+    }
 
     auto& error(impl::clear_and_get_ostringstream());
     f(error);
