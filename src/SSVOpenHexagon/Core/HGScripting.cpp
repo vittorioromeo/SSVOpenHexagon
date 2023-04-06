@@ -13,6 +13,8 @@
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
+#include "SSVOpenHexagon/Data/LevelData.hpp"
+
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
@@ -1120,7 +1122,16 @@ void HexagonGame::initLua()
 void HexagonGame::runLuaFile(const std::string& mFileName)
 try
 {
-    Utils::runLuaFile(lua, mFileName);
+    const bool headless = window == nullptr;
+
+    if(headless || Config::getUseLuaFileCache())
+    {
+        Utils::runLuaFileCached(assets, lua, mFileName);
+    }
+    else
+    {
+        Utils::runLuaFile(lua, mFileName);
+    }
 }
 catch(...)
 {
@@ -1136,7 +1147,7 @@ void HexagonGame::initLuaAndPrintDocs()
     LuaScripting::printDocs();
 }
 
-void HexagonGame::luaExceptionLippincottHandler(const std::string& mName)
+void HexagonGame::luaExceptionLippincottHandler(std::string_view mName)
 try
 {
     throw;

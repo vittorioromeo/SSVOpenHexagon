@@ -12,6 +12,7 @@
 	"camera_shake_multiplier" : 1.0,
 	"darken_uneven_background_chunk" : true,
 	"debug" : false,
+	"disable_game_rendering" : false,
 	"draw_text_outlines" : true,
 	"first_time_playing" : false,
 	"flash_enabled" : true,
@@ -45,7 +46,7 @@
 	"no_pulse" : true,
 	"no_rotation" : false,
 	"no_sound" : false,
-	"official" : false,
+	"official" : true,
 	"pixel_multiplier" : 1,
 	"play_swap_ready_sound" : true,
 	"player_focus_speed" : 4.6250,
@@ -262,9 +263,10 @@
 	"text_padding" : 8.0,
 	"text_scaling" : 1.0,
 	"timescale" : 1.0,
+	"use_lua_file_cache" : false,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 763,
-	"windowed_width" : 1152,
-	"zoom_factor" : 1.006553053855896
+	"windowed_height" : 901,
+	"windowed_width" : 1736,
+	"zoom_factor" : 0.8523862361907959
 }

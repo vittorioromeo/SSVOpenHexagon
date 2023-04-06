@@ -161,7 +161,72 @@ defaultServerLevelWhitelist()
         "ndeltalevels_NDigger_delta_1_underworld_m_1",
         "ndeltalevels_NDigger_delta_1_underworld_m_1.001",
         "ndeltalevels_NDigger_delta_1_viper_m_1",
-        "ndeltalevels_NDigger_delta_1_viper_m_1.001"
+        "ndeltalevels_NDigger_delta_1_viper_m_1.001",
+
+        // Hunter & others - Open Hexagon League 2 - Pack [Steam Workshop]
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Automaton_m_1",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Automaton_m_1.01",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Ezekiel_m_1",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Ezekiel_m_1.01",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Frostbite_m_1",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Frostbite_m_1.01",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Insight_m_1",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Insight_m_1.01",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Neurodance_m_1",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Neurodance_m_1.01",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Partygoer_m_1",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Partygoer_m_1.01",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Technicolor_m_1",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Technicolor_m_1.01",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Toxine_m_1",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Toxine_m_1.01",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Vault_m_1",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_Vault_m_1.01",
+        "ohl2pack_Hunter_&_Maniac_Open_Hexagon_League_2_1_VaultFixed_m_1.02",
+
+        // Hunter & others - Open Hexagon League 3 - Pack [Steam Workshop]
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Blitz_m_1",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Blitz_m_1.01",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Bloodlines_m_1",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Bloodlines_m_1.01",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Cybereye_m_1",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Cybereye_m_1.01",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Cyclone_m_1",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Cyclone_m_1.01",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Cyclone_m_1.015",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Darkland_m_1",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Darkland_m_1.01",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Evirex_m_1",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Evirex_m_1.01",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Onyx_m_1",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Onyx_m_1.01",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Reactive_m_1",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Reactive_m_1.01",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Wilderness_m_1",
+        "ohl3pack_Hunter_&_Maniac_Open_Hexagon_League_3_1_Wilderness_m_1.01",
+
+        // clang-format off
+        // Hunter & others - Open Hexagon League 3 - Pack [Steam Workshop]
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Catharsis_m_1",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Catharsis_m_1.01",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Heartbeat_m_1",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Heartbeat_m_1.01",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Joululumi_m_1",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Joululumi_m_1.001",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_JoululumiNormal_m_1",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_JoululumiNormal_m_1.001",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Killerbox_m_1",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Killerbox_m_1.01",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Luminara_m_1",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Luminara_m_1.01",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Sharpshooter_m_1",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Sharpshooter_m_1.01",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Signal_m_1",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_Signal_m_1.01",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_eclipse_m_1",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_eclipse_m_1.01",
+        "ohl4pack_Hunter_&_Fractal_&_zX_Open_Hexagon_League_4_1_teraflect_m_1"
+        // clang-format on
 
         //
     };
@@ -300,7 +365,11 @@ using cil = std::initializer_list<cmb>;
     X(showSwapParticles, bool, "show_swap_particles", true)                \
     X(playSwapReadySound, bool, "play_swap_ready_sound", true)             \
     X(showSwapBlinkingEffect, bool, "show_swap_blinking_effect", true)     \
+    X(useLuaFileCache, bool, "use_lua_file_cache", false)                  \
+    X(disableGameRendering, bool, "disable_game_rendering", false)         \
     X_LINKEDVALUES_BINDS
+
+// TODO: enable cache on server
 
 namespace hg::Config {
 
@@ -880,6 +949,16 @@ void setShowSwapBlinkingEffect(bool x)
     showSwapBlinkingEffect() = x;
 }
 
+void setUseLuaFileCache(bool x)
+{
+    useLuaFileCache() = x;
+}
+
+void setDisableGameRendering(bool x)
+{
+    disableGameRendering() = x;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -1190,7 +1269,7 @@ void setShowSwapBlinkingEffect(bool x)
     return serverControlPort();
 }
 
-[[nodiscard]] const std::vector<std::string> getServerLevelWhitelist()
+[[nodiscard]] const std::vector<std::string>& getServerLevelWhitelist()
 {
     return serverLevelWhitelist();
 }
@@ -1258,6 +1337,16 @@ void setShowSwapBlinkingEffect(bool x)
 [[nodiscard]] bool getShowSwapBlinkingEffect()
 {
     return showSwapBlinkingEffect();
+}
+
+[[nodiscard]] bool getUseLuaFileCache()
+{
+    return useLuaFileCache();
+}
+
+[[nodiscard]] bool getDisableGameRendering()
+{
+    return disableGameRendering();
 }
 
 //***********************************************************
@@ -1476,43 +1565,42 @@ const std::array<JoystickTriggerGetter,
         []() -> unsigned int { return joystickAddToFavorites(); },
         []() -> unsigned int { return joystickFavoritesMenu(); }};
 
-const std::string getJoystickBindNames(const Joystick::Jid bindID)
+std::string getJoystickBindName(const Joystick::Jid bindID)
 {
-    static constexpr std::array<std::array<std::string_view, 2>, 12>
-        buttonsNames{{{"A", "SQUARE"}, {"B", "CROSS"}, {"X", "CIRCLE"},
-            {"Y", "TRIANGLE"}, {"LB", "L1"}, {"RB", "R1"}, {"BACK", "L2"},
-            {"START", "R2"}, {"LEFT STICK", "SELECT"}, {"RIGHT STICK", "START"},
+    static std::array<std::array<std::string, 2>, 12> buttonsNames{
+        {{"A", "SQUARE"}, {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"},
+            {"LB", "L1"}, {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"},
+            {"LEFT STICK", "SELECT"}, {"RIGHT STICK", "START"},
             {"LT", "LEFT STICK"}, {"RT", "RIGHT STICK"}}};
 
-    std::string bindName;
     const unsigned int value{joystickTriggerGetters[toSizeT(bindID)]()};
 
     if(value == 33)
     {
-        bindName = "";
+        return "";
     }
-    else
+
+    constexpr unsigned int msVendorId{0x045E};
+    constexpr unsigned int sonyVendorId{0x54C};
+
+    const unsigned int vendorId{
+        sf::Joystick::isConnected(0)
+            ? sf::Joystick::getIdentification(0).vendorId
+            : 0};
+
+    using namespace std::string_literals;
+
+    if(vendorId == msVendorId)
     {
-        constexpr unsigned int msVendorId{0x045E};
-        constexpr unsigned int sonyVendorId{0x54C};
-        const unsigned int vendorId{
-            sf::Joystick::isConnected(0)
-                ? sf::Joystick::getIdentification(0).vendorId
-                : 0};
-
-        switch(vendorId)
-        {
-            case msVendorId:
-                bindName = value >= 12 ? "" : buttonsNames[value][0];
-                break;
-            case sonyVendorId:
-                bindName = value >= 12 ? "" : buttonsNames[value][1];
-                break;
-            default: bindName = ssvu::toStr(value); break;
-        }
+        return value >= 12 ? "" : buttonsNames[value][0];
     }
 
-    return bindName;
+    if(vendorId == sonyVendorId)
+    {
+        return value >= 12 ? "" : buttonsNames[value][1];
+    }
+
+    return ssvu::toStr(value);
 }
 
 //**********************************************

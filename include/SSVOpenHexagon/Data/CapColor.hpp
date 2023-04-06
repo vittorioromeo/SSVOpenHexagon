@@ -6,7 +6,7 @@
 
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 
-#include <variant>
+#include "SSVOpenHexagon/Utils/TinyVariant.hpp"
 
 namespace Json {
 class Value;
@@ -28,11 +28,11 @@ struct ByIndex      { int _index; };
 
 } // namespace CapColorMode
 
-using CapColor = std::variant<  //
-    CapColorMode::Main,         //
-    CapColorMode::MainDarkened, //
-    CapColorMode::ByIndex,      //
-    ColorData                   //
+using CapColor = vittorioromeo::tinyvariant< //
+    CapColorMode::Main,                      //
+    CapColorMode::MainDarkened,              //
+    CapColorMode::ByIndex,                   //
+    ColorData                                //
     >;
 
 [[nodiscard]] CapColor parseCapColor(const ssvuj::Obj& obj) noexcept;

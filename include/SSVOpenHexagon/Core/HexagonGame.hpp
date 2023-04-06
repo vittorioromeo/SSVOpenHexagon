@@ -48,6 +48,7 @@
 #include <optional>
 #include <vector>
 #include <string>
+#include <string_view>
 
 struct ImGuiInputTextCallbackData;
 
@@ -305,10 +306,10 @@ public:
 
     void initLuaAndPrintDocs();
 
-    void luaExceptionLippincottHandler(const std::string& mName);
+    void luaExceptionLippincottHandler(std::string_view mName);
 
     template <typename T, typename... TArgs>
-    auto runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs)
+    auto runLuaFunctionIfExists(std::string_view mName, const TArgs&... mArgs)
     try
     {
         return Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);

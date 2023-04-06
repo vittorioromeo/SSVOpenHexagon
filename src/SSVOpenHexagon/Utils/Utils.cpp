@@ -19,32 +19,62 @@
 #include <string>
 #include <fstream>
 #include <stdexcept>
+#include <unordered_map>
 
 namespace hg::Utils {
 
 void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode)
+try
 {
-    try
-    {
-        mLua.executeCode(mCode);
-    }
-    catch(std::runtime_error& mError)
-    {
-        ssvu::lo("hg::Utils::runLuaCode") << "Fatal Lua error\n"
-                                          << "Code: " << mCode << '\n'
-                                          << "Error: " << mError.what() << '\n'
-                                          << std::endl;
+    mLua.executeCode(mCode);
+}
+catch(std::runtime_error& mError)
+{
+    ssvu::lo("hg::Utils::runLuaCode") << "Fatal Lua error\n"
+                                      << "Code: " << mCode << '\n'
+                                      << "Error: " << mError.what() << '\n'
+                                      << std::endl;
 
-        throw;
-    }
-    catch(...)
-    {
-        ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown Lua error\n"
-                                          << "Code: " << mCode << '\n'
-                                          << std::endl;
+    throw;
+}
+catch(...)
+{
+    ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown Lua error\n"
+                                      << "Code: " << mCode << '\n'
+                                      << std::endl;
 
-        throw;
+    throw;
+}
+
+bool runLuaFileCached(
+    HGAssets& assets, Lua::LuaContext& mLua, const std::string& mFileName)
+{
+    std::unordered_map<std::string, std::string>& cache =
+        assets.getLuaFileCache();
+
+    static std::string buffer;
+
+    auto it = cache.find(mFileName);
+    const bool found = it != cache.end();
+
+    if(!found)
+    {
+        std::ifstream t(mFileName, std::ios::binary | std::ios::in);
+
+        t.seekg(0, std::ios::end);
+        const std::streamsize size = t.tellg();
+        buffer.resize(size);
+
+        t.seekg(0, std::ios::beg);
+        t.read(buffer.data(), size);
+
+        auto res = cache.emplace(mFileName, std::move(buffer));
+        SSVOH_ASSERT(res.second);
+        it = res.first;
     }
+
+    runLuaCode(mLua, it->second);
+    return found;
 }
 
 void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)

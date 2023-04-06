@@ -4,6 +4,8 @@
 
 #include "SSVOpenHexagon/Core/HexagonServer.hpp"
 
+#include "SSVOpenHexagon/Data/LevelData.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
@@ -176,7 +178,7 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient& c,
     const std::uint64_t loginToken, const std::string& loginName)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                                       //
         STCPLoginSuccess{
             .loginToken = static_cast<std::uint64_t>(loginToken), //
             .loginName = loginName                                //
@@ -215,7 +217,7 @@ template <typename T>
     const std::string& levelValidator,
     const std::vector<Database::ProcessedScore>& scores)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                   //
         STCPTopScores{
             .levelValidator = levelValidator, //
             .scores = scores                  //
@@ -226,7 +228,7 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendOwnScore(ConnectedClient& c,
     const std::string& levelValidator, const Database::ProcessedScore& score)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                   //
         STCPOwnScore{
             .levelValidator = levelValidator, //
             .score = score                    //
@@ -239,7 +241,7 @@ template <typename T>
     const std::vector<Database::ProcessedScore>& scores,
     const std::optional<Database::ProcessedScore>& ownScore)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                   //
         STCPTopScoresAndOwnScore{
             .levelValidator = levelValidator, //
             .scores = scores,                 //
@@ -252,7 +254,7 @@ template <typename T>
     const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
     const std::vector<std::string>& supportedLevelValidators)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                                      //
         STCPServerStatus{
             .protocolVersion = protocolVersion,                  //
             .gameVersion = gameVersion,                          //

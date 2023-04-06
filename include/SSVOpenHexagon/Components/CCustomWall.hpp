@@ -61,7 +61,10 @@ public:
     [[nodiscard, gnu::always_inline]] bool isOverlapping(
         const sf::Vector2f& point) const noexcept
     {
-        return Utils::pointInPolygon(_vertexPositions, point.x, point.y);
+        // Cannot use `pointInFourVertexPolygon` here due to vertex ordering
+        // requirements.
+
+        return Utils::pointInPolygon<4>(_vertexPositions, point.x, point.y);
     }
 
     [[gnu::always_inline]] void setVertexPos(
