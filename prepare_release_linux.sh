@@ -36,17 +36,17 @@ chmod +x ./*.so
 chmod +x ./SSVOpenHexagonLinux
 chmod +x ./OHWorkshopUploaderLinux
 
-# echo "PACKING WITH UPX"
-#
-# for x in ./*.so; do
-#     upx -9 $x &
-# done
-#
-# upx -9 ./SSVOpenHexagonLinux &
-# upx -9 ./OHWorkshopUploaderLinux &
-#
-# wait
-# echo "DONE PACKING WITH UPX"
+echo "PACKING WITH UPX"
+
+for x in ./*.so; do
+    upx -9 $x &
+done
+
+upx -9 ./SSVOpenHexagonLinux &
+upx -9 ./OHWorkshopUploaderLinux &
+
+wait
+echo "DONE PACKING WITH UPX"
 
 cd ..
 
