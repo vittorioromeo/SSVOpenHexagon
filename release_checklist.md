@@ -92,7 +92,7 @@
 
 2. Put level validator strings in `Config.cpp`.
 
-3. TODO
+3. Upload workshop folders from `C:\Program Files (x86)\Steam\steamapps\workshop\content\1358090` to the server's `Packs` folder.
 
 ## Other
 
