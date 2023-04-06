@@ -94,6 +94,10 @@
 
 3. Upload workshop folders from `C:\Program Files (x86)\Steam\steamapps\workshop\content\1358090` to the server's `Packs` folder.
 
+4. Delete the server's `config.json`.
+
+5. Restart the server and test.
+
 ## Other
 
 - Ubuntu machine packages:
