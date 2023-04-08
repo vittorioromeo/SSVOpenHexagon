@@ -579,7 +579,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
 
         if(!levelStatus.scoreOverridden)
         {
-            os << formatTime(rf._played_score / 60.0) << "s";
+            os << formatTime(rf.played_seconds()) << "s";
         }
         else
         {

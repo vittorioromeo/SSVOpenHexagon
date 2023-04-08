@@ -75,6 +75,11 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_log", //
         [this](const std::string& mLog)
         {
+            if(window == nullptr) // headless
+            {
+                return;
+            }
+
             ssvu::lo("lua") << mLog << '\n';
             ilcCmdLog.emplace_back("[lua]: " + mLog + '\n');
         })
