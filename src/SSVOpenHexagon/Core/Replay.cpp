@@ -426,7 +426,12 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     const std::string tp_str = Utils::formatTimepoint(tp, "%Y%m%d_%H%M%S");
 
     return Utils::concat(_version, '_', tp_str, '_', _player_name, '_',
-        _level_id, '_', _difficulty_mult, "x_", _played_score / 60.0, "s.ohr");
+        _level_id, '_', _difficulty_mult, "x_", played_seconds(), "s.ohr");
+}
+
+[[nodiscard]] double replay_file::played_seconds() const noexcept
+{
+    return _played_score / 60.0;
 }
 
 [[nodiscard]] bool compressed_replay_file::serialize_to_file(

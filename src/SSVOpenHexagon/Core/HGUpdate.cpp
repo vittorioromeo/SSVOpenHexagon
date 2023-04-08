@@ -314,7 +314,7 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
 
                 if(!Config::getBlackAndWhite())
                 {
-                    styleData.update(mFT, pow(difficultyMult, 0.8f));
+                    styleData.update(mFT, std::pow(difficultyMult, 0.8f));
                 }
 
                 player.updatePosition(getRadius());

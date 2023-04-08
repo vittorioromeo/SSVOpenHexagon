@@ -146,6 +146,8 @@ struct replay_file
     [[nodiscard]] bool deserialize_from_packet(sf::Packet& p);
 
     [[nodiscard]] std::string create_filename() const;
+
+    [[nodiscard]] double played_seconds() const noexcept;
 };
 
 struct compressed_replay_file

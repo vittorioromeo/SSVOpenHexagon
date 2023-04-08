@@ -654,7 +654,8 @@ void HexagonServer::runIteration_FlushLogs()
     const auto discard = [&](const auto&... reason)
     {
         SSVOH_SLOG << "Discarding replay from client '" << clientAddr << "', "
-                   << Utils::concat(reason...) << '\n';
+                   << Utils::concat(reason...) << ", replay time was "
+                   << rf.played_seconds() << "s\n";
 
         return true;
     };
@@ -687,13 +688,16 @@ void HexagonServer::runIteration_FlushLogs()
     SSVOH_SLOG << "Processing replay from client '" << clientAddr
                << "' for level '" << levelValidator << "'\n";
 
+    constexpr int maxProcessingSeconds = 5;
+
     const std::optional<HexagonGame::GameExecutionResult> ger =
         _hexagonGame.runReplayUntilDeathAndGetScore(
-            rf, 5 /* maxProcessingSeconds */, 1.f /* timescale */);
+            rf, maxProcessingSeconds, 1.f /* timescale */);
 
     if(!ger.has_value())
     {
-        return discard("max processing time exceeded");
+        return discard(
+            "max processing time exceeded (", maxProcessingSeconds, "s)");
     }
 
     const double replayTotalTime = ger->totalTimeSeconds;
