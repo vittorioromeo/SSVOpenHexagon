@@ -199,6 +199,13 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     hg::Steam::steam_manager steamManager;
 
     hg::Config::loadConfig({} /* overrideIds */);
+    hg::Config::setUseLuaFileCache(true);
+
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving config...\n";
+        hg::Config::saveConfig();
+        ssvu::lo("::main") << "Done saving config\n";
+    });
 
     hg::HGAssets assets{
         &steamManager,      //
@@ -275,6 +282,8 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     hg::Config::loadConfig(args);
     hg::Config::reapplyResolution();
 
+    // TODO (P0): server gets ALSA errors during asset load, is it loading
+    // musics/sounds?
     HG_SCOPE_GUARD({
         ssvu::lo("::main") << "Saving config...\n";
         hg::Config::saveConfig();

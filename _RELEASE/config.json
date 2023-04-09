@@ -46,7 +46,7 @@
 	"no_pulse" : true,
 	"no_rotation" : false,
 	"no_sound" : false,
-	"official" : false,
+	"official" : true,
 	"pixel_multiplier" : 1,
 	"play_swap_ready_sound" : true,
 	"player_focus_speed" : 4.6250,

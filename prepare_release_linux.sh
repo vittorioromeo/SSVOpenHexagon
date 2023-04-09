@@ -23,6 +23,9 @@ cp ./_RELEASE/libsdkencryptedappticket.so ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libdiscord_game_sdk.so ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libsteam_api.so ./_PREPARED_RELEASE_LINUX
 cp ./_RELEASE/libz.so.1 ./_PREPARED_RELEASE_LINUX
+cp /lib/x86_64-linux-gnu/libopenal.so.1 ./_PREPARED_RELEASE_LINUX
+cp /lib/x86_64-linux-gnu/libFLAC.so.8 ./_PREPARED_RELEASE_LINUX
+cp /lib/x86_64-linux-gnu/libsndio.so.7 ./_PREPARED_RELEASE_LINUX
 
 cp ./_RELEASE/steam_appid.txt ./_PREPARED_RELEASE_LINUX
 

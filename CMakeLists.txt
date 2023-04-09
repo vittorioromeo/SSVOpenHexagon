@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.9)
 
+# TODO: build timestamp
+# string(TIMESTAMP CMAKE_TIMESTAMP)
+# message(${CMAKE_TIMESTAMP})
+
 #
 #
 # -----------------------------------------------------------------------------
