@@ -103,7 +103,9 @@ include(${CPM_DOWNLOAD_LOCATION})
 
 set(BUILD_SHARED_LIBS false)
 set(SFML_STATIC_LIBRARIES true)
-set(SFML_ENABLE_PCH true)
+if(NOT APPLE)
+    set(SFML_ENABLE_PCH true)
+endif()
 
 CPMAddPackage(
     NAME SFML
