@@ -37,6 +37,18 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{env.BUILD_TYPE}}
+    - name: Copy artifacts
+      run: |
+        cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: OpenHexagon-OSX
+        path: _RELEASE
+
+    - name: Run tests
+      run: |
+        mkdir -p build/test
+        cp -R _RELEASE/Packs build/test
+        ninja -C build check
