@@ -114,10 +114,12 @@ CPMAddPackage(
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
+if(NOT APPLE)
+    set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
+    set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
+    set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
+    set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
+endif()
 
 #
 #
