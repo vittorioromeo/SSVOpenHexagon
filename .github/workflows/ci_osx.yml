@@ -50,5 +50,6 @@ jobs:
     - name: Run tests
       run: |
         mkdir -p build/test
+        cp _RELEASE/libsteam_api.dylib build/test
         cp -R _RELEASE/Packs build/test
         ninja -C build check
