@@ -43,6 +43,7 @@ jobs:
         cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
         cp -r build/_deps/sfml-src/extlibs/libs-osx/Frameworks _RELEASE
         install_name_tool -add_rpath Frameworks _RELEASE/SSVOpenHexagon
+        install_name_tool -add_rpath . _RELEASE/SSVOpenHexagon
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
