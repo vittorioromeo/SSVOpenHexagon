@@ -1,4 +1,4 @@
-name: CMake
+name: CI OSX
 
 on:
   push:
@@ -36,10 +36,13 @@ jobs:
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+    
 
     - name: Copy artifacts
       run: |
         cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
+        cp -r build/_deps/sfml-src/extlibs/libs-osx/Frameworks _RELEASE
+        install_name_tool -add_rpath Frameworks _RELEASE/SSVOpenHexagon
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
