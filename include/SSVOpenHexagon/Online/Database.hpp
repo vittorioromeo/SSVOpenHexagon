@@ -10,7 +10,6 @@
 #include <cstdint>
 #include <optional>
 #include <vector>
-#include <chrono>
 
 // TODO (P2): remove reliance on steam ID for future platforms
 

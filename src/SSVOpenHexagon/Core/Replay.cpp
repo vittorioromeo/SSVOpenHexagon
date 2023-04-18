@@ -8,8 +8,6 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
-#include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
-
 #include <SFML/Network/Packet.hpp>
 
 #include <zlib.h>
@@ -29,17 +27,17 @@ namespace hg {
     ::std::cerr << "Failed [de]serialization operation '" << code << "'\n";
 }
 
-#define SSVOH_TRY(...)                      \
-    do                                      \
-    {                                       \
-        __VA_ARGS__;                        \
-                                            \
-        if(SSVU_UNLIKELY(!result._success)) \
-        {                                   \
-            printTryFailure(#__VA_ARGS__);  \
-            return result;                  \
-        }                                   \
-    }                                       \
+#define SSVOH_TRY(...)                     \
+    do                                     \
+    {                                      \
+        __VA_ARGS__;                       \
+                                           \
+        if(!result._success) [[unlikely]]  \
+        {                                  \
+            printTryFailure(#__VA_ARGS__); \
+            return result;                 \
+        }                                  \
+    }                                      \
     while(false)
 
 static auto make_write(serialization_result& result, std::byte*& buffer,
@@ -428,7 +426,12 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     const std::string tp_str = Utils::formatTimepoint(tp, "%Y%m%d_%H%M%S");
 
     return Utils::concat(_version, '_', tp_str, '_', _player_name, '_',
-        _level_id, '_', _difficulty_mult, "x_", _played_score / 60.0, "s.ohr");
+        _level_id, '_', _difficulty_mult, "x_", played_seconds(), "s.ohr");
+}
+
+[[nodiscard]] double replay_file::played_seconds() const noexcept
+{
+    return _played_score / 60.0;
 }
 
 [[nodiscard]] bool compressed_replay_file::serialize_to_file(

@@ -15,8 +15,6 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 
-#include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
-
 #include <cstddef>
 #include <cstring>
 
@@ -51,14 +49,14 @@ public:
 
     void reserve(const std::size_t n)
     {
-        if(SSVU_LIKELY(_capacity >= n))
+        if(_capacity >= n) [[likely]]
         {
             return;
         }
 
         auto new_data = Utils::makeUniqueArray<VertexUnion>(n);
 
-        if(SSVU_UNLIKELY(_data != nullptr))
+        if(_data != nullptr) [[unlikely]]
         {
             std::memcpy(
                 new_data.get(), _data.get(), sizeof(sf::Vertex) * _size);
@@ -69,7 +67,7 @@ public:
             SSVOH_ASSERT(_capacity == 0);
         }
 
-        _data = std::move(new_data);
+        _data = SSVOH_MOVE(new_data);
         _capacity = n;
     }
 
@@ -78,7 +76,7 @@ public:
     {
         SSVOH_ASSERT(_size + rhs._size <= _capacity);
 
-        if(SSVU_UNLIKELY(rhs.size() == 0))
+        if(rhs.size() == 0) [[unlikely]]
         {
             return;
         }
@@ -123,7 +121,7 @@ public:
     void draw(sf::RenderTarget& mRenderTarget,
         const sf::RenderStates& mRenderStates) const override
     {
-        if(SSVU_UNLIKELY(_data == nullptr))
+        if(_data == nullptr) [[unlikely]]
         {
             SSVOH_ASSERT(_size == 0);
             SSVOH_ASSERT(_capacity == 0);
