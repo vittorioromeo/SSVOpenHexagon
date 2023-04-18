@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/PackInfo.hpp"
+#include "SSVOpenHexagon/Data/ProfileData.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
@@ -777,7 +778,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
         // Add joystick buttons if any and finalize message
         std::string joystickButton =
-            Config::getJoystickBindNames(Joystick::Jid::Restart);
+            Config::getJoystickBindName(Joystick::Jid::Restart);
         if(!status.restartInput.empty())
         {
             if(!joystickButton.empty())
@@ -797,7 +798,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
             status.restartInput = "NO RESTART BUTTON SET\n";
         }
 
-        joystickButton = Config::getJoystickBindNames(Joystick::Jid::Replay);
+        joystickButton = Config::getJoystickBindName(Joystick::Jid::Replay);
         if(!status.replayInput.empty())
         {
             if(!joystickButton.empty())

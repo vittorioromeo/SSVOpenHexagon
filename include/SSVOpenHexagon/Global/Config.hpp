@@ -158,7 +158,7 @@ void setDisableGameRendering(bool x);
 [[nodiscard]] const std::string& getServerIp();
 [[nodiscard]] unsigned short getServerPort();
 [[nodiscard]] unsigned short getServerControlPort();
-[[nodiscard]] const std::vector<std::string> getServerLevelWhitelist();
+[[nodiscard]] const std::vector<std::string>& getServerLevelWhitelist();
 [[nodiscard]] bool getSaveLastLoginUsername();
 [[nodiscard]] const std::string& getLastLoginUsername();
 [[nodiscard]] bool getShowLoginAtStartup();
@@ -218,8 +218,7 @@ void clearTriggerBind(ssvs::Input::Trigger& trig, const int index);
 
 void joystickBindsSanityCheck();
 
-[[nodiscard]] const std::string getJoystickBindNames(
-    const Joystick::Jid bindID);
+[[nodiscard]] std::string getJoystickBindName(const Joystick::Jid bindID);
 
 using JoystickTriggerGetter = unsigned int (*)();
 extern const std::array<JoystickTriggerGetter,

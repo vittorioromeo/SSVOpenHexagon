@@ -919,11 +919,9 @@ private:
     template <typename... Args>
     [[gnu::always_inline]] inline int _push(const std::tuple<Args...>& t)
     {
-        return [ this, &t ]<int... Is>(std::integer_sequence<int, Is...>)
-        {
+        return [this, &t]<int... Is>(std::integer_sequence<int, Is...>) {
             return (this->_push(std::get<Is>(t)) + ... + 0);
-        }
-        (std::make_integer_sequence<int, sizeof...(Args)>{});
+        }(std::make_integer_sequence<int, sizeof...(Args)>{});
     }
 
     /**************************************************/
@@ -1099,12 +1097,11 @@ return table;*/
     [[gnu::always_inline]] inline auto _read(
         const int index, std::tuple<Ts...> const* = nullptr)
     {
-        return [ this, index ]<int... Is>(std::integer_sequence<int, Is...>)
+        return [this, index]<int... Is>(std::integer_sequence<int, Is...>)
         {
             return std::make_tuple(this->_read(
                 index + Is, static_cast<std::decay_t<Ts>*>(nullptr))...);
-        }
-        (std::make_integer_sequence<int, sizeof...(Ts)>{});
+        }(std::make_integer_sequence<int, sizeof...(Ts)>{});
     }
 
     [[gnu::always_inline]] inline constexpr std::tuple<> _read(

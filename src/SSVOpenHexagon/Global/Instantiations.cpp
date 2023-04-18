@@ -10,6 +10,7 @@ template class std::vector<std::string>;
 
 template class std::optional<int>;
 template class std::optional<std::size_t>;
+template class std::optional<std::string>;
 
 template class std::unordered_map<std::string, float>;
 template class std::unordered_map<float, std::string>;

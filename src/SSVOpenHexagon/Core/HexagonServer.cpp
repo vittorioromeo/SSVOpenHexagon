@@ -178,7 +178,7 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient& c,
     const std::uint64_t loginToken, const std::string& loginName)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                                       //
         STCPLoginSuccess{
             .loginToken = static_cast<std::uint64_t>(loginToken), //
             .loginName = loginName                                //
@@ -217,7 +217,7 @@ template <typename T>
     const std::string& levelValidator,
     const std::vector<Database::ProcessedScore>& scores)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                   //
         STCPTopScores{
             .levelValidator = levelValidator, //
             .scores = scores                  //
@@ -228,7 +228,7 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendOwnScore(ConnectedClient& c,
     const std::string& levelValidator, const Database::ProcessedScore& score)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                   //
         STCPOwnScore{
             .levelValidator = levelValidator, //
             .score = score                    //
@@ -241,7 +241,7 @@ template <typename T>
     const std::vector<Database::ProcessedScore>& scores,
     const std::optional<Database::ProcessedScore>& ownScore)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                   //
         STCPTopScoresAndOwnScore{
             .levelValidator = levelValidator, //
             .scores = scores,                 //
@@ -254,7 +254,7 @@ template <typename T>
     const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
     const std::vector<std::string>& supportedLevelValidators)
 {
-    return sendEncrypted(c, //
+    return sendEncrypted(c,                                      //
         STCPServerStatus{
             .protocolVersion = protocolVersion,                  //
             .gameVersion = gameVersion,                          //
@@ -654,7 +654,8 @@ void HexagonServer::runIteration_FlushLogs()
     const auto discard = [&](const auto&... reason)
     {
         SSVOH_SLOG << "Discarding replay from client '" << clientAddr << "', "
-                   << Utils::concat(reason...) << '\n';
+                   << Utils::concat(reason...) << ", replay time was "
+                   << rf.played_seconds() << "s\n";
 
         return true;
     };
@@ -687,13 +688,16 @@ void HexagonServer::runIteration_FlushLogs()
     SSVOH_SLOG << "Processing replay from client '" << clientAddr
                << "' for level '" << levelValidator << "'\n";
 
+    constexpr int maxProcessingSeconds = 5;
+
     const std::optional<HexagonGame::GameExecutionResult> ger =
         _hexagonGame.runReplayUntilDeathAndGetScore(
-            rf, 5 /* maxProcessingSeconds */, 1.f /* timescale */);
+            rf, maxProcessingSeconds, 1.f /* timescale */);
 
     if(!ger.has_value())
     {
-        return discard("max processing time exceeded");
+        return discard(
+            "max processing time exceeded (", maxProcessingSeconds, "s)");
     }
 
     const double replayTotalTime = ger->totalTimeSeconds;

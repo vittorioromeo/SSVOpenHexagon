@@ -10,8 +10,8 @@ echo "--------------------------------------------------------------------"
 cmake .. -G"Ninja" \
          -DFORCE_COLORED_OUTPUT=1 \
          -DCMAKE_BUILD_TYPE=DEBUG \
-         -DCMAKE_C_COMPILER="clang" \
-         -DCMAKE_CXX_COMPILER="clang++" \
+         -DCMAKE_C_COMPILER="gcc" \
+         -DCMAKE_CXX_COMPILER="g++" \
          -DCMAKE_CXX_FLAGS="\
             -O0 -fno-omit-frame-pointer \
             -Wall -Wextra -Wpedantic -Wno-braced-scalar-init -Wno-missing-field-initializers \
