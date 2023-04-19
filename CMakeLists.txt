@@ -103,7 +103,9 @@ include(${CPM_DOWNLOAD_LOCATION})
 
 set(BUILD_SHARED_LIBS false)
 set(SFML_STATIC_LIBRARIES true)
-set(SFML_ENABLE_PCH true)
+if(NOT APPLE)
+    set(SFML_ENABLE_PCH true)
+endif()
 
 CPMAddPackage(
     NAME SFML
@@ -112,10 +114,12 @@ CPMAddPackage(
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
+if(NOT APPLE)
+    set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
+    set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
+    set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
+    set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
+endif()
 
 #
 #
@@ -423,6 +427,13 @@ if(NOT SSVOH_ANDROID)
             "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/sdkencryptedappticket64.lib"
             sodium
         )
+    elseif(APPLE)
+        set(PUBLIC_LIBRARIES
+            "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.dylib"
+            "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dylib"
+            "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsdkencryptedappticket.dylib"
+            sodium
+        )
     else()
         set(PUBLIC_LIBRARIES
             "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
@@ -528,6 +539,8 @@ endif()
 if(NOT SSVOH_ANDROID)
     if(WIN32)
         set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.lib")
+    elseif(APPLE)
+        set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.dylib")
     else()
         set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so")
     endif()

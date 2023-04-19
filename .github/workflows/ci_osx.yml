@@ -1,0 +1,59 @@
+name: CI OSX
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Install macOS Tools
+      run: |
+        brew update
+        brew install ninja llvm
+        
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: OSX-RELEASE
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DSSVOH_HEADLESS_TESTS=1 -GNinja
+      env:
+        CC: /usr/local/opt/llvm/bin/clang
+        CXX: /usr/local/opt/llvm/bin/clang++
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+    
+
+    - name: Copy artifacts
+      run: |
+        cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
+        cp -r build/_deps/sfml-src/extlibs/libs-osx/Frameworks _RELEASE
+        install_name_tool -add_rpath Frameworks _RELEASE/SSVOpenHexagon
+        install_name_tool -add_rpath . _RELEASE/SSVOpenHexagon
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: OpenHexagon-OSX
+        path: _RELEASE
+
+    - name: Run tests
+      run: |
+        mkdir -p build/test
+        cp _RELEASE/*.dylib build/test
+        cp -R _RELEASE/Packs build/test
+        ninja -C build check
