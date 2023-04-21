@@ -4,6 +4,7 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
+#include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 
@@ -272,10 +273,11 @@ void CCustomWallManager::setVertexPos4(const CCustomWallHandle cwHandle,
         return;
     }
 
-    _customWalls[cwHandle].setVertexPos(0, p0);
-    _customWalls[cwHandle].setVertexPos(1, p1);
-    _customWalls[cwHandle].setVertexPos(2, p2);
-    _customWalls[cwHandle].setVertexPos(3, p3);
+    CCustomWall& customWall = _customWalls[cwHandle];
+    customWall.setVertexPos(0, p0);
+    customWall.setVertexPos(1, p1);
+    customWall.setVertexPos(2, p2);
+    customWall.setVertexPos(3, p3);
 }
 
 void CCustomWallManager::setVertexColor4(const CCustomWallHandle cwHandle,
@@ -287,10 +289,11 @@ void CCustomWallManager::setVertexColor4(const CCustomWallHandle cwHandle,
         return;
     }
 
-    _customWalls[cwHandle].setVertexColor(0, c0);
-    _customWalls[cwHandle].setVertexColor(1, c1);
-    _customWalls[cwHandle].setVertexColor(2, c2);
-    _customWalls[cwHandle].setVertexColor(3, c3);
+    CCustomWall& customWall = _customWalls[cwHandle];
+    customWall.setVertexColor(0, c0);
+    customWall.setVertexColor(1, c1);
+    customWall.setVertexColor(2, c2);
+    customWall.setVertexColor(3, c3);
 }
 
 void CCustomWallManager::setVertexColor4Same(
@@ -301,10 +304,11 @@ void CCustomWallManager::setVertexColor4Same(
         return;
     }
 
-    _customWalls[cwHandle].setVertexColor(0, color);
-    _customWalls[cwHandle].setVertexColor(1, color);
-    _customWalls[cwHandle].setVertexColor(2, color);
-    _customWalls[cwHandle].setVertexColor(3, color);
+    CCustomWall& customWall = _customWalls[cwHandle];
+    customWall.setVertexColor(0, color);
+    customWall.setVertexColor(1, color);
+    customWall.setVertexColor(2, color);
+    customWall.setVertexColor(3, color);
 }
 
 void CCustomWallManager::clear()
