@@ -1,5 +1,7 @@
-#include <SFML/Network/UdpSocket.hpp>
+#include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/Packet.hpp>
+#include <SFML/Network/Socket.hpp>
+#include <SFML/Network/UdpSocket.hpp>
 
 #include <string>
 #include <iostream>
