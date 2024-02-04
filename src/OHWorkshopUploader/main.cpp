@@ -4,21 +4,21 @@
 #include "steam/steam_api.h"
 
 // ----------------------------------------------------------------------------
-// Standard includes.
-#include <iostream>
+// C++ Standard includes.
 #include <atomic>
-#include <string_view>
 #include <chrono>
-#include <cassert>
-#include <utility>
+#include <filesystem>
 #include <functional>
+#include <iostream>
 #include <limits>
 #include <optional>
-#include <variant>
+#include <string_view>
 #include <string>
-#include <unordered_map>
-#include <filesystem>
-#include <iomanip>
+#include <utility>
+
+// ----------------------------------------------------------------------------
+// C Standard includes.
+#include <cassert>
 
 // ----------------------------------------------------------------------------
 // Utilities.
