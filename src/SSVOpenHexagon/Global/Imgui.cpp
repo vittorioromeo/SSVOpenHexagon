@@ -47,7 +47,8 @@ void shutdown()
 #endif
 }
 
-void processEvent([[maybe_unused]] const sf::Window& window, [[maybe_unused]] const sf::Event& event)
+void processEvent([[maybe_unused]] const sf::Window& window,
+    [[maybe_unused]] const sf::Event& event)
 {
 #ifndef SSVOH_ANDROID
     ImGui::SFML::ProcessEvent(window, event);

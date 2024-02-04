@@ -5,7 +5,7 @@
 #include <initializer_list> // TODO: remove dependency?
 #include <new>              // TODO: remove dependency?
 
-#if ((__GNUC__ >= 10) || defined(__clang__)) && !defined(_MSC_VER)
+#if((__GNUC__ >= 10) || defined(__clang__)) && !defined(_MSC_VER)
 #define TINYVARIANT_SUPPORTS_HAS_BUILTIN
 #endif
 

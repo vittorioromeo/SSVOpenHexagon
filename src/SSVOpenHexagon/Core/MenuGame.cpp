@@ -1245,7 +1245,8 @@ void MenuGame::initMenus()
 
     const auto mkAddBindFn = [](ssvs::Input::Trigger& trig)
     {
-        return [&trig](const sf::Keyboard::Key key, const sf::Mouse::Button btn, const int index)
+        return [&trig](const sf::Keyboard::Key key, const sf::Mouse::Button btn,
+                   const int index)
         { Config::rebindTrigger(trig, key, btn, index); };
     };
 
@@ -1874,9 +1875,10 @@ void MenuGame::leftRightActionImpl(bool left)
         return;
     }
 
-    const bool modifier = (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) ||
-                           sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift) ||
-                           focusHeld || wasFocusHeld);
+    const bool modifier =
+        (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) ||
+            sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift) ||
+            focusHeld || wasFocusHeld);
 
     for(int i{0}; i < (modifier ? 2 : 1); ++i)
     {
@@ -5752,8 +5754,8 @@ void MenuGame::draw()
 {
     mouseHovering = false;
     mouseWasPressed = mousePressed;
-    mousePressed =
-        (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    mousePressed = (ignoreInputs == 0) &&
+                   sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
     if(mustRefresh)
     {

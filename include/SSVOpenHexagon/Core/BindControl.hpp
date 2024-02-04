@@ -36,7 +36,8 @@ private:
     using Trigger = ssvs::Input::Trigger;
     using TriggerGetter = std::function<ssvs::Input::Trigger()>;
     using SizeGetter = std::function<int()>;
-    using AddBind = std::function<void(const sf::Keyboard::Key, const sf::Mouse::Button)>;
+    using AddBind =
+        std::function<void(const sf::Keyboard::Key, const sf::Mouse::Button)>;
     using Callback =
         std::function<void(const ssvs::Input::Trigger&, const int)>;
 
@@ -64,8 +65,8 @@ public:
           triggerGetter{mFuncGet},
           sizeGetter{
               [this] { return getRealSize(triggerGetter().getCombos()); }},
-          addBind{
-              [this, mFuncSet](const sf::Keyboard::Key setKey, const sf::Mouse::Button setBtn)
+          addBind{[this, mFuncSet](const sf::Keyboard::Key setKey,
+                      const sf::Mouse::Button setBtn)
               { mFuncSet(setKey, setBtn, sizeGetter()); }},
           clearBind{[this, mFuncClear] { mFuncClear(sizeGetter() - 1); }},
           callback{mCallback},

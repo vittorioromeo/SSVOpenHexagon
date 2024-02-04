@@ -21,15 +21,15 @@ class CCustomWall;
 class CPlayer
 {
 private:
-    sf::Vector2f _startPos;   // Position at start of the level.
+    sf::Vector2f _startPos; // Position at start of the level.
 
-    sf::Vector2f _pos;        // Actual position of player.
+    sf::Vector2f _pos; // Actual position of player.
 
     sf::Vector2f _prePushPos; // Position before the player is pushed by a wall.
                               // Unlike `pos` it is not updated after a
                               // successful wall push.
 
-    sf::Vector2f _lastPos;    // Position of the player in the previous frame,
+    sf::Vector2f _lastPos; // Position of the player in the previous frame,
                            // adjusted according to the current frame's radius.
 
     float _hue;
@@ -42,12 +42,12 @@ private:
     bool _dead;
     bool _justSwapped;
 
-    bool _forcedMove;       // Wherever player has been forcefully moved
-                            // with a setPlayerAngle() call. Essential
-                            // for proper behavior of collision calculation,
-                            // especially on levels that make heavy usage of it.
+    bool _forcedMove; // Wherever player has been forcefully moved
+                      // with a setPlayerAngle() call. Essential
+                      // for proper behavior of collision calculation,
+                      // especially on levels that make heavy usage of it.
 
-    float _radius;          // Cached value of the radius in the current frame.
+    float _radius; // Cached value of the radius in the current frame.
 
     float _maxSafeDistance; // The maximum distance that there can be between
                             // the current player position and the closest
@@ -55,7 +55,7 @@ private:
                             // overlaps with. If the closest position is further
                             // away player cannot be saved.
 
-    float _currentSpeed;    // Cached player speed in the current frame.
+    float _currentSpeed; // Cached player speed in the current frame.
 
     float _triangleWidth; // Visual width of the triangle, varies when focusing.
     float _triangleWidthTransitionTime; // From 0 to 1, when transitioning
