@@ -96,7 +96,8 @@ bool KeyboardBindControl::newKeyboardBind(const sf::Mouse::Button btn)
     return true;
 }
 
-void KeyboardBindControl::applyBind(const sf::Keyboard::Key key, const sf::Mouse::Button btn)
+void KeyboardBindControl::applyBind(
+    const sf::Keyboard::Key key, const sf::Mouse::Button btn)
 {
     // assign the pressed key to the config value
     addBind(key, btn);

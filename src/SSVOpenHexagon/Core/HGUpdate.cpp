@@ -1300,7 +1300,8 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         ilcShowConsole = !ilcShowConsole;
         ilcShowConsoleNext = false;
 
-        ImGui::SFML::ProcessEvent(window->getRenderWindow(), sf::Event{sf::Event::GainedFocus});
+        ImGui::SFML::ProcessEvent(
+            window->getRenderWindow(), sf::Event{sf::Event::GainedFocus});
     }
 
     if(!ilcShowConsole)

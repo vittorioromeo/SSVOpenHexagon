@@ -267,11 +267,11 @@ using cil = std::initializer_list<cmb>;
     X(triggerRotateCW, trig, "t_rotate_cw",                                \
         cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})      \
     X(triggerFocus, trig, "t_focus",                                       \
-        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::Extra1}}})               \
+        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::Extra1}}})                 \
     X(triggerSelect, trig, "t_select",                                     \
         cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
     X(triggerExit, trig, "t_exit",                                         \
-        cil{cmb{{k::T}}, cmb{kil{}, mil{m::Extra2}}})                    \
+        cil{cmb{{k::T}}, cmb{kil{}, mil{m::Extra2}}})                      \
     X(triggerForceRestart, trig, "t_force_restart",                        \
         cil{cmb{{k::Up}}, cmb{{k::R}}})                                    \
     X(triggerRestart, trig, "t_restart",                                   \
@@ -1480,8 +1480,8 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
             }
 
             // names are shifted compared to the Key enum
-            bindNames +=
-                bindToHumanReadableName(ssvs::getKKeyName(sf::Keyboard::Key(j - 1)));
+            bindNames += bindToHumanReadableName(
+                ssvs::getKKeyName(sf::Keyboard::Key(j - 1)));
             break;
         }
 
@@ -1499,8 +1499,8 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
             }
 
             // same as with keys
-            bindNames +=
-                bindToHumanReadableName(ssvs::getMBtnName(sf::Mouse::Button(j - 1)));
+            bindNames += bindToHumanReadableName(
+                ssvs::getMBtnName(sf::Mouse::Button(j - 1)));
             break;
         }
     }
@@ -1512,8 +1512,8 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
 //**************************************************
 // Add new key binds
 
-void rebindTrigger(
-    ssvs::Input::Trigger& trig, const sf::Keyboard::Key key, const sf::Mouse::Button btn, int index)
+void rebindTrigger(ssvs::Input::Trigger& trig, const sf::Keyboard::Key key,
+    const sf::Mouse::Button btn, int index)
 {
     // if both slots are taken replace the first one
     if(index >= maxBinds)

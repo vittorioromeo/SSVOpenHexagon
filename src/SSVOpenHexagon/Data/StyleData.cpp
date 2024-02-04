@@ -56,11 +56,11 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
           ssvuj::getExtr<float>(mRoot, "3D_perspective_multiplier", 1.f)},
       _3dOverrideColor{ssvuj::getExtr<sf::Color>(
           mRoot, "3D_override_color", sf::Color::Transparent)},
-      mainColorData{ssvuj::getObj(mRoot, "main")},                          //
+      mainColorData{ssvuj::getObj(mRoot, "main")}, //
       playerColor{
           colorDataFromObjOrDefault(mRoot, "player_color", mainColorData)}, //
       textColor{
-          colorDataFromObjOrDefault(mRoot, "text_color", mainColorData)},   //
+          colorDataFromObjOrDefault(mRoot, "text_color", mainColorData)}, //
       wallColor{colorDataFromObjOrDefault(mRoot, "wall_color", mainColorData)},
       capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))}
 {
@@ -341,8 +341,8 @@ StyleData::getColors() const noexcept
 
 sf::Color StyleData::getCapColorResult() const noexcept
 {
-    return capColor.linear_match(                                       //
-        [this](CapColorMode::Main) { return getMainColor(); },          //
+    return capColor.linear_match(                              //
+        [this](CapColorMode::Main) { return getMainColor(); }, //
         [this](CapColorMode::MainDarkened)
         { return Utils::getColorDarkened(getMainColor(), 1.4f); },      //
         [this](CapColorMode::ByIndex x) { return getColor(x._index); }, //

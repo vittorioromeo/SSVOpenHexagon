@@ -70,7 +70,7 @@ private:
 
             [&]<std::size_t... Is>(std::index_sequence<Is...>)
             {
-                ((                                                           //
+                (( //
                      res += typeToStr(TypeWrapper<
                          std::decay_t<typename AE::template NthArg<Is>>>{}), //
                      res += ' ',                                             //

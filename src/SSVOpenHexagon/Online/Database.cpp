@@ -252,7 +252,7 @@ void removeAllStaleLoginTokens()
     std::uint32_t index = 0;
     for(const auto& row : query)
     {
-        result.push_back(                           //
+        result.push_back( //
             ProcessedScore{
                 .position = index,                  //
                 .userName = std::get<0>(row),       //

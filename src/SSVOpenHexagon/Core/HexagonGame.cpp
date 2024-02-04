@@ -331,7 +331,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     game.onDraw += [this] { draw(); };
 
-    game.onAnyEvent += [this](const sf::Event& e){ Imgui::processEvent(window->getRenderWindow(), e); };
+    game.onAnyEvent += [this](const sf::Event& e)
+    { Imgui::processEvent(window->getRenderWindow(), e); };
 
     if(window != nullptr)
     {
