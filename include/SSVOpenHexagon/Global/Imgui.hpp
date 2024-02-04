@@ -16,7 +16,7 @@ namespace hg::Imgui {
 void shutdown();
 [[nodiscard]] bool wantCaptureKeyboard();
 [[nodiscard]] bool wantCaptureMouse();
-void processEvent(const sf::Event&);
+void processEvent(const sf::Window& window, const sf::Event&);
 void render(sf::RenderTarget& renderTarget);
 
 } // namespace hg::Imgui

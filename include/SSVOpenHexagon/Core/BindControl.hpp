@@ -36,7 +36,7 @@ private:
     using Trigger = ssvs::Input::Trigger;
     using TriggerGetter = std::function<ssvs::Input::Trigger()>;
     using SizeGetter = std::function<int()>;
-    using AddBind = std::function<void(const ssvs::KKey, const ssvs::MBtn)>;
+    using AddBind = std::function<void(const sf::Keyboard::Key, const sf::Mouse::Button)>;
     using Callback =
         std::function<void(const ssvs::Input::Trigger&, const int)>;
 
@@ -47,11 +47,11 @@ private:
     Callback callback;
     // A few actions have hardcoded keys, user should not be allowed to
     // bind the hardcoded key a second time.
-    ssvs::KKey hardcodedKey;
+    sf::Keyboard::Key hardcodedKey;
 
     [[nodiscard]] int getRealSize(
         const std::vector<ssvs::Input::Combo>& combos) const;
-    void applyBind(const ssvs::KKey key, const ssvs::MBtn);
+    void applyBind(const sf::Keyboard::Key key, const sf::Mouse::Button);
 
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncClear,
@@ -59,13 +59,13 @@ public:
     explicit KeyboardBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
         TFuncClear mFuncClear, TFuncCallback mCallback, const int mTriggerID,
-        const ssvs::KKey mHardcodedKey = ssvs::KKey::Unknown)
+        const sf::Keyboard::Key mHardcodedKey = sf::Keyboard::Key::Unknown)
         : BindControlBase{mMenu, mCategory, mName, mTriggerID},
           triggerGetter{mFuncGet},
           sizeGetter{
               [this] { return getRealSize(triggerGetter().getCombos()); }},
           addBind{
-              [this, mFuncSet](const ssvs::KKey setKey, const ssvs::MBtn setBtn)
+              [this, mFuncSet](const sf::Keyboard::Key setKey, const sf::Mouse::Button setBtn)
               { mFuncSet(setKey, setBtn, sizeGetter()); }},
           clearBind{[this, mFuncClear] { mFuncClear(sizeGetter() - 1); }},
           callback{mCallback},
@@ -91,8 +91,8 @@ public:
     [[nodiscard]] bool isWaitingForBind() const override;
     [[nodiscard]] bool erase() override;
 
-    bool newKeyboardBind(const ssvs::KKey key);
-    bool newKeyboardBind(const ssvs::MBtn btn);
+    bool newKeyboardBind(const sf::Keyboard::Key key);
+    bool newKeyboardBind(const sf::Mouse::Button btn);
 
     [[nodiscard]] std::string getName() const override;
 };

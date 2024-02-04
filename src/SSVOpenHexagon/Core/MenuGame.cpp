@@ -172,7 +172,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       epilepsyWarning{assets.getTexture("epilepsyWarning.png")},
       sOnline{assets.getTexture("onlineIconFail.png")},
       rsOnlineStatus{sf::Vector2f{128.f, 32.f}},
-      txtOnlineStatus{"", openSquare, 24},
+      txtOnlineStatus{openSquare, "", 24},
       enteredChars{},
       backgroundCamera{
           {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
@@ -201,28 +201,28 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       profileSelectionMenu{},
       levelData{},
       styleData{},
-      txtVersion{.font{"", openSquare, 40}},
-      txtProf{.font{"", openSquare, 18}},
+      txtVersion{.font{openSquare, "", 40}},
+      txtProf{.font{openSquare, "", 18}},
       // For the loading screen
-      txtLoadBig{.font{"", openSquare}},
-      txtLoadSmall{.font{"", openSquareBold}},
-      txtRandomTip{.font{"", openSquare}},
+      txtLoadBig{.font{openSquare, ""}},
+      txtLoadSmall{.font{openSquareBold, ""}},
+      txtRandomTip{.font{openSquare, ""}},
       // For the Main Menu
-      txtMenuBig{.font{"", openSquare}},
-      txtMenuSmall{.font{"", openSquare}},
-      txtMenuTiny{.font{"", openSquare}},
-      txtProfile{.font{"", openSquare, 32}},
-      txtInstructionsBig{.font{"", openSquare, 46}},
-      txtInstructionsMedium{.font{"", openSquare}},
-      txtInstructionsSmall{.font{"", openSquare, 20}},
+      txtMenuBig{.font{openSquare, ""}},
+      txtMenuSmall{.font{openSquare, ""}},
+      txtMenuTiny{.font{openSquare, ""}},
+      txtProfile{.font{openSquare, "", 32}},
+      txtInstructionsBig{.font{openSquare, "", 46}},
+      txtInstructionsMedium{.font{openSquare, ""}},
+      txtInstructionsSmall{.font{openSquare, "", 20}},
       // Manual Input
-      txtEnteringText{.font{"", openSquare, 54}},
+      txtEnteringText{.font{openSquare, "", 54}},
       // For the Level Selection Screen
-      txtSelectionBig{.font{"", openSquareBold}},
-      txtSelectionMedium{.font{"", openSquareBold, 19}},
-      txtSelectionSmall{.font{"", openSquare}},
-      txtSelectionScore{.font{"", openSquare, 28}},
-      txtSelectionRanked{.font{"", openSquareBold}},
+      txtSelectionBig{.font{openSquareBold, ""}},
+      txtSelectionMedium{.font{openSquareBold, "", 19}},
+      txtSelectionSmall{.font{openSquare, ""}},
+      txtSelectionScore{.font{openSquare, "", 28}},
+      txtSelectionRanked{.font{openSquareBold, ""}},
       menuTextColor{},
       menuQuadColor{},
       menuSelectionColor{},
@@ -540,16 +540,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        const ssvs::KKey key{mEvent.key.code};
+        const sf::Keyboard::Key key{mEvent.key.code};
         if(!dialogBox.empty())
         {
-            if(dialogBox.getKeyToClose() == ssvs::KKey::Unknown ||
+            if(dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown ||
                 key == dialogBox.getKeyToClose())
             {
                 --ignoreInputs;
             }
 
-            if(dialogBox.isInputBox() && key == ssvs::KKey::Escape)
+            if(dialogBox.isInputBox() && key == sf::Keyboard::Key::Escape)
             {
                 setIgnoreAllInputs(0);
                 dialogInputState = DialogInputState::Nothing;
@@ -566,7 +566,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
         // Scenario three: actions are blocked cause we are using a
         // BindControl menu item
-        if(getCurrentMenu() != nullptr && key == ssvs::KKey::Escape)
+        if(getCurrentMenu() != nullptr && key == sf::Keyboard::Key::Escape)
         {
             getCurrentMenu()->getItem().exec(); // turn off bind inputting
             setIgnoreAllInputs(0);
@@ -635,7 +635,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
         if(!dialogBox.empty())
         {
-            if(dialogBox.getKeyToClose() != ssvs::KKey::Unknown)
+            if(dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
             {
                 return;
             }
@@ -692,7 +692,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
         if(!dialogBox.empty())
         {
-            if(dialogBox.getKeyToClose() != ssvs::KKey::Unknown)
+            if(dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
             {
                 return;
             }
@@ -909,7 +909,7 @@ void MenuGame::changeStateTo(const States mState)
 
 void MenuGame::initInput()
 {
-    using k = ssvs::KKey;
+    using k = sf::Keyboard::Key;
     using t = ssvs::Input::Type;
     using Tid = Config::Tid;
 
@@ -1245,7 +1245,7 @@ void MenuGame::initMenus()
 
     const auto mkAddBindFn = [](ssvs::Input::Trigger& trig)
     {
-        return [&trig](const int key, const int btn, const int index)
+        return [&trig](const sf::Keyboard::Key key, const sf::Mouse::Button btn, const int index)
         { Config::rebindTrigger(trig, key, btn, index); };
     };
 
@@ -1256,7 +1256,7 @@ void MenuGame::initMenus()
 
     const auto createKeyboardBindControl =
         [&](const char* name, const Tid tid,
-            const ssvs::KKey hardcodedKey = ssvs::KKey::Unknown)
+            const sf::Keyboard::Key hardcodedKey = sf::Keyboard::Key::Unknown)
     {
         const auto trigGetter = Config::triggerGetters[toSizeT(tid)];
 
@@ -1270,14 +1270,14 @@ void MenuGame::initMenus()
     createKeyboardBindControl("rotate ccw", Tid::RotateCCW);
     createKeyboardBindControl("rotate cw", Tid::RotateCW);
     createKeyboardBindControl("focus", Tid::Focus);
-    createKeyboardBindControl("exit", Tid::Exit, ssvs::KKey::Escape);
+    createKeyboardBindControl("exit", Tid::Exit, sf::Keyboard::Key::Escape);
     createKeyboardBindControl("force restart", Tid::ForceRestart);
     createKeyboardBindControl("restart", Tid::Restart);
     createKeyboardBindControl("replay", Tid::Replay);
     createKeyboardBindControl("screenshot", Tid::Screenshot);
     createKeyboardBindControl("swap", Tid::Swap);
-    createKeyboardBindControl("up", Tid::Up, ssvs::KKey::Up);
-    createKeyboardBindControl("down", Tid::Down, ssvs::KKey::Down);
+    createKeyboardBindControl("up", Tid::Up, sf::Keyboard::Key::Up);
+    createKeyboardBindControl("down", Tid::Down, sf::Keyboard::Key::Down);
     createKeyboardBindControl("next pack", Tid::NextPack);
     createKeyboardBindControl("previous pack", Tid::PreviousPack);
     createKeyboardBindControl("lua console (debug only)", Tid::LuaConsole);
@@ -1874,8 +1874,8 @@ void MenuGame::leftRightActionImpl(bool left)
         return;
     }
 
-    const bool modifier = (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
-                           sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ||
+    const bool modifier = (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) ||
+                           sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift) ||
                            focusHeld || wasFocusHeld);
 
     for(int i{0}; i < (modifier ? 2 : 1); ++i)
@@ -5753,7 +5753,7 @@ void MenuGame::draw()
     mouseHovering = false;
     mouseWasPressed = mousePressed;
     mousePressed =
-        (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Left);
+        (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
     if(mustRefresh)
     {

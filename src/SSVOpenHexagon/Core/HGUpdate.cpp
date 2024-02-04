@@ -936,10 +936,9 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
 
     const auto makePBParticle = [this]
     {
-        Particle p;
-
         SSVOH_ASSERT(txStarParticle != nullptr);
-        p.sprite.setTexture(*txStarParticle);
+        Particle p{sf::Sprite{*txStarParticle}};
+
         p.sprite.setPosition(
             {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
         p.sprite.setRotation(sf::degrees(ssvu::getRndR(0.f, 360.f)));
@@ -986,10 +985,9 @@ void HexagonGame::updateTrailParticles(ssvu::FT mFT)
 
     const auto makeTrailParticle = [this]
     {
-        TrailParticle p;
-
         SSVOH_ASSERT(txSmallCircle != nullptr);
-        p.sprite.setTexture(*txSmallCircle);
+        TrailParticle p{sf::Sprite{*txSmallCircle}};
+
         p.sprite.setPosition(player.getPosition());
         p.sprite.setOrigin(sf::Vector2f{txSmallCircle->getSize()} / 2.f);
 
@@ -1041,10 +1039,9 @@ void HexagonGame::updateSwapParticles(ssvu::FT mFT)
                                       const float expand, const float speedMult,
                                       const float scaleMult, const float alpha)
     {
-        SwapParticle p;
-
         SSVOH_ASSERT(txSmallCircle != nullptr);
-        p.sprite.setTexture(*txSmallCircle);
+        SwapParticle p{sf::Sprite(*txSmallCircle)};
+
         p.sprite.setPosition(si.position);
         p.sprite.setOrigin(sf::Vector2f{txSmallCircle->getSize()} / 2.f);
 
@@ -1303,7 +1300,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         ilcShowConsole = !ilcShowConsole;
         ilcShowConsoleNext = false;
 
-        ImGui::SFML::ProcessEvent(sf::Event{sf::Event::GainedFocus});
+        ImGui::SFML::ProcessEvent(window->getRenderWindow(), sf::Event{sf::Event::GainedFocus});
     }
 
     if(!ilcShowConsole)

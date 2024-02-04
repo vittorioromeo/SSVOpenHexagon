@@ -75,25 +75,14 @@ endif()
 # CPM
 # -----------------------------------------------------------------------------
 
-set(CPM_DOWNLOAD_VERSION 0.37.0)
+file(
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+    EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
+)
 
-if(CPM_SOURCE_CACHE)
-    set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-elseif(DEFINED ENV{CPM_SOURCE_CACHE})
-    set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-else()
-    set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-endif()
-
-if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
-    message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
-    file(DOWNLOAD
-        https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
-        ${CPM_DOWNLOAD_LOCATION}
-    )
-endif()
-
-include(${CPM_DOWNLOAD_LOCATION})
+include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 
 #
 #
@@ -108,14 +97,14 @@ set(SFML_ENABLE_PCH true)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG dacceddbd1adee49c7bfd120266e200800550394
+    GIT_TAG d3596fdeaaa0ecef0b66f7296bca6a3ceac53e66
 )
 
-set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-system PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-window PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-audio PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-network PROPERTIES UNITY_BUILD OFF)
 
 #
 #
@@ -197,8 +186,8 @@ endif()
 if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
-        GITHUB_REPOSITORY vittorioromeo/imgui-sfml
-        GIT_TAG f35f353376281c0a891a4d614a241914ddfcbe29
+        GITHUB_REPOSITORY SFML/imgui-sfml
+        GIT_TAG ac98a9f34ed26fd92544941903d4bd0a2964cad4
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)

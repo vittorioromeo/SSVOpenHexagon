@@ -170,14 +170,14 @@
 	"t_exit" : 
 	[
 		[ "kT" ],
-		[ "bXButton2" ],
+		[ "bExtra2" ],
 		[ "" ],
 		[ "" ]
 	],
 	"t_focus" : 
 	[
 		[ "kLShift" ],
-		[ "bXButton1" ],
+		[ "bExtra1" ],
 		[ "" ],
 		[ "" ]
 	],

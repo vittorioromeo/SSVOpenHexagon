@@ -97,12 +97,6 @@ void HexagonGame::initKeyIcons()
         assets.getTextureOrNullTexture(t).setSmooth(true);
     }
 
-    keyIconLeft.setTexture(assets.getTextureOrNullTexture("keyArrow.png"));
-    keyIconRight.setTexture(assets.getTextureOrNullTexture("keyArrow.png"));
-    keyIconFocus.setTexture(assets.getTextureOrNullTexture("keyFocus.png"));
-    keyIconSwap.setTexture(assets.getTextureOrNullTexture("keySwap.png"));
-    replayIcon.setTexture(assets.getTextureOrNullTexture("replayIcon.png"));
-
     updateKeyIcons();
 }
 
@@ -274,9 +268,9 @@ void HexagonGame::nameFormat(std::string& name)
 }
 
 [[nodiscard]] static sf::Text initText(
-    const char* text, const sf::Font& font, const float characterSize)
+    const sf::Font& font, const char* text, const float characterSize)
 {
-    return sf::Text{text, font,
+    return sf::Text{font, text,
         ssvu::toNum<unsigned int>(characterSize / Config::getZoomFactor())};
 }
 
@@ -294,20 +288,25 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       player{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
-      messageText{initText("", font, 38.f)},
-      pbText{initText("", fontBold, 65.f)},
+      messageText{initText(font, "", 38.f)},
+      pbText{initText(fontBold, "", 65.f)},
       txStarParticle{nullptr},
       txSmallCircle{nullptr},
-      levelInfoTextLevel{"", font},
-      levelInfoTextPack{"", font},
-      levelInfoTextAuthor{"", font},
-      levelInfoTextBy{"", font},
-      levelInfoTextDM{"", font},
+      levelInfoTextLevel{font, ""},
+      levelInfoTextPack{font, ""},
+      levelInfoTextAuthor{font, ""},
+      levelInfoTextBy{font, ""},
+      levelInfoTextDM{font, ""},
       rng{initializeRng()},
-      fpsText{initText("0", font, 25.f)},
-      timeText{initText("0", fontBold, 70.f)},
-      text{initText("", font, 25.f)},
-      replayText{initText("", font, 20.f)}
+      fpsText{initText(font, "0", 25.f)},
+      timeText{initText(fontBold, "0", 70.f)},
+      text{initText(font, "", 25.f)},
+      replayText{initText(font, "", 20.f)},
+      keyIconLeft{assets.getTextureOrNullTexture("keyArrow.png")},
+      keyIconRight{assets.getTextureOrNullTexture("keyArrow.png")},
+      keyIconFocus{assets.getTextureOrNullTexture("keyFocus.png")},
+      keyIconSwap{assets.getTextureOrNullTexture("keySwap.png")},
+      replayIcon{assets.getTextureOrNullTexture("replayIcon.png")}
 {
     if(window != nullptr)
     {
@@ -332,7 +331,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     game.onDraw += [this] { draw(); };
 
-    game.onAnyEvent += Imgui::processEvent;
+    game.onAnyEvent += [this](const sf::Event& e){ Imgui::processEvent(window->getRenderWindow(), e); };
 
     if(window != nullptr)
     {

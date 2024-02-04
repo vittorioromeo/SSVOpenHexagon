@@ -54,7 +54,7 @@ void KeyboardBindControl::exec()
     return true;
 }
 
-bool KeyboardBindControl::newKeyboardBind(const ssvs::KKey key)
+bool KeyboardBindControl::newKeyboardBind(const sf::Keyboard::Key key)
 {
     if(key == hardcodedKey)
     {
@@ -74,11 +74,11 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::KKey key)
         }
     }
 
-    applyBind(key, ssvs::MBtn::Left);
+    applyBind(key, sf::Mouse::Button::Left);
     return true;
 }
 
-bool KeyboardBindControl::newKeyboardBind(const ssvs::MBtn btn)
+bool KeyboardBindControl::newKeyboardBind(const sf::Mouse::Button btn)
 {
     // stop if the pressed key is already assigned to this bind
     const std::vector<ssvs::Input::Combo> combos = triggerGetter().getCombos();
@@ -92,11 +92,11 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::MBtn btn)
         }
     }
 
-    applyBind(ssvs::KKey::Unknown, btn);
+    applyBind(sf::Keyboard::Key::Unknown, btn);
     return true;
 }
 
-void KeyboardBindControl::applyBind(const ssvs::KKey key, const ssvs::MBtn btn)
+void KeyboardBindControl::applyBind(const sf::Keyboard::Key key, const sf::Mouse::Button btn)
 {
     // assign the pressed key to the config value
     addBind(key, btn);
