@@ -24,7 +24,7 @@ namespace hg {
 }
 
 HexagonDialogBox::HexagonDialogBox(sf::Font& mFont, ssvs::GameWindow& mWindow)
-    : window{mWindow}, txtDialog{"", mFont, 0}
+    : window{mWindow}, txtDialog{mFont, "", 0}
 {}
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
@@ -271,7 +271,7 @@ void HexagonDialogBox::clearDialogBox()
     keyToClose = KKey::Unknown;
 }
 
-[[nodiscard]] ssvs::KKey HexagonDialogBox::getKeyToClose() const noexcept
+[[nodiscard]] sf::Keyboard::Key HexagonDialogBox::getKeyToClose() const noexcept
 {
     return keyToClose;
 }

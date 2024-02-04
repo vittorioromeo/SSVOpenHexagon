@@ -239,12 +239,12 @@ using ushort = unsigned short;
 
 using trig = ssvs::Input::Trigger;
 
-using k = ssvs::KKey;
-using m = ssvs::MBtn;
+using k = sf::Keyboard::Key;
+using m = sf::Mouse::Button;
 using cmb = ssvs::Input::Combo;
 
-using kil = std::initializer_list<ssvs::KKey>;
-using mil = std::initializer_list<ssvs::MBtn>;
+using kil = std::initializer_list<sf::Keyboard::Key>;
+using mil = std::initializer_list<sf::Mouse::Button>;
 using cil = std::initializer_list<cmb>;
 
 #define X_LINKEDVALUES_BINDS_JOYSTICK                    \
@@ -267,11 +267,11 @@ using cil = std::initializer_list<cmb>;
     X(triggerRotateCW, trig, "t_rotate_cw",                                \
         cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})      \
     X(triggerFocus, trig, "t_focus",                                       \
-        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::XButton1}}})               \
+        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::Extra1}}})               \
     X(triggerSelect, trig, "t_select",                                     \
         cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
     X(triggerExit, trig, "t_exit",                                         \
-        cil{cmb{{k::T}}, cmb{kil{}, mil{m::XButton2}}})                    \
+        cil{cmb{{k::T}}, cmb{kil{}, mil{m::Extra2}}})                    \
     X(triggerForceRestart, trig, "t_force_restart",                        \
         cil{cmb{{k::Up}}, cmb{{k::R}}})                                    \
     X(triggerRestart, trig, "t_restart",                                   \
@@ -1385,7 +1385,7 @@ void resizeTrigger(ssvs::Input::Trigger& trig) noexcept
     // spots with unbound combos
     while(combos.size() < maxBinds)
     {
-        combos.emplace_back(ssvs::Input::Combo({ssvs::KKey::Unknown}));
+        combos.emplace_back(ssvs::Input::Combo({sf::Keyboard::Key::Unknown}));
     }
 }
 
@@ -1467,7 +1467,7 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
         }
 
         const auto keyBind{c.getKeys()};
-        for(j = 0; j <= ssvs::KKey::KeyCount; ++j)
+        for(j = 0; j <= sf::Keyboard::KeyCount; ++j)
         {
             if(!keyBind[j])
             {
@@ -1481,12 +1481,12 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
 
             // names are shifted compared to the Key enum
             bindNames +=
-                bindToHumanReadableName(ssvs::getKKeyName(ssvs::KKey(j - 1)));
+                bindToHumanReadableName(ssvs::getKKeyName(sf::Keyboard::Key(j - 1)));
             break;
         }
 
         const auto btnBinds{c.getBtns()};
-        for(j = 0; j <= ssvs::MBtn::ButtonCount; ++j)
+        for(j = 0; j <= sf::Mouse::ButtonCount; ++j)
         {
             if(!btnBinds[j])
             {
@@ -1500,7 +1500,7 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
 
             // same as with keys
             bindNames +=
-                bindToHumanReadableName(ssvs::getMBtnName(ssvs::MBtn(j - 1)));
+                bindToHumanReadableName(ssvs::getMBtnName(sf::Mouse::Button(j - 1)));
             break;
         }
     }
@@ -1513,7 +1513,7 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
 // Add new key binds
 
 void rebindTrigger(
-    ssvs::Input::Trigger& trig, const int key, const int btn, int index)
+    ssvs::Input::Trigger& trig, const sf::Keyboard::Key key, const sf::Mouse::Button btn, int index)
 {
     // if both slots are taken replace the first one
     if(index >= maxBinds)
@@ -1522,13 +1522,13 @@ void rebindTrigger(
         trig.getCombos().at(index).clearBind();
     }
 
-    if(key > -1)
+    if(static_cast<int>(key) > -1)
     {
-        trig.getCombos().at(index).addKey(ssvs::KKey(key));
+        trig.getCombos().at(index).addKey(key);
     }
     else
     {
-        trig.getCombos().at(index).addBtn(ssvs::MBtn(btn));
+        trig.getCombos().at(index).addBtn(btn);
     }
 }
 

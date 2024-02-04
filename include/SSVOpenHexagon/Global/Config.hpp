@@ -210,7 +210,7 @@ extern const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)>
     triggerGetters;
 
 void rebindTrigger(
-    ssvs::Input::Trigger& trig, const int key, const int btn, int index);
+    ssvs::Input::Trigger& trig, const sf::Keyboard::Key key, const sf::Mouse::Button btn, int index);
 
 void clearTriggerBind(ssvs::Input::Trigger& trig, const int index);
 

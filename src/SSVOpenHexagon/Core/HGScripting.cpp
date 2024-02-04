@@ -95,7 +95,7 @@ void HexagonGame::initLua_Utils()
                 "`onInput` callback.");
 
             return window != nullptr &&
-                   window->getInputState()[ssvs::KKey(mKey)];
+                   window->getInputState()[sf::Keyboard::Key(mKey)];
         })
         .arg("keyCode")
         .doc(
@@ -132,7 +132,7 @@ void HexagonGame::initLua_Utils()
                 "`onInput` callback.");
 
             return window != nullptr &&
-                   window->getInputState()[ssvs::MBtn(mKey)];
+                   window->getInputState()[sf::Mouse::Button(mKey)];
         })
         .arg("buttonCode")
         .doc(
