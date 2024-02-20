@@ -1467,7 +1467,7 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
         }
 
         const auto keyBind{c.getKeys()};
-        for(j = 0; j <= sf::Keyboard::KeyCount; ++j)
+        for(j = 0; j <= static_cast<int>(sf::Keyboard::KeyCount); ++j)
         {
             if(!keyBind[j])
             {
@@ -1486,7 +1486,7 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
         }
 
         const auto btnBinds{c.getBtns()};
-        for(j = 0; j <= sf::Mouse::ButtonCount; ++j)
+        for(j = 0; j <= static_cast<int>(sf::Mouse::ButtonCount); ++j)
         {
             if(!btnBinds[j])
             {
