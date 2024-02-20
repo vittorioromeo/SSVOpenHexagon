@@ -292,6 +292,11 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       pbText{initText(fontBold, "", 65.f)},
       txStarParticle{nullptr},
       txSmallCircle{nullptr},
+      keyIconLeft{assets.getTextureOrNullTexture("keyArrow.png")},
+      keyIconRight{assets.getTextureOrNullTexture("keyArrow.png")},
+      keyIconFocus{assets.getTextureOrNullTexture("keyFocus.png")},
+      keyIconSwap{assets.getTextureOrNullTexture("keySwap.png")},
+      replayIcon{assets.getTextureOrNullTexture("replayIcon.png")},
       levelInfoTextLevel{font, ""},
       levelInfoTextPack{font, ""},
       levelInfoTextAuthor{font, ""},
@@ -301,12 +306,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       fpsText{initText(font, "0", 25.f)},
       timeText{initText(fontBold, "0", 70.f)},
       text{initText(font, "", 25.f)},
-      replayText{initText(font, "", 20.f)},
-      keyIconLeft{assets.getTextureOrNullTexture("keyArrow.png")},
-      keyIconRight{assets.getTextureOrNullTexture("keyArrow.png")},
-      keyIconFocus{assets.getTextureOrNullTexture("keyFocus.png")},
-      keyIconSwap{assets.getTextureOrNullTexture("keySwap.png")},
-      replayIcon{assets.getTextureOrNullTexture("replayIcon.png")}
+      replayText{initText(font, "", 20.f)}
 {
     if(window != nullptr)
     {
