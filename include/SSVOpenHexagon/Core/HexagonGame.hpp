@@ -437,6 +437,9 @@ private:
     Utils::FastVertexVectorTris pivotQuads;
     Utils::FastVertexVectorTris playerTris;
     Utils::FastVertexVectorTris capTris;
+    Utils::FastVertexVectorTris wallQuads3DTop;
+    Utils::FastVertexVectorTris pivotQuads3DTop;
+    Utils::FastVertexVectorTris playerTris3DTop;
     Utils::FastVertexVectorTris wallQuads3D;
     Utils::FastVertexVectorTris pivotQuads3D;
     Utils::FastVertexVectorTris playerTris3D;
