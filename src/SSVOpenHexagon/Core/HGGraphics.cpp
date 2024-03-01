@@ -297,7 +297,7 @@ void HexagonGame::draw()
     }
 
     // ------------------------------------------------------------------------
-    if(Config::getFlash())
+    if(status.flashEffect != 0.f)
     {
         render(flashPolygon);
     }
