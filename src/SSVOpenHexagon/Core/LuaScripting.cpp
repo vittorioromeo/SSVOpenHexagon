@@ -864,6 +864,15 @@ static void initLevelControl(
         "Sets whether the beat  pulse effect is being controlled manually via "
         "Lua or automatically by the C++ engine to `$0`.");
 
+    lsVar("Manual3dPulseControl", &LevelStatus::manual3DPulseControl,
+        "Gets whether the 3D pulse effect is being controlled manually via Lua "
+        "or "
+        "automatically by the C++ engine.",
+
+        "Sets whether the 3D pulse effect is being controlled manually via Lua "
+        "or "
+        "automatically by the C++ engine to `$0`.");
+
     lsVar("CurrentIncrements", &LevelStatus::currentIncrements,
         "Gets the current amount of times the level has incremented. Very "
         "useful for "
@@ -947,6 +956,21 @@ static void initLevelControl(
         "`0` and `l_getBeatPulseDelayMax()` unless manually overridden.",
 
         "Sets the current beat pulse delay value to `$0`.");
+
+    sVar("3dPulse", &HexagonGameStatus::pulse3D,
+        "Gets the current pulse value, which will vary between "
+        "`s_get3dPulseMin()` and `s_get3dPulseMax()` unless manually "
+        "overridden.",
+
+        "Sets the current 3D pulse value to `$0`.");
+
+    sVar("3dPulseDirection", &HexagonGameStatus::pulse3DDirection,
+        "Gets the current 3D pulse direction value, which will either be `-1` "
+        "or "
+        "`1` unless manually overridden.",
+
+        "Sets the current 3D pulse direction value to `$0`. Valid choices are "
+        "`-1` or `1`.");
 
     sVar("ShowPlayerTrail", &HexagonGameStatus::showPlayerTrail,
         "Gets whether the current level allows player trails to be shown.",
