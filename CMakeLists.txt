@@ -97,7 +97,7 @@ set(SFML_ENABLE_PCH true)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG b97c9c7f0b552ff7e1e6f0fa51abe82b949e241d
+    GIT_TAG 06b4c6ceaabaa3e15e88ca70cf61ae7bba69ad39
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD OFF)
@@ -187,7 +187,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
         GITHUB_REPOSITORY SFML/imgui-sfml
-        GIT_TAG ac98a9f34ed26fd92544941903d4bd0a2964cad4
+        GIT_TAG 7758bfd06326af08dc919198c13f9f0e64e70b1a
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)

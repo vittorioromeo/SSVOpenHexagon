@@ -258,105 +258,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     game.onDraw += [this] { draw(); };
 
-    game.onEvent(sf::Event::EventType::Resized) +=
-        [this](const sf::Event& event)
-    { changeResolutionTo(event.size.width, event.size.height); };
-
-    game.onEvent(sf::Event::EventType::TextEntered) +=
-        [this](const sf::Event& mEvent)
-    {
-        if(mEvent.text.unicode < 128)
-        {
-            enteredChars.emplace_back(ssvu::toNum<char>(mEvent.text.unicode));
-        }
-    };
-
-    game.onEvent(sf::Event::EventType::KeyPressed) += [this](const sf::Event&)
-    {
-        if(window.hasFocus())
-        {
-            setMouseCursorVisible(false);
-        }
-    };
-
-    game.onEvent(sf::Event::EventType::MouseMoved) += [this](const sf::Event& e)
-    {
-        const sf::Vector2i mouseMoveVec = {e.mouseMove.x, e.mouseMove.y};
-        const sf::Vector2i mouseMoveDelta =
-            lastMouseMovedPosition - mouseMoveVec;
-
-        lastMouseMovedPosition = mouseMoveVec;
-
-        const bool actuallyMoved =
-            (mouseMoveDelta.x != 0) || (mouseMoveDelta.y != 0);
-
-        if(window.hasFocus() && actuallyMoved)
-        {
-            setMouseCursorVisible(true);
-        }
-    };
-
-    game.onEvent(sf::Event::EventType::MouseWheelScrolled) +=
-        [this](const sf::Event& mEvent)
-    {
-        if(window.hasFocus())
-        {
-            setMouseCursorVisible(true);
-        }
-
-        // Disable scroll while assigning a bind
-        if(state == States::MOpts)
-        {
-            const auto* const bc{
-                dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
-            if(bc != nullptr && bc->isWaitingForBind())
-            {
-                return;
-            }
-        }
-
-        if(state == States::LevelSelection)
-        {
-            if(focusHeld)
-            {
-                changePackQuick(mEvent.mouseWheelScroll.delta > 0 ? -1 : 1);
-            }
-            else if(lvlDrawer != nullptr)
-            {
-                lvlDrawer->YScrollTo += mEvent.mouseWheelScroll.delta * 48.f;
-
-                if(lvlDrawer->YScrollTo > 0)
-                {
-                    lvlDrawer->YScrollTo = 0;
-                }
-                else if(lvlDrawer->YScrollTo < -4000)
-                {
-                    // Why...
-                    steamManager.unlock_achievement("a35_eagerformore");
-                    playSoundOverride("error.ogg");
-                    lvlDrawer->YScrollTo = 0;
-                }
-            }
-
-            return;
-        }
-
-        wheelProgress += mEvent.mouseWheelScroll.delta;
-        if(wheelProgress > 1.f)
-        {
-            wheelProgress = 0.f;
-            upAction();
-        }
-        else if(wheelProgress < -1.f)
-        {
-            wheelProgress = 0.f;
-            downAction();
-        }
-    };
-
-    // To close the load results with any key
-    setIgnoreAllInputs(1);
-
     const auto checkCloseBootScreens = [this]
     {
         if((--ignoreInputs) == 0)
@@ -488,244 +389,335 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
-    game.onEvent(sf::Event::EventType::TextEntered) +=
-        [this](const sf::Event& mEvent)
+    game.onAnyEvent += [this, checkCloseBootScreens, checkCloseDialogBox](
+                           const sf::Event& event)
     {
-        if(dialogBox.empty() || !dialogBox.isInputBox())
+        if(const auto* e = event.getIf<sf::Event::Resized>())
         {
-            return;
+            changeResolutionTo(e->size.x, e->size.y);
         }
-
-        std::string& input = dialogBox.getInput();
-
-        if(mEvent.text.unicode >= 32 && mEvent.text.unicode < 127)
+        else if(const auto* e = event.getIf<sf::Event::TextEntered>())
         {
-            if(input.size() < 32)
+            if(e->unicode < 128)
             {
-                playSoundOverride("beep.ogg");
-                input.push_back(static_cast<char>(mEvent.text.unicode));
+                enteredChars.emplace_back(ssvu::toNum<char>(e->unicode));
             }
         }
-        else if(mEvent.text.unicode == 8) // backspace
+        else if(event.is<sf::Event::KeyPressed>())
         {
-            if(!input.empty())
+            if(window.hasFocus())
             {
-                playSoundOverride("beep.ogg");
-                input.pop_back();
+                setMouseCursorVisible(false);
             }
         }
-    };
-
-    game.onEvent(sf::Event::EventType::KeyReleased) +=
-        [this, checkCloseBootScreens, checkCloseDialogBox](
-            const sf::Event& mEvent)
-    {
-        // don't do anything if inputs are being processed as usual
-        if(ignoreInputs == 0)
+        else if(const auto* e = event.getIf<sf::Event::MouseMoved>())
         {
-            return;
-        }
+            const sf::Vector2i mouseMoveVec = {e->position.x, e->position.y};
+            const sf::Vector2i mouseMoveDelta =
+                lastMouseMovedPosition - mouseMoveVec;
 
-        // Scenario one: epilepsy warning is being drawn and user
-        // must close it with any key press
-        if(state == States::EpilepsyWarning || state == States::LoadingScreen)
-        {
-            checkCloseBootScreens();
-            return;
-        }
+            lastMouseMovedPosition = mouseMoveVec;
 
-        // Scenario two: actions are blocked cause a dialog box is open
-        if(dialogBoxDelay > 0.f)
-        {
-            return;
-        }
+            const bool actuallyMoved =
+                (mouseMoveDelta.x != 0) || (mouseMoveDelta.y != 0);
 
-        const sf::Keyboard::Key key{mEvent.key.code};
-        if(!dialogBox.empty())
-        {
-            if(dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown ||
-                key == dialogBox.getKeyToClose())
+            if(window.hasFocus() && actuallyMoved)
             {
-                --ignoreInputs;
+                setMouseCursorVisible(true);
+            }
+        }
+        else if(const auto* e = event.getIf<sf::Event::MouseWheelScrolled>())
+        {
+            if(window.hasFocus())
+            {
+                setMouseCursorVisible(true);
             }
 
-            if(dialogBox.isInputBox() && key == sf::Keyboard::Key::Escape)
+            // Disable scroll while assigning a bind
+            if(state == States::MOpts)
             {
+                const auto* const bc{dynamic_cast<BindControlBase*>(
+                    &getCurrentMenu()->getItem())};
+                if(bc != nullptr && bc->isWaitingForBind())
+                {
+                    return;
+                }
+            }
+
+            if(state == States::LevelSelection)
+            {
+                if(focusHeld)
+                {
+                    changePackQuick(e->delta > 0 ? -1 : 1);
+                }
+                else if(lvlDrawer != nullptr)
+                {
+                    lvlDrawer->YScrollTo += e->delta * 48.f;
+
+                    if(lvlDrawer->YScrollTo > 0)
+                    {
+                        lvlDrawer->YScrollTo = 0;
+                    }
+                    else if(lvlDrawer->YScrollTo < -4000)
+                    {
+                        // Why...
+                        steamManager.unlock_achievement("a35_eagerformore");
+                        playSoundOverride("error.ogg");
+                        lvlDrawer->YScrollTo = 0;
+                    }
+                }
+
+                return;
+            }
+
+            wheelProgress += e->delta;
+            if(wheelProgress > 1.f)
+            {
+                wheelProgress = 0.f;
+                upAction();
+            }
+            else if(wheelProgress < -1.f)
+            {
+                wheelProgress = 0.f;
+                downAction();
+            }
+        }
+        else if(const auto* e = event.getIf<sf::Event::TextEntered>())
+        {
+            if(dialogBox.empty() || !dialogBox.isInputBox())
+            {
+                return;
+            }
+
+            std::string& input = dialogBox.getInput();
+
+            if(e->unicode >= 32 && e->unicode < 127)
+            {
+                if(input.size() < 32)
+                {
+                    playSoundOverride("beep.ogg");
+                    input.push_back(static_cast<char>(e->unicode));
+                }
+            }
+            else if(e->unicode == 8) // backspace
+            {
+                if(!input.empty())
+                {
+                    playSoundOverride("beep.ogg");
+                    input.pop_back();
+                }
+            }
+        }
+        else if(const auto* e = event.getIf<sf::Event::KeyReleased>())
+        {
+            // don't do anything if inputs are being processed as usual
+            if(ignoreInputs == 0)
+            {
+                return;
+            }
+
+            // Scenario one: epilepsy warning is being drawn and user
+            // must close it with any key press
+            if(state == States::EpilepsyWarning ||
+                state == States::LoadingScreen)
+            {
+                checkCloseBootScreens();
+                return;
+            }
+
+            // Scenario two: actions are blocked cause a dialog box is open
+            if(dialogBoxDelay > 0.f)
+            {
+                return;
+            }
+
+            const sf::Keyboard::Key key{e->code};
+            if(!dialogBox.empty())
+            {
+                if(dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown ||
+                    key == dialogBox.getKeyToClose())
+                {
+                    --ignoreInputs;
+                }
+
+                if(dialogBox.isInputBox() && key == sf::Keyboard::Key::Escape)
+                {
+                    setIgnoreAllInputs(0);
+                    dialogInputState = DialogInputState::Nothing;
+
+                    playSoundOverride("select.ogg");
+                    dialogBox.clearDialogBox();
+
+                    return;
+                }
+
+                checkCloseDialogBox();
+                return;
+            }
+
+            // Scenario three: actions are blocked cause we are using a
+            // BindControl menu item
+            if(getCurrentMenu() != nullptr && key == sf::Keyboard::Key::Escape)
+            {
+                getCurrentMenu()->getItem().exec(); // turn off bind inputting
                 setIgnoreAllInputs(0);
-                dialogInputState = DialogInputState::Nothing;
+                playSoundOverride("beep.ogg");
+                return;
+            }
+
+            if((--ignoreInputs) == 0)
+            {
+                if(getCurrentMenu() == nullptr || state != States::MOpts)
+                {
+                    setIgnoreAllInputs(0);
+                    return;
+                }
+
+                auto* const bc{dynamic_cast<KeyboardBindControl*>(
+                    &getCurrentMenu()->getItem())};
+
+                // don't try assigning a keyboard key to a controller bind
+                if(bc == nullptr)
+                {
+                    playSoundOverride("error.ogg");
+                    ignoreInputs = 1;
+                    return;
+                }
+
+                // If user tries to bind a key that is already hardcoded ignore
+                // the input and notify it of what has happened.
+                if(!bc->newKeyboardBind(key))
+                {
+                    playSoundOverride("error.ogg");
+                    setIgnoreAllInputs(1);
+                    showDialogBox(
+                        "THE KEY YOU ARE TRYING TO ASSIGN TO THIS ACTION\n"
+                        "IS ALREADY BOUND TO IT BY DEFAULT,\n"
+                        "YOUR LAST INPUT HAS BEEN IGNORED\n\n"
+                        "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
+                    return;
+                }
 
                 playSoundOverride("select.ogg");
-                dialogBox.clearDialogBox();
-
-                return;
-            }
-
-            checkCloseDialogBox();
-            return;
-        }
-
-        // Scenario three: actions are blocked cause we are using a
-        // BindControl menu item
-        if(getCurrentMenu() != nullptr && key == sf::Keyboard::Key::Escape)
-        {
-            getCurrentMenu()->getItem().exec(); // turn off bind inputting
-            setIgnoreAllInputs(0);
-            playSoundOverride("beep.ogg");
-            return;
-        }
-
-        if((--ignoreInputs) == 0)
-        {
-            if(getCurrentMenu() == nullptr || state != States::MOpts)
-            {
                 setIgnoreAllInputs(0);
-                return;
+                touchDelay = 10.f;
             }
-
-            auto* const bc{dynamic_cast<KeyboardBindControl*>(
-                &getCurrentMenu()->getItem())};
-
-            // don't try assigning a keyboard key to a controller bind
-            if(bc == nullptr)
+        }
+        else if(const auto* e = event.getIf<sf::Event::MouseButtonReleased>())
+        {
+            if(ignoreInputs == 0)
             {
-                playSoundOverride("error.ogg");
-                ignoreInputs = 1;
                 return;
             }
 
-            // If user tries to bind a key that is already hardcoded ignore
-            // the input and notify it of what has happened.
-            if(!bc->newKeyboardBind(key))
+            if(state == States::EpilepsyWarning ||
+                state == States::LoadingScreen)
             {
-                playSoundOverride("error.ogg");
-                setIgnoreAllInputs(1);
-                showDialogBox(
-                    "THE KEY YOU ARE TRYING TO ASSIGN TO THIS ACTION\n"
-                    "IS ALREADY BOUND TO IT BY DEFAULT,\n"
-                    "YOUR LAST INPUT HAS BEEN IGNORED\n\n"
-                    "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
+                checkCloseBootScreens();
                 return;
             }
 
-            playSoundOverride("select.ogg");
-            setIgnoreAllInputs(0);
-            touchDelay = 10.f;
+            if(dialogBoxDelay > 0.f)
+            {
+                return;
+            }
+
+            if(!dialogBox.empty())
+            {
+                if(dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
+                {
+                    return;
+                }
+                --ignoreInputs;
+                checkCloseDialogBox();
+                return;
+            }
+
+            if((--ignoreInputs) == 0)
+            {
+                if(getCurrentMenu() == nullptr || state != States::MOpts)
+                {
+                    setIgnoreAllInputs(0);
+                    return;
+                }
+
+                auto* const bc{dynamic_cast<KeyboardBindControl*>(
+                    &getCurrentMenu()->getItem())};
+
+                // don't try assigning a keyboard key to a controller bind
+                if(bc == nullptr)
+                {
+                    playSoundOverride("error.ogg");
+                    ignoreInputs = 1;
+                    return;
+                }
+
+                bc->newKeyboardBind(e->button);
+                playSoundOverride("select.ogg");
+                setIgnoreAllInputs(0);
+                touchDelay = 10.f;
+            }
+        }
+        else if(const auto* e =
+                    event.getIf<sf::Event::JoystickButtonReleased>())
+        {
+            if(ignoreInputs == 0)
+            {
+                return;
+            }
+
+            if(state == States::EpilepsyWarning ||
+                state == States::LoadingScreen)
+            {
+                checkCloseBootScreens();
+                return;
+            }
+
+            if(dialogBoxDelay > 0.f)
+            {
+                return;
+            }
+
+            if(!dialogBox.empty())
+            {
+                if(dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
+                {
+                    return;
+                }
+                --ignoreInputs;
+                checkCloseDialogBox();
+                return;
+            }
+
+            if((--ignoreInputs) == 0)
+            {
+                if(getCurrentMenu() == nullptr || state != States::MOpts)
+                {
+                    setIgnoreAllInputs(0);
+                    return;
+                }
+
+                auto* const bc{dynamic_cast<JoystickBindControl*>(
+                    &getCurrentMenu()->getItem())};
+
+                // don't try assigning a controller button to a keyboard bind
+                if(bc == nullptr)
+                {
+                    playSoundOverride("error.ogg");
+                    ignoreInputs = 1;
+                    return;
+                }
+
+                bc->newJoystickBind(e->button);
+                setIgnoreAllInputs(0);
+                playSoundOverride("select.ogg");
+                touchDelay = 10.f;
+            }
         }
     };
 
-    game.onEvent(sf::Event::EventType::MouseButtonReleased) +=
-        [this, checkCloseBootScreens, checkCloseDialogBox](
-            const sf::Event& mEvent)
-    {
-        if(ignoreInputs == 0)
-        {
-            return;
-        }
-
-        if(state == States::EpilepsyWarning || state == States::LoadingScreen)
-        {
-            checkCloseBootScreens();
-            return;
-        }
-
-        if(dialogBoxDelay > 0.f)
-        {
-            return;
-        }
-
-        if(!dialogBox.empty())
-        {
-            if(dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
-            {
-                return;
-            }
-            --ignoreInputs;
-            checkCloseDialogBox();
-            return;
-        }
-
-        if((--ignoreInputs) == 0)
-        {
-            if(getCurrentMenu() == nullptr || state != States::MOpts)
-            {
-                setIgnoreAllInputs(0);
-                return;
-            }
-
-            auto* const bc{dynamic_cast<KeyboardBindControl*>(
-                &getCurrentMenu()->getItem())};
-
-            // don't try assigning a keyboard key to a controller bind
-            if(bc == nullptr)
-            {
-                playSoundOverride("error.ogg");
-                ignoreInputs = 1;
-                return;
-            }
-
-            bc->newKeyboardBind(mEvent.mouseButton.button);
-            playSoundOverride("select.ogg");
-            setIgnoreAllInputs(0);
-            touchDelay = 10.f;
-        }
-    };
-
-    game.onEvent(sf::Event::EventType::JoystickButtonReleased) +=
-        [this, checkCloseBootScreens, checkCloseDialogBox](
-            const sf::Event& mEvent)
-    {
-        if(ignoreInputs == 0)
-        {
-            return;
-        }
-
-        if(state == States::EpilepsyWarning || state == States::LoadingScreen)
-        {
-            checkCloseBootScreens();
-            return;
-        }
-
-        if(dialogBoxDelay > 0.f)
-        {
-            return;
-        }
-
-        if(!dialogBox.empty())
-        {
-            if(dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
-            {
-                return;
-            }
-            --ignoreInputs;
-            checkCloseDialogBox();
-            return;
-        }
-
-        if((--ignoreInputs) == 0)
-        {
-            if(getCurrentMenu() == nullptr || state != States::MOpts)
-            {
-                setIgnoreAllInputs(0);
-                return;
-            }
-
-            auto* const bc{dynamic_cast<JoystickBindControl*>(
-                &getCurrentMenu()->getItem())};
-
-            // don't try assigning a controller button to a keyboard bind
-            if(bc == nullptr)
-            {
-                playSoundOverride("error.ogg");
-                ignoreInputs = 1;
-                return;
-            }
-
-            bc->newJoystickBind(mEvent.joystickButton.button);
-            setIgnoreAllInputs(0);
-            playSoundOverride("select.ogg");
-            touchDelay = 10.f;
-        }
-    };
+    // To close the load results with any key
+    setIgnoreAllInputs(1);
 
     window.onRecreation += [this]
     {
@@ -1068,9 +1060,8 @@ void MenuGame::initLua()
 
     LuaScripting::init(
         lua, rng, true /* inMenu */, cwManager, levelStatus, hexagonGameStatus,
-        styleData, assets,
-        [this](const std::string& filename) { runLuaFile(filename); },
-        execScriptPackPathContext,
+        styleData, assets, [this](const std::string& filename)
+        { runLuaFile(filename); }, execScriptPackPathContext,
         [this]() -> const std::string& { return levelData->packPath; },
         [this]() -> const PackData& { return *currentPack; },
         false /* headless */);
@@ -1428,9 +1419,8 @@ void MenuGame::initMenus()
     fps.create<i::Toggle>("limit fps", &Config::getLimitFPS,
         [this](bool mValue) { Config::setLimitFPS(window, mValue); });
     fps.create<i::Slider>(
-        "max fps", &Config::getMaxFPS,
-        [this](unsigned int mValue) { Config::setMaxFPS(window, mValue); }, 30u,
-        1000u, 5u);
+        "max fps", &Config::getMaxFPS, [this](unsigned int mValue)
+        { Config::setMaxFPS(window, mValue); }, 30u, 1000u, 5u);
     fps.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
     fps.create<i::GoBack>("back");
 
@@ -1471,9 +1461,8 @@ void MenuGame::initMenus()
     gfx.create<i::Toggle>(
         "show key icons", &Config::getShowKeyIcons, &Config::setShowKeyIcons);
     gfx.create<i::Slider>(
-        "key icons scaling", &Config::getKeyIconsScale,
-        [](float mValue) { Config::setKeyIconsScale(mValue); }, 0.1f, 4.f,
-        0.05f);
+        "key icons scaling", &Config::getKeyIconsScale, [](float mValue)
+        { Config::setKeyIconsScale(mValue); }, 0.1f, 4.f, 0.05f);
     gfx.create<i::Toggle>("show level info", &Config::getShowLevelInfo,
         &Config::setShowLevelInfo);
     gfx.create<i::Toggle>(
@@ -1509,9 +1498,8 @@ void MenuGame::initMenus()
     sfx.create<i::Toggle>("sync music with difficulty",
         &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync);
     sfx.create<i::Slider>(
-        "music speed multiplier", &Config::getMusicSpeedMult,
-        [](float mValue) { Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f,
-        0.05f);
+        "music speed multiplier", &Config::getMusicSpeedMult, [](float mValue)
+        { Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f, 0.05f);
     sfx.create<i::Toggle>("play swap ready blip sound",
         &Config::getPlaySwapReadySound, &Config::setPlaySwapReadySound);
     sfx.create<i::GoBack>("back");

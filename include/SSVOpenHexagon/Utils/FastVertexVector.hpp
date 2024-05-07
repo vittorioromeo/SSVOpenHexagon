@@ -119,7 +119,7 @@ public:
     }
 
     void draw(sf::RenderTarget& mRenderTarget,
-        const sf::RenderStates& mRenderStates) const override
+        sf::RenderStates mRenderStates) const override
     {
         if(_data == nullptr) [[unlikely]]
         {

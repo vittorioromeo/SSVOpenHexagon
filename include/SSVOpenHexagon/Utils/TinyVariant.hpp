@@ -21,6 +21,12 @@
 #define TINYVARIANT_USE_STD_INDEX_SEQUENCE
 #endif
 
+#ifdef TINYVARIANT_SUPPORTS_HAS_BUILTIN
+#if __has_builtin(__type_pack_element)
+#define TINYVARIANT_USE_TYPE_PACK_ELEMENT
+#endif
+#endif
+
 #ifdef TINYVARIANT_USE_STD_INDEX_SEQUENCE
 #include <utility>
 #endif
@@ -102,7 +108,7 @@ template <typename T>
 inline constexpr bool is_same_type<T, T> = true;
 
 template <typename T>
-[[nodiscard, gnu::always_inline]] constexpr T variadic_max(
+[[nodiscard, gnu::always_inline]] consteval T variadic_max(
     std::initializer_list<T> il) noexcept
 {
     T result = 0;
@@ -119,7 +125,7 @@ template <typename T>
 }
 
 template <sz_t N>
-[[nodiscard, gnu::always_inline]] constexpr auto
+[[nodiscard, gnu::always_inline]] consteval auto
 smallest_int_type_for() noexcept
 {
     if constexpr(N <= UINT8_MAX)
@@ -151,7 +157,7 @@ enum : sz_t
 };
 
 template <typename T, typename... Ts>
-[[nodiscard, gnu::always_inline]] constexpr sz_t index_of() noexcept
+[[nodiscard, gnu::always_inline]] consteval sz_t index_of() noexcept
 {
     constexpr bool matches[]{is_same_type<T, Ts>...};
 
@@ -172,14 +178,22 @@ struct type_wrapper
     using type = T;
 };
 
+
+#ifdef TINYVARIANT_USE_TYPE_PACK_ELEMENT
+
+template <sz_t N, typename... Ts>
+using type_at = __type_pack_element<N, Ts...>;
+
+#else
+
 template <sz_t N, typename T0 = void, typename T1 = void, typename T2 = void,
     typename T3 = void, typename T4 = void, typename T5 = void,
     typename T6 = void, typename T7 = void, typename T8 = void,
     typename T9 = void, typename... Ts>
-[[nodiscard, gnu::always_inline]] constexpr auto type_at_impl() noexcept
+[[nodiscard, gnu::always_inline]] consteval auto type_at_impl() noexcept
 {
     // clang-format off
-         if constexpr(N == 0) { return type_wrapper<T0>{}; }
+    if constexpr(N == 0)      { return type_wrapper<T0>{}; }
     else if constexpr(N == 1) { return type_wrapper<T1>{}; }
     else if constexpr(N == 2) { return type_wrapper<T2>{}; }
     else if constexpr(N == 3) { return type_wrapper<T3>{}; }
@@ -195,6 +209,8 @@ template <sz_t N, typename T0 = void, typename T1 = void, typename T2 = void,
 
 template <sz_t N, typename... Ts>
 using type_at = typename decltype(type_at_impl<N, Ts...>())::type;
+
+#endif
 
 template <typename>
 struct tinyvariant_inplace_type_t
@@ -653,7 +669,7 @@ public:
     template <typename... Fs>
     [[nodiscard, gnu::always_inline]] auto recursive_match(
         Fs&&... fs) & -> decltype(recursive_visit(impl::overload_set{
-        static_cast<Fs&&>(fs)...}))
+                          static_cast<Fs&&>(fs)...}))
     {
         return recursive_visit(impl::overload_set{static_cast<Fs&&>(fs)...});
     }
@@ -661,7 +677,7 @@ public:
     template <typename... Fs>
     [[nodiscard, gnu::always_inline]] auto recursive_match(
         Fs&&... fs) const& -> decltype(recursive_visit(impl::overload_set{
-        static_cast<Fs&&>(fs)...}))
+                               static_cast<Fs&&>(fs)...}))
     {
         return recursive_visit(impl::overload_set{static_cast<Fs&&>(fs)...});
     }
@@ -714,7 +730,7 @@ public:
     template <typename... Fs>
     [[nodiscard, gnu::always_inline]] auto linear_match(
         Fs&&... fs) & -> decltype(linear_visit(impl::overload_set{
-        static_cast<Fs&&>(fs)...}))
+                          static_cast<Fs&&>(fs)...}))
     {
         return linear_visit(impl::overload_set{static_cast<Fs&&>(fs)...});
     }
@@ -722,17 +738,19 @@ public:
     template <typename... Fs>
     [[nodiscard, gnu::always_inline]] auto linear_match(
         Fs&&... fs) const& -> decltype(linear_visit(impl::overload_set{
-        static_cast<Fs&&>(fs)...}))
+                               static_cast<Fs&&>(fs)...}))
     {
         return linear_visit(impl::overload_set{static_cast<Fs&&>(fs)...});
     }
 };
 
 #undef TINYVARIANT_DO_WITH_CURRENT_INDEX
+#undef TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ
 #undef TINYVARIANT_STATIC_ASSERT_INDEX_VALIDITY
 
 #undef TINYVARIANT_USE_STD_INDEX_SEQUENCE
 #undef TINYVARIANT_USE_INTEGER_PACK
 #undef TINYVARIANT_USE_MAKE_INTEGER_SEQ
+#undef TINYVARIANT_USE_TYPE_PACK_ELEMENT
 
 } // namespace vittorioromeo

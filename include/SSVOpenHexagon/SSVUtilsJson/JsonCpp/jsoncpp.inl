@@ -561,7 +561,7 @@ inline bool Reader::decodeUnicodeCodePoint(
                 "surrogate "
                 "pair.",
                 token, current);
-        unsigned int surrogatePair;
+        unsigned int surrogatePair{};
         if(*(current++) == '\\' && *(current++) == 'u')
         {
             if(decodeUnicodeEscapeSequence(token, current, end, surrogatePair))
