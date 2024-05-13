@@ -1,15 +1,43 @@
 #pragma once
 
 #include <cassert>
-#include <cstdint>          // TODO: remove dependency?
-#include <initializer_list> // TODO: remove dependency?
-#include <new>              // TODO: remove dependency?
+#include <cstdint> // TODO: remove dependency?
+
+// From:
+// https://github.com/redorav/crstl/blob/master/include/crstl/utility/placement_new.h
+
+namespace vittorioromeo::impl {
+
+using sz_t = decltype(sizeof(int));
+
+struct placement_new_dummy
+{};
+
+} // namespace vittorioromeo::impl
+
+inline void* operator new(vittorioromeo::impl::sz_t,
+    vittorioromeo::impl::placement_new_dummy, void* ptr)
+{
+    return ptr;
+}
+
+inline void operator delete(
+    void*, vittorioromeo::impl::placement_new_dummy, void*) noexcept
+{}
+
+#define TINYVARIANT_PLACEMENT_NEW(...) \
+    ::new(::vittorioromeo::impl::placement_new_dummy{}, __VA_ARGS__)
 
 #if((__GNUC__ >= 10) || defined(__clang__)) && !defined(_MSC_VER)
 #define TINYVARIANT_SUPPORTS_HAS_BUILTIN
 #endif
 
 #ifdef TINYVARIANT_SUPPORTS_HAS_BUILTIN
+
+#if __has_builtin(__type_pack_element)
+#define TINYVARIANT_USE_TYPE_PACK_ELEMENT
+#endif
+
 #if __has_builtin(__make_integer_seq)
 #define TINYVARIANT_USE_MAKE_INTEGER_SEQ
 #elif __has_builtin(__integer_pack)
@@ -17,14 +45,9 @@
 #else
 #define TINYVARIANT_USE_STD_INDEX_SEQUENCE
 #endif
+
 #else
 #define TINYVARIANT_USE_STD_INDEX_SEQUENCE
-#endif
-
-#ifdef TINYVARIANT_SUPPORTS_HAS_BUILTIN
-#if __has_builtin(__type_pack_element)
-#define TINYVARIANT_USE_TYPE_PACK_ELEMENT
-#endif
 #endif
 
 #ifdef TINYVARIANT_USE_STD_INDEX_SEQUENCE
@@ -58,7 +81,6 @@ struct common_type_between<T, U, Rest...>
         decltype(true ? declval<T>() : declval<U>()), Rest...>::type;
 };
 
-using sz_t = decltype(sizeof(int));
 
 #ifdef TINYVARIANT_USE_STD_INDEX_SEQUENCE
 
@@ -107,13 +129,13 @@ inline constexpr bool is_same_type = false;
 template <typename T>
 inline constexpr bool is_same_type<T, T> = true;
 
-template <typename T>
-[[nodiscard, gnu::always_inline]] consteval T variadic_max(
-    std::initializer_list<T> il) noexcept
+template <auto X, auto... Xs>
+[[nodiscard, gnu::always_inline]] consteval auto variadic_max() noexcept
 {
-    T result = 0;
+    decltype(X) result = X;
+    decltype(X) rest[]{Xs...};
 
-    for(T value : il)
+    for(auto value : rest)
     {
         if(value > result)
         {
@@ -312,8 +334,8 @@ private:
     enum : impl::sz_t
     {
         type_count = sizeof...(Alternatives),
-        max_alignment = impl::variadic_max({alignof(Alternatives)...}),
-        max_size = impl::variadic_max({sizeof(Alternatives)...})
+        max_alignment = impl::variadic_max<alignof(Alternatives)...>(),
+        max_size = impl::variadic_max<sizeof(Alternatives)...>()
     };
 
     using index_type = decltype(impl::smallest_int_type_for<type_count>());
@@ -384,7 +406,7 @@ private:
         : _index{static_cast<index_type>(I)}
     {
         TINYVARIANT_STATIC_ASSERT_INDEX_VALIDITY(I);
-        new(_buffer) T{static_cast<Args&&>(args)...};
+        TINYVARIANT_PLACEMENT_NEW(_buffer) T{static_cast<Args&&>(args)...};
     }
 
     template <impl::sz_t I>
@@ -495,17 +517,19 @@ public:
     [[gnu::always_inline]] tinyvariant(const tinyvariant& rhs)
         : _index{rhs._index}
     {
-        TINYVARIANT_DO_WITH_CURRENT_INDEX(
-            I, new(_buffer) nth_type<I>(static_cast<const nth_type<I>&>(
-                   *reinterpret_cast<const nth_type<I>*>(rhs._buffer))));
+        TINYVARIANT_DO_WITH_CURRENT_INDEX(I,
+            TINYVARIANT_PLACEMENT_NEW(_buffer)
+                nth_type<I>(static_cast<const nth_type<I>&>(
+                    *reinterpret_cast<const nth_type<I>*>(rhs._buffer))));
     }
 
     [[gnu::always_inline]] tinyvariant(tinyvariant&& rhs) noexcept
         : _index{rhs._index}
     {
-        TINYVARIANT_DO_WITH_CURRENT_INDEX(
-            I, new(_buffer) nth_type<I>(static_cast<nth_type<I>&&>(
-                   *reinterpret_cast<nth_type<I>*>(rhs._buffer))));
+        TINYVARIANT_DO_WITH_CURRENT_INDEX(I,
+            TINYVARIANT_PLACEMENT_NEW(_buffer)
+                nth_type<I>(static_cast<nth_type<I>&&>(
+                    *reinterpret_cast<nth_type<I>*>(rhs._buffer))));
     }
 
     // Avoid forwarding constructor hijack.
@@ -532,8 +556,9 @@ public:
 
         TINYVARIANT_DO_WITH_CURRENT_INDEX(I, destroy_at<I>());
 
-        TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ(
-            rhs, I, (new(_buffer) nth_type<I>(rhs.template as<nth_type<I>>())));
+        TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ(rhs, I,
+            (TINYVARIANT_PLACEMENT_NEW(_buffer)
+                    nth_type<I>(rhs.template as<nth_type<I>>())));
         _index = rhs._index;
 
         return *this;
@@ -549,7 +574,7 @@ public:
         TINYVARIANT_DO_WITH_CURRENT_INDEX(I, destroy_at<I>());
 
         TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ(rhs, I,
-            (new(_buffer) nth_type<I>(
+            (TINYVARIANT_PLACEMENT_NEW(_buffer) nth_type<I>(
                 static_cast<nth_type<I>&&>(rhs.template as<nth_type<I>>()))));
         _index = rhs._index;
 
@@ -568,7 +593,7 @@ public:
 
         using type = impl::uncvref_t<T>;
 
-        new(_buffer) type{static_cast<T&&>(x)};
+        TINYVARIANT_PLACEMENT_NEW(_buffer) type{static_cast<T&&>(x)};
         _index = index_of<type>;
 
         return *this;
@@ -697,8 +722,9 @@ public:
         {
             alignas(R) byte ret_buffer[sizeof(R)];
 
-            TINYVARIANT_DO_WITH_CURRENT_INDEX(
-                I, new(ret_buffer) R(visitor(get_by_index<I>())));
+            TINYVARIANT_DO_WITH_CURRENT_INDEX(I,
+                TINYVARIANT_PLACEMENT_NEW(ret_buffer)
+                    R(visitor(get_by_index<I>())));
 
             return *(reinterpret_cast<R*>(ret_buffer));
         }
@@ -720,8 +746,9 @@ public:
         {
             alignas(R) byte ret_buffer[sizeof(R)];
 
-            TINYVARIANT_DO_WITH_CURRENT_INDEX(
-                I, new(ret_buffer) R(visitor(get_by_index<I>())));
+            TINYVARIANT_DO_WITH_CURRENT_INDEX(I,
+                TINYVARIANT_PLACEMENT_NEW(ret_buffer)
+                    R(visitor(get_by_index<I>())));
 
             return *(reinterpret_cast<R*>(ret_buffer));
         }
@@ -752,5 +779,7 @@ public:
 #undef TINYVARIANT_USE_INTEGER_PACK
 #undef TINYVARIANT_USE_MAKE_INTEGER_SEQ
 #undef TINYVARIANT_USE_TYPE_PACK_ELEMENT
+
+#undef TINYVARIANT_PLACEMENT_NEW
 
 } // namespace vittorioromeo
