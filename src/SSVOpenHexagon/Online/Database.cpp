@@ -217,9 +217,9 @@ constexpr int tokenValiditySeconds = 3600;
 
     auto query = Impl::getStorage().get_all<LoginToken>();
 
-    query.erase(std::remove_if(query.begin(), query.end(),
-                    [&](const LoginToken& lt)
-                    { return isLoginTokenTimestampValid(lt); }),
+    query.erase(
+        std::remove_if(query.begin(), query.end(), [&](const LoginToken& lt)
+            { return isLoginTokenTimestampValid(lt); }),
         std::end(query));
 
     return query;

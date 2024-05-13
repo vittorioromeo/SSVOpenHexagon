@@ -264,7 +264,7 @@ template <typename T>
             .steamId = steamId,          //
             .name = name,                //
             .passwordHash = passwordHash //
-        }                                //
+        } //
     );
 }
 
@@ -278,7 +278,7 @@ template <typename T>
             .steamId = steamId,          //
             .name = name,                //
             .passwordHash = passwordHash //
-        }                                //
+        } //
     );
 }
 
@@ -297,7 +297,7 @@ template <typename T>
         CTSPDeleteAccount{
             .steamId = steamId,          //
             .passwordHash = passwordHash //
-        }                                //
+        } //
     );
 }
 
@@ -310,7 +310,7 @@ template <typename T>
         CTSPRequestTopScores{
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
-        }                                    //
+        } //
     );
 }
 
@@ -323,7 +323,7 @@ template <typename T>
         CTSPRequestOwnScore{
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
-        }                                    //
+        } //
     );
 }
 
@@ -337,7 +337,7 @@ template <typename T>
         CTSPRequestTopScoresAndOwnScore{
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
-        }                                    //
+        } //
     );
 }
 
@@ -350,7 +350,7 @@ template <typename T>
         CTSPStartedGame{
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
-        }                                    //
+        } //
     );
 }
 
@@ -365,7 +365,7 @@ template <typename T>
         CTSPCompressedReplay{
             .loginToken = loginToken,                    //
             .compressedReplayFile = compressedReplayFile //
-        }                                                //
+        } //
     );
 }
 
@@ -377,7 +377,7 @@ template <typename T>
     return sendEncrypted( //
         CTSPRequestServerStatus{
             .loginToken = loginToken, //
-        }                             //
+        } //
     );
 }
 
@@ -388,7 +388,7 @@ template <typename T>
     return sendEncrypted( //
         CTSPReady{
             .loginToken = loginToken, //
-        }                             //
+        } //
     );
 }
 

@@ -36,8 +36,7 @@ template <typename TSplitType = std::string_view>
     std::vector<TSplitType> result;
 
     withSplit<TSplitType>([&](TSplitType&& piece)
-        { result.emplace_back(std::move(piece)); },
-        str, delims);
+        { result.emplace_back(std::move(piece)); }, str, delims);
 
     return result;
 }

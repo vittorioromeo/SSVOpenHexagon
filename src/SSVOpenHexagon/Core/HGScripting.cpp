@@ -312,8 +312,7 @@ static void waitUntilSImpl(const double mDuration,
 
 void HexagonGame::initLua_MainTimeline()
 {
-    addLuaFn(lua, "t_eval",
-        [this](const std::string& mCode)
+    addLuaFn(lua, "t_eval", [this](const std::string& mCode)
         { timeline.append_do([=, this] { Utils::runLuaCode(lua, mCode); }); })
         .arg("code")
         .doc(
@@ -327,8 +326,7 @@ void HexagonGame::initLua_MainTimeline()
         [this] { timeline.append_do([this] { death(true); }); })
         .doc("*Add to the main timeline*: kill the player.");
 
-    addLuaFn(lua, "t_wait",
-        [this](double mDuration)
+    addLuaFn(lua, "t_wait", [this](double mDuration)
         { timeline.append_wait_for_sixths(mDuration); })
         .arg("duration")
         .doc(
@@ -386,8 +384,7 @@ void HexagonGame::initLua_EventTimeline()
             "*Add to the event timeline*: pause the game timer for `$0` "
             "seconds.");
 
-    addLuaFn(lua, "e_wait",
-        [this](double mDuration)
+    addLuaFn(lua, "e_wait", [this](double mDuration)
         { eventTimeline.append_wait_for_sixths(mDuration); })
         .arg("duration")
         .doc(
@@ -1105,9 +1102,8 @@ void HexagonGame::initLua()
 {
     LuaScripting::init(
         lua, rng, false /* inMenu */, cwManager, levelStatus, status, styleData,
-        assets,
-        [this](const std::string& filename) -> void { runLuaFile(filename); },
-        execScriptPackPathContext,
+        assets, [this](const std::string& filename) -> void
+        { runLuaFile(filename); }, execScriptPackPathContext,
         [this]() -> const std::string& { return levelData->packPath; },
         [this]() -> const PackData& { return getPackData(); },
         (window == nullptr) /* headless */);

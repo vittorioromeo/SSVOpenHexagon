@@ -182,7 +182,7 @@ template <typename T>
         STCPLoginSuccess{
             .loginToken = static_cast<std::uint64_t>(loginToken), //
             .loginName = loginName                                //
-        }                                                         //
+        } //
     );
 }
 
@@ -221,7 +221,7 @@ template <typename T>
         STCPTopScores{
             .levelValidator = levelValidator, //
             .scores = scores                  //
-        }                                     //
+        } //
     );
 }
 
@@ -232,7 +232,7 @@ template <typename T>
         STCPOwnScore{
             .levelValidator = levelValidator, //
             .score = score                    //
-        }                                     //
+        } //
     );
 }
 
@@ -246,7 +246,7 @@ template <typename T>
             .levelValidator = levelValidator, //
             .scores = scores,                 //
             .ownScore = ownScore              //
-        }                                     //
+        } //
     );
 }
 
@@ -259,7 +259,7 @@ template <typename T>
             .protocolVersion = protocolVersion,                  //
             .gameVersion = gameVersion,                          //
             .supportedLevelValidators = supportedLevelValidators //
-        }                                                        //
+        } //
     );
 }
 
@@ -960,7 +960,7 @@ void HexagonServer::printCTSPDataVerbose(
                     .steamId = steamId,
                     .name = name,
                     .passwordHash = Utils::stringToCharVec(passwordHash) //
-                }                                                        //
+                } //
             );
 
             SSVOH_SLOG << "Successfully registered\n";

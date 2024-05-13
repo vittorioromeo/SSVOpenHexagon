@@ -130,9 +130,9 @@ template <typename T, typename = void>
 struct Extractor
 {
     template <typename U = T>
-    [[nodiscard]] static auto doExtractIntoImpl(
-        U& target, std::ostringstream& errorOss, sf::Packet& p, int)
-        -> decltype((p >> target), bool())
+    [[nodiscard]] static auto doExtractIntoImpl(U& target,
+        std::ostringstream& errorOss, sf::Packet& p,
+        int) -> decltype((p >> target), bool())
     {
         if(!(p >> target))
         {
@@ -461,9 +461,8 @@ template <typename T>
 template <typename T>
 [[nodiscard]] auto makeExtractor(std::ostringstream& errorOss, sf::Packet& p)
 {
-    return [&](const char* name) -> std::optional<T> {
-        return AdvancedMatcher{errorOss, p}.extractOrPrintError<T>(name);
-    };
+    return [&](const char* name) -> std::optional<T>
+    { return AdvancedMatcher{errorOss, p}.extractOrPrintError<T>(name); };
 }
 
 [[nodiscard]] bool verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
@@ -545,8 +544,8 @@ void encodeFieldImpl(
 }
 
 template <typename TData, typename TField>
-auto encodeFieldImpl(sf::Packet& p, const TData&, const TField& field, int)
-    -> decltype((p << field), void())
+auto encodeFieldImpl(sf::Packet& p, const TData&, const TField& field,
+    int) -> decltype((p << field), void())
 {
     p << field;
 }
@@ -743,8 +742,7 @@ template <typename T>
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
     return makeEncryptedPacketImpl([](auto&&... xs)
-        { makeClientToServerPacket(SSVOH_FWD(xs)...); },
-        keyTransmit, p, data);
+        { makeClientToServerPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
 }
 
 #define INSTANTIATE_MAKE_CTS_ENCRYPTED(mIdx, mData, mArg) \
@@ -891,8 +889,7 @@ template <typename T>
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
     return makeEncryptedPacketImpl([](auto&&... xs)
-        { makeServerToClientPacket(SSVOH_FWD(xs)...); },
-        keyTransmit, p, data);
+        { makeServerToClientPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
 }
 
 #define INSTANTIATE_MAKE_STC_ENCRYPTED(mIdx, mData, mArg) \

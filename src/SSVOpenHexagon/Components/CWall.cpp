@@ -22,9 +22,8 @@ CWall::CWall(const unsigned int sides, const float wallAngleLeft,
     const float angleN = angle - div;
     const float angleP = angle + div;
 
-    const auto vecFromRad = [](const float rad, const float dist) {
-        return sf::Vector2f{dist * std::cos(rad), dist * std::sin(rad)};
-    };
+    const auto vecFromRad = [](const float rad, const float dist)
+    { return sf::Vector2f{dist * std::cos(rad), dist * std::sin(rad)}; };
 
     _vertexPositions[0] = centerPos + vecFromRad(angleN, distance);
 

@@ -284,9 +284,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
 
     addLuaFn(lua, "cw_setVertexPos", //
         [&cwManager](
-            CCustomWallHandle cwHandle, int vertexIndex, float x, float y) {
-            cwManager.setVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y});
-        })
+            CCustomWallHandle cwHandle, int vertexIndex, float x, float y)
+        { cwManager.setVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y}); })
         .arg("cwHandle")
         .arg("vertexIndex")
         .arg("x")
@@ -297,9 +296,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
 
     addLuaFn(lua, "cw_moveVertexPos", //
         [&cwManager](
-            CCustomWallHandle cwHandle, int vertexIndex, float x, float y) {
-            cwManager.moveVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y});
-        })
+            CCustomWallHandle cwHandle, int vertexIndex, float x, float y)
+        { cwManager.moveVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y}); })
         .arg("cwHandle")
         .arg("vertexIndex")
         .arg("offsetX")
@@ -309,9 +307,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "position of its vertex with index `$1`.");
 
     addLuaFn(lua, "cw_moveVertexPos4Same", //
-        [&cwManager](CCustomWallHandle cwHandle, float x, float y) {
-            cwManager.moveVertexPos4Same(cwHandle, sf::Vector2f{x, y});
-        })
+        [&cwManager](CCustomWallHandle cwHandle, float x, float y)
+        { cwManager.moveVertexPos4Same(cwHandle, sf::Vector2f{x, y}); })
         .arg("cwHandle")
         .arg("offsetX")
         .arg("offsetY")
@@ -1150,16 +1147,14 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
             "Set the color of the center polygon to match the style color with "
             "index `$0`.");
 
-    const auto colorToTuple = [](const sf::Color& c) {
-        return std::tuple<int, int, int, int>{c.r, c.g, c.b, c.a};
-    };
+    const auto colorToTuple = [](const sf::Color& c)
+    { return std::tuple<int, int, int, int>{c.r, c.g, c.b, c.a}; };
 
     const auto sdColorGetter =
         [&lua, &styleData, &colorToTuple](
             const char* name, const char* docName, auto pmf)
     {
-        addLuaFn(lua, name,
-            [&styleData, colorToTuple, pmf]
+        addLuaFn(lua, name, [&styleData, colorToTuple, pmf]
             { return colorToTuple((styleData.*pmf)()); })
             .doc(Utils::concat("Return the current ", docName,
                 " color computed by the level style."));
@@ -1393,9 +1388,8 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const float a, const float b)
         {
             withValidShaderId("shdr_setUniformFVec2", shaderId,
-                [&](sf::Shader& shader) {
-                    shader.setUniformUnsafe(name, sf::Glsl::Vec2{a, b});
-                });
+                [&](sf::Shader& shader)
+                { shader.setUniformUnsafe(name, sf::Glsl::Vec2{a, b}); });
         })
         .arg("shaderId")
         .arg("name")
@@ -1410,9 +1404,8 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const float a, const float b, const float c)
         {
             withValidShaderId("shdr_setUniformFVec3", shaderId,
-                [&](sf::Shader& shader) {
-                    shader.setUniformUnsafe(name, sf::Glsl::Vec3{a, b, c});
-                });
+                [&](sf::Shader& shader)
+                { shader.setUniformUnsafe(name, sf::Glsl::Vec3{a, b, c}); });
         })
         .arg("shaderId")
         .arg("name")
@@ -1428,9 +1421,8 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const float a, const float b, const float c, const float d)
         {
             withValidShaderId("shdr_setUniformFVec4", shaderId,
-                [&](sf::Shader& shader) {
-                    shader.setUniformUnsafe(name, sf::Glsl::Vec4{a, b, c, d});
-                });
+                [&](sf::Shader& shader)
+                { shader.setUniformUnsafe(name, sf::Glsl::Vec4{a, b, c, d}); });
         })
         .arg("shaderId")
         .arg("name")
@@ -1464,9 +1456,8 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const int a, const int b)
         {
             withValidShaderId("shdr_setUniformIVec2", shaderId,
-                [&](sf::Shader& shader) {
-                    shader.setUniformUnsafe(name, sf::Glsl::Ivec2{a, b});
-                });
+                [&](sf::Shader& shader)
+                { shader.setUniformUnsafe(name, sf::Glsl::Ivec2{a, b}); });
         })
         .arg("shaderId")
         .arg("name")
@@ -1481,9 +1472,8 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const int a, const int b, const int c)
         {
             withValidShaderId("shdr_setUniformIVec3", shaderId,
-                [&](sf::Shader& shader) {
-                    shader.setUniformUnsafe(name, sf::Glsl::Ivec3{a, b, c});
-                });
+                [&](sf::Shader& shader)
+                { shader.setUniformUnsafe(name, sf::Glsl::Ivec3{a, b, c}); });
         })
         .arg("shaderId")
         .arg("name")
