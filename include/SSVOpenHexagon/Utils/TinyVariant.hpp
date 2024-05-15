@@ -720,7 +720,10 @@ public:
         }
         else
         {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
             alignas(R) byte ret_buffer[sizeof(R)];
+#pragma GCC diagnostic pop
 
             TINYVARIANT_DO_WITH_CURRENT_INDEX(I,
                 TINYVARIANT_PLACEMENT_NEW(ret_buffer)
@@ -744,7 +747,10 @@ public:
         }
         else
         {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
             alignas(R) byte ret_buffer[sizeof(R)];
+#pragma GCC diagnostic pop
 
             TINYVARIANT_DO_WITH_CURRENT_INDEX(I,
                 TINYVARIANT_PLACEMENT_NEW(ret_buffer)

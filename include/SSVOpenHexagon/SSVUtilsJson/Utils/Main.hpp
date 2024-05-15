@@ -24,11 +24,12 @@ inline const Obj& getObj(const Obj& mObj) noexcept
 /// @brief Gets a JSON Obj from another JSON Obj.
 /// @param mObj Source JSON Obj.
 /// @param mKey Key of the child.
-inline Obj& getObj(Obj& mObj, const Key& mKey) noexcept
+[[gnu::no_dangling]] inline Obj& getObj(Obj& mObj, const Key& mKey) noexcept
 {
     return mObj[mKey];
 }
-inline const Obj& getObj(const Obj& mObj, const Key& mKey) noexcept
+[[gnu::no_dangling]] inline const Obj& getObj(
+    const Obj& mObj, const Key& mKey) noexcept
 {
     return mObj[mKey];
 }

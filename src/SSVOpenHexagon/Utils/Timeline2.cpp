@@ -23,12 +23,12 @@ void timeline2::clear()
 
 void timeline2::append_do(const std::function<void()>& func)
 {
-    _actions.emplace_back(action{action_do{func}});
+    _actions.emplace_back(action_do{func});
 }
 
 void timeline2::append_wait_for(const duration d)
 {
-    _actions.emplace_back(action{action_wait_for{d}});
+    _actions.emplace_back(action_wait_for{d});
 }
 
 void timeline2::append_wait_for_seconds(const double s)
@@ -43,12 +43,12 @@ void timeline2::append_wait_for_sixths(const double s)
 
 void timeline2::append_wait_until(const time_point tp)
 {
-    _actions.emplace_back(action{action_wait_until{tp}});
+    _actions.emplace_back(action_wait_until{tp});
 }
 
 void timeline2::append_wait_until_fn(const std::function<time_point()>& tp_fn)
 {
-    _actions.emplace_back(action{action_wait_until_fn{tp_fn}});
+    _actions.emplace_back(action_wait_until_fn{tp_fn});
 }
 
 [[nodiscard]] std::size_t timeline2::size() const noexcept

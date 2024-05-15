@@ -113,6 +113,9 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
     const float div{ssvu::tau / sides * 0.5f};
     const float pRadius{_radius * 0.75f};
 
+    wallQuads.reserve_more_quad(sides * 1);
+    capTris.reserve_more(sides * 3);
+
     for(auto i(0u); i < sides; ++i)
     {
         const float sAngle{div * 2.f * i};
@@ -126,10 +129,7 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
         const sf::Vector2f p4{ssvs::getOrbitRad(
             _startPos, sAngle - div, pRadius + baseThickness)};
 
-        wallQuads.reserve_more_quad(1);
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
-
-        capTris.reserve_more(3);
         capTris.batch_unsafe_emplace_back(capColor, p1, p2, _startPos);
     }
 }
@@ -142,6 +142,8 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
 
     const sf::Color colorMain{Utils::getColorFromHue((360.f - _hue) / 360.f)};
 
+    wallQuads.reserve_more_quad(6);
+
     for(auto i(0u); i < 6; ++i)
     {
         const float sAngle{div * 2.f * i};
@@ -153,7 +155,6 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
         const sf::Vector2f p4{
             ssvs::getOrbitRad(_pos, sAngle - div, dRadius + thickness)};
 
-        wallQuads.reserve_more_quad(1);
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
     }
 }

@@ -261,8 +261,8 @@ static void loadAssetsFromJson(AssetStorage& assetStorage,
     return buffer;
 }
 
-[[nodiscard]] static const std::vector<ssvufs::Path>& scanSingleByExt(
-    const ssvufs::Path& path, const std::string& extension)
+[[nodiscard, gnu::no_dangling]] static const std::vector<ssvufs::Path>&
+scanSingleByExt(const ssvufs::Path& path, const std::string& extension)
 {
     std::vector<ssvufs::Path>& buffer = getScanBuffer();
     buffer.clear();
@@ -273,8 +273,8 @@ static void loadAssetsFromJson(AssetStorage& assetStorage,
     return buffer;
 }
 
-[[nodiscard]] static const std::vector<ssvufs::Path>& scanSingleByName(
-    const ssvufs::Path& path, const std::string& name)
+[[nodiscard, gnu::no_dangling]] static const std::vector<ssvufs::Path>&
+scanSingleByName(const ssvufs::Path& path, const std::string& name)
 {
     std::vector<ssvufs::Path>& buffer = getScanBuffer();
     buffer.clear();
@@ -285,8 +285,8 @@ static void loadAssetsFromJson(AssetStorage& assetStorage,
     return buffer;
 }
 
-[[nodiscard]] static const std::vector<ssvufs::Path>& scanSingleFolderName(
-    const ssvufs::Path& path)
+[[nodiscard, gnu::no_dangling]] static const std::vector<ssvufs::Path>&
+scanSingleFolderName(const ssvufs::Path& path)
 {
     std::vector<ssvufs::Path>& buffer = getScanBuffer();
     buffer.clear();
