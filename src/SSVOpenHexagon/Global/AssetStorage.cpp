@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
+#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
@@ -61,13 +62,30 @@ public:
 
     [[nodiscard]] bool loadFont(const std::string& id, const std::string& path)
     {
-        return tryEmplaceAndThenLoadFromFile(_fonts, id, path);
+        std::optional font = sf::Font::loadFromFile(path);
+
+        if(!font.has_value())
+        {
+            return false;
+        }
+
+        auto [it, inserted] = _fonts.emplace(id, *SSVOH_MOVE(font));
+        return inserted;
     }
 
     [[nodiscard]] bool loadSoundBuffer(
         const std::string& id, const std::string& path)
     {
-        return tryEmplaceAndThenLoadFromFile(_soundBuffers, id, path);
+        std::optional soundBuffer = sf::SoundBuffer::loadFromFile(path);
+
+        if(!soundBuffer.has_value())
+        {
+            return false;
+        }
+
+        auto [it, inserted] =
+            _soundBuffers.emplace(id, *SSVOH_MOVE(soundBuffer));
+        return inserted;
     }
 
     [[nodiscard]] sf::Texture* getTexture(const std::string& id) noexcept

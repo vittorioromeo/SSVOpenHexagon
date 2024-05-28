@@ -312,15 +312,18 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         {
             const auto resetIcon = [&window]
             {
-                sf::Image icon;
-                if(!icon.loadFromFile("Assets/icon.png"))
+                const std::optional icon =
+                    sf::Image::loadFromFile("Assets/icon.png");
+
+                if(!icon.has_value())
                 {
                     ssvu::lo("::main") << "Failed to load icon image\n";
                     return;
                 }
 
                 window->getRenderWindow().setIcon(
-                    {icon.getSize().x, icon.getSize().y}, icon.getPixelsPtr());
+                    {icon->getSize().x, icon->getSize().y},
+                    icon->getPixelsPtr());
             };
 
             window->onRecreation += resetIcon;

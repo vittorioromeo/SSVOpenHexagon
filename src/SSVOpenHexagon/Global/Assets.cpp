@@ -40,6 +40,8 @@
 #include <SFML/Audio/Music.hpp>
 
 #include <chrono>
+#include <iostream>
+#include <exception>
 
 namespace hg {
 
@@ -131,7 +133,6 @@ public:
     [[nodiscard]] sf::Texture& getTextureOrNullTexture(const std::string& mId);
 
     [[nodiscard]] sf::Font& getFont(const std::string& mId);
-    [[nodiscard]] sf::Font& getFontOrNullFont(const std::string& mId);
 
     [[nodiscard]] bool isValidLevelId(
         const std::string& mLevelId) const noexcept;
@@ -576,19 +577,15 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 
 [[nodiscard]] sf::Font& HGAssets::HGAssetsImpl::getFont(const std::string& mId)
 {
-    sf::Font* ptr = assetStorage->getFont(mId);
-    SSVOH_ASSERT(ptr);
+    if(sf::Font* ptr = assetStorage->getFont(mId))
+    {
+        return *ptr;
+    }
 
-    return *ptr;
-}
+    std::cerr << "Fatal error: missing sound file '" << mId << '\''
+              << std::endl;
 
-[[nodiscard]] sf::Font& HGAssets::HGAssetsImpl::getFontOrNullFont(
-    const std::string& mId)
-{
-    static sf::Font nullFont;
-    sf::Font* ptr = assetStorage->getFont(mId);
-
-    return ptr ? *ptr : nullFont;
+    std::terminate();
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::isValidLevelId(
@@ -884,9 +881,10 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
     {
         for(const auto& p : scanSingleByExt(mPath + "Shaders/", extension))
         {
-            auto shader = Utils::makeUnique<sf::Shader>();
+            std::optional shader =
+                sf::Shader::loadFromFile(p.getStr(), shaderType);
 
-            if(!shader->loadFromFile(p.getStr(), shaderType))
+            if(!shader.has_value())
             {
                 ssvu::lo("hg::loadPackAssets_loadShaders")
                     << "Failed to load shader '" << p << "'\n";
@@ -894,11 +892,14 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
                 continue;
             }
 
-            shadersById.push_back(shader.get());
+            auto shaderUptr =
+                Utils::makeUnique<sf::Shader>(*SSVOH_MOVE(shader));
+
+            shadersById.push_back(shaderUptr.get());
             SSVOH_ASSERT(shadersById.size() > 0);
             const std::size_t shaderId = shadersById.size() - 1;
 
-            LoadedShader ls{.shader{SSVOH_MOVE(shader)},
+            LoadedShader ls{.shader{SSVOH_MOVE(shaderUptr)},
                 .path{p},
                 .shaderType{shaderType},
                 .id{shaderId}};
@@ -1630,11 +1631,6 @@ sf::Texture& HGAssets::getTextureOrNullTexture(const std::string& mId)
 sf::Font& HGAssets::getFont(const std::string& mId)
 {
     return _impl->getFont(mId);
-}
-
-sf::Font& HGAssets::getFontOrNullFont(const std::string& mId)
-{
-    return _impl->getFontOrNullFont(mId);
 }
 
 bool HGAssets::isValidLevelId(const std::string& mLevelId) const noexcept

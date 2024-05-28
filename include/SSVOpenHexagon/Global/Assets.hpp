@@ -58,7 +58,6 @@ public:
     [[nodiscard]] sf::Texture& getTextureOrNullTexture(const std::string& mId);
 
     [[nodiscard]] sf::Font& getFont(const std::string& mId);
-    [[nodiscard]] sf::Font& getFontOrNullFont(const std::string& mId);
 
     [[nodiscard]] bool isValidLevelId(
         const std::string& mLevelId) const noexcept;
