@@ -48,11 +48,11 @@ private:
 #ifdef SSVOH_PRODUCE_LUA_METADATA
         using AE = Utils::ArgExtractor<FOp>;
 
-        if constexpr(AE::numArgs == 0)
+        if constexpr (AE::numArgs == 0)
         {
             return "";
         }
-        else if constexpr(AE::numArgs == 1)
+        else if constexpr (AE::numArgs == 1)
         {
             std::string res;
 

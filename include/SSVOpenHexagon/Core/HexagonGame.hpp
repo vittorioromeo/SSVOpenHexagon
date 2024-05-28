@@ -314,7 +314,7 @@ public:
     {
         return Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
     }
-    catch(...)
+    catch (...)
     {
         luaExceptionLippincottHandler(mName);
         return decltype(Utils::runLuaFunctionIfExists<T, TArgs...>(

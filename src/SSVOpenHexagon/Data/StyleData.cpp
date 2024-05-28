@@ -21,7 +21,7 @@ namespace hg {
 [[nodiscard]] ColorData StyleData::colorDataFromObjOrDefault(
     const ssvuj::Obj& mRoot, const std::string& mKey, const ColorData& mDefault)
 {
-    if(ssvuj::hasObj(mRoot, mKey))
+    if (ssvuj::hasObj(mRoot, mKey))
     {
         return ColorData{ssvuj::getObj(mRoot, mKey)};
     }
@@ -70,7 +70,7 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
     const auto& colorCount(ssvuj::getObjSize(objColors));
 
     colorDatas.reserve(colorCount);
-    for(auto i(0u); i < colorCount; i++)
+    for (auto i(0u); i < colorCount; i++)
     {
         colorDatas.emplace_back(ssvuj::getObj(objColors, i));
     }
@@ -81,18 +81,18 @@ sf::Color StyleData::calculateColor(const float mCurrentHue,
 {
     sf::Color color{mColorData.color};
 
-    if(mColorData.dynamic)
+    if (mColorData.dynamic)
     {
         const float hue =
             std::fmod(mCurrentHue + mColorData.hueShift, 360.f) / 360.f;
 
         const sf::Color dynamicColor = Utils::getColorFromHue(hue);
 
-        if(!mColorData.main)
+        if (!mColorData.main)
         {
-            if(mColorData.dynamicOffset)
+            if (mColorData.dynamicOffset)
             {
-                if(mColorData.offset != 0)
+                if (mColorData.offset != 0)
                 {
                     color.r += dynamicColor.r / mColorData.offset;
                     color.g += dynamicColor.g / mColorData.offset;
@@ -123,16 +123,16 @@ sf::Color StyleData::calculateColor(const float mCurrentHue,
 void StyleData::update(ssvu::FT mFT, float mMult)
 {
     currentSwapTime += mFT * mMult;
-    if(currentSwapTime > maxSwapTime)
+    if (currentSwapTime > maxSwapTime)
     {
         currentSwapTime = 0;
     }
 
     currentHue += hueIncrement * mFT * mMult;
 
-    if(currentHue < hueMin)
+    if (currentHue < hueMin)
     {
-        if(huePingPong)
+        if (huePingPong)
         {
             currentHue = hueMin;
             hueIncrement *= -1.f;
@@ -142,9 +142,9 @@ void StyleData::update(ssvu::FT mFT, float mMult)
             currentHue = hueMax;
         }
     }
-    else if(currentHue > hueMax)
+    else if (currentHue > hueMax)
     {
-        if(huePingPong)
+        if (huePingPong)
         {
             currentHue = hueMax;
             hueIncrement *= -1.f;
@@ -157,12 +157,12 @@ void StyleData::update(ssvu::FT mFT, float mMult)
 
     pulseFactor += pulseIncrement * mFT;
 
-    if(pulseFactor < pulseMin)
+    if (pulseFactor < pulseMin)
     {
         pulseIncrement *= -1.f;
         pulseFactor = pulseMin;
     }
-    else if(pulseFactor > pulseMax)
+    else if (pulseFactor > pulseMax)
     {
         pulseIncrement *= -1.f;
         pulseFactor = pulseMax;
@@ -181,12 +181,12 @@ void StyleData::computeColors()
 
     currentColors.clear();
 
-    for(const ColorData& cd : colorDatas)
+    for (const ColorData& cd : colorDatas)
     {
         currentColors.emplace_back(calculateColor(currentHue, pulseFactor, cd));
     }
 
-    if(currentColors.size() > 1)
+    if (currentColors.size() > 1)
     {
         const unsigned int rotation = currentSwapTime / (maxSwapTime / 2.f);
 
@@ -205,12 +205,12 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
     const float distance{bgTileRadius};
 
     const std::vector<sf::Color>& colors(getColors());
-    if(colors.empty())
+    if (colors.empty())
     {
         return;
     }
 
-    for(auto i(0u); i < sides; ++i)
+    for (auto i(0u); i < sides; ++i)
     {
         const float angle{ssvu::toRad(BGRotOff) + div * i};
         sf::Color currentColor{ssvu::getByModIdx(colors, i)};
@@ -218,11 +218,11 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
         const bool mustDarkenUnevenBackgroundChunk =
             (i % 2 == 0 && i == sides - 1) && darkenUnevenBackgroundChunk;
 
-        if(blackAndWhite)
+        if (blackAndWhite)
         {
             currentColor = sf::Color::Black;
         }
-        else if(mustDarkenUnevenBackgroundChunk)
+        else if (mustDarkenUnevenBackgroundChunk)
         {
             currentColor = Utils::getColorDarkened(currentColor, 1.4f);
         }
@@ -247,7 +247,7 @@ void StyleData::drawBackgroundMenuHexagonImpl(
     const sf::Color colorCap{
         blackAndWhite ? sf::Color::Black : getCapColorResult()};
 
-    for(auto i(0u); i < sides; ++i)
+    for (auto i(0u); i < sides; ++i)
     {
         const float angle{ssvu::toRad(BGRotOff) + div * i};
 

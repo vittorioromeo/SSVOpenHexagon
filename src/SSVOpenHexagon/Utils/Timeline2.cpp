@@ -66,13 +66,13 @@ void timeline2::append_wait_until_fn(const std::function<time_point()>& tp_fn)
 timeline2_runner::outcome timeline2_runner::update(
     timeline2& timeline, const time_point tp)
 {
-    if(_current_idx >= timeline.size())
+    if (_current_idx >= timeline.size())
     {
         // Empty timeline or reached the end.
         return outcome::finished;
     }
 
-    while(_current_idx < timeline.size())
+    while (_current_idx < timeline.size())
     {
         timeline2::action& a = timeline.action_at(_current_idx);
 
@@ -85,14 +85,14 @@ timeline2_runner::outcome timeline2_runner::update(
             },
             [&](const timeline2::action_wait_for& x)
             {
-                if(!_wait_start_tp.has_value())
+                if (!_wait_start_tp.has_value())
                 {
                     // Just started waiting.
                     _wait_start_tp = tp;
                 }
 
                 const auto elapsed = tp - _wait_start_tp.value();
-                if(elapsed < x._duration)
+                if (elapsed < x._duration)
                 {
                     // Still waiting.
                     return outcome::waiting;
@@ -104,7 +104,7 @@ timeline2_runner::outcome timeline2_runner::update(
             },
             [&](const timeline2::action_wait_until& x)
             {
-                if(tp < x._time_point)
+                if (tp < x._time_point)
                 {
                     // Still waiting.
                     return outcome::waiting;
@@ -115,7 +115,7 @@ timeline2_runner::outcome timeline2_runner::update(
             }, //
             [&](const timeline2::action_wait_until_fn& x)
             {
-                if(tp < x._time_point_fn())
+                if (tp < x._time_point_fn())
                 {
                     // Still waiting.
                     return outcome::waiting;
@@ -126,13 +126,13 @@ timeline2_runner::outcome timeline2_runner::update(
             } //
         );
 
-        if(o == outcome::proceed)
+        if (o == outcome::proceed)
         {
             ++_current_idx;
             continue;
         }
 
-        if(o == outcome::waiting)
+        if (o == outcome::waiting)
         {
             return o;
         }

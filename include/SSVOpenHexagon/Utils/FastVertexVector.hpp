@@ -49,14 +49,14 @@ public:
 
     void reserve(const std::size_t n)
     {
-        if(_capacity >= n) [[likely]]
+        if (_capacity >= n) [[likely]]
         {
             return;
         }
 
         auto new_data = Utils::makeUniqueArray<VertexUnion>(n);
 
-        if(_data != nullptr) [[unlikely]]
+        if (_data != nullptr) [[unlikely]]
         {
             std::memcpy(
                 new_data.get(), _data.get(), sizeof(sf::Vertex) * _size);
@@ -76,7 +76,7 @@ public:
     {
         SSVOH_ASSERT(_size + rhs._size <= _capacity);
 
-        if(rhs.size() == 0) [[unlikely]]
+        if (rhs.size() == 0) [[unlikely]]
         {
             return;
         }
@@ -105,7 +105,7 @@ public:
         SSVOH_ASSERT(_size <= _capacity);
         SSVOH_ASSERT(_data != nullptr);
 
-        new(&_data[_size++]._v) sf::Vertex{SSVOH_FWD(xs)...};
+        new (&_data[_size++]._v) sf::Vertex{SSVOH_FWD(xs)...};
     }
 
     template <typename... Ts>
@@ -115,13 +115,13 @@ public:
         SSVOH_ASSERT(_size + sizeof...(positions) <= _capacity);
         SSVOH_ASSERT(_data != nullptr);
 
-        ((new(&_data[_size++]._v) sf::Vertex{positions, color}), ...);
+        ((new (&_data[_size++]._v) sf::Vertex{positions, color}), ...);
     }
 
     void draw(sf::RenderTarget& mRenderTarget,
         sf::RenderStates mRenderStates) const override
     {
-        if(_data == nullptr) [[unlikely]]
+        if (_data == nullptr) [[unlikely]]
         {
             SSVOH_ASSERT(_size == 0);
             SSVOH_ASSERT(_capacity == 0);

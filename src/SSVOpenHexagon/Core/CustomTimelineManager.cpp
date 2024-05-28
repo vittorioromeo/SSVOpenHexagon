@@ -32,9 +32,9 @@ void CustomTimelineManager::clear() noexcept
 
 void CustomTimelineManager::updateAllTimelines(const HRTimePoint tp)
 {
-    for(CustomTimeline& t : _timelines)
+    for (CustomTimeline& t : _timelines)
     {
-        if(const auto o = t._runner.update(t._timeline, tp);
+        if (const auto o = t._runner.update(t._timeline, tp);
             o == Utils::timeline2_runner::outcome::finished)
         {
             t._timeline.clear();

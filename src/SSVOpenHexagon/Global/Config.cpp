@@ -377,7 +377,7 @@ namespace hg::Config {
 {
     static ssvuj::Obj res = []
     {
-        if(ssvufs::Path{"config.json"}.isFile())
+        if (ssvufs::Path{"config.json"}.isFile())
         {
             ssvu::lo("hg::Config::root()")
                 << "User-defined `config.json` file found\n";
@@ -418,14 +418,14 @@ static void fixupMissingTriggers()
     {
         auto& combos = trig.getCombos();
 
-        if(!combos.empty())
+        if (!combos.empty())
         {
             return;
         }
 
         combos.resize(4);
 
-        for(ssvs::Input::Combo& c : combos)
+        for (ssvs::Input::Combo& c : combos)
         {
             c.clearBind(); // mark as unbound
         }
@@ -493,21 +493,21 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
 {
     ssvu::lo("::loadConfig") << "loading config\n";
 
-    if(ssvufs::Path{"ConfigOverrides/"}.isFolder())
+    if (ssvufs::Path{"ConfigOverrides/"}.isFolder())
     {
-        for(const ssvufs::Path& p :
+        for (const ssvufs::Path& p :
             ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
                 ssvufs::Pick::ByExt>("ConfigOverrides/", ".json"))
         {
-            if(ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
+            if (ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
             {
                 ssvu::lo("::loadConfig")
                     << "applying config override '"
                     << p.getFileNameNoExtensions() << "'\n";
 
                 const auto overrideRoot(ssvuj::getFromFile(p));
-                for(auto itr(std::begin(overrideRoot));
-                    itr != std::end(overrideRoot); ++itr)
+                for (auto itr(std::begin(overrideRoot));
+                     itr != std::end(overrideRoot); ++itr)
                 {
                     root()[ssvuj::getKey(itr)] = *itr;
                 }
@@ -522,12 +522,12 @@ void reapplyResolution()
 {
     ssvu::lo("::reapplyResolution") << "reapplying resolution\n";
 
-    if(getWindowedAutoResolution())
+    if (getWindowedAutoResolution())
     {
         applyAutoWindowedResolution();
     }
 
-    if(getFullscreenAutoResolution())
+    if (getFullscreenAutoResolution())
     {
         applyAutoFullscreenResolution();
     }
@@ -559,61 +559,61 @@ void saveConfig()
 
 bool isEligibleForScore()
 {
-    if(!getOfficial())
+    if (!getOfficial())
     {
         uneligibilityReason = "official mode off";
         return false;
     }
 
-    if(getSpawnDistance() != defaultSpawnDistance)
+    if (getSpawnDistance() != defaultSpawnDistance)
     {
         uneligibilityReason = "spawn distance modified";
         return false;
     }
 
-    if(getDebug())
+    if (getDebug())
     {
         uneligibilityReason = "debug mode on";
         return false;
     }
 
-    if(!getAutoZoomFactor())
+    if (!getAutoZoomFactor())
     {
         uneligibilityReason = "modified zoom factor";
         return false;
     }
 
-    if(getPlayerSpeed() != playerSpeed().getDefault())
+    if (getPlayerSpeed() != playerSpeed().getDefault())
     {
         uneligibilityReason = "player speed modified";
         return false;
     }
 
-    if(getPlayerFocusSpeed() != playerFocusSpeed().getDefault())
+    if (getPlayerFocusSpeed() != playerFocusSpeed().getDefault())
     {
         uneligibilityReason = "player focus speed modified";
         return false;
     }
 
-    if(getPlayerSize() != playerSize().getDefault())
+    if (getPlayerSize() != playerSize().getDefault())
     {
         uneligibilityReason = "player size modified";
         return false;
     }
 
-    if(getInvincible())
+    if (getInvincible())
     {
         uneligibilityReason = "invincibility on";
         return false;
     }
 
-    if(getNoPulse())
+    if (getNoPulse())
     {
         uneligibilityReason = "pulse off";
         return false;
     }
 
-    if(getNoRotation())
+    if (getNoRotation())
     {
         uneligibilityReason = "rotation off";
         return false;
@@ -626,7 +626,7 @@ void recalculateSizes()
 {
     sizeX = sizeY = std::max(getWidth(), getHeight()) * 1.3f;
 
-    if(!getAutoZoomFactor())
+    if (!getAutoZoomFactor())
     {
         return;
     }
@@ -650,7 +650,7 @@ void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen)
 
 void setCurrentResolution(unsigned int mWidth, unsigned int mHeight)
 {
-    if(getFullscreen())
+    if (getFullscreen())
     {
         fullscreenAutoResolution() = false;
         fullscreenWidth() = mWidth;
@@ -668,7 +668,7 @@ void setCurrentResolution(unsigned int mWidth, unsigned int mHeight)
 
 void setCurrentResolutionAuto(ssvs::GameWindow& mWindow)
 {
-    if(fullscreen())
+    if (fullscreen())
     {
         fullscreenAutoResolution() = true;
         applyAutoFullscreenResolution();
@@ -702,7 +702,7 @@ void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue)
 
 void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue)
 {
-    if(mValue != antialiasingLevel())
+    if (mValue != antialiasingLevel())
     {
         antialiasingLevel() = mValue;
         mWindow.setAntialiasingLevel(mValue);
@@ -1367,9 +1367,9 @@ void resizeTrigger(ssvs::Input::Trigger& trig) noexcept
     // Remove empty slots to agglomerate all binds
     // close to each other
     auto it{combos.begin()};
-    while(it != combos.end())
+    while (it != combos.end())
     {
-        if(it->isUnbound())
+        if (it->isUnbound())
         {
             combos.erase(it);
             continue;
@@ -1377,13 +1377,13 @@ void resizeTrigger(ssvs::Input::Trigger& trig) noexcept
         ++it;
     }
     // if the config has more binds than are supported
-    while(combos.size() > maxBinds)
+    while (combos.size() > maxBinds)
     {
         combos.pop_back();
     }
     // if the config has less binds fill the
     // spots with unbound combos
-    while(combos.size() < maxBinds)
+    while (combos.size() < maxBinds)
     {
         combos.emplace_back(ssvs::Input::Combo({sf::Keyboard::Key::Unknown}));
     }
@@ -1410,22 +1410,22 @@ void keyboardBindsSanityCheck()
 
 std::string bindToHumanReadableName(std::string s)
 {
-    if(s.starts_with('k'))
+    if (s.starts_with('k'))
     {
         return s.substr(1);
     }
 
-    if(s == "bLeft")
+    if (s == "bLeft")
     {
         return "LMB";
     }
 
-    if(s == "bRight")
+    if (s == "bRight")
     {
         return "RMB";
     }
 
-    if(s == "bMiddle")
+    if (s == "bMiddle")
     {
         return "MMB";
     }
@@ -1459,22 +1459,22 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
 
     const auto combos = triggerGetters.at(toSizeT(bindID))().getCombos();
 
-    for(const auto& c : combos)
+    for (const auto& c : combos)
     {
-        if(c.isUnbound())
+        if (c.isUnbound())
         {
             break;
         }
 
         const auto keyBind{c.getKeys()};
-        for(j = 0; j <= static_cast<int>(sf::Keyboard::KeyCount); ++j)
+        for (j = 0; j <= static_cast<int>(sf::Keyboard::KeyCount); ++j)
         {
-            if(!keyBind[j])
+            if (!keyBind[j])
             {
                 continue;
             }
 
-            if(!bindNames.empty())
+            if (!bindNames.empty())
             {
                 bindNames += ", ";
             }
@@ -1486,14 +1486,14 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
         }
 
         const auto btnBinds{c.getBtns()};
-        for(j = 0; j <= static_cast<int>(sf::Mouse::ButtonCount); ++j)
+        for (j = 0; j <= static_cast<int>(sf::Mouse::ButtonCount); ++j)
         {
-            if(!btnBinds[j])
+            if (!btnBinds[j])
             {
                 continue;
             }
 
-            if(!bindNames.empty())
+            if (!bindNames.empty())
             {
                 bindNames += ", ";
             }
@@ -1516,13 +1516,13 @@ void rebindTrigger(ssvs::Input::Trigger& trig, const sf::Keyboard::Key key,
     const sf::Mouse::Button btn, int index)
 {
     // if both slots are taken replace the first one
-    if(index >= maxBinds)
+    if (index >= maxBinds)
     {
         index = 0;
         trig.getCombos().at(index).clearBind();
     }
 
-    if(static_cast<int>(key) > -1)
+    if (static_cast<int>(key) > -1)
     {
         trig.getCombos().at(index).addKey(key);
     }
@@ -1575,7 +1575,7 @@ std::string getJoystickBindName(const Joystick::Jid bindID)
 
     const unsigned int value{joystickTriggerGetters[toSizeT(bindID)]()};
 
-    if(value == 33)
+    if (value == 33)
     {
         return "";
     }
@@ -1590,12 +1590,12 @@ std::string getJoystickBindName(const Joystick::Jid bindID)
 
     using namespace std::string_literals;
 
-    if(vendorId == msVendorId)
+    if (vendorId == msVendorId)
     {
         return value >= 12 ? "" : buttonsNames[value][0];
     }
 
-    if(vendorId == sonyVendorId)
+    if (vendorId == sonyVendorId)
     {
         return value >= 12 ? "" : buttonsNames[value][1];
     }
@@ -1608,7 +1608,7 @@ std::string getJoystickBindName(const Joystick::Jid bindID)
 
 void loadAllJoystickBinds()
 {
-    for(std::size_t i{0u}; i < Config::joystickTriggerGetters.size(); ++i)
+    for (std::size_t i{0u}; i < Config::joystickTriggerGetters.size(); ++i)
     {
         Joystick::setJoystickBind(Config::joystickTriggerGetters[i](), i);
     }

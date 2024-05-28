@@ -27,7 +27,7 @@ static auto& dlog(const char* funcName)
 #define SSVOH_DLOG ::dlog(__func__)
 
 #define SSVOH_DLOG_VERBOSE \
-    if(_verbose) ::dlog(__func__)
+    if (_verbose) ::dlog(__func__)
 
 #define SSVOH_DLOG_ERROR ::dlog(__func__) << "[ERROR] "
 
@@ -104,7 +104,7 @@ void dumpUsers()
 
     SSVOH_DLOG << "users (" << users.size() << "):\n";
 
-    for(const auto& user : users)
+    for (const auto& user : users)
     {
         SSVOH_DLOG << Impl::getStorage().dump(user) << '\n';
     }
@@ -133,12 +133,12 @@ void dumpUsers()
     auto query = Impl::getStorage().get_all<User>(
         where(steamId == c(&User::steamId) && name == c(&User::name)));
 
-    if(query.empty())
+    if (query.empty())
     {
         return std::nullopt;
     }
 
-    if(query.size() > 1)
+    if (query.size() > 1)
     {
         SSVOH_DLOG_ERROR
             << "Database integrity error, multiple users with same steamId '"
@@ -183,12 +183,12 @@ void addLoginToken(const LoginToken& loginToken)
 {
     const auto query = getAllUsersWithSteamId(steamId);
 
-    if(query.empty())
+    if (query.empty())
     {
         return std::nullopt;
     }
 
-    if(query.size() > 1)
+    if (query.size() > 1)
     {
         SSVOH_DLOG_ERROR
             << "Database integrity error, multiple users with same steamId '"
@@ -230,7 +230,7 @@ void removeAllStaleLoginTokens()
     using namespace sqlite_orm;
 
     const auto staleTokens = getAllStaleLoginTokens();
-    for(const LoginToken& lt : staleTokens)
+    for (const LoginToken& lt : staleTokens)
     {
         Impl::getStorage().remove<LoginToken>(lt.id);
     }
@@ -250,7 +250,7 @@ void removeAllStaleLoginTokens()
     std::vector<ProcessedScore> result;
 
     std::uint32_t index = 0;
-    for(const auto& row : query)
+    for (const auto& row : query)
     {
         result.push_back( //
             ProcessedScore{
@@ -273,7 +273,7 @@ void removeAllStaleLoginTokens()
     const auto query = Impl::getStorage().get_all<LoginToken>(
         where(token == c(&LoginToken::token)));
 
-    if(query.empty() || query.size() > 1)
+    if (query.empty() || query.size() > 1)
     {
         return false;
     }
@@ -297,7 +297,7 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
         where(userSteamId == c(&Score::userSteamId) &&
               levelValidator == c(&Score::levelValidator)));
 
-    if(query.empty())
+    if (query.empty())
     {
         const int id = Impl::getStorage().insert(score);
 
@@ -308,7 +308,7 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
     }
 
     const Score& existingScore = query.at(0);
-    if(existingScore.value >= value)
+    if (existingScore.value >= value)
     {
         return;
     }
@@ -333,15 +333,15 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
             where(levelValidator == c(&Score::levelValidator)),
             order_by(&Score::value).desc());
 
-    if(query.empty())
+    if (query.empty())
     {
         return std::nullopt;
     }
 
     std::uint32_t index = 0;
-    for(const auto& row : query)
+    for (const auto& row : query)
     {
-        if(std::get<3>(row) == userSteamId)
+        if (std::get<3>(row) == userSteamId)
         {
             return {ProcessedScore{
                 .position = index,                  //
@@ -365,7 +365,7 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
         (void)a_param;
         (void)column;
 
-        for(int i = 0; i < argc; i++)
+        for (int i = 0; i < argc; i++)
         {
             std::printf("%s,\t", argv[i]);
         }
@@ -379,7 +379,7 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
     char* error = nullptr;
     sqlite3_exec(db, query.c_str(), callback, nullptr, &error);
 
-    if(error != nullptr)
+    if (error != nullptr)
     {
         HG_SCOPE_GUARD({ sqlite3_free(error); });
         return {error};

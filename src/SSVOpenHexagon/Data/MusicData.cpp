@@ -37,7 +37,7 @@ void MusicData::addSegment(float mSeconds, float mBeatPulseDelayOffset)
 [[nodiscard]] MusicData::Segment MusicData::playRandomSegment(
     const std::string& mPackId, Audio& mAudio)
 {
-    if(firstPlay)
+    if (firstPlay)
     {
         firstPlay = false;
         return playSegment(mPackId, mAudio, 0);
@@ -58,7 +58,7 @@ void MusicData::addSegment(float mSeconds, float mBeatPulseDelayOffset)
 void MusicData::playSeconds(
     const std::string& mPackId, Audio& mAudio, float mSeconds) const
 {
-    if(!mAudio.loadAndPlayMusic(mPackId, id, mSeconds))
+    if (!mAudio.loadAndPlayMusic(mPackId, id, mSeconds))
     {
         ssvu::lo("MusicData::playSeconds")
             << "Failed playing music '" << mPackId << '_' << id << "'\n";

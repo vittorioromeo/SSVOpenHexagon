@@ -27,19 +27,19 @@ struct SpeedData
 
     void update(const ssvu::FT ft) noexcept
     {
-        if(_accel == 0.f)
+        if (_accel == 0.f)
         {
             return;
         }
 
         _speed += _accel * ft;
 
-        if(_speed > _max)
+        if (_speed > _max)
         {
             _speed = _max;
             _accel *= _pingPong;
         }
-        else if(_speed < _min)
+        else if (_speed < _min)
         {
             _speed = _min;
             _accel *= _pingPong;

@@ -15,13 +15,14 @@ template <typename TSplitType = std::string_view, typename F>
 void withSplit(
     F&& f, const std::string_view str, const std::string_view delims = " ")
 {
-    for(auto first = str.data(), second = str.data(), last = first + str.size();
-        second != last && first != last; first = second + 1)
+    for (auto first = str.data(), second = str.data(),
+              last = first + str.size();
+         second != last && first != last; first = second + 1)
     {
         second = std::find_first_of(
             first, last, std::cbegin(delims), std::cend(delims));
 
-        if(first != second)
+        if (first != second)
         {
             f(TSplitType{first,
                 static_cast<typename TSplitType::size_type>(second - first)});

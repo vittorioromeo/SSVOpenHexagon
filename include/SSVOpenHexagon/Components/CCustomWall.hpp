@@ -86,7 +86,7 @@ public:
     {
         _oldVertexPositions = _vertexPositions;
 
-        for(sf::Vector2f& v : _vertexPositions)
+        for (sf::Vector2f& v : _vertexPositions)
         {
             v += offset;
         }

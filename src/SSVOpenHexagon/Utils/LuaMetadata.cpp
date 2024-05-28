@@ -14,7 +14,7 @@ namespace hg::Utils {
     const std::string_view fnName)
 {
     const std::size_t underscoreIndex = fnName.find("_");
-    if(underscoreIndex == std::string::npos)
+    if (underscoreIndex == std::string::npos)
     {
         // Return the last index: the miscellaneous index.
         return NUM_CATEGORIES - 1;
@@ -24,9 +24,9 @@ namespace hg::Utils {
 
     // Find the category it should be placed in, otherwise it'll be
     // considered Miscellaneous
-    for(std::size_t i = 0; i < prefixCategories.size() - 1; ++i)
+    for (std::size_t i = 0; i < prefixCategories.size() - 1; ++i)
     {
-        if(prefix == prefixCategories[i])
+        if (prefix == prefixCategories[i])
         {
             return i;
         }

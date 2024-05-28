@@ -40,7 +40,7 @@ void LeaderboardCache::requestedScores(const std::string& levelValidator)
     const std::string& levelValidator) const
 {
     const auto it = _levelValidatorToScores.find(levelValidator);
-    if(it == _levelValidatorToScores.end())
+    if (it == _levelValidatorToScores.end())
     {
         return true;
     }

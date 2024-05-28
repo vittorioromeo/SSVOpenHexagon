@@ -86,12 +86,12 @@ void HexagonGame::setMustStart(const bool x)
 
 void HexagonGame::initKeyIcons()
 {
-    if(window == nullptr)
+    if (window == nullptr)
     {
         return;
     }
 
-    for(const auto& t :
+    for (const auto& t :
         {"keyArrow.png", "keyFocus.png", "keySwap.png", "replayIcon.png"})
     {
         assets.getTextureOrNullTexture(t).setSmooth(true);
@@ -102,7 +102,7 @@ void HexagonGame::initKeyIcons()
 
 void HexagonGame::updateKeyIcons()
 {
-    if(window == nullptr)
+    if (window == nullptr)
     {
         return;
     }
@@ -152,7 +152,7 @@ void HexagonGame::updateKeyIcons()
 
 void HexagonGame::updateLevelInfo()
 {
-    if(window == nullptr)
+    if (window == nullptr)
     {
         return;
     }
@@ -187,7 +187,7 @@ void HexagonGame::updateLevelInfo()
 
     const auto trim = [](std::string s)
     {
-        if(s.size() > 26)
+        if (s.size() > 26)
         {
             return s.substr(0, 26);
         }
@@ -229,7 +229,7 @@ void HexagonGame::updateLevelInfo()
     levelInfoTextBy.setPosition(
         ssvs::getGlobalSW(levelInfoTextAuthor) - sf::Vector2f{tPadding, 0.f});
 
-    if(levelData->difficultyMults.size() > 1)
+    if (levelData->difficultyMults.size() > 1)
     {
         prepareText(levelInfoTextDM, 14.f, diffFormat(difficultyMult) + "x");
         levelInfoTextDM.setOrigin(ssvs::getLocalSW(levelInfoTextDM));
@@ -308,7 +308,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       text{initText(font, "", 25.f)},
       replayText{initText(font, "", 20.f)}
 {
-    if(window != nullptr)
+    if (window != nullptr)
     {
         const float width = Config::getWidth();
         const float height = Config::getHeight();
@@ -334,7 +334,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     game.onAnyEvent += [this](const sf::Event& e)
     { Imgui::processEvent(window->getRenderWindow(), e); };
 
-    if(window != nullptr)
+    if (window != nullptr)
     {
         window->onRecreation += [this] { initKeyIcons(); };
     }
@@ -368,7 +368,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     {
         return [this, f](ssvu::FT /*unused*/)
         {
-            if(!imguiLuaConsoleHasInput())
+            if (!imguiLuaConsoleHasInput())
             {
                 f();
             }
@@ -390,7 +390,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         notInConsole(
             [this]
             {
-                if(deathInputIgnore <= 0.f && status.hasDied)
+                if (deathInputIgnore <= 0.f && status.hasDied)
                 {
                     status.mustStateChange = StateChange::MustRestart;
                 }
@@ -400,7 +400,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         notInConsole(
             [this]
             {
-                if((deathInputIgnore <= 0.f && status.hasDied) || inReplay())
+                if ((deathInputIgnore <= 0.f && status.hasDied) || inReplay())
                 {
                     status.mustStateChange = StateChange::MustReplay;
                 }
@@ -412,7 +412,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     addTidInput(Tid::LuaConsole, ssvs::Input::Type::Once,
         [this](ssvu::FT /*unused*/)
         {
-            if(Config::getDebug())
+            if (Config::getDebug())
             {
                 ilcShowConsoleNext = true;
             }
@@ -421,20 +421,20 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     addTidInput(Tid::Pause, ssvs::Input::Type::Once,
         [this](ssvu::FT /*unused*/)
         {
-            if(Config::getDebug())
+            if (Config::getDebug())
             {
                 debugPause = !debugPause;
 
-                if(debugPause)
+                if (debugPause)
                 {
-                    if(shouldPlayMusic())
+                    if (shouldPlayMusic())
                     {
                         audio->pauseMusic();
                     }
                 }
-                else if(!status.hasDied)
+                else if (!status.hasDied)
                 {
-                    if(shouldPlayMusic())
+                    if (shouldPlayMusic())
                     {
                         audio->resumeMusic();
                     }
@@ -477,12 +477,12 @@ void HexagonGame::setLastReplay(const replay_file& mReplayFile)
 void HexagonGame::updateRichPresenceCallbacks()
 {
     // Update Steam Rich Presence
-    if(steamManager != nullptr && !steamHung)
+    if (steamManager != nullptr && !steamHung)
     {
-        if(!steamManager->run_callbacks())
+        if (!steamManager->run_callbacks())
         {
             steamAttempt += 1;
-            if(steamAttempt > 20)
+            if (steamAttempt > 20)
             {
                 steamHung = true;
                 ssvu::lo("Steam") << "Too many failed callbacks. Stopping "
@@ -492,12 +492,12 @@ void HexagonGame::updateRichPresenceCallbacks()
     }
 
     // Update Discord Rich Presence
-    if(discordManager != nullptr && !discordHung)
+    if (discordManager != nullptr && !discordHung)
     {
-        if(!discordManager->run_callbacks())
+        if (!discordManager->run_callbacks())
         {
             discordAttempt += 1;
-            if(discordAttempt > 20)
+            if (discordAttempt > 20)
             {
                 discordHung = true;
                 ssvu::lo("Discord") << "Too many failed callbacks. Stopping "
@@ -519,7 +519,7 @@ void HexagonGame::updateRichPresenceCallbacks()
 
 void HexagonGame::playSoundOverride(const std::string& mId)
 {
-    if(shouldPlaySounds())
+    if (shouldPlaySounds())
     {
         audio->playSoundOverride(mId);
     }
@@ -527,7 +527,7 @@ void HexagonGame::playSoundOverride(const std::string& mId)
 
 void HexagonGame::playSoundAbort(const std::string& mId)
 {
-    if(shouldPlaySounds())
+    if (shouldPlaySounds())
     {
         audio->playSoundAbort(mId);
     }
@@ -536,7 +536,7 @@ void HexagonGame::playSoundAbort(const std::string& mId)
 void HexagonGame::playPackSoundOverride(
     const std::string& mPackId, const std::string& mId)
 {
-    if(shouldPlaySounds())
+    if (shouldPlaySounds())
     {
         audio->playPackSoundOverride(mPackId, mId);
     }
@@ -544,7 +544,7 @@ void HexagonGame::playPackSoundOverride(
 
 void HexagonGame::saveReplay()
 {
-    if(shouldSaveScore() && !status.hasDied)
+    if (shouldSaveScore() && !status.hasDied)
     {
         (void)death_saveScoreIfNeeded(); // Saves local best
 
@@ -559,7 +559,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
     // Save replay when restarting without having died
-    if(!mFirstPlay)
+    if (!mFirstPlay)
     {
         saveReplay();
     }
@@ -570,7 +570,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     packId = mPackId;
     levelId = mId;
 
-    if(executeLastReplay && activeReplay.has_value())
+    if (executeLastReplay && activeReplay.has_value())
     {
         firstPlay = activeReplay->replayFile._first_play;
     }
@@ -587,7 +587,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     const double tempReplayScore = getReplayScore(status);
     status = HexagonGameStatus{};
 
-    if(!executeLastReplay)
+    if (!executeLastReplay)
     {
         // TODO (P2): this can be used to restore normal speed
         // window.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
@@ -604,7 +604,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
     else
     {
-        if(!activeReplay.has_value())
+        if (!activeReplay.has_value())
         {
             lastPlayedScore = tempReplayScore;
 
@@ -641,12 +641,12 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
 
     // Audio cleanup
-    if(window != nullptr && audio != nullptr)
+    if (window != nullptr && audio != nullptr)
     {
         audio->stopSounds();
         stopLevelMusic();
 
-        if(!Config::getNoMusic())
+        if (!Config::getNoMusic())
         {
             playLevelMusic();
             audio->pauseMusic();
@@ -702,7 +702,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Re-init default flash effect
     initFlashEffect(255, 255, 255);
 
-    if(window != nullptr)
+    if (window != nullptr)
     {
         SSVOH_ASSERT(overlayCamera.has_value());
         SSVOH_ASSERT(backgroundCamera.has_value());
@@ -727,13 +727,13 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     inputImplCCW = inputImplCW = false;
     playerNowReadyToSwap = false;
 
-    if(!firstPlay) runLuaFunctionIfExists<void>("onPreUnload");
+    if (!firstPlay) runLuaFunctionIfExists<void>("onPreUnload");
     lua = Lua::LuaContext{};
     calledDeprecatedFunctions.clear();
     initLua();
     runLuaFile(levelData->luaScriptPath);
 
-    if(!firstPlay)
+    if (!firstPlay)
     {
         runLuaFunctionIfExists<void>("onUnload");
         playSoundOverride("restart.ogg");
@@ -755,7 +755,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     timeUntilRichPresenceUpdate = -1.f; // immediate update
 
     // Prepare text for input hints on restart/replay
-    if(window != nullptr)
+    if (window != nullptr)
     {
         // Store the keys/buttons to be pressed to replay and restart after you
         // die.
@@ -766,12 +766,12 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         // Format strings to only show the first key to avoid extremely long
         // messages
         int commaPos = status.restartInput.find(',');
-        if(commaPos > 0)
+        if (commaPos > 0)
         {
             status.restartInput.erase(commaPos);
         }
         commaPos = status.replayInput.find(',');
-        if(commaPos > 0)
+        if (commaPos > 0)
         {
             status.replayInput.erase(commaPos);
         }
@@ -779,16 +779,16 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         // Add joystick buttons if any and finalize message
         std::string joystickButton =
             Config::getJoystickBindName(Joystick::Jid::Restart);
-        if(!status.restartInput.empty())
+        if (!status.restartInput.empty())
         {
-            if(!joystickButton.empty())
+            if (!joystickButton.empty())
             {
                 status.restartInput += " OR JOYSTICK " + joystickButton;
             }
             status.restartInput =
                 "PRESS " + status.restartInput + " TO RESTART\n";
         }
-        else if(!joystickButton.empty())
+        else if (!joystickButton.empty())
         {
             status.restartInput =
                 "PRESS JOYSTICK " + joystickButton + " TO RESTART\n";
@@ -799,15 +799,15 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         }
 
         joystickButton = Config::getJoystickBindName(Joystick::Jid::Replay);
-        if(!status.replayInput.empty())
+        if (!status.replayInput.empty())
         {
-            if(!joystickButton.empty())
+            if (!joystickButton.empty())
             {
                 status.replayInput += " OR JOYSTICK " + joystickButton;
             }
             status.replayInput = "PRESS " + status.replayInput + " TO REPLAY\n";
         }
-        else if(!joystickButton.empty())
+        else if (!joystickButton.empty())
         {
             status.replayInput =
                 "PRESS JOYSTICK " + joystickButton + " TO REPLAY\n";
@@ -821,7 +821,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
 void HexagonGame::death_shakeCamera()
 {
-    if(window == nullptr)
+    if (window == nullptr)
     {
         return;
     }
@@ -846,12 +846,12 @@ void HexagonGame::death_flashEffect()
 
 void HexagonGame::death_updateRichPresence()
 {
-    if(window == nullptr)
+    if (window == nullptr)
     {
         return;
     }
 
-    if(inReplay())
+    if (inReplay())
     {
         // Do not update rich presence if watching a replay.
         return;
@@ -879,7 +879,7 @@ void HexagonGame::death_updateRichPresence()
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());
 
-    if(discordManager != nullptr)
+    if (discordManager != nullptr)
     {
         discordManager->set_rich_presence_in_game(
             nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
@@ -889,12 +889,12 @@ void HexagonGame::death_updateRichPresence()
 [[nodiscard]] HexagonGame::SaveScoreIfNeededResult
 HexagonGame::death_saveScoreIfNeeded()
 {
-    if(window == nullptr)
+    if (window == nullptr)
     {
         return SaveScoreIfNeededResult::NoWindow;
     }
 
-    if(!shouldSaveScore())
+    if (!shouldSaveScore())
     {
         return SaveScoreIfNeededResult::ShouldNotSave;
     }
@@ -907,7 +907,7 @@ HexagonGame::death_saveScoreIfNeeded()
     const bool isPersonalBest =
         score > assets.getLocalScore(validatorWithoutPackid);
 
-    if(!isPersonalBest)
+    if (!isPersonalBest)
     {
         return SaveScoreIfNeededResult::NotPersonalBest;
     }
@@ -920,12 +920,12 @@ void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
 {
     const SaveScoreIfNeededResult r = death_saveScoreIfNeeded();
 
-    if(r == SaveScoreIfNeededResult::NoWindow)
+    if (r == SaveScoreIfNeededResult::NoWindow)
     {
         return;
     }
 
-    if(r == SaveScoreIfNeededResult::ShouldNotSave ||
+    if (r == SaveScoreIfNeededResult::ShouldNotSave ||
         r == SaveScoreIfNeededResult::NotPersonalBest)
     {
         playSoundAbort("gameOver.ogg");
@@ -942,7 +942,7 @@ void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
 
 void HexagonGame::death(bool mForce)
 {
-    if(status.hasDied)
+    if (status.hasDied)
     {
         return;
     }
@@ -953,7 +953,7 @@ void HexagonGame::death(bool mForce)
 
     runLuaFunctionIfExists<void>("onPreDeath");
 
-    if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
+    if (!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
     {
         return;
     }
@@ -967,12 +967,12 @@ void HexagonGame::death(bool mForce)
 
     status.hasDied = true;
 
-    if(!inReplay())
+    if (!inReplay())
     {
         const replay_file rf = death_createReplayFile();
 
         // TODO (P2): for testing
-        if(onDeathReplayCreated)
+        if (onDeathReplayCreated)
         {
             onDeathReplayCreated(rf);
         }
@@ -983,7 +983,7 @@ void HexagonGame::death(bool mForce)
 
     death_saveScoreIfNeededAndShowPBEffects(); // Saves local best
 
-    if(window != nullptr && Config::getAutoRestart())
+    if (window != nullptr && Config::getAutoRestart())
     {
         status.mustStateChange = StateChange::MustRestart;
     }
@@ -1014,7 +1014,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     const std::optional<compressed_replay_file> crfOpt =
         compress_replay_file(rf);
 
-    if(!crfOpt.has_value())
+    if (!crfOpt.has_value())
     {
         ssvu::lo("Replay") << "Failed to compress replay, will not save to "
                               "file or send to server\n";
@@ -1026,7 +1026,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     // ------------------------------------------------------------------------
     // Send compressed replay to server.
-    if(const std::string levelValidator =
+    if (const std::string levelValidator =
             Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
         !death_sendReplay(levelValidator, crf))
     {
@@ -1035,7 +1035,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     // ------------------------------------------------------------------------
     // Save compressed replay locally.
-    if(const std::string filename = Utils::concat(rf.create_filename(), ".z");
+    if (const std::string filename = Utils::concat(rf.create_filename(), ".z");
         !death_saveReplay(filename, crf))
     {
         ssvu::lo("Replay") << "Failure saving replay\n";
@@ -1045,7 +1045,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 [[nodiscard]] bool HexagonGame::death_sendReplay(
     const std::string& levelValidator, const compressed_replay_file& crf)
 {
-    if(hexagonClient == nullptr ||
+    if (hexagonClient == nullptr ||
         hexagonClient->getState() != HexagonClient::State::LoggedIn_Ready ||
         !Config::getOfficial())
     {
@@ -1054,7 +1054,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     ssvu::lo("Replay") << "Sending compressed replay to server...\n";
 
-    if(!hexagonClient->trySendCompressedReplay(levelValidator, crf))
+    if (!hexagonClient->trySendCompressedReplay(levelValidator, crf))
     {
         ssvu::lo("Replay") << "Could not send compressed replay to server\n";
         return false;
@@ -1071,7 +1071,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
         "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
 
     // Replace invalid characters for Windows file paths.
-    for(const char c : {':', '*', '?', '"', '<', '>', '|'})
+    for (const char c : {':', '*', '?', '"', '<', '>', '|'})
     {
         std::replace(dirPath.begin(), dirPath.end(), c, '_');
         std::replace(filename.begin(), filename.end(), c, '_');
@@ -1082,7 +1082,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     p /= dirPath;
     p /= filename;
 
-    if(!crf.serialize_to_file(p))
+    if (!crf.serialize_to_file(p))
     {
         ssvu::lo("Replay") << "Failed to save new compressed replay file '" << p
                            << "'\n";
@@ -1105,12 +1105,12 @@ HexagonGame::executeGameUntilDeath(
     const auto exceededProcessingTime = [&]
     { return hrSecondsSince(tpBegin) > maxProcessingSeconds; };
 
-    while(!status.hasDied)
+    while (!status.hasDied)
     {
         update(Config::TIME_STEP, timescale);
         postUpdate();
 
-        if(exceededProcessingTime())
+        if (exceededProcessingTime())
         {
             return std::nullopt;
         }
@@ -1149,7 +1149,7 @@ void HexagonGame::incrementDifficulty()
     levelStatus.rotationSpeed += levelStatus.rotationSpeedInc * signMult;
 
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
-    if(std::abs(levelStatus.rotationSpeed) > rotationSpeedMax)
+    if (std::abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed = rotationSpeedMax * signMult;
     }
@@ -1163,7 +1163,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
     levelStatus.speedMult += levelStatus.speedInc;
     levelStatus.delayMult += levelStatus.delayInc;
 
-    if(levelStatus.rndSideChangesEnabled)
+    if (levelStatus.rndSideChangesEnabled)
     {
         setSides(mSideNumber);
     }
@@ -1176,7 +1176,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
 [[nodiscard]] bool HexagonGame::shouldSaveScore()
 {
-    if(!assets.anyLocalProfileActive())
+    if (!assets.anyLocalProfileActive())
     {
         ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "No local profile active, rejecting\n";
@@ -1184,7 +1184,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         return false;
     }
 
-    if(!Config::isEligibleForScore())
+    if (!Config::isEligibleForScore())
     {
         ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - not eligible - "
@@ -1193,7 +1193,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         return false;
     }
 
-    if(status.scoreInvalid)
+    if (status.scoreInvalid)
     {
         ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - score invalidated\n";
@@ -1201,7 +1201,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         return false;
     }
 
-    if(levelStatus.tutorialMode)
+    if (levelStatus.tutorialMode)
     {
         ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - in tutorial mode\n";
@@ -1209,7 +1209,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         return false;
     }
 
-    if(levelData->unscored)
+    if (levelData->unscored)
     {
         ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - unscored level\n";
@@ -1217,7 +1217,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         return false;
     }
 
-    if(inReplay())
+    if (inReplay())
     {
         ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - currently in replay\n";
@@ -1238,7 +1238,7 @@ const double score =
 
 void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
-    if(window == nullptr)
+    if (window == nullptr)
     {
         ssvu::lo("hg::HexagonGame::goToMenu")
             << "Attempted to go back to menu without a game window\n";
@@ -1246,7 +1246,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
         return;
     }
 
-    if(audio != nullptr)
+    if (audio != nullptr)
     {
         audio->stopSounds();
     }
@@ -1255,26 +1255,26 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     ilcLuaTrackedNames.clear();
     ilcLuaTrackedResults.clear();
 
-    if(!mError)
+    if (!mError)
     {
         playSoundOverride("beep.ogg");
     }
 
     calledDeprecatedFunctions.clear();
 
-    if(mSendScores && !mError)
+    if (mSendScores && !mError)
     {
         saveReplay();
     }
 
     // Stop infinite feedback from occurring if the error is happening on
     // onUnload.
-    if(!mError)
+    if (!mError)
     {
         runLuaFunctionIfExists<void>("onUnload");
     }
 
-    if(fnGoToMenu)
+    if (fnGoToMenu)
     {
         fnGoToMenu(mError);
     }
@@ -1284,7 +1284,7 @@ void HexagonGame::raiseWarning(
     const std::string& mFunctionName, const std::string& mAdditionalInfo)
 {
     // Only raise the warning once to avoid redundancy
-    if(calledDeprecatedFunctions.contains(mFunctionName))
+    if (calledDeprecatedFunctions.contains(mFunctionName))
     {
         return;
     }
@@ -1303,7 +1303,7 @@ void HexagonGame::raiseWarning(
 void HexagonGame::addMessage(
     std::string mMessage, double mDuration, bool mSoundToggle)
 {
-    if(!Config::getShowMessages())
+    if (!Config::getShowMessages())
     {
         return;
     }
@@ -1313,7 +1313,7 @@ void HexagonGame::addMessage(
     messageTimeline.append_do(
         [this, mSoundToggle, mMessage]
         {
-            if(mSoundToggle)
+            if (mSoundToggle)
             {
                 playSoundOverride(levelStatus.beepSound);
             }
@@ -1378,7 +1378,7 @@ HexagonGame::getPackDisambiguator() const noexcept
 
 void HexagonGame::playLevelMusic()
 {
-    if(shouldPlayMusic())
+    if (shouldPlayMusic())
     {
         const MusicData::Segment segment =
             musicData.playRandomSegment(getPackId(), *audio);
@@ -1392,7 +1392,7 @@ void HexagonGame::playLevelMusic()
 
 void HexagonGame::playLevelMusicAtTime(float mSeconds)
 {
-    if(shouldPlayMusic())
+    if (shouldPlayMusic())
     {
         musicData.playSeconds(getPackId(), *audio, mSeconds);
     }
@@ -1400,7 +1400,7 @@ void HexagonGame::playLevelMusicAtTime(float mSeconds)
 
 void HexagonGame::stopLevelMusic()
 {
-    if(shouldPlayMusic())
+    if (shouldPlayMusic())
     {
         audio->stopMusic();
     }
@@ -1408,7 +1408,7 @@ void HexagonGame::stopLevelMusic()
 
 void HexagonGame::invalidateScore(const std::string& mReason)
 {
-    if(status.scoreInvalid)
+    if (status.scoreInvalid)
     {
         return;
     }
@@ -1422,7 +1422,7 @@ void HexagonGame::invalidateScore(const std::string& mReason)
 
 auto HexagonGame::getColorMain() const -> sf::Color
 {
-    if(Config::getBlackAndWhite())
+    if (Config::getBlackAndWhite())
     {
         return sf::Color(255, 255, 255, styleData.getMainColor().a);
     }
@@ -1432,7 +1432,7 @@ auto HexagonGame::getColorMain() const -> sf::Color
 
 auto HexagonGame::getColorPlayer() const -> sf::Color
 {
-    if(Config::getBlackAndWhite())
+    if (Config::getBlackAndWhite())
     {
         return sf::Color(255, 255, 255, styleData.getPlayerColor().a);
     }
@@ -1442,12 +1442,12 @@ auto HexagonGame::getColorPlayer() const -> sf::Color
 
 auto HexagonGame::getColorPlayerAdjustedForSwap() const -> sf::Color
 {
-    if(Config::getBlackAndWhite())
+    if (Config::getBlackAndWhite())
     {
         return sf::Color(255, 255, 255, styleData.getPlayerColor().a);
     }
 
-    if(!Config::getShowSwapBlinkingEffect())
+    if (!Config::getShowSwapBlinkingEffect())
     {
         return getColorPlayer();
     }
@@ -1464,7 +1464,7 @@ auto HexagonGame::getColorPlayerTrail() const -> sf::Color
 
 auto HexagonGame::getColorText() const -> sf::Color
 {
-    if(Config::getBlackAndWhite())
+    if (Config::getBlackAndWhite())
     {
         return sf::Color(255, 255, 255, styleData.getTextColor().a);
     }
@@ -1474,7 +1474,7 @@ auto HexagonGame::getColorText() const -> sf::Color
 
 auto HexagonGame::getColorCap() const -> sf::Color
 {
-    if(Config::getBlackAndWhite())
+    if (Config::getBlackAndWhite())
     {
         return sf::Color::Black;
     }
@@ -1484,7 +1484,7 @@ auto HexagonGame::getColorCap() const -> sf::Color
 
 auto HexagonGame::getColorWall() const -> sf::Color
 {
-    if(Config::getBlackAndWhite())
+    if (Config::getBlackAndWhite())
     {
         return sf::Color(255, 255, 255, styleData.getWallColor().a);
     }
@@ -1504,7 +1504,7 @@ auto HexagonGame::getColorWall() const -> sf::Color
 
 void HexagonGame::refreshMusicPitch()
 {
-    if(audio != nullptr)
+    if (audio != nullptr)
     {
         audio->setCurrentMusicPitch(getOptionalMusicDMSyncFactor() *
                                     Config::getMusicSpeedMult() *
@@ -1516,7 +1516,7 @@ void HexagonGame::setSides(unsigned int mSides)
 {
     playSoundOverride(levelStatus.beepSound);
 
-    if(mSides < 3)
+    if (mSides < 3)
     {
         mSides = 3;
     }
@@ -1543,7 +1543,7 @@ void HexagonGame::setSides(unsigned int mSides)
 {
     const auto res = levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
 
-    if(!levelStatus.hasSpeedMaxLimit())
+    if (!levelStatus.hasSpeedMaxLimit())
     {
         return res;
     }
@@ -1555,7 +1555,7 @@ void HexagonGame::setSides(unsigned int mSides)
 {
     const auto res = levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
 
-    if(!levelStatus.hasDelayMaxLimit())
+    if (!levelStatus.hasDelayMaxLimit())
     {
         return res;
     }
@@ -1658,7 +1658,7 @@ void HexagonGame::performPlayerSwap(const bool mPlaySound)
     player.playerSwap();
     runLuaFunctionIfExists<void>("onCursorSwap");
 
-    if(mPlaySound)
+    if (mPlaySound)
     {
         playSoundOverride(getLevelStatus().swapSound);
     }

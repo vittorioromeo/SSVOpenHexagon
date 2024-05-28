@@ -21,12 +21,12 @@ namespace hg::Impl {
         constexpr const char* assert_code =                                \
             VRM_PP_SEP_TOSTR(" ", VRM_PP_EMPTY(), __VA_ARGS__);            \
                                                                            \
-        if(!static_cast<bool>(__VA_ARGS__)) [[unlikely]]                   \
+        if (!static_cast<bool>(__VA_ARGS__)) [[unlikely]]                  \
         {                                                                  \
             ::hg::Impl::assertionFailure(assert_code, __FILE__, __LINE__); \
         }                                                                  \
     }                                                                      \
-    while(false)
+    while (false)
 
 #else
 

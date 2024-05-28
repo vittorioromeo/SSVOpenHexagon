@@ -68,7 +68,7 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
 [[nodiscard]] sf::Color CPlayer::getColorAdjustedForSwap(
     const sf::Color& colorPlayer) const
 {
-    if(!_swapTimer.isRunning() && !_dead)
+    if (!_swapTimer.isRunning() && !_dead)
     {
         return Utils::getColorFromHue(
             std::fmod(_swapBlinkTimer.getCurrent() / 12.f, 0.2f));
@@ -85,7 +85,7 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
 {
     drawPivot(sides, colorMain, wallQuads, capTris, capColor);
 
-    if(_deadEffectTimer.isRunning())
+    if (_deadEffectTimer.isRunning())
     {
         drawDeathEffect(wallQuads);
     }
@@ -116,7 +116,7 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
     wallQuads.reserve_more_quad(sides * 1);
     capTris.reserve_more(sides * 3);
 
-    for(auto i(0u); i < sides; ++i)
+    for (auto i(0u); i < sides; ++i)
     {
         const float sAngle{div * 2.f * i};
 
@@ -144,7 +144,7 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
 
     wallQuads.reserve_more_quad(6);
 
-    for(auto i(0u); i < 6; ++i)
+    for (auto i(0u); i < 6; ++i)
     {
         const float sAngle{div * 2.f * i};
 
@@ -168,13 +168,13 @@ void CPlayer::kill(const bool fatal)
 {
     _deadEffectTimer.restart();
 
-    if(fatal)
+    if (fatal)
     {
         _dead = true;
 
         // Avoid moving back position if the player had just swapped or the
         // player was forcibly moved by a lot via Lua scripting.
-        if(!_justSwapped && ssvs::getDistEuclidean(_pos, _lastPos) < 24.f)
+        if (!_justSwapped && ssvs::getDistEuclidean(_pos, _lastPos) < 24.f)
         {
             // Move back position to graphically show the tip of the triangle
             // hitting the wall rather than the center of the triangle.
@@ -208,7 +208,7 @@ template <typename Wall>
     const auto assignResult = [&]()
     {
         tempDistance = ssvs::getMagSquared(vec1 - pos);
-        if(tempDistance < safeDistance)
+        if (tempDistance < safeDistance)
         {
             pos = vec1;
             saved = true;
@@ -216,14 +216,14 @@ template <typename Wall>
         }
     };
 
-    for(unsigned int i{0u}, j{3u}; i < 4u; i += vxIncrement, j = i - 1)
+    for (unsigned int i{0u}, j{3u}; i < 4u; i += vxIncrement, j = i - 1)
     {
-        if(j == killingSide)
+        if (j == killingSide)
         {
             continue;
         }
 
-        switch(Utils::getLineCircleIntersection(
+        switch (Utils::getLineCircleIntersection(
             vec1, vec2, wVertexes[i], wVertexes[j], radiusSquared))
         {
             case 1u:
@@ -234,7 +234,7 @@ template <typename Wall>
 
             case 2u:
             {
-                if(ssvs::getMagSquared(vec1 - pos) >
+                if (ssvs::getMagSquared(vec1 - pos) >
                     ssvs::getMagSquared(vec2 - pos))
                 {
                     vec1 = vec2;
@@ -258,7 +258,7 @@ template <typename Wall>
     const CWall& wall, const sf::Vector2f& centerPos, const float radiusSquared,
     const ssvu::FT ft)
 {
-    if(_dead)
+    if (_dead)
     {
         return false;
     }
@@ -272,7 +272,7 @@ template <typename Wall>
     // Save the position difference in case we need to do a second attempt
     // at saving player.
     const SpeedData& curveData{wall.getCurve()};
-    if(curveData._speed != 0.f &&
+    if (curveData._speed != 0.f &&
         ssvu::getSign(curveData._speed) != movementDir)
     {
         wall.moveVertexAlongCurve(testPos, centerPos, ft);
@@ -280,7 +280,7 @@ template <typename Wall>
     }
 
     // If player is not moving calculate now...
-    if(!movementDir && !_forcedMove)
+    if (!movementDir && !_forcedMove)
     {
         _pos = testPos + ssvs::getNormalized(testPos - _prePushPos) *
                              (2.f * collisionPadding);
@@ -305,7 +305,7 @@ template <typename Wall>
     //  |       | *****     |*****  |    it is the other one that is closer
     //  |       |           |       |
     testPos = _lastPos + pushVel;
-    if(wall.isOverlapping(testPos) ||
+    if (wall.isOverlapping(testPos) ||
         !checkWallCollisionEscape(wall, testPos, radiusSquared))
     {
         return true;
@@ -326,7 +326,7 @@ template <typename Wall>
 {
     (void)ft; // Currently unused.
 
-    if(_dead)
+    if (_dead)
     {
         return false;
     }
@@ -344,9 +344,9 @@ template <typename Wall>
         0.15f}; // 0.1 would be enough in most scenarios
                 // but we raise it to 0.15 for really fast walls.
 
-    for(unsigned int i{0u}, j{3u}; i < 4; j = i++)
+    for (unsigned int i{0u}, j{3u}; i < 4; j = i++)
     {
-        if(j == killingSide)
+        if (j == killingSide)
         {
             continue;
         }
@@ -354,19 +354,19 @@ template <typename Wall>
         const std::array<sf::Vector2f, 4> collisionPolygon{
             wVertexes[i], wOldVertexes[i], wOldVertexes[j], wVertexes[j]};
 
-        if(Utils::pointInPolygon<4>(collisionPolygon, _lastPos.x, _lastPos.y))
+        if (Utils::pointInPolygon<4>(collisionPolygon, _lastPos.x, _lastPos.y))
         {
             // For a side to be an effective source of push it must have
             // intersected the player's positions circle both now and the
             // previous frame.
-            if(Utils::getLineCircleClosestIntersection(i1, _lastPos,
-                   wOldVertexes[i], wOldVertexes[j], radiusSquared) &&
+            if (Utils::getLineCircleClosestIntersection(i1, _lastPos,
+                    wOldVertexes[i], wOldVertexes[j], radiusSquared) &&
                 Utils::getLineCircleClosestIntersection(
                     i2, _lastPos, wVertexes[i], wVertexes[j], radiusSquared))
             {
                 pushVel = i2 - i1;
-                if(std::abs(ssvs::getDotProduct(ssvs::getNormalized(pushVel),
-                       ssvs::getNormalized(_lastPos))) > pushDotThreshold)
+                if (std::abs(ssvs::getDotProduct(ssvs::getNormalized(pushVel),
+                        ssvs::getNormalized(_lastPos))) > pushDotThreshold)
                 {
                     pushVel = {0.f, 0.f};
                 }
@@ -376,7 +376,7 @@ template <typename Wall>
     }
 
     // Player is not moving exit now.
-    if(!movementDir && !_forcedMove)
+    if (!movementDir && !_forcedMove)
     {
         _pos += pushVel;
         _pos +=
@@ -388,7 +388,7 @@ template <typename Wall>
 
     // If alive try to find a close enough safe position.
     sf::Vector2f testPos{_lastPos + pushVel};
-    if(wall.isOverlapping(testPos) ||
+    if (wall.isOverlapping(testPos) ||
         !checkWallCollisionEscape(wall, testPos, radiusSquared))
     {
         return true;
@@ -408,11 +408,11 @@ template <typename Wall>
 void CPlayer::updateTriangleWidthTransition(
     const bool focused, const ssvu::FT ft)
 {
-    if(focused && _triangleWidthTransitionTime < 1.f)
+    if (focused && _triangleWidthTransitionTime < 1.f)
     {
         Utils::moveTowards(_triangleWidthTransitionTime, 1.f, ft * 0.1f);
     }
-    else if(!focused && _triangleWidthTransitionTime > 0.f)
+    else if (!focused && _triangleWidthTransitionTime > 0.f)
     {
         Utils::moveTowardsZero(_triangleWidthTransitionTime, ft * 0.1f);
     }
@@ -427,23 +427,23 @@ void CPlayer::update(
 {
     updateTriangleWidthTransition(focused, ft);
 
-    if(_deadEffectTimer.isRunning())
+    if (_deadEffectTimer.isRunning())
     {
         _deadEffectTimer.update(ft);
 
         _hue += 18.f * ft;
 
-        if(_hue > 360.f)
+        if (_hue > 360.f)
         {
             _hue = 0.f;
         }
 
-        if(_dead)
+        if (_dead)
         {
             return;
         }
 
-        if(_deadEffectTimer.getTotal() >= 100)
+        if (_deadEffectTimer.getTotal() >= 100)
         {
             _deadEffectTimer.stop();
             _deadEffectTimer.resetAll();
@@ -452,7 +452,7 @@ void CPlayer::update(
 
     _swapBlinkTimer.update(ft / 3.f);
 
-    if(swapEnabled && _swapTimer.update(ft))
+    if (swapEnabled && _swapTimer.update(ft))
     {
         _swapTimer.stop();
     }

@@ -40,7 +40,7 @@ private:
     void playSoundImpl(
         const std::string& assetId, const ssvs::SoundPlayer::Mode mode)
     {
-        if(sf::SoundBuffer* soundBuffer = _soundBufferGetter(assetId);
+        if (sf::SoundBuffer* soundBuffer = _soundBufferGetter(assetId);
             soundBuffer != nullptr)
         {
             _soundPlayer.play(*soundBuffer, mode);
@@ -71,7 +71,7 @@ public:
         SSVOH_ASSERT(volume >= 0.f && volume <= 100.f);
         _musicVolume = volume;
 
-        if(_music.has_value())
+        if (_music.has_value())
         {
             _music->setVolume(_musicVolume);
         }
@@ -79,7 +79,7 @@ public:
 
     void resumeMusic()
     {
-        if(_music.has_value())
+        if (_music.has_value())
         {
             _music->setVolume(_musicVolume);
             _music->play();
@@ -88,7 +88,7 @@ public:
 
     void pauseMusic()
     {
-        if(_music.has_value())
+        if (_music.has_value())
         {
             _music->pause();
         }
@@ -96,7 +96,7 @@ public:
 
     void stopMusic()
     {
-        if(_music.has_value())
+        if (_music.has_value())
         {
             _music->stop();
         }
@@ -104,7 +104,7 @@ public:
 
     void setMusicPlayingOffsetSeconds(const float seconds)
     {
-        if(_music.has_value())
+        if (_music.has_value())
         {
             _music->setPlayingOffset(sf::seconds(seconds));
         }
@@ -112,7 +112,7 @@ public:
 
     void setMusicPlayingOffsetMilliseconds(const int milliseconds)
     {
-        if(_music.has_value())
+        if (_music.has_value())
         {
             _music->setPlayingOffset(sf::milliseconds(milliseconds));
         }
@@ -120,7 +120,7 @@ public:
 
     [[nodiscard]] float getMusicPlayingOffsetSeconds() const
     {
-        if(_music.has_value())
+        if (_music.has_value())
         {
             return _music->getPlayingOffset().asSeconds();
         }
@@ -130,7 +130,7 @@ public:
 
     [[nodiscard]] int getMusicPlayingOffsetMilliseconds() const
     {
-        if(_music.has_value())
+        if (_music.has_value())
         {
             return _music->getPlayingOffset().asMilliseconds();
         }
@@ -171,7 +171,7 @@ public:
         const std::string assetId = Utils::concat(packId, '_', id);
         const std::string* path = _musicPathGetter(assetId);
 
-        if(path == nullptr)
+        if (path == nullptr)
         {
             ssvu::lo("hg::AudioImpl::playMusic")
                 << "No path for music id '" << assetId << "'\n";
@@ -179,14 +179,14 @@ public:
             return false;
         }
 
-        if(!_music.has_value())
+        if (!_music.has_value())
         {
             _music.emplace();
         }
 
-        if(_lastLoadedMusicPath != *path)
+        if (_lastLoadedMusicPath != *path)
         {
-            if(!_music->openFromFile(*path))
+            if (!_music->openFromFile(*path))
             {
                 ssvu::lo("hg::AudioImpl::playMusic")
                     << "Failed loading music file '" << path << "'\n";
@@ -207,7 +207,7 @@ public:
 
     void setCurrentMusicPitch(const float pitch)
     {
-        if(_music.has_value())
+        if (_music.has_value())
         {
             _music->setPitch(pitch);
         }

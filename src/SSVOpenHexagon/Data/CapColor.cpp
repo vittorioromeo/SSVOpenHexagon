@@ -15,25 +15,25 @@ namespace hg {
 
 [[nodiscard]] CapColor parseCapColor(const ssvuj::Obj& obj) noexcept
 {
-    if(ssvuj::isObjType<std::string>(obj))
+    if (ssvuj::isObjType<std::string>(obj))
     {
         const auto str = ssvuj::getExtr<std::string>(obj);
 
-        if(str == "main")
+        if (str == "main")
         {
             return CapColor{CapColorMode::Main{}};
         }
 
-        if(str == "main_darkened")
+        if (str == "main_darkened")
         {
             return CapColor{CapColorMode::MainDarkened{}};
         }
     }
 
-    if(ssvuj::isObj(obj))
+    if (ssvuj::isObj(obj))
     {
         const bool legacy = ssvuj::getExtr<bool>(obj, "legacy", true);
-        if(legacy)
+        if (legacy)
         {
             const int index = ssvuj::getExtr<int>(obj, "index", 0);
             return CapColor{CapColorMode::ByIndex{index}};

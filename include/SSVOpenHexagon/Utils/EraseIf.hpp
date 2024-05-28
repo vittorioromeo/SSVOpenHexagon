@@ -16,9 +16,9 @@ typename std::unordered_set<Key, Hash, KeyEqual, Alloc>::size_type erase_if(
     std::unordered_set<Key, Hash, KeyEqual, Alloc>& c, Pred pred)
 {
     auto old_size = c.size();
-    for(auto i = c.begin(), last = c.end(); i != last;)
+    for (auto i = c.begin(), last = c.end(); i != last;)
     {
-        if(pred(*i))
+        if (pred(*i))
         {
             i = c.erase(i);
         }

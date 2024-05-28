@@ -16,12 +16,12 @@ struct GameVersion
     [[nodiscard]] constexpr bool operator<(
         const GameVersion& rhs) const noexcept
     {
-        if(major != rhs.major)
+        if (major != rhs.major)
         {
             return major < rhs.major;
         }
 
-        if(minor != rhs.minor)
+        if (minor != rhs.minor)
         {
             return minor < rhs.minor;
         }

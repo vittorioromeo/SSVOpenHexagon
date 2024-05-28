@@ -28,7 +28,7 @@ try
 {
     mLua.executeCode(mCode);
 }
-catch(std::runtime_error& mError)
+catch (std::runtime_error& mError)
 {
     ssvu::lo("hg::Utils::runLuaCode") << "Fatal Lua error\n"
                                       << "Code: " << mCode << '\n'
@@ -37,7 +37,7 @@ catch(std::runtime_error& mError)
 
     throw;
 }
-catch(...)
+catch (...)
 {
     ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown Lua error\n"
                                       << "Code: " << mCode << '\n'
@@ -57,7 +57,7 @@ bool runLuaFileCached(
     auto it = cache.find(mFileName);
     const bool found = it != cache.end();
 
-    if(!found)
+    if (!found)
     {
         std::ifstream t(mFileName, std::ios::binary | std::ios::in);
 
@@ -81,7 +81,7 @@ void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
 {
     std::ifstream s{mFileName};
 
-    if(!s)
+    if (!s)
     {
         const std::string errorStr = concat(
             "Fatal Lua error\n", "Could not open file: ", mFileName, '\n');
@@ -94,7 +94,7 @@ void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
     {
         mLua.executeCode(s);
     }
-    catch(std::runtime_error& mError)
+    catch (std::runtime_error& mError)
     {
         ssvu::lo("hg::Utils::runLuaFile") << "Fatal Lua error\n"
                                           << "Filename: " << mFileName << '\n'
@@ -103,7 +103,7 @@ void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
 
         throw;
     }
-    catch(...)
+    catch (...)
     {
         ssvu::lo("hg::Utils::runLuaFile") << "Fatal unknown Lua error\n"
                                           << "Filename: " << mFileName << '\n'
@@ -129,7 +129,7 @@ const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
                    pd.author == mPackAuthor;
         });
 
-    if(depIt == dependencies.end())
+    if (depIt == dependencies.end())
     {
         throw std::runtime_error(
             concat("Pack with disambiguator '", mPackDisambiguator, "', name '",
@@ -142,7 +142,7 @@ const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
     const PackData* const dependencyData =
         assets.findPackData(mPackDisambiguator, mPackName, mPackAuthor);
 
-    if(dependencyData == nullptr)
+    if (dependencyData == nullptr)
     {
         throw std::runtime_error(
             concat("Could not find dependency pack with disambiguator '",
@@ -150,7 +150,7 @@ const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
                 mPackAuthor, "'\n"));
     }
 
-    if(dependencyData->version < depIt->minVersion)
+    if (dependencyData->version < depIt->minVersion)
     {
         throw std::runtime_error(concat("Dependency pack with disambiguator '",
             mPackDisambiguator, "', name '", mPackName, "', author: '",
@@ -190,7 +190,7 @@ try
     return f(
         concat(dependencyData.folderPath, assetSubfolder, '/', mAssetName));
 }
-catch(const std::runtime_error& err)
+catch (const std::runtime_error& err)
 {
     ssvu::lo("hg::Utils::withDependencyAssetFilename")
         << "Fatal error while looking for Lua dependency\nError: " << err.what()
@@ -198,7 +198,7 @@ catch(const std::runtime_error& err)
 
     throw;
 }
-catch(...)
+catch (...)
 {
     ssvu::lo("hg::Utils::withDependencyAssetFilename")
         << "Fatal unknown error while looking for Lua dependency" << std::endl;

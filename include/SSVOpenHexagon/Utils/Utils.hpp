@@ -61,12 +61,12 @@ auto runLuaFunctionIfExists(
 {
     using Ret = std::optional<VoidToNothing<T>>;
 
-    if(!mLua.doesVariableExist(mName))
+    if (!mLua.doesVariableExist(mName))
     {
         return Ret{};
     }
 
-    if constexpr(std::is_same_v<T, void>)
+    if constexpr (std::is_same_v<T, void>)
     {
         runLuaFunction<T>(mLua, mName, mArgs...);
         return Ret{Nothing{}};

@@ -38,7 +38,7 @@ CWall::CWall(const unsigned int sides, const float wallAngleLeft,
 
 void CWall::draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads)
 {
-    if(_hueMod != 0)
+    if (_hueMod != 0)
     {
         color = Utils::transformHue(color, _hueMod);
     }
@@ -54,7 +54,7 @@ void CWall::update(const float wallSpawnDist, const float radius,
     _curve.update(ft);
 
     moveTowardsCenter(wallSpawnDist, radius, centerPos, ft);
-    if(_curve._speed != 0.f)
+    if (_curve._speed != 0.f)
     {
         moveCurve(centerPos, ft);
     }
@@ -69,18 +69,18 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
     int pointsOutOfBounds{0};
     int pointsOnCenter{0};
 
-    for(sf::Vector2f& vp : _vertexPositions)
+    for (sf::Vector2f& vp : _vertexPositions)
     {
         const float xDistance = std::abs(vp.x - centerPos.x);
         const float yDistance = std::abs(vp.y - centerPos.y);
 
-        if(xDistance < halfRadius && yDistance < halfRadius)
+        if (xDistance < halfRadius && yDistance < halfRadius)
         {
             ++pointsOnCenter;
             continue;
         }
 
-        if(xDistance > outerBounds || yDistance > outerBounds)
+        if (xDistance > outerBounds || yDistance > outerBounds)
         {
             ++pointsOutOfBounds;
         }
@@ -88,7 +88,7 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
         vp += (centerPos - vp).normalized() * _speed._speed * 5.f * ft;
     }
 
-    if(pointsOnCenter == 4 || pointsOutOfBounds == 4)
+    if (pointsOnCenter == 4 || pointsOutOfBounds == 4)
     {
         _killed = true;
     }
@@ -100,7 +100,7 @@ void CWall::moveCurve(const sf::Vector2f& centerPos, const ssvu::FT ft)
     const float radSin = std::sin(rad);
     const float radCos = std::cos(rad);
 
-    for(sf::Vector2f& vp : _vertexPositions)
+    for (sf::Vector2f& vp : _vertexPositions)
     {
         moveVertexAlongCurveImpl(vp, centerPos, radSin, radCos);
     }

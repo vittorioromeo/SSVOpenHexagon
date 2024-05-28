@@ -17,7 +17,7 @@ namespace hg::Utils {
 [[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Color getColorDarkened(
     sf::Color mColor, const float mMultiplier) noexcept
 {
-    if(mMultiplier != 0.f)
+    if (mMultiplier != 0.f)
     {
         mColor.r = static_cast<float>(mColor.r) / mMultiplier;
         mColor.b = static_cast<float>(mColor.b) / mMultiplier;
@@ -63,7 +63,7 @@ namespace hg::Utils {
     const auto ret = [](const float r, const float g, const float b)
     { return sf::Color(r * 255.f, g * 255.f, b * 255.f); };
 
-    switch(i)
+    switch (i)
     {
         case 0: return ret(1.f, t, 0.f);
         case 1: return ret(q, 1.f, 0.f);
@@ -78,12 +78,12 @@ namespace hg::Utils {
 [[nodiscard, gnu::always_inline, gnu::pure]] inline constexpr std::uint8_t
 componentClamp(const float value) noexcept
 {
-    if(value > 255.f)
+    if (value > 255.f)
     {
         return std::uint8_t(255);
     }
 
-    if(value < 0.f)
+    if (value < 0.f)
     {
         return std::uint8_t(0);
     }

@@ -20,7 +20,7 @@ namespace hg::Utils {
         ssvuj::getExtr<std::string>(mRoot, "album"),
         ssvuj::getExtr<std::string>(mRoot, "author")};
 
-    for(const auto& segment : ssvuj::getObj(mRoot, "segments"))
+    for (const auto& segment : ssvuj::getObj(mRoot, "segments"))
     {
         result.addSegment(ssvuj::getExtr<float>(segment, "time"),
             ssvuj::getExtr<float>(segment, "beat_pulse_delay_offset", 0.f));

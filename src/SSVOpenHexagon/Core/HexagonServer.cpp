@@ -52,7 +52,7 @@ static auto& slog(const char* funcName)
 #define SSVOH_SLOG ::slog(__func__)
 
 #define SSVOH_SLOG_VERBOSE \
-    if(_verbose) ::slog(__func__)
+    if (_verbose) ::slog(__func__)
 
 #define SSVOH_SLOG_ERROR ::slog(__func__) << "[ERROR] "
 
@@ -63,7 +63,7 @@ namespace hg {
 template <typename... Ts>
 [[nodiscard]] bool HexagonServer::fail(const Ts&... xs)
 {
-    if constexpr(sizeof...(Ts) > 0)
+    if constexpr (sizeof...(Ts) > 0)
     {
         auto& stream = SSVOH_SLOG_ERROR;
         (stream << ... << xs);
@@ -85,7 +85,7 @@ template <typename... Ts>
 
     _controlSocket.setBlocking(true);
 
-    if(_controlSocket.bind(_serverControlPort, sf::IpAddress::LocalHost) !=
+    if (_controlSocket.bind(_serverControlPort, sf::IpAddress::LocalHost) !=
         sf::Socket::Status::Done)
     {
         return fail("Failure binding UDP control socket");
@@ -101,7 +101,7 @@ template <typename... Ts>
 
     _listener.setBlocking(true);
 
-    if(_listener.listen(_serverPort) == sf::TcpListener::Status::Error)
+    if (_listener.listen(_serverPort) == sf::TcpListener::Status::Error)
     {
         return fail("Failure initializing TCP listener");
     }
@@ -119,7 +119,7 @@ template <typename... Ts>
 
 [[nodiscard]] bool HexagonServer::sendPacket(ConnectedClient& c, sf::Packet& p)
 {
-    if(c._socket.send(p) != sf::Socket::Status::Done)
+    if (c._socket.send(p) != sf::Socket::Status::Done)
     {
         return fail("Failure sending packet");
     }
@@ -133,15 +133,15 @@ template <typename T>
 {
     const void* clientAddr = static_cast<void*>(&c);
 
-    if(!c._rtKeys.has_value())
+    if (!c._rtKeys.has_value())
     {
         return fail(
             "Tried to send encrypted message without RT keys for client '",
             clientAddr, '\'');
     }
 
-    if(!makeServerToClientEncryptedPacket(
-           c._rtKeys->keyTransmit, _packetBuffer, data))
+    if (!makeServerToClientEncryptedPacket(
+            c._rtKeys->keyTransmit, _packetBuffer, data))
     {
         return fail("Error building encrypted message packet for client '",
             clientAddr, '\'');
@@ -267,7 +267,7 @@ void HexagonServer::kickAndRemoveClient(ConnectedClient& c)
 {
     (void)sendKick(c);
 
-    if(c._loginData.has_value())
+    if (c._loginData.has_value())
     {
         Database::removeAllLoginTokensForUser(c._loginData->_userId);
     }
@@ -277,17 +277,17 @@ void HexagonServer::kickAndRemoveClient(ConnectedClient& c)
 
 void HexagonServer::run()
 {
-    while(_running)
+    while (_running)
     {
         try
         {
             runIteration();
         }
-        catch(const std::runtime_error& e)
+        catch (const std::runtime_error& e)
         {
             SSVOH_SLOG_ERROR << "Exception: '" << e.what() << "'\n";
         }
-        catch(...)
+        catch (...)
         {
             SSVOH_SLOG_ERROR << "Unknown exception";
         }
@@ -298,7 +298,7 @@ void HexagonServer::runIteration()
 {
     SSVOH_SLOG_VERBOSE << "New iteration...\n";
 
-    if(_socketSelector.wait(sf::seconds(30)))
+    if (_socketSelector.wait(sf::seconds(30)))
     {
         // A timeout is specified so that we can purge clients even if we didn't
         // receive anything.
@@ -315,7 +315,7 @@ void HexagonServer::runIteration()
 
 bool HexagonServer::runIteration_Control()
 {
-    if(!_socketSelector.isReady(_controlSocket))
+    if (!_socketSelector.isReady(_controlSocket))
     {
         return fail();
     }
@@ -323,7 +323,7 @@ bool HexagonServer::runIteration_Control()
     std::optional<sf::IpAddress> senderIp;
     unsigned short senderPort;
 
-    if(_controlSocket.receive(_packetBuffer, senderIp, senderPort) !=
+    if (_controlSocket.receive(_packetBuffer, senderIp, senderPort) !=
         sf::Socket::Status::Done)
     {
         return fail("Failure receiving control packet");
@@ -331,7 +331,7 @@ bool HexagonServer::runIteration_Control()
 
     std::string controlMsg;
 
-    if(!(_packetBuffer >> controlMsg))
+    if (!(_packetBuffer >> controlMsg))
     {
         return fail("Failure decoding control packet");
     }
@@ -341,21 +341,21 @@ bool HexagonServer::runIteration_Control()
     SSVOH_SLOG << "Received control packet from '" << senderIp.value() << ':'
                << senderPort << "', contents: '" << controlMsg << "'\n";
 
-    if(controlMsg.empty())
+    if (controlMsg.empty())
     {
         return true;
     }
 
     const auto splitted = Utils::split<std::string>(controlMsg);
 
-    if(splitted.empty())
+    if (splitted.empty())
     {
         return true;
     }
 
-    if(splitted[0] == "verbose")
+    if (splitted[0] == "verbose")
     {
-        if(splitted.size() != 2)
+        if (splitted.size() != 2)
         {
             SSVOH_SLOG_ERROR
                 << "'verbose' command must be followed by 'true' or 'false'\n";
@@ -363,7 +363,7 @@ bool HexagonServer::runIteration_Control()
             return true;
         }
 
-        if(splitted[1] == "true")
+        if (splitted[1] == "true")
         {
             SSVOH_SLOG << "Enabled verbose mode\n";
 
@@ -371,7 +371,7 @@ bool HexagonServer::runIteration_Control()
             return true;
         }
 
-        if(splitted[1] == "false")
+        if (splitted[1] == "false")
         {
             SSVOH_SLOG << "Disabled verbose mode\n";
 
@@ -424,7 +424,7 @@ bool HexagonServer::runIteration_Control()
 
 bool HexagonServer::runIteration_TryAcceptingNewClient()
 {
-    if(!_socketSelector.isReady(_listener))
+    if (!_socketSelector.isReady(_listener))
     {
         return false;
     }
@@ -441,7 +441,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     // TODO (P1): potential hanging spot?
     // The listener is ready: there is a pending connection
-    if(_listener.accept(potentialSocket) != sf::Socket::Status::Done)
+    if (_listener.accept(potentialSocket) != sf::Socket::Status::Done)
     {
         SSVOH_SLOG << "Listener failed to accept new client '"
                    << potentialClientAddress << "'\n";
@@ -464,14 +464,14 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
 void HexagonServer::runIteration_LoopOverSockets()
 {
-    for(auto it = _connectedClients.begin(); it != _connectedClients.end();
-        ++it)
+    for (auto it = _connectedClients.begin(); it != _connectedClients.end();
+         ++it)
     {
         ConnectedClient& connectedClient = *it;
         const void* clientAddr = static_cast<void*>(&connectedClient);
         sf::TcpSocket& clientSocket = connectedClient._socket;
 
-        if(!_socketSelector.isReady(clientSocket))
+        if (!_socketSelector.isReady(clientSocket))
         {
             continue;
         }
@@ -482,12 +482,12 @@ void HexagonServer::runIteration_LoopOverSockets()
         _packetBuffer.clear();
 
         // TODO (P1): potential hanging spot?
-        if(clientSocket.receive(_packetBuffer) == sf::Socket::Status::Done)
+        if (clientSocket.receive(_packetBuffer) == sf::Socket::Status::Done)
         {
             SSVOH_SLOG_VERBOSE << "Successfully received data from client '"
                                << clientAddr << "'\n";
 
-            if(processPacket(connectedClient, _packetBuffer))
+            if (processPacket(connectedClient, _packetBuffer))
             {
                 connectedClient._lastActivity = Utils::SCClock::now();
                 connectedClient._consecutiveFailures = 0;
@@ -504,7 +504,7 @@ void HexagonServer::runIteration_LoopOverSockets()
         ++connectedClient._consecutiveFailures;
 
         constexpr int maxConsecutiveFailures = 5;
-        if(connectedClient._consecutiveFailures == maxConsecutiveFailures)
+        if (connectedClient._consecutiveFailures == maxConsecutiveFailures)
         {
             SSVOH_SLOG << "Too many consecutive failures for client '"
                        << clientAddr << "', removing from list\n";
@@ -521,13 +521,13 @@ void HexagonServer::runIteration_PurgeClients()
 
     const Utils::SCTimePoint now = Utils::SCClock::now();
 
-    for(auto it = _connectedClients.begin(); it != _connectedClients.end();
-        ++it)
+    for (auto it = _connectedClients.begin(); it != _connectedClients.end();
+         ++it)
     {
         ConnectedClient& connectedClient = *it;
         const void* clientAddr = static_cast<void*>(&connectedClient);
 
-        if(connectedClient._mustDisconnect)
+        if (connectedClient._mustDisconnect)
         {
             SSVOH_SLOG << "Client '" << clientAddr
                        << "' disconnected, removing from list\n";
@@ -537,7 +537,7 @@ void HexagonServer::runIteration_PurgeClients()
             continue;
         }
 
-        if(now - connectedClient._lastActivity > maxInactivity)
+        if (now - connectedClient._lastActivity > maxInactivity)
         {
             SSVOH_SLOG << "Client '" << clientAddr
                        << "' timed out, removing from list\n";
@@ -553,7 +553,7 @@ template <typename TDuration>
 [[nodiscard]] static bool checkAndUpdateLastElapsed(
     Utils::SCTimePoint& last, const TDuration duration)
 {
-    if(Utils::SCClock::now() - last < duration)
+    if (Utils::SCClock::now() - last < duration)
     {
         return false;
     }
@@ -564,30 +564,30 @@ template <typename TDuration>
 
 void HexagonServer::runIteration_PurgeTokens()
 {
-    if(!checkAndUpdateLastElapsed(
-           _lastTokenPurge, std::chrono::seconds(3600) /* 1 hour */))
+    if (!checkAndUpdateLastElapsed(
+            _lastTokenPurge, std::chrono::seconds(3600) /* 1 hour */))
     {
         return;
     }
 
     SSVOH_SLOG_VERBOSE << "Purging old login tokens\n";
 
-    for(const Database::LoginToken& lt : Database::getAllStaleLoginTokens())
+    for (const Database::LoginToken& lt : Database::getAllStaleLoginTokens())
     {
         SSVOH_SLOG << "Found stale token for user '" << lt.userId << "'\n";
 
-        for(auto it = _connectedClients.begin(); it != _connectedClients.end();
-            ++it)
+        for (auto it = _connectedClients.begin(); it != _connectedClients.end();
+             ++it)
         {
             ConnectedClient& c = *it;
             const void* clientAddr = static_cast<void*>(&c);
 
-            if(!c._loginData.has_value())
+            if (!c._loginData.has_value())
             {
                 continue;
             }
 
-            if(c._loginData->_userId == lt.userId)
+            if (c._loginData->_userId == lt.userId)
             {
                 SSVOH_SLOG << "Kicking stale token client '" << clientAddr
                            << "'\n";
@@ -603,7 +603,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
 void HexagonServer::runIteration_FlushLogs()
 {
-    if(!checkAndUpdateLastElapsed(_lastLogsFlush, std::chrono::seconds(1)))
+    if (!checkAndUpdateLastElapsed(_lastLogsFlush, std::chrono::seconds(1)))
     {
         return;
     }
@@ -618,7 +618,7 @@ void HexagonServer::runIteration_FlushLogs()
 {
     const void* clientAddr = static_cast<void*>(&c);
 
-    if(!c._loginData.has_value())
+    if (!c._loginData.has_value())
     {
         SSVOH_SLOG << "Client '" << clientAddr << "', is not logged in for "
                    << context << '\n';
@@ -628,7 +628,7 @@ void HexagonServer::runIteration_FlushLogs()
 
     const auto cLoginToken = c._loginData->_loginToken;
 
-    if(cLoginToken != ctspLoginToken)
+    if (cLoginToken != ctspLoginToken)
     {
         SSVOH_SLOG << "Client '" << clientAddr << "' login token mismatch for "
                    << context << '\n';
@@ -646,7 +646,7 @@ void HexagonServer::runIteration_FlushLogs()
 
     const Utils::SCTimePoint receiveTime = Utils::SCClock::now();
 
-    if(!validateLogin(c, "replay", loginToken))
+    if (!validateLogin(c, "replay", loginToken))
     {
         return true;
     }
@@ -660,24 +660,24 @@ void HexagonServer::runIteration_FlushLogs()
         return true;
     };
 
-    if(!c._gameStatus.has_value())
+    if (!c._gameStatus.has_value())
     {
         return discard("no game started");
     }
 
-    if(!_assets.isValidPackId(rf._pack_id))
+    if (!_assets.isValidPackId(rf._pack_id))
     {
         return discard("invalid pack id '", rf._pack_id, '\'');
     }
 
-    if(!_assets.isValidLevelId(rf._level_id))
+    if (!_assets.isValidLevelId(rf._level_id))
     {
         return discard("invalid level id '", rf._level_id, '\'');
     }
 
     const LevelData& levelData = _assets.getLevelData(rf._level_id);
 
-    if(levelData.unscored)
+    if (levelData.unscored)
     {
         return discard("unscored level id '", rf._level_id, '\'');
     }
@@ -694,7 +694,7 @@ void HexagonServer::runIteration_FlushLogs()
         _hexagonGame.runReplayUntilDeathAndGetScore(
             rf, maxProcessingSeconds, 1.f /* timescale */);
 
-    if(!ger.has_value())
+    if (!ger.has_value())
     {
         return discard(
             "max processing time exceeded (", maxProcessingSeconds, "s)");
@@ -723,13 +723,13 @@ void HexagonServer::runIteration_FlushLogs()
                    << "Ratio: " << ratio << '\n';
     };
 
-    if(!goodDifference)
+    if (!goodDifference)
     {
         printDifferenceAndRatio();
         return discard("difference too large");
     }
 
-    if(!goodRatio)
+    if (!goodRatio)
     {
         printDifferenceAndRatio();
         return discard("bad ratio");
@@ -749,26 +749,26 @@ template <typename T>
 void HexagonServer::printCTSPDataVerbose(
     ConnectedClient& c, const char* title, const T& ctsp)
 {
-    if(!_verbose)
+    if (!_verbose)
     {
         return;
     }
 
     const auto stringify = []<typename U>(const U& field) -> decltype(auto)
     {
-        if constexpr(std::is_same_v<U, SodiumPublicKeyArray>)
+        if constexpr (std::is_same_v<U, SodiumPublicKeyArray>)
         {
             return sodiumKeyToString(field);
         }
-        else if constexpr(std::is_same_v<U, replay_file>)
+        else if constexpr (std::is_same_v<U, replay_file>)
         {
             return "<REPLAY_FILE>";
         }
-        else if constexpr(std::is_same_v<U, compressed_replay_file>)
+        else if constexpr (std::is_same_v<U, compressed_replay_file>)
         {
             return "<COMPRESSED_REPLAY_FILE>";
         }
-        else if constexpr(std::is_same_v<U, std::string>)
+        else if constexpr (std::is_same_v<U, std::string>)
         {
             return field;
         }
@@ -786,7 +786,7 @@ void HexagonServer::printCTSPDataVerbose(
            << "', contents: {";
 
     constexpr std::size_t nFields = boost::pfr::tuple_size_v<T>;
-    if constexpr(nFields > 0)
+    if constexpr (nFields > 0)
     {
         std::size_t i = 0;
         boost::pfr::for_each_field(ctsp,
@@ -794,7 +794,7 @@ void HexagonServer::printCTSPDataVerbose(
             {
                 stream << stringify(field);
 
-                if(i != nFields - 1)
+                if (i != nFields - 1)
                 {
                     stream << ", ";
                 }
@@ -819,7 +819,7 @@ void HexagonServer::printCTSPDataVerbose(
 
     const auto checkState = [&](const ConnectedClient::State state)
     {
-        if(c._state != state)
+        if (c._state != state)
         {
             SSVOH_SLOG_VERBOSE << "Invalid client state, expected '"
                                << static_cast<int>(state) << "', state was '"
@@ -834,7 +834,7 @@ void HexagonServer::printCTSPDataVerbose(
     const auto checkState2 = [&](const ConnectedClient::State state0,
                                  const ConnectedClient::State state1)
     {
-        if(c._state != state0 && c._state != state1)
+        if (c._state != state0 && c._state != state1)
         {
             SSVOH_SLOG_VERBOSE << "Invalid client state, expected '"
                                << static_cast<int>(state0) << "' or '"
@@ -878,7 +878,7 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "public key", ctsp);
 
-            if(c._clientPublicKey.has_value())
+            if (c._clientPublicKey.has_value())
             {
                 SSVOH_SLOG_VERBOSE << "Already had public key, replacing\n";
             }
@@ -896,7 +896,7 @@ void HexagonServer::printCTSPDataVerbose(
             c._rtKeys =
                 calculateServerSessionSodiumRTKeys(_serverPSKeys, ctsp.key);
 
-            if(!c._rtKeys.has_value())
+            if (!c._rtKeys.has_value())
             {
                 SSVOH_SLOG_ERROR
                     << "Failed calculating RT keys, disconnecting client '"
@@ -933,23 +933,23 @@ void HexagonServer::printCTSPDataVerbose(
                 return sendRegistrationFailure(c, errorStr);
             };
 
-            if(!checkState(ConnectedClient::State::Connected))
+            if (!checkState(ConnectedClient::State::Connected))
             {
                 return sendFail("Client not in connected state");
             }
 
-            if(name.size() > 32)
+            if (name.size() > 32)
             {
                 return sendFail("Name too long, max is 32 characters");
             }
 
-            if(Database::anyUserWithSteamId(steamId))
+            if (Database::anyUserWithSteamId(steamId))
             {
                 return sendFail(
                     "User with steamId '", steamId, "' already registered");
             }
 
-            if(Database::anyUserWithName(name))
+            if (Database::anyUserWithName(name))
             {
                 return sendFail(
                     "User with name '", name, "' already registered");
@@ -981,23 +981,23 @@ void HexagonServer::printCTSPDataVerbose(
                 return sendLoginFailure(c, errorStr);
             };
 
-            if(!checkState(ConnectedClient::State::Connected))
+            if (!checkState(ConnectedClient::State::Connected))
             {
                 return sendFail("Client not in connected state");
             }
 
-            if(name.size() > 32)
+            if (name.size() > 32)
             {
                 return sendFail("Name too long, max is 32 characters");
             }
 
-            if(!Database::anyUserWithSteamId(steamId))
+            if (!Database::anyUserWithSteamId(steamId))
             {
                 return sendFail(
                     "No user with steamId '", steamId, "' registered");
             }
 
-            if(!Database::anyUserWithName(name))
+            if (!Database::anyUserWithName(name))
             {
                 return sendFail("No user with name '", name, "' registered");
             }
@@ -1005,7 +1005,7 @@ void HexagonServer::printCTSPDataVerbose(
             const std::optional<Database::User> user =
                 Database::getUserWithSteamIdAndName(steamId, name);
 
-            if(!user.has_value())
+            if (!user.has_value())
             {
                 return sendFail("No user matching '", steamId, "' and '", name,
                     "' registered");
@@ -1013,7 +1013,7 @@ void HexagonServer::printCTSPDataVerbose(
 
             SSVOH_ASSERT(user.has_value());
 
-            if(user->passwordHash != Utils::stringToCharVec(passwordHash))
+            if (user->passwordHash != Utils::stringToCharVec(passwordHash))
             {
                 return sendFail("Invalid password for user matching '", steamId,
                     "' and '", name, '\'');
@@ -1050,8 +1050,8 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "logout", ctsp);
 
-            if(!checkState2(ConnectedClient::State::LoggedIn,
-                   ConnectedClient::State::LoggedIn_Ready))
+            if (!checkState2(ConnectedClient::State::LoggedIn,
+                    ConnectedClient::State::LoggedIn_Ready))
             {
                 return true;
             }
@@ -1059,7 +1059,7 @@ void HexagonServer::printCTSPDataVerbose(
             const std::optional<Database::User> user =
                 Database::getUserWithSteamId(ctsp.steamId);
 
-            if(!user.has_value())
+            if (!user.has_value())
             {
                 SSVOH_SLOG << "No user with steamId '" << ctsp.steamId << "'\n";
                 return sendLogoutFailure(c);
@@ -1081,7 +1081,7 @@ void HexagonServer::printCTSPDataVerbose(
 
             const auto& [steamId, passwordHash] = ctsp;
 
-            if(!checkState(ConnectedClient::State::Connected))
+            if (!checkState(ConnectedClient::State::Connected))
             {
                 return true;
             }
@@ -1094,7 +1094,7 @@ void HexagonServer::printCTSPDataVerbose(
                 return sendDeleteAccountFailure(c, errorStr);
             };
 
-            if(!Database::anyUserWithSteamId(steamId))
+            if (!Database::anyUserWithSteamId(steamId))
             {
                 return sendFail(
                     "No user with steamId '", steamId, "' registered");
@@ -1103,14 +1103,14 @@ void HexagonServer::printCTSPDataVerbose(
             const std::optional<Database::User> user =
                 Database::getUserWithSteamId(ctsp.steamId);
 
-            if(!user.has_value())
+            if (!user.has_value())
             {
                 return sendFail("No user with steamId '", ctsp.steamId, '\'');
             }
 
             SSVOH_ASSERT(user.has_value());
 
-            if(user->passwordHash != Utils::stringToCharVec(passwordHash))
+            if (user->passwordHash != Utils::stringToCharVec(passwordHash))
             {
                 return sendFail(
                     "Invalid password for user matching '", steamId, '\'');
@@ -1127,13 +1127,13 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "request top scores", ctsp);
 
-            if(!checkState(ConnectedClient::State::LoggedIn_Ready) ||
+            if (!checkState(ConnectedClient::State::LoggedIn_Ready) ||
                 !validateLogin(c, "top scores", ctsp.loginToken))
             {
                 return true;
             }
 
-            if(!isLevelSupported(ctsp.levelValidator))
+            if (!isLevelSupported(ctsp.levelValidator))
             {
                 return true;
             }
@@ -1151,7 +1151,7 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "replay", ctsp);
 
-            if(!checkState(ConnectedClient::State::LoggedIn_Ready))
+            if (!checkState(ConnectedClient::State::LoggedIn_Ready))
             {
                 return true;
             }
@@ -1164,13 +1164,13 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "request own score", ctsp);
 
-            if(!checkState(ConnectedClient::State::LoggedIn_Ready) ||
+            if (!checkState(ConnectedClient::State::LoggedIn_Ready) ||
                 !validateLogin(c, "own score", ctsp.loginToken))
             {
                 return true;
             }
 
-            if(!isLevelSupported(ctsp.levelValidator))
+            if (!isLevelSupported(ctsp.levelValidator))
             {
                 return true;
             }
@@ -1178,7 +1178,7 @@ void HexagonServer::printCTSPDataVerbose(
             const std::optional<Database::ProcessedScore> ps =
                 Database::getScore(ctsp.levelValidator, c._loginData->_steamId);
 
-            if(!ps.has_value())
+            if (!ps.has_value())
             {
                 return true;
             }
@@ -1193,13 +1193,13 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "request top scores and own score", ctsp);
 
-            if(!checkState(ConnectedClient::State::LoggedIn_Ready) ||
+            if (!checkState(ConnectedClient::State::LoggedIn_Ready) ||
                 !validateLogin(c, "top scores and own scores", ctsp.loginToken))
             {
                 return true;
             }
 
-            if(!isLevelSupported(ctsp.levelValidator))
+            if (!isLevelSupported(ctsp.levelValidator))
             {
                 return true;
             }
@@ -1219,7 +1219,7 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "started game", ctsp);
 
-            if(!checkState(ConnectedClient::State::LoggedIn_Ready) ||
+            if (!checkState(ConnectedClient::State::LoggedIn_Ready) ||
                 !validateLogin(c, "started game", ctsp.loginToken))
             {
                 return true;
@@ -1242,7 +1242,7 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "compressed replay", ctsp);
 
-            if(!checkState(ConnectedClient::State::LoggedIn_Ready))
+            if (!checkState(ConnectedClient::State::LoggedIn_Ready))
             {
                 return true;
             }
@@ -1252,7 +1252,7 @@ void HexagonServer::printCTSPDataVerbose(
             const std::optional<replay_file> rfOpt =
                 decompress_replay_file(crf);
 
-            if(!rfOpt.has_value())
+            if (!rfOpt.has_value())
             {
                 SSVOH_SLOG_ERROR
                     << "Failed to decompress replay received from client '"
@@ -1268,7 +1268,7 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "request server status", ctsp);
 
-            if(!checkState(ConnectedClient::State::LoggedIn) ||
+            if (!checkState(ConnectedClient::State::LoggedIn) ||
                 !validateLogin(c, "request server status", ctsp.loginToken))
             {
                 return true;
@@ -1282,7 +1282,7 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "ready", ctsp);
 
-            if(!checkState(ConnectedClient::State::LoggedIn) ||
+            if (!checkState(ConnectedClient::State::LoggedIn) ||
                 !validateLogin(c, "ready", ctsp.loginToken))
             {
                 return true;
@@ -1302,16 +1302,16 @@ makeSupportedLevelValidators(HGAssets& assets,
 {
     std::unordered_set<std::string> result;
 
-    for(const auto& [assetId, ld] : assets.getLevelDatas())
+    for (const auto& [assetId, ld] : assets.getLevelDatas())
     {
-        if(ld.unscored)
+        if (ld.unscored)
         {
             continue;
         }
 
-        for(const float dm : ld.difficultyMults)
+        for (const float dm : ld.difficultyMults)
         {
-            if(const std::string& validator = ld.getValidator(dm);
+            if (const std::string& validator = ld.getValidator(dm);
                 levelValidatorWhitelist.contains(validator))
             {
                 result.emplace(validator);
@@ -1357,19 +1357,19 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
 #define SSVOH_SLOG_INIT_ERROR \
     SSVOH_SLOG_ERROR << "Failure initializing server: "
 
-    if(!initializeControlSocket())
+    if (!initializeControlSocket())
     {
         SSVOH_SLOG_INIT_ERROR << "Control socket could not be initialized\n";
         return;
     }
 
-    if(!initializeTcpListener())
+    if (!initializeTcpListener())
     {
         SSVOH_SLOG_INIT_ERROR << "TCP listener could not be initialized\n";
         return;
     }
 
-    if(!initializeSocketSelector())
+    if (!initializeSocketSelector())
     {
         SSVOH_SLOG_INIT_ERROR << "Socket selector could not be initialized\n";
         return;
@@ -1399,7 +1399,7 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
         std::ostringstream oss;
         oss << "Server initialized!\nSupported levels:\n";
 
-        for(const std::string& levelValidator : _supportedLevelValidators)
+        for (const std::string& levelValidator : _supportedLevelValidators)
         {
             oss << " - " << levelValidator << '\n';
         }
@@ -1414,7 +1414,7 @@ HexagonServer::~HexagonServer()
 {
     SSVOH_SLOG << "Uninitializing server...\n";
 
-    for(ConnectedClient& connectedClient : _connectedClients)
+    for (ConnectedClient& connectedClient : _connectedClients)
     {
         connectedClient._socket.setBlocking(true);
 

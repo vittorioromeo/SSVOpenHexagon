@@ -324,7 +324,7 @@ public:
     [[nodiscard, gnu::always_inline]] inline bool readVariableIfExists(
         std::string_view mVarName, T& out)
     {
-        if(!doesVariableExist(mVarName))
+        if (!doesVariableExist(mVarName))
         {
             return false;
         }
@@ -349,7 +349,7 @@ public:
         {
             _setGlobal(mVarName);
         }
-        catch(...)
+        catch (...)
         {
             lua_pop(_state, pushedElems - 1);
             throw;
@@ -399,7 +399,7 @@ private:
             lua_pop(_state, nb);
             return value;
         }
-        catch(...)
+        catch (...)
         {
             lua_pop(_state, nb);
             throw;
@@ -447,7 +447,7 @@ private:
         lua_pushlightuserdata(_state, const_cast<std::type_info*>(&typeid(T)));
         lua_gettable(_state, LUA_REGISTRYINDEX);
 
-        if(!lua_istable(_state, -1))
+        if (!lua_istable(_state, -1))
         {
             lua_pop(_state, -1);
             return;
@@ -489,7 +489,7 @@ private:
             outArguments = std::tuple_size_v<std::tuple<Out>>;
             inArguments = _push(in);
         }
-        catch(...)
+        catch (...)
         {
             lua_pop(_state, 1);
             throw;
@@ -500,18 +500,18 @@ private:
             lua_pcall(_state, inArguments, outArguments, 0);
 
         // if pcall failed, analyzing the problem and throwing
-        if(pcallReturnValue != 0)
+        if (pcallReturnValue != 0)
         {
             // an error occurred during execution, an error message was
             // pushed on the stack
             const std::string errorMsg =
                 _readTopAndPop(1, (std::string*)nullptr);
 
-            if(pcallReturnValue == LUA_ERRMEM)
+            if (pcallReturnValue == LUA_ERRMEM)
             {
                 throw std::bad_alloc();
             }
-            else if(pcallReturnValue == LUA_ERRRUN)
+            else if (pcallReturnValue == LUA_ERRRUN)
             {
                 throw ExecutionErrorException(errorMsg);
             }
@@ -526,7 +526,7 @@ private:
         {
             return _readTopAndPop(outArguments, (Out*)nullptr);
         }
-        catch(...)
+        catch (...)
         {
             lua_pop(_state, outArguments);
             throw;
@@ -577,12 +577,12 @@ public:
             using Key2 = typename ToPushableType<Key>::type;
             using Value2 = typename ToPushableType<Value>::type;
 
-            for(int k = static_cast<int>(_elements.size()) - 1; k >= 0; --k)
+            for (int k = static_cast<int>(_elements.size()) - 1; k >= 0; --k)
             {
                 auto element =
                     dynamic_cast<Element<Key2, Value2>*>(_elements[k].get());
 
-                if(element != nullptr && element->key == key)
+                if (element != nullptr && element->key == key)
                 {
                     return element->value;
                 }
@@ -635,12 +635,12 @@ public:
 
             try
             {
-                for(auto& i : _elements)
+                for (auto& i : _elements)
                 {
                     i->push(ctxt);
                 }
             }
-            catch(...)
+            catch (...)
             {
                 lua_pop(ctxt._state, 1);
                 throw;
@@ -714,7 +714,7 @@ private:
         {
             ((p += _push(SSVOH_FWD(xs))), ...);
         }
-        catch(...)
+        catch (...)
         {
             lua_pop(_state, p);
             throw;
@@ -735,7 +735,7 @@ private:
     {
         lua_newtable(_state);
 
-        for(const auto& [k, v] : map)
+        for (const auto& [k, v] : map)
         {
             _push(k);
             _push(v);
@@ -798,7 +798,7 @@ private:
             using TupledFunction = FnTupleWrapper<FnType>;
 
             // checking if number of parameters is correct
-            if(lua_gettop(state) < TupledFunction::count)
+            if (lua_gettop(state) < TupledFunction::count)
             {
                 // if not, using lua_error to return an error
                 luaL_where(state, 1);
@@ -851,7 +851,7 @@ private:
         auto* const functionLocation = (FunctionPushType*)lua_newuserdata(
             _state, sizeof(FunctionPushType));
 
-        new(functionLocation)
+        new (functionLocation)
             FunctionPushType{._ctx = this, ._fn = SSVOH_FWD(fn)};
 
         _pushFnImpl(&callbackCall<FunctionPushType>,
@@ -908,7 +908,7 @@ private:
         const auto pointerLocation = static_cast<std::shared_ptr<T>*>(
             lua_newuserdata(_state, sizeof(std::shared_ptr<T>)));
 
-        new(pointerLocation) std::shared_ptr<T>(SSVOH_MOVE(mObj));
+        new (pointerLocation) std::shared_ptr<T>(SSVOH_MOVE(mObj));
         _pushSPtrImpl(
             &Callback::garbage, typeid(std::shared_ptr<T>), typeid(T));
 
@@ -942,7 +942,7 @@ private:
         std::numeric_limits<T>::is_integer, T>
     _read(const int index, T const* = nullptr) const
     {
-        if(lua_isuserdata(_state, index))
+        if (lua_isuserdata(_state, index))
         {
             throw WrongTypeException{};
         }
@@ -958,7 +958,7 @@ private:
         T>
     _read(const int index, T const* = nullptr) const
     {
-        if(lua_isuserdata(_state, index))
+        if (lua_isuserdata(_state, index))
         {
             throw WrongTypeException{};
         }
@@ -970,7 +970,7 @@ private:
     [[gnu::always_inline]] inline bool _read(
         const int index, bool const* = nullptr) const
     {
-        if(lua_isuserdata(_state, index))
+        if (lua_isuserdata(_state, index))
         {
             throw WrongTypeException{};
         }
@@ -988,7 +988,7 @@ private:
     [[gnu::always_inline]] inline std::string _read(
         const int index, std::string const* = nullptr) const
     {
-        if(lua_isuserdata(_state, index))
+        if (lua_isuserdata(_state, index))
         {
             throw WrongTypeException{};
         }
@@ -1001,7 +1001,7 @@ private:
     std::map<Key, Value> _read(
         const int index, std::map<Key, Value> const* = nullptr) const
     {
-        if(!lua_istable(_state, index))
+        if (!lua_istable(_state, index))
         {
             throw WrongTypeException{};
         }
@@ -1010,7 +1010,7 @@ private:
 
         // we traverse the table at the top of the stack
         lua_pushnil(_state); // first key
-        while(lua_next(_state, index - 1) != 0)
+        while (lua_next(_state, index - 1) != 0)
         {
             // now a key and its value are pushed on the stack
             retValue.emplace(_read(-2, static_cast<Key*>(nullptr)),
@@ -1025,7 +1025,7 @@ private:
     // reading array
     Table _read(int index, Table const* = nullptr) const
     {
-        if(!lua_istable(_state, index))
+        if (!lua_istable(_state, index))
         {
             throw WrongTypeException{};
         }
@@ -1065,7 +1065,7 @@ return table;*/
     std::shared_ptr<T> _read(
         int mIdx, std::shared_ptr<T> const* = nullptr) const
     {
-        if(!lua_isuserdata(_state, mIdx) || !lua_getmetatable(_state, mIdx))
+        if (!lua_isuserdata(_state, mIdx) || !lua_getmetatable(_state, mIdx))
         {
             throw WrongTypeException{};
         }
@@ -1076,7 +1076,7 @@ return table;*/
         lua_gettable(_state, -2);
 
         // if wrong typeid, we throw
-        if(lua_touserdata(_state, -1) !=
+        if (lua_touserdata(_state, -1) !=
             const_cast<std::type_info*>(&typeid(std::shared_ptr<T>)))
         {
             lua_pop(_state, 2);

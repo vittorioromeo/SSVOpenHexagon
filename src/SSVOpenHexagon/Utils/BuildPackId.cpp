@@ -22,9 +22,9 @@ namespace hg::Utils {
 
     const auto spaceToUnderscore = [](std::string x)
     {
-        for(char& c : x)
+        for (char& c : x)
         {
-            if(c == ' ' || c == '\n' || c == '\t')
+            if (c == ' ' || c == '\n' || c == '\t')
             {
                 c = '_';
             }

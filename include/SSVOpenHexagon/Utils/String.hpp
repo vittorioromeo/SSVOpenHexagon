@@ -51,7 +51,7 @@ inline void lrTrim(std::string& str)
 
 inline void uppercasify(std::string& s)
 {
-    for(auto& c : s)
+    for (auto& c : s)
     {
         c = std::toupper(c);
     }
@@ -65,7 +65,7 @@ inline void uppercasify(std::string& s)
 
 inline void lowercasify(std::string& s)
 {
-    for(auto& c : s)
+    for (auto& c : s)
     {
         c = std::tolower(c);
     }

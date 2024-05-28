@@ -44,7 +44,7 @@ template <typename T>
 [[nodiscard]] T read_integer() noexcept
 {
     T result;
-    while(!(std::cin >> result))
+    while (!(std::cin >> result))
     {
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -67,7 +67,7 @@ template <typename T>
 {
     std::string buf;
 
-    if(!cin_getline_string(buf))
+    if (!cin_getline_string(buf))
     {
         return false;
     }
@@ -83,8 +83,8 @@ template <typename T>
     std::filesystem::path result;
     std::error_code ec;
 
-    while(!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
-          !std::filesystem::is_directory(result, ec))
+    while (!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
+           !std::filesystem::is_directory(result, ec))
     {
         std::cout << "Please insert a valid path to an existing directory. "
                      "Error code: '"
@@ -99,8 +99,8 @@ template <typename T>
     std::filesystem::path result;
     std::error_code ec;
 
-    while(!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
-          !std::filesystem::is_regular_file(result, ec))
+    while (!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
+           !std::filesystem::is_regular_file(result, ec))
     {
         std::cout
             << "Please insert a valid path to an existing file. Error code: '"
@@ -152,7 +152,7 @@ private:
     {
         log("Steam") << "Initializing Steam API\n";
 
-        if(SteamAPI_Init())
+        if (SteamAPI_Init())
         {
             log("Steam") << "Steam API successfully initialized\n";
             return true;
@@ -170,12 +170,12 @@ private:
 #define RETURN_IF_EQUALS(e) \
     do                      \
     {                       \
-        if(rc == e)         \
+        if (rc == e)        \
         {                   \
             return #e;      \
         }                   \
     }                       \
-    while(false)
+    while (false)
 
         RETURN_IF_EQUALS(EResult::k_EResultNone);
         RETURN_IF_EQUALS(EResult::k_EResultOK);
@@ -306,13 +306,13 @@ private:
     {
         const auto guard = scope_guard{[this] { remove_pending_operation(); }};
 
-        if(io_failure)
+        if (io_failure)
         {
             log("Steam") << "Error creating item. IO failure.\n";
             return;
         }
 
-        if(const EResult rc = result->m_eResult; rc != EResult::k_EResultOK)
+        if (const EResult rc = result->m_eResult; rc != EResult::k_EResultOK)
         {
             log("Steam") << "Error creating item. Error code '"
                          << static_cast<int>(rc) << "' ("
@@ -334,14 +334,14 @@ private:
     {
         const auto guard = scope_guard{[this] { remove_pending_operation(); }};
 
-        if(io_failure)
+        if (io_failure)
         {
             log("Steam") << "Error creating item. IO failure.\n";
             return;
         }
 
 
-        if(const EResult rc = result->m_eResult; rc != EResult::k_EResultOK)
+        if (const EResult rc = result->m_eResult; rc != EResult::k_EResultOK)
         {
             log("Steam") << "Error updating item. Error code '"
                          << static_cast<int>(rc) << "' ("
@@ -362,7 +362,7 @@ public:
 
     ~steam_helper() noexcept
     {
-        if(_initialized)
+        if (_initialized)
         {
             log("Steam") << "Shutting down Steam API\n";
             SteamAPI_Shutdown();
@@ -372,7 +372,7 @@ public:
 
     void create_workshop_item(create_item_continuation&& continuation) noexcept
     {
-        if(!initialized())
+        if (!initialized())
         {
             return;
         }
@@ -393,7 +393,7 @@ public:
         const UGCUpdateHandle_t handle =
             SteamUGC()->StartItemUpdate(oh_app_id, item_id);
 
-        if(handle == k_UGCUpdateHandleInvalid)
+        if (handle == k_UGCUpdateHandleInvalid)
         {
             log("Steam") << "Invalid update handle for file id '" << item_id
                          << "'\n";
@@ -413,8 +413,8 @@ public:
         assert(std::filesystem::exists(directory_path, ec));
         assert(std::filesystem::is_directory(directory_path, ec));
 
-        if(!SteamUGC()->SetItemContent(
-               update_handle, directory_path.string().data()))
+        if (!SteamUGC()->SetItemContent(
+                update_handle, directory_path.string().data()))
         {
             log("Steam") << "Failed to set workshop item contents from path '"
                          << directory_path << "'\n";
@@ -434,8 +434,8 @@ public:
         assert(std::filesystem::exists(file_path, ec));
         assert(std::filesystem::is_regular_file(file_path, ec));
 
-        if(!SteamUGC()->SetItemPreview(
-               update_handle, file_path.string().data()))
+        if (!SteamUGC()->SetItemPreview(
+                update_handle, file_path.string().data()))
         {
             log("Steam")
                 << "Failed to set workshop item preview image from path '"
@@ -463,7 +463,7 @@ public:
 
     bool run_callbacks() noexcept
     {
-        if(!initialized())
+        if (!initialized())
         {
             return false;
         }
@@ -531,7 +531,7 @@ private:
         const std::optional<UGCUpdateHandle_t> update_handle =
             _steam_helper.start_workshop_item_update(item_id);
 
-        if(!update_handle.has_value())
+        if (!update_handle.has_value())
         {
             log("CLI") << "Failure getting update handle\n";
             return;
@@ -540,8 +540,8 @@ private:
         std::cout << "Enter the path to the folder containing the contents:\n";
         const std::filesystem::path directory_path = read_directory_path();
 
-        if(!_steam_helper.set_workshop_item_content(
-               update_handle.value(), directory_path))
+        if (!_steam_helper.set_workshop_item_content(
+                update_handle.value(), directory_path))
         {
             log("CLI") << "Failure setting workshop item content\n";
             return;
@@ -550,7 +550,7 @@ private:
         std::cout << "Enter changelog note:\n";
 
         std::string changelog_note;
-        while(!cin_getline_string(changelog_note))
+        while (!cin_getline_string(changelog_note))
         {
             std::cout << "Error reading changelog note, please try again\n";
         }
@@ -575,7 +575,7 @@ private:
         const std::optional<UGCUpdateHandle_t> update_handle =
             _steam_helper.start_workshop_item_update(item_id);
 
-        if(!update_handle.has_value())
+        if (!update_handle.has_value())
         {
             log("CLI") << "Failure getting update handle\n";
             return;
@@ -584,8 +584,8 @@ private:
         std::cout << "Enter the path of the new preview image file:\n";
         const std::filesystem::path file_path = read_file_path();
 
-        if(!_steam_helper.set_workshop_item_preview_image(
-               update_handle.value(), file_path))
+        if (!_steam_helper.set_workshop_item_preview_image(
+                update_handle.value(), file_path))
         {
             log("CLI") << "Failure setting workshop item preview image\n";
             return;
@@ -594,7 +594,7 @@ private:
         std::cout << "Enter changelog note:\n";
 
         std::string changelog_note;
-        while(!cin_getline_string(changelog_note))
+        while (!cin_getline_string(changelog_note))
         {
             std::cout << "Error reading changelog note, please try again\n";
         }
@@ -624,25 +624,25 @@ Enter one of the following options:
 
         const auto choice = read_integer<int>();
 
-        if(choice == 0)
+        if (choice == 0)
         {
             create_new_workshop_item();
             return true;
         }
 
-        if(choice == 1)
+        if (choice == 1)
         {
             upload_contents_to_existing_workshop_item();
             return true;
         }
 
-        if(choice == 2)
+        if (choice == 2)
         {
             set_preview_image_of_existing_workshop_item();
             return true;
         }
 
-        if(choice == 3)
+        if (choice == 3)
         {
             return false;
         }
@@ -657,7 +657,7 @@ public:
 
     [[nodiscard]] static std::optional<cli> make(steam_helper& sh)
     {
-        if(!sh.initialized())
+        if (!sh.initialized())
         {
             return std::nullopt;
         }
@@ -667,9 +667,9 @@ public:
 
     [[nodiscard]] bool run() noexcept
     {
-        while(main_menu())
+        while (main_menu())
         {
-            if(!poll_steam_callbacks())
+            if (!poll_steam_callbacks())
             {
                 log("CLI") << "Failure polling callbacks\n";
                 return false;
@@ -687,15 +687,15 @@ public:
 
         const time_point loop_begin_time = clock::now();
 
-        while(_steam_helper.any_pending_operation())
+        while (_steam_helper.any_pending_operation())
         {
-            if(!_steam_helper.run_callbacks())
+            if (!_steam_helper.run_callbacks())
             {
                 log("CLI") << "Could not run Steam API callbacks\n";
                 return false;
             }
 
-            if(clock::now() - loop_begin_time > std::chrono::seconds(240))
+            if (clock::now() - loop_begin_time > std::chrono::seconds(240))
             {
                 log("CLI") << "Timed out\n";
                 return false;
@@ -714,7 +714,7 @@ int main()
     // Steam API initialization.
     steam_helper steam;
 
-    if(!steam.initialized())
+    if (!steam.initialized())
     {
         log("Main") << "Could not initialize Steam API, exiting...\n";
         return 1;
@@ -728,7 +728,7 @@ int main()
 
     // ------------------------------------------------------------------------
     // Initial menu.
-    if(!c.run())
+    if (!c.run())
     {
         return 1;
     }

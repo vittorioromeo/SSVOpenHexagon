@@ -76,7 +76,7 @@ void HexagonGameStatus::accumulateFrametime(const double ft) noexcept
     totalFrametimeAccumulator += ft;
 
     // double pauseRemainder = 0.0;
-    if(currentPause > 0.0)
+    if (currentPause > 0.0)
     {
         currentPause -= ft;
         // if(currentPause < 0.0)

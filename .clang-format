@@ -51,7 +51,7 @@ PointerBindsToType: true
 SortIncludes: false
 SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
-SpaceBeforeParens: "Never"
+SpaceBeforeParens: "ControlStatementsExceptControlMacros"
 SpaceInEmptyParentheses: false
 SpacesInAngles: false
 SpacesInParentheses: false

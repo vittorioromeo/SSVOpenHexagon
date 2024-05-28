@@ -36,7 +36,7 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
     difficultyMults.emplace_back(1.f);
     std::sort(difficultyMults.begin(), difficultyMults.end());
 
-    for(const float dm : difficultyMults)
+    for (const float dm : difficultyMults)
     {
         validators[dm] =
             Utils::getLevelValidator(Utils::concat(packId, '_', id), dm);
@@ -47,12 +47,12 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
 
 [[nodiscard]] float LevelData::getNthDiffMult(int index) const noexcept
 {
-    while(index < 0)
+    while (index < 0)
     {
         index += difficultyMults.size();
     }
 
-    while(index >= static_cast<int>(difficultyMults.size()))
+    while (index >= static_cast<int>(difficultyMults.size()))
     {
         index -= difficultyMults.size();
     }

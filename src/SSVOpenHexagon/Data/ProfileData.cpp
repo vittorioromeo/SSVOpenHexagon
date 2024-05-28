@@ -60,7 +60,7 @@ void ProfileData::setScore(const std::string& mId, const float mScore)
 {
     const auto it = scores.find(mId);
 
-    if(it == scores.end())
+    if (it == scores.end())
     {
         return 0.f;
     }

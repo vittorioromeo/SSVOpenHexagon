@@ -24,7 +24,7 @@ namespace hg::Utils {
     const float delta{b * b - 4.f * a * c};
 
     // No intersections.
-    if(delta < 0.f)
+    if (delta < 0.f)
     {
         return 0u;
     }
@@ -33,7 +33,7 @@ namespace hg::Utils {
     const float twoA{2.f * a};
 
     // One intersection.
-    if(delta < epsilon)
+    if (delta < epsilon)
     {
         t = -b / twoA;
         i1 = {p1.x + t * dx, p1.y + t * dy};
@@ -55,12 +55,12 @@ namespace hg::Utils {
 {
     sf::Vector2f v1, v2;
 
-    switch(getLineCircleIntersection(v1, v2, p1, p2, mRadiusSquared))
+    switch (getLineCircleIntersection(v1, v2, p1, p2, mRadiusSquared))
     {
         case 1u: mIntersection = v1; return true;
 
         case 2u:
-            if(ssvs::getMagSquared(v1 - mPos) > ssvs::getMagSquared(v2 - mPos))
+            if (ssvs::getMagSquared(v1 - mPos) > ssvs::getMagSquared(v2 - mPos))
             {
                 mIntersection = v2;
             }

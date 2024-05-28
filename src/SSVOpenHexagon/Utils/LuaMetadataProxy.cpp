@@ -75,7 +75,7 @@ template <typename... Ts>
     std::string result;
 
     result += "tuple<";
-    if constexpr(sizeof...(Ts) > 0)
+    if constexpr (sizeof...(Ts) > 0)
     {
         (((result += typeToStr(TypeWrapper<Ts>{})), result += ", "), ...);
         result.pop_back();
@@ -107,7 +107,7 @@ template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
 {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
     std::size_t argNameSize = 0;
-    for(const auto& argName : argNames)
+    for (const auto& argName : argNames)
     {
         argNameSize += argName.size() + 4;
     }
@@ -115,9 +115,9 @@ template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
     std::string result;
     result.reserve(docs.size() + argNameSize);
 
-    for(std::size_t i = 0; i < docs.size(); ++i)
+    for (std::size_t i = 0; i < docs.size(); ++i)
     {
-        if(docs[i] != '$')
+        if (docs[i] != '$')
         {
             result += docs[i];
             continue;
@@ -126,10 +126,10 @@ template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
         ++i;
 
         std::size_t j = i;
-        for(; j < docs.size(); ++j)
+        for (; j < docs.size(); ++j)
         {
             const char next = docs.at(j);
-            if(next < '0' || next > '9')
+            if (next < '0' || next > '9')
             {
                 break;
             }
@@ -141,7 +141,7 @@ template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
         std::size_t indexAcc = 0;
         std::size_t tens = 1;
 
-        for(std::size_t k = j - 1; k >= i; --k)
+        for (std::size_t k = j - 1; k >= i; --k)
         {
             indexAcc += tens * (docs.at(k) - '0');
             tens *= 10;
@@ -164,12 +164,12 @@ try
     luaMetadata.addFnEntry(
         (*erasedRet)(this), name, (*erasedArgs)(this), resolveArgNames(docs));
 }
-catch(const std::exception& e)
+catch (const std::exception& e)
 {
     ssvu::lo("LuaMetadataProxy")
         << "Failed to generate documentation: " << e.what() << '\n';
 }
-catch(...)
+catch (...)
 {
     ssvu::lo("LuaMetadataProxy") << "Failed to generate documentation\n";
 }

@@ -66,7 +66,7 @@ void createFolderIfNonExistant(const std::string& folderName)
 {
     const ssvu::FileSystem::Path path{folderName};
 
-    if(path.isFolder())
+    if (path.isFolder())
     {
         return;
     }
@@ -91,10 +91,10 @@ struct ParsedArgs
 {
     ParsedArgs result;
 
-    for(int i = 0; i < argc; ++i)
+    for (int i = 0; i < argc; ++i)
     {
         // Find command-line pack name (to immediately run level)
-        if(!std::strcmp(argv[i], "-p") && i + 1 < argc)
+        if (!std::strcmp(argv[i], "-p") && i + 1 < argc)
         {
             ++i;
             result.cliLevelPack = argv[i];
@@ -102,7 +102,7 @@ struct ParsedArgs
         }
 
         // Find command-line level name (to immediately run level)
-        if(!std::strcmp(argv[i], "-l") && i + 1 < argc)
+        if (!std::strcmp(argv[i], "-l") && i + 1 < argc)
         {
             ++i;
             result.cliLevelName = argv[i];
@@ -110,21 +110,21 @@ struct ParsedArgs
         }
 
         // Find command-line argument to print Lua docs
-        if(!std::strcmp(argv[i], "-printLuaDocs"))
+        if (!std::strcmp(argv[i], "-printLuaDocs"))
         {
             result.printLuaDocs = true;
             continue;
         }
 
         // Find command-line argument to run in headless mode
-        if(!std::strcmp(argv[i], "-headless"))
+        if (!std::strcmp(argv[i], "-headless"))
         {
             result.headless = true;
             continue;
         }
 
         // Find command-line argument to run in server mode
-        if(!std::strcmp(argv[i], "-server"))
+        if (!std::strcmp(argv[i], "-server"))
         {
             result.server = true;
             continue;
@@ -145,9 +145,9 @@ struct ParsedArgs
 [[nodiscard]] std::optional<std::string>
 getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 {
-    for(const std::string& arg : args)
+    for (const std::string& arg : args)
     {
-        if(arg.find(".ohr.z") != std::string::npos)
+        if (arg.find(".ohr.z") != std::string::npos)
         {
             return arg;
         }
@@ -250,7 +250,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // Steam integration
     hg::Steam::steam_manager steamManager;
 
-    if(steamManager.is_initialized())
+    if (steamManager.is_initialized())
     {
         steamManager.request_encrypted_app_ticket();
         steamManager.request_stats_and_achievements();
@@ -263,7 +263,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // Discord integration
     std::optional<hg::Discord::discord_manager> discordManager;
 
-    if(!headless)
+    if (!headless)
     {
         discordManager.emplace();
     }
@@ -296,7 +296,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // Create the game window
     std::optional<ssvs::GameWindow> window;
 
-    if(!headless)
+    if (!headless)
     {
         window.emplace();
 
@@ -315,7 +315,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
                 const std::optional icon =
                     sf::Image::loadFromFile("Assets/icon.png");
 
-                if(!icon.has_value())
+                if (!icon.has_value())
                 {
                     ssvu::lo("::main") << "Failed to load icon image\n";
                     return;
@@ -357,10 +357,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     //
     // ------------------------------------------------------------------------
     // Initialize IMGUI
-    if(!headless)
+    if (!headless)
     {
         SSVOH_ASSERT(window.has_value());
-        if(!hg::Imgui::initialize(*window))
+        if (!hg::Imgui::initialize(*window))
         {
             ssvu::lo("::main") << "Failed to initialize ImGui...\n";
         }
@@ -369,7 +369,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     HG_SCOPE_GUARD({
         ssvu::lo("::main") << "Shutting down ImGui...\n";
 
-        if(!headless)
+        if (!headless)
         {
             hg::Imgui::shutdown();
         }
@@ -429,7 +429,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // Initialize menu game and link to hexagon game
     std::optional<hg::MenuGame> mg;
 
-    if(!headless)
+    if (!headless)
     {
         SSVOH_ASSERT(window.has_value());
         SSVOH_ASSERT(discordManager.has_value());
@@ -472,7 +472,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     const std::optional<std::string> compressedReplayFilename =
         getFirstCompressedReplayFilenameFromArgs(args);
 
-    if(!headless)
+    if (!headless)
     {
         SSVOH_ASSERT(window.has_value());
 
@@ -488,7 +488,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
             std::optional<hg::replay_file> replayFileOpt =
                 hg::decompress_replay_file(compressedReplayFile);
 
-            if(!replayFileOpt.has_value())
+            if (!replayFileOpt.has_value())
             {
                 std::cerr << "Could not decompress replay file\n";
                 return;
@@ -505,9 +505,9 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
             window->setGameState(hg.getGame());
         };
 
-        if(!compressedReplayFilename.has_value())
+        if (!compressedReplayFilename.has_value())
         {
-            if(cliLevelPack.has_value() && cliLevelName.has_value())
+            if (cliLevelPack.has_value() && cliLevelName.has_value())
             {
                 // Load pack and levels specified via command line args.
                 mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
@@ -520,7 +520,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         }
         else
         {
-            if(hg::compressed_replay_file crf;
+            if (hg::compressed_replay_file crf;
                 crf.deserialize_from_file(*compressedReplayFilename))
             {
                 ssvu::lo("Replay") << "Playing compressed replay file '"
@@ -542,19 +542,19 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         SSVOH_ASSERT(headless);
 
         // TODO (P2): code repetition, cleanup
-        if(!compressedReplayFilename.has_value())
+        if (!compressedReplayFilename.has_value())
         {
             std::cout << "Running in headless mode without replay...?\n";
             return 1;
         }
 
-        if(hg::compressed_replay_file crf;
+        if (hg::compressed_replay_file crf;
             crf.deserialize_from_file(*compressedReplayFilename))
         {
             std::optional<hg::replay_file> replayFileOpt =
                 hg::decompress_replay_file(crf);
 
-            if(!replayFileOpt.has_value())
+            if (!replayFileOpt.has_value())
             {
                 std::cerr << "Could not decompress replay file\n";
                 return 1;
@@ -588,7 +588,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     //
     // ------------------------------------------------------------------------
     // Run the game!
-    if(!headless)
+    if (!headless)
     {
         SSVOH_ASSERT(window.has_value());
         window->run();
@@ -606,7 +606,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
 int main(int argc, char* argv[])
 {
-    if(argc < 1)
+    if (argc < 1)
     {
         std::cerr << "Fatal error: no executable specified" << std::endl;
         return -1;
@@ -616,7 +616,7 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // libsodium initialization
-    if(sodium_init() < 0)
+    if (sodium_init() < 0)
     {
         ssvu::lo("::main") << "Failed initializing libsodium\n";
         return 1;
@@ -667,7 +667,7 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Print Lua docs mode
-    if(printLuaDocs)
+    if (printLuaDocs)
     {
         return mainPrintLuaDocs();
     }
@@ -676,7 +676,7 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Server mode
-    if(server)
+    if (server)
     {
         return mainServer();
     }

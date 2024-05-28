@@ -23,7 +23,7 @@ namespace Impl {
 [[nodiscard]] inline bool tryParse(
     Obj& mObj, Reader& mReader, const std::string& mSrc)
 {
-    if(mReader.parse(mSrc, mObj, false))
+    if (mReader.parse(mSrc, mObj, false))
     {
         return true;
     }
@@ -53,9 +53,10 @@ namespace Impl {
     Obj& mObj, const ssvufs::Path& mPath, std::string& mError)
 {
     Reader reader;
-    if(!Impl::tryParse(mObj, reader, mPath.getContentsAsStr(Impl::getBuffer())))
+    if (!Impl::tryParse(
+            mObj, reader, mPath.getContentsAsStr(Impl::getBuffer())))
     {
-        if(reader.getFormattedErrorMessages().empty())
+        if (reader.getFormattedErrorMessages().empty())
         {
             mError = "";
         }

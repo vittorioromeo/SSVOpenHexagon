@@ -39,7 +39,7 @@ private:
     {
         SSVOH_ASSERT(this != &o);
 
-        if(_alloc_ptr)
+        if (_alloc_ptr)
         {
             _alloc_ptr(_storage, nullptr);
             _alloc_ptr = nullptr;
@@ -52,7 +52,7 @@ private:
         _method_ptr = o._method_ptr;
         o._method_ptr = nullptr;
 
-        if(o._alloc_ptr)
+        if (o._alloc_ptr)
         {
             _alloc_ptr = o._alloc_ptr;
             _alloc_ptr(_storage, o._storage);
@@ -86,9 +86,9 @@ public:
 
         _alloc_ptr = [](std::byte* s, void* o)
         {
-            if(o)
+            if (o)
             {
-                new(s) unref_type(std::move(*static_cast<unref_type*>(o)));
+                new (s) unref_type(std::move(*static_cast<unref_type*>(o)));
             }
             else
             {
@@ -123,7 +123,7 @@ public:
 
     ~FixedFunction() noexcept
     {
-        if(_alloc_ptr)
+        if (_alloc_ptr)
         {
             _alloc_ptr(_storage, nullptr);
         }

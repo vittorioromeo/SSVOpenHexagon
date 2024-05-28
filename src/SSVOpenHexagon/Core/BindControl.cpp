@@ -20,9 +20,9 @@ namespace hg {
     const std::vector<ssvs::Input::Combo>& combos) const
 {
     decltype(combos.size()) i = 0;
-    for(; i < combos.size(); ++i)
+    for (; i < combos.size(); ++i)
     {
-        if(combos.at(i).isUnbound())
+        if (combos.at(i).isUnbound())
         {
             break;
         }
@@ -44,7 +44,7 @@ void KeyboardBindControl::exec()
 [[nodiscard]] bool KeyboardBindControl::erase()
 {
     const int size = sizeGetter();
-    if(!size)
+    if (!size)
     {
         return false;
     }
@@ -56,7 +56,7 @@ void KeyboardBindControl::exec()
 
 bool KeyboardBindControl::newKeyboardBind(const sf::Keyboard::Key key)
 {
-    if(key == hardcodedKey)
+    if (key == hardcodedKey)
     {
         waitingForBind = false;
         return false;
@@ -65,9 +65,9 @@ bool KeyboardBindControl::newKeyboardBind(const sf::Keyboard::Key key)
     // stop if the pressed key is already assigned to this bind
     const std::vector<ssvs::Input::Combo> combos = triggerGetter().getCombos();
 
-    for(int i = 0; i < sizeGetter(); ++i)
+    for (int i = 0; i < sizeGetter(); ++i)
     {
-        if(combos.at(i).getKeys()[int(key) + 1])
+        if (combos.at(i).getKeys()[int(key) + 1])
         {
             waitingForBind = false;
             return true;
@@ -83,9 +83,9 @@ bool KeyboardBindControl::newKeyboardBind(const sf::Mouse::Button btn)
     // stop if the pressed key is already assigned to this bind
     const std::vector<ssvs::Input::Combo> combos = triggerGetter().getCombos();
 
-    for(int i = 0; i < sizeGetter(); ++i)
+    for (int i = 0; i < sizeGetter(); ++i)
     {
-        if(combos.at(i).getBtns()[int(btn) + 1])
+        if (combos.at(i).getBtns()[int(btn) + 1])
         {
             waitingForBind = false;
             return true;
@@ -114,7 +114,7 @@ void KeyboardBindControl::applyBind(
     std::string bindNames =
         Config::getKeyboardBindNames(static_cast<Config::Tid>(ID));
 
-    if(waitingForBind)
+    if (waitingForBind)
     {
         bindNames += "_";
     }
@@ -134,7 +134,7 @@ void JoystickBindControl::exec()
 
 [[nodiscard]] bool JoystickBindControl::erase()
 {
-    if(valueGetter() == 33)
+    if (valueGetter() == 33)
     {
         return false;
     }
@@ -148,7 +148,7 @@ void JoystickBindControl::exec()
 void JoystickBindControl::newJoystickBind(const unsigned int joy)
 {
     // stop if the pressed button is already assigned to this bind
-    if(joy == valueGetter())
+    if (joy == valueGetter())
     {
         waitingForBind = false;
         return;
@@ -169,7 +169,7 @@ void JoystickBindControl::newJoystickBind(const unsigned int joy)
     std::string bindName =
         Config::getJoystickBindName(static_cast<Joystick::Jid>(ID));
 
-    if(waitingForBind)
+    if (waitingForBind)
     {
         bindName += "_";
     }

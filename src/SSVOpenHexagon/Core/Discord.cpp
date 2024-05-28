@@ -22,7 +22,7 @@ namespace hg::Discord {
     const auto result = discord::Core::Create(
         725763266110029964, DiscordCreateFlags_NoRequireDiscord, core);
 
-    if(result != discord::Result::Ok)
+    if (result != discord::Result::Ok)
     {
         ssvu::lo("Discord") << "Failed to initialize core\n";
         return false;
@@ -34,7 +34,7 @@ namespace hg::Discord {
 
 discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return;
     }
@@ -46,7 +46,7 @@ discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
                 << static_cast<uint32_t>(level) << ": " << message << '\n';
         });
 
-    if(_core->ActivityManager().RegisterCommand("SSVOpenHexagon.exe") !=
+    if (_core->ActivityManager().RegisterCommand("SSVOpenHexagon.exe") !=
         discord::Result::Ok)
     {
         ssvu::lo("Discord") << "Failed to register command\n";
@@ -56,7 +56,7 @@ discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
         ssvu::lo("Discord") << "Successfully registered command\n";
     }
 
-    if(_core->ActivityManager().RegisterSteam(1358090) != discord::Result::Ok)
+    if (_core->ActivityManager().RegisterSteam(1358090) != discord::Result::Ok)
     {
         ssvu::lo("Discord") << "Failed to register Steam app\n";
     }
@@ -71,12 +71,12 @@ discord_manager::~discord_manager()
 
 bool discord_manager::run_callbacks()
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return false;
     }
 
-    if(_core->RunCallbacks() != discord::Result::Ok)
+    if (_core->RunCallbacks() != discord::Result::Ok)
     {
         ssvu::lo("Discord") << "Failed to run callbacks\n";
         return false;
@@ -87,7 +87,7 @@ bool discord_manager::run_callbacks()
 
 bool discord_manager::set_rich_presence_in_menu()
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return false;
     }
@@ -102,7 +102,7 @@ bool discord_manager::set_rich_presence_in_menu()
     _core->ActivityManager().UpdateActivity(activity,
         [](discord::Result r)
         {
-            if(r != discord::Result::Ok)
+            if (r != discord::Result::Ok)
             {
                 ssvu::lo("Discord") << "Fail\n";
             }
@@ -113,7 +113,7 @@ bool discord_manager::set_rich_presence_in_menu()
 
 bool discord_manager::set_rich_presence_on_replay()
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return false;
     }
@@ -128,7 +128,7 @@ bool discord_manager::set_rich_presence_on_replay()
     _core->ActivityManager().UpdateActivity(activity,
         [](discord::Result r)
         {
-            if(r != discord::Result::Ok)
+            if (r != discord::Result::Ok)
             {
                 ssvu::lo("Discord") << "Fail\n";
             }
@@ -140,7 +140,7 @@ bool discord_manager::set_rich_presence_on_replay()
 bool discord_manager::set_rich_presence_in_game(
     const std::string& level_info, const std::string& second_info, bool dead)
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return false;
     }
@@ -154,7 +154,7 @@ bool discord_manager::set_rich_presence_in_game(
     // how long the user survived, depending on the situation.
     activity.SetState(second_info.data());
     discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
-    if(!dead)
+    if (!dead)
     {
         // Update the timestamp to show how long the current attempt is. This is
         // shown by "MM:SS elapsed".
@@ -173,7 +173,7 @@ bool discord_manager::set_rich_presence_in_game(
     _core->ActivityManager().UpdateActivity(activity,
         [](discord::Result r)
         {
-            if(r != discord::Result::Ok)
+            if (r != discord::Result::Ok)
             {
                 ssvu::lo("Discord") << "Fail\n";
             }

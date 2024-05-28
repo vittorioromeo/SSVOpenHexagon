@@ -68,7 +68,7 @@ void Converter<sf::Keyboard::Key>::fromObj(const Obj& mObj, T& mValue)
 
 void Converter<sf::Keyboard::Key>::toObj(Obj& mObj, const T& mValue)
 {
-    if(mValue == T::Unknown)
+    if (mValue == T::Unknown)
     {
         std::string empty;
         arch(mObj, empty); // TODO (P2): using `""` seems to be bugged
@@ -94,19 +94,19 @@ void Converter<ssvs::Input::Combo>::fromObj(const Obj& mObj, T& mValue)
 
     std::string str;
 
-    for(const auto& i : mObj)
+    for (const auto& i : mObj)
     {
         str = getExtr<std::string>(i);
 
-        if(str.empty())
+        if (str.empty())
         {
             mValue.addKey(sf::Keyboard::Key::Unknown);
         }
-        else if(ssvs::isKKeyNameValid(str))
+        else if (ssvs::isKKeyNameValid(str))
         {
             mValue.addKey(getExtr<sf::Keyboard::Key>(i));
         }
-        else if(ssvs::isMBtnNameValid(str))
+        else if (ssvs::isMBtnNameValid(str))
         {
             mValue.addBtn(getExtr<sf::Mouse::Button>(i));
         }
@@ -124,7 +124,7 @@ void Converter<ssvs::Input::Combo>::fromObj(const Obj& mObj, T& mValue)
 
 void Converter<ssvs::Input::Combo>::toObj(Obj& mObj, const T& mValue)
 {
-    if(mValue.isUnbound())
+    if (mValue.isUnbound())
     {
         arch(mObj, 0, sf::Keyboard::Key(-1));
         return;
@@ -134,17 +134,17 @@ void Converter<ssvs::Input::Combo>::toObj(Obj& mObj, const T& mValue)
     const auto& keys(mValue.getKeys());
     const auto& btns(mValue.getBtns());
 
-    for(auto j(0u); j < sf::Keyboard::KeyCount; ++j)
+    for (auto j(0u); j < sf::Keyboard::KeyCount; ++j)
     {
-        if(ssvs::getKeyBit(keys, sf::Keyboard::Key(j)))
+        if (ssvs::getKeyBit(keys, sf::Keyboard::Key(j)))
         {
             arch(mObj, i++, sf::Keyboard::Key(j));
         }
     }
 
-    for(auto j(0u); j < sf::Mouse::ButtonCount; ++j)
+    for (auto j(0u); j < sf::Mouse::ButtonCount; ++j)
     {
-        if(ssvs::getBtnBit(btns, sf::Mouse::Button(j)))
+        if (ssvs::getBtnBit(btns, sf::Mouse::Button(j)))
         {
             arch(mObj, i++, sf::Mouse::Button(j));
         }

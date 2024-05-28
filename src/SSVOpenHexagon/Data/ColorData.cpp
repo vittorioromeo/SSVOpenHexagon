@@ -40,7 +40,7 @@ ColorData::ColorData(const bool mMain, const bool mDynamic,
 
 [[nodiscard]] PulseColor pulse_from_json(const ssvuj::Obj& root) noexcept
 {
-    if(!ssvuj::hasObj(root, "pulse"))
+    if (!ssvuj::hasObj(root, "pulse"))
     {
         return {0, 0, 0, 255};
     }

@@ -69,9 +69,9 @@ namespace hg {
 
 [[nodiscard]] static bool anyItemEnabled(const ssvms::Menu& menu)
 {
-    for(const auto& i : menu.getItems())
+    for (const auto& i : menu.getItems())
     {
-        if(i->isEnabled())
+        if (i->isEnabled())
         {
             return true;
         }
@@ -82,7 +82,7 @@ namespace hg {
 
 [[nodiscard]] static bool scrollToEnabledMenuItem(ssvms::Menu* menu)
 {
-    if(menu == nullptr)
+    if (menu == nullptr)
     {
         return false;
     }
@@ -90,12 +90,12 @@ namespace hg {
     // Scroll to a menu item that is enabled
     menu->update();
 
-    if(!anyItemEnabled(*menu))
+    if (!anyItemEnabled(*menu))
     {
         return false;
     }
 
-    while(!menu->getItem().isEnabled())
+    while (!menu->getItem().isEnabled())
     {
         menu->next();
     }
@@ -116,7 +116,7 @@ void MenuGame::MenuFont::updateHeight()
 
 [[nodiscard]] ssvms::Menu* MenuGame::getCurrentMenu() noexcept
 {
-    switch(state)
+    switch (state)
     {
         case States::SMain: return &mainMenu;
         case States::MOpts: return &optionsMenu;
@@ -244,7 +244,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     // re-enabled when moving the mouse.
     setMouseCursorVisible(true);
 
-    if(Config::getFirstTimePlaying())
+    if (Config::getFirstTimePlaying())
     {
         showFirstTimeTips = true;
         Config::setFirstTimePlaying(false);
@@ -260,9 +260,9 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     const auto checkCloseBootScreens = [this]
     {
-        if((--ignoreInputs) == 0)
+        if ((--ignoreInputs) == 0)
         {
-            if(state == States::LoadingScreen)
+            if (state == States::LoadingScreen)
             {
                 changeStateTo(States::EpilepsyWarning);
                 setIgnoreAllInputs(1);
@@ -306,18 +306,18 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return dialogBox.getInput();
         };
 
-        if(ignoreInputs != 0)
+        if (ignoreInputs != 0)
         {
             return;
         }
 
-        if(dialogInputState == DialogInputState::Nothing)
+        if (dialogInputState == DialogInputState::Nothing)
         {
             closeBox();
             return;
         }
 
-        if(dialogInputState == DialogInputState::Registration_EnteringUsername)
+        if (dialogInputState == DialogInputState::Registration_EnteringUsername)
         {
             registrationUsername = transitionInputSequence(
                 DialogInputState::Registration_EnteringPassword);
@@ -328,7 +328,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        if(dialogInputState == DialogInputState::Registration_EnteringPassword)
+        if (dialogInputState == DialogInputState::Registration_EnteringPassword)
         {
             registrationPassword = transitionInputSequence(
                 DialogInputState::Registration_EnteringPasswordConfirm);
@@ -339,12 +339,12 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        if(dialogInputState ==
+        if (dialogInputState ==
             DialogInputState::Registration_EnteringPasswordConfirm)
         {
             registrationPasswordConfirm = endInputSequence();
 
-            if(registrationPassword == registrationPasswordConfirm)
+            if (registrationPassword == registrationPasswordConfirm)
             {
                 hexagonClient.tryRegister(
                     registrationUsername, registrationPassword);
@@ -363,7 +363,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        if(dialogInputState == DialogInputState::Login_EnteringUsername)
+        if (dialogInputState == DialogInputState::Login_EnteringUsername)
         {
             loginUsername = transitionInputSequence(
                 DialogInputState::Login_EnteringPassword);
@@ -374,14 +374,15 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        if(dialogInputState == DialogInputState::Login_EnteringPassword)
+        if (dialogInputState == DialogInputState::Login_EnteringPassword)
         {
             loginPassword = endInputSequence();
             hexagonClient.tryLogin(loginUsername, loginPassword);
             return;
         }
 
-        if(dialogInputState == DialogInputState::DeleteAccount_EnteringPassword)
+        if (dialogInputState ==
+            DialogInputState::DeleteAccount_EnteringPassword)
         {
             deleteAccountPassword = endInputSequence();
             hexagonClient.tryDeleteAccount(deleteAccountPassword);
@@ -392,25 +393,25 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onAnyEvent += [this, checkCloseBootScreens, checkCloseDialogBox](
                            const sf::Event& event)
     {
-        if(const auto* e = event.getIf<sf::Event::Resized>())
+        if (const auto* e = event.getIf<sf::Event::Resized>())
         {
             changeResolutionTo(e->size.x, e->size.y);
         }
-        else if(const auto* e = event.getIf<sf::Event::TextEntered>())
+        else if (const auto* e = event.getIf<sf::Event::TextEntered>())
         {
-            if(e->unicode < 128)
+            if (e->unicode < 128)
             {
                 enteredChars.emplace_back(ssvu::toNum<char>(e->unicode));
             }
         }
-        else if(event.is<sf::Event::KeyPressed>())
+        else if (event.is<sf::Event::KeyPressed>())
         {
-            if(window.hasFocus())
+            if (window.hasFocus())
             {
                 setMouseCursorVisible(false);
             }
         }
-        else if(const auto* e = event.getIf<sf::Event::MouseMoved>())
+        else if (const auto* e = event.getIf<sf::Event::MouseMoved>())
         {
             const sf::Vector2i mouseMoveVec = {e->position.x, e->position.y};
             const sf::Vector2i mouseMoveDelta =
@@ -421,44 +422,44 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             const bool actuallyMoved =
                 (mouseMoveDelta.x != 0) || (mouseMoveDelta.y != 0);
 
-            if(window.hasFocus() && actuallyMoved)
+            if (window.hasFocus() && actuallyMoved)
             {
                 setMouseCursorVisible(true);
             }
         }
-        else if(const auto* e = event.getIf<sf::Event::MouseWheelScrolled>())
+        else if (const auto* e = event.getIf<sf::Event::MouseWheelScrolled>())
         {
-            if(window.hasFocus())
+            if (window.hasFocus())
             {
                 setMouseCursorVisible(true);
             }
 
             // Disable scroll while assigning a bind
-            if(state == States::MOpts)
+            if (state == States::MOpts)
             {
                 const auto* const bc{dynamic_cast<BindControlBase*>(
                     &getCurrentMenu()->getItem())};
-                if(bc != nullptr && bc->isWaitingForBind())
+                if (bc != nullptr && bc->isWaitingForBind())
                 {
                     return;
                 }
             }
 
-            if(state == States::LevelSelection)
+            if (state == States::LevelSelection)
             {
-                if(focusHeld)
+                if (focusHeld)
                 {
                     changePackQuick(e->delta > 0 ? -1 : 1);
                 }
-                else if(lvlDrawer != nullptr)
+                else if (lvlDrawer != nullptr)
                 {
                     lvlDrawer->YScrollTo += e->delta * 48.f;
 
-                    if(lvlDrawer->YScrollTo > 0)
+                    if (lvlDrawer->YScrollTo > 0)
                     {
                         lvlDrawer->YScrollTo = 0;
                     }
-                    else if(lvlDrawer->YScrollTo < -4000)
+                    else if (lvlDrawer->YScrollTo < -4000)
                     {
                         // Why...
                         steamManager.unlock_achievement("a35_eagerformore");
@@ -471,54 +472,54 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
 
             wheelProgress += e->delta;
-            if(wheelProgress > 1.f)
+            if (wheelProgress > 1.f)
             {
                 wheelProgress = 0.f;
                 upAction();
             }
-            else if(wheelProgress < -1.f)
+            else if (wheelProgress < -1.f)
             {
                 wheelProgress = 0.f;
                 downAction();
             }
         }
-        else if(const auto* e = event.getIf<sf::Event::TextEntered>())
+        else if (const auto* e = event.getIf<sf::Event::TextEntered>())
         {
-            if(dialogBox.empty() || !dialogBox.isInputBox())
+            if (dialogBox.empty() || !dialogBox.isInputBox())
             {
                 return;
             }
 
             std::string& input = dialogBox.getInput();
 
-            if(e->unicode >= 32 && e->unicode < 127)
+            if (e->unicode >= 32 && e->unicode < 127)
             {
-                if(input.size() < 32)
+                if (input.size() < 32)
                 {
                     playSoundOverride("beep.ogg");
                     input.push_back(static_cast<char>(e->unicode));
                 }
             }
-            else if(e->unicode == 8) // backspace
+            else if (e->unicode == 8) // backspace
             {
-                if(!input.empty())
+                if (!input.empty())
                 {
                     playSoundOverride("beep.ogg");
                     input.pop_back();
                 }
             }
         }
-        else if(const auto* e = event.getIf<sf::Event::KeyReleased>())
+        else if (const auto* e = event.getIf<sf::Event::KeyReleased>())
         {
             // don't do anything if inputs are being processed as usual
-            if(ignoreInputs == 0)
+            if (ignoreInputs == 0)
             {
                 return;
             }
 
             // Scenario one: epilepsy warning is being drawn and user
             // must close it with any key press
-            if(state == States::EpilepsyWarning ||
+            if (state == States::EpilepsyWarning ||
                 state == States::LoadingScreen)
             {
                 checkCloseBootScreens();
@@ -526,21 +527,21 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
 
             // Scenario two: actions are blocked cause a dialog box is open
-            if(dialogBoxDelay > 0.f)
+            if (dialogBoxDelay > 0.f)
             {
                 return;
             }
 
             const sf::Keyboard::Key key{e->code};
-            if(!dialogBox.empty())
+            if (!dialogBox.empty())
             {
-                if(dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown ||
+                if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown ||
                     key == dialogBox.getKeyToClose())
                 {
                     --ignoreInputs;
                 }
 
-                if(dialogBox.isInputBox() && key == sf::Keyboard::Key::Escape)
+                if (dialogBox.isInputBox() && key == sf::Keyboard::Key::Escape)
                 {
                     setIgnoreAllInputs(0);
                     dialogInputState = DialogInputState::Nothing;
@@ -557,7 +558,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             // Scenario three: actions are blocked cause we are using a
             // BindControl menu item
-            if(getCurrentMenu() != nullptr && key == sf::Keyboard::Key::Escape)
+            if (getCurrentMenu() != nullptr && key == sf::Keyboard::Key::Escape)
             {
                 getCurrentMenu()->getItem().exec(); // turn off bind inputting
                 setIgnoreAllInputs(0);
@@ -565,9 +566,9 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            if((--ignoreInputs) == 0)
+            if ((--ignoreInputs) == 0)
             {
-                if(getCurrentMenu() == nullptr || state != States::MOpts)
+                if (getCurrentMenu() == nullptr || state != States::MOpts)
                 {
                     setIgnoreAllInputs(0);
                     return;
@@ -577,7 +578,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     &getCurrentMenu()->getItem())};
 
                 // don't try assigning a keyboard key to a controller bind
-                if(bc == nullptr)
+                if (bc == nullptr)
                 {
                     playSoundOverride("error.ogg");
                     ignoreInputs = 1;
@@ -586,7 +587,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
                 // If user tries to bind a key that is already hardcoded ignore
                 // the input and notify it of what has happened.
-                if(!bc->newKeyboardBind(key))
+                if (!bc->newKeyboardBind(key))
                 {
                     playSoundOverride("error.ogg");
                     setIgnoreAllInputs(1);
@@ -603,28 +604,28 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 touchDelay = 10.f;
             }
         }
-        else if(const auto* e = event.getIf<sf::Event::MouseButtonReleased>())
+        else if (const auto* e = event.getIf<sf::Event::MouseButtonReleased>())
         {
-            if(ignoreInputs == 0)
+            if (ignoreInputs == 0)
             {
                 return;
             }
 
-            if(state == States::EpilepsyWarning ||
+            if (state == States::EpilepsyWarning ||
                 state == States::LoadingScreen)
             {
                 checkCloseBootScreens();
                 return;
             }
 
-            if(dialogBoxDelay > 0.f)
+            if (dialogBoxDelay > 0.f)
             {
                 return;
             }
 
-            if(!dialogBox.empty())
+            if (!dialogBox.empty())
             {
-                if(dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
+                if (dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
                 {
                     return;
                 }
@@ -633,9 +634,9 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            if((--ignoreInputs) == 0)
+            if ((--ignoreInputs) == 0)
             {
-                if(getCurrentMenu() == nullptr || state != States::MOpts)
+                if (getCurrentMenu() == nullptr || state != States::MOpts)
                 {
                     setIgnoreAllInputs(0);
                     return;
@@ -645,7 +646,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     &getCurrentMenu()->getItem())};
 
                 // don't try assigning a keyboard key to a controller bind
-                if(bc == nullptr)
+                if (bc == nullptr)
                 {
                     playSoundOverride("error.ogg");
                     ignoreInputs = 1;
@@ -658,29 +659,29 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 touchDelay = 10.f;
             }
         }
-        else if(const auto* e =
-                    event.getIf<sf::Event::JoystickButtonReleased>())
+        else if (const auto* e =
+                     event.getIf<sf::Event::JoystickButtonReleased>())
         {
-            if(ignoreInputs == 0)
+            if (ignoreInputs == 0)
             {
                 return;
             }
 
-            if(state == States::EpilepsyWarning ||
+            if (state == States::EpilepsyWarning ||
                 state == States::LoadingScreen)
             {
                 checkCloseBootScreens();
                 return;
             }
 
-            if(dialogBoxDelay > 0.f)
+            if (dialogBoxDelay > 0.f)
             {
                 return;
             }
 
-            if(!dialogBox.empty())
+            if (!dialogBox.empty())
             {
-                if(dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
+                if (dialogBox.getKeyToClose() != sf::Keyboard::Key::Unknown)
                 {
                     return;
                 }
@@ -689,9 +690,9 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            if((--ignoreInputs) == 0)
+            if ((--ignoreInputs) == 0)
             {
-                if(getCurrentMenu() == nullptr || state != States::MOpts)
+                if (getCurrentMenu() == nullptr || state != States::MOpts)
                 {
                     setIgnoreAllInputs(0);
                     return;
@@ -701,7 +702,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     &getCurrentMenu()->getItem())};
 
                 // don't try assigning a controller button to a keyboard bind
-                if(bc == nullptr)
+                if (bc == nullptr)
                 {
                     playSoundOverride("error.ogg");
                     ignoreInputs = 1;
@@ -757,17 +758,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     // Set size of the level offsets vector to the minimum required
     unsigned int maxSize{0}, packSize;
-    for(std::size_t i{0}; i < getSelectablePackInfosSize(); ++i)
+    for (std::size_t i{0}; i < getSelectablePackInfosSize(); ++i)
     {
         const std::string& packId = getNthSelectablePackInfo(i).id;
 
-        if(!assets.packHasLevels(packId))
+        if (!assets.packHasLevels(packId))
         {
             continue;
         }
 
         packSize = assets.getLevelIdsByPack(packId).size();
-        if(packSize > maxSize)
+        if (packSize > maxSize)
         {
             maxSize = packSize;
         }
@@ -790,7 +791,7 @@ void MenuGame::init(bool error)
     audio.stopMusic();
     audio.stopSounds();
 
-    if(error)
+    if (error)
     {
         playSoundOverride("error.ogg");
     }
@@ -811,9 +812,9 @@ void MenuGame::init(
 
 void MenuGame::initAssets()
 {
-    for(const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png",
-            "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png",
-            "bottomBar.png", "epilepsyWarning.png"})
+    for (const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png",
+             "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png",
+             "bottomBar.png", "epilepsyWarning.png"})
     {
         assets.getTexture(t).setSmooth(true);
     }
@@ -824,15 +825,15 @@ void MenuGame::changeStateTo(const States mState)
     const States prevState = state;
     state = mState;
 
-    if(prevState == state)
+    if (prevState == state)
     {
         // Not a state transition.
         return;
     }
 
-    if(state == States::SMain)
+    if (state == States::SMain)
     {
-        if(std::exchange(mustShowLoginAtStartup, false) &&
+        if (std::exchange(mustShowLoginAtStartup, false) &&
             Config::getShowLoginAtStartup())
         {
             openLoginDialogBoxAndStartLoginProcess();
@@ -840,12 +841,12 @@ void MenuGame::changeStateTo(const States mState)
         }
     }
 
-    if(state == States::LevelSelection)
+    if (state == States::LevelSelection)
     {
         firstLevelSelection = false;
     }
 
-    if(!showFirstTimeTips)
+    if (!showFirstTimeTips)
     {
         // Not the first time playing.
         return;
@@ -865,7 +866,7 @@ void MenuGame::changeStateTo(const States mState)
         dialogBoxDelay = 64.f;
     };
 
-    if(mustShowTip(States::SMain, mustShowFTTMainMenu))
+    if (mustShowTip(States::SMain, mustShowFTTMainMenu))
     {
         showTip(
             "WELCOME TO OPEN HEXAGON!\n\n"
@@ -874,7 +875,7 @@ void MenuGame::changeStateTo(const States mState)
             "REMEMBER TO CHECK OUT THE OPTIONS MENU\n\n"
             "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
     }
-    else if(mustShowTip(States::LevelSelection, mustShowFTTLevelSelect))
+    else if (mustShowTip(States::LevelSelection, mustShowFTTLevelSelect))
     {
         showTip(
             "THIS IS WHERE YOU CAN PICK A LEVEL TO PLAY\n\n"
@@ -887,7 +888,7 @@ void MenuGame::changeStateTo(const States mState)
             "HAVE FUN!\n\n"
             "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
     }
-    else if(mustShowTip(States::LevelSelection, mustShowFTTDeathTips))
+    else if (mustShowTip(States::LevelSelection, mustShowFTTDeathTips))
     {
         showTip(
             "IF YOU FEEL LIKE THE GAME IS TOO HARD, TRY THESE TIPS\n\n"
@@ -914,7 +915,7 @@ void MenuGame::initInput()
     addTidInput(Tid::RotateCCW, t::Once,
         [this](ssvu::FT)
         {
-            if(!mouseHovering)
+            if (!mouseHovering)
             {
                 leftAction();
             }
@@ -923,7 +924,7 @@ void MenuGame::initInput()
     addTidInput(Tid::RotateCW, t::Once,
         [this](ssvu::FT)
         {
-            if(!mouseHovering)
+            if (!mouseHovering)
             {
                 rightAction();
             }
@@ -955,7 +956,7 @@ void MenuGame::initInput()
         {{k::Escape}},
         [this](ssvu::FT mFT)
         {
-            if(state != States::MOpts)
+            if (state != States::MOpts)
             {
                 exitTimer += mFT;
             }
@@ -968,7 +969,7 @@ void MenuGame::initInput()
     addTidInput(Tid::Exit, t::Once,
         [this](ssvu::FT /*unused*/)
         {
-            if(isEnteringText())
+            if (isEnteringText())
             {
                 return;
             }
@@ -1012,7 +1013,7 @@ void MenuGame::initInput()
 void MenuGame::runLuaFile(const std::string& mFileName)
 try
 {
-    if(Config::getUseLuaFileCache())
+    if (Config::getUseLuaFileCache())
     {
         Utils::runLuaFileCached(assets, lua, mFileName);
     }
@@ -1021,7 +1022,7 @@ try
         Utils::runLuaFile(lua, mFileName);
     }
 }
-catch(...)
+catch (...)
 {
     playSoundOverride("error.ogg");
     ssvu::lo("hg::MenuGame::initLua") << "Fatal error in menu for Lua file '"
@@ -1030,7 +1031,7 @@ catch(...)
 
 void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
 {
-    if(Config::getWidth() == mWidth && Config::getHeight() == mHeight)
+    if (Config::getWidth() == mWidth && Config::getHeight() == mHeight)
     {
         return;
     }
@@ -1046,7 +1047,7 @@ void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
 
 void MenuGame::playSoundOverride(const std::string& assetId)
 {
-    if(!Config::getNoSound())
+    if (!Config::getNoSound())
     {
         audio.playSoundOverride(assetId);
     }
@@ -1078,42 +1079,42 @@ void MenuGame::initLua()
     lua.writeVariable("u_getPlayerAngle", [] { return 0; });
 
     // Unused functions
-    for(const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
-            "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
-            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setFlashEffect",
+    for (const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
+             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
+             "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setFlashEffect",
 
-            "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
-            "a_playSound", "a_playPackSound", "a_syncMusicToDM",
-            "a_setMusicPitch", "a_overrideBeepSound",
-            "a_overrideIncrementSound", "a_overrideSwapSound",
-            "a_overrideDeathSound",
+             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
+             "a_playSound", "a_playPackSound", "a_syncMusicToDM",
+             "a_setMusicPitch", "a_overrideBeepSound",
+             "a_overrideIncrementSound", "a_overrideSwapSound",
+             "a_overrideDeathSound",
 
-            "t_eval", "t_kill", "t_clear", "t_wait", "t_waitS", "t_waitUntilS",
+             "t_eval", "t_kill", "t_clear", "t_wait", "t_waitS", "t_waitUntilS",
 
-            "e_eval", "e_kill", "e_stopTime", "e_stopTimeS", "e_wait",
-            "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
-            "e_messageAddImportantSilent", "e_clearMessages",
+             "e_eval", "e_kill", "e_stopTime", "e_stopTimeS", "e_wait",
+             "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
+             "e_messageAddImportantSilent", "e_clearMessages",
 
-            "ct_create", "ct_eval", "ct_kill", "ct_stopTime", "ct_stopTimeS",
-            "ct_wait", "ct_waitS", "ct_waitUntilS",
+             "ct_create", "ct_eval", "ct_kill", "ct_stopTime", "ct_stopTimeS",
+             "ct_wait", "ct_waitS", "ct_waitUntilS",
 
-            "l_overrideScore", "l_setRotation", "l_getRotation",
-            "l_getOfficial",
+             "l_overrideScore", "l_setRotation", "l_getRotation",
+             "l_getOfficial",
 
-            "s_setStyle",
+             "s_setStyle",
 
-            "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
-            "w_wallHModCurveData",
+             "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
+             "w_wallHModCurveData",
 
-            "steam_unlockAchievement",
+             "steam_unlockAchievement",
 
-            "u_kill", "u_eventKill", "u_playSound", "u_playPackSound",
-            "u_setFlashEffect", "u_setFlashColor",
+             "u_kill", "u_eventKill", "u_playSound", "u_playPackSound",
+             "u_setFlashEffect", "u_setFlashColor",
 
-            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-            "e_eventWaitS", "e_eventWaitUntilS", "m_messageAdd",
-            "m_messageAddImportant", "m_messageAddImportantSilent",
-            "m_clearMessages"})
+             "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
+             "e_eventWaitS", "e_eventWaitUntilS", "m_messageAdd",
+             "m_messageAddImportant", "m_messageAddImportantSilent",
+             "m_clearMessages"})
     {
         lua.writeVariable(un, [] {});
     }
@@ -1226,7 +1227,7 @@ void MenuGame::initMenus()
     {
         game.refreshTrigger(trig, bindID);
 
-        if(fnHGTriggerRefresh)
+        if (fnHGTriggerRefresh)
         {
             fnHGTriggerRefresh(trig, bindID);
         }
@@ -1323,13 +1324,13 @@ void MenuGame::initMenus()
 
     // Organize available resolutions based on their aspect ratio.
     int ratio;
-    for(const auto& vm : sf::VideoMode::getFullscreenModes())
+    for (const auto& vm : sf::VideoMode::getFullscreenModes())
     {
-        if(vm.bitsPerPixel == 32)
+        if (vm.bitsPerPixel == 32)
         {
             ratio = 10.f * vm.size.x / vm.size.y;
 
-            switch(ratio)
+            switch (ratio)
             {
                 case 17: // 16:9
                     sixByNine.create<i::Single>(
@@ -1438,7 +1439,7 @@ void MenuGame::initMenus()
         [] { return Utils::concat(Config::getAntialiasingLevel(), 'x'); },
         [this]
         {
-            if(Config::getAntialiasingLevel() == 0)
+            if (Config::getAntialiasingLevel() == 0)
             {
                 Config::setAntialiasingLevel(window, 1);
                 return;
@@ -1525,7 +1526,7 @@ void MenuGame::initMenus()
     main.create<i::Single>("LEVEL SELECT",
         [this]
         {
-            if(firstLevelSelection)
+            if (firstLevelSelection)
             {
                 lvlSlct.packIdx = diffMultIdx = 0;
                 lvlSlct.levelDataIds =
@@ -1590,7 +1591,7 @@ void MenuGame::initMenus()
     online.create<i::Single>("LOGIN",
         [this]
         {
-            if(dialogInputState != DialogInputState::Nothing)
+            if (dialogInputState != DialogInputState::Nothing)
             {
                 return;
             }
@@ -1603,7 +1604,7 @@ void MenuGame::initMenus()
     online.create<i::Single>("REGISTER",
         [this]
         {
-            if(dialogInputState != DialogInputState::Nothing)
+            if (dialogInputState != DialogInputState::Nothing)
             {
                 return;
             }
@@ -1626,7 +1627,7 @@ void MenuGame::initMenus()
     online.create<i::Single>("DELETE ACCOUNT",
         [this]
         {
-            if(dialogInputState != DialogInputState::Nothing)
+            if (dialogInputState != DialogInputState::Nothing)
             {
                 return;
             }
@@ -1661,7 +1662,7 @@ void MenuGame::initMenus()
     auto& profileSelection{
         profileSelectionMenu.createCategory("profile selection")};
 
-    for(auto& p : assets.getLocalProfileNames())
+    for (auto& p : assets.getLocalProfileNames())
     {
         profileSelection.create<i::Single>(p,
             [this, p]
@@ -1681,16 +1682,16 @@ bool MenuGame::loadCommandLineLevel(
     // user. `packDatas` is the only vector in assets with a data type
     // containing the name of the pack (without it being part of the id).
     std::string packID;
-    for(auto& d : assets.getPackDatas())
+    for (auto& d : assets.getPackDatas())
     {
-        if(d.second.name == pack)
+        if (d.second.name == pack)
         {
             packID = d.second.id;
             break;
         }
     }
 
-    if(packID.empty())
+    if (packID.empty())
     {
         ssvu::lo("hg::Menugame::MenuGame()")
             << "Invalid pack name '" << pack
@@ -1699,7 +1700,7 @@ bool MenuGame::loadCommandLineLevel(
         return false;
     }
 
-    if(!assets.packHasLevels(packID))
+    if (!assets.packHasLevels(packID))
     {
         ssvu::lo("hg::Menugame::MenuGame()")
             << "Pack '" << pack
@@ -1714,16 +1715,16 @@ bool MenuGame::loadCommandLineLevel(
     const auto& p{assets.getSelectablePackInfos()};
     const auto& levelsList{assets.getLevelIdsByPack(packID)};
 
-    for(int i{0}; i < static_cast<int>(p.size()); ++i)
+    for (int i{0}; i < static_cast<int>(p.size()); ++i)
     {
         // once you find the pack index search if it contains the level
-        if(packID != p.at(i).id)
+        if (packID != p.at(i).id)
         {
             continue;
         }
 
         auto it{std::find(levelsList.begin(), levelsList.end(), levelID)};
-        if(it == levelsList.end())
+        if (it == levelsList.end())
         {
 
             ssvu::lo("hg::Menugame::MenuGame()")
@@ -1746,7 +1747,7 @@ bool MenuGame::loadCommandLineLevel(
 
     playLocally(); // go to profile selection screen
 
-    if(state == States::ETLPNew)
+    if (state == States::ETLPNew)
     {
         ssvu::lo("hg::Menugame::MenuGame()")
             << "No player profiles exist, aborting boot level load\n";
@@ -1781,7 +1782,7 @@ void MenuGame::playLocally()
 MenuGame::pickRandomMainMenuBackgroundStyle()
 {
     // If there is no `menubackgrounds.json` abort
-    if(!ssvufs::Path{"Assets/menubackgrounds.json"}.isFile())
+    if (!ssvufs::Path{"Assets/menubackgrounds.json"}.isFile())
     {
         ssvu::lo("MenuGame::$")
             << "File 'Assets/menubackgrounds.json' does not exist" << std::endl;
@@ -1791,7 +1792,8 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
 
     std::vector<std::string> levelIDs;
     ssvuj::Obj object = ssvuj::getFromFile("Assets/menubackgrounds.json");
-    for(const auto& f : ssvuj::getExtr<std::vector<std::string>>(object, "ids"))
+    for (const auto& f :
+        ssvuj::getExtr<std::vector<std::string>>(object, "ids"))
     {
         levelIDs.emplace_back(f);
     }
@@ -1804,18 +1806,18 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
     const std::vector<std::string>* levelsIDs;
 
     // store info main menu requires to set the color theme
-    for(int i{0}; i < static_cast<int>(p.size()); ++i)
+    for (int i{0}; i < static_cast<int>(p.size()); ++i)
     {
         const std::string& packId = p.at(i).id;
 
-        if(!assets.packHasLevels(packId))
+        if (!assets.packHasLevels(packId))
         {
             continue;
         }
 
         levelsIDs = &assets.getLevelIdsByPack(packId);
         auto it = std::find(levelsIDs->begin(), levelsIDs->end(), pickedLevel);
-        if(it != levelsIDs->end())
+        if (it != levelsIDs->end())
         {
             return {i, it - levelsIDs->begin()};
         }
@@ -1832,16 +1834,16 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
 
 void MenuGame::leftRightActionImpl(bool left)
 {
-    if(state == States::SLPSelectBoot)
+    if (state == States::SLPSelectBoot)
     {
         okAction();
         return;
     }
 
     // Change difficulty in the level selection menu.
-    if(state == States::LevelSelection)
+    if (state == States::LevelSelection)
     {
-        if(left)
+        if (left)
         {
             --diffMultIdx;
             playSoundOverride("difficultyMultDown.ogg");
@@ -1858,7 +1860,7 @@ void MenuGame::leftRightActionImpl(bool left)
     }
 
     // If there is no valid action abort.
-    if(!isInMenu() || !getCurrentMenu()->getItem().canIncrease())
+    if (!isInMenu() || !getCurrentMenu()->getItem().canIncrease())
     {
         return;
     }
@@ -1868,9 +1870,9 @@ void MenuGame::leftRightActionImpl(bool left)
             sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift) ||
             focusHeld || wasFocusHeld);
 
-    for(int i{0}; i < (modifier ? 2 : 1); ++i)
+    for (int i{0}; i < (modifier ? 2 : 1); ++i)
     {
-        if(left)
+        if (left)
         {
             getCurrentMenu()->decrease();
         }
@@ -1898,16 +1900,16 @@ inline constexpr int maxProfilesOnScreen{6};
 
 void MenuGame::upAction()
 {
-    if(state == States::LevelSelection)
+    if (state == States::LevelSelection)
     {
         // Do not do anything until the pack change animation is over.
-        if(packChangeState != PackChange::Rest)
+        if (packChangeState != PackChange::Rest)
         {
             return;
         }
 
         // When focus is held do an instant pack change.
-        if(focusHeld)
+        if (focusHeld)
         {
             changePackQuick(-1);
             return;
@@ -1916,11 +1918,11 @@ void MenuGame::upAction()
         const int prevIdx{lvlDrawer->currentIndex - 1};
 
         // If there is only one pack behave differently.
-        if(getSelectablePackInfosSize() == 1)
+        if (getSelectablePackInfosSize() == 1)
         {
             // If we are at the top of the pack go to its end instead
             // and scroll the menu to show it.
-            if(prevIdx < 0)
+            if (prevIdx < 0)
             {
                 setIndex(lvlDrawer->levelDataIds->size() - 1);
                 calcScrollSpeed();
@@ -1929,7 +1931,7 @@ void MenuGame::upAction()
                     packLabelHeight +
                     levelLabelHeight * (lvlDrawer->currentIndex + 1) +
                     2.f * slctFrameSize};
-                if(scroll > h - lvlDrawer->YOffset)
+                if (scroll > h - lvlDrawer->YOffset)
                 {
                     lvlDrawer->YScrollTo = h - scroll;
                 }
@@ -1940,7 +1942,7 @@ void MenuGame::upAction()
                 calcLevelChangeScroll(-2);
             }
         }
-        else if(prevIdx < 0)
+        else if (prevIdx < 0)
         {
             // -2 means "go to previous pack and
             // skip to the last level of the list"
@@ -1961,9 +1963,9 @@ void MenuGame::upAction()
     }
 
     // In the loading screen scroll through the error messages.
-    if(state == States::LoadingScreen)
+    if (state == States::LoadingScreen)
     {
-        if(scrollbarOffset != 0)
+        if (scrollbarOffset != 0)
         {
             --scrollbarOffset;
             playSoundOverride("beep.ogg");
@@ -1972,13 +1974,13 @@ void MenuGame::upAction()
         return;
     }
 
-    if(!isInMenu())
+    if (!isInMenu())
     {
         return;
     }
 
     // Scroll the profiles drawn on screen
-    if((state == States::SLPSelect || state == States::SLPSelectBoot) &&
+    if ((state == States::SLPSelect || state == States::SLPSelectBoot) &&
         getCurrentMenu()->getIdx() - 1 < scrollbarOffset)
     {
         const int index = ssvu::getMod(getCurrentMenu()->getIdx() - 1, 0,
@@ -1986,7 +1988,7 @@ void MenuGame::upAction()
         scrollbarOffset = std::max(index - (maxProfilesOnScreen - 1), 0);
     }
 
-    if(getCurrentMenu() != nullptr && !anyItemEnabled(*getCurrentMenu()))
+    if (getCurrentMenu() != nullptr && !anyItemEnabled(*getCurrentMenu()))
     {
         return;
     }
@@ -1996,7 +1998,7 @@ void MenuGame::upAction()
     {
         getCurrentMenu()->previous();
     }
-    while(!getCurrentMenu()->getItem().isEnabled());
+    while (!getCurrentMenu()->getItem().isEnabled());
 
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
@@ -2006,23 +2008,23 @@ inline constexpr int maxErrorsOnScreen{7};
 
 void MenuGame::downAction()
 {
-    if(state == States::LevelSelection)
+    if (state == States::LevelSelection)
     {
-        if(packChangeState != PackChange::Rest)
+        if (packChangeState != PackChange::Rest)
         {
             return;
         }
 
-        if(focusHeld)
+        if (focusHeld)
         {
             changePackQuick(1);
             return;
         }
 
         const int nextIdx{lvlDrawer->currentIndex + 1};
-        if(getSelectablePackInfosSize() == 1)
+        if (getSelectablePackInfosSize() == 1)
         {
-            if(nextIdx > ssvu::toInt(lvlDrawer->levelDataIds->size() - 1))
+            if (nextIdx > ssvu::toInt(lvlDrawer->levelDataIds->size() - 1))
             {
                 // Skip to the first level label.
                 setIndex(0);
@@ -2035,7 +2037,7 @@ void MenuGame::downAction()
                 calcLevelChangeScroll(2);
             }
         }
-        else if(nextIdx > ssvu::toInt(lvlDrawer->levelDataIds->size() - 1))
+        else if (nextIdx > ssvu::toInt(lvlDrawer->levelDataIds->size() - 1))
         {
             // Go to the next pack.
             changePackAction(1);
@@ -2052,9 +2054,9 @@ void MenuGame::downAction()
         return;
     }
 
-    if(state == States::LoadingScreen)
+    if (state == States::LoadingScreen)
     {
-        if(scrollbarOffset <
+        if (scrollbarOffset <
             static_cast<int>(loadInfo.errorMessages.size()) - maxErrorsOnScreen)
         {
             ++scrollbarOffset;
@@ -2064,12 +2066,12 @@ void MenuGame::downAction()
         return;
     }
 
-    if(!isInMenu())
+    if (!isInMenu())
     {
         return;
     }
 
-    if((state == States::SLPSelect || state == States::SLPSelectBoot) &&
+    if ((state == States::SLPSelect || state == States::SLPSelectBoot) &&
         getCurrentMenu()->getIdx() + 1 >
             maxProfilesOnScreen - 1 + scrollbarOffset)
     {
@@ -2078,7 +2080,7 @@ void MenuGame::downAction()
         scrollbarOffset = std::max(index - (maxProfilesOnScreen - 1), 0);
     }
 
-    if(getCurrentMenu() != nullptr && !anyItemEnabled(*getCurrentMenu()))
+    if (getCurrentMenu() != nullptr && !anyItemEnabled(*getCurrentMenu()))
     {
         return;
     }
@@ -2087,7 +2089,7 @@ void MenuGame::downAction()
     {
         getCurrentMenu()->next();
     }
-    while(!getCurrentMenu()->getItem().isEnabled());
+    while (!getCurrentMenu()->getItem().isEnabled());
 
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
@@ -2133,7 +2135,7 @@ void MenuGame::changePack()
 
 void MenuGame::changePackQuick(const int direction)
 {
-    if(isFavoriteLevels())
+    if (isFavoriteLevels())
     {
         return;
     }
@@ -2156,7 +2158,7 @@ void MenuGame::changePackQuick(const int direction)
     // If the height is lower than the offset of the level selection
     // the level list must be scrolled to show the labels before the current
     // one. The top must prevail.
-    if(!checkWindowTopScrollWithResult(scroll, action))
+    if (!checkWindowTopScrollWithResult(scroll, action))
     {
         // Height of the bottom of the pack label that is one index after the
         // current one.
@@ -2173,7 +2175,7 @@ void MenuGame::changePackQuick(const int direction)
 
 void MenuGame::changePackAction(const int direction)
 {
-    if(state != States::LevelSelection || getSelectablePackInfosSize() == 1 ||
+    if (state != States::LevelSelection || getSelectablePackInfosSize() == 1 ||
         packChangeState != PackChange::Rest)
     {
         return;
@@ -2193,12 +2195,12 @@ void MenuGame::okAction()
 {
     touchDelay = 50.f;
 
-    switch(state)
+    switch (state)
     {
         case States::ETLPNewBoot: [[fallthrough]];
         case States::ETLPNew:
         {
-            if(!enteredStr.empty())
+            if (!enteredStr.empty())
             {
                 ssvms::Category& profiles(
                     profileSelectionMenu.getCategoryByName(
@@ -2206,9 +2208,9 @@ void MenuGame::okAction()
 
                 // Abort if user is trying to create a profile
                 // with a name already in use
-                for(auto& i : profiles.getItems())
+                for (auto& i : profiles.getItems())
                 {
-                    if(enteredStr == i->getName())
+                    if (enteredStr == i->getName())
                     {
                         playSoundOverride("error.ogg");
                         showDialogBox(
@@ -2237,7 +2239,7 @@ void MenuGame::okAction()
                 profiles.sortByName();
 
                 enteredStr = "";
-                if(state == States::ETLPNewBoot)
+                if (state == States::ETLPNewBoot)
                 {
                     playSoundOverride("openHexagon.ogg");
                     changeStateTo(States::SMain);
@@ -2266,26 +2268,26 @@ void MenuGame::okAction()
             // Going into the level selection set the selected level
             // label offset to the maximum value and set the other
             // offsets to 0.
-            if(state == States::LevelSelection)
+            if (state == States::LevelSelection)
             {
                 setIndex(lvlDrawer->currentIndex);
                 adjustLevelsOffset();
                 return;
             }
 
-            if(getCurrentMenu() == nullptr)
+            if (getCurrentMenu() == nullptr)
             {
                 return;
             }
 
             // Scroll to a menu item that is enabled
-            if(scrollToEnabledMenuItem(getCurrentMenu()) == false)
+            if (scrollToEnabledMenuItem(getCurrentMenu()) == false)
             {
                 return;
             }
 
             // Adjust the indents if we moved to a new submenu
-            if(getCurrentMenu()->getCategory().getName() != category)
+            if (getCurrentMenu()->getCategory().getName() != category)
             {
                 adjustMenuOffset(true);
             }
@@ -2302,7 +2304,7 @@ void MenuGame::okAction()
             // check for one and the other.
             const auto* const bc{
                 dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
-            if(bc != nullptr && bc->isWaitingForBind())
+            if (bc != nullptr && bc->isWaitingForBind())
             {
                 setIgnoreAllInputs(2);
                 touchDelay = 10.f;
@@ -2311,7 +2313,7 @@ void MenuGame::okAction()
             }
 
             // Scroll to a menu item that is enabled
-            if(scrollToEnabledMenuItem(getCurrentMenu()) == false)
+            if (scrollToEnabledMenuItem(getCurrentMenu()) == false)
             {
                 return;
             }
@@ -2324,7 +2326,7 @@ void MenuGame::okAction()
             getCurrentMenu()->exec();
 
             // Scroll to a menu item that is enabled
-            if(scrollToEnabledMenuItem(getCurrentMenu()) == false)
+            if (scrollToEnabledMenuItem(getCurrentMenu()) == false)
             {
                 return;
             }
@@ -2344,7 +2346,7 @@ void MenuGame::okAction()
 
         default:
         {
-            if(isInMenu())
+            if (isInMenu())
             {
                 getCurrentMenu()->exec();
             }
@@ -2358,7 +2360,7 @@ void MenuGame::okAction()
 
 void MenuGame::playSelectedLevel()
 {
-    if(fnHGNewGame)
+    if (fnHGNewGame)
     {
         setMouseCursorVisible(false);
 
@@ -2374,19 +2376,19 @@ void MenuGame::playSelectedLevel()
 
 void MenuGame::eraseAction()
 {
-    if(isEnteringText() && !enteredStr.empty())
+    if (isEnteringText() && !enteredStr.empty())
     {
         enteredStr.erase(enteredStr.end() - 1);
         playSoundOverride("beep.ogg");
     }
-    else if(state == States::SLPSelect)
+    else if (state == States::SLPSelect)
     {
         const std::string name{
             profileSelectionMenu.getCategory().getItem().getName()};
 
         // There must be at least one profile, don't erase profile
         // currently in use.
-        if(profileSelectionMenu.getCategory().getItems().size() <= 1)
+        if (profileSelectionMenu.getCategory().getItems().size() <= 1)
         {
             playSoundOverride("error.ogg");
             showDialogBox(
@@ -2395,7 +2397,7 @@ void MenuGame::eraseAction()
             setIgnoreAllInputs(2);
             return;
         }
-        if(assets.pGetName() == name)
+        if (assets.pGetName() == name)
         {
             playSoundOverride("error.ogg");
             showDialogBox(
@@ -2406,7 +2408,7 @@ void MenuGame::eraseAction()
         }
 
         // Remove the profile .json
-        if(const std::string fileName{"Profiles/" + name + ".json"};
+        if (const std::string fileName{"Profiles/" + name + ".json"};
             std::remove(fileName.c_str()) != 0)
         {
             ssvu::lo("eraseAction()")
@@ -2424,18 +2426,18 @@ void MenuGame::eraseAction()
         profileSelectionMenu.getCategory().remove();
         playSoundOverride("beep.ogg");
     }
-    else if(state == States::MOpts && isInMenu())
+    else if (state == States::MOpts && isInMenu())
     {
         // Do not do anything if it's not a bind setter menu item.
         auto* const bc{
             dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
 
-        if(bc == nullptr)
+        if (bc == nullptr)
         {
             return;
         }
 
-        if(bc->erase())
+        if (bc->erase())
         {
             playSoundOverride("beep.ogg");
         }
@@ -2446,20 +2448,20 @@ void MenuGame::eraseAction()
 
 void MenuGame::exitAction()
 {
-    if(isInMenu() && getCurrentMenu()->getCategory().getName() == "main")
+    if (isInMenu() && getCurrentMenu()->getCategory().getName() == "main")
     {
         return;
     }
 
     playSoundOverride("beep.ogg");
 
-    if(state == States::SLPSelectBoot)
+    if (state == States::SLPSelectBoot)
     {
         changeStateTo(States::ETLPNewBoot);
         return;
     }
 
-    if(state == States::LevelSelection)
+    if (state == States::LevelSelection)
     {
         changeStateTo(States::SMain);
         resetNamesScrolls();
@@ -2467,11 +2469,11 @@ void MenuGame::exitAction()
         return;
     }
 
-    if(assets.pIsValidLocalProfile())
+    if (assets.pIsValidLocalProfile())
     {
-        if(isInMenu())
+        if (isInMenu())
         {
-            if(getCurrentMenu()->canGoBack())
+            if (getCurrentMenu()->canGoBack())
             {
                 getCurrentMenu()->goBack();
             }
@@ -2484,7 +2486,7 @@ void MenuGame::exitAction()
             }
             adjustMenuOffset(false);
         }
-        else if(isEnteringText())
+        else if (isEnteringText())
         {
             changeStateTo(States::SMain);
         }
@@ -2505,19 +2507,19 @@ void MenuGame::update(ssvu::FT mFT)
                                           const std::string& msg,
                                           const std::string& err = "")
     {
-        if(!dialogBox.empty())
+        if (!dialogBox.empty())
         {
             return;
         }
 
-        if(state != States::SMain && state != States::MOnline &&
+        if (state != States::SMain && state != States::MOnline &&
             state != States::MOpts && state != States::SLPSelect &&
             state != States::LevelSelection)
         {
             return;
         }
 
-        if(error)
+        if (error)
         {
             playSoundOverride("error.ogg");
         }
@@ -2529,7 +2531,7 @@ void MenuGame::update(ssvu::FT mFT)
         strBuf.clear();
 
         strBuf += msg;
-        if(!err.empty())
+        if (!err.empty())
         {
             strBuf += "\n\n";
             strBuf += err;
@@ -2548,7 +2550,7 @@ void MenuGame::update(ssvu::FT mFT)
     };
 
     std::optional<HexagonClient::Event> hcEvent;
-    while((hcEvent = hexagonClient.pollEvent()).has_value())
+    while ((hcEvent = hexagonClient.pollEvent()).has_value())
     {
         Utils::match(
             *hcEvent, //
@@ -2625,7 +2627,7 @@ void MenuGame::update(ssvu::FT mFT)
         );
     }
 
-    if(fnHGUpdateRichPresenceCallbacks)
+    if (fnHGUpdateRichPresenceCallbacks)
     {
         fnHGUpdateRichPresenceCallbacks();
     }
@@ -2634,25 +2636,25 @@ void MenuGame::update(ssvu::FT mFT)
 
     // Focus should have no effect if we are in the favorites menu
     // or a pack change animation is in progress.
-    if(state == States::LevelSelection && !isFavoriteLevels() &&
+    if (state == States::LevelSelection && !isFavoriteLevels() &&
         packChangeState == PackChange::Rest)
     {
-        if(!focusHeld)
+        if (!focusHeld)
         {
             focusHeld = Joystick::pressed(Joystick::Jid::Focus);
         }
 
         // If focus was not pressed it means we have initiated a quick
         // pack switch.
-        if(focusHeld && !wasFocusHeld)
+        if (focusHeld && !wasFocusHeld)
         {
-            if(lvlDrawer->currentIndex != 0)
+            if (lvlDrawer->currentIndex != 0)
             {
                 setIndex(0);
             }
             quickPackFoldStretch();
         }
-        else if(!focusHeld && wasFocusHeld)
+        else if (!focusHeld && wasFocusHeld)
         {
             // focus is now released we have to stretch the level list of the
             // current menu.
@@ -2666,18 +2668,18 @@ void MenuGame::update(ssvu::FT mFT)
     }
 
     // TODO (P2): cleanup mouse control
-    if((state == States::SMain || state == States::MOpts ||
-           state == States::MOnline || state == States::SLPSelect) &&
+    if ((state == States::SMain || state == States::MOpts ||
+            state == States::MOnline || state == States::SLPSelect) &&
         mustUseMenuItem.has_value())
     {
-        if(getCurrentMenu() != nullptr)
+        if (getCurrentMenu() != nullptr)
         {
             auto& items = getCurrentMenu()->getItems();
-            if(static_cast<int>(items.size()) > *mustUseMenuItem)
+            if (static_cast<int>(items.size()) > *mustUseMenuItem)
             {
                 ssvms::ItemBase& item = *items.at(*mustUseMenuItem);
 
-                if(item.isEnabled())
+                if (item.isEnabled())
                 {
                     playSoundOverride("beep.ogg");
                     item.exec();
@@ -2689,21 +2691,21 @@ void MenuGame::update(ssvu::FT mFT)
     }
 
     // TODO (P2): cleanup mouse control
-    if(state == States::LevelSelection && packChangeState == PackChange::Rest)
+    if (state == States::LevelSelection && packChangeState == PackChange::Rest)
     {
-        if(mustFavorite)
+        if (mustFavorite)
         {
             addRemoveFavoriteLevel();
             mustFavorite = false;
         }
-        else if(mustPlay)
+        else if (mustPlay)
         {
             playSelectedLevel();
             mustPlay = false;
         }
-        else if(mustChangeIndexTo.has_value())
+        else if (mustChangeIndexTo.has_value())
         {
-            if(lvlDrawer != nullptr &&
+            if (lvlDrawer != nullptr &&
                 lvlDrawer->currentIndex != *mustChangeIndexTo)
             {
                 playSoundOverride("beep.ogg");
@@ -2712,9 +2714,9 @@ void MenuGame::update(ssvu::FT mFT)
 
             mustChangeIndexTo.reset();
         }
-        else if(mustChangePackIndexTo.has_value())
+        else if (mustChangePackIndexTo.has_value())
         {
-            if(lvlSlct.packIdx != *mustChangePackIndexTo)
+            if (lvlSlct.packIdx != *mustChangePackIndexTo)
             {
                 playSoundOverride("beep.ogg");
                 changePackTo(*mustChangePackIndexTo);
@@ -2724,102 +2726,102 @@ void MenuGame::update(ssvu::FT mFT)
         }
     }
 
-    if(Joystick::risingEdge(Joystick::Jid::NextPack))
+    if (Joystick::risingEdge(Joystick::Jid::NextPack))
     {
         changePackAction(1);
     }
-    else if(Joystick::risingEdge(Joystick::Jid::PreviousPack))
+    else if (Joystick::risingEdge(Joystick::Jid::PreviousPack))
     {
         changePackAction(-1);
     }
 
-    if(Joystick::risingEdge(Joystick::Jid::AddToFavorites))
+    if (Joystick::risingEdge(Joystick::Jid::AddToFavorites))
     {
         addRemoveFavoriteLevel();
     }
 
-    if(Joystick::risingEdge(Joystick::Jid::FavoritesMenu))
+    if (Joystick::risingEdge(Joystick::Jid::FavoritesMenu))
     {
         switchToFromFavoriteLevels();
     }
 
-    if(Joystick::risingEdge(Joystick::Jdir::Left))
+    if (Joystick::risingEdge(Joystick::Jdir::Left))
     {
         leftAction();
     }
-    else if(Joystick::risingEdge(Joystick::Jdir::Right))
+    else if (Joystick::risingEdge(Joystick::Jdir::Right))
     {
         rightAction();
     }
-    else if(Joystick::risingEdge(Joystick::Jdir::Up))
+    else if (Joystick::risingEdge(Joystick::Jdir::Up))
     {
         upAction();
     }
-    else if(Joystick::risingEdge(Joystick::Jdir::Down))
+    else if (Joystick::risingEdge(Joystick::Jdir::Down))
     {
         downAction();
     }
 
-    if(Joystick::risingEdge(Joystick::Jid::Select))
+    if (Joystick::risingEdge(Joystick::Jid::Select))
     {
         okAction();
     }
-    else if(Joystick::risingEdge(Joystick::Jid::Exit))
+    else if (Joystick::risingEdge(Joystick::Jid::Exit))
     {
         exitAction();
     }
 
-    if(Joystick::risingEdge(Joystick::Jid::Screenshot))
+    if (Joystick::risingEdge(Joystick::Jid::Screenshot))
     {
         mustTakeScreenshot = true;
     }
 
-    if(touchDelay > 0.f)
+    if (touchDelay > 0.f)
     {
         touchDelay -= mFT;
     }
 
-    if(dialogBoxDelay > 0.f)
+    if (dialogBoxDelay > 0.f)
     {
         dialogBoxDelay -= mFT;
     }
 
-    if(difficultyBumpEffect > 0.f)
+    if (difficultyBumpEffect > 0.f)
     {
         difficultyBumpEffect -= mFT * 2.f;
     }
 
-    if(window.getFingerDownCount() == 1)
+    if (window.getFingerDownCount() == 1)
     {
         auto wThird{getWindowWidth() / 3.f};
         auto wLT{getWindowWidth() - wThird};
         auto hThird{getWindowHeight() / 3.f};
         auto hLT{getWindowHeight() - hThird};
 
-        for(const auto& p : window.getFingerDownPositions())
+        for (const auto& p : window.getFingerDownPositions())
         {
-            if(p.y > hThird && p.y < hLT)
+            if (p.y > hThird && p.y < hLT)
             {
-                if(p.x > 0.f && p.x < wThird)
+                if (p.x > 0.f && p.x < wThird)
                 {
                     leftAction();
                 }
-                else if(p.x < ssvu::toNum<int>(getWindowWidth()) && p.x > wLT)
+                else if (p.x < ssvu::toNum<int>(getWindowWidth()) && p.x > wLT)
                 {
                     rightAction();
                 }
-                else if(p.x > wThird && p.x < wLT)
+                else if (p.x > wThird && p.x < wLT)
                 {
                     okAction();
                 }
             }
             else
             {
-                if(p.y < hThird)
+                if (p.y < hThird)
                 {
                     upAction();
                 }
-                else if(p.y > hLT)
+                else if (p.y > hLT)
                 {
                     downAction();
                 }
@@ -2830,7 +2832,7 @@ void MenuGame::update(ssvu::FT mFT)
     overlayCamera.update(mFT);
     backgroundCamera.update(mFT);
 
-    if(getCurrentMenu() != nullptr)
+    if (getCurrentMenu() != nullptr)
     {
         getCurrentMenu()->update();
     }
@@ -2839,7 +2841,7 @@ void MenuGame::update(ssvu::FT mFT)
     creditsBar2.setTexture(assets.getTexture(
         ssvu::getByModIdx(creditsIds, ssvu::toInt(currentCreditsId / 100))));
 
-    if(exitTimer > 20)
+    if (exitTimer > 20)
     {
         window.stop();
     }
@@ -2847,12 +2849,12 @@ void MenuGame::update(ssvu::FT mFT)
     styleData.update(mFT);
     backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
 
-    if(isEnteringText())
+    if (isEnteringText())
     {
         constexpr unsigned int limit{18u};
-        for(auto& c : enteredChars)
+        for (auto& c : enteredChars)
         {
-            if(enteredStr.size() < limit &&
+            if (enteredStr.size() < limit &&
                 (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
             {
                 playSoundOverride("beep.ogg");
@@ -2862,14 +2864,14 @@ void MenuGame::update(ssvu::FT mFT)
     }
     enteredChars.clear();
 
-    switch(state)
+    switch (state)
     {
         case States::LoadingScreen: hexagonRotation += mFT / 100.f; break;
 
         case States::LevelSelection:
         {
             // Folding animation of the level list when we change pack.
-            switch(packChangeState)
+            switch (packChangeState)
             {
                 case PackChange::Rest: scrollLevelListToTargetY(mFT); break;
 
@@ -2883,7 +2885,7 @@ void MenuGame::update(ssvu::FT mFT)
                     // If needed scroll the level list offset to show the
                     // current level.
                     calcPackChangeScrollFold(listHeight);
-                    if(packChangeOffset < listHeight)
+                    if (packChangeOffset < listHeight)
                     {
                         break;
                     }
@@ -2906,7 +2908,7 @@ void MenuGame::update(ssvu::FT mFT)
                     // If needed scroll the level list offset to show the
                     // current level.
                     calcPackChangeScrollStretch(getLevelListHeight());
-                    if(packChangeOffset > 0.f)
+                    if (packChangeOffset > 0.f)
                     {
                         break;
                     }
@@ -2944,22 +2946,22 @@ void MenuGame::setIndex(const int mIdx)
 
     // If we are in the favorite menu we must find the packId relative
     // to the selected level.
-    if(isFavoriteLevels())
+    if (isFavoriteLevels())
     {
         isLevelFavorite = true;
 
         const auto& p{assets.getSelectablePackInfos()};
 
-        for(int i{0}; i < static_cast<int>(p.size()); ++i)
+        for (int i{0}; i < static_cast<int>(p.size()); ++i)
         {
-            if(levelData->packId == p.at(i).id)
+            if (levelData->packId == p.at(i).id)
             {
                 lvlDrawer->packIdx = i;
                 break;
             }
         }
     }
-    else if(!firstLevelSelection)
+    else if (!firstLevelSelection)
     {
         // setIndex() is called for the first time at a point
         // of the assets loading process where this call
@@ -2973,11 +2975,11 @@ void MenuGame::setIndex(const int mIdx)
     auto& colors{styleData.getColors()};
     menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255)
                                                : styleData.getTextColor();
-    if(ssvu::toInt(menuQuadColor.a) == 0 && !Config::getBlackAndWhite())
+    if (ssvu::toInt(menuQuadColor.a) == 0 && !Config::getBlackAndWhite())
     {
-        for(auto& c : colors)
+        for (auto& c : colors)
         {
-            if(ssvu::toInt(c.a) != 0)
+            if (ssvu::toInt(c.a) != 0)
             {
                 menuQuadColor = c;
                 break;
@@ -2991,7 +2993,7 @@ void MenuGame::setIndex(const int mIdx)
 
     // If there is only one color set the remaining colors
     // to be alpha variants of the ones we have already set.
-    if(colors.size() == 1)
+    if (colors.size() == 1)
     {
         menuTextColor.a = 255;
         menuSelectionColor = menuQuadColor;
@@ -3000,11 +3002,11 @@ void MenuGame::setIndex(const int mIdx)
     else
     {
         // If the alpha is 0 or the color is the same find another one.
-        if(ssvu::toInt(menuTextColor.a) == 0 || menuTextColor == menuQuadColor)
+        if (ssvu::toInt(menuTextColor.a) == 0 || menuTextColor == menuQuadColor)
         {
-            for(auto& c : colors)
+            for (auto& c : colors)
             {
-                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
+                if (ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
                     !Config::getBlackAndWhite())
                 {
                     menuTextColor = c;
@@ -3016,13 +3018,13 @@ void MenuGame::setIndex(const int mIdx)
         // Same as above.
         menuSelectionColor =
             Config::getBlackAndWhite() ? sf::Color::White : colors[1];
-        if(ssvu::toInt(menuSelectionColor.a) == 0 ||
+        if (ssvu::toInt(menuSelectionColor.a) == 0 ||
             menuSelectionColor == menuQuadColor ||
             menuSelectionColor == menuTextColor)
         {
-            for(auto& c : colors)
+            for (auto& c : colors)
             {
-                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
+                if (ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
                     c != menuTextColor && !Config::getBlackAndWhite())
                 {
                     menuSelectionColor = c;
@@ -3042,7 +3044,7 @@ void MenuGame::setIndex(const int mIdx)
 
     // Set gameplay values
     diffMultIdx = 0;
-    for(; levelData->difficultyMults.at(diffMultIdx) != 1.f; ++diffMultIdx)
+    for (; levelData->difficultyMults.at(diffMultIdx) != 1.f; ++diffMultIdx)
     {
     }
 
@@ -3052,7 +3054,7 @@ void MenuGame::setIndex(const int mIdx)
         Utils::runLuaFunctionIfExists<void>(lua, "onInit");
         Utils::runLuaFunctionIfExists<void>(lua, "onLoad");
     }
-    catch(std::runtime_error& mError)
+    catch (std::runtime_error& mError)
     {
         std::cout << "[MenuGame::init] Runtime Lua error on menu "
                      "(loadFile/onInit/onLoad) with level \""
@@ -3060,19 +3062,19 @@ void MenuGame::setIndex(const int mIdx)
                   << mError.what() << '\n'
                   << std::endl;
 
-        if(!Config::getDebug())
+        if (!Config::getDebug())
         {
             playSoundOverride("error.ogg");
         }
     }
-    catch(...)
+    catch (...)
     {
         std::cout << "[MenuGame::init] Unknown runtime Lua error on menu "
                      "(loadFile/onInit/onLoad) with level \""
                   << levelData->name << "\"\n"
                   << std::endl;
 
-        if(!Config::getDebug())
+        if (!Config::getDebug())
         {
             playSoundOverride("error.ogg");
         }
@@ -3081,7 +3083,7 @@ void MenuGame::setIndex(const int mIdx)
 
 void MenuGame::reloadAssets(const bool reloadEntirePack)
 {
-    if(state != States::LevelSelection || !dialogBox.empty() ||
+    if (state != States::LevelSelection || !dialogBox.empty() ||
         !Config::getDebug())
     {
         return;
@@ -3092,7 +3094,7 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
     // Do the necessary asset reload operation and get the log
     // of the results.
     std::string reloadOutput;
-    if(reloadEntirePack)
+    if (reloadEntirePack)
     {
         reloadOutput =
             assets.reloadPack(levelData->packId, levelData->packPath);
@@ -3157,7 +3159,7 @@ void MenuGame::refreshCamera()
     // Readjust the menu background skew and the indents
     fourByThree = 10.f * getWindowWidth() / getWindowHeight() < 16;
 
-    if(fourByThree)
+    if (fourByThree)
     {
         backgroundCamera.setSkew({1.f, 0.8f});
     }
@@ -3166,33 +3168,33 @@ void MenuGame::refreshCamera()
         backgroundCamera.setSkew({1.f, 0.6f});
     }
 
-    for(auto& c : mainMenu.getCategories())
+    for (auto& c : mainMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
 
-    for(auto& c : welcomeMenu.getCategories())
+    for (auto& c : welcomeMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
 
-    for(auto& c : optionsMenu.getCategories())
+    for (auto& c : optionsMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
 
-    for(auto& c : onlineMenu.getCategories())
+    for (auto& c : onlineMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
 
-    for(auto& c : profileSelectionMenu.getCategories())
+    for (auto& c : profileSelectionMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
 
     // Update the height infos of the fonts.
-    if(fourByThree)
+    if (fourByThree)
     {
         txtMenuBig.font.setCharacterSize(26);
         txtMenuTiny.font.setCharacterSize(9);
@@ -3224,11 +3226,11 @@ void MenuGame::refreshCamera()
     }
 
     // txtVersion and txtProfile are not in here cause they do not need it.
-    for(auto f : {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig,
-            &txtMenuTiny, &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
-            &txtInstructionsMedium, &txtInstructionsSmall, &txtEnteringText,
-            &txtSelectionBig, &txtSelectionMedium, &txtSelectionSmall,
-            &txtSelectionScore, &txtSelectionRanked})
+    for (auto f : {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig,
+             &txtMenuTiny, &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
+             &txtInstructionsMedium, &txtInstructionsSmall, &txtEnteringText,
+             &txtSelectionBig, &txtSelectionMedium, &txtSelectionSmall,
+             &txtSelectionScore, &txtSelectionRanked})
     {
         f->updateHeight();
     }
@@ -3238,7 +3240,7 @@ void MenuGame::refreshCamera()
 
     // Reformat the level description, but not on boot.
     // Otherwise the game crashes.
-    if(!firstLevelSelection)
+    if (!firstLevelSelection)
     {
         formatLevelDescription();
     }
@@ -3363,11 +3365,11 @@ void MenuGame::returnToLevelSelection()
 void MenuGame::refreshBinds()
 {
     // Keyboard-mouse
-    for(std::size_t i{0u}; i < Config::triggerGetters.size(); ++i)
+    for (std::size_t i{0u}; i < Config::triggerGetters.size(); ++i)
     {
         game.refreshTrigger(Config::triggerGetters[i](), i);
 
-        if(fnHGTriggerRefresh)
+        if (fnHGTriggerRefresh)
         {
             fnHGTriggerRefresh(Config::triggerGetters[i](), i);
         }
@@ -3381,7 +3383,7 @@ void MenuGame::setIgnoreAllInputs(const unsigned int presses)
 {
     ignoreInputs = presses;
 
-    if(ignoreInputs == 0)
+    if (ignoreInputs == 0)
     {
         game.ignoreAllInputs(false);
         Joystick::ignoreAllPresses(false);
@@ -3400,13 +3402,13 @@ void MenuGame::setIgnoreAllInputs(const unsigned int presses)
 
 void MenuGame::adjustMenuOffset(const bool resetMenuOffset)
 {
-    if(getCurrentMenu() == nullptr)
+    if (getCurrentMenu() == nullptr)
     {
         return;
     }
 
     // Set to 0 the offset of the whole submenu.
-    if(resetMenuOffset)
+    if (resetMenuOffset)
     {
         getCurrentMenu()->getCategory().getOffset() = 0.f;
     }
@@ -3414,7 +3416,7 @@ void MenuGame::adjustMenuOffset(const bool resetMenuOffset)
     // Set to 0 the offset of all elements except the one that is
     // currently selected.
     const auto& items{getCurrentMenu()->getItems()};
-    for(auto& i : items)
+    for (auto& i : items)
     {
         i->getOffset() = 0.f;
     }
@@ -3425,7 +3427,7 @@ void MenuGame::adjustMenuOffset(const bool resetMenuOffset)
 void MenuGame::adjustLevelsOffset()
 {
     // Set all level offsets to 0 except the currently selected one.
-    for(auto& offset : lvlSlct.lvlOffsets)
+    for (auto& offset : lvlSlct.lvlOffsets)
     {
         offset = 0.f;
     }
@@ -3433,12 +3435,12 @@ void MenuGame::adjustLevelsOffset()
     lvlSlct.lvlOffsets[lvlSlct.currentIndex] = maxOffset;
 
     // Do the same for the favorites menu but only if there are levels in it.
-    if(!favSlct.lvlOffsets.size())
+    if (!favSlct.lvlOffsets.size())
     {
         return;
     }
 
-    for(auto& offset : favSlct.lvlOffsets)
+    for (auto& offset : favSlct.lvlOffsets)
     {
         offset = 0.f;
     }
@@ -3456,22 +3458,22 @@ inline constexpr float offsetSnap{0.25f};
     // is being opened or closed.
 
     float speed;
-    if(revertOffset)
+    if (revertOffset)
     {
         // FPS consistent offset speed
         speed = (speedUp ? 12.f : 8.f) * offsetSpeed * getFPSMult();
 
         offset = std::max(offset - speed, 0.f);
-        if(offset <= offsetSnap)
+        if (offset <= offsetSnap)
         {
             offset = 0.f;
         }
     }
-    else if(offset < maxOffset)
+    else if (offset < maxOffset)
     {
         speed = (speedUp ? 12.f : 8.f) * offsetSpeed * getFPSMult();
         offset += speed * (1.f - offset / maxOffset);
-        if(offset >= maxOffset - offsetSnap)
+        if (offset >= maxOffset - offsetSnap)
         {
             offset = maxOffset;
         }
@@ -3484,23 +3486,23 @@ void MenuGame::calcMenuItemOffset(float& offset, bool selected)
 {
     // Same as above but for menu items that are selected and deselected.
     float speed;
-    if(selected)
+    if (selected)
     {
-        if(offset < maxOffset)
+        if (offset < maxOffset)
         {
             speed = offsetSpeed * getFPSMult();
             offset += speed * (1.f - offset / maxOffset);
-            if(offset >= maxOffset - offsetSnap)
+            if (offset >= maxOffset - offsetSnap)
             {
                 offset = maxOffset;
             }
         }
     }
-    else if(offset > 0.f)
+    else if (offset > 0.f)
     {
         speed = offsetSpeed * getFPSMult();
         offset -= 1.5f * speed * offset / maxOffset;
-        if(offset <= offsetSnap)
+        if (offset <= offsetSnap)
         {
             offset = 0.f;
         }
@@ -3526,7 +3528,7 @@ void MenuGame::createQuadTrapezoid(const sf::Color& color, const float x1,
 {
     sf::Vector2f nw, ne, se, sw;
 
-    if(left)
+    if (left)
     {
         nw = {x1, y1};
         ne = {x2, y1};
@@ -3547,7 +3549,7 @@ void MenuGame::createQuadTrapezoid(const sf::Color& color, const float x1,
 [[nodiscard]] std::pair<int, int> MenuGame::getScrollbarNotches(
     const int size, const int maxSize) const
 {
-    if(size > maxSize)
+    if (size > maxSize)
     {
         return {size - maxSize, maxSize};
     }
@@ -3578,13 +3580,13 @@ void MenuGame::drawMainSubmenus(
     const float indent)
 {
     bool currentlySelected, hasOffset;
-    for(auto& c : subMenus)
+    for (auto& c : subMenus)
     {
         currentlySelected = mainMenu.getCategory().getName() == c->getName();
         hasOffset = c->getOffset() != 0.f;
 
         // this submenu has been fully folded so there is no need to draw it.
-        if(!currentlySelected && !hasOffset)
+        if (!currentlySelected && !hasOffset)
         {
             continue;
         }
@@ -3598,10 +3600,10 @@ void MenuGame::drawSubmenusSmall(
     const float indent)
 {
     bool currentlySelected, hasOffset;
-    for(auto& c : subMenus)
+    for (auto& c : subMenus)
     {
         // Already drawn before this loop
-        if(c->getName() == "options")
+        if (c->getName() == "options")
         {
             continue;
         }
@@ -3610,7 +3612,7 @@ void MenuGame::drawSubmenusSmall(
         hasOffset = c->getOffset() != 0.f;
 
         // this submenu has been fully folded
-        if(!currentlySelected && !hasOffset)
+        if (!currentlySelected && !hasOffset)
         {
             continue;
         }
@@ -3644,7 +3646,7 @@ void MenuGame::setMouseCursorVisible(const bool x)
 {
     constexpr float tolerance = 1.f;
 
-    if(!isMouseCursorVisible() || !window.hasFocus())
+    if (!isMouseCursorVisible() || !window.hasFocus())
     {
         return false;
     }
@@ -3658,7 +3660,7 @@ void MenuGame::setMouseCursorVisible(const bool x)
 [[nodiscard]] bool MenuGame::overlayMouseOverlapAndUpdateHover(
     const sf::Vector2f& mins, const sf::Vector2f& maxs)
 {
-    if(overlayMouseOverlap(mins, maxs))
+    if (overlayMouseOverlap(mins, maxs))
     {
         mouseHovering = true;
         return true;
@@ -3670,7 +3672,7 @@ void MenuGame::setMouseCursorVisible(const bool x)
 [[nodiscard]] sf::Color MenuGame::mouseOverlapColor(
     const bool mouseOverlap, const sf::Color& c) const
 {
-    if(!mouseOverlap)
+    if (!mouseOverlap)
     {
         return c;
     }
@@ -3719,7 +3721,7 @@ void MenuGame::drawMainMenu(
     static std::vector<bool> mouseOverlaps;
     mouseOverlaps.resize(size);
 
-    for(int i{0}; i < size; ++i)
+    for (int i{0}; i < size; ++i)
     {
         calcMenuItemOffset(items[i]->getOffset(), i == mSubMenu.getIdx());
         indent = baseIndent - items[i]->getOffset();
@@ -3744,7 +3746,7 @@ void MenuGame::drawMainMenu(
             quadHeight + doubleBorder + txtMenuBig.height, false);
 
         // TODO (P2): cleanup mouse control
-        if(mouseOverlap && !mustUseMenuItem.has_value() &&
+        if (mouseOverlap && !mustUseMenuItem.has_value() &&
             mouseLeftRisingEdge() && items[i]->isEnabled())
         {
             mustUseMenuItem = i;
@@ -3756,7 +3758,7 @@ void MenuGame::drawMainMenu(
     render(menuQuads);
 
     // Draw the text on top of the quads
-    for(int i{0}; i < size; ++i)
+    for (int i{0}; i < size; ++i)
     {
         indent = baseIndent - items[i]->getOffset();
 
@@ -3806,13 +3808,13 @@ void MenuGame::drawOptionsSubmenus(
     std::string itemName;
     float txtHeight{
         quadHeight - txtMenuSmall.height * fontHeightOffset + doubleBorder};
-    for(int i{0}; i < size; ++i)
+    for (int i{0}; i < size; ++i)
     {
         SSVOH_ASSERT(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
 
         Utils::uppercasify(itemName);
-        if(i == mSubMenu.getIdx())
+        if (i == mSubMenu.getIdx())
         {
             itemName = "> " + itemName;
         }
@@ -3821,7 +3823,7 @@ void MenuGame::drawOptionsSubmenus(
             !items[i]->isEnabled() ? sf::Color{150, 150, 150, 255}
                                    : menuTextColor);
 
-        if(!items[i]->isEnabled())
+        if (!items[i]->isEnabled())
         {
             renderText("[OFFICIAL MODE ENABLED]", txtMenuTiny.font,
                 {ssvs::getGlobalRight(txtMenuSmall.font) + 6.f,
@@ -3836,18 +3838,18 @@ void MenuGame::drawOptionsSubmenus(
 std::string MenuGame::formatSurvivalTime(ProfileData* data)
 {
     int time{0};
-    for(auto& s : data->getScores())
+    for (auto& s : data->getScores())
     {
         time += s.second;
     }
 
     std::stringstream stream;
     stream << "Total survival time ";
-    if(time < 60)
+    if (time < 60)
     {
         stream << std::setfill('0') << std::setw(2) << time;
     }
-    else if(time < 3600)
+    else if (time < 3600)
     {
         stream << std::setfill('0') << std::setw(2) << time / 60 << ":"
                << std::setfill('0') << std::setw(2) << time % 60;
@@ -3886,7 +3888,7 @@ void MenuGame::drawProfileSelection(
     constexpr float profMinWidth{400.f};
     float textWidth{profMinWidth};
     std::string itemName;
-    for(auto& p : items)
+    for (auto& p : items)
     {
         itemName = p->getName();
         Utils::uppercasify(itemName);
@@ -3916,7 +3918,7 @@ void MenuGame::drawProfileSelection(
     const float instructionsWidth{
         ssvs::getGlobalWidth(txtInstructionsSmall.font)},
         resultIndent{indent + (textWidth - instructionsWidth) / 2.f};
-    if(resultIndent < 0.f)
+    if (resultIndent < 0.f)
     {
         indent += -resultIndent + 10.f;
     }
@@ -3947,7 +3949,7 @@ void MenuGame::drawProfileSelection(
 
     render(menuQuads);
 
-    if(scrollbarNotches != 0)
+    if (scrollbarNotches != 0)
     {
         drawScrollbar(totalHeight - 2.f * (profFrameSize + scrollbarInterspace),
             realSize, scrollbarNotches,
@@ -3960,7 +3962,7 @@ void MenuGame::drawProfileSelection(
     bool selected;
     ProfileData* data;
     txtHeight += profFrameSize / 2.f;
-    for(int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
+    for (int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
     {
         selected = i == mSubmenu.getIdx();
 
@@ -3975,7 +3977,7 @@ void MenuGame::drawProfileSelection(
 
         // Add total survival time for extra flavor
         data = assets.getLocalProfileByName(itemName);
-        if(data != nullptr)
+        if (data != nullptr)
         {
             yPos += (selected ? selectedFontHeight : fontHeight) * 1.75f;
             txtProfile.font.setCharacterSize(
@@ -4019,7 +4021,7 @@ void MenuGame::drawProfileSelectionBoot()
 
     const std::string instructions[] = {
         "SELECT LOCAL PROFILE", "PRESS ESC TO CREATE A NEW PROFILE"};
-    for(auto& s : instructions)
+    for (auto& s : instructions)
     {
         renderTextCentered(s, txtInstructionsBig.font, {w / 2.f, height});
         height += instructionsHeight;
@@ -4028,10 +4030,10 @@ void MenuGame::drawProfileSelectionBoot()
 
     // Draw scrollbar if needed
     std::string itemName;
-    if(scrollbarNotches != 0)
+    if (scrollbarNotches != 0)
     {
         float width = 0.f;
-        for(auto& p : items)
+        for (auto& p : items)
         {
             itemName = p->getName();
             Utils::uppercasify(itemName);
@@ -4051,7 +4053,7 @@ void MenuGame::drawProfileSelectionBoot()
     bool selected;
     float yPos;
     ProfileData* data;
-    for(int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
+    for (int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
     {
         selected = i == mSubmenu.getIdx();
 
@@ -4065,7 +4067,7 @@ void MenuGame::drawProfileSelectionBoot()
 
         // Add total survival time for extra flavor
         data = assets.getLocalProfileByName(itemName);
-        if(data != nullptr)
+        if (data != nullptr)
         {
             yPos += (selected ? selectedFontHeight : fontHeight) * 1.75f;
             txtProfile.font.setCharacterSize(
@@ -4126,7 +4128,7 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
     const float instructionsHeight{txtInstructionsMedium.height * 1.5f};
     txtHeight -= profFrameSize + instructionsHeight * 3.f;
     txtInstructionsMedium.font.setFillColor(menuQuadColor);
-    for(auto& s : instructions)
+    for (auto& s : instructions)
     {
         renderTextCenteredOffset(s, txtInstructionsMedium.font,
             {textWidth / 2.f, txtHeight}, indent);
@@ -4144,7 +4146,7 @@ void MenuGame::drawEnteringTextBoot()
     height -= instructionsHeight * 2.f;
     const std::string instructions[] = {
         "PROFILE CREATION", "PLEASE TYPE A NAME AND PRESS ENTER"};
-    for(auto& s : instructions)
+    for (auto& s : instructions)
     {
         renderTextCentered(s, txtInstructionsBig.font, {w / 2.f, height});
         height += instructionsHeight;
@@ -4167,7 +4169,7 @@ void MenuGame::drawLoadResults()
     menuQuads.clear();
 
     menuQuads.reserve_quad(6);
-    for(int i{0}; i < 6; ++i)
+    for (int i{0}; i < 6; ++i)
     {
         const float sAngle{div * 2.f * (i + hexagonRotation)};
 
@@ -4191,7 +4193,7 @@ void MenuGame::drawLoadResults()
     const float xOffset{w / 4.f};
     float topHeight{h / 2.f - h / 15.f}, bottomHeight{h / 2.f + h / 15.f};
 
-    for(int i{-1}; i < 2; ++i)
+    for (int i{-1}; i < 2; ++i)
     {
         createQuad(sf::Color::White, w / 2.f + i * xOffset - 5.f,
             w / 2.f + i * xOffset + 5.f, topHeight, bottomHeight);
@@ -4234,7 +4236,7 @@ void MenuGame::drawLoadResults()
 
     const float tipInterline{txtRandomTip.height * 1.5f};
     float height{h - tipInterline * 2.f};
-    for(int i{1}; i >= 0; --i) // all tips are on two lines
+    for (int i{1}; i >= 0; --i) // all tips are on two lines
     {
         renderTextCentered(std::string(randomTip[i]), txtRandomTip.font,
             {w / 2.f, height - tipInterline});
@@ -4253,7 +4255,7 @@ void MenuGame::drawLoadResults()
         {textOffset / 2.f, numbersHeight}, sf::Color::Red);
 
     // No error messages
-    if(!size)
+    if (!size)
     {
         bottomHeight += txtLoadSmall.height * 1.75f;
         renderTextCentered("NO LOAD ERRORS", txtLoadSmall.font,
@@ -4268,14 +4270,14 @@ void MenuGame::drawLoadResults()
     // But first handle the scrollbar
     auto [scrollbarNotches, drawnSize] =
         getScrollbarNotches(size, maxErrorsOnScreen);
-    if(scrollbarNotches != 0)
+    if (scrollbarNotches != 0)
     {
         drawScrollbar(txtSpacing * drawnSize, size, scrollbarNotches,
             w - 4.f - textToQuadBorder, bottomHeight + txtSpacing / 4.f,
             sf::Color::Red);
     }
 
-    for(int i{drawnSize - 1 + scrollbarOffset}; i > -1 + scrollbarOffset; --i)
+    for (int i{drawnSize - 1 + scrollbarOffset}; i > -1 + scrollbarOffset; --i)
     {
         renderTextCentered(loadInfo.errorMessages[i], txtLoadSmall.font,
             {w / 2.f, bottomHeight});
@@ -4339,7 +4341,7 @@ void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
 
     // If the text is already within border format and return
     border -= keyWidth;
-    if(ssvs::getGlobalWidth(font) <= border)
+    if (ssvs::getGlobalWidth(font) <= border)
     {
         text = key + text;
         return;
@@ -4348,7 +4350,7 @@ void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
     // Scroll the name and shrink it to the required length
     scrollName(text, scroller);
     font.setString(text);
-    while(ssvs::getGlobalWidth(font) > border && text.length() > 1)
+    while (ssvs::getGlobalWidth(font) > border && text.length() > 1)
     {
         text.pop_back();
         font.setString(text);
@@ -4362,14 +4364,14 @@ void MenuGame::scrollNameRightBorder(
     Utils::uppercasify(text);
     font.setString(text);
 
-    if(ssvs::getGlobalWidth(font) <= border)
+    if (ssvs::getGlobalWidth(font) <= border)
     {
         return;
     }
 
     scrollName(text, scroller);
     font.setString(text);
-    while(ssvs::getGlobalWidth(font) > border && text.length() > 1)
+    while (ssvs::getGlobalWidth(font) > border && text.length() > 1)
     {
         text.pop_back();
         font.setString(text);
@@ -4403,11 +4405,11 @@ void MenuGame::calcLevelChangeScroll(const int dir)
     const int actualPackIdx{isFavoriteLevels() ? 0 : lvlDrawer->packIdx};
     float scroll;
 
-    if(dir < 0)
+    if (dir < 0)
     {
         // If we are approaching the top of the pack show either the first
         // level label and the next pack label or two previous pack labels.
-        if(lvlDrawer->currentIndex < 2)
+        if (lvlDrawer->currentIndex < 2)
         {
             scroll = packLabelHeight *
                      (actualPackIdx + 1 - (2 - lvlDrawer->currentIndex));
@@ -4428,7 +4430,7 @@ void MenuGame::calcLevelChangeScroll(const int dir)
     const int size{static_cast<int>(lvlDrawer->levelDataIds->size())};
     // If we are approaching the bottom of the pack show either the
     // last level label and the next pack label or two next pack labels...
-    if(lvlDrawer->currentIndex >= size - 2 &&
+    if (lvlDrawer->currentIndex >= size - 2 &&
         actualPackIdx != static_cast<int>(getSelectablePackInfosSize()) - 1)
     {
         scroll =
@@ -4452,7 +4454,7 @@ void MenuGame::calcLevelChangeScroll(const int dir)
 
 void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
 {
-    if(packChangeDirection == -2)
+    if (packChangeDirection == -2)
     {
         return;
     }
@@ -4479,11 +4481,11 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
     std::function<void(const float)> action{[this](const float target)
         { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }};
 
-    if(packChangeDirection == -2)
+    if (packChangeDirection == -2)
     {
         // The last pack does not have a "next pack", therefore it gets a
         // special treatement, which comes after this if statement.
-        if(lvlDrawer->packIdx !=
+        if (lvlDrawer->packIdx !=
             static_cast<int>(getSelectablePackInfosSize()) - 1)
         {
             // Height of the top of the pack label of the current pack.
@@ -4502,7 +4504,7 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
             std::function<void(const float)> specialAction{
                 [this, action, scrollTop, mLevelListHeight](const float target)
                 {
-                    if(scrollTop < -lvlDrawer->YOffset)
+                    if (scrollTop < -lvlDrawer->YOffset)
                     {
                         packChangeOffset = 0.f;
                         action(h - (scrollTop +
@@ -4514,7 +4516,7 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
                 }};
 
             // The bottom must prevail.
-            if(!checkWindowBottomScrollWithResult(scrollBottom, specialAction))
+            if (!checkWindowBottomScrollWithResult(scrollBottom, specialAction))
             {
                 checkWindowTopScroll(scrollTop, action);
             }
@@ -4530,7 +4532,7 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
             scrollTop + std::max(0.f, mLevelListHeight - packChangeOffset);
 
         // The bottom must prevail.
-        if(!checkWindowBottomScrollWithResult(scrollBottom, action))
+        if (!checkWindowBottomScrollWithResult(scrollBottom, action))
         {
             checkWindowTopScroll(scrollTop, action);
         }
@@ -4567,15 +4569,15 @@ void MenuGame::quickPackFoldStretch()
 
 void MenuGame::scrollLevelListToTargetY(ssvu::FT mFT)
 {
-    if(std::abs(lvlDrawer->YOffset - lvlDrawer->YScrollTo) <= Utils::epsilon)
+    if (std::abs(lvlDrawer->YOffset - lvlDrawer->YScrollTo) <= Utils::epsilon)
     {
         return;
     }
 
-    if(lvlDrawer->YOffset < lvlDrawer->YScrollTo)
+    if (lvlDrawer->YOffset < lvlDrawer->YScrollTo)
     {
         lvlDrawer->YOffset += mFT * scrollSpeed;
-        if(lvlDrawer->YOffset >= lvlDrawer->YScrollTo)
+        if (lvlDrawer->YOffset >= lvlDrawer->YScrollTo)
         {
             lvlDrawer->YOffset = lvlDrawer->YScrollTo;
         }
@@ -4583,7 +4585,7 @@ void MenuGame::scrollLevelListToTargetY(ssvu::FT mFT)
     }
 
     lvlDrawer->YOffset -= mFT * scrollSpeed;
-    if(lvlDrawer->YOffset <= lvlDrawer->YScrollTo)
+    if (lvlDrawer->YOffset <= lvlDrawer->YScrollTo)
     {
         lvlDrawer->YOffset = lvlDrawer->YScrollTo;
     }
@@ -4595,7 +4597,7 @@ void MenuGame::checkWindowTopScroll(
     const float scroll, std::function<void(const float)> action)
 {
     const float target{-scroll};
-    if(target <= lvlDrawer->YOffset)
+    if (target <= lvlDrawer->YOffset)
     {
         return;
     }
@@ -4607,7 +4609,7 @@ bool MenuGame::checkWindowTopScrollWithResult(
     const float scroll, std::function<void(const float)> action)
 {
     const float target{-scroll};
-    if(target <= lvlDrawer->YOffset)
+    if (target <= lvlDrawer->YOffset)
     {
         return false;
     }
@@ -4620,7 +4622,7 @@ void MenuGame::checkWindowBottomScroll(
     const float scroll, std::function<void(const float)> action)
 {
     const float target{h - scroll};
-    if(target >= lvlDrawer->YOffset)
+    if (target >= lvlDrawer->YOffset)
     {
         return;
     }
@@ -4632,7 +4634,7 @@ bool MenuGame::checkWindowBottomScrollWithResult(
     const float scroll, std::function<void(const float)> action)
 {
     const float target{h - scroll};
-    if(target >= lvlDrawer->YOffset)
+    if (target >= lvlDrawer->YOffset)
     {
         return false;
     }
@@ -4643,7 +4645,7 @@ bool MenuGame::checkWindowBottomScrollWithResult(
 
 void MenuGame::resetNamesScrolls()
 {
-    for(int i{0}; i < static_cast<int>(Label::ScrollsSize); ++i)
+    for (int i{0}; i < static_cast<int>(Label::ScrollsSize); ++i)
     {
         namesScroll[i] = 0;
     }
@@ -4653,8 +4655,8 @@ void MenuGame::resetLevelNamesScrolls()
 {
     // Reset all scrolls except the ones relative to the pack.
     namesScroll[static_cast<int>(Label::LevelName)] = 0.f;
-    for(int i = static_cast<int>(Label::MusicName);
-        i < static_cast<int>(Label::ScrollsSize); ++i)
+    for (int i = static_cast<int>(Label::MusicName);
+         i < static_cast<int>(Label::ScrollsSize); ++i)
     {
         namesScroll[i] = 0.f;
     }
@@ -4680,7 +4682,7 @@ void MenuGame::formatLevelDescription()
                         lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))
                     .description;
 
-        if(desc.empty())
+        if (desc.empty())
         {
             return;
         }
@@ -4690,15 +4692,15 @@ void MenuGame::formatLevelDescription()
         // Split description into words.
         desc += '\n'; // Add a safety newline
 
-        for(std::size_t i{0}, j{0}; i < desc.size(); ++i)
+        for (std::size_t i{0}, j{0}; i < desc.size(); ++i)
         {
-            if(desc[i] == '\n')
+            if (desc[i] == '\n')
             {
                 words.emplace_back(
                     desc.substr(j, i - j + 1)); // include newline.
                 j = i + 1;
             }
-            else if(desc[i] == ' ')
+            else if (desc[i] == ' ')
             {
                 words.emplace_back(desc.substr(j, i - j));
                 j = i + 1; // skip the space.
@@ -4711,10 +4713,10 @@ void MenuGame::formatLevelDescription()
     const float maxWidth{getMaximumTextWidth()};
     std::string candidate;
     std::string temp;
-    for(std::size_t i{0};
-        i < words.size() && levelDescription.size() < descLines; ++i)
+    for (std::size_t i{0};
+         i < words.size() && levelDescription.size() < descLines; ++i)
     {
-        if(!candidate.empty())
+        if (!candidate.empty())
         {
             temp = " " + words[i];
             txtSelectionSmall.font.setString(candidate + temp);
@@ -4726,10 +4728,10 @@ void MenuGame::formatLevelDescription()
         }
 
         // If last character is a newline...
-        if(!temp.empty() && temp[temp.size() - 1] == '\n')
+        if (!temp.empty() && temp[temp.size() - 1] == '\n')
         {
             // ...if it all fits add to the vector as a single line...
-            if(ssvs::getGlobalWidth(txtSelectionSmall.font) < maxWidth)
+            if (ssvs::getGlobalWidth(txtSelectionSmall.font) < maxWidth)
             {
                 candidate += temp;
                 levelDescription.push_back(candidate);
@@ -4739,7 +4741,7 @@ void MenuGame::formatLevelDescription()
                 // ...otherwise add "candidate" to the vector and add the new
                 // word on its own.
                 levelDescription.push_back(candidate);
-                if(levelDescription.size() < descLines)
+                if (levelDescription.size() < descLines)
                 {
                     levelDescription.push_back(words[i]);
                 }
@@ -4749,7 +4751,7 @@ void MenuGame::formatLevelDescription()
         }
 
         // If there is no newline check if the line fits...
-        if(ssvs::getGlobalWidth(txtSelectionSmall.font) < maxWidth)
+        if (ssvs::getGlobalWidth(txtSelectionSmall.font) < maxWidth)
         {
             candidate += temp;
             continue;
@@ -4762,7 +4764,7 @@ void MenuGame::formatLevelDescription()
     }
 
     // Add whatever is left if it fits.
-    if(levelDescription.size() < descLines)
+    if (levelDescription.size() < descLines)
     {
         levelDescription.push_back(candidate);
     }
@@ -4775,7 +4777,7 @@ void MenuGame::changeFavoriteLevelsToProfile()
 
     favoriteLevelDataIds.clear();
 
-    for(const std::string& id :
+    for (const std::string& id :
         assets.getCurrentLocalProfile().getFavoriteLevelIds())
     {
         favoriteLevelDataIds.push_back(id);
@@ -4792,7 +4794,7 @@ void MenuGame::changeFavoriteLevelsToProfile()
 
     // If the new current profile has no favorites force the level selection
     // to use the regular drawer.
-    if(sz == 0)
+    if (sz == 0)
     {
         lvlDrawer = &lvlSlct;
         return;
@@ -4830,7 +4832,7 @@ void MenuGame::addRemoveFavoriteLevel()
     const std::string levelID{data.packId + "_" + data.id};
 
     // Level is a favorite so remove it.
-    if(isLevelFavorite)
+    if (isLevelFavorite)
     {
         assets.getCurrentLocalProfile().removeFavoriteLevel(levelID);
         favoriteLevelDataIds.erase(std::find(
@@ -4838,7 +4840,7 @@ void MenuGame::addRemoveFavoriteLevel()
         favSlct.lvlOffsets.pop_back();
 
         // Make sure the index is within bounds.
-        if(!favSlct.levelDataIds->empty())
+        if (!favSlct.levelDataIds->empty())
         {
             ssvu::clamp(favSlct.currentIndex, 0,
                 static_cast<int>(favSlct.levelDataIds->size()) - 1);
@@ -4848,7 +4850,7 @@ void MenuGame::addRemoveFavoriteLevel()
             favSlct.currentIndex = 0;
         }
 
-        if(isFavoriteLevels())
+        if (isFavoriteLevels())
         {
             adjustLevelsOffset();
         }
@@ -4856,7 +4858,7 @@ void MenuGame::addRemoveFavoriteLevel()
         // If the favorite levels vector is empty
         // after the removal force exit from the
         // favorites menu.
-        if(favSlct.levelDataIds->empty())
+        if (favSlct.levelDataIds->empty())
         {
             favSlct.XOffset = 0.f; // this way the menu is not drawn anymore.
             lvlDrawer = &lvlSlct;
@@ -4869,7 +4871,7 @@ void MenuGame::addRemoveFavoriteLevel()
             const float scroll{
                 h - (packLabelHeight + 2.f * slctFrameSize +
                         levelLabelHeight * favSlct.levelDataIds->size())};
-            if(scroll > lvlDrawer->YOffset)
+            if (scroll > lvlDrawer->YOffset)
             {
                 favSlct.YOffset = favSlct.YScrollTo = scroll;
             }
@@ -4892,10 +4894,10 @@ void MenuGame::addRemoveFavoriteLevel()
             ssvu::toLower(assets.getLevelData(levelID).name)};
 
         std::string tweakedLevelName;
-        while(it != end)
+        while (it != end)
         {
             tweakedLevelName = ssvu::toLower(assets.getLevelData(*it).name);
-            if(tweakedLevelName > tweakedFavName)
+            if (tweakedLevelName > tweakedFavName)
             {
                 break;
             }
@@ -4903,7 +4905,7 @@ void MenuGame::addRemoveFavoriteLevel()
             ++it;
         }
 
-        if(it == end)
+        if (it == end)
         {
             favoriteLevelDataIds.emplace_back(levelID);
         }
@@ -4922,13 +4924,13 @@ void MenuGame::addRemoveFavoriteLevel()
 
 void MenuGame::switchToFromFavoriteLevels()
 {
-    if(state != States::LevelSelection || favSlct.levelDataIds->empty())
+    if (state != States::LevelSelection || favSlct.levelDataIds->empty())
     {
         return;
     }
 
     // Quickly finish any ongoing pack changes.
-    if(packChangeState == PackChange::Folding)
+    if (packChangeState == PackChange::Folding)
     {
         changePack();
     }
@@ -4959,7 +4961,7 @@ void MenuGame::drawLevelSelectionRightSide(
 
     const auto& infos{assets.getSelectablePackInfos()};
     int packsSize, levelsSize;
-    if(drawer.isFavorites)
+    if (drawer.isFavorites)
     {
         levelsSize = drawer.levelDataIds->size();
         packsSize = 1;
@@ -4997,7 +4999,7 @@ void MenuGame::drawLevelSelectionRightSide(
     height = packLabelHeight * (isFavoriteLevels() ? 1 : drawer.packIdx + 1) +
              slctFrameSize - packChangeOffset + drawer.YOffset;
 
-    for(i = 0; i < levelsSize; ++i)
+    for (i = 0; i < levelsSize; ++i)
     {
         //-------------------------------------
         // Quads
@@ -5005,7 +5007,7 @@ void MenuGame::drawLevelSelectionRightSide(
         menuQuads.reserve_quad(3);
 
         // If the list is folding give all level labels the same alignment
-        if(packChangeState != PackChange::Rest)
+        if (packChangeState != PackChange::Rest)
         {
             drawer.lvlOffsets[i] = 0.f;
         }
@@ -5015,13 +5017,13 @@ void MenuGame::drawLevelSelectionRightSide(
         }
 
         float indent = quadsIndent + panelOffset;
-        if(!focusHeld)
+        if (!focusHeld)
         {
             indent -= drawer.lvlOffsets[i];
         }
 
         // Top frame
-        if(i > 0 && drawer.lvlOffsets[i - 1] > drawer.lvlOffsets[i])
+        if (i > 0 && drawer.lvlOffsets[i - 1] > drawer.lvlOffsets[i])
         {
             createQuad(menuQuadColor, prevLevelIndent, w, height,
                 height + slctFrameSize);
@@ -5051,14 +5053,14 @@ void MenuGame::drawLevelSelectionRightSide(
         createQuad(mouseOverlapColor(mouseOverlap, c), bodyMins, bodyMaxs);
 
         // TODO (P2): cleanup mouse control
-        if(mouseOverlap && mouseLeftRisingEdge())
+        if (mouseOverlap && mouseLeftRisingEdge())
         {
-            if(!mustPlay && HRClock::now() - lastMouseClick <
-                                std::chrono::milliseconds(160))
+            if (!mustPlay && HRClock::now() - lastMouseClick <
+                                 std::chrono::milliseconds(160))
             {
                 mustPlay = true;
             }
-            else if(!mustChangeIndexTo.has_value())
+            else if (!mustChangeIndexTo.has_value())
             {
                 mustChangeIndexTo = i;
             }
@@ -5071,7 +5073,7 @@ void MenuGame::drawLevelSelectionRightSide(
         // Level data
         const LevelData* const levelData{
             &assets.getLevelData(drawer.levelDataIds->at(i))};
-        if(levelData == nullptr)
+        if (levelData == nullptr)
         {
             continue;
         }
@@ -5080,7 +5082,7 @@ void MenuGame::drawLevelSelectionRightSide(
         // Level name
 
         indent = levelIndent + panelOffset;
-        if(!focusHeld)
+        if (!focusHeld)
         {
             indent -= drawer.lvlOffsets[i];
         }
@@ -5098,7 +5100,7 @@ void MenuGame::drawLevelSelectionRightSide(
         renderText(tempString, txtSelectionBig.font,
             {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
 
-        if(!levelData->unscored &&
+        if (!levelData->unscored &&
             hexagonClient.isLevelSupportedByServer(levelValidator))
         {
             const float padding = 5.f;
@@ -5145,7 +5147,7 @@ void MenuGame::drawLevelSelectionRightSide(
 
     height += slctFrameSize;
     i = ssvu::getMod(drawer.packIdx + 1, packsSize);
-    if(i == 0)
+    if (i == 0)
     {
         height = drawer.YOffset;
     }
@@ -5176,7 +5178,7 @@ void MenuGame::drawLevelSelectionRightSide(
             mouseOverlapColor(mouseOverlap, menuQuadColor), bodyMins, bodyMaxs);
 
         // TODO (P2): cleanup mouse control
-        if(mouseOverlap && !mustChangePackIndexTo.has_value() &&
+        if (mouseOverlap && !mustChangePackIndexTo.has_value() &&
             mouseLeftRisingEdge())
         {
             mustChangePackIndexTo = i;
@@ -5185,7 +5187,7 @@ void MenuGame::drawLevelSelectionRightSide(
         render(menuQuads);
 
         // Name & >
-        if(drawer.isFavorites)
+        if (drawer.isFavorites)
         {
             tempString = "FAVORITES";
         }
@@ -5215,7 +5217,7 @@ void MenuGame::drawLevelSelectionRightSide(
         menuQuads.clear();
         menuQuads.reserve_quad(2);
 
-        if(i == drawer.packIdx)
+        if (i == drawer.packIdx)
         {
             // Draw > pointing downward, coordinates look a bit complicated
             // cause it's aligned with the middle point of the regular > arrows
@@ -5285,18 +5287,18 @@ void MenuGame::drawLevelSelectionRightSide(
         }
 
         i = ssvu::getMod(i + 1, packsSize);
-        if(i == 0)
+        if (i == 0)
         {
             height = drawer.YOffset;
         }
     }
-    while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
+    while (i != ssvu::getMod(drawer.packIdx + 1, packsSize));
 }
 
 void MenuGame::drawLevelSelectionLeftSide(
     LevelDrawer& drawer, const bool revertOffset)
 {
-    if(currentPack == nullptr)
+    if (currentPack == nullptr)
     {
         return;
     }
@@ -5344,14 +5346,14 @@ void MenuGame::drawLevelSelectionLeftSide(
               txtSelectionSmall.height * 0.7f;
 
     int i;
-    for(i = 0; i < static_cast<int>(levelDescription.size()); ++i)
+    for (i = 0; i < static_cast<int>(levelDescription.size()); ++i)
     {
         renderText(
             levelDescription[i], txtSelectionSmall.font, {textXPos, height});
         height +=
             i == descLines - 1 ? txtSelectionSmall.height : smallInterline;
     }
-    if(i != descLines)
+    if (i != descLines)
     {
         height += smallInterline * std::max(0, descLines - 1 - i) +
                   txtSelectionSmall.height;
@@ -5514,7 +5516,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         bodyMaxs);
 
     // TODO (P2): cleanup mouse control
-    if(mouseOverlap && !mustFavorite && mouseLeftRisingEdge())
+    if (mouseOverlap && !mustFavorite && mouseLeftRisingEdge())
     {
         mustFavorite = true;
     }
@@ -5544,7 +5546,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     const auto currentDiffMult = levelData.getNthDiffMult(diffMultIdx);
 
-    if(levelData.unscored)
+    if (levelData.unscored)
     {
         renderText("N/A", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
@@ -5586,7 +5588,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     const std::string& levelValidator = levelData.getValidator(currentDiffMult);
 
-    if(!levelData.unscored &&
+    if (!levelData.unscored &&
         hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready &&
         hexagonClient.isLevelSupportedByServer(levelValidator) &&
         leaderboardCache->shouldRequestScores(levelValidator))
@@ -5597,27 +5599,27 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     const bool gotScoreInfo = leaderboardCache->hasInformation(levelValidator);
 
-    if(levelData.unscored)
+    if (levelData.unscored)
     {
         renderText("LEADERBOARD DISABLED FOR THIS LEVEL",
             txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }
-    else if(hexagonClient.getState() != HexagonClient::State::LoggedIn_Ready)
+    else if (hexagonClient.getState() != HexagonClient::State::LoggedIn_Ready)
     {
         renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }
-    else if(!hexagonClient.isLevelSupportedByServer(levelValidator))
+    else if (!hexagonClient.isLevelSupportedByServer(levelValidator))
     {
         renderText("THIS LEVEL IS NOT SUPPORTED BY THE SERVER",
             txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }
-    else if(!gotScoreInfo)
+    else if (!gotScoreInfo)
     {
         renderText("...", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
@@ -5648,7 +5650,7 @@ void MenuGame::drawLevelSelectionLeftSide(
             std::string scoreStr = ssvu::toStr(score) + 's';
 
             std::string playerStr = userName;
-            if(playerStr.size() > 19)
+            if (playerStr.size() > 19)
             {
                 playerStr.resize(16);
                 playerStr += "...";
@@ -5672,14 +5674,14 @@ void MenuGame::drawLevelSelectionLeftSide(
                       txtSelectionSmall.height + 10.f;
         };
 
-        if(gotScoreInfo)
+        if (gotScoreInfo)
         {
             const auto scores = leaderboardCache->getScores(levelValidator);
 
-            if(!scores.empty())
+            if (!scores.empty())
             {
                 int index = 0;
-                for(const Database::ProcessedScore& ps : scores)
+                for (const Database::ProcessedScore& ps : scores)
                 {
                     drawEntry(
                         index, ps.userName, ps.scoreTimestamp, ps.scoreValue);
@@ -5713,12 +5715,12 @@ void MenuGame::drawLevelSelectionLeftSide(
 
         height += txtSelectionSmall.height * 2.f + 5.f;
 
-        if(gotScoreInfo)
+        if (gotScoreInfo)
         {
             const auto* ownScore =
                 leaderboardCache->getOwnScore(levelValidator);
 
-            if(ownScore == nullptr)
+            if (ownScore == nullptr)
             {
                 const float tx = textToQuadBorder - panelOffset;
                 const float ty =
@@ -5745,7 +5747,7 @@ void MenuGame::draw()
     mousePressed = (ignoreInputs == 0) &&
                    sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
-    if(mustRefresh)
+    if (mustRefresh)
     {
         mustRefresh = false;
 
@@ -5763,7 +5765,7 @@ void MenuGame::draw()
     const bool mainOrAbove{state >= States::SMain};
 
     // Only draw the hexagon background past the loading screens.
-    if(mainOrAbove)
+    if (mainOrAbove)
     {
         menuBackgroundTris.clear();
 
@@ -5779,7 +5781,7 @@ void MenuGame::draw()
     window.setView(overlayCamera.apply());
 
     // Draw the profile name.
-    if(mainOrAbove && state != States::LevelSelection)
+    if (mainOrAbove && state != States::LevelSelection)
     {
         strBuf.clear();
         strBuf += "CURRENT PROFILE: ";
@@ -5787,11 +5789,11 @@ void MenuGame::draw()
 
         const auto& pwmd = assets.getPackIdsWithMissingDependencies();
 
-        if(!pwmd.empty())
+        if (!pwmd.empty())
         {
             strBuf += "\n\nWARNING - PACKS WITH MISSING DEPENDENCIES:";
 
-            for(const auto& p : pwmd)
+            for (const auto& p : pwmd)
             {
                 strBuf += "\n    ";
                 strBuf += p;
@@ -5806,14 +5808,14 @@ void MenuGame::draw()
 
     float indentBig{400.f}, indentSmall{540.f}, profileIndent{-100.f};
     // We need different values to fit menus in 4:3
-    if(fourByThree)
+    if (fourByThree)
     {
         indentBig = 280.f;
         indentSmall = 410.f;
         profileIndent = -75.f;
     }
 
-    switch(state)
+    switch (state)
     {
         case States::LoadingScreen:
             drawLoadResults();
@@ -5839,23 +5841,23 @@ void MenuGame::draw()
 
         case States::SMain:
             // Fold previous menus
-            if(optionsMenu.getCategory().getOffset() != 0.f)
+            if (optionsMenu.getCategory().getOffset() != 0.f)
             {
                 drawMainMenu(optionsMenu.getCategoryByName("options"),
                     w - indentBig, true);
             }
 
-            if(profileSelectionMenu.getCategory().getOffset() != 0.f)
+            if (profileSelectionMenu.getCategory().getOffset() != 0.f)
             {
                 drawProfileSelection(profileIndent, true);
             }
 
-            if(enteringTextOffset != 0.f)
+            if (enteringTextOffset != 0.f)
             {
                 drawEnteringText(profileIndent, true);
             }
 
-            if(levelDetailsOffset != 0.f)
+            if (levelDetailsOffset != 0.f)
             {
                 drawLevelSelectionRightSide(*lvlDrawer, true);
                 drawLevelSelectionLeftSide(*lvlDrawer, true);
@@ -5869,7 +5871,7 @@ void MenuGame::draw()
 
         case States::MOpts:
             // fold the main menu
-            if(mainMenu.getCategory().getOffset() != 0.f)
+            if (mainMenu.getCategory().getOffset() != 0.f)
             {
                 drawMainMenu(
                     mainMenu.getCategoryByName("main"), w - indentBig, true);
@@ -5887,7 +5889,7 @@ void MenuGame::draw()
 
         case States::MOnline:
             // fold the main menu
-            if(mainMenu.getCategory().getOffset() != 0.f)
+            if (mainMenu.getCategory().getOffset() != 0.f)
             {
                 drawMainMenu(
                     mainMenu.getCategoryByName("main"), w - indentBig, true);
@@ -5919,16 +5921,16 @@ void MenuGame::draw()
 
         case States::LevelSelection:
             // fold the main menu
-            if(mainMenu.getCategory().getOffset() != 0.f)
+            if (mainMenu.getCategory().getOffset() != 0.f)
             {
                 drawMainMenu(
                     mainMenu.getCategoryByName("main"), w - indentBig, true);
             }
 
-            if(isFavoriteLevels())
+            if (isFavoriteLevels())
             {
                 drawLevelSelectionRightSide(favSlct, false);
-                if(lvlSlct.XOffset != 0.f)
+                if (lvlSlct.XOffset != 0.f)
                 {
                     drawLevelSelectionRightSide(lvlSlct, true);
                 }
@@ -5936,7 +5938,7 @@ void MenuGame::draw()
             else
             {
                 drawLevelSelectionRightSide(lvlSlct, false);
-                if(favSlct.XOffset != 0.f)
+                if (favSlct.XOffset != 0.f)
                 {
                     drawLevelSelectionRightSide(favSlct, true);
                 }
@@ -5949,19 +5951,19 @@ void MenuGame::draw()
         default: break;
     }
 
-    if(mustTakeScreenshot)
+    if (mustTakeScreenshot)
     {
         window.saveScreenshot("screenshot.png");
         mustTakeScreenshot = false;
     }
 
-    if(!dialogBox.empty())
+    if (!dialogBox.empty())
     {
         window.setView(overlayCamera.apply());
         dialogBox.draw(dialogBoxTextColor, styleData.getColor(0));
     }
 
-    if(!mouseWasPressed && mousePressed)
+    if (!mouseWasPressed && mousePressed)
     {
         lastMouseClick = HRClock::now();
     }
@@ -6002,7 +6004,7 @@ void MenuGame::drawOnlineStatus()
 
     const auto [stateGood, stateString] = [&]() -> std::tuple<bool, std::string>
     {
-        switch(state)
+        switch (state)
         {
             case HexagonClient::State::Disconnected:
             {
@@ -6026,7 +6028,7 @@ void MenuGame::drawOnlineStatus()
 
             case HexagonClient::State::Connected:
             {
-                if(hexagonClient.hasRTKeys())
+                if (hexagonClient.hasRTKeys())
                 {
                     return {true, "CONNECTED, PLEASE LOG IN"};
                 }
@@ -6039,7 +6041,7 @@ void MenuGame::drawOnlineStatus()
             case HexagonClient::State::LoggedIn: [[fallthrough]];
             case HexagonClient::State::LoggedIn_Ready:
             {
-                if(Config::getSaveLastLoginUsername() &&
+                if (Config::getSaveLastLoginUsername() &&
                     hexagonClient.getLoginName().has_value())
                 {
                     // Save last login username for quicker login next time.
@@ -6063,7 +6065,7 @@ void MenuGame::drawOnlineStatus()
 
     txtOnlineStatus.setString(stateString);
 
-    if(stateGood)
+    if (stateGood)
     {
         sOnline.setTexture(assets.getTexture("onlineIcon.png"));
     }
@@ -6119,7 +6121,7 @@ void MenuGame::showInputDialogBoxNiceWithDefault(const std::string& title,
 {
     strBuf.clear();
 
-    if(extra.empty())
+    if (extra.empty())
     {
         strBuf += Utils::concat(title, "\n\nPLEASE INSERT ", inputType,
             "\n\nCONFIRM WITH [ENTER]\nCANCEL WITH [ESCAPE]\n");

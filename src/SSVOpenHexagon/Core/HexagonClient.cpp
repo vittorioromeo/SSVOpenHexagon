@@ -31,7 +31,7 @@ static auto& clog(const char* funcName)
 #define SSVOH_CLOG ::clog(__func__)
 
 #define SSVOH_CLOG_VERBOSE \
-    if(_verbose) ::clog(__func__)
+    if (_verbose) ::clog(__func__)
 
 #define SSVOH_CLOG_ERROR ::clog(__func__) << "[ERROR] "
 
@@ -42,7 +42,7 @@ namespace hg {
 template <typename... Ts>
 [[nodiscard]] bool HexagonClient::fail(const Ts&... xs)
 {
-    if constexpr(sizeof...(Ts) > 0)
+    if constexpr (sizeof...(Ts) > 0)
     {
         auto& stream = SSVOH_CLOG_ERROR;
         (stream << ... << xs);
@@ -57,19 +57,19 @@ template <typename... Ts>
     SSVOH_CLOG << "Waiting for Steam ID validation...\n";
 
     int tries = 0;
-    while(!_steamManager.got_encrypted_app_ticket_response())
+    while (!_steamManager.got_encrypted_app_ticket_response())
     {
         _steamManager.run_callbacks();
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         ++tries;
 
-        if(tries > 15)
+        if (tries > 15)
         {
             return fail("Never got Steam ID validation response");
         }
     }
 
-    if(!_steamManager.got_encrypted_app_ticket())
+    if (!_steamManager.got_encrypted_app_ticket())
     {
         return fail("Never got valid Steam encrypted app ticket");
     }
@@ -77,7 +77,7 @@ template <typename... Ts>
     const std::optional<std::uint64_t> ticketSteamId =
         _steamManager.get_ticket_steam_id();
 
-    if(!ticketSteamId.has_value())
+    if (!ticketSteamId.has_value())
     {
         return fail("No Steam ID received from encrypted app ticket");
     }
@@ -90,7 +90,7 @@ template <typename... Ts>
 
 [[nodiscard]] bool HexagonClient::initializeTcpSocket()
 {
-    if(_socketConnected)
+    if (_socketConnected)
     {
         return fail("Socket already initialized");
     }
@@ -99,8 +99,8 @@ template <typename... Ts>
 
     SSVOH_CLOG << "Connecting socket to server...\n";
 
-    if(_socket.connect(_serverIp, _serverPort,
-           /* timeout */ sf::seconds(0.5)) != sf::Socket::Status::Done)
+    if (_socket.connect(_serverIp, _serverPort,
+            /* timeout */ sf::seconds(0.5)) != sf::Socket::Status::Done)
     {
         SSVOH_CLOG_ERROR << "Failure connecting socket to server\n";
 
@@ -118,29 +118,29 @@ template <typename... Ts>
 [[nodiscard]] bool HexagonClient::sendPacketRecursive(
     const int tries, sf::Packet& p)
 {
-    if(tries > 5)
+    if (tries > 5)
     {
         return fail("Failure sending packet to server, too many tries");
     }
 
     const auto status = _socket.send(p);
 
-    if(status == sf::Socket::Status::NotReady)
+    if (status == sf::Socket::Status::NotReady)
     {
         return fail();
     }
 
-    if(status == sf::Socket::Status::Error)
+    if (status == sf::Socket::Status::Error)
     {
         return fail("Failure sending packet to server");
     }
 
-    if(status == sf::Socket::Status::Disconnected)
+    if (status == sf::Socket::Status::Disconnected)
     {
         return fail("Disconnected while sending packet to server");
     }
 
-    if(status == sf::Socket::Status::Done)
+    if (status == sf::Socket::Status::Done)
     {
         return true;
     }
@@ -152,19 +152,19 @@ template <typename... Ts>
 [[nodiscard]] bool HexagonClient::recvPacketRecursive(
     const int tries, sf::Packet& p)
 {
-    if(tries > 5)
+    if (tries > 5)
     {
         return fail("Failure receiving packet from server, too many tries");
     }
 
     const auto status = _socket.receive(p);
 
-    if(status == sf::Socket::Status::NotReady)
+    if (status == sf::Socket::Status::NotReady)
     {
         return fail();
     }
 
-    if(status == sf::Socket::Status::Error)
+    if (status == sf::Socket::Status::Error)
     {
         SSVOH_CLOG_ERROR << "Failure receiving packet from server\n";
 
@@ -172,7 +172,7 @@ template <typename... Ts>
         return fail();
     }
 
-    if(status == sf::Socket::Status::Disconnected)
+    if (status == sf::Socket::Status::Disconnected)
     {
         SSVOH_CLOG_ERROR << "Disconnected while receiving packet from server\n";
 
@@ -180,7 +180,7 @@ template <typename... Ts>
         return fail();
     }
 
-    if(status == sf::Socket::Status::Done)
+    if (status == sf::Socket::Status::Done)
     {
         return true;
     }
@@ -202,7 +202,7 @@ template <typename... Ts>
 template <typename T>
 [[nodiscard]] bool HexagonClient::sendUnencrypted(const T& data)
 {
-    if(!_socketConnected)
+    if (!_socketConnected)
     {
         return fail();
     }
@@ -214,18 +214,18 @@ template <typename T>
 template <typename T>
 [[nodiscard]] bool HexagonClient::sendEncrypted(const T& data)
 {
-    if(!_socketConnected)
+    if (!_socketConnected)
     {
         return fail();
     }
 
-    if(!_clientRTKeys.has_value())
+    if (!_clientRTKeys.has_value())
     {
         return fail("Tried to send encrypted message without RT keys");
     }
 
-    if(!makeClientToServerEncryptedPacket(
-           _clientRTKeys->keyTransmit, _packetBuffer, data))
+    if (!makeClientToServerEncryptedPacket(
+            _clientRTKeys->keyTransmit, _packetBuffer, data))
     {
         return fail("Error building encrypted message packet");
     }
@@ -235,7 +235,7 @@ template <typename T>
 
 [[nodiscard]] bool HexagonClient::sendHeartbeat()
 {
-    if(!sendUnencrypted(CTSPHeartbeat{}))
+    if (!sendUnencrypted(CTSPHeartbeat{}))
     {
         return fail();
     }
@@ -396,7 +396,7 @@ bool HexagonClient::connect()
 {
     _state = State::Connecting;
 
-    if(_socketConnected)
+    if (_socketConnected)
     {
         return fail("Socket already initialized");
     }
@@ -412,19 +412,19 @@ bool HexagonClient::connect()
         return false;
     };
 
-    if(!initializeTcpSocket())
+    if (!initializeTcpSocket())
     {
         return failEvent("initializing TCP socket");
     }
 
     SSVOH_CLOG << "Sending first heartbeat...\n";
-    if(!sendHeartbeat())
+    if (!sendHeartbeat())
     {
         return failEvent("sending first heartbeat");
     }
 
     SSVOH_CLOG << "Sending public key...\n";
-    if(!sendPublicKey())
+    if (!sendPublicKey())
     {
         return failEvent("sending public key");
     }
@@ -461,7 +461,7 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager,
                << " - " << SSVOH_CLOG_VAR(sKeyPublic) << '\n'
                << " - " << SSVOH_CLOG_VAR(sKeySecret) << '\n';
 
-    if(!initializeTicketSteamID())
+    if (!initializeTicketSteamID())
     {
         SSVOH_CLOG_ERROR << "Failure initializing client, no ticket Steam ID\n";
 
@@ -485,13 +485,13 @@ void HexagonClient::disconnect()
 
     _socket.setBlocking(true);
 
-    if((_state == State::LoggedIn || _state == State::LoggedIn_Ready) &&
+    if ((_state == State::LoggedIn || _state == State::LoggedIn_Ready) &&
         _ticketSteamID.has_value())
     {
         (void)sendLogout(*_ticketSteamID);
     }
 
-    if(_state == State::Connected || _state == State::LoggedIn ||
+    if (_state == State::Connected || _state == State::LoggedIn ||
         _state == State::LoggedIn_Ready)
     {
         (void)sendDisconnect();
@@ -507,16 +507,16 @@ void HexagonClient::disconnect()
 
 bool HexagonClient::sendHeartbeatIfNecessary()
 {
-    if(!_socketConnected)
+    if (!_socketConnected)
     {
         return true;
     }
 
     constexpr std::chrono::duration heatbeatInterval = std::chrono::seconds(45);
 
-    if(HRClock::now() - _lastHeartbeatTime > heatbeatInterval)
+    if (HRClock::now() - _lastHeartbeatTime > heatbeatInterval)
     {
-        if(!sendHeartbeat())
+        if (!sendHeartbeat())
         {
             SSVOH_CLOG_ERROR
                 << "Error sending heartbeat, disconnecting client\n";
@@ -531,12 +531,12 @@ bool HexagonClient::sendHeartbeatIfNecessary()
 
 bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 {
-    if(!_socketConnected)
+    if (!_socketConnected)
     {
         return fail();
     }
 
-    if(!recvPacket(p))
+    if (!recvPacket(p))
     {
         return fail();
     }
@@ -574,7 +574,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         {
             SSVOH_CLOG << "Received public key packet from server\n";
 
-            if(_serverPublicKey.has_value())
+            if (_serverPublicKey.has_value())
             {
                 SSVOH_CLOG << "Already had public key, replacing\n";
             }
@@ -592,7 +592,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             _clientRTKeys =
                 calculateClientSessionSodiumRTKeys(_clientPSKeys, stcp.key);
 
-            if(!_clientRTKeys.has_value())
+            if (!_clientRTKeys.has_value())
             {
                 SSVOH_CLOG_ERROR << "Failed calculating RT keys, disconnecting "
                                     "from server\n";
@@ -638,7 +638,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             SSVOH_CLOG << "Successfully logged into server, token: '"
                        << stcp.loginToken << "'\n";
 
-            if(_loginToken.has_value())
+            if (_loginToken.has_value())
             {
                 SSVOH_CLOG << "Already had login token, replacing\n";
             }
@@ -730,7 +730,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             addEvent(EReceivedTopScores{
                 .levelValidator = stcp.levelValidator, .scores = stcp.scores});
 
-            if(stcp.ownScore.has_value())
+            if (stcp.ownScore.has_value())
             {
                 addEvent(
                     EReceivedOwnScore{.levelValidator = stcp.levelValidator,
@@ -747,12 +747,12 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             const auto& [serverProtocolVersion, serverGameVersion,
                 supportedLevelValidatorsVector] = stcp;
 
-            if(serverGameVersion != GAME_VERSION)
+            if (serverGameVersion != GAME_VERSION)
             {
                 addEvent(EGameVersionMismatch{});
             }
 
-            if(serverProtocolVersion != PROTOCOL_VERSION)
+            if (serverProtocolVersion != PROTOCOL_VERSION)
             {
                 addEvent(EProtocolVersionMismatch{});
                 disconnect();
@@ -776,7 +776,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
 void HexagonClient::update()
 {
-    if(!_socketConnected)
+    if (!_socketConnected)
     {
         return;
     }
@@ -786,11 +786,11 @@ void HexagonClient::update()
         sendHeartbeatIfNecessary();
         receiveDataFromServer(_packetBuffer);
     }
-    catch(const std::runtime_error& e)
+    catch (const std::runtime_error& e)
     {
         SSVOH_CLOG_ERROR << "Exception: '" << e.what() << "'\n";
     }
-    catch(...)
+    catch (...)
     {
         SSVOH_CLOG_ERROR << "Unknown exception";
     }
@@ -813,12 +813,12 @@ static std::string saltAndHashPwd(const std::string& password)
 bool HexagonClient::tryRegister(
     const std::string& name, const std::string& password)
 {
-    if(!connectedAndInState(State::Connected))
+    if (!connectedAndInState(State::Connected))
     {
         return fail();
     }
 
-    if(name.empty() || name.size() > 32 || password.empty())
+    if (name.empty() || name.size() > 32 || password.empty())
     {
         addEvent(
             ERegistrationFailure{"Name or password fields too long or empty"});
@@ -832,12 +832,12 @@ bool HexagonClient::tryRegister(
 bool HexagonClient::tryLogin(
     const std::string& name, const std::string& password)
 {
-    if(!connectedAndInState(State::Connected))
+    if (!connectedAndInState(State::Connected))
     {
         return fail();
     }
 
-    if(name.empty() || name.size() > 32 || password.empty())
+    if (name.empty() || name.size() > 32 || password.empty())
     {
         addEvent(ELoginFailure{"Name or password fields too long or empty"});
         return false;
@@ -849,7 +849,7 @@ bool HexagonClient::tryLogin(
 
 bool HexagonClient::tryLogoutFromServer()
 {
-    if(!connectedAndInAnyState(State::LoggedIn, State::LoggedIn_Ready))
+    if (!connectedAndInAnyState(State::LoggedIn, State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -864,7 +864,7 @@ bool HexagonClient::tryLogoutFromServer()
 
 bool HexagonClient::tryDeleteAccount(const std::string& password)
 {
-    if(!connectedAndInState(State::Connected))
+    if (!connectedAndInState(State::Connected))
     {
         return fail();
     }
@@ -875,7 +875,7 @@ bool HexagonClient::tryDeleteAccount(const std::string& password)
 
 bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
 {
-    if(!connectedAndInState(State::LoggedIn_Ready))
+    if (!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -887,12 +887,12 @@ bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
 bool HexagonClient::trySendCompressedReplay(const std::string& levelValidator,
     const compressed_replay_file& compressedReplayFile)
 {
-    if(!connectedAndInState(State::LoggedIn_Ready))
+    if (!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
 
-    if(!isLevelSupportedByServer(levelValidator))
+    if (!isLevelSupportedByServer(levelValidator))
     {
         SSVOH_CLOG_VERBOSE << "Not sending compressed replay for level '"
                            << levelValidator << "', unsupported by server\n";
@@ -907,7 +907,7 @@ bool HexagonClient::trySendCompressedReplay(const std::string& levelValidator,
 
 bool HexagonClient::tryRequestOwnScore(const std::string& levelValidator)
 {
-    if(!connectedAndInState(State::LoggedIn_Ready))
+    if (!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -919,7 +919,7 @@ bool HexagonClient::tryRequestOwnScore(const std::string& levelValidator)
 bool HexagonClient::tryRequestTopScoresAndOwnScore(
     const std::string& levelValidator)
 {
-    if(!connectedAndInState(State::LoggedIn_Ready))
+    if (!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -930,7 +930,7 @@ bool HexagonClient::tryRequestTopScoresAndOwnScore(
 
 bool HexagonClient::trySendStartedGame(const std::string& levelValidator)
 {
-    if(!connectedAndInState(State::LoggedIn_Ready))
+    if (!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -974,7 +974,7 @@ void HexagonClient::addEvent(const Event& e)
 
 [[nodiscard]] std::optional<HexagonClient::Event> HexagonClient::pollEvent()
 {
-    if(_events.empty())
+    if (_events.empty())
     {
         return std::nullopt;
     }

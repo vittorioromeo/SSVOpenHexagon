@@ -43,9 +43,9 @@ template <typename T, typename... Ts>
     static_assert(contains<T>(TypeList<Ts...>{}));
 
     constexpr std::array test{std::is_same_v<T, Ts>...};
-    for(std::size_t i = 0; i < test.size(); ++i)
+    for (std::size_t i = 0; i < test.size(); ++i)
     {
-        if(test[i])
+        if (test[i])
         {
             return i;
         }
@@ -72,11 +72,11 @@ using PacketType = std::uint8_t;
 template <typename T>
 [[nodiscard]] constexpr PacketType getPacketType()
 {
-    if constexpr(variantContains<T>(TypeList<PVClientToServer>{}))
+    if constexpr (variantContains<T>(TypeList<PVClientToServer>{}))
     {
         return indexOfVariantType<T>(TypeList<PVClientToServer>{});
     }
-    else if constexpr(variantContains<T>(TypeList<PVServerToClient>{}))
+    else if constexpr (variantContains<T>(TypeList<PVServerToClient>{}))
     {
         return indexOfVariantType<T>(TypeList<PVServerToClient>{});
     }
@@ -134,7 +134,7 @@ struct Extractor
         std::ostringstream& errorOss, sf::Packet& p,
         int) -> decltype((p >> target), bool())
     {
-        if(!(p >> target))
+        if (!(p >> target))
         {
             errorOss << "Error extracting single object\n";
             return false;
@@ -149,12 +149,12 @@ struct Extractor
     {
         bool result = true;
 
-        if constexpr((boost::pfr::tuple_size_v<T>) > 0)
+        if constexpr ((boost::pfr::tuple_size_v<T>) > 0)
         {
             boost::pfr::for_each_field(target,
                 [&](auto& nestedField)
                 {
-                    if(!extractInto(nestedField, errorOss, p))
+                    if (!extractInto(nestedField, errorOss, p))
                     {
                         result = false;
                     }
@@ -179,9 +179,9 @@ struct Extractor<std::array<T, N>>
     [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
-        for(std::size_t i = 0; i < N; ++i)
+        for (std::size_t i = 0; i < N; ++i)
         {
-            if(extractInto(result[i], errorOss, p))
+            if (extractInto(result[i], errorOss, p))
             {
                 continue;
             }
@@ -206,7 +206,7 @@ struct Extractor<std::vector<T>>
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         std::uint64_t size;
-        if(!(p >> size))
+        if (!(p >> size))
         {
             errorOss << "Error extracting vector size\n";
             return false;
@@ -214,9 +214,9 @@ struct Extractor<std::vector<T>>
 
         result.resize(size);
 
-        for(std::size_t i = 0; i < size; ++i)
+        for (std::size_t i = 0; i < size; ++i)
         {
-            if(extractInto(result[i], errorOss, p))
+            if (extractInto(result[i], errorOss, p))
             {
                 continue;
             }
@@ -240,13 +240,13 @@ struct Extractor<std::optional<T>>
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         bool set;
-        if(!(p >> set))
+        if (!(p >> set))
         {
             errorOss << "Error extracting optional set flag\n";
             return false;
         }
 
-        if(!set)
+        if (!set)
         {
             result.reset();
             return true;
@@ -254,7 +254,7 @@ struct Extractor<std::optional<T>>
 
         result.emplace();
 
-        if(!extractInto(*result, errorOss, p))
+        if (!extractInto(*result, errorOss, p))
         {
             errorOss << "Error extracting optional element\n";
             return false;
@@ -272,7 +272,7 @@ struct Extractor<hg::replay_file>
     [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
-        if(!result.deserialize_from_packet(p))
+        if (!result.deserialize_from_packet(p))
         {
             errorOss << "Error deserializing replay\n";
             return false;
@@ -290,7 +290,7 @@ struct Extractor<hg::compressed_replay_file>
     [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
-        if(!result.deserialize_from_packet(p))
+        if (!result.deserialize_from_packet(p))
         {
             errorOss << "Error deserializing compressed replay\n";
             return false;
@@ -309,21 +309,21 @@ struct Extractor<hg::GameVersion>
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         std::int32_t major;
-        if(!(p >> major))
+        if (!(p >> major))
         {
             errorOss << "Error deserializing major version\n";
             return false;
         }
 
         std::int32_t minor;
-        if(!(p >> minor))
+        if (!(p >> minor))
         {
             errorOss << "Error deserializing minor version\n";
             return false;
         }
 
         std::int32_t micro;
-        if(!(p >> micro))
+        if (!(p >> micro))
         {
             errorOss << "Error deserializing micro version\n";
             return false;
@@ -350,7 +350,7 @@ template <typename T>
 {
     T temp;
 
-    if(!extractInto(temp, errorOss, p))
+    if (!extractInto(temp, errorOss, p))
     {
         return std::nullopt;
     }
@@ -366,7 +366,7 @@ template <typename T>
     {
         T temp;
 
-        if(!extractInto<T>(temp, errorOss, p))
+        if (!extractInto<T>(temp, errorOss, p))
         {
             errorOss << "Error extracting " << name << '\n';
             return false;
@@ -391,7 +391,7 @@ public:
     template <typename T>
     [[nodiscard]] bool extractIntoOrPrintError(const char* name, T& target)
     {
-        if(!extractInto<T>(target, _errorOss, _p))
+        if (!extractInto<T>(target, _errorOss, _p))
         {
             _errorOss << "Error extracting " << name << '\n';
             return false;
@@ -404,12 +404,12 @@ public:
     [[nodiscard]] bool extractAndMatchOrPrintError(
         const char* name, T& target, const T& expected)
     {
-        if(!extractIntoOrPrintError(name, target))
+        if (!extractIntoOrPrintError(name, target))
         {
             return false;
         }
 
-        if(target != expected)
+        if (target != expected)
         {
             _errorOss << "Error, " << name << " has value '" << target
                       << ", which doesn't match expected value '" << expected
@@ -433,7 +433,7 @@ public:
     {
         T temp;
 
-        if(!extractIntoOrPrintError(name, temp))
+        if (!extractIntoOrPrintError(name, temp))
         {
             return std::nullopt;
         }
@@ -491,7 +491,7 @@ template <typename T>
     const std::optional<std::uint8_t> extracted =
         makeExtractor<std::uint8_t>(errorOss, p)("packet type");
 
-    if(!extracted.has_value())
+    if (!extracted.has_value())
     {
         return std::nullopt;
     }
@@ -505,7 +505,7 @@ void encodeFirstNVectorElements(
 {
     SSVOH_ASSERT(data.size() >= len);
 
-    for(std::size_t i = 0; i < len; ++i)
+    for (std::size_t i = 0; i < len; ++i)
     {
         p << data[i];
     }
@@ -536,7 +536,7 @@ template <typename TData, typename TField>
 void encodeFieldImpl(
     sf::Packet& p, const TData& data, const TField& field, long)
 {
-    if constexpr(boost::pfr::tuple_size_v < TField >> 0)
+    if constexpr (boost::pfr::tuple_size_v < TField >> 0)
     {
         boost::pfr::for_each_field(field, [&](const auto& nestedField)
             { encodeField(p, data, nestedField); });
@@ -559,7 +559,7 @@ auto encodeField(sf::Packet& p, const TData& data, const TField& field)
 template <typename TData, typename T, std::size_t N>
 void encodeField(sf::Packet& p, const TData& data, const std::array<T, N>& arr)
 {
-    for(std::size_t i = 0; i < arr.size(); ++i)
+    for (std::size_t i = 0; i < arr.size(); ++i)
     {
         encodeField(p, data, arr[i]);
     }
@@ -570,7 +570,7 @@ void encodeField(sf::Packet& p, const TData& data, const std::vector<T>& vec)
 {
     encodeField(p, data, static_cast<std::uint64_t>(vec.size()));
 
-    for(const T& x : vec)
+    for (const T& x : vec)
     {
         encodeField(p, data, x);
     }
@@ -581,7 +581,7 @@ void encodeField(sf::Packet& p, const TData& data, const std::optional<T>& opt)
 {
     encodeField(p, data, opt.has_value());
 
-    if(opt.has_value())
+    if (opt.has_value())
     {
         encodeField(p, data, *opt);
     }
@@ -623,7 +623,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
 {
     encodePacketType(p, data);
 
-    if constexpr(boost::pfr::tuple_size_v < T >> 0)
+    if constexpr (boost::pfr::tuple_size_v < T >> 0)
     {
         boost::pfr::for_each_field(
             data, [&](const auto& field) { encodeField(p, data, field); });
@@ -634,21 +634,21 @@ void encodeOHPacket(sf::Packet& p, const T& data)
     const SodiumReceiveKeyArray& keyReceive, sf::Packet& decryptedPacket)
 {
     SodiumNonceArray nonce;
-    if(!extractInto(nonce, errorOss, p))
+    if (!extractInto(nonce, errorOss, p))
     {
         errorOss << "Error decoding client nonce\n";
         return false;
     }
 
     std::uint64_t messageLength;
-    if(!extractInto(messageLength, errorOss, p))
+    if (!extractInto(messageLength, errorOss, p))
     {
         errorOss << "Error decoding client message length\n";
         return false;
     }
 
     std::uint64_t ciphertextLength;
-    if(!extractInto(ciphertextLength, errorOss, p))
+    if (!extractInto(ciphertextLength, errorOss, p))
     {
         errorOss << "Error decoding client ciphertext length\n";
         return false;
@@ -657,9 +657,9 @@ void encodeOHPacket(sf::Packet& p, const T& data)
     std::vector<std::uint8_t>& ciphertext = getStaticCiphertextBuffer();
     ciphertext.resize(ciphertextLength);
 
-    for(std::size_t i = 0; i < ciphertextLength; ++i)
+    for (std::size_t i = 0; i < ciphertextLength; ++i)
     {
-        if(p >> ciphertext[i])
+        if (p >> ciphertext[i])
         {
             continue;
         }
@@ -672,8 +672,8 @@ void encodeOHPacket(sf::Packet& p, const T& data)
     std::vector<std::uint8_t>& message = getStaticMessageBuffer();
     message.resize(messageLength);
 
-    if(crypto_secretbox_open_easy(message.data(), ciphertext.data(),
-           ciphertextLength, nonce.data(), keyReceive.data()) != 0)
+    if (crypto_secretbox_open_easy(message.data(), ciphertext.data(),
+            ciphertextLength, nonce.data(), keyReceive.data()) != 0)
     {
         errorOss << "Failure decrypting encrypted client message\n";
         return false;
@@ -704,10 +704,10 @@ template <typename F, typename T>
     encryptedMsg.ciphertext.ptr = &getStaticCiphertextBuffer();
     encryptedMsg.ciphertext.ptr->resize(encryptedMsg.ciphertextLength);
 
-    if(crypto_secretbox_easy(encryptedMsg.ciphertext.ptr->data(),
-           static_cast<const std::uint8_t*>(packetToEncrypt.getData()),
-           encryptedMsg.messageLength, encryptedMsg.nonce.data(),
-           keyTransmit.data()) != 0)
+    if (crypto_secretbox_easy(encryptedMsg.ciphertext.ptr->data(),
+            static_cast<const std::uint8_t*>(packetToEncrypt.getData()),
+            encryptedMsg.messageLength, encryptedMsg.nonce.data(),
+            keyTransmit.data()) != 0)
     {
         return false;
     }
@@ -757,11 +757,11 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
 #define HANDLE_PACKET(type)                                 \
     do                                                      \
     {                                                       \
-        if(*pt == getPacketType<type>())                    \
+        if (*pt == getPacketType<type>())                   \
         {                                                   \
             type result;                                    \
                                                             \
-            if(!extractAllMembers(result))                  \
+            if (!extractAllMembers(result))                 \
             {                                               \
                 return {PInvalid{.error = errorOss.str()}}; \
             }                                               \
@@ -769,19 +769,19 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
             return {result};                                \
         }                                                   \
     }                                                       \
-    while(false)
+    while (false)
 
 #define INJECT_COMMON_PACKET_HANDLING_CODE(function)                     \
     const std::optional<PacketType> pt = extractPacketType(errorOss, p); \
                                                                          \
-    if(!pt.has_value())                                                  \
+    if (!pt.has_value())                                                 \
     {                                                                    \
         return {PInvalid{.error = errorOss.str()}};                      \
     }                                                                    \
                                                                          \
-    if(*pt == getPacketType<PEncryptedMsg>())                            \
+    if (*pt == getPacketType<PEncryptedMsg>())                           \
     {                                                                    \
-        if(!decodeEncryptedPacket(keyReceive, errorOss, p))              \
+        if (!decodeEncryptedPacket(keyReceive, errorOss, p))             \
         {                                                                \
             return {PInvalid{.error = errorOss.str()}};                  \
         }                                                                \
@@ -802,12 +802,12 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
     {
         bool success = true;
 
-        if constexpr((boost::pfr::tuple_size_v<T>) > 0)
+        if constexpr ((boost::pfr::tuple_size_v<T>) > 0)
         {
             boost::pfr::for_each_field(target,
                 [&](auto& field, std::size_t i)
                 {
-                    if(!extractInto(field, errorOss, p))
+                    if (!extractInto(field, errorOss, p))
                     {
                         errorOss << "Error decoding field #" << i << " \n";
                         success = false;
@@ -823,13 +823,13 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
-    if(keyReceive == nullptr)
+    if (keyReceive == nullptr)
     {
         errorOss << "Cannot decode encrypted message without receive key\n";
         return false;
     }
 
-    if(!decryptPacket(errorOss, p, *keyReceive, getStaticPacketBuffer()))
+    if (!decryptPacket(errorOss, p, *keyReceive, getStaticPacketBuffer()))
     {
         return false;
     }
@@ -856,8 +856,8 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
-    if(!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
-           errorOss, p))
+    if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
+            errorOss, p))
     {
         return {PInvalid{.error = errorOss.str()}};
     }
@@ -918,8 +918,8 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
-    if(!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
-           errorOss, p))
+    if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
+            errorOss, p))
     {
         return {PInvalid{.error = errorOss.str()}};
     }

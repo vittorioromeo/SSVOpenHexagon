@@ -78,9 +78,9 @@ public:
         const std::vector<ssvs::Input::Combo> combos{
             triggerGetter().getCombos()};
 
-        for(int i = 0; i < static_cast<int>(combos.size()); ++i)
+        for (int i = 0; i < static_cast<int>(combos.size()); ++i)
         {
-            if(combos.at(i).getKeys()[int(hardcodedKey) + 1])
+            if (combos.at(i).getKeys()[int(hardcodedKey) + 1])
             {
                 mFuncClear(i);
             }

@@ -44,9 +44,9 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
     input.clear();
 
     std::string temp;
-    for(char c : output)
+    for (char c : output)
     {
-        if(c == '\n')
+        if (c == '\n')
         {
             dialogText.emplace_back(temp);
             temp.clear();
@@ -62,7 +62,7 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
         lineHeight * size + (lineHeight / 2.f) * (size - 1);
     totalHeight = dialogHeight + 2.f * doubleFrameSize;
 
-    if(inputBox)
+    if (inputBox)
     {
         totalHeight += lineHeight * 4;
     }
@@ -86,7 +86,7 @@ void HexagonDialogBox::createInput(const std::string& output,
 void HexagonDialogBox::draw(
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
-    switch(drawMode)
+    switch (drawMode)
     {
         case DBoxDraw::topLeft:
         {
@@ -128,9 +128,9 @@ void HexagonDialogBox::drawText(
     const float interline = lineHeight * 1.5f;
     txtDialog.setFillColor(txtColor);
 
-    for(auto& str : dialogText)
+    for (auto& str : dialogText)
     {
-        if(!str.empty())
+        if (!str.empty())
         {
             txtDialog.setString(str);
             txtDialog.setPosition(
@@ -142,11 +142,11 @@ void HexagonDialogBox::drawText(
         heightOffset += interline;
     }
 
-    if(inputBox)
+    if (inputBox)
     {
         heightOffset += interline;
 
-        if(inputBoxPassword)
+        if (inputBoxPassword)
         {
             txtDialog.setString(std::string(input.size(), '*'));
         }

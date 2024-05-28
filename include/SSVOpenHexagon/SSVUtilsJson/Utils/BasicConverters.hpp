@@ -133,11 +133,11 @@ struct Converter<std::vector<TItem, TAlloc>>
     {
         const auto& size(getObjSize(mObj));
         mValue.resize(size);
-        for(auto i(0u); i < size; ++i) extr(mObj, i, mValue[i]);
+        for (auto i(0u); i < size; ++i) extr(mObj, i, mValue[i]);
     }
     static void toObj(Obj& mObj, const T& mValue)
     {
-        for(auto i(0u); i < mValue.size(); ++i) arch(mObj, i, mValue[i]);
+        for (auto i(0u); i < mValue.size(); ++i) arch(mObj, i, mValue[i]);
     }
 };
 
@@ -148,7 +148,7 @@ struct Converter<std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>>
     using T = std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>;
     static void fromObj(const Obj& mObj, T& mValue)
     {
-        for(const auto& id : mObj.getMemberNames())
+        for (const auto& id : mObj.getMemberNames())
         {
             mValue.emplace(id, getExtr<TValue>(mObj[id]));
         }
@@ -156,7 +156,7 @@ struct Converter<std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>>
 
     static void toObj(Obj& mObj, const T& mValue)
     {
-        for(const auto& [k, v] : mValue)
+        for (const auto& [k, v] : mValue)
         {
             arch(mObj, k, v);
         }
@@ -169,11 +169,11 @@ struct Converter<TItem[TN]>
     using T = TItem[TN];
     static void fromObj(const Obj& mObj, T& mValue)
     {
-        for(auto i(0u); i < TN; ++i) extr(mObj, i, mValue[i]);
+        for (auto i(0u); i < TN; ++i) extr(mObj, i, mValue[i]);
     }
     static void toObj(Obj& mObj, const T& mValue)
     {
-        for(auto i(0u); i < TN; ++i) arch(mObj, i, mValue[i]);
+        for (auto i(0u); i < TN; ++i) arch(mObj, i, mValue[i]);
     }
 };
 

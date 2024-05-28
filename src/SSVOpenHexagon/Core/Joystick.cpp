@@ -78,12 +78,12 @@ void ignoreAllPresses(const bool ignore)
     // If xxxWasPressed values are true all new presses return false.
     // Placed here to not be reiterated every update() cycle.
 
-    for(bool& b : s.dirWasPressed)
+    for (bool& b : s.dirWasPressed)
     {
         b = ignore;
     }
 
-    for(bool& b : s.wasPressed)
+    for (bool& b : s.wasPressed)
     {
         b = ignore;
     }
@@ -113,12 +113,12 @@ enum class AxisDir : int
 {
     const auto pos = sf::Joystick::getAxisPosition(joyId, axis);
 
-    if(pos < -deadzone)
+    if (pos < -deadzone)
     {
         return AxisDir::Left;
     }
 
-    if(pos > deadzone)
+    if (pos > deadzone)
     {
         return AxisDir::Right;
     }
@@ -132,7 +132,7 @@ void update(const float deadzone)
     auto& s = getJoystickState();
 
     // all presses are being ignored, try again later
-    if(s.ignoreAllPresses)
+    if (s.ignoreAllPresses)
     {
         return;
     }

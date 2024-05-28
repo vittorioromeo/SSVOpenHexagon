@@ -12,7 +12,7 @@ namespace hg {
 
 void LoadInfo::addFormattedError(std::string& error)
 {
-    if(error.empty())
+    if (error.empty())
     {
         return;
     }
@@ -28,7 +28,7 @@ void LoadInfo::addFormattedError(std::string& error)
     error.erase(++i, 1);
 
     // Remove all other newlines.
-    while((i = error.find('\n', i)) != std::string::npos)
+    while ((i = error.find('\n', i)) != std::string::npos)
     {
         error.erase(i, 1);
     }

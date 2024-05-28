@@ -16,18 +16,18 @@ getMoveTowards(float value, const float target, const float step) noexcept
 {
     SSVOH_ASSERT(step >= 0);
 
-    if(value < target)
+    if (value < target)
     {
         value += step;
-        if(value > target)
+        if (value > target)
         {
             value = target;
         }
     }
-    else if(value > target)
+    else if (value > target)
     {
         value -= step;
-        if(value < target)
+        if (value < target)
         {
             value = target;
         }

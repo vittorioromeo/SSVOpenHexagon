@@ -64,7 +64,7 @@ public:
     {
         std::optional font = sf::Font::loadFromFile(path);
 
-        if(!font.has_value())
+        if (!font.has_value())
         {
             return false;
         }
@@ -78,7 +78,7 @@ public:
     {
         std::optional soundBuffer = sf::SoundBuffer::loadFromFile(path);
 
-        if(!soundBuffer.has_value())
+        if (!soundBuffer.has_value())
         {
             return false;
         }

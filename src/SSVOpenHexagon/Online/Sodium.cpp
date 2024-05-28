@@ -31,9 +31,9 @@ namespace hg {
 {
     SodiumRTKeys result;
 
-    if(crypto_kx_server_session_keys(result.keyReceive.data(),
-           result.keyTransmit.data(), serverPSKeys.keyPublic.data(),
-           serverPSKeys.keySecret.data(), clientPublicKey.data()) != 0)
+    if (crypto_kx_server_session_keys(result.keyReceive.data(),
+            result.keyTransmit.data(), serverPSKeys.keyPublic.data(),
+            serverPSKeys.keySecret.data(), clientPublicKey.data()) != 0)
     {
         return std::nullopt;
     }
@@ -47,9 +47,9 @@ namespace hg {
 {
     SodiumRTKeys result;
 
-    if(crypto_kx_client_session_keys(result.keyReceive.data(),
-           result.keyTransmit.data(), clientPSKeys.keyPublic.data(),
-           clientPSKeys.keySecret.data(), serverPublicKey.data()) != 0)
+    if (crypto_kx_client_session_keys(result.keyReceive.data(),
+            result.keyTransmit.data(), clientPSKeys.keyPublic.data(),
+            clientPSKeys.keySecret.data(), serverPublicKey.data()) != 0)
     {
         return std::nullopt;
     }

@@ -101,17 +101,17 @@ static void initRandom(Lua::LuaContext& lua, random_number_generator& rng)
     addLuaFn(lua, "u_rndSwitch",
         [rndReal, rndIntUpper, rndInt](int mode, int lower, int upper) -> float
         {
-            if(mode == 0)
+            if (mode == 0)
             {
                 return rndReal();
             }
 
-            if(mode == 1)
+            if (mode == 1)
             {
                 return rndIntUpper(upper);
             }
 
-            if(mode == 2)
+            if (mode == 2)
             {
                 return rndInt(lower, upper);
             }
@@ -145,7 +145,7 @@ try
         "local open = io.open; io.open = function(filename, mode) return "
         "open(filename, mode == \"rb\" and mode or \"r\"); end");
 }
-catch(...)
+catch (...)
 {
     ssvu::lo("hg::LuaScripting::redefineIoOpen")
         << "Failure to redefine Lua's `io.open` function\n";
@@ -167,7 +167,7 @@ try
 end
 )");
 }
-catch(...)
+catch (...)
 {
     ssvu::lo("hg::LuaScripting::redefineRandom")
         << "Failure to redefine Lua's `math.random` function\n";
@@ -1173,7 +1173,7 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
     addLuaFn(lua, "s_getColor",
         [&styleData, &colorToTuple](int mIndex)
         {
-            if(styleData.getColors().empty())
+            if (styleData.getColors().empty())
             {
                 return colorToTuple(sf::Color{0, 0, 0, 0});
             }
@@ -1234,7 +1234,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         [&assets, &execScriptPackPathContext, fPackPathGetter, headless](
             const std::string& shaderFilename) -> std::size_t
         {
-            if(headless)
+            if (headless)
             {
                 // Always return early in headless mode.
                 return static_cast<std::size_t>(-1);
@@ -1247,7 +1247,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const std::optional<std::size_t> id =
                 assets.getShaderIdByPath(shaderPath);
 
-            if(!id.has_value())
+            if (!id.has_value())
             {
                 ssvu::lo("hg::LuaScripting::initShaders")
                     << "`u_getShaderId` failed, no id found for '"
@@ -1272,7 +1272,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const std::string& packAuthor,
             const std::string& shaderFilename) -> std::size_t
         {
-            if(headless)
+            if (headless)
             {
                 // Always return early in headless mode.
                 return static_cast<std::size_t>(-1);
@@ -1285,7 +1285,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                 const std::optional<std::size_t> id =
                     assets.getShaderIdByPath(shaderPath);
 
-                if(!id.has_value())
+                if (!id.has_value())
                 {
                     ssvu::lo("hg::LuaScripting::initShaders")
                         << "`u_getDependencyShaderId` failed, no id found for '"
@@ -1323,13 +1323,13 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
     auto withValidShaderId = [&assets, headless](const char* caller,
                                  const std::size_t shaderId, auto&& f)
     {
-        if(headless)
+        if (headless)
         {
             // Always return early in headless mode.
             return;
         }
 
-        if(!assets.isValidShaderId(shaderId))
+        if (!assets.isValidShaderId(shaderId))
         {
             ssvu::lo("hg::LuaScripting::initShaders")
                 << "`" << caller << "` failed, invalid shader id '" << shaderId
@@ -1348,13 +1348,13 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                                            const std::size_t renderStage,
                                            auto& ids) -> bool
     {
-        if(headless)
+        if (headless)
         {
             // Always return early in headless mode.
             return false;
         }
 
-        if(renderStage >= ids.size())
+        if (renderStage >= ids.size())
         {
             ssvu::lo("hg::LuaScripting::initShaders")
                 << "`" << caller << "` failed, invalid render stage id '"
@@ -1511,8 +1511,8 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         {
             auto& ids = hexagonGameStatus.fragmentShaderIds;
 
-            for(std::size_t i = 0;
-                i < static_cast<std::size_t>(RenderStage::Count); ++i)
+            for (std::size_t i = 0;
+                 i < static_cast<std::size_t>(RenderStage::Count); ++i)
             {
                 ids[i] = std::nullopt;
             }
@@ -1525,8 +1525,8 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         {
             auto& ids = hexagonGameStatus.fragmentShaderIds;
 
-            if(checkValidRenderStage(
-                   "shdr_resetActiveFragmentShader", renderStage, ids))
+            if (checkValidRenderStage(
+                    "shdr_resetActiveFragmentShader", renderStage, ids))
             {
                 ids[renderStage] = std::nullopt;
             }
@@ -1542,8 +1542,8 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         {
             auto& ids = hexagonGameStatus.fragmentShaderIds;
 
-            if(checkValidRenderStage(
-                   "shdr_setActiveFragmentShader", renderStage, ids))
+            if (checkValidRenderStage(
+                    "shdr_setActiveFragmentShader", renderStage, ids))
             {
                 ids[renderStage] = shaderId;
             }
@@ -1604,7 +1604,7 @@ void printDocs()
 {
     Utils::LuaMetadata& lm = getMetadata();
 
-    for(std::size_t i = 0; i < lm.getNumCategories(); ++i)
+    for (std::size_t i = 0; i < lm.getNumCategories(); ++i)
     {
         std::cout << '\n' << lm.prefixHeaders.at(i) << "\n\n";
 
@@ -1627,7 +1627,7 @@ const std::vector<std::string>& getAllFunctionNames()
     {
         std::vector<std::string> v;
 
-        for(std::size_t i = 0; i < lm.getNumCategories(); ++i)
+        for (std::size_t i = 0; i < lm.getNumCategories(); ++i)
         {
             lm.forFnEntries([&](const std::string&, const std::string& name,
                                 const std::string&, const std::string&)
@@ -1648,13 +1648,13 @@ std::string getDocsForFunction(const std::string& fnName)
     bool found = false;
     std::ostringstream oss;
 
-    for(std::size_t i = 0; i < lm.getNumCategories(); ++i)
+    for (std::size_t i = 0; i < lm.getNumCategories(); ++i)
     {
         lm.forFnEntries(
             [&](const std::string& ret, const std::string& name,
                 const std::string& args, const std::string& docs)
             {
-                if(found || name != fnName)
+                if (found || name != fnName)
                 {
                     return; // basically a `continue`
                 }
@@ -1667,7 +1667,7 @@ std::string getDocsForFunction(const std::string& fnName)
             i);
     }
 
-    if(!found)
+    if (!found)
     {
         return "UNKNOWN FUNCTION";
     }

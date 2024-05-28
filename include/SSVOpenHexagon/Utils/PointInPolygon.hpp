@@ -14,12 +14,12 @@ template <std::size_t N, typename TC, typename T>
 {
     bool result{false};
 
-    for(std::size_t i{0}, j{N - 1}; i < N; j = i++)
+    for (std::size_t i{0}, j{N - 1}; i < N; j = i++)
     {
         const auto& vI{mVertices[i]};
         const auto& vJ{mVertices[j]};
 
-        if(((vI.y > y) != (vJ.y > y)) &&
+        if (((vI.y > y) != (vJ.y > y)) &&
             (x < (vJ.x - vI.x) * (y - vI.y) / (vJ.y - vI.y) + vI.x))
         {
             result = !result;

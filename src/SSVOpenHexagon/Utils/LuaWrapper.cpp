@@ -28,7 +28,7 @@ LuaContext::LuaContext(bool openDefaultLibs)
     {
         static void* allocator(void*, void* ptr, std::size_t, std::size_t nsize)
         {
-            if(nsize == 0)
+            if (nsize == 0)
             {
                 free(ptr);
                 return nullptr;
@@ -41,13 +41,13 @@ LuaContext::LuaContext(bool openDefaultLibs)
     // lua_newstate can return null if allocation failed
     _state = lua_newstate(&Allocator::allocator, nullptr);
 
-    if(_state == nullptr)
+    if (_state == nullptr)
     {
         throw std::bad_alloc{};
     }
 
     // opening default library if required to do so
-    if(openDefaultLibs)
+    if (openDefaultLibs)
     {
         luaL_openlibs(_state);
     }
@@ -66,7 +66,7 @@ LuaContext& LuaContext::operator=(LuaContext&& s) noexcept
 
 LuaContext::~LuaContext()
 {
-    if(_state != nullptr)
+    if (_state != nullptr)
     {
         lua_close(_state);
     }
@@ -97,7 +97,7 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
 {
     // first a little optimization: if mVarName contains no dot, we can
     // directly call lua_getglobal
-    if(std::find(mVarName.begin(), mVarName.end(), '.') == mVarName.end())
+    if (std::find(mVarName.begin(), mVarName.end(), '.') == mVarName.end())
     {
         lua_getglobal(_state, mVarName.data());
         return;
@@ -119,14 +119,14 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
         std::string buffer(currentVar, nextVar);
         // since nextVar is pointing to a dot, we have to increase it
         // first in order to find the next variable
-        if(nextVar != mVarName.end()) ++nextVar;
+        if (nextVar != mVarName.end()) ++nextVar;
 
         // ask lua to find the part stored in buffer
         // if currentVar == begin, this is a global variable and push it
         // on the stack
         // otherwise we already have an array pushed on the stack by the
         // previous loop
-        if(currentVar == mVarName.begin())
+        if (currentVar == mVarName.begin())
         {
             lua_getglobal(_state, buffer.c_str());
         }
@@ -136,7 +136,7 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
             // number or a std::string), this happens
             // we don't have a specific exception for this, we consider
             // this as a variable-doesn't-exist
-            if(!lua_istable(_state, -1))
+            if (!lua_istable(_state, -1))
             {
                 lua_pop(_state, 1);
                 throw VariableDoesntExistException(std::string{mVarName});
@@ -153,7 +153,7 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
         //   it will simply push "nil" instead of a value
         // so if we have a nil on the stack, the variable didn't exist
         // and we throw
-        if(lua_isnil(_state, -1))
+        if (lua_isnil(_state, -1))
         {
             lua_pop(_state, 1);
             throw VariableDoesntExistException(std::string{mVarName});
@@ -161,7 +161,7 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
 
         currentVar = nextVar; // updating currentVar
     }
-    while(nextVar != mVarName.end());
+    while (nextVar != mVarName.end());
 }
 
 void LuaContext::_setGlobal(std::string_view mVarName)
@@ -175,7 +175,7 @@ try
     // a member of an array
     std::size_t lastDot = mVarName.find_last_of('.');
 
-    if(lastDot == std::string::npos)
+    if (lastDot == std::string::npos)
     {
         // this is the first case, we simply call setglobal (which
         // cleans the stack)
@@ -191,7 +191,7 @@ try
 
     try
     {
-        if(!lua_istable(_state, -1))
+        if (!lua_istable(_state, -1))
         {
             throw VariableDoesntExistException(varNameAsStr);
         }
@@ -207,13 +207,13 @@ try
         lua_settable(_state, -3);  // value at -2, table at -1
         lua_pop(_state, 2);        // stack empty \o/
     }
-    catch(...)
+    catch (...)
     {
         lua_pop(_state, 2);
         throw;
     }
 }
-catch(...)
+catch (...)
 {
     lua_pop(_state, 1);
     throw;
@@ -242,7 +242,7 @@ void LuaContext::_load(std::istream& code)
             SSVOH_ASSERT(data != nullptr);
 
             Reader& me = *((Reader*)data);
-            if(me.stream.eof())
+            if (me.stream.eof())
             {
                 *size = 0;
                 return nullptr;
@@ -265,17 +265,17 @@ void LuaContext::_load(std::istream& code)
         lua_load(_state, &Reader::read, &reader, "chunk");
 
     // now we have to check return value
-    if(loadReturnValue != 0)
+    if (loadReturnValue != 0)
     {
         // there was an error during loading, an error message was
         // pushed on the stack
         const std::string errorMsg = _readTopAndPop(1, (std::string*)nullptr);
 
-        if(loadReturnValue == LUA_ERRMEM)
+        if (loadReturnValue == LUA_ERRMEM)
         {
             throw std::bad_alloc();
         }
-        else if(loadReturnValue == LUA_ERRSYNTAX)
+        else if (loadReturnValue == LUA_ERRSYNTAX)
         {
             throw SyntaxErrorException(errorMsg);
         }
@@ -288,17 +288,17 @@ void LuaContext::_load(std::string_view code)
         luaL_loadbuffer(_state, code.data(), code.size(), "chunk");
 
     // now we have to check return value
-    if(loadReturnValue != 0)
+    if (loadReturnValue != 0)
     {
         // there was an error during loading, an error message was
         // pushed on the stack
         const std::string errorMsg = _readTopAndPop(1, (std::string*)nullptr);
 
-        if(loadReturnValue == LUA_ERRMEM)
+        if (loadReturnValue == LUA_ERRMEM)
         {
             throw std::bad_alloc();
         }
-        else if(loadReturnValue == LUA_ERRSYNTAX)
+        else if (loadReturnValue == LUA_ERRSYNTAX)
         {
             throw SyntaxErrorException(errorMsg);
         }
@@ -336,7 +336,7 @@ try
         lua_pushlightuserdata(_state, const_cast<std::type_info*>(&tiObject));
         lua_gettable(_state, LUA_REGISTRYINDEX);
 
-        if(!lua_istable(_state, -1))
+        if (!lua_istable(_state, -1))
         {
             SSVOH_ASSERT(lua_isnil(_state, -1));
             lua_pop(_state, 1);
@@ -357,13 +357,13 @@ try
         // want since this is a push function)
         lua_setmetatable(_state, -2);
     }
-    catch(...)
+    catch (...)
     {
         lua_pop(_state, 1);
         throw;
     }
 }
-catch(...)
+catch (...)
 {
     lua_pop(_state, 1);
     throw;
@@ -409,7 +409,7 @@ void LuaContext::_registerFunctionImpl(
 
     // if it doesn't exist, we create one, then write it in registry but
     // keep it pushed
-    if(!lua_istable(_state, -1))
+    if (!lua_istable(_state, -1))
     {
         SSVOH_ASSERT(lua_isnil(_state, -1));
 

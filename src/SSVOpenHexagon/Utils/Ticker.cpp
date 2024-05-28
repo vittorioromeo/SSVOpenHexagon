@@ -17,7 +17,7 @@ bool Ticker::update(ssvu::FT mFT) noexcept
     current += increment;
     total += increment;
 
-    if(current < target)
+    if (current < target)
     {
         return false;
     }

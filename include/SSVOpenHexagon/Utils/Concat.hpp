@@ -58,7 +58,7 @@ template <std::size_t N>
     const char* s) noexcept
 {
     const char* end = s;
-    while(*end++ != 0)
+    while (*end++ != 0)
     {
     }
     return end - s - 1;

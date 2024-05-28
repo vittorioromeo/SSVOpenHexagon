@@ -17,13 +17,13 @@ namespace {
 
 int main(int argc, char* argv[])
 {
-    if(argc < 1)
+    if (argc < 1)
     {
         std::cerr << "Fatal error: no executable specified" << std::endl;
         return -1;
     }
 
-    if(argc > 2)
+    if (argc > 2)
     {
         std::cerr << "Invalid number of arguments" << std::endl;
         return -1;
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
         packet.clear();
         packet << stringBuf;
 
-        if(controlSocket.send(packet, sf::IpAddress::LocalHost, 50506) !=
+        if (controlSocket.send(packet, sf::IpAddress::LocalHost, 50506) !=
             sf::Socket::Status::Done)
         {
             std::cerr << "Error sending control packet\n";
@@ -48,11 +48,11 @@ int main(int argc, char* argv[])
         return true;
     };
 
-    if(argc == 1) // Interactive mode
+    if (argc == 1) // Interactive mode
     {
-        while(true)
+        while (true)
         {
-            if(!cin_getline_string(stringBuf))
+            if (!cin_getline_string(stringBuf))
             {
                 std::cerr << "Error reading line from stdin\n";
                 continue;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    if(argc == 2) // One-off send
+    if (argc == 2) // One-off send
     {
         stringBuf = argv[1];
         return sendToServer() ? 0 : 1;

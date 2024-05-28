@@ -18,7 +18,7 @@
 
 #define JSON_FAIL_MESSAGE(message) throw std::runtime_error(message);
 #define JSON_ASSERT_MESSAGE(condition, message) \
-    if(!(condition))                            \
+    if (!(condition))                           \
     {                                           \
         JSON_FAIL_MESSAGE(message)              \
     }
@@ -186,8 +186,8 @@ public:
     }
     inline int compare(const Value& other) const
     {
-        if(*this < other) return -1;
-        if(*this > other) return 1;
+        if (*this < other) return -1;
+        if (*this > other) return 1;
         return 0;
     }
     void swap(Value& other);

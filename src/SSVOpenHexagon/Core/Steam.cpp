@@ -40,7 +40,7 @@ namespace hg::Steam {
 
     ISteamUser* steam_user = SteamAPI_SteamUser_v022();
 
-    if(!SteamAPI_ISteamUser_BLoggedOn(steam_user))
+    if (!SteamAPI_ISteamUser_BLoggedOn(steam_user))
     {
         ssvu::lo("Steam")
             << "Attempted to retrieve Steam ID when not logged in\n";
@@ -55,11 +55,11 @@ namespace hg::Steam {
 {
     ssvu::lo("Steam") << "Initializing Steam API\n";
 
-    if(SteamAPI_Init())
+    if (SteamAPI_Init())
     {
         ssvu::lo("Steam") << "Steam API successfully initialized\n";
 
-        if(const std::optional<CSteamID> user_steam_id = get_user_steam_id();
+        if (const std::optional<CSteamID> user_steam_id = get_user_steam_id();
             user_steam_id.has_value())
         {
             ssvu::lo("Steam") << "User Steam ID: '"
@@ -206,7 +206,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
 
     ssvuj::Obj cacheArray;
 
-    for(PublishedFileId_t id : subscribedItemsIds)
+    for (PublishedFileId_t id : subscribedItemsIds)
     {
         ssvu::lo("Steam") << "Workshop subscribed item id: " << id << '\n';
 
@@ -216,7 +216,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
         const bool installed = SteamUGC()->GetItemInstallInfo(
             id, &itemDiskSize, folderBuf, folderBufSize, &lastUpdateTimestamp);
 
-        if(installed)
+        if (installed)
         {
             std::string folderBufStr{folderBuf};
 
@@ -233,7 +233,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
     }
 
     // Update the workshop cache with our loaded folders
-    if(_workshop_pack_folders.size() > 0)
+    if (_workshop_pack_folders.size() > 0)
     {
         ssvu::lo("Steam") << "Updating workshop cache\n";
         ssvuj::Obj cacheObj;
@@ -250,7 +250,7 @@ steam_manager::steam_manager_impl::steam_manager_impl()
       _got_ticket{false},
       _ticket_steam_id{}
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return;
     }
@@ -260,7 +260,7 @@ steam_manager::steam_manager_impl::steam_manager_impl()
 
 steam_manager::steam_manager_impl::~steam_manager_impl()
 {
-    if(_initialized)
+    if (_initialized)
     {
         shutdown_steamworks();
     }
@@ -274,13 +274,13 @@ steam_manager::steam_manager_impl::is_initialized() const noexcept
 
 bool steam_manager::steam_manager_impl::request_stats_and_achievements()
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         ssvu::lo("Steam") << "Attempted to request stats when uninitialized\n";
         return false;
     }
 
-    if(!SteamUserStats()->RequestCurrentStats())
+    if (!SteamUserStats()->RequestCurrentStats())
     {
         ssvu::lo("Steam") << "Failed to get stats and achievements\n";
         _got_stats = false;
@@ -293,7 +293,7 @@ bool steam_manager::steam_manager_impl::request_stats_and_achievements()
 
 bool steam_manager::steam_manager_impl::run_callbacks()
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return false;
     }
@@ -304,19 +304,19 @@ bool steam_manager::steam_manager_impl::run_callbacks()
 
 bool steam_manager::steam_manager_impl::store_stats()
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         ssvu::lo("Steam") << "Attempted to store stats when uninitialized\n";
         return false;
     }
 
-    if(!_got_stats)
+    if (!_got_stats)
     {
         ssvu::lo("Steam") << "Attempted to store stat without stats\n";
         return false;
     }
 
-    if(!SteamUserStats()->StoreStats())
+    if (!SteamUserStats()->StoreStats())
     {
         ssvu::lo("Steam") << "Failed to store stats\n";
         return false;
@@ -328,25 +328,25 @@ bool steam_manager::steam_manager_impl::store_stats()
 bool steam_manager::steam_manager_impl::unlock_achievement(
     std::string_view name)
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         ssvu::lo("Steam")
             << "Attempted to unlock achievement when uninitialized\n";
         return false;
     }
 
-    if(!_got_stats)
+    if (!_got_stats)
     {
         ssvu::lo("Steam") << "Attempted to unlock achievement without stats\n";
         return false;
     }
 
-    if(_unlocked_achievements.contains(std::string(name)))
+    if (_unlocked_achievements.contains(std::string(name)))
     {
         return false;
     }
 
-    if(!SteamUserStats()->SetAchievement(name.data()))
+    if (!SteamUserStats()->SetAchievement(name.data()))
     {
         ssvu::lo("Steam") << "Failed to unlock achievement " << name << '\n';
         return false;
@@ -358,7 +358,7 @@ bool steam_manager::steam_manager_impl::unlock_achievement(
 
 bool steam_manager::steam_manager_impl::set_rich_presence_in_menu()
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return false;
     }
@@ -370,7 +370,7 @@ bool steam_manager::steam_manager_impl::set_rich_presence_in_game(
     std::string_view level_name_format, std::string_view difficulty_mult_format,
     std::string_view time_format)
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return false;
     }
@@ -386,7 +386,7 @@ bool steam_manager::steam_manager_impl::set_rich_presence_in_game(
 bool steam_manager::steam_manager_impl::set_and_store_stat(
     std::string_view name, int data)
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return false;
     }
@@ -394,8 +394,8 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
     // Steam API seems to be bugged, and sometimes needs floats even for integer
     // stats.
     const float as_float = data;
-    if(!SteamUserStats()->SetStat(name.data(), as_float) && // Try with float.
-        !SteamUserStats()->SetStat(name.data(), data))      // Try with integer.
+    if (!SteamUserStats()->SetStat(name.data(), as_float) && // Try with float.
+        !SteamUserStats()->SetStat(name.data(), data)) // Try with integer.
     {
         ssvu::lo("Steam") << "Error setting stat '" << name << "' to '"
                           << as_float << "'\n";
@@ -409,12 +409,12 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
 [[nodiscard]] bool steam_manager::steam_manager_impl::get_achievement(
     bool* out, std::string_view name)
 {
-    if(!_initialized || !_got_stats)
+    if (!_initialized || !_got_stats)
     {
         return false;
     }
 
-    if(!SteamUserStats()->GetAchievement(name.data(), out))
+    if (!SteamUserStats()->GetAchievement(name.data(), out))
     {
         ssvu::lo("Steam") << "Error getting achievement " << name << '\n';
         return false;
@@ -426,7 +426,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
 [[nodiscard]] bool steam_manager::steam_manager_impl::get_stat(
     int* out, std::string_view name)
 {
-    if(!_initialized || !_got_stats)
+    if (!_initialized || !_got_stats)
     {
         return false;
     }
@@ -434,13 +434,13 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
     // Steam API seems to be bugged, and sometimes needs floats even for integer
     // stats.
     float as_float;
-    if(SteamUserStats()->GetStat(name.data(), &as_float)) // Try with float.
+    if (SteamUserStats()->GetStat(name.data(), &as_float)) // Try with float.
     {
         *out = as_float;
         return true;
     }
 
-    if(SteamUserStats()->GetStat(name.data(), out)) // Try with integer.
+    if (SteamUserStats()->GetStat(name.data(), out)) // Try with integer.
     {
         return true;
     }
@@ -455,7 +455,7 @@ steam_manager::steam_manager_impl::is_achievement_unlocked(const char* name)
     bool res{false};
     const bool rc = get_achievement(&res, name);
 
-    if(!rc)
+    if (!rc)
     {
         return std::nullopt;
     }
@@ -466,7 +466,7 @@ steam_manager::steam_manager_impl::is_achievement_unlocked(const char* name)
 bool steam_manager::steam_manager_impl::
     update_hardcoded_achievement_cube_master()
 {
-    if(!_initialized || !_got_stats)
+    if (!_initialized || !_got_stats)
     {
         return false;
     }
@@ -479,7 +479,7 @@ bool steam_manager::steam_manager_impl::
         int stat;
         const bool rc = get_stat(&stat, "s0_packprogress_cube");
 
-        if(!rc)
+        if (!rc)
         {
             return false;
         }
@@ -495,9 +495,9 @@ bool steam_manager::steam_manager_impl::
                         unlocked("a8_lab") +        //
                         unlocked("a9_ratio");
 
-        if(acc > stat)
+        if (acc > stat)
         {
-            if(!set_and_store_stat("s0_packprogress_cube", acc))
+            if (!set_and_store_stat("s0_packprogress_cube", acc))
             {
                 return false;
             }
@@ -510,7 +510,7 @@ bool steam_manager::steam_manager_impl::
 bool steam_manager::steam_manager_impl::
     update_hardcoded_achievement_hypercube_master()
 {
-    if(!_initialized || !_got_stats)
+    if (!_initialized || !_got_stats)
     {
         return false;
     }
@@ -523,7 +523,7 @@ bool steam_manager::steam_manager_impl::
         int stat;
         const bool rc = get_stat(&stat, "s1_packprogress_hypercube");
 
-        if(!rc)
+        if (!rc)
         {
             return false;
         }
@@ -539,9 +539,9 @@ bool steam_manager::steam_manager_impl::
                         unlocked("a19_centrifugalforce") + //
                         unlocked("a20_massacre");
 
-        if(acc > stat)
+        if (acc > stat)
         {
-            if(!set_and_store_stat("s1_packprogress_hypercube", acc))
+            if (!set_and_store_stat("s1_packprogress_hypercube", acc))
             {
                 return false;
             }
@@ -553,7 +553,7 @@ bool steam_manager::steam_manager_impl::
 
 bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
 {
-    if(!_initialized || !_got_stats)
+    if (!_initialized || !_got_stats)
     {
         return false;
     }
@@ -566,7 +566,7 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
         int stat;
         const bool rc = get_stat(&stat, "s2_packprogress_cubegod");
 
-        if(!rc)
+        if (!rc)
         {
             return false;
         }
@@ -581,9 +581,9 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
                         unlocked("a32_lab_hard") +        //
                         unlocked("a33_ratio_hard");
 
-        if(acc > stat)
+        if (acc > stat)
         {
-            if(!set_and_store_stat("s2_packprogress_cubegod", acc))
+            if (!set_and_store_stat("s2_packprogress_cubegod", acc))
             {
                 return false;
             }
@@ -596,7 +596,7 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
 bool steam_manager::steam_manager_impl::
     update_hardcoded_achievement_hypercube_god()
 {
-    if(!_initialized || !_got_stats)
+    if (!_initialized || !_got_stats)
     {
         return false;
     }
@@ -609,7 +609,7 @@ bool steam_manager::steam_manager_impl::
         int stat;
         const bool rc = get_stat(&stat, "s3_packprogress_hypercubegod");
 
-        if(!rc)
+        if (!rc)
         {
             return false;
         }
@@ -624,9 +624,9 @@ bool steam_manager::steam_manager_impl::
                         unlocked("a45_centrifugalforce_hard") + //
                         unlocked("a46_massacre_hard");
 
-        if(acc > stat)
+        if (acc > stat)
         {
-            if(!set_and_store_stat("s3_packprogress_hypercubegod", acc))
+            if (!set_and_store_stat("s3_packprogress_hypercubegod", acc))
             {
                 return false;
             }
@@ -654,12 +654,12 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
 void steam_manager::steam_manager_impl::for_workshop_pack_folders(
     const std::function<void(const std::string&)>& f) const
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         return;
     }
 
-    for(const std::string& s : _workshop_pack_folders)
+    for (const std::string& s : _workshop_pack_folders)
     {
         f(s);
     }
@@ -669,7 +669,7 @@ void steam_manager::steam_manager_impl::for_workshop_pack_folders(
 
 bool steam_manager::steam_manager_impl::request_encrypted_app_ticket()
 {
-    if(!_initialized)
+    if (!_initialized)
     {
         ssvu::lo("Steam")
             << "Attempted to request encrypted app ticket when uninitialized\n";
@@ -701,7 +701,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     ssvu::lo("Steam") << "Received encrypted app ticket response\n";
     _got_ticket_response = true;
 
-    if(io_failure)
+    if (io_failure)
     {
         ssvu::lo("Steam")
             << "Error: encrypted app ticket response IO failure\n";
@@ -709,7 +709,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
         return;
     }
 
-    if(data->m_eResult == k_EResultNoConnection)
+    if (data->m_eResult == k_EResultNoConnection)
     {
         ssvu::lo("Steam")
             << "Error: requested encrypted app ticket while not connected to "
@@ -718,7 +718,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
         return;
     }
 
-    if(data->m_eResult == k_EResultDuplicateRequest)
+    if (data->m_eResult == k_EResultDuplicateRequest)
     {
         ssvu::lo("Steam")
             << "Error: requested encrypted app ticket while there is already a "
@@ -727,7 +727,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
         return;
     }
 
-    if(data->m_eResult == k_EResultLimitExceeded)
+    if (data->m_eResult == k_EResultLimitExceeded)
     {
         ssvu::lo("Steam") << "Error: requested encrypted app ticket more than "
                              "once per minute\n";
@@ -735,7 +735,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
         return;
     }
 
-    if(data->m_eResult != k_EResultOK)
+    if (data->m_eResult != k_EResultOK)
     {
         ssvu::lo("Steam")
             << "Error: requested encrypted app ticket, got unexpected result '"
@@ -749,8 +749,8 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     std::uint8_t rgubTicket[1024];
     std::uint32_t cubTicket;
 
-    if(!SteamUser()->GetEncryptedAppTicket(
-           rgubTicket, sizeof(rgubTicket), &cubTicket))
+    if (!SteamUser()->GetEncryptedAppTicket(
+            rgubTicket, sizeof(rgubTicket), &cubTicket))
     {
         ssvu::lo("Steam") << "Error: 'GetEncryptedAppTicket' failed\n";
         return;
@@ -766,15 +766,15 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     };
     // clang-format on
 
-    if(!SteamEncryptedAppTicket_BDecryptTicket(rgubTicket, cubTicket,
-           rgubDecrypted, &cubDecrypted, rgubKey, sizeof(rgubKey)))
+    if (!SteamEncryptedAppTicket_BDecryptTicket(rgubTicket, cubTicket,
+            rgubDecrypted, &cubDecrypted, rgubKey, sizeof(rgubKey)))
     {
         ssvu::lo("Steam") << "Error: 'BDecryptTicket' failed\n";
         return;
     }
 
-    if(!SteamEncryptedAppTicket_BIsTicketForApp(
-           rgubDecrypted, cubDecrypted, SteamUtils()->GetAppID()))
+    if (!SteamEncryptedAppTicket_BIsTicketForApp(
+            rgubDecrypted, cubDecrypted, SteamUtils()->GetAppID()))
     {
         ssvu::lo("Steam") << "Error: ticket for wrong app id\n";
         return;
@@ -784,10 +784,10 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     SteamEncryptedAppTicket_GetTicketSteamID(
         rgubDecrypted, cubDecrypted, &steamIDFromTicket);
 
-    if(const std::optional<CSteamID> user_steam_id = get_user_steam_id();
+    if (const std::optional<CSteamID> user_steam_id = get_user_steam_id();
         user_steam_id.has_value())
     {
-        if(steamIDFromTicket != *user_steam_id)
+        if (steamIDFromTicket != *user_steam_id)
         {
             ssvu::lo("Steam") << "Error: ticket for wrong user\n";
             return;
@@ -813,7 +813,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     std::memcpy(static_cast<void*>(&pUnSecretData),
         static_cast<const void*>(receivedData), sizeof(pUnSecretData));
 
-    if(cubData != sizeof(std::uint32_t) || pUnSecretData != unSecretData)
+    if (cubData != sizeof(std::uint32_t) || pUnSecretData != unSecretData)
     {
         ssvu::lo("Steam") << "Error: failed to retrieve secret data\n";
     }

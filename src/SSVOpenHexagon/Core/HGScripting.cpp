@@ -75,7 +75,7 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_log", //
         [this](const std::string& mLog)
         {
-            if(window == nullptr) // headless
+            if (window == nullptr) // headless
             {
                 return;
             }
@@ -411,7 +411,7 @@ void HexagonGame::initLua_EventTimeline()
             eventTimeline.append_do(
                 [=, this]
                 {
-                    if(firstPlay)
+                    if (firstPlay)
                     {
                         addMessage(mMsg, mDuration, /* mSoundToggle */ true);
                     }
@@ -468,7 +468,7 @@ void HexagonGame::initLua_CustomTimelines()
     const auto checkHandle = [this](CustomTimelineHandle cth,
                                  const char* title) -> bool
     {
-        if(_customTimelineManager.isHandleValid(cth))
+        if (_customTimelineManager.isHandleValid(cth))
         {
             return true;
         }
@@ -482,7 +482,7 @@ void HexagonGame::initLua_CustomTimelines()
     addLuaFn(lua, "ct_eval",
         [checkHandle, this](CustomTimelineHandle cth, const std::string& mCode)
         {
-            if(!checkHandle(cth, "ct_eval"))
+            if (!checkHandle(cth, "ct_eval"))
             {
                 return;
             }
@@ -499,7 +499,7 @@ void HexagonGame::initLua_CustomTimelines()
     addLuaFn(lua, "ct_kill", //
         [checkHandle, this](CustomTimelineHandle cth)
         {
-            if(!checkHandle(cth, "ct_kill"))
+            if (!checkHandle(cth, "ct_kill"))
             {
                 return;
             }
@@ -513,7 +513,7 @@ void HexagonGame::initLua_CustomTimelines()
     addLuaFn(lua, "ct_stopTime", //
         [checkHandle, this](CustomTimelineHandle cth, double mDuration)
         {
-            if(!checkHandle(cth, "ct_stopTime"))
+            if (!checkHandle(cth, "ct_stopTime"))
             {
                 return;
             }
@@ -531,7 +531,7 @@ void HexagonGame::initLua_CustomTimelines()
     addLuaFn(lua, "ct_stopTimeS", //
         [checkHandle, this](CustomTimelineHandle cth, double mDuration)
         {
-            if(!checkHandle(cth, "ct_stopTimeS"))
+            if (!checkHandle(cth, "ct_stopTimeS"))
             {
                 return;
             }
@@ -548,7 +548,7 @@ void HexagonGame::initLua_CustomTimelines()
     addLuaFn(lua, "ct_wait",
         [checkHandle, this](CustomTimelineHandle cth, double mDuration)
         {
-            if(!checkHandle(cth, "ct_wait"))
+            if (!checkHandle(cth, "ct_wait"))
             {
                 return;
             }
@@ -565,7 +565,7 @@ void HexagonGame::initLua_CustomTimelines()
     addLuaFn(lua, "ct_waitS", //
         [checkHandle, this](CustomTimelineHandle cth, double mDuration)
         {
-            if(!checkHandle(cth, "ct_waitS"))
+            if (!checkHandle(cth, "ct_waitS"))
             {
                 return;
             }
@@ -582,7 +582,7 @@ void HexagonGame::initLua_CustomTimelines()
     addLuaFn(lua, "ct_waitUntilS", //
         [checkHandle, this](CustomTimelineHandle cth, double mDuration)
         {
-            if(!checkHandle(cth, "ct_waitUntilS"))
+            if (!checkHandle(cth, "ct_waitUntilS"))
             {
                 return;
             }
@@ -634,14 +634,14 @@ void HexagonGame::initLua_LevelControl()
 								end
 )");
             }
-            catch(const std::runtime_error& mError)
+            catch (const std::runtime_error& mError)
             {
                 std::cout
                     << "[l_overrideScore] Runtime error on overriding score "
                     << "with level \"" << levelData->name << "\": \n"
                     << mError.what() << '\n'
                     << std::endl;
-                if(!Config::getDebug())
+                if (!Config::getDebug())
                 {
                     goToMenu(false /* mSendScores */, true /* mError */);
                 }
@@ -659,7 +659,7 @@ void HexagonGame::initLua_LevelControl()
         {
             // TODO (P2): might break replays if someone uses this to control
             // game logic
-            if(backgroundCamera.has_value())
+            if (backgroundCamera.has_value())
             {
                 backgroundCamera->setRotation(mValue);
             }
@@ -836,13 +836,13 @@ void HexagonGame::initLua_Steam()
     addLuaFn(lua, "steam_unlockAchievement", //
         [this](const std::string& mId)
         {
-            if(inReplay())
+            if (inReplay())
             {
                 // Do not unlock achievements while watching a replay.
                 return;
             }
 
-            if(steamManager != nullptr && Config::getOfficial())
+            if (steamManager != nullptr && Config::getOfficial())
             {
                 steamManager->unlock_achievement(mId);
             }
@@ -1012,7 +1012,7 @@ void HexagonGame::initLua_Deprecated()
             eventTimeline.append_do(
                 [=, this]
                 {
-                    if(firstPlay)
+                    if (firstPlay)
                     {
                         addMessage(mMsg, mDuration, /* mSoundToggle */ true);
                     }
@@ -1125,7 +1125,7 @@ try
 {
     const bool headless = window == nullptr;
 
-    if(headless || Config::getUseLuaFileCache())
+    if (headless || Config::getUseLuaFileCache())
     {
         Utils::runLuaFileCached(assets, lua, mFileName);
     }
@@ -1134,9 +1134,9 @@ try
         Utils::runLuaFile(lua, mFileName);
     }
 }
-catch(...)
+catch (...)
 {
-    if(!Config::getDebug())
+    if (!Config::getDebug())
     {
         goToMenu(false /* mSendScores */, true /* mError */);
     }
@@ -1153,26 +1153,26 @@ try
 {
     throw;
 }
-catch(const std::runtime_error& mError)
+catch (const std::runtime_error& mError)
 {
     std::cout << "[runLuaFunctionIfExists] Runtime error on \"" << mName
               << "\" with level \"" << levelData->name << "\": \n"
               << mError.what() << '\n'
               << std::endl;
 
-    if(!Config::getDebug())
+    if (!Config::getDebug())
     {
         goToMenu(false /* mSendScores */, true /* mError */);
     }
 }
-catch(...)
+catch (...)
 {
     std::cout << "[runLuaFunctionIfExists] Unknown runtime error on \"" << mName
               << "\" with level \"" << levelData->name << "\": \n"
               << '\n'
               << std::endl;
 
-    if(!Config::getDebug())
+    if (!Config::getDebug())
     {
         goToMenu(false /* mSendScores */, true /* mError */);
     }

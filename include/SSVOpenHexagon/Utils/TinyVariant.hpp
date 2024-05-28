@@ -26,9 +26,9 @@ inline void operator delete(
 {}
 
 #define TINYVARIANT_PLACEMENT_NEW(...) \
-    ::new(::vittorioromeo::impl::placement_new_dummy{}, __VA_ARGS__)
+    ::new (::vittorioromeo::impl::placement_new_dummy{}, __VA_ARGS__)
 
-#if((__GNUC__ >= 10) || defined(__clang__)) && !defined(_MSC_VER)
+#if ((__GNUC__ >= 10) || defined(__clang__)) && !defined(_MSC_VER)
 #define TINYVARIANT_SUPPORTS_HAS_BUILTIN
 #endif
 
@@ -135,9 +135,9 @@ template <auto X, auto... Xs>
     decltype(X) result = X;
     decltype(X) rest[]{Xs...};
 
-    for(auto value : rest)
+    for (auto value : rest)
     {
-        if(value > result)
+        if (value > result)
         {
             result = value;
         }
@@ -150,19 +150,19 @@ template <sz_t N>
 [[nodiscard, gnu::always_inline]] consteval auto
 smallest_int_type_for() noexcept
 {
-    if constexpr(N <= UINT8_MAX)
+    if constexpr (N <= UINT8_MAX)
     {
         return std::uint8_t{};
     }
-    else if constexpr(N <= UINT16_MAX)
+    else if constexpr (N <= UINT16_MAX)
     {
         return std::uint16_t{};
     }
-    else if constexpr(N <= UINT32_MAX)
+    else if constexpr (N <= UINT32_MAX)
     {
         return std::uint32_t{};
     }
-    else if constexpr(N <= UINT64_MAX)
+    else if constexpr (N <= UINT64_MAX)
     {
         return std::uint64_t{};
     }
@@ -183,9 +183,9 @@ template <typename T, typename... Ts>
 {
     constexpr bool matches[]{is_same_type<T, Ts>...};
 
-    for(sz_t i = 0; i < sizeof...(Ts); ++i)
+    for (sz_t i = 0; i < sizeof...(Ts); ++i)
     {
-        if(matches[i])
+        if (matches[i])
         {
             return i;
         }
@@ -368,20 +368,20 @@ private:
 #define TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ(obj, Is, ...)                 \
     do                                                                      \
     {                                                                       \
-        if constexpr(sizeof...(Alternatives) == 1)                          \
+        if constexpr (sizeof...(Alternatives) == 1)                         \
         {                                                                   \
-            if(constexpr impl::sz_t Is = 0; (obj)._index == Is)             \
+            if (constexpr impl::sz_t Is = 0; (obj)._index == Is)            \
             {                                                               \
                 __VA_ARGS__;                                                \
             }                                                               \
         }                                                                   \
-        else if constexpr(sizeof...(Alternatives) == 2)                     \
+        else if constexpr (sizeof...(Alternatives) == 2)                    \
         {                                                                   \
-            if(constexpr impl::sz_t Is = 0; (obj)._index == Is)             \
+            if (constexpr impl::sz_t Is = 0; (obj)._index == Is)            \
             {                                                               \
                 __VA_ARGS__;                                                \
             }                                                               \
-            else if(constexpr impl::sz_t Is = 1; (obj)._index == Is)        \
+            else if (constexpr impl::sz_t Is = 1; (obj)._index == Is)       \
             {                                                               \
                 __VA_ARGS__;                                                \
             }                                                               \
@@ -394,7 +394,7 @@ private:
                 }(alternative_index_sequence);                              \
         }                                                                   \
     }                                                                       \
-    while(false)
+    while (false)
 
 #define TINYVARIANT_DO_WITH_CURRENT_INDEX(Is, ...) \
     TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ((*this), Is, __VA_ARGS__)
@@ -418,7 +418,7 @@ private:
     template <impl::sz_t I, typename R, typename Visitor>
     [[nodiscard, gnu::always_inline]] R recursive_visit_impl(Visitor&& visitor)
     {
-        if constexpr(I < sizeof...(Alternatives) - 1)
+        if constexpr (I < sizeof...(Alternatives) - 1)
         {
             return (_index == I) ? visitor(get_by_index<I>())
                                  : recursive_visit_impl<I + 1, R>(
@@ -434,7 +434,7 @@ private:
     [[nodiscard, gnu::always_inline]] R recursive_visit_opt5_impl(
         Visitor&& visitor)
     {
-        if constexpr(I == 0 && sizeof...(Alternatives) == 5)
+        if constexpr (I == 0 && sizeof...(Alternatives) == 5)
         {
             // clang-format off
             return (_index == I + 0) ? visitor(get_by_index<I + 0>()) :
@@ -444,7 +444,7 @@ private:
                                        visitor(get_by_index<I + 4>()) ;
             // clang-format on
         }
-        else if constexpr(I + 4 < sizeof...(Alternatives))
+        else if constexpr (I + 4 < sizeof...(Alternatives))
         {
             // clang-format off
             return (_index == I + 0) ? visitor(get_by_index<I + 0>()) :
@@ -465,7 +465,7 @@ private:
     [[nodiscard, gnu::always_inline]] R recursive_visit_opt10_impl(
         Visitor&& visitor)
     {
-        if constexpr(I + 9 < sizeof...(Alternatives))
+        if constexpr (I + 9 < sizeof...(Alternatives))
         {
             // clang-format off
             return (_index == I + 0) ? visitor(get_by_index<I + 0>()) :
@@ -549,7 +549,7 @@ public:
 
     [[gnu::always_inline]] tinyvariant& operator=(const tinyvariant& rhs)
     {
-        if(this == &rhs)
+        if (this == &rhs)
         {
             return *this;
         }
@@ -654,12 +654,12 @@ public:
                                     impl::declval<nth_type<0>>()))>
     [[nodiscard, gnu::always_inline]] R recursive_visit(Visitor&& visitor) &
     {
-        if constexpr(sizeof...(Alternatives) >= 10)
+        if constexpr (sizeof...(Alternatives) >= 10)
         {
             return recursive_visit_opt10_impl<0, R>(
                 static_cast<Visitor&&>(visitor));
         }
-        else if constexpr(sizeof...(Alternatives) >= 5)
+        else if constexpr (sizeof...(Alternatives) >= 5)
         {
             return recursive_visit_opt5_impl<0, R>(
                 static_cast<Visitor&&>(visitor));
@@ -675,12 +675,12 @@ public:
     [[nodiscard, gnu::always_inline]] R recursive_visit(
         Visitor&& visitor) const&
     {
-        if constexpr(sizeof...(Alternatives) >= 10)
+        if constexpr (sizeof...(Alternatives) >= 10)
         {
             return recursive_visit_opt10_impl<0, R>(
                 static_cast<Visitor&&>(visitor));
         }
-        else if constexpr(sizeof...(Alternatives) >= 5)
+        else if constexpr (sizeof...(Alternatives) >= 5)
         {
             return recursive_visit_opt5_impl<0, R>(
                 static_cast<Visitor&&>(visitor));
@@ -711,7 +711,7 @@ public:
                                     impl::declval<nth_type<0>>()))>
     [[nodiscard, gnu::always_inline]] R linear_visit(Visitor&& visitor) &
     {
-        if constexpr(impl::is_reference<R>)
+        if constexpr (impl::is_reference<R>)
         {
             impl::uncvref_t<R>* ret;
             TINYVARIANT_DO_WITH_CURRENT_INDEX(
@@ -738,7 +738,7 @@ public:
                                     impl::declval<nth_type<0>>()))>
     [[nodiscard, gnu::always_inline]] R linear_visit(Visitor&& visitor) const&
     {
-        if constexpr(impl::is_reference<R>)
+        if constexpr (impl::is_reference<R>)
         {
             impl::uncvref_t<R>* ret;
             TINYVARIANT_DO_WITH_CURRENT_INDEX(

@@ -62,7 +62,7 @@ template <typename T>
     std::string result;
     result.reserve(sodiumKey.size());
 
-    for(const unsigned char c : sodiumKey)
+    for (const unsigned char c : sodiumKey)
     {
         result += std::to_string(static_cast<int>(c));
     }
