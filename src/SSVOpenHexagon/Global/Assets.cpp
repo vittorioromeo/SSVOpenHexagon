@@ -570,10 +570,11 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 [[nodiscard]] sf::Texture& HGAssets::HGAssetsImpl::getTextureOrNullTexture(
     const std::string& mId)
 {
-    static sf::Texture nullTexture;
-    sf::Texture* ptr = assetStorage->getTexture(mId);
+    static auto nullTexture = sf::Texture::create({1u, 1u});
+    SSVOH_ASSERT(nullTexture.has_value());
 
-    return ptr ? *ptr : nullTexture;
+    sf::Texture* ptr = assetStorage->getTexture(mId);
+    return ptr ? *ptr : *nullTexture;
 }
 
 [[nodiscard]] sf::Font& HGAssets::HGAssetsImpl::getFont(const std::string& mId)

@@ -7,7 +7,6 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include "SSVOpenHexagon/Global/Macros.hpp"
-#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <SFML/Graphics/Font.hpp>
@@ -20,24 +19,6 @@
 #include <unordered_map>
 
 namespace hg {
-
-template <typename Map, typename Key, typename F>
-[[nodiscard]] static decltype(auto) tryEmplaceAndThen(
-    Map& map, const Key& key, F&& f)
-{
-    auto [it, inserted] =
-        map.emplace(std::piecewise_construct, std::tuple{key}, std::tuple{});
-
-    return inserted && f(it->second);
-}
-
-template <typename Map, typename Key>
-[[nodiscard]] static decltype(auto) tryEmplaceAndThenLoadFromFile(
-    Map& map, const Key& key, const std::string& path)
-{
-    return tryEmplaceAndThen(
-        map, key, [&path](auto& value) { return value.loadFromFile(path); });
-}
 
 template <typename Map, typename Key>
 [[nodiscard]] static auto* getAsPtr(Map& map, const Key& key) noexcept
@@ -57,7 +38,15 @@ public:
     [[nodiscard]] bool loadTexture(
         const std::string& id, const std::string& path)
     {
-        return tryEmplaceAndThenLoadFromFile(_textures, id, path);
+        std::optional texture = sf::Texture::loadFromFile(path);
+
+        if (!texture.has_value())
+        {
+            return false;
+        }
+
+        auto [it, inserted] = _textures.emplace(id, *SSVOH_MOVE(texture));
+        return inserted;
     }
 
     [[nodiscard]] bool loadFont(const std::string& id, const std::string& path)
