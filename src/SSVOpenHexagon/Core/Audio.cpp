@@ -179,14 +179,9 @@ public:
             return false;
         }
 
-        if (!_music.has_value())
-        {
-            _music.emplace();
-        }
-
         if (_lastLoadedMusicPath != *path)
         {
-            if (!_music->openFromFile(*path))
+            if (!(_music = sf::Music::openFromFile(*path)))
             {
                 ssvu::lo("hg::AudioImpl::playMusic")
                     << "Failed loading music file '" << path << "'\n";
@@ -197,6 +192,8 @@ public:
 
             _lastLoadedMusicPath = *path;
         }
+
+        SSVOH_ASSERT(_music.has_value());
 
         _music->setLoop(true);
         setMusicPlayingOffsetSeconds(playingOffsetSeconds);

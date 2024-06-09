@@ -584,9 +584,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
         return *ptr;
     }
 
-    std::cerr << "Fatal error: missing sound file '" << mId << '\''
-              << std::endl;
-
+    std::cerr << "Fatal error: missing font file '" << mId << '\'' << std::endl;
     std::terminate();
 }
 
