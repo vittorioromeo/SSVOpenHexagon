@@ -21,6 +21,7 @@ cmake .. -G"Ninja" \
             -Wall -Wextra -Wpedantic -Wno-braced-scalar-init \
             -Wno-pragmas -Wno-missing-field-initializers \
             -Wno-stringop-overflow \
-            -D_GLIBCXX_ASSERTIONS=1 -D_FORTIFY_SOURCE=2 \
+            -D_GLIBCXX_ASSERTIONS=1 -D_FORTIFY_SOURCE=3 \
             -fstack-protector -Wno-pragmas \
-            -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off -DSFML_ENABLE_LIFETIME_TRACKING=1"
+            -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off \
+            -DSFML_ENABLE_LIFETIME_TRACKING=1"
