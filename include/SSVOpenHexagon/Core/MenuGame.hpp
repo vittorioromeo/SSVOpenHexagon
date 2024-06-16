@@ -135,6 +135,11 @@ private:
     static constexpr std::array<const char*, 3> creditsIds{
         "creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png"};
 
+    sf::Texture& txTitleBar;
+    sf::Texture& txCreditsBar1;
+    sf::Texture* txCreditsBar2;
+    sf::Texture& txEpilepsyWarning;
+
     sf::Sprite titleBar;
     sf::Sprite creditsBar1;
     sf::Sprite creditsBar2;
@@ -144,6 +149,7 @@ private:
     //---------------------------------------
     // Online status bar
 
+    sf::Texture* txSOnline;
     sf::Sprite sOnline;
     sf::RectangleShape rsOnlineStatus;
     sf::Text txtOnlineStatus;
@@ -294,6 +300,7 @@ private:
 
     void draw();
     void render(sf::Drawable& mDrawable);
+    void render(const sf::Sprite& mSprite, const sf::Texture& mTexture);
 
     // Helper functions
     [[nodiscard]] float getFPSMult() const;

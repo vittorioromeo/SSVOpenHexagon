@@ -226,6 +226,12 @@ private:
     float nextPBParticleSpawn{0.f};
     float pbTextGrowth{0.f};
 
+    sf::Texture* txKeyIconLeft;
+    sf::Texture* txKeyIconRight;
+    sf::Texture* txKeyIconFocus;
+    sf::Texture* txKeyIconSwap;
+    sf::Texture* txReplayIcon;
+
     sf::Sprite keyIconLeft;
     sf::Sprite keyIconRight;
     sf::Sprite keyIconFocus;
@@ -518,6 +524,8 @@ public:
     // Graphics-related methods
     void render(sf::Drawable& mDrawable,
         const sf::RenderStates& mStates = sf::RenderStates::Default);
+
+    void render(const sf::Sprite& mSprite, const sf::Texture& mTexture);
 
     // Setters
     void setSides(unsigned int mSides);

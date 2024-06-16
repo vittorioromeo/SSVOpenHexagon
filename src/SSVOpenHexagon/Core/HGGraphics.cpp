@@ -49,6 +49,19 @@ void HexagonGame::render(
     window->draw(mDrawable, mStates);
 }
 
+void HexagonGame::render(const sf::Sprite& mSprite, const sf::Texture& mTexture)
+{
+    if (window == nullptr)
+    {
+        ssvu::lo("hg::HexagonGame::render")
+            << "Attempted to render without a game window\n";
+
+        return;
+    }
+
+    window->getRenderWindow().draw(mSprite, mTexture);
+}
+
 void HexagonGame::draw()
 {
     if (window == nullptr || Config::getDisableGameRendering())
@@ -370,17 +383,17 @@ void HexagonGame::drawKeyIcons()
     keyIconFocus.setColor(getInputFocused() ? onColor : offColor);
     keyIconSwap.setColor(getInputSwap() ? onColor : offColor);
 
-    render(keyIconLeft);
-    render(keyIconRight);
-    render(keyIconFocus);
-    render(keyIconSwap);
+    render(keyIconLeft, *txKeyIconLeft);
+    render(keyIconRight, *txKeyIconRight);
+    render(keyIconFocus, *txKeyIconFocus);
+    render(keyIconSwap, *txKeyIconSwap);
 
     // ------------------------------------------------------------------------
 
     if (mustShowReplayUI())
     {
         replayIcon.setColor(onColor);
-        render(replayIcon);
+        render(replayIcon, *txReplayIcon);
     }
 }
 
@@ -402,7 +415,7 @@ void HexagonGame::drawParticles()
 {
     for (Particle& p : particles)
     {
-        render(p.sprite);
+        render(p.sprite, *txStarParticle);
     }
 }
 
@@ -410,7 +423,7 @@ void HexagonGame::drawTrailParticles()
 {
     for (TrailParticle& p : trailParticles)
     {
-        render(p.sprite);
+        render(p.sprite, *txSmallCircle);
     }
 }
 
@@ -418,7 +431,7 @@ void HexagonGame::drawSwapParticles()
 {
     for (SwapParticle& p : swapParticles)
     {
-        render(p.sprite);
+        render(p.sprite, *txSmallCircle);
     }
 }
 

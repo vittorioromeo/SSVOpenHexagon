@@ -166,11 +166,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       lua{},
       execScriptPackPathContext{},
       currentPack{nullptr},
-      titleBar{assets.getTexture("titleBar.png")},
-      creditsBar1{assets.getTexture("creditsBar1.png")},
-      creditsBar2{assets.getTexture("creditsBar2.png")},
-      epilepsyWarning{assets.getTexture("epilepsyWarning.png")},
-      sOnline{assets.getTexture("onlineIconFail.png")},
+      txTitleBar{assets.getTexture("titleBar.png")},
+      txCreditsBar1{assets.getTexture("creditsBar1.png")},
+      txCreditsBar2{&assets.getTexture("creditsBar2.png")},
+      txEpilepsyWarning{assets.getTexture("epilepsyWarning.png")},
+      titleBar{txTitleBar.getRect()},
+      creditsBar1{txCreditsBar1.getRect()},
+      creditsBar2{txCreditsBar2->getRect()},
+      epilepsyWarning{txEpilepsyWarning.getRect()},
+      txSOnline{&assets.getTexture("onlineIconFail.png")},
+      sOnline{txSOnline->getRect()},
       rsOnlineStatus{sf::Vector2f{128.f, 32.f}},
       txtOnlineStatus{openSquare, "", 24},
       enteredChars{},
@@ -2838,8 +2843,9 @@ void MenuGame::update(ssvu::FT mFT)
     }
 
     currentCreditsId += mFT;
-    creditsBar2.setTexture(assets.getTexture(
-        ssvu::getByModIdx(creditsIds, ssvu::toInt(currentCreditsId / 100))));
+    txCreditsBar2 = &assets.getTexture(
+        ssvu::getByModIdx(creditsIds, ssvu::toInt(currentCreditsId / 100)));
+    creditsBar2.setTextureRect(txCreditsBar2->getRect());
 
     if (exitTimer > 20)
     {
@@ -5393,7 +5399,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         {difficultyBumpFactor, difficultyBumpFactor});
 
     renderText(tempString, txtSelectionMedium.font,
-        {textXPos + txtSelectionMedium.font.getGlobalBounds().width,
+        {textXPos + txtSelectionMedium.font.getGlobalBounds().size.y,
             difficultyHeight});
 
     txtSelectionMedium.font.setScale({1.f, 1.f});
@@ -5824,7 +5830,7 @@ void MenuGame::draw()
             return;
 
         case States::EpilepsyWarning:
-            render(epilepsyWarning);
+            render(epilepsyWarning, txEpilepsyWarning);
             renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
                 {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
@@ -5974,6 +5980,11 @@ void MenuGame::render(sf::Drawable& mDrawable)
     window.draw(mDrawable);
 }
 
+void MenuGame::render(const sf::Sprite& mSprite, const sf::Texture& mTexture)
+{
+    window.getRenderWindow().draw(mSprite, mTexture);
+}
+
 [[nodiscard]] float MenuGame::getFPSMult() const
 {
     // multiplier for FPS consistent drawing operations.
@@ -5982,9 +5993,9 @@ void MenuGame::render(sf::Drawable& mDrawable)
 
 void MenuGame::drawGraphics()
 {
-    render(titleBar);
-    render(creditsBar1);
-    render(creditsBar2);
+    render(titleBar, txTitleBar);
+    render(creditsBar1, txCreditsBar1);
+    render(creditsBar2, *txCreditsBar2);
     render(txtVersion.font);
 }
 
@@ -6067,13 +6078,14 @@ void MenuGame::drawOnlineStatus()
 
     if (stateGood)
     {
-        sOnline.setTexture(assets.getTexture("onlineIcon.png"));
+        txSOnline = &assets.getTexture("onlineIcon.png");
     }
     else
     {
-        sOnline.setTexture(assets.getTexture("onlineIconFail.png"));
+        txSOnline = &assets.getTexture("onlineIconFail.png");
     }
 
+    sOnline.setTextureRect(txSOnline->getRect());
     sOnline.setScale({spriteScale, spriteScale});
     sOnline.setOrigin(ssvs::getLocalSW(sOnline));
     sOnline.setPosition({0.f + padding, getWindowHeight() - padding});
@@ -6091,7 +6103,7 @@ void MenuGame::drawOnlineStatus()
         {ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
             ssvs::getGlobalCenter(rsOnlineStatus).y});
 
-    render(sOnline);
+    render(sOnline, *txSOnline);
     render(rsOnlineStatus);
     render(txtOnlineStatus);
 }

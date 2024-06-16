@@ -320,11 +320,16 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
       txStarParticle{nullptr},
       txSmallCircle{nullptr},
-      keyIconLeft{assets.getTextureOrNullTexture("keyArrow.png")},
-      keyIconRight{assets.getTextureOrNullTexture("keyArrow.png")},
-      keyIconFocus{assets.getTextureOrNullTexture("keyFocus.png")},
-      keyIconSwap{assets.getTextureOrNullTexture("keySwap.png")},
-      replayIcon{assets.getTextureOrNullTexture("replayIcon.png")},
+      txKeyIconLeft{nullptr},
+      txKeyIconRight{nullptr},
+      txKeyIconFocus{nullptr},
+      txKeyIconSwap{nullptr},
+      txReplayIcon{nullptr},
+      keyIconLeft{sf::IntRect{}},
+      keyIconRight{sf::IntRect{}},
+      keyIconFocus{sf::IntRect{}},
+      keyIconSwap{sf::IntRect{}},
+      replayIcon{sf::IntRect{}},
       rng{initializeRng()}
 {
     if (!assets.isHeadless())
@@ -346,6 +351,18 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
         txStarParticle = &assets.getTextureOrNullTexture("starParticle.png");
         txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
+
+        txKeyIconLeft = &assets.getTextureOrNullTexture("keyArrow.png");
+        txKeyIconRight = &assets.getTextureOrNullTexture("keyArrow.png");
+        txKeyIconFocus = &assets.getTextureOrNullTexture("keyFocus.png");
+        txKeyIconSwap = &assets.getTextureOrNullTexture("keySwap.png");
+        txReplayIcon = &assets.getTextureOrNullTexture("replayIcon.png");
+
+        keyIconLeft.setTextureRect(txKeyIconLeft->getRect());
+        keyIconRight.setTextureRect(txKeyIconRight->getRect());
+        keyIconFocus.setTextureRect(txKeyIconFocus->getRect());
+        keyIconSwap.setTextureRect(txKeyIconSwap->getRect());
+        replayIcon.setTextureRect(txReplayIcon->getRect());
     }
 
     game.onUpdate +=

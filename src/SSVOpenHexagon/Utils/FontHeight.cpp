@@ -11,7 +11,7 @@ namespace hg::Utils {
 [[nodiscard]] float getFontHeight(sf::Text& font)
 {
     font.setString("ABCDEFGHILMNOPQRSTUVZ:");
-    return font.getGlobalBounds().height;
+    return font.getGlobalBounds().size.y;
 }
 
 [[nodiscard]] float getFontHeight(sf::Text& font, const unsigned int charSize)

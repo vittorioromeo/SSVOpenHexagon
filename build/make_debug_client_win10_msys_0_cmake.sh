@@ -23,5 +23,4 @@ cmake .. -G"Ninja" \
             -Wno-stringop-overflow \
             -D_GLIBCXX_ASSERTIONS=1 -D_FORTIFY_SOURCE=2 \
             -fstack-protector -Wno-pragmas \
-            -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off"
-
+            -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off -DSFML_ENABLE_LIFETIME_TRACKING=1"
