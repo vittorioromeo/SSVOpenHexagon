@@ -77,9 +77,9 @@ endif()
 
 file(
     DOWNLOAD
-    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.40.0/CPM.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-    EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
+    EXPECTED_HASH SHA256=7b354f3a5976c4626c876850c93944e52c83ec59a159ae5de5be7983f0e17a2a
 )
 
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
@@ -97,7 +97,7 @@ set(SFML_ENABLE_PCH true)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 62e83b7f9e7cf1fc24e2a9fca7fcc8b4a8ff4952
+    GIT_TAG 5c6d2ef623ca07fc528d794b763bbf67395d4b90
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
