@@ -52,6 +52,8 @@ public:
 
     ~HGAssets();
 
+    [[nodiscard]] bool isHeadless() const;
+
     [[nodiscard]] LoadInfo& getLoadResults();
 
     [[nodiscard]] sf::Texture& getTexture(const std::string& mId);

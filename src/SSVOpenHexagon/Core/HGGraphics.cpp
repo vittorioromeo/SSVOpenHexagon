@@ -387,11 +387,15 @@ void HexagonGame::drawKeyIcons()
 void HexagonGame::drawLevelInfo(const sf::RenderStates& mStates)
 {
     render(levelInfoRectangle, mStates);
-    render(levelInfoTextLevel, mStates);
-    render(levelInfoTextPack, mStates);
-    render(levelInfoTextAuthor, mStates);
-    render(levelInfoTextBy, mStates);
-    render(levelInfoTextDM, mStates);
+
+    if (textUI.has_value())
+    {
+        render(textUI->levelInfoTextLevel, mStates);
+        render(textUI->levelInfoTextPack, mStates);
+        render(textUI->levelInfoTextAuthor, mStates);
+        render(textUI->levelInfoTextBy, mStates);
+        render(textUI->levelInfoTextDM, mStates);
+    }
 }
 
 void HexagonGame::drawParticles()
@@ -420,7 +424,7 @@ void HexagonGame::drawSwapParticles()
 
 void HexagonGame::updateText(ssvu::FT mFT)
 {
-    if (window == nullptr)
+    if (window == nullptr || !textUI.has_value())
     {
         return;
     }
@@ -518,7 +522,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
     else if (Config::getRotateToStart())
     {
         os << "ROTATE TO START\n";
-        messageText.setString("ROTATE TO START");
+        textUI->messageText.setString("ROTATE TO START");
     }
 
     os.flush();
@@ -529,17 +533,17 @@ void HexagonGame::updateText(ssvu::FT mFT)
         // By default, use the timer for scoring
         if (status.started)
         {
-            timeText.setString(formatTime(status.getTimeSeconds()));
+            textUI->timeText.setString(formatTime(status.getTimeSeconds()));
         }
         else
         {
-            timeText.setString("0");
+            textUI->timeText.setString("0");
         }
     }
     else
     {
         // Alternative scoring
-        timeText.setString(
+        textUI->timeText.setString(
             lua.readVariable<std::string>(levelStatus.scoreOverride));
     }
 
@@ -549,28 +553,31 @@ void HexagonGame::updateText(ssvu::FT mFT)
             size / Config::getZoomFactor() * Config::getTextScaling());
     };
 
-    timeText.setCharacterSize(getScaledCharacterSize(70.f));
+    textUI->timeText.setCharacterSize(getScaledCharacterSize(70.f));
 
     // Set information text
-    text.setString(os.str());
-    text.setCharacterSize(getScaledCharacterSize(20.f));
-    text.setOrigin({0.f, 0.f});
+    textUI->text.setString(os.str());
+    textUI->text.setCharacterSize(getScaledCharacterSize(20.f));
+    textUI->text.setOrigin({0.f, 0.f});
 
     // Set FPS Text, if option is enabled.
     if (Config::getShowFPS())
     {
-        fpsText.setString(ssvu::toStr(window->getFPS()));
-        fpsText.setCharacterSize(getScaledCharacterSize(20.f));
+        textUI->fpsText.setString(ssvu::toStr(window->getFPS()));
+        textUI->fpsText.setCharacterSize(getScaledCharacterSize(20.f));
     }
 
-    messageText.setCharacterSize(getScaledCharacterSize(32.f));
-    messageText.setOrigin({ssvs::getGlobalWidth(messageText) / 2.f, 0.f});
+    textUI->messageText.setCharacterSize(getScaledCharacterSize(32.f));
+    textUI->messageText.setOrigin(
+        {ssvs::getGlobalWidth(textUI->messageText) / 2.f, 0.f});
 
     const float growth = std::sin(pbTextGrowth);
-    pbText.setCharacterSize(getScaledCharacterSize(64.f) + growth * 10.f);
-    pbText.setOrigin({ssvs::getGlobalWidth(pbText) / 2.f, 0.f});
+    textUI->pbText.setCharacterSize(
+        getScaledCharacterSize(64.f) + growth * 10.f);
+    textUI->pbText.setOrigin({ssvs::getGlobalWidth(textUI->pbText) / 2.f, 0.f});
 
     // ------------------------------------------------------------------------
+
     if (mustShowReplayUI())
     {
         const replay_file& rf = activeReplay->replayFile;
@@ -590,36 +597,41 @@ void HexagonGame::updateText(ssvu::FT mFT)
 
         os.flush();
 
-        replayText.setCharacterSize(getScaledCharacterSize(16.f));
-        replayText.setString(os.str());
+        textUI->replayText.setCharacterSize(getScaledCharacterSize(16.f));
+        textUI->replayText.setString(os.str());
     }
     else
     {
-        replayText.setString("");
+        textUI->replayText.setString("");
     }
 }
 
 void HexagonGame::drawText_TimeAndStatus(
     const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
+    if (!textUI.has_value())
+    {
+        return;
+    }
+
     if (Config::getDrawTextOutlines())
     {
-        timeText.setOutlineColor(offsetColor);
-        text.setOutlineColor(offsetColor);
-        fpsText.setOutlineColor(offsetColor);
-        replayText.setOutlineColor(offsetColor);
+        textUI->timeText.setOutlineColor(offsetColor);
+        textUI->text.setOutlineColor(offsetColor);
+        textUI->fpsText.setOutlineColor(offsetColor);
+        textUI->replayText.setOutlineColor(offsetColor);
 
-        timeText.setOutlineThickness(2.f);
-        text.setOutlineThickness(1.f);
-        fpsText.setOutlineThickness(1.f);
-        replayText.setOutlineThickness(1.f);
+        textUI->timeText.setOutlineThickness(2.f);
+        textUI->text.setOutlineThickness(1.f);
+        textUI->fpsText.setOutlineThickness(1.f);
+        textUI->replayText.setOutlineThickness(1.f);
     }
     else
     {
-        timeText.setOutlineThickness(0.f);
-        text.setOutlineThickness(0.f);
-        fpsText.setOutlineThickness(0.f);
-        replayText.setOutlineThickness(0.f);
+        textUI->timeText.setOutlineThickness(0.f);
+        textUI->text.setOutlineThickness(0.f);
+        textUI->fpsText.setOutlineThickness(0.f);
+        textUI->replayText.setOutlineThickness(0.f);
     }
 
     const float padding =
@@ -630,38 +642,40 @@ void HexagonGame::drawText_TimeAndStatus(
 
     if (Config::getShowTimer())
     {
-        timeText.setFillColor(colorText);
-        timeText.setOrigin(ssvs::getLocalNW(timeText));
-        timeText.setPosition({padding, padding});
+        textUI->timeText.setFillColor(colorText);
+        textUI->timeText.setOrigin(ssvs::getLocalNW(textUI->timeText));
+        textUI->timeText.setPosition({padding, padding});
 
-        render(timeText, mStates);
+        render(textUI->timeText, mStates);
     }
 
     if (Config::getShowStatusText())
     {
-        text.setFillColor(colorText);
-        text.setOrigin(ssvs::getLocalNW(text));
-        text.setPosition({padding, ssvs::getGlobalBottom(timeText) + padding});
+        textUI->text.setFillColor(colorText);
+        textUI->text.setOrigin(ssvs::getLocalNW(textUI->text));
+        textUI->text.setPosition(
+            {padding, ssvs::getGlobalBottom(textUI->timeText) + padding});
 
-        render(text, mStates);
+        render(textUI->text, mStates);
     }
 
     if (Config::getShowFPS())
     {
-        fpsText.setFillColor(colorText);
-        fpsText.setOrigin(ssvs::getLocalSW(fpsText));
+        textUI->fpsText.setFillColor(colorText);
+        textUI->fpsText.setOrigin(ssvs::getLocalSW(textUI->fpsText));
 
         if (Config::getShowLevelInfo() || mustShowReplayUI())
         {
-            fpsText.setPosition(
+            textUI->fpsText.setPosition(
                 {padding, ssvs::getGlobalTop(levelInfoRectangle) - padding});
         }
         else
         {
-            fpsText.setPosition({padding, Config::getHeight() - padding});
+            textUI->fpsText.setPosition(
+                {padding, Config::getHeight() - padding});
         }
 
-        render(fpsText, mStates);
+        render(textUI->fpsText, mStates);
     }
 
     if (mustShowReplayUI())
@@ -671,11 +685,11 @@ void HexagonGame::drawText_TimeAndStatus(
 
         const float replayPadding = 8.f * scaling;
 
-        replayText.setFillColor(colorText);
-        replayText.setOrigin(ssvs::getLocalCenterE(replayText));
-        replayText.setPosition(ssvs::getGlobalCenterW(replayIcon) -
-                               sf::Vector2f{replayPadding, 0});
-        render(replayText, mStates);
+        textUI->replayText.setFillColor(colorText);
+        textUI->replayText.setOrigin(ssvs::getLocalCenterE(textUI->replayText));
+        textUI->replayText.setPosition(ssvs::getGlobalCenterW(replayIcon) -
+                                       sf::Vector2f{replayPadding, 0});
+        render(textUI->replayText, mStates);
     }
 }
 
@@ -708,7 +722,7 @@ static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
 void HexagonGame::drawText_Message(
     const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
-    drawTextMessagePBImpl(messageText, offsetColor,
+    drawTextMessagePBImpl(textUI->messageText, offsetColor,
         {Config::getWidth() / 2.f, Config::getHeight() / 5.5f}, getColorText(),
         1.f /* outlineThickness */,
         [this, &mStates](sf::Text& t) { render(t, mStates); });
@@ -717,7 +731,7 @@ void HexagonGame::drawText_Message(
 void HexagonGame::drawText_PersonalBest(
     const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
-    drawTextMessagePBImpl(pbText, offsetColor,
+    drawTextMessagePBImpl(textUI->pbText, offsetColor,
         {Config::getWidth() / 2.f,
             Config::getHeight() - Config::getHeight() / 4.f},
         getColorText(), 4.f /* outlineThickness */,

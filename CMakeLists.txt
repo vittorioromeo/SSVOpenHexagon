@@ -93,12 +93,15 @@ include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 set(BUILD_SHARED_LIBS false)
 set(SFML_STATIC_LIBRARIES true)
 set(SFML_ENABLE_PCH true)
+set(SFML_ENABLE_LIFETIME_TRACKING true)
 
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 4c7cbd9390baf2af479e610529bf3597b18ed4ec
+    GIT_TAG 7f253a5e4dc96554f448674bd3e8c70ef9fa283c
 )
+
+set(SFML_ENABLE_LIFETIME_TRACKING true)
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD OFF)
 set_target_properties(sfml-window PROPERTIES UNITY_BUILD OFF)
@@ -187,7 +190,7 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
         GITHUB_REPOSITORY vittorioromeo/imgui-sfml
-        GIT_TAG a128357d5f5841e49ee113fad8d5810ab0d9ac0e
+        GIT_TAG 8a7a1409f895b3fbcc7d6c19504668e923a6f8f6
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)

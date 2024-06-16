@@ -49,6 +49,7 @@ class HGAssets::HGAssetsImpl
 {
 private:
     Steam::steam_manager* steamManager;
+    const bool _headless;
 
     bool levelsOnly{false};
 
@@ -126,6 +127,8 @@ public:
         bool mLevelsOnly = false);
 
     ~HGAssetsImpl();
+
+    [[nodiscard]] bool isHeadless() const;
 
     [[nodiscard]] LoadInfo& getLoadResults();
 
@@ -310,6 +313,7 @@ template <typename... Ts>
 HGAssets::HGAssetsImpl::HGAssetsImpl(
     Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
     : steamManager{mSteamManager},
+      _headless{mHeadless},
       levelsOnly{mLevelsOnly},
       assetStorage{Utils::makeUnique<AssetStorage>()}
 {
@@ -395,6 +399,16 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(
 HGAssets::HGAssetsImpl::~HGAssetsImpl()
 {
     ssvu::lo("HGAssets::~HGAssets") << "Cleaning up assets...\n";
+}
+
+[[nodiscard]] bool HGAssets::HGAssetsImpl::isHeadless() const
+{
+    return _headless;
+}
+
+[[nodiscard]] bool HGAssets::isHeadless() const
+{
+    return _impl->isHeadless();
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::loadPackData(

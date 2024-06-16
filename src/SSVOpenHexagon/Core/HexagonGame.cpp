@@ -195,50 +195,66 @@ void HexagonGame::updateLevelInfo()
         return s;
     };
 
-    levelInfoTextLevel.setFillColor(getColorText());
-    levelInfoTextLevel.setCharacterSize(20.f / Config::getZoomFactor());
-    levelInfoTextLevel.setString(trim(Utils::toUppercase(levelData->name)));
-    levelInfoTextLevel.setOrigin(ssvs::getLocalNW(levelInfoTextLevel));
-    levelInfoTextLevel.setPosition(ssvs::getGlobalNW(levelInfoRectangle) +
-                                   sf::Vector2f{tPadding, tPadding});
-
-    const auto prepareText = [&](sf::Text& text, const float characterSize,
-                                 const std::string& string)
+    if (textUI.has_value())
     {
-        text.setFillColor(getColorText());
-        text.setCharacterSize(characterSize / Config::getZoomFactor());
-        text.setString(string);
-    };
+        textUI->levelInfoTextLevel.setFillColor(getColorText());
+        textUI->levelInfoTextLevel.setCharacterSize(
+            20.f / Config::getZoomFactor());
+        textUI->levelInfoTextLevel.setString(
+            trim(Utils::toUppercase(levelData->name)));
+        textUI->levelInfoTextLevel.setOrigin(
+            ssvs::getLocalNW(textUI->levelInfoTextLevel));
+        textUI->levelInfoTextLevel.setPosition(
+            ssvs::getGlobalNW(levelInfoRectangle) +
+            sf::Vector2f{tPadding, tPadding});
 
-    prepareText(
-        levelInfoTextPack, 14.f, trim(Utils::toUppercase(getPackName())));
-    levelInfoTextPack.setOrigin(ssvs::getLocalNW(levelInfoTextPack));
-    levelInfoTextPack.setPosition(
-        ssvs::getGlobalSW(levelInfoTextLevel) + sf::Vector2f{0.f, tPadding});
+        const auto prepareText = [&](sf::Text& text, const float characterSize,
+                                     const std::string& string)
+        {
+            text.setFillColor(getColorText());
+            text.setCharacterSize(characterSize / Config::getZoomFactor());
+            text.setString(string);
+        };
 
-    SSVOH_ASSERT(levelData != nullptr);
+        prepareText(textUI->levelInfoTextPack, 14.f,
+            trim(Utils::toUppercase(getPackName())));
+        textUI->levelInfoTextPack.setOrigin(
+            ssvs::getLocalNW(textUI->levelInfoTextPack));
+        textUI->levelInfoTextPack.setPosition(
+            ssvs::getGlobalSW(textUI->levelInfoTextLevel) +
+            sf::Vector2f{0.f, tPadding});
 
-    prepareText(
-        levelInfoTextAuthor, 20.f, trim(Utils::toUppercase(levelData->author)));
-    levelInfoTextAuthor.setOrigin(ssvs::getLocalSE(levelInfoTextAuthor));
-    levelInfoTextAuthor.setPosition(ssvs::getGlobalSE(levelInfoRectangle) -
-                                    sf::Vector2f{tPadding, tPadding});
+        SSVOH_ASSERT(levelData != nullptr);
 
-    prepareText(levelInfoTextBy, 12.f, "BY");
-    levelInfoTextBy.setOrigin(ssvs::getLocalSE(levelInfoTextBy));
-    levelInfoTextBy.setPosition(
-        ssvs::getGlobalSW(levelInfoTextAuthor) - sf::Vector2f{tPadding, 0.f});
+        prepareText(textUI->levelInfoTextAuthor, 20.f,
+            trim(Utils::toUppercase(levelData->author)));
+        textUI->levelInfoTextAuthor.setOrigin(
+            ssvs::getLocalSE(textUI->levelInfoTextAuthor));
+        textUI->levelInfoTextAuthor.setPosition(
+            ssvs::getGlobalSE(levelInfoRectangle) -
+            sf::Vector2f{tPadding, tPadding});
 
-    if (levelData->difficultyMults.size() > 1)
-    {
-        prepareText(levelInfoTextDM, 14.f, diffFormat(difficultyMult) + "x");
-        levelInfoTextDM.setOrigin(ssvs::getLocalSW(levelInfoTextDM));
-        levelInfoTextDM.setPosition(ssvs::getGlobalSW(levelInfoRectangle) +
-                                    sf::Vector2f{tPadding, -tPadding});
-    }
-    else
-    {
-        levelInfoTextDM.setString("");
+        prepareText(textUI->levelInfoTextBy, 12.f, "BY");
+        textUI->levelInfoTextBy.setOrigin(
+            ssvs::getLocalSE(textUI->levelInfoTextBy));
+        textUI->levelInfoTextBy.setPosition(
+            ssvs::getGlobalSW(textUI->levelInfoTextAuthor) -
+            sf::Vector2f{tPadding, 0.f});
+
+        if (levelData->difficultyMults.size() > 1)
+        {
+            prepareText(textUI->levelInfoTextDM, 14.f,
+                diffFormat(difficultyMult) + "x");
+            textUI->levelInfoTextDM.setOrigin(
+                ssvs::getLocalSW(textUI->levelInfoTextDM));
+            textUI->levelInfoTextDM.setPosition(
+                ssvs::getGlobalSW(levelInfoRectangle) +
+                sf::Vector2f{tPadding, -tPadding});
+        }
+        else
+        {
+            textUI->levelInfoTextDM.setString("");
+        }
     }
 }
 
@@ -274,22 +290,34 @@ void HexagonGame::nameFormat(std::string& name)
         ssvu::toNum<unsigned int>(characterSize / Config::getZoomFactor())};
 }
 
+HexagonGame::TextUI::TextUI(HGAssets& mAssets)
+    : font{mAssets.getFont("OpenSquare-Regular.ttf")},
+      fontBold{mAssets.getFont("OpenSquare-Bold.ttf")},
+      messageText{initText(font, "", 38.f)},
+      pbText{initText(fontBold, "", 65.f)},
+      levelInfoTextLevel{font, ""},
+      levelInfoTextPack{font, ""},
+      levelInfoTextAuthor{font, ""},
+      levelInfoTextBy{font, ""},
+      levelInfoTextDM{font, ""},
+      fpsText{initText(font, "0", 25.f)},
+      timeText{initText(fontBold, "0", 70.f)},
+      text{initText(font, "", 25.f)},
+      replayText{initText(font, "", 20.f)}
+{}
+
 HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio* mAudio,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
     : steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
-      font{assets.getFont("OpenSquare-Regular.ttf")},
-      fontBold{assets.getFont("OpenSquare-Bold.ttf")},
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
       player{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
-      messageText{initText(font, "", 38.f)},
-      pbText{initText(fontBold, "", 65.f)},
       txStarParticle{nullptr},
       txSmallCircle{nullptr},
       keyIconLeft{assets.getTextureOrNullTexture("keyArrow.png")},
@@ -297,17 +325,13 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       keyIconFocus{assets.getTextureOrNullTexture("keyFocus.png")},
       keyIconSwap{assets.getTextureOrNullTexture("keySwap.png")},
       replayIcon{assets.getTextureOrNullTexture("replayIcon.png")},
-      levelInfoTextLevel{font, ""},
-      levelInfoTextPack{font, ""},
-      levelInfoTextAuthor{font, ""},
-      levelInfoTextBy{font, ""},
-      levelInfoTextDM{font, ""},
-      rng{initializeRng()},
-      fpsText{initText(font, "0", 25.f)},
-      timeText{initText(fontBold, "0", 70.f)},
-      text{initText(font, "", 25.f)},
-      replayText{initText(font, "", 20.f)}
+      rng{initializeRng()}
 {
+    if (!assets.isHeadless())
+    {
+        textUI.emplace(assets);
+    }
+
     if (window != nullptr)
     {
         const float width = Config::getWidth();
@@ -661,8 +685,11 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     debugPause = false;
 
     // Events cleanup
-    messageText.setString("");
-    pbText.setString("");
+    if (textUI.has_value())
+    {
+        textUI->messageText.setString("");
+        textUI->pbText.setString("");
+    }
 
     // Event timeline cleanup
     eventTimeline.clear();
@@ -934,7 +961,11 @@ void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
 
     SSVOH_ASSERT(r == SaveScoreIfNeededResult::PersonalBest);
 
-    pbText.setString("NEW PERSONAL BEST!");
+    if (textUI.has_value())
+    {
+        textUI->pbText.setString("NEW PERSONAL BEST!");
+    }
+
     mustSpawnPBParticles = true;
 
     playSoundAbort("personalBest.ogg");
@@ -1318,11 +1349,21 @@ void HexagonGame::addMessage(
                 playSoundOverride(levelStatus.beepSound);
             }
 
-            messageText.setString(mMessage);
+            if (textUI.has_value())
+            {
+                textUI->messageText.setString(mMessage);
+            }
         });
 
     messageTimeline.append_wait_for_sixths(mDuration);
-    messageTimeline.append_do([this] { messageText.setString(""); });
+    messageTimeline.append_do(
+        [this]
+        {
+            if (textUI.has_value())
+            {
+                textUI->messageText.setString("");
+            }
+        });
 }
 
 void HexagonGame::clearMessages()

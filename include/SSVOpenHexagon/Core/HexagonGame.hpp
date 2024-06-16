@@ -84,6 +84,28 @@ class discord_manager;
 class HexagonGame
 {
 private:
+    struct TextUI
+    {
+        sf::Font& font;
+        sf::Font& fontBold;
+
+        sf::Text messageText;
+        sf::Text pbText;
+
+        sf::Text levelInfoTextLevel;
+        sf::Text levelInfoTextPack;
+        sf::Text levelInfoTextAuthor;
+        sf::Text levelInfoTextBy;
+        sf::Text levelInfoTextDM;
+
+        sf::Text fpsText;
+        sf::Text timeText;
+        sf::Text text;
+        sf::Text replayText;
+
+        TextUI(HGAssets& mAssets);
+    };
+
     Steam::steam_manager* steamManager;
     Discord::discord_manager* discordManager;
     bool discordHung{false};
@@ -92,8 +114,7 @@ private:
     std::int8_t steamAttempt{1};
 
     HGAssets& assets;
-    sf::Font& font;
-    sf::Font& fontBold;
+    std::optional<TextUI> textUI;
 
     Audio* audio;
 
@@ -164,8 +185,6 @@ private:
 
     CustomTimelineManager _customTimelineManager;
 
-    sf::Text messageText;
-    sf::Text pbText;
 
     Utils::FastVertexVectorTris flashPolygon;
 
@@ -214,11 +233,7 @@ private:
     sf::Sprite replayIcon;
 
     sf::RectangleShape levelInfoRectangle;
-    sf::Text levelInfoTextLevel;
-    sf::Text levelInfoTextPack;
-    sf::Text levelInfoTextAuthor;
-    sf::Text levelInfoTextBy;
-    sf::Text levelInfoTextDM;
+
 
     bool firstPlay{true};
     bool restartFirstTime{true};
@@ -260,10 +275,6 @@ private:
 
     std::ostringstream os;
 
-    sf::Text fpsText;
-    sf::Text timeText;
-    sf::Text text;
-    sf::Text replayText;
 
     // Color of the polygon in the center.
     CapColor capColor;

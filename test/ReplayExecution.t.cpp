@@ -14,7 +14,6 @@
 
 #include <array>
 #include <optional>
-#include <random>
 #include <stdexcept>
 
 int main()
@@ -53,7 +52,7 @@ try
             nullptr /* client */          //
         };
 
-        if(getRndBool())
+        if (getRndBool())
         {
             hg.executeRandomInputs = true;
         }
@@ -81,7 +80,7 @@ try
         TEST_ASSERT(rf.has_value());
 
         std::optional<hg::HexagonGame::GameExecutionResult> score2;
-        if(differentHG)
+        if (differentHG)
         {
             hg::HexagonGame hg2{
                 nullptr /* steamManager */,   //
@@ -109,7 +108,7 @@ try
         TEST_ASSERT_EQ(score, replayPlayedTimeSeconds);
     };
 
-    for(int i = 0; i < 25; ++i)
+    for (int i = 0; i < 25; ++i)
     {
         doTest(i, false, nullptr);
         doTest(i, true, nullptr);
@@ -117,7 +116,7 @@ try
 
 #ifndef SSVOH_HEADLESS_TESTS
     ssvs::GameWindow gw;
-    for(int i = 0; i < 25; ++i)
+    for (int i = 0; i < 25; ++i)
     {
         doTest(i, false, &gw);
         doTest(i, true, &gw);
@@ -126,11 +125,11 @@ try
 
     return 0;
 }
-catch(const std::runtime_error& e)
+catch (const std::runtime_error& e)
 {
     std::cerr << "EXCEPTION: " << e.what() << std::endl;
 }
-catch(...)
+catch (...)
 {
     std::cerr << "EXCEPTION: unknown" << std::endl;
 }

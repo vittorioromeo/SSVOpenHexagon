@@ -504,7 +504,12 @@ void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 void HexagonGame::start()
 {
     status.start();
-    messageText.setString("");
+
+    if (textUI.has_value())
+    {
+        textUI->messageText.setString("");
+    }
+
     playSoundOverride("go.ogg");
 
     if (!mustReplayInput())
