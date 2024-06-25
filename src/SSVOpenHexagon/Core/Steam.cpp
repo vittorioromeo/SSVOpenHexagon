@@ -38,7 +38,7 @@ namespace hg::Steam {
 {
     // Using C API here because C++ one doesn't work with MinGW.
 
-    ISteamUser* steam_user = SteamAPI_SteamUser_v022();
+    ISteamUser* steam_user = SteamAPI_SteamUser_v023();
 
     if (!SteamAPI_ISteamUser_BLoggedOn(steam_user))
     {

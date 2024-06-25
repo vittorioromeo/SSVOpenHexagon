@@ -20,7 +20,6 @@ cp ./_RELEASE/SSVOpenHexagon.exe ./_PREPARED_RELEASE
 cp ./_RELEASE/SSVOpenHexagon-Console.exe ./_PREPARED_RELEASE
 
 cp ./_RELEASE/libzlib.dll ./_PREPARED_RELEASE
-cp ./_RELEASE/libopenal-1.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/steam_api64.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/discord_game_sdk.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/sdkencryptedappticket64.dll ./_PREPARED_RELEASE

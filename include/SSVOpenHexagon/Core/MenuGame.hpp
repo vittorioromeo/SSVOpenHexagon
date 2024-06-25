@@ -22,7 +22,6 @@
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -299,8 +298,6 @@ private:
     [[nodiscard]] bool mouseLeftRisingEdge() const;
 
     void draw();
-    void render(sf::Drawable& mDrawable);
-    void render(const sf::Sprite& mSprite, const sf::Texture& mTexture);
 
     // Helper functions
     [[nodiscard]] float getFPSMult() const;

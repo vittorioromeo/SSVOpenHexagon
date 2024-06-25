@@ -35,8 +35,8 @@ namespace hg {
     return ssvu::toStr(std::floor(x * 1000) / 1000.f);
 }
 
-void HexagonGame::render(
-    sf::Drawable& mDrawable, const sf::RenderStates& mStates)
+template <typename... Ts>
+void HexagonGame::render(Ts&&... xs)
 {
     if (window == nullptr)
     {
@@ -46,20 +46,7 @@ void HexagonGame::render(
         return;
     }
 
-    window->draw(mDrawable, mStates);
-}
-
-void HexagonGame::render(const sf::Sprite& mSprite, const sf::Texture& mTexture)
-{
-    if (window == nullptr)
-    {
-        ssvu::lo("hg::HexagonGame::render")
-            << "Attempted to render without a game window\n";
-
-        return;
-    }
-
-    window->getRenderWindow().draw(mSprite, mTexture);
+    window->draw(SSVOH_FWD(xs)...);
 }
 
 void HexagonGame::draw()
@@ -399,7 +386,7 @@ void HexagonGame::drawKeyIcons()
 
 void HexagonGame::drawLevelInfo(const sf::RenderStates& mStates)
 {
-    render(levelInfoRectangle, mStates);
+    render(levelInfoRectangle, /* texture */ nullptr, mStates);
 
     if (textUI.has_value())
     {

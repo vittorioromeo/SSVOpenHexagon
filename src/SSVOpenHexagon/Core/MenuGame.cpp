@@ -3259,7 +3259,7 @@ void MenuGame::renderText(
 {
     mText.setString(mStr);
     mText.setPosition(mPos);
-    render(mText);
+    window.draw(mText);
 }
 
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
@@ -3296,7 +3296,7 @@ void MenuGame::renderTextCentered(
 {
     mText.setString(mStr);
     mText.setPosition({mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y});
-    render(mText);
+    window.draw(mText);
 }
 
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
@@ -3332,7 +3332,7 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
     mText.setString(mStr);
     mText.setPosition(
         {xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y});
-    render(mText);
+    window.draw(mText);
 }
 
 void MenuGame::renderTextCenteredOffset(const std::string& mStr,
@@ -3578,7 +3578,7 @@ void MenuGame::drawScrollbar(const float totalHeight, const int size,
     menuQuads.reserve_quad(1);
     createQuad(
         color, x, x + textToQuadBorder, startHeight, startHeight + barHeight);
-    render(menuQuads);
+    window.draw(menuQuads);
 }
 
 void MenuGame::drawMainSubmenus(
@@ -3761,7 +3761,7 @@ void MenuGame::drawMainMenu(
         quadHeight += interline;
     }
 
-    render(menuQuads);
+    window.draw(menuQuads);
 
     // Draw the text on top of the quads
     for (int i{0}; i < size; ++i)
@@ -3807,7 +3807,7 @@ void MenuGame::drawOptionsSubmenus(
         quadHeight + totalHeight);
     createQuad(menuQuadColor, 0, indent + quadBorder, quadHeight + quadBorder,
         quadHeight + totalHeight - quadBorder);
-    render(menuQuads);
+    window.draw(menuQuads);
 
     // Draw the text on top of the quads
     quadBorder = quadBorder * 1.5f - panelOffset;
@@ -3953,7 +3953,7 @@ void MenuGame::drawProfileSelection(
         indent + profFrameSize + textWidth, quadHeight + profFrameSize,
         quadHeight + totalHeight - profFrameSize);
 
-    render(menuQuads);
+    window.draw(menuQuads);
 
     if (scrollbarNotches != 0)
     {
@@ -3999,7 +3999,7 @@ void MenuGame::drawProfileSelection(
     txtInstructionsSmall.font.setPosition(
         {indent + (textWidth - instructionsWidth) / 2.f,
             quadHeight + totalHeight});
-    render(txtInstructionsSmall.font);
+    window.draw(txtInstructionsSmall.font);
 }
 
 void MenuGame::drawProfileSelectionBoot()
@@ -4121,7 +4121,7 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
         indent + profFrameSize + textWidth, quadHeight + profFrameSize,
         quadHeight + totalHeight - profFrameSize);
 
-    render(menuQuads);
+    window.draw(menuQuads);
 
     // Draw the text on top of the quads
     renderTextCenteredOffset(enteredStr, txtEnteringText.font,
@@ -4205,7 +4205,7 @@ void MenuGame::drawLoadResults()
             w / 2.f + i * xOffset + 5.f, topHeight, bottomHeight);
     }
 
-    render(menuQuads);
+    window.draw(menuQuads);
 
     //--------------------------------------
     // Counters: text and numbers
@@ -5072,7 +5072,7 @@ void MenuGame::drawLevelSelectionRightSide(
             }
         }
 
-        render(menuQuads);
+        window.draw(menuQuads);
         prevLevelIndent = indent;
 
         //-------------------------------------
@@ -5120,7 +5120,7 @@ void MenuGame::drawLevelSelectionRightSide(
                 height - textToQuadBorder + txtSelectionRanked.height +
                     padding + 1.f);
 
-            render(menuQuads);
+            window.draw(menuQuads);
 
             renderText("RANKED", txtSelectionRanked.font,
                 {w - width, height -
@@ -5149,7 +5149,7 @@ void MenuGame::drawLevelSelectionRightSide(
     menuQuads.reserve_quad(1);
     createQuad(
         menuQuadColor, prevLevelIndent, w, height, height + slctFrameSize);
-    render(menuQuads);
+    window.draw(menuQuads);
 
     height += slctFrameSize;
     i = ssvu::getMod(drawer.packIdx + 1, packsSize);
@@ -5190,7 +5190,7 @@ void MenuGame::drawLevelSelectionRightSide(
             mustChangePackIndexTo = i;
         }
 
-        render(menuQuads);
+        window.draw(menuQuads);
 
         // Name & >
         if (drawer.isFavorites)
@@ -5217,7 +5217,7 @@ void MenuGame::drawLevelSelectionRightSide(
         const sf::Color oldC = txtSelectionMedium.font.getFillColor();
         txtSelectionMedium.font.setFillColor(
             mouseOverlapColor(mouseOverlap, menuTextColor));
-        render(txtSelectionMedium.font);
+        window.draw(txtSelectionMedium.font);
         txtSelectionMedium.font.setFillColor(oldC);
 
         menuQuads.clear();
@@ -5256,7 +5256,7 @@ void MenuGame::drawLevelSelectionRightSide(
             menuQuads.batch_unsafe_emplace_back_quad(
                 menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
-            render(menuQuads);
+            window.draw(menuQuads);
         }
         else
         {
@@ -5288,7 +5288,7 @@ void MenuGame::drawLevelSelectionRightSide(
             menuQuads.batch_unsafe_emplace_back_quad(
                 menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
-            render(menuQuads);
+            window.draw(menuQuads);
             height -= slctFrameSize / 2.f;
         }
 
@@ -5333,7 +5333,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     createQuad({menuTextColor.r, menuTextColor.g, menuTextColor.b, 150}, 0,
         width, 0, h);
     createQuad(menuQuadColor, width, width + lineThickness, 0, h);
-    render(menuQuads);
+    window.draw(menuQuads);
     menuQuads.clear();
 
     //-------------------------------------
@@ -5528,7 +5528,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     }
 
     // Also renders all previous quads
-    render(menuQuads);
+    window.draw(menuQuads);
     menuQuads.clear();
 
     renderTextCenteredOffset(
@@ -5743,7 +5743,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         }
     }
 
-    render(menuQuads);
+    window.draw(menuQuads);
 }
 
 void MenuGame::draw()
@@ -5781,7 +5781,7 @@ void MenuGame::draw()
                 levelStatus.darkenUnevenBackgroundChunk,
             Config::getBlackAndWhite(), fourByThree);
 
-        render(menuBackgroundTris);
+        window.draw(menuBackgroundTris);
     }
 
     window.setView(overlayCamera.apply());
@@ -5830,7 +5830,7 @@ void MenuGame::draw()
             return;
 
         case States::EpilepsyWarning:
-            render(epilepsyWarning, txEpilepsyWarning);
+            window.draw(epilepsyWarning, txEpilepsyWarning);
             renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
                 {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
@@ -5975,16 +5975,6 @@ void MenuGame::draw()
     }
 }
 
-void MenuGame::render(sf::Drawable& mDrawable)
-{
-    window.draw(mDrawable);
-}
-
-void MenuGame::render(const sf::Sprite& mSprite, const sf::Texture& mTexture)
-{
-    window.getRenderWindow().draw(mSprite, mTexture);
-}
-
 [[nodiscard]] float MenuGame::getFPSMult() const
 {
     // multiplier for FPS consistent drawing operations.
@@ -5993,10 +5983,10 @@ void MenuGame::render(const sf::Sprite& mSprite, const sf::Texture& mTexture)
 
 void MenuGame::drawGraphics()
 {
-    render(titleBar, txTitleBar);
-    render(creditsBar1, txCreditsBar1);
-    render(creditsBar2, *txCreditsBar2);
-    render(txtVersion.font);
+    window.draw(titleBar, txTitleBar);
+    window.draw(creditsBar1, txCreditsBar1);
+    window.draw(creditsBar2, *txCreditsBar2);
+    window.draw(txtVersion.font);
 }
 
 void MenuGame::drawOnlineStatus()
@@ -6103,9 +6093,9 @@ void MenuGame::drawOnlineStatus()
         {ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
             ssvs::getGlobalCenter(rsOnlineStatus).y});
 
-    render(sOnline, *txSOnline);
-    render(rsOnlineStatus);
-    render(txtOnlineStatus);
+    window.draw(sOnline, *txSOnline);
+    window.draw(rsOnlineStatus, /* texture */ nullptr);
+    window.draw(txtOnlineStatus);
 }
 
 void MenuGame::showDialogBox(const std::string& msg)

@@ -6,7 +6,6 @@ function copyTo
     cp /c/msys64/mingw64/bin/libstdc++-6.dll $1 &
     cp /c/msys64/mingw64/bin/libgcc_s_seh-1.dll $1 &
     cp /c/msys64/mingw64/bin/libwinpthread-1.dll $1 &
-    cp /c/msys64/mingw64/bin/libopenal-1.dll $1 &
 }
 
 copyTo "../_RELEASE"

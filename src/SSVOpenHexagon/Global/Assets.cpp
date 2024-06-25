@@ -1306,7 +1306,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
         return "invalid level folder path\n";
     }
 
-    auto levelFile = scanSingleByName(temp, mId + ".json");
+    const auto& levelFile = scanSingleByName(temp, mId + ".json");
     if (levelFile.empty())
     {
         return "no matching level data file found\n";
@@ -1338,7 +1338,8 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     }
     else
     {
-        auto styleFile = scanSingleByName(temp, levelData.styleId + ".json");
+        const auto& styleFile =
+            scanSingleByName(temp, levelData.styleId + ".json");
         if (styleFile.empty())
         {
             output += "no matching style file found\n";
@@ -1395,7 +1396,8 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     {
         assetId = mPackId + "_" + levelData.musicId;
 
-        auto musicFile = scanSingleByName(temp, levelData.musicId + ".ogg");
+        const auto& musicFile =
+            scanSingleByName(temp, levelData.musicId + ".ogg");
         if (musicFile.empty())
         {
             output += "no matching music file found\n";
@@ -1432,7 +1434,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
         return output;
     }
 
-    auto soundFile = scanSingleByName(temp, levelData.soundId + ".ogg");
+    const auto& soundFile = scanSingleByName(temp, levelData.soundId + ".ogg");
     if (soundFile.empty())
     {
         output += "no matching custom sound file found\n";

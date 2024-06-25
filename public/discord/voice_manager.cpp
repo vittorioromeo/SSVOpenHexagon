@@ -13,7 +13,7 @@ namespace discord {
 
 class VoiceEvents final {
 public:
-    static void OnSettingsUpdate(void* callbackData)
+    static void DISCORD_CALLBACK OnSettingsUpdate(void* callbackData)
     {
         auto* core = reinterpret_cast<Core*>(callbackData);
         if (!core) {

@@ -97,7 +97,7 @@ set(SFML_ENABLE_PCH true)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 5c6d2ef623ca07fc528d794b763bbf67395d4b90
+    GIT_TAG 33a4e38c2df3406bc85864f59d0674a9d0bd7482
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -360,7 +360,7 @@ vrm_cmake_include_vc_dependency_once(vc_detection)
 # Targets
 # -----------------------------------------------------------------------------
 
-if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+if(WIN32 AND "${vrm_cmake_build_type_lower}" MATCHES "rel")
     set(SSVOH_BUILD_WIN32_CONSOLE TRUE)
 else()
     set(SSVOH_BUILD_WIN32_CONSOLE FALSE)

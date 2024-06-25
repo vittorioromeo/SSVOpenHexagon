@@ -173,7 +173,7 @@ public:
 
         if (path == nullptr)
         {
-            ssvu::lo("hg::AudioImpl::playMusic")
+            ssvu::lo("hg::AudioImpl::loadAndPlayMusic")
                 << "No path for music id '" << assetId << "'\n";
 
             return false;
@@ -183,7 +183,7 @@ public:
         {
             if (!(_music = sf::Music::openFromFile(*path)))
             {
-                ssvu::lo("hg::AudioImpl::playMusic")
+                ssvu::lo("hg::AudioImpl::loadAndPlayMusic")
                     << "Failed loading music file '" << path << "'\n";
 
                 _music.reset();

@@ -660,58 +660,6 @@ struct InputMotionData_t
 	float rotVelZ;
 };
 
-
-struct InputMotionDataV2_t
-{
-	//
-	// Gyro post processing:
-	//
-
-	// Drift Corrected Quaternion is calculated after steam input controller calibration values have been applied.
-	// Rawest _useful_ version of a quaternion.
-	// Most camera implementations should use this by comparing last rotation against current rotation, and applying the difference to the in game camera (plus your own sensitivity tweaks)
-	// It is worth viewing 
-	float driftCorrectedQuatX;
-	float driftCorrectedQuatY;
-	float driftCorrectedQuatZ;
-	float driftCorrectedQuatW;
-
-	// Sensor fusion corrects using accelerometer, and "average forward over time" for "forward".
-	// This can "ouija" your aim, so it's not so  appropriate for camera controls (sensor fusion was originally made for racing game steering )
-	// Same result as from old InputMotionData_t::rotQuatX/Y/Z/W
-	float sensorFusionQuatX;
-	float sensorFusionQuatY;
-	float sensorFusionQuatZ;
-	float sensorFusionQuatW;
-
-	// Deferred Sensor fusion quaternion with deferred correction
-	// Reduces perception of "ouija" effect by only applying correction when the controller is below "low noise" thresholds,
-	// while the controller rotates fast - never when the user is attempting precision aim.
-	float deferredSensorFusionQuatX;
-	float deferredSensorFusionQuatY;
-	float deferredSensorFusionQuatZ;
-	float deferredSensorFusionQuatW;
-
-	// Same as accel but values are calibrated such that 1 unit = 1G.
-	// X = Right
-	// Y = Forward out through the joystick USB port.
-	// Z = Up through the joystick axis.
-	float gravityX;
-	float gravityY;
-	float gravityZ;
-
-	// 
-	// Same as rotVel values in GetMotionData but values are calibrated to degrees per second.
-	// Local Space (controller relative)
-	// X = Pitch = left to right axis
-	// Y = Roll = axis through charging port
-	// Z = Yaw = axis through sticks
-	float degreesPerSecondX;
-	float degreesPerSecondY;
-	float degreesPerSecondZ;
-
-};
-
 //-----------------------------------------------------------------------------
 // Purpose: when callbacks are enabled this fires each time a controller action
 // state changes
@@ -804,6 +752,12 @@ public:
 	// Controller Disconnected - provides info about a single disconnected controller
 	// Note: this is called within either SteamInput()->RunFrame or by SteamAPI_RunCallbacks
 	STEAM_CALL_BACK( SteamInputDeviceDisconnected_t )
+
+	// Controllers using Gamepad emulation (XInput, DirectInput, etc) will be seated in the order that
+	// input is sent by the device. This callback will fire on first input for each device and when the
+	// a user has manually changed the order via the Steam overlay. This also has the device type info
+	// so that you can change out glyph sets without making additional API calls
+	STEAM_CALL_BACK( SteamInputGamepadSlotChange_t )
 
 	// Enable SteamInputActionEvent_t callbacks. Directly calls your callback function
 	// for lower latency than standard Steam callbacks. Supports one callback at a time.
@@ -1007,6 +961,20 @@ struct SteamInputConfigurationLoaded_t
 	uint32			m_unMinorRevision;
 	bool			m_bUsesSteamInputAPI;	// Does the configuration contain any Analog/Digital actions?
 	bool			m_bUsesGamepadAPI;		// Does the configuration contain any Xinput bindings?
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: called when controller gamepad slots change - on Linux/macOS these
+// slots are shared for all running apps.
+//-----------------------------------------------------------------------------
+struct SteamInputGamepadSlotChange_t
+{
+	enum { k_iCallback = k_iSteamControllerCallbacks + 4 };
+	AppId_t			m_unAppID;
+	InputHandle_t	m_ulDeviceHandle;		// Handle for device
+	ESteamInputType m_eDeviceType;			// Type of device
+	int				m_nOldGamepadSlot;		// Previous GamepadSlot - can be -1 controller doesn't uses gamepad bindings
+	int				m_nNewGamepadSlot;		// New Gamepad Slot - can be -1 controller doesn't uses gamepad bindings
 };
 
 #pragma pack( pop )

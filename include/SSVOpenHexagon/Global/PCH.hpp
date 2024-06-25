@@ -165,7 +165,6 @@
 #include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
-#include <SSVStart/VertexVector/VertexVector.hpp>
 
 //
 //

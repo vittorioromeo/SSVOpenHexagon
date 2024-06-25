@@ -24,13 +24,11 @@
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
-#include <SSVStart/VertexVector/VertexVector.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Timeline/Timeline.hpp>
 
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
@@ -522,10 +520,8 @@ public:
         const std::string& mPackId, const std::string& mId);
 
     // Graphics-related methods
-    void render(sf::Drawable& mDrawable,
-        const sf::RenderStates& mStates = sf::RenderStates::Default);
-
-    void render(const sf::Sprite& mSprite, const sf::Texture& mTexture);
+    template <typename... Ts>
+    void render(Ts&&... xs);
 
     // Setters
     void setSides(unsigned int mSides);

@@ -11,7 +11,6 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
-#include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 
@@ -21,7 +20,7 @@
 namespace hg::Utils {
 
 template <sf::PrimitiveType TPrimitive>
-struct FastVertexVector : public sf::Drawable
+struct FastVertexVector
 {
 private:
     union VertexUnion
@@ -118,8 +117,8 @@ public:
         ((new (&_data[_size++]._v) sf::Vertex{positions, color}), ...);
     }
 
-    void draw(sf::RenderTarget& mRenderTarget,
-        sf::RenderStates mRenderStates) const override
+    void draw(
+        sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const
     {
         if (_data == nullptr) [[unlikely]]
         {

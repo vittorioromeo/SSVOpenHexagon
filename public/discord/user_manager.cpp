@@ -13,7 +13,7 @@ namespace discord {
 
 class UserEvents final {
 public:
-    static void OnCurrentUserUpdate(void* callbackData)
+    static void DISCORD_CALLBACK OnCurrentUserUpdate(void* callbackData)
     {
         auto* core = reinterpret_cast<Core*>(callbackData);
         if (!core) {
