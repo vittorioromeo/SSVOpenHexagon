@@ -17,6 +17,7 @@ cmake .. -G"Ninja" \
          -DCMAKE_CXX_COMPILER="g++" \
          -DCMAKE_CXX_FLAGS="\
              -fuse-ld=lld \
+             -DSFML_ENABLE_LIFETIME_TRACKING=1 \
              -Wall -Wextra -Wpedantic -Wno-braced-scalar-init \
              -Wno-pragmas -Wno-missing-field-initializers -Wno-array-bounds -Wno-restrict \
              -Wno-stringop-overflow \
