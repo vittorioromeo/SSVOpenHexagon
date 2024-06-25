@@ -97,7 +97,7 @@ set(SFML_ENABLE_PCH true)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 33a4e38c2df3406bc85864f59d0674a9d0bd7482
+    GIT_TAG 37a0ea35bee098205d688c09af3c639947094149
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
