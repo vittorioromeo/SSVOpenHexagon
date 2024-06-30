@@ -200,14 +200,14 @@ void CCustomWallManager::setKillingSide(
 {
     if (!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "get vertex pos"))
     {
-        return ssvs::zeroVec2f;
+        return sf::Vector2f::Zero;
     }
 
     return _customWalls[cwHandle].getVertexPos(vertexIdx);
 }
 
-static const std::array<sf::Vector2f, 4> zeroArr{
-    ssvs::zeroVec2f, ssvs::zeroVec2f, ssvs::zeroVec2f, ssvs::zeroVec2f};
+static const std::array<sf::Vector2f, 4> zeroArr{sf::Vector2f::Zero,
+    sf::Vector2f::Zero, sf::Vector2f::Zero, sf::Vector2f::Zero};
 
 [[nodiscard]] const std::array<sf::Vector2f, 4>&
 CCustomWallManager::getVertexPos4(const CCustomWallHandle cwHandle)
@@ -333,7 +333,7 @@ void CCustomWallManager::draw(Utils::FastVertexVectorTris& wallQuads)
 }
 
 [[nodiscard]] bool CCustomWallManager::handleCollision(
-    const int movement, const float radius, CPlayer& mPlayer, ssvu::FT mFT)
+    const int movement, const float radius, CPlayer& mPlayer, float mFT)
 {
     // ------------------------------------------------------------------------
     // Get all alive walls

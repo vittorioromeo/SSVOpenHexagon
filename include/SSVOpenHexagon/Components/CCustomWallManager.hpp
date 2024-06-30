@@ -93,7 +93,7 @@ public:
     void draw(Utils::FastVertexVectorTris& wallQuads);
 
     [[nodiscard]] bool handleCollision(
-        const int movement, const float radius, CPlayer& mPlayer, ssvu::FT mFT);
+        const int movement, const float radius, CPlayer& mPlayer, float mFT);
 
     [[nodiscard]] std::size_t count() const noexcept
     {

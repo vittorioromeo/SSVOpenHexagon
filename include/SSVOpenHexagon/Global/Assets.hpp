@@ -10,6 +10,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace sf {
@@ -22,8 +23,6 @@ class Shader;
 namespace ssvu::FileSystem {
 class Path;
 }
-
-namespace ssvufs = ssvu::FileSystem;
 
 namespace hg {
 

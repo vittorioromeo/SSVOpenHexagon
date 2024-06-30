@@ -51,7 +51,7 @@ public:
 
     [[nodiscard]] bool loadFont(const std::string& id, const std::string& path)
     {
-        std::optional font = sf::Font::loadFromFile(path);
+        std::optional font = sf::Font::openFromFile(path);
 
         if (!font.has_value())
         {

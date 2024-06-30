@@ -219,6 +219,20 @@ catch (...)
     throw;
 }
 
+void* LuaContext::callbackCallImpl(lua_State* lua)
+{
+    // this function is called when the lua script tries to call our
+    // custom data type
+    // what we do is we simply call the function
+    SSVOH_ASSERT(lua_gettop(lua) >= 1);
+    SSVOH_ASSERT(lua_isuserdata(lua, 1));
+
+    auto function = lua_touserdata(lua, 1);
+
+    SSVOH_ASSERT(function);
+    return function;
+}
+
 
 void LuaContext::_load(std::istream& code)
 {

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Assert.hpp"
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Glsl.hpp>
 

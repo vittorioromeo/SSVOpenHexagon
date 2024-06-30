@@ -8,6 +8,7 @@ namespace sf {
 class Event;
 class RenderTarget;
 class RenderWindow;
+class Window;
 } // namespace sf
 
 namespace hg::Imgui {

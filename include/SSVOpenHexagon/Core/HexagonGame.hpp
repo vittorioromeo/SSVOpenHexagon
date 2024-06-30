@@ -25,7 +25,6 @@
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Timeline/Timeline.hpp>
 
 #include <SFML/Graphics/Color.hpp>
@@ -356,32 +355,32 @@ private:
     void advanceByTicks(const int nTicks);
 
     // Update methods
-    void update(ssvu::FT mFT, const float timescale);
+    void update(float mFT, const float timescale);
     void updateInput();
     void updateInput_UpdateJoystickControls();
     void updateInput_UpdateTouchControls();
     void updateInput_ResolveInputImplToInputMovement();
     void updateInput_RecordCurrentInputToLastReplayData();
-    void updateWalls(ssvu::FT mFT);
+    void updateWalls(float mFT);
     void updateIncrement();
-    void updateEvents(ssvu::FT mFT);
-    void updateLevel(ssvu::FT mFT);
+    void updateEvents(float mFT);
+    void updateLevel(float mFT);
     void updateCustomTimelines();
-    void updateCustomWalls(ssvu::FT mFT);
-    void updatePulse(ssvu::FT mFT);
+    void updateCustomWalls(float mFT);
+    void updatePulse(float mFT);
     void refreshPulse();
-    void updateBeatPulse(ssvu::FT mFT);
+    void updateBeatPulse(float mFT);
     void refreshBeatPulse();
-    void updateRotation(ssvu::FT mFT);
-    void updateCameraShake(ssvu::FT mFT);
-    void updateFlash(ssvu::FT mFT);
-    void updatePulse3D(ssvu::FT mFT);
-    void updateText(ssvu::FT mFT);
+    void updateRotation(float mFT);
+    void updateCameraShake(float mFT);
+    void updateFlash(float mFT);
+    void updatePulse3D(float mFT);
+    void updateText(float mFT);
     void updateKeyIcons();
     void updateLevelInfo();
-    void updateParticles(ssvu::FT mFT);
-    void updateTrailParticles(ssvu::FT mFT);
-    void updateSwapParticles(ssvu::FT mFT);
+    void updateParticles(float mFT);
+    void updateTrailParticles(float mFT);
+    void updateSwapParticles(float mFT);
 
     // Post update methods
     void postUpdate();

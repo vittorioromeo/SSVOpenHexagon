@@ -6,11 +6,11 @@
 
 namespace hg {
 
-Ticker::Ticker(ssvu::FT mTarget, bool mRunning) noexcept
+Ticker::Ticker(float mTarget, bool mRunning) noexcept
     : target{mTarget}, running{mRunning}
 {}
 
-bool Ticker::update(ssvu::FT mFT) noexcept
+bool Ticker::update(float mFT) noexcept
 {
     const float increment = mFT * static_cast<float>(running);
 
@@ -28,7 +28,7 @@ bool Ticker::update(ssvu::FT mFT) noexcept
     return true;
 }
 
-bool Ticker::update(ssvu::FT mFT, ssvu::FT mTarget) noexcept
+bool Ticker::update(float mFT, float mTarget) noexcept
 {
     target = mTarget;
     return update(mFT);
@@ -56,7 +56,7 @@ void Ticker::restart() noexcept
     resume();
 }
 
-void Ticker::restart(ssvu::FT mTarget) noexcept
+void Ticker::restart(float mTarget) noexcept
 {
     target = mTarget;
     restart();
@@ -99,17 +99,17 @@ void Ticker::setLoop(bool mX) noexcept
     return running;
 }
 
-[[nodiscard]] ssvu::FT Ticker::getTarget() const noexcept
+[[nodiscard]] float Ticker::getTarget() const noexcept
 {
     return target;
 }
 
-[[nodiscard]] ssvu::FT Ticker::getCurrent() const noexcept
+[[nodiscard]] float Ticker::getCurrent() const noexcept
 {
     return current;
 }
 
-[[nodiscard]] ssvu::FT Ticker::getTotal() const noexcept
+[[nodiscard]] float Ticker::getTotal() const noexcept
 {
     return total;
 }

@@ -19,9 +19,10 @@ cmake .. -G"Ninja" \
             -fuse-ld=lld \
             -Og -g3 -fno-omit-frame-pointer \
             -Wall -Wextra -Wpedantic -Wno-braced-scalar-init \
-            -Wno-pragmas -Wno-missing-field-initializers \
+            -Wno-pragmas -Wno-missing-field-initializers -Wno-array-bounds -Wno-restrict \
             -Wno-stringop-overflow \
             -D_GLIBCXX_ASSERTIONS=1 -D_FORTIFY_SOURCE=3 \
             -fstack-protector -Wno-pragmas \
             -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off \
-            -DSFML_ENABLE_LIFETIME_TRACKING=1"
+            -DSFML_ENABLE_LIFETIME_TRACKING=1" \
+         -DCMAKE_C_FLAGS="-Wno-attributes"

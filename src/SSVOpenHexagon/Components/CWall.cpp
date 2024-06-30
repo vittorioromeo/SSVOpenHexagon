@@ -3,6 +3,8 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
+
+#include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 
 #include <SFML/System/Vector2.hpp>
@@ -16,24 +18,25 @@ CWall::CWall(const unsigned int sides, const float wallAngleLeft,
     const SpeedData& curve, const float hueMod)
     : _speed{speed}, _curve{curve}, _hueMod{hueMod}, _killed{false}
 {
-    const float div{ssvu::tau / static_cast<float>(sides) * 0.5f};
+    const float div{Utils::tau / static_cast<float>(sides) * 0.5f};
     const float angle{div * 2.f * static_cast<float>(side)};
 
     const float angleN = angle - div;
     const float angleP = angle + div;
 
-    const auto vecFromRad = [](const float rad, const float dist)
-    { return sf::Vector2f{dist * std::cos(rad), dist * std::sin(rad)}; };
+    _vertexPositions[0] =
+        centerPos.movedAndRotatedBy(distance, sf::radians(angleN));
 
-    _vertexPositions[0] = centerPos + vecFromRad(angleN, distance);
+    _vertexPositions[1] =
+        centerPos.movedAndRotatedBy(distance, sf::radians(angleP));
 
-    _vertexPositions[1] = centerPos + vecFromRad(angleP, distance);
+    _vertexPositions[2] =
+        centerPos.movedAndRotatedBy(distance + thickness + wallSkewLeft,
+            sf::radians(angleP + wallAngleLeft));
 
-    _vertexPositions[2] = centerPos + vecFromRad(angleP + wallAngleLeft,
-                                          distance + thickness + wallSkewLeft);
-
-    _vertexPositions[3] = centerPos + vecFromRad(angleN + wallAngleRight,
-                                          distance + thickness + wallSkewRight);
+    _vertexPositions[3] =
+        centerPos.movedAndRotatedBy(distance + thickness + wallSkewRight,
+            sf::radians(angleN + wallAngleRight));
 }
 
 void CWall::draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads)
@@ -48,7 +51,7 @@ void CWall::draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads)
 }
 
 void CWall::update(const float wallSpawnDist, const float radius,
-    const sf::Vector2f& centerPos, const ssvu::FT ft)
+    const sf::Vector2f& centerPos, const float ft)
 {
     _speed.update(ft);
     _curve.update(ft);
@@ -61,7 +64,7 @@ void CWall::update(const float wallSpawnDist, const float radius,
 }
 
 void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
-    const sf::Vector2f& centerPos, const ssvu::FT ft)
+    const sf::Vector2f& centerPos, const float ft)
 {
     const float halfRadius{radius * 0.5f};
     const float outerBounds{wallSpawnDist * 1.1f};
@@ -94,7 +97,7 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
     }
 }
 
-void CWall::moveCurve(const sf::Vector2f& centerPos, const ssvu::FT ft)
+void CWall::moveCurve(const sf::Vector2f& centerPos, const float ft)
 {
     const float rad = getCurveRadians(ft);
     const float radSin = std::sin(rad);

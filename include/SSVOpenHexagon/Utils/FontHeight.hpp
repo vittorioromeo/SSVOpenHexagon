@@ -5,9 +5,7 @@
 #pragma once
 
 namespace sf {
-
 class Text;
-
 }
 
 namespace hg::Utils {

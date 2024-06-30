@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-
 #include <string>
-#include <type_traits>
-#include <tuple>
 #include <vector>
 #include <optional>
 #include <functional>
+
+namespace Lua {
+class LuaContext;
+}
 
 namespace ssvu {
 
@@ -46,36 +46,33 @@ struct Nothing
 {};
 
 template <typename T>
-using VoidToNothing = std::conditional_t<std::is_same_v<T, void>, Nothing, T>;
+struct VoidToNothingImpl
+{
+    using type = T;
+};
+
+template <>
+struct VoidToNothingImpl<void>
+{
+    using type = Nothing;
+};
+
+template <typename T>
+using VoidToNothing = typename VoidToNothingImpl<T>::type;
+
+template <typename A, typename B>
+inline constexpr bool isSameType = false;
+
+template <typename T>
+inline constexpr bool isSameType<T, T> = true;
 
 template <typename T, typename... TArgs>
 T runLuaFunction(
-    Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
-{
-    return mLua.callLuaFunction<T>(mName, std::make_tuple(mArgs...));
-}
+    Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs);
 
 template <typename T, typename... TArgs>
-auto runLuaFunctionIfExists(
-    Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
-{
-    using Ret = std::optional<VoidToNothing<T>>;
-
-    if (!mLua.doesVariableExist(mName))
-    {
-        return Ret{};
-    }
-
-    if constexpr (std::is_same_v<T, void>)
-    {
-        runLuaFunction<T>(mLua, mName, mArgs...);
-        return Ret{Nothing{}};
-    }
-    else
-    {
-        return Ret{runLuaFunction<T>(mLua, mName, mArgs...)};
-    }
-}
+std::optional<VoidToNothing<T>> runLuaFunctionIfExists(
+    Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs);
 
 const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
     const PackData& currentPack, const std::string& mPackDisambiguator,

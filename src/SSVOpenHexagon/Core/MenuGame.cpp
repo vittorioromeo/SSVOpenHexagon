@@ -37,9 +37,9 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
-#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Match.hpp"
+#include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
@@ -49,15 +49,13 @@
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 #include <SSVStart/Utils/Input.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/GameSystem/GameSystem.hpp>
 
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
-
 #include <SFML/Window/VideoMode.hpp>
 
+#include <algorithm>
 #include <utility>
 #include <array>
 #include <tuple>
@@ -179,9 +177,9 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       rsOnlineStatus{sf::Vector2f{128.f, 32.f}},
       txtOnlineStatus{openSquare, "", 24},
       enteredChars{},
-      backgroundCamera{
-          {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
-                                Config::getSizeY() * Config::getZoomFactor()}}},
+      backgroundCamera{{sf::Vector2f::Zero,
+          {Config::getSizeX() * Config::getZoomFactor(),
+              Config::getSizeY() * Config::getZoomFactor()}}},
       overlayCamera{{{Config::getWidth() / 2.f,
                          Config::getHeight() * Config::getZoomFactor() / 2.f},
           {Config::getWidth() * Config::getZoomFactor(),
@@ -259,7 +257,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     initOnlineIcons();
     refreshCamera();
 
-    game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
+    game.onUpdate += [this](float mFT) { update(mFT); };
 
     game.onDraw += [this] { draw(); };
 
@@ -918,7 +916,7 @@ void MenuGame::initInput()
     };
 
     addTidInput(Tid::RotateCCW, t::Once,
-        [this](ssvu::FT)
+        [this](float)
         {
             if (!mouseHovering)
             {
@@ -927,7 +925,7 @@ void MenuGame::initInput()
         });
 
     addTidInput(Tid::RotateCW, t::Once,
-        [this](ssvu::FT)
+        [this](float)
         {
             if (!mouseHovering)
             {
@@ -936,43 +934,43 @@ void MenuGame::initInput()
         });
 
     game.addInput( // hardcoded
-        {{k::Up}}, [this](ssvu::FT) { upAction(); }, t::Once);
+        {{k::Up}}, [this](float) { upAction(); }, t::Once);
 
-    addTidInput(Tid::Up, t::Once, [this](ssvu::FT) { upAction(); });
+    addTidInput(Tid::Up, t::Once, [this](float) { upAction(); });
 
     game.addInput( // hardcoded
-        {{k::Down}}, [this](ssvu::FT) { downAction(); }, t::Once);
+        {{k::Down}}, [this](float) { downAction(); }, t::Once);
 
-    addTidInput(Tid::Down, t::Once, [this](ssvu::FT) { downAction(); });
-
-    addTidInput(
-        Tid::NextPack, t::Once, [this](ssvu::FT) { changePackAction(1); });
+    addTidInput(Tid::Down, t::Once, [this](float) { downAction(); });
 
     addTidInput(
-        Tid::PreviousPack, t::Once, [this](ssvu::FT) { changePackAction(-1); });
+        Tid::NextPack, t::Once, [this](float) { changePackAction(1); });
+
+    addTidInput(
+        Tid::PreviousPack, t::Once, [this](float) { changePackAction(-1); });
 
     add2StateInput(game, Config::getTrigger(Tid::Focus), focusHeld,
         static_cast<int>(Tid::Focus));
 
     game.addInput( // hardcoded
-        {{k::Enter}}, [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
+        {{k::Enter}}, [this](float /*unused*/) { okAction(); }, t::Once);
 
     game.addInput( // hardcoded
         {{k::Escape}},
-        [this](ssvu::FT mFT)
+        [this](float mFT)
         {
             if (state != States::MOpts)
             {
                 exitTimer += mFT;
             }
         },
-        [this](ssvu::FT /*unused*/) { exitTimer = 0; }, t::Always);
+        [this](float /*unused*/) { exitTimer = 0; }, t::Always);
 
     game.addInput( // hardcoded
-        {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); }, t::Once);
+        {{k::Escape}}, [this](float /*unused*/) { exitAction(); }, t::Once);
 
     addTidInput(Tid::Exit, t::Once,
-        [this](ssvu::FT /*unused*/)
+        [this](float /*unused*/)
         {
             if (isEnteringText())
             {
@@ -982,11 +980,11 @@ void MenuGame::initInput()
         }); // editable
 
     addTidInput(Tid::Screenshot, t::Once,
-        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; });
+        [this](float /*unused*/) { mustTakeScreenshot = true; });
 
     game.addInput(
             {{k::LAlt, k::Enter}},
-            [this](ssvu::FT /*unused*/)
+            [this](float /*unused*/)
             {
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
@@ -995,24 +993,21 @@ void MenuGame::initInput()
         .setPriorityUser(-1000);
 
     game.addInput( // hardcoded
-        {{k::Backspace}}, [this](ssvu::FT /*unused*/) { eraseAction(); },
+        {{k::Backspace}}, [this](float /*unused*/) { eraseAction(); }, t::Once);
+
+    game.addInput( // hardcoded
+        {{k::F1}}, [this](float /*unused*/) { addRemoveFavoriteLevel(); },
         t::Once);
 
     game.addInput( // hardcoded
-        {{k::F1}}, [this](ssvu::FT /*unused*/) { addRemoveFavoriteLevel(); },
+        {{k::F2}}, [this](float /*unused*/) { switchToFromFavoriteLevels(); },
         t::Once);
 
     game.addInput( // hardcoded
-        {{k::F2}},
-        [this](ssvu::FT /*unused*/) { switchToFromFavoriteLevels(); }, t::Once);
+        {{k::F3}}, [this](float /*unused*/) { reloadAssets(false); }, t::Once);
 
     game.addInput( // hardcoded
-        {{k::F3}}, [this](ssvu::FT /*unused*/) { reloadAssets(false); },
-        t::Once);
-
-    game.addInput( // hardcoded
-        {{k::F4}}, [this](ssvu::FT /*unused*/) { reloadAssets(true); },
-        t::Once);
+        {{k::F4}}, [this](float /*unused*/) { reloadAssets(true); }, t::Once);
 }
 
 void MenuGame::runLuaFile(const std::string& mFileName)
@@ -2504,7 +2499,7 @@ void MenuGame::exitAction()
 //
 //*****************************************************
 
-void MenuGame::update(ssvu::FT mFT)
+void MenuGame::update(float mFT)
 {
     hexagonClient.update();
 
@@ -3133,13 +3128,13 @@ void MenuGame::refreshCamera()
     w = getWindowWidth() * fmax;
     h = getWindowHeight() * fmax;
 
-    backgroundCamera.setView(
-        {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
-                              Config::getSizeY() * Config::getZoomFactor()}});
+    backgroundCamera.setView({sf::Vector2f::Zero,
+        {Config::getSizeX() * Config::getZoomFactor(),
+            Config::getSizeY() * Config::getZoomFactor()}});
 
     overlayCamera.setView(sf::View{sf::FloatRect({0, 0}, {w, h})});
 
-    titleBar.setOrigin(ssvs::zeroVec2f);
+    titleBar.setOrigin(sf::Vector2f::Zero);
     titleBar.setScale({0.5f, 0.5f});
     titleBar.setPosition({20.f, 20.f});
 
@@ -4169,7 +4164,7 @@ void MenuGame::drawLoadResults()
 {
     //--------------------------------------
     // Hexagon
-    const float div{ssvu::tau / 6 * 0.5f}, hexagonRadius{100.f};
+    const float div{Utils::tau / 6 * 0.5f}, hexagonRadius{100.f};
     const sf::Vector2f centerPos = {w / 2.f, h / 5.f};
 
     menuQuads.clear();
@@ -4179,14 +4174,14 @@ void MenuGame::drawLoadResults()
     {
         const float sAngle{div * 2.f * (i + hexagonRotation)};
 
-        const sf::Vector2f nw{
-            ssvs::getOrbitRad(centerPos, sAngle - div, hexagonRadius)};
-        const sf::Vector2f ne{
-            ssvs::getOrbitRad(centerPos, sAngle + div, hexagonRadius)};
-        const sf::Vector2f se{
-            ssvs::getOrbitRad(centerPos, sAngle + div, hexagonRadius + 10.f)};
-        const sf::Vector2f sw{
-            ssvs::getOrbitRad(centerPos, sAngle - div, hexagonRadius + 10.f)};
+        const sf::Vector2f nw{centerPos.movedAndRotatedBy(
+            hexagonRadius, sf::radians(sAngle - div))};
+        const sf::Vector2f ne{centerPos.movedAndRotatedBy(
+            hexagonRadius, sf::radians(sAngle + div))};
+        const sf::Vector2f se{centerPos.movedAndRotatedBy(
+            hexagonRadius + 10.f, sf::radians(sAngle + div))};
+        const sf::Vector2f sw{centerPos.movedAndRotatedBy(
+            hexagonRadius + 10.f, sf::radians(sAngle - div))};
 
         menuQuads.batch_unsafe_emplace_back_quad(
             sf::Color::White, nw, sw, se, ne);
@@ -4573,7 +4568,7 @@ void MenuGame::quickPackFoldStretch()
     adjustLevelsOffset();
 }
 
-void MenuGame::scrollLevelListToTargetY(ssvu::FT mFT)
+void MenuGame::scrollLevelListToTargetY(float mFT)
 {
     if (std::abs(lvlDrawer->YOffset - lvlDrawer->YScrollTo) <= Utils::epsilon)
     {
@@ -5775,7 +5770,7 @@ void MenuGame::draw()
     {
         menuBackgroundTris.clear();
 
-        styleData.drawBackgroundMenu(menuBackgroundTris, ssvs::zeroVec2f,
+        styleData.drawBackgroundMenu(menuBackgroundTris, sf::Vector2f::Zero,
             levelStatus.sides,
             Config::getDarkenUnevenBackgroundChunk() &&
                 levelStatus.darkenUnevenBackgroundChunk,

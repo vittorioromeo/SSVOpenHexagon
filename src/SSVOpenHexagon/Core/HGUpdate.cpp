@@ -17,6 +17,7 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
+#include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/MoveTowards.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
@@ -34,9 +35,6 @@
 #include <imgui-SFML.h>
 #endif
 
-#include <SSVStart/Utils/Vector2.hpp>
-
-#include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
 
 #include <SFML/Graphics/Color.hpp>
@@ -78,7 +76,7 @@ void HexagonGame::advanceByTicks(const int nTicks)
     }
 }
 
-void HexagonGame::update(ssvu::FT mFT, const float timescale)
+void HexagonGame::update(float mFT, const float timescale)
 {
     // ------------------------------------------------------------------------
     // Fast-forwarding for level testing
@@ -424,7 +422,7 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
     }
 }
 
-void HexagonGame::updateWalls(ssvu::FT mFT)
+void HexagonGame::updateWalls(float mFT)
 {
     bool collided{false};
     const float radiusSquared{status.radius * status.radius + 8.f};
@@ -485,7 +483,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::updateCustomWalls(ssvu::FT mFT)
+void HexagonGame::updateCustomWalls(float mFT)
 {
     if (cwManager.handleCollision(getInputMovement(), getRadius(), player, mFT))
     {
@@ -691,7 +689,7 @@ void HexagonGame::updateInput()
     updateInput_RecordCurrentInputToLastReplayData();
 }
 
-void HexagonGame::updateEvents(ssvu::FT)
+void HexagonGame::updateEvents(float)
 {
     if (const auto o =
             eventTimelineRunner.update(eventTimeline, status.getTimeTP());
@@ -733,7 +731,7 @@ void HexagonGame::updateIncrement()
     mustChangeSides = true;
 }
 
-void HexagonGame::updateLevel(ssvu::FT mFT)
+void HexagonGame::updateLevel(float mFT)
 {
     if (status.isTimePaused())
     {
@@ -752,7 +750,7 @@ void HexagonGame::updateLevel(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::updatePulse(ssvu::FT mFT)
+void HexagonGame::updatePulse(float mFT)
 {
     if (!levelStatus.manualPulseControl)
     {
@@ -796,7 +794,7 @@ void HexagonGame::refreshPulse()
             Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
         const float rotation{backgroundCamera->getRotation()};
 
-        backgroundCamera->setView(sf::View{ssvs::zeroVec2f,
+        backgroundCamera->setView(sf::View{sf::Vector2f::Zero,
             {(Config::getWidth() * Config::getZoomFactor()) * p,
                 (Config::getHeight() * Config::getZoomFactor()) * p}});
 
@@ -804,7 +802,7 @@ void HexagonGame::refreshPulse()
     }
 }
 
-void HexagonGame::updateBeatPulse(ssvu::FT mFT)
+void HexagonGame::updateBeatPulse(float mFT)
 {
     if (!levelStatus.manualBeatPulseControl)
     {
@@ -834,7 +832,7 @@ void HexagonGame::refreshBeatPulse()
         radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
 }
 
-void HexagonGame::updateRotation(ssvu::FT mFT)
+void HexagonGame::updateRotation(float mFT)
 {
     auto nextRotation(getRotationSpeed() * 10.f);
     if (status.fastSpin > 0)
@@ -843,7 +841,7 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
                                       levelStatus.fastSpin, status.fastSpin) /
                                      3.5f) *
                                  17.f) *
-                        ssvu::getSign(nextRotation);
+                        Utils::getSign(nextRotation);
 
         status.fastSpin -= mFT;
     }
@@ -855,7 +853,7 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::updateCameraShake(ssvu::FT mFT)
+void HexagonGame::updateCameraShake(float mFT)
 {
     if (!backgroundCamera.has_value() || !overlayCamera.has_value())
     {
@@ -897,7 +895,7 @@ void HexagonGame::updateCameraShake(ssvu::FT mFT)
     overlayCamera->setCenter(preShakeCenters->overlay + makeShakeVec());
 }
 
-void HexagonGame::updateFlash(ssvu::FT mFT)
+void HexagonGame::updateFlash(float mFT)
 {
     if (status.flashEffect > 0)
     {
@@ -912,7 +910,7 @@ void HexagonGame::updateFlash(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::updatePulse3D(ssvu::FT mFT)
+void HexagonGame::updatePulse3D(float mFT)
 {
     status.pulse3D += styleData._3dPulseSpeed * status.pulse3DDirection * mFT;
     if (status.pulse3D > styleData._3dPulseMax)
@@ -925,7 +923,7 @@ void HexagonGame::updatePulse3D(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::updateParticles(ssvu::FT mFT)
+void HexagonGame::updateParticles(float mFT)
 {
     SSVOH_ASSERT(window != nullptr);
 
@@ -981,7 +979,7 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::updateTrailParticles(ssvu::FT mFT)
+void HexagonGame::updateTrailParticles(float mFT)
 {
     SSVOH_ASSERT(window != nullptr);
 
@@ -1024,7 +1022,7 @@ void HexagonGame::updateTrailParticles(ssvu::FT mFT)
         p.sprite.setScale(p.sprite.getScale() * 0.98f);
 
         p.sprite.setPosition(
-            ssvs::getVecFromRad(p.angle, status.radius + 2.4f));
+            sf::Vector2f(status.radius + 2.4f, sf::radians(p.angle)));
     }
 
     if (player.hasChangedAngle())
@@ -1033,7 +1031,7 @@ void HexagonGame::updateTrailParticles(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::updateSwapParticles(ssvu::FT mFT)
+void HexagonGame::updateSwapParticles(float mFT)
 {
     SSVOH_ASSERT(window != nullptr);
 
@@ -1058,9 +1056,8 @@ void HexagonGame::updateSwapParticles(ssvu::FT mFT)
         c.a = alpha;
         p.sprite.setColor(c);
 
-        p.velocity =
-            ssvs::getVecFromRad(si.angle + ssvu::getRndR(-expand, expand),
-                ssvu::getRndR(0.1f, 10.f) * speedMult);
+        p.velocity = sf::Vector2f(ssvu::getRndR(0.1f, 10.f) * speedMult,
+            sf::radians(si.angle + ssvu::getRndR(-expand, expand)));
 
         return p;
     };

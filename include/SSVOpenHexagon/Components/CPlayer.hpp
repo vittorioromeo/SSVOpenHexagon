@@ -7,9 +7,6 @@
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
-
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
@@ -76,7 +73,7 @@ private:
     [[nodiscard]] bool checkWallCollisionEscape(
         const Wall& wall, sf::Vector2f& pos, const float radiusSquared);
 
-    void updateTriangleWidthTransition(const bool focused, const ssvu::FT ft);
+    void updateTriangleWidthTransition(const bool focused, const float ft);
 
 public:
     explicit CPlayer(const sf::Vector2f& pos, const float swapCooldown,
@@ -103,10 +100,10 @@ public:
 
     void kill(const bool fatal);
 
-    void update(const bool focused, const bool swapEnabled, const ssvu::FT ft);
+    void update(const bool focused, const bool swapEnabled, const float ft);
 
     void updateInputMovement(const float movementDir,
-        const float playerSpeedMult, const bool focused, const ssvu::FT ft);
+        const float playerSpeedMult, const bool focused, const float ft);
 
     void resetSwap(const float swapCooldown);
 
@@ -127,10 +124,10 @@ public:
 
     [[nodiscard]] bool push(const int movementDir, const float radius,
         const CWall& wall, const sf::Vector2f& mCenterPos,
-        const float radiusSquared, ssvu::FT ft);
+        const float radiusSquared, float ft);
 
     [[nodiscard]] bool push(const int movementDir, const float radius,
-        const hg::CCustomWall& wall, const float radiusSquared, ssvu::FT ft);
+        const hg::CCustomWall& wall, const float radiusSquared, float ft);
 
     [[nodiscard]] bool getJustSwapped() const noexcept;
 

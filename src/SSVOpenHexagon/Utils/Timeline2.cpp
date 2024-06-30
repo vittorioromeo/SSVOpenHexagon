@@ -4,15 +4,11 @@
 
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 
-#include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Utils/TinyVariant.hpp"
 
-#include <type_traits>
-#include <variant>
-#include <utility>
 #include <chrono>
 #include <optional>
-#include <functional>
 
 namespace hg::Utils {
 
@@ -21,14 +17,11 @@ void timeline2::clear()
     _actions.clear();
 }
 
-void timeline2::append_do(const std::function<void()>& func)
-{
-    _actions.emplace_back(action_do{func});
-}
 
 void timeline2::append_wait_for(const duration d)
 {
-    _actions.emplace_back(action_wait_for{d});
+    _actions.emplace_back(
+        vittorioromeo::impl::tinyvariant_inplace_type_t<action_wait_for>{}, d);
 }
 
 void timeline2::append_wait_for_seconds(const double s)
@@ -43,12 +36,9 @@ void timeline2::append_wait_for_sixths(const double s)
 
 void timeline2::append_wait_until(const time_point tp)
 {
-    _actions.emplace_back(action_wait_until{tp});
-}
-
-void timeline2::append_wait_until_fn(const std::function<time_point()>& tp_fn)
-{
-    _actions.emplace_back(action_wait_until_fn{tp_fn});
+    _actions.emplace_back(
+        vittorioromeo::impl::tinyvariant_inplace_type_t<action_wait_until>{},
+        tp);
 }
 
 [[nodiscard]] std::size_t timeline2::size() const noexcept
@@ -76,14 +66,13 @@ timeline2_runner::outcome timeline2_runner::update(
     {
         timeline2::action& a = timeline.action_at(_current_idx);
 
-        const outcome o = match(
-            a._inner, //
-            [&](const timeline2::action_do& x)
+        const outcome o = a.linear_match(
+            [&](timeline2::action_do& x)
             {
                 x._func();
                 return outcome::proceed;
             },
-            [&](const timeline2::action_wait_for& x)
+            [&](timeline2::action_wait_for& x)
             {
                 if (!_wait_start_tp.has_value())
                 {
@@ -102,7 +91,7 @@ timeline2_runner::outcome timeline2_runner::update(
                 _wait_start_tp.reset();
                 return outcome::proceed;
             },
-            [&](const timeline2::action_wait_until& x)
+            [&](timeline2::action_wait_until& x)
             {
                 if (tp < x._time_point)
                 {
@@ -113,7 +102,7 @@ timeline2_runner::outcome timeline2_runner::update(
                 // Finished waiting.
                 return outcome::proceed;
             }, //
-            [&](const timeline2::action_wait_until_fn& x)
+            [&](timeline2::action_wait_until_fn& x)
             {
                 if (tp < x._time_point_fn())
                 {

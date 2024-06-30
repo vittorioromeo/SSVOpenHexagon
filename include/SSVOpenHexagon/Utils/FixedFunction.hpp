@@ -7,28 +7,34 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include <cstddef>
-#include <type_traits>
-#include <utility>
-
 namespace hg::Utils {
 
-template <typename TSignature, std::size_t TStorageSize = 64>
+using SizeT = decltype(sizeof(int));
+
+struct MaxAlignT
+{
+    alignas(alignof(long long)) long long a;
+    alignas(alignof(long double)) long double b;
+};
+
+using Byte = unsigned char;
+
+template <typename TSignature, SizeT TStorageSize = 64>
 class FixedFunction;
 
-template <typename TReturn, typename... Ts, std::size_t TStorageSize>
+template <typename TReturn, typename... Ts, SizeT TStorageSize>
 class FixedFunction<TReturn(Ts...), TStorageSize>
 {
 private:
     using ret_type = TReturn;
 
     using fn_ptr_type = ret_type (*)(Ts...);
-    using method_type = ret_type (*)(std::byte*, fn_ptr_type, Ts...);
-    using alloc_type = void (*)(std::byte*, void* object_ptr);
+    using method_type = ret_type (*)(Byte*, fn_ptr_type, Ts...);
+    using alloc_type = void (*)(Byte*, void* object_ptr);
 
     union
     {
-        alignas(std::max_align_t) std::byte _storage[TStorageSize];
+        alignas(MaxAlignT) Byte _storage[TStorageSize];
         fn_ptr_type _function_ptr;
     };
 
@@ -76,19 +82,18 @@ public:
     template <typename TFFwd>
     FixedFunction(TFFwd&& f) noexcept : FixedFunction()
     {
-        using unref_type = std::remove_reference_t<TFFwd>;
+        using unref_type = typename hg::Impl::RemoveRef<TFFwd>::type;
 
         static_assert(sizeof(unref_type) < TStorageSize);
-        static_assert(std::is_move_constructible_v<unref_type>);
 
-        _method_ptr = [](std::byte* s, fn_ptr_type, Ts... xs)
+        _method_ptr = [](Byte* s, fn_ptr_type, Ts... xs)
         { return reinterpret_cast<unref_type*>(s)->operator()(xs...); };
 
-        _alloc_ptr = [](std::byte* s, void* o)
+        _alloc_ptr = [](Byte* s, void* o)
         {
             if (o)
             {
-                new (s) unref_type(std::move(*static_cast<unref_type*>(o)));
+                new (s) unref_type(SSVOH_MOVE(*static_cast<unref_type*>(o)));
             }
             else
             {
@@ -103,7 +108,7 @@ public:
     FixedFunction(TFReturn (*f)(TFs...)) noexcept : FixedFunction()
     {
         _function_ptr = f;
-        _method_ptr = [](std::byte*, fn_ptr_type xf, Ts... xs)
+        _method_ptr = [](Byte*, fn_ptr_type xf, Ts... xs)
         { return static_cast<decltype(f)>(xf)(xs...); };
     }
 

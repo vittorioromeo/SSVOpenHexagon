@@ -19,12 +19,10 @@
 #include <sstream>
 #include <optional>
 #include <variant>
-#include <array>
 #include <string>
 #include <vector>
 
 #include <cstdint>
-#include <cstddef>
 #include <cstdint>
 
 namespace sf {

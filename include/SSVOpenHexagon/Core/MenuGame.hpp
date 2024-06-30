@@ -19,8 +19,6 @@
 
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -31,7 +29,6 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <array>
-#include <chrono>
 #include <cctype>
 #include <functional>
 #include <optional>
@@ -208,7 +205,7 @@ private:
     LevelStatus levelStatus;
     int ignoreInputs;
 
-    void update(ssvu::FT mFT);
+    void update(float mFT);
     void setIndex(int mIdx);
     void refreshCamera();
     void reloadAssets(const bool reloadEntirePack);
@@ -455,7 +452,7 @@ private:
     void calcPackChangeScrollFold(const float mLevelListHeight);
     void calcPackChangeScrollStretch(const float mLevelListHeight);
     void quickPackFoldStretch();
-    void scrollLevelListToTargetY(ssvu::FT mFT);
+    void scrollLevelListToTargetY(float mFT);
 
     void checkWindowTopScroll(
         const float scroll, std::function<void(const float)> action);

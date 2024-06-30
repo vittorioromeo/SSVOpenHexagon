@@ -4,12 +4,8 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
-
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
-
-#include <SSVUtils/Core/Common/Frametime.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>

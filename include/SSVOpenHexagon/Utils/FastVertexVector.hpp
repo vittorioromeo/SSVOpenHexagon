@@ -13,6 +13,7 @@
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 
 #include <cstddef>
 #include <cstring>

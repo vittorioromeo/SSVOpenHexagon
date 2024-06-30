@@ -39,6 +39,7 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <exception>

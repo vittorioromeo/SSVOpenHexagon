@@ -49,7 +49,6 @@
 #include <memory>
 #include <optional>
 #include <random>
-#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
@@ -153,7 +152,6 @@
 #include <SSVUtils/Core/Detection/Detection.hpp>
 #include <SSVUtils/Core/Common/Common.hpp>
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
@@ -174,7 +172,6 @@
 #include <SSVStart/Input/Trigger.hpp>
 #include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Utils/SFML.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
 
 //
 //
@@ -187,7 +184,7 @@
 //
 //
 // ----------------------------------------------------------------------------
-// SSVOpenHExagon
+// SSVOpenHexagon
 // ----------------------------------------------------------------------------
 
 #include "SSVOpenHexagon/Global/Assert.hpp"

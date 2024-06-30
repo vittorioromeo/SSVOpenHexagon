@@ -8,9 +8,9 @@
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 
+#include <algorithm>
 #include <string>
 #include <vector>
-#include <set>
 
 namespace hg {
 

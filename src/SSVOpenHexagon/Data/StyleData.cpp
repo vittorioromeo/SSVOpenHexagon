@@ -6,14 +6,13 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
-#include "SSVOpenHexagon/Utils/Match.hpp"
+#include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
 #include <SSVUtils/Core/Utils/Math.hpp>
 
-#include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 
 namespace hg {
@@ -120,7 +119,7 @@ sf::Color StyleData::calculateColor(const float mCurrentHue,
         Utils::componentClamp(color.a + mColorData.pulse.a * mPulseFactor));
 }
 
-void StyleData::update(ssvu::FT mFT, float mMult)
+void StyleData::update(float mFT, float mMult)
 {
     currentSwapTime += mFT * mMult;
     if (currentSwapTime > maxSwapTime)
@@ -200,7 +199,7 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
     const sf::Vector2f& mCenterPos, const unsigned int sides,
     const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const
 {
-    const float div{ssvu::tau / sides * 1.0001f};
+    const float div{Utils::tau / sides * 1.0001f};
     const float halfDiv{div / 2.f};
     const float distance{bgTileRadius};
 
@@ -212,7 +211,7 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
 
     for (auto i(0u); i < sides; ++i)
     {
-        const float angle{ssvu::toRad(BGRotOff) + div * i};
+        const float angle{Utils::toRad(BGRotOff) + div * i};
         sf::Color currentColor{ssvu::getByModIdx(colors, i)};
 
         const bool mustDarkenUnevenBackgroundChunk =
@@ -228,8 +227,10 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
         }
 
         vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
-            ssvs::getOrbitRad(mCenterPos, angle + halfDiv, distance),
-            ssvs::getOrbitRad(mCenterPos, angle - halfDiv, distance));
+            mCenterPos.movedAndRotatedBy(
+                distance, sf::radians(angle + halfDiv)),
+            mCenterPos.movedAndRotatedBy(
+                distance, sf::radians(angle - halfDiv)));
     }
 }
 
@@ -238,7 +239,7 @@ void StyleData::drawBackgroundMenuHexagonImpl(
     const unsigned int sides, const bool fourByThree,
     const bool blackAndWhite) const
 {
-    const float div{ssvu::tau / sides * 1.0001f};
+    const float div{Utils::tau / sides * 1.0001f};
     const float halfDiv{div / 2.f};
     const float hexagonRadius{fourByThree ? 75.f : 100.f};
 
@@ -249,17 +250,19 @@ void StyleData::drawBackgroundMenuHexagonImpl(
 
     for (auto i(0u); i < sides; ++i)
     {
-        const float angle{ssvu::toRad(BGRotOff) + div * i};
+        const float angle{Utils::toRad(BGRotOff) + div * i};
 
         vertices.batch_unsafe_emplace_back(colorMain, mCenterPos,
-            ssvs::getOrbitRad(
-                mCenterPos, angle + halfDiv, hexagonRadius + 10.f),
-            ssvs::getOrbitRad(
-                mCenterPos, angle - halfDiv, hexagonRadius + 10.f));
+            mCenterPos.movedAndRotatedBy(
+                hexagonRadius + 10.f, sf::radians(angle + halfDiv)),
+            mCenterPos.movedAndRotatedBy(
+                hexagonRadius + 10.f, sf::radians(angle - halfDiv)));
 
         vertices.batch_unsafe_emplace_back(colorCap, mCenterPos,
-            ssvs::getOrbitRad(mCenterPos, angle + halfDiv, hexagonRadius),
-            ssvs::getOrbitRad(mCenterPos, angle - halfDiv, hexagonRadius));
+            mCenterPos.movedAndRotatedBy(
+                hexagonRadius, sf::radians(angle + halfDiv)),
+            mCenterPos.movedAndRotatedBy(
+                hexagonRadius, sf::radians(angle - halfDiv)));
     }
 }
 

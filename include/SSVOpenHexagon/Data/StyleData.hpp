@@ -7,8 +7,6 @@
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Data/CapColor.hpp"
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
@@ -106,7 +104,7 @@ public:
     explicit StyleData();
     explicit StyleData(const ssvuj::Obj& mRoot);
 
-    void update(ssvu::FT mFT, float mMult = 1.f);
+    void update(float mFT, float mMult = 1.f);
 
     void computeColors();
 

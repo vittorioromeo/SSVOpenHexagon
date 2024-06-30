@@ -4,8 +4,6 @@
 
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
 
-#include <SSVStart/Utils/Vector2.hpp>
-
 #include <SFML/System/Vector2.hpp>
 
 #include <cmath>
@@ -60,7 +58,7 @@ namespace hg::Utils {
         case 1u: mIntersection = v1; return true;
 
         case 2u:
-            if (ssvs::getMagSquared(v1 - mPos) > ssvs::getMagSquared(v2 - mPos))
+            if ((v1 - mPos).lengthSq() > (v2 - mPos).lengthSq())
             {
                 mIntersection = v2;
             }

@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include <type_traits>
-#include <variant>
-#include <utility>
+#include "SSVOpenHexagon/Utils/FixedFunction.hpp"
+#include "SSVOpenHexagon/Utils/TinyVariant.hpp"
+
 #include <chrono>
-#include <functional>
 #include <optional>
 #include <cstddef>
 #include <vector>
@@ -24,7 +23,7 @@ public:
 
     struct action_do
     {
-        std::function<void()> _func;
+        Utils::FixedFunction<void(), 64> _func;
     };
 
     struct action_wait_for
@@ -39,15 +38,11 @@ public:
 
     struct action_wait_until_fn
     {
-        std::function<time_point()> _time_point_fn;
+        Utils::FixedFunction<time_point(), 32> _time_point_fn;
     };
 
-    struct action
-    {
-        std::variant<action_do, action_wait_for, action_wait_until,
-            action_wait_until_fn>
-            _inner;
-    };
+    using action = vittorioromeo::tinyvariant<action_do, action_wait_for,
+        action_wait_until, action_wait_until_fn>;
 
 private:
     std::vector<action> _actions;
@@ -55,12 +50,26 @@ private:
 public:
     void clear();
 
-    void append_do(const std::function<void()>& func);
+    template <typename F>
+    void append_do(F&& func)
+    {
+        _actions.emplace_back(
+            vittorioromeo::impl::tinyvariant_inplace_type_t<action_do>{},
+            SSVOH_FWD(func));
+    }
+
     void append_wait_for(const duration d);
     void append_wait_for_seconds(const double s);
     void append_wait_for_sixths(const double s);
     void append_wait_until(const time_point tp);
-    void append_wait_until_fn(const std::function<time_point()>& tp_fn);
+
+    template <typename F>
+    void append_wait_until_fn(F&& tp_fn)
+    {
+        _actions.emplace_back(vittorioromeo::impl::tinyvariant_inplace_type_t<
+                                  action_wait_until_fn>{},
+            SSVOH_FWD(tp_fn));
+    }
 
     [[nodiscard]] std::size_t size() const noexcept;
     [[nodiscard]] action& action_at(const std::size_t i) noexcept;

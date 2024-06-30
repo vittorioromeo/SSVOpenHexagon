@@ -5,15 +5,11 @@
 #pragma once
 
 namespace Json {
-
 class Value;
-
 }
 
 namespace ssvuj {
-
 using Obj = Json::Value;
-
 }
 
 namespace hg {

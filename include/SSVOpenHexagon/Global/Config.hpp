@@ -8,6 +8,9 @@
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 
+#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/Keyboard.hpp>
+
 #include <vector>
 #include <string>
 #include <array>

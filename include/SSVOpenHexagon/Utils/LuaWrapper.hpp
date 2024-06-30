@@ -42,7 +42,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <limits>
 #include <map>
 #include <memory>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -745,19 +744,12 @@ private:
         return 1;
     }
 
+    static void* callbackCallImpl(lua_State* lua);
+
     template <typename FunctionPushType>
     static auto callbackCall(lua_State* lua)
     {
-        // this function is called when the lua script tries to call our
-        // custom data type
-        // what we do is we simply call the function
-        SSVOH_ASSERT(lua_gettop(lua) >= 1);
-        SSVOH_ASSERT(lua_isuserdata(lua, 1));
-
-        auto function = (FunctionPushType*)lua_touserdata(lua, 1);
-
-        SSVOH_ASSERT(function);
-        return (*function)(lua);
+        return (*(static_cast<FunctionPushType*>(callbackCallImpl(lua))))(lua);
     }
 
     template <typename FunctionPushType>

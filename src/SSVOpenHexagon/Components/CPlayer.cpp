@@ -10,19 +10,16 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
+#include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/MoveTowards.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 
-#include <SSVStart/Utils/SFML.hpp>
-
-#include <SSVUtils/Core/Common/Frametime.hpp>
-#include <SSVUtils/Core/Utils/Math.hpp>
+#include <SFML/System/Angle.hpp>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <algorithm>
 #include <cmath>
 
 namespace hg {
@@ -91,26 +88,26 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
     }
 
     const float tiltedAngle =
-        _angle + (_currTiltedAngle * ssvu::toRad(24.f) * angleTiltIntensity);
+        _angle + (_currTiltedAngle * Utils::toRad(24.f) * angleTiltIntensity);
 
-    const sf::Vector2f pLeft = ssvs::getOrbitRad(
-        _pos, tiltedAngle - ssvu::toRad(100.f), _size + _triangleWidth);
+    const sf::Vector2f pLeft = _pos.movedAndRotatedBy(
+        _size + _triangleWidth, sf::radians(tiltedAngle - Utils::toRad(100.f)));
 
-    const sf::Vector2f pRight = ssvs::getOrbitRad(
-        _pos, tiltedAngle + ssvu::toRad(100.f), _size + _triangleWidth);
+    const sf::Vector2f pRight = _pos.movedAndRotatedBy(
+        _size + _triangleWidth, sf::radians(tiltedAngle + Utils::toRad(100.f)));
 
     playerTris.reserve_more(3);
     playerTris.batch_unsafe_emplace_back(
         swapBlinkingEffect ? getColorAdjustedForSwap(colorPlayer)
                            : getColor(colorPlayer),
-        ssvs::getOrbitRad(_pos, tiltedAngle, _size), pLeft, pRight);
+        _pos.movedAndRotatedBy(_size, sf::radians(tiltedAngle)), pLeft, pRight);
 }
 
 void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
     Utils::FastVertexVectorTris& wallQuads,
     Utils::FastVertexVectorTris& capTris, const sf::Color& capColor)
 {
-    const float div{ssvu::tau / sides * 0.5f};
+    const float div{Utils::tau / sides * 0.5f};
     const float pRadius{_radius * 0.75f};
 
     wallQuads.reserve_more_quad(sides * 1);
@@ -121,13 +118,13 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
         const float sAngle{div * 2.f * i};
 
         const sf::Vector2f p1{
-            ssvs::getOrbitRad(_startPos, sAngle - div, pRadius)};
+            _startPos.movedAndRotatedBy(pRadius, sf::radians(sAngle - div))};
         const sf::Vector2f p2{
-            ssvs::getOrbitRad(_startPos, sAngle + div, pRadius)};
-        const sf::Vector2f p3{ssvs::getOrbitRad(
-            _startPos, sAngle + div, pRadius + baseThickness)};
-        const sf::Vector2f p4{ssvs::getOrbitRad(
-            _startPos, sAngle - div, pRadius + baseThickness)};
+            _startPos.movedAndRotatedBy(pRadius, sf::radians(sAngle + div))};
+        const sf::Vector2f p3{_startPos.movedAndRotatedBy(
+            pRadius + baseThickness, sf::radians(sAngle + div))};
+        const sf::Vector2f p4{_startPos.movedAndRotatedBy(
+            pRadius + baseThickness, sf::radians(sAngle - div))};
 
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
         capTris.batch_unsafe_emplace_back(capColor, p1, p2, _startPos);
@@ -136,7 +133,7 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
 
 void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
 {
-    const float div{ssvu::tau / 6 * 0.5f};
+    const float div{Utils::tau / 6 * 0.5f};
     const float dRadius{_hue / 8.f};
     const float thickness{_hue / 20.f};
 
@@ -148,12 +145,14 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
     {
         const float sAngle{div * 2.f * i};
 
-        const sf::Vector2f p1{ssvs::getOrbitRad(_pos, sAngle - div, dRadius)};
-        const sf::Vector2f p2{ssvs::getOrbitRad(_pos, sAngle + div, dRadius)};
-        const sf::Vector2f p3{
-            ssvs::getOrbitRad(_pos, sAngle + div, dRadius + thickness)};
-        const sf::Vector2f p4{
-            ssvs::getOrbitRad(_pos, sAngle - div, dRadius + thickness)};
+        const sf::Vector2f p1{
+            _pos.movedAndRotatedBy(dRadius, sf::radians(sAngle - div))};
+        const sf::Vector2f p2{
+            _pos.movedAndRotatedBy(dRadius, sf::radians(sAngle + div))};
+        const sf::Vector2f p3{_pos.movedAndRotatedBy(
+            dRadius + thickness, sf::radians(sAngle + div))};
+        const sf::Vector2f p4{_pos.movedAndRotatedBy(
+            dRadius + thickness, sf::radians(sAngle - div))};
 
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
     }
@@ -161,7 +160,7 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
 
 void CPlayer::playerSwap()
 {
-    _angle += ssvu::pi;
+    _angle += Utils::pi;
 }
 
 void CPlayer::kill(const bool fatal)
@@ -174,11 +173,11 @@ void CPlayer::kill(const bool fatal)
 
         // Avoid moving back position if the player had just swapped or the
         // player was forcibly moved by a lot via Lua scripting.
-        if (!_justSwapped && ssvs::getDistEuclidean(_pos, _lastPos) < 24.f)
+        if (!_justSwapped && (_lastPos - _pos).length() < 24.f)
         {
             // Move back position to graphically show the tip of the triangle
             // hitting the wall rather than the center of the triangle.
-            _pos = ssvs::getOrbitRad(_lastPos, _angle, -_size);
+            _pos = _lastPos.movedAndRotatedBy(-_size, sf::radians(_angle));
         }
     }
 }
@@ -207,7 +206,7 @@ template <typename Wall>
 
     const auto assignResult = [&]()
     {
-        tempDistance = ssvs::getMagSquared(vec1 - pos);
+        tempDistance = (vec1 - pos).lengthSq();
         if (tempDistance < safeDistance)
         {
             pos = vec1;
@@ -234,8 +233,7 @@ template <typename Wall>
 
             case 2u:
             {
-                if (ssvs::getMagSquared(vec1 - pos) >
-                    ssvs::getMagSquared(vec2 - pos))
+                if ((vec1 - pos).lengthSq() > (vec2 - pos).lengthSq())
                 {
                     vec1 = vec2;
                 }
@@ -256,7 +254,7 @@ template <typename Wall>
 
 [[nodiscard]] bool CPlayer::push(const int movementDir, const float radius,
     const CWall& wall, const sf::Vector2f& centerPos, const float radiusSquared,
-    const ssvu::FT ft)
+    const float ft)
 {
     if (_dead)
     {
@@ -273,7 +271,7 @@ template <typename Wall>
     // at saving player.
     const SpeedData& curveData{wall.getCurve()};
     if (curveData._speed != 0.f &&
-        ssvu::getSign(curveData._speed) != movementDir)
+        Utils::getSign(curveData._speed) != movementDir)
     {
         wall.moveVertexAlongCurve(testPos, centerPos, ft);
         pushVel = testPos - _pos;
@@ -282,9 +280,12 @@ template <typename Wall>
     // If player is not moving calculate now...
     if (!movementDir && !_forcedMove)
     {
-        _pos = testPos + ssvs::getNormalized(testPos - _prePushPos) *
-                             (2.f * collisionPadding);
-        _angle = ssvs::getRad(_pos);
+        const sf::Vector2f posDiff = testPos - _prePushPos;
+        const sf::Vector2f posDiffNormalized =
+            posDiff == sf::Vector2f::Zero ? posDiff : posDiff.normalized();
+
+        _pos = testPos + posDiffNormalized * (2.f * collisionPadding);
+        _angle = _pos.angle().asRadians();
         updatePosition(radius);
         return wall.isOverlapping(_pos);
     }
@@ -314,15 +315,14 @@ template <typename Wall>
     // If player survived assign it the saving testPos, but displace it further
     // out the wall border, otherwise player would be lying right on top of the
     // border.
-    _pos =
-        testPos + ssvs::getNormalized(testPos - _prePushPos) * collisionPadding;
-    _angle = ssvs::getRad(_pos);
+    _pos = testPos + (testPos - _prePushPos).normalized() * collisionPadding;
+    _angle = _pos.angle().asRadians();
     updatePosition(radius);
     return false;
 }
 
 [[nodiscard]] bool CPlayer::push(const int movementDir, const float radius,
-    const CCustomWall& wall, const float radiusSquared, const ssvu::FT ft)
+    const CCustomWall& wall, const float radiusSquared, const float ft)
 {
     (void)ft; // Currently unused.
 
@@ -365,8 +365,8 @@ template <typename Wall>
                     i2, _lastPos, wVertexes[i], wVertexes[j], radiusSquared))
             {
                 pushVel = i2 - i1;
-                if (std::abs(ssvs::getDotProduct(ssvs::getNormalized(pushVel),
-                        ssvs::getNormalized(_lastPos))) > pushDotThreshold)
+                if (std::abs(pushVel.normalized().dot(_lastPos.normalized())) >
+                    pushDotThreshold)
                 {
                     pushVel = {0.f, 0.f};
                 }
@@ -379,9 +379,8 @@ template <typename Wall>
     if (!movementDir && !_forcedMove)
     {
         _pos += pushVel;
-        _pos +=
-            ssvs::getNormalized(_pos - _prePushPos) * (2.f * collisionPadding);
-        _angle = ssvs::getRad(_pos);
+        _pos += (_pos - _prePushPos).normalized() * (2.f * collisionPadding);
+        _angle = _pos.angle().asRadians();
         updatePosition(radius);
         return wall.isOverlapping(_pos);
     }
@@ -397,16 +396,14 @@ template <typename Wall>
     // If player survived assign it the saving testPos, but displace it further
     // out the wall border, otherwise player would be lying right on top of the
     // border.
-    _pos =
-        testPos + ssvs::getNormalized(testPos - _prePushPos) * collisionPadding;
-    _angle = ssvs::getRad(_pos);
+    _pos = testPos + (testPos - _prePushPos).normalized() * collisionPadding;
+    _angle = _pos.angle().asRadians();
     updatePosition(radius);
 
     return false;
 }
 
-void CPlayer::updateTriangleWidthTransition(
-    const bool focused, const ssvu::FT ft)
+void CPlayer::updateTriangleWidthTransition(const bool focused, const float ft)
 {
     if (focused && _triangleWidthTransitionTime < 1.f)
     {
@@ -422,8 +419,7 @@ void CPlayer::updateTriangleWidthTransition(
         (1.f - Utils::getSmoothStep(0.f, 1.f, _triangleWidthTransitionTime));
 }
 
-void CPlayer::update(
-    const bool focused, const bool swapEnabled, const ssvu::FT ft)
+void CPlayer::update(const bool focused, const bool swapEnabled, const float ft)
 {
     updateTriangleWidthTransition(focused, ft);
 
@@ -462,10 +458,10 @@ void CPlayer::update(
 }
 
 void CPlayer::updateInputMovement(const float movementDir,
-    const float playerSpeedMult, const bool focused, const ssvu::FT ft)
+    const float playerSpeedMult, const bool focused, const float ft)
 {
     _currentSpeed = playerSpeedMult * (focused ? _focusSpeed : _speed) * ft;
-    _angle += ssvu::toRad(_currentSpeed * movementDir);
+    _angle += Utils::toRad(_currentSpeed * movementDir);
 
     const float inc = ft / 10.f;
 
@@ -490,13 +486,14 @@ void CPlayer::updatePosition(const float radius)
 {
     _radius = radius;
 
-    _prePushPos = _pos = ssvs::getOrbitRad(_startPos, _angle, _radius);
-    _lastPos = ssvs::getOrbitRad(_startPos, _lastAngle, _radius);
+    _prePushPos = _pos =
+        _startPos.movedAndRotatedBy(_radius, sf::radians(_angle));
+    _lastPos = _startPos.movedAndRotatedBy(_radius, sf::radians(_lastAngle));
 
     _maxSafeDistance =
-        ssvs::getMagSquared(
-            _lastPos - ssvs::getOrbitRad(_startPos,
-                           _lastAngle + ssvu::toRad(_currentSpeed), _radius)) +
+        (_lastPos - _startPos.movedAndRotatedBy(_radius,
+                        sf::radians(_lastAngle + Utils::toRad(_currentSpeed))))
+            .lengthSq() +
         32.f;
 }
 

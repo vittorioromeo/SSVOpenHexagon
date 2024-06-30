@@ -8,8 +8,10 @@
 
 #include <array>
 #include <string>
-#include <cstddef>
 #include <optional>
+
+#include <cstddef>
+#include <cstdint>
 
 namespace hg {
 

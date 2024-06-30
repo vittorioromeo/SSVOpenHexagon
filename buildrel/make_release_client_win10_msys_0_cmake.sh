@@ -23,4 +23,5 @@ cmake .. -G"Ninja" \
              -Wno-stringop-overflow \
              -O3 -DNDEBUG -g3 \
              -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off \
-             -ffold-simple-inlines -fimplicit-constexpr"
+             -ffold-simple-inlines -fimplicit-constexpr" \
+         -DCMAKE_C_FLAGS="-Wno-attributes"

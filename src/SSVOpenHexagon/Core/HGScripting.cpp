@@ -312,8 +312,11 @@ static void waitUntilSImpl(const double mDuration,
 
 void HexagonGame::initLua_MainTimeline()
 {
-    addLuaFn(lua, "t_eval", [this](const std::string& mCode)
-        { timeline.append_do([=, this] { Utils::runLuaCode(lua, mCode); }); })
+    addLuaFn(lua, "t_eval",
+        [this](const std::string& mCode) {
+            timeline.append_do(
+                [this, mCode] { Utils::runLuaCode(lua, mCode); });
+        })
         .arg("code")
         .doc(
             "*Add to the main timeline*: evaluate the Lua code specified in "
@@ -367,7 +370,7 @@ void HexagonGame::initLua_EventTimeline()
     addLuaFn(lua, "e_stopTime", //
         [this](double mDuration)
         {
-            eventTimeline.append_do([=, this]
+            eventTimeline.append_do([this, mDuration]
                 { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
         })
         .arg("duration")
@@ -376,8 +379,10 @@ void HexagonGame::initLua_EventTimeline()
             "(under the assumption of a 60 FPS frame rate).");
 
     addLuaFn(lua, "e_stopTimeS", //
-        [this](double mDuration) {
-            eventTimeline.append_do([=, this] { status.pauseTime(mDuration); });
+        [this](double mDuration)
+        {
+            eventTimeline.append_do(
+                [this, mDuration] { status.pauseTime(mDuration); });
         })
         .arg("duration")
         .doc(
@@ -409,7 +414,7 @@ void HexagonGame::initLua_EventTimeline()
         [this](const std::string& mMsg, double mDuration)
         {
             eventTimeline.append_do(
-                [=, this]
+                [this, mMsg, mDuration]
                 {
                     if (firstPlay)
                     {
@@ -427,7 +432,7 @@ void HexagonGame::initLua_EventTimeline()
     addLuaFn(lua, "e_messageAddImportant", //
         [this](const std::string& mMsg, double mDuration)
         {
-            eventTimeline.append_do([=, this]
+            eventTimeline.append_do([this, mMsg, mDuration]
                 { addMessage(mMsg, mDuration, /* mSoundToggle */ true); });
         })
         .arg("message")
@@ -440,7 +445,7 @@ void HexagonGame::initLua_EventTimeline()
     addLuaFn(lua, "e_messageAddImportantSilent",
         [this](const std::string& mMsg, double mDuration)
         {
-            eventTimeline.append_do([=, this]
+            eventTimeline.append_do([this, mMsg, mDuration]
                 { addMessage(mMsg, mDuration, /* mSoundToggle */ false); });
         })
         .arg("message")
@@ -488,7 +493,7 @@ void HexagonGame::initLua_CustomTimelines()
             }
 
             _customTimelineManager.get(cth)._timeline.append_do(
-                [=, this] { Utils::runLuaCode(lua, mCode); });
+                [this, mCode] { Utils::runLuaCode(lua, mCode); });
         })
         .arg("handle")
         .arg("code")
@@ -518,7 +523,8 @@ void HexagonGame::initLua_CustomTimelines()
                 return;
             }
 
-            _customTimelineManager.get(cth)._timeline.append_do([=, this]
+            _customTimelineManager.get(cth)._timeline.append_do(
+                [this, mDuration]
                 { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
         })
         .arg("handle")
@@ -537,7 +543,7 @@ void HexagonGame::initLua_CustomTimelines()
             }
 
             _customTimelineManager.get(cth)._timeline.append_do(
-                [=, this] { status.pauseTime(mDuration); });
+                [this, mDuration] { status.pauseTime(mDuration); });
         })
         .arg("handle")
         .arg("duration")
@@ -705,7 +711,7 @@ void HexagonGame::initLua_WallCreation()
         [this](int mSide, float mThickness)
         {
             timeline.append_do(
-                [=, this]
+                [this, mSide, mThickness]
                 {
                     createWall(mSide, mThickness, SpeedData{getSpeedMultDM()},
                         SpeedData{} /* curve */, 0.f /* hueMod */);
@@ -722,7 +728,7 @@ void HexagonGame::initLua_WallCreation()
         [this](int mSide, float mThickness, float mSpeedAdj)
         {
             timeline.append_do(
-                [=, this]
+                [this, mSide, mThickness, mSpeedAdj]
                 {
                     createWall(mSide, mThickness,
                         SpeedData{mSpeedAdj * getSpeedMultDM()},
@@ -743,7 +749,8 @@ void HexagonGame::initLua_WallCreation()
             float mAcceleration, float mMinSpeed, float mMaxSpeed)
         {
             timeline.append_do(
-                [=, this]
+                [this, mSide, mThickness, mSpeedAdj, mAcceleration, mMinSpeed,
+                    mMaxSpeed]
                 {
                     createWall(mSide, mThickness,
                         SpeedData{mSpeedAdj * getSpeedMultDM(),
@@ -772,7 +779,8 @@ void HexagonGame::initLua_WallCreation()
             float mSAcc, float mSMin, float mSMax, bool mSPingPong)
         {
             timeline.append_do(
-                [=, this]
+                [this, mHMod, mSide, mThickness, mSAdj, mSAcc, mSMin, mSMax,
+                    mSPingPong]
                 {
                     createWall(mSide, mThickness,
                         SpeedData{mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax,
@@ -804,7 +812,8 @@ void HexagonGame::initLua_WallCreation()
             float mCAcc, float mCMin, float mCMax, bool mCPingPong)
         {
             timeline.append_do(
-                [=, this]
+                [this, mHMod, mSide, mThickness, mCAdj, mCAcc, mCMin, mCMax,
+                    mCPingPong]
                 {
                     createWall(mSide, mThickness, SpeedData{getSpeedMultDM()},
                         SpeedData{mCAdj, mCAcc, mCMin, mCMax, mCPingPong},
@@ -923,7 +932,7 @@ void HexagonGame::initLua_Deprecated()
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_stopTime\" in your level files.");
-            eventTimeline.append_do([=, this]
+            eventTimeline.append_do([this, mDuration]
                 { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
         })
         .arg("duration")
@@ -940,7 +949,8 @@ void HexagonGame::initLua_Deprecated()
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_stopTimeS\" in your level files.");
-            eventTimeline.append_do([=, this] { status.pauseTime(mDuration); });
+            eventTimeline.append_do(
+                [this, mDuration] { status.pauseTime(mDuration); });
         })
         .arg("duration")
         .doc(
@@ -1010,7 +1020,7 @@ void HexagonGame::initLua_Deprecated()
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_messageAdd\" in your level files and common.lua.");
             eventTimeline.append_do(
-                [=, this]
+                [this, mMsg, mDuration]
                 {
                     if (firstPlay)
                     {
@@ -1035,7 +1045,7 @@ void HexagonGame::initLua_Deprecated()
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_messageAddImportant\" in your level files and "
                 "common.lua.");
-            eventTimeline.append_do([=, this]
+            eventTimeline.append_do([this, mMsg, mDuration]
                 { addMessage(mMsg, mDuration, /* mSoundToggle */ true); });
         })
         .arg("message")
@@ -1054,7 +1064,7 @@ void HexagonGame::initLua_Deprecated()
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_messageAddImportantSilent\" in your level files.");
-            eventTimeline.append_do([=, this]
+            eventTimeline.append_do([this, mMsg, mDuration]
                 { addMessage(mMsg, mDuration, /* mSoundToggle */ false); });
         })
         .arg("message")

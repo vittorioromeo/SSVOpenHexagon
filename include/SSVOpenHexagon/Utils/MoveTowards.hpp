@@ -6,7 +6,6 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include <algorithm>
 #include <cmath>
 
 namespace hg::Utils {

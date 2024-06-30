@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
-
 #include <cstddef>
 
 namespace hg {
@@ -13,24 +11,24 @@ namespace hg {
 class Ticker
 {
 private:
-    ssvu::FT target;
-    ssvu::FT current{0.f};
-    ssvu::FT total{0.f};
+    float target;
+    float current{0.f};
+    float total{0.f};
     bool running{true};
     bool loop{true};
     std::size_t ticks{0};
 
 public:
-    Ticker(ssvu::FT mTarget, bool mRunning = true) noexcept;
+    Ticker(float mTarget, bool mRunning = true) noexcept;
 
-    bool update(ssvu::FT) noexcept;
-    bool update(ssvu::FT mFT, ssvu::FT mTarget) noexcept;
+    bool update(float) noexcept;
+    bool update(float mFT, float mTarget) noexcept;
 
     void pause() noexcept;
     void resume() noexcept;
     void stop() noexcept;
     void restart() noexcept;
-    void restart(ssvu::FT mTarget) noexcept;
+    void restart(float mTarget) noexcept;
 
     void resetCurrent() noexcept;
     void resetTicks() noexcept;
@@ -41,21 +39,21 @@ public:
 
     [[nodiscard]] bool getLoop() const noexcept;
     [[nodiscard]] bool isRunning() const noexcept;
-    [[nodiscard]] ssvu::FT getTarget() const noexcept;
-    [[nodiscard]] ssvu::FT getCurrent() const noexcept;
-    [[nodiscard]] ssvu::FT getTotal() const noexcept;
+    [[nodiscard]] float getTarget() const noexcept;
+    [[nodiscard]] float getCurrent() const noexcept;
+    [[nodiscard]] float getTotal() const noexcept;
     [[nodiscard]] std::size_t getTicks() const noexcept;
 
-    template <typename T = ssvu::FT>
+    template <typename T = float>
     [[nodiscard]] T getTotalSecs() const noexcept
     {
-        return static_cast<T>(ssvu::getFTToSeconds(total));
+        return static_cast<T>(total / 60.f);
     }
 
-    template <typename T = ssvu::FT>
+    template <typename T = float>
     [[nodiscard]] T getCurrentSecs() const noexcept
     {
-        return static_cast<T>(ssvu::getFTToSeconds(current));
+        return static_cast<T>(current / 60.f);
     }
 };
 

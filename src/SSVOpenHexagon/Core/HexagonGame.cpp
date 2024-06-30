@@ -9,7 +9,6 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
-#include "SSVOpenHexagon/Data/PackInfo.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
@@ -31,17 +30,14 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SSVStart/Utils/Input.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 #include <SSVStart/Input/Trigger.hpp>
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Graphics.hpp>
 
 #include <cmath>
-#include <chrono>
 
 namespace hg {
 
@@ -315,7 +311,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
-      player{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
+      player{sf::Vector2f::Zero, getSwapCooldown(), Config::getPlayerSize(),
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
       txStarParticle{nullptr},
@@ -343,7 +339,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
 
-        backgroundCamera.emplace(sf::View{ssvs::zeroVec2f,
+        backgroundCamera.emplace(sf::View{sf::Vector2f::Zero,
             sf::Vector2f{width * zoomFactor, height * zoomFactor}});
 
         overlayCamera.emplace(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
@@ -365,8 +361,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         replayIcon.setTextureRect(txReplayIcon->getRect());
     }
 
-    game.onUpdate +=
-        [this](ssvu::FT mFT) { update(mFT, Config::getTimescale()); };
+    game.onUpdate += [this](float mFT) { update(mFT, Config::getTimescale()); };
 
     game.onPostUpdate += [this] { postUpdate(); };
 
@@ -407,7 +402,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     const auto notInConsole = [this](auto&& f)
     {
-        return [this, f](ssvu::FT /*unused*/)
+        return [this, f](float /*unused*/)
         {
             if (!imguiLuaConsoleHasInput())
             {
@@ -451,7 +446,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         notInConsole([this] { mustTakeScreenshot = true; }));
 
     addTidInput(Tid::LuaConsole, ssvs::Input::Type::Once,
-        [this](ssvu::FT /*unused*/)
+        [this](float /*unused*/)
         {
             if (Config::getDebug())
             {
@@ -460,7 +455,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         });
 
     addTidInput(Tid::Pause, ssvs::Input::Type::Once,
-        [this](ssvu::FT /*unused*/)
+        [this](float /*unused*/)
         {
             if (Config::getDebug())
             {
@@ -723,7 +718,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     walls.clear();
     cwManager.clear();
     player =
-        CPlayer{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
+        CPlayer{sf::Vector2f::Zero, getSwapCooldown(), Config::getPlayerSize(),
             Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()};
 
     // Timeline cleanup
@@ -756,7 +751,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
             sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
                 sf::Vector2f(Config::getWidth(), Config::getHeight())});
 
-        backgroundCamera->setView(sf::View{ssvs::zeroVec2f,
+        backgroundCamera->setView(sf::View{sf::Vector2f::Zero,
             {Config::getWidth() * Config::getZoomFactor(),
                 Config::getHeight() * Config::getZoomFactor()}});
 
@@ -877,7 +872,7 @@ void HexagonGame::death_shakeCamera()
         sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
             sf::Vector2f(Config::getWidth(), Config::getHeight())});
 
-    backgroundCamera->setCenter(ssvs::zeroVec2f);
+    backgroundCamera->setCenter(sf::Vector2f::Zero);
 
     status.cameraShake = 45.f * Config::getCameraShakeMultiplier();
 }

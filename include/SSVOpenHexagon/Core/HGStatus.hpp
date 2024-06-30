@@ -9,7 +9,6 @@
 #include <SFML/Graphics/Color.hpp>
 
 #include <array>
-#include <chrono>
 #include <cstddef>
 #include <optional>
 #include <string>

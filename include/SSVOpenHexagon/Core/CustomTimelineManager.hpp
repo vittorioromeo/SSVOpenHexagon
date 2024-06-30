@@ -8,7 +8,6 @@
 
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
-#include <chrono>
 #include <vector>
 
 namespace hg {

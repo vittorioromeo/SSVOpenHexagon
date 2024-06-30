@@ -3,6 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
@@ -20,6 +21,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <unordered_map>
+#include <tuple>
 
 namespace hg::Utils {
 
@@ -243,5 +245,51 @@ void withDependencyShaderFilename(
     return getDependentAssetFilename(
         "Shaders", execScriptPackPathContext, currentPackPath, mShaderName);
 }
+
+template <typename T, typename... TArgs>
+T runLuaFunction(
+    Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
+{
+    return mLua.callLuaFunction<T>(mName, std::make_tuple(mArgs...));
+}
+
+template <typename T, typename... TArgs>
+std::optional<VoidToNothing<T>> runLuaFunctionIfExists(
+    Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
+{
+    using Ret = std::optional<VoidToNothing<T>>;
+
+    if (!mLua.doesVariableExist(mName))
+    {
+        return Ret{};
+    }
+
+    if constexpr (isSameType<T, void>)
+    {
+        runLuaFunction<T>(mLua, mName, mArgs...);
+        return Ret{Nothing{}};
+    }
+    else
+    {
+        return Ret{runLuaFunction<T>(mLua, mName, mArgs...)};
+    }
+}
+
+template void runLuaFunction<void>(Lua::LuaContext&, std::string_view);
+
+template std::optional<VoidToNothing<void>> runLuaFunctionIfExists<void>(
+    Lua::LuaContext&, std::string_view);
+
+template std::optional<VoidToNothing<float>>
+runLuaFunctionIfExists<float, float>(
+    Lua::LuaContext&, std::string_view, const float&);
+
+template std::optional<VoidToNothing<int>>
+runLuaFunctionIfExists<int, float, float>(
+    Lua::LuaContext&, std::string_view, const float&, const float&);
+
+template std::optional<VoidToNothing<bool>>
+runLuaFunctionIfExists<bool, float, int, bool, bool>(Lua::LuaContext&,
+    std::string_view, const float&, const int&, const bool&, const bool&);
 
 } // namespace hg::Utils

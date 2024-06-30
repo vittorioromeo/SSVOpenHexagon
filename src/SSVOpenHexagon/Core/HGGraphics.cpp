@@ -12,12 +12,12 @@
 #include "SSVOpenHexagon/Global/Imgui.hpp"
 
 #include "SSVOpenHexagon/Utils/Color.hpp"
+#include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
 #include "SSVStart/Utils/SFML.hpp"
 
 #include <SFML/Graphics/RenderStates.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 
 #include <SSVUtils/Core/Log/Log.hpp>
@@ -98,7 +98,7 @@ void HexagonGame::draw()
         }
         else
         {
-            backgroundCamera->setCenter(ssvs::zeroVec2f);
+            backgroundCamera->setCenter(sf::Vector2f::Zero);
             overlayCamera->setCenter(sf::Vector2f{
                 Config::getWidth() / 2.f, Config::getHeight() / 2.f});
         }
@@ -110,7 +110,7 @@ void HexagonGame::draw()
 
         backgroundTris.clear();
 
-        styleData.drawBackground(backgroundTris, ssvs::zeroVec2f,
+        styleData.drawBackground(backgroundTris, sf::Vector2f::Zero,
             levelStatus.sides,
             Config::getDarkenUnevenBackgroundChunk() &&
                 levelStatus.darkenUnevenBackgroundChunk,
@@ -165,7 +165,7 @@ void HexagonGame::draw()
         backgroundCamera->setSkew(skew);
 
         const float radRot(
-            ssvu::toRad(backgroundCamera->getRotation()) + (ssvu::pi / 2.f));
+            Utils::toRad(backgroundCamera->getRotation()) + (Utils::pi / 2.f));
         const float sinRot(std::sin(radRot));
         const float cosRot(std::cos(radRot));
 
@@ -422,7 +422,7 @@ void HexagonGame::drawSwapParticles()
     }
 }
 
-void HexagonGame::updateText(ssvu::FT mFT)
+void HexagonGame::updateText(float mFT)
 {
     if (window == nullptr || !textUI.has_value())
     {
@@ -432,7 +432,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
     // ------------------------------------------------------------------------
     // Update "personal best" text animation.
     pbTextGrowth += 0.08f * mFT;
-    if (pbTextGrowth > ssvu::pi * 2.f)
+    if (pbTextGrowth > Utils::pi * 2.f)
     {
         pbTextGrowth = 0;
     }

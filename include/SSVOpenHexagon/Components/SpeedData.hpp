@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
-
 namespace hg {
 
 struct SpeedData
@@ -25,7 +23,7 @@ struct SpeedData
           _pingPong{pingPong ? -1.f : 1.f}
     {}
 
-    void update(const ssvu::FT ft) noexcept
+    void update(const float ft) noexcept
     {
         if (_accel == 0.f)
         {

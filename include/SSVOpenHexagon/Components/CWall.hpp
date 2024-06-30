@@ -27,9 +27,9 @@ private:
     bool _killed;
 
     void moveTowardsCenter(const float wallSpawnDist, const float radius,
-        const sf::Vector2f& centerPos, const ssvu::FT ft);
+        const sf::Vector2f& centerPos, const float ft);
 
-    void moveCurve(const sf::Vector2f& centerPos, const ssvu::FT ft);
+    void moveCurve(const sf::Vector2f& centerPos, const float ft);
 
 public:
     explicit CWall(const unsigned int sides, const float wallAngleLeft,
@@ -39,7 +39,7 @@ public:
         const SpeedData& speed, const SpeedData& curve, const float hueMod);
 
     void update(const float wallSpawnDist, const float radius,
-        const sf::Vector2f& centerPos, const ssvu::FT ft);
+        const sf::Vector2f& centerPos, const float ft);
 
     [[gnu::always_inline]] void moveVertexAlongCurveImpl(sf::Vector2f& vertex,
         const sf::Vector2f& centerPos, const float xSin,
@@ -52,14 +52,14 @@ public:
     }
 
     [[gnu::always_inline]] float getCurveRadians(
-        const ssvu::FT ft) const noexcept
+        const float ft) const noexcept
     {
         constexpr float divBy60 = 1.f / 60.f;
         return _curve._speed * divBy60 * ft;
     }
 
     [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vector2f& vertex,
-        const sf::Vector2f& centerPos, const ssvu::FT ft) const noexcept
+        const sf::Vector2f& centerPos, const float ft) const noexcept
     {
         const float rad = getCurveRadians(ft);
 
