@@ -20,8 +20,6 @@
 #include "steam/steamencryptedappticket.h"
 #endif
 
-#include <array>
-#include <charconv>
 #include <cstdint>
 #include <cstring>
 #include <functional>
