@@ -4,6 +4,8 @@
 
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 
+#include "SSVOpenHexagon/Utils/Clock.hpp"
+
 #include <chrono>
 
 namespace hg {

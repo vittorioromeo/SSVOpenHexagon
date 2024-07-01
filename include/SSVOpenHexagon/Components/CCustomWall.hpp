@@ -13,7 +13,6 @@
 #include <array>
 #include <bitset>
 #include <cstdint>
-#include <utility>
 
 namespace hg {
 
@@ -66,8 +65,8 @@ public:
     [[gnu::always_inline]] void setVertexPos(
         const int vertexIndex, const sf::Vector2f& pos) noexcept
     {
-        _oldVertexPositions[vertexIndex] =
-            std::exchange(_vertexPositions[vertexIndex], pos);
+        _oldVertexPositions[vertexIndex] = _vertexPositions[vertexIndex];
+        _vertexPositions[vertexIndex] = pos;
     }
 
     [[gnu::always_inline]] void moveVertexPos(

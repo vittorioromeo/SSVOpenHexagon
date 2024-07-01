@@ -383,7 +383,7 @@ catch (...)
     throw;
 }
 
-void LuaContext::_pushFnImpl(int (*callbackCall)(lua_State*),
+void LuaContext::_pushFnImpl(int (*xCallbackCall)(lua_State*),
     int (*callbackGarbage)(lua_State*), const std::type_info& tiObject)
 {
     // creating the metatable (over the object on the stack)
@@ -394,7 +394,7 @@ void LuaContext::_pushFnImpl(int (*callbackCall)(lua_State*),
     lua_newtable(_state);
 
     lua_pushstring(_state, "__call");
-    lua_pushcfunction(_state, callbackCall);
+    lua_pushcfunction(_state, xCallbackCall);
     lua_settable(_state, -3);
 
     lua_pushstring(_state, "_typeid");

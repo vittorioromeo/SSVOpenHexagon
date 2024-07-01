@@ -8,12 +8,26 @@
 
 namespace hg {
 
-using HRClock = std::chrono::high_resolution_clock;
-using HRTimePoint = std::chrono::time_point<HRClock>;
+using HRClockImpl = std::chrono::high_resolution_clock;
+using HRTimePointImpl = std::chrono::time_point<HRClockImpl>;
+
+struct HRClock : HRClockImpl
+{
+    using HRClockImpl::HRClockImpl;
+};
+
+struct HRTimePoint : HRTimePointImpl
+{
+    using HRTimePointImpl::time_point;
+
+    HRTimePoint(HRTimePointImpl x) : HRTimePointImpl(x)
+    {}
+};
 
 [[nodiscard]] inline auto hrSecondsSince(const HRTimePoint tp) noexcept
 {
-    return std::chrono::duration_cast<std::chrono::seconds>(HRClock::now() - tp)
+    return std::chrono::duration_cast<std::chrono::seconds>(
+        std::chrono::high_resolution_clock::now() - tp)
         .count();
 }
 

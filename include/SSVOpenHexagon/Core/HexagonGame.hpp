@@ -159,7 +159,6 @@ private:
 
     std::optional<PreShakeCenters> preShakeCenters;
 
-
     ssvu::TimelineManager effectTimelineManager;
 
     const sf::Vector2f centerPos{0.f, 0.f};

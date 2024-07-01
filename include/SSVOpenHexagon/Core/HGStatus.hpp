@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/Clock.hpp"
-
 #include <SFML/Graphics/Color.hpp>
 
 #include <array>
@@ -14,6 +12,9 @@
 #include <string>
 
 namespace hg {
+
+struct HRClock;
+struct HRTimePoint;
 
 enum class StateChange
 {

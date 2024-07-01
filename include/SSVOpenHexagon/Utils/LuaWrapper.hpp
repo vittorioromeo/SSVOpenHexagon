@@ -816,7 +816,7 @@ private:
         }
     };
 
-    void _pushFnImpl(int (*callbackCall)(lua_State*),
+    void _pushFnImpl(int (*xCallbackCall)(lua_State*),
         int (*callbackGarbage)(lua_State*), const std::type_info& tiObject);
 
     // when you call _push with a functor, this definition should be used
