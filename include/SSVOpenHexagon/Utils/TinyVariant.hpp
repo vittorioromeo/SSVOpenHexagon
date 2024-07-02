@@ -650,8 +650,9 @@ public:
         return static_cast<nth_type<I>&&>(as<nth_type<I>>());
     }
 
-    template <typename Visitor, typename R = decltype(impl::declval<Visitor&&>()(
-                                    impl::declval<nth_type<0>&>()))>
+    template <typename Visitor,
+        typename R = decltype(impl::declval<Visitor&&>()(
+            impl::declval<nth_type<0>&>()))>
     [[nodiscard, gnu::always_inline]] R recursive_visit(Visitor&& visitor) &
     {
         if constexpr (sizeof...(Alternatives) >= 10)
@@ -670,8 +671,9 @@ public:
         }
     }
 
-    template <typename Visitor, typename R = decltype(impl::declval<Visitor&&>()(
-                                    impl::declval<const nth_type<0>&>()))>
+    template <typename Visitor,
+        typename R = decltype(impl::declval<Visitor&&>()(
+            impl::declval<const nth_type<0>&>()))>
     [[nodiscard, gnu::always_inline]] R recursive_visit(
         Visitor&& visitor) const&
     {
@@ -707,8 +709,9 @@ public:
         return recursive_visit(impl::overload_set{static_cast<Fs&&>(fs)...});
     }
 
-    template <typename Visitor, typename R = decltype(impl::declval<Visitor&&>()(
-                                    impl::declval<nth_type<0>&>()))>
+    template <typename Visitor,
+        typename R = decltype(impl::declval<Visitor&&>()(
+            impl::declval<nth_type<0>&>()))>
     [[nodiscard, gnu::always_inline]] R linear_visit(Visitor&& visitor) &
     {
         if constexpr (impl::is_reference<R>)
@@ -734,8 +737,9 @@ public:
     }
 
 
-    template <typename Visitor, typename R = decltype(impl::declval<Visitor&&>()(
-                                    impl::declval<nth_type<0>&>()))>
+    template <typename Visitor,
+        typename R = decltype(impl::declval<Visitor&&>()(
+            impl::declval<nth_type<0>&>()))>
     [[nodiscard, gnu::always_inline]] R linear_visit(Visitor&& visitor) const&
     {
         if constexpr (impl::is_reference<R>)

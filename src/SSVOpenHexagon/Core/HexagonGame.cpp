@@ -725,7 +725,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     timeline.clear();
     timelineRunner = {};
 
-    effectTimelineManager.clear();
     mustChangeSides = false;
     mustStart = false;
 

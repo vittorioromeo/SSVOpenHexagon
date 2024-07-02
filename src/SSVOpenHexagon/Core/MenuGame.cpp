@@ -943,8 +943,7 @@ void MenuGame::initInput()
 
     addTidInput(Tid::Down, t::Once, [this](float) { downAction(); });
 
-    addTidInput(
-        Tid::NextPack, t::Once, [this](float) { changePackAction(1); });
+    addTidInput(Tid::NextPack, t::Once, [this](float) { changePackAction(1); });
 
     addTidInput(
         Tid::PreviousPack, t::Once, [this](float) { changePackAction(-1); });
@@ -4174,13 +4173,13 @@ void MenuGame::drawLoadResults()
     {
         const float sAngle{div * 2.f * (i + hexagonRotation)};
 
-        const sf::Vector2f nw{centerPos.movedAndRotatedBy(
-            hexagonRadius, sf::radians(sAngle - div))};
-        const sf::Vector2f ne{centerPos.movedAndRotatedBy(
-            hexagonRadius, sf::radians(sAngle + div))};
-        const sf::Vector2f se{centerPos.movedAndRotatedBy(
+        const sf::Vector2f nw{
+            centerPos.movedTowards(hexagonRadius, sf::radians(sAngle - div))};
+        const sf::Vector2f ne{
+            centerPos.movedTowards(hexagonRadius, sf::radians(sAngle + div))};
+        const sf::Vector2f se{centerPos.movedTowards(
             hexagonRadius + 10.f, sf::radians(sAngle + div))};
-        const sf::Vector2f sw{centerPos.movedAndRotatedBy(
+        const sf::Vector2f sw{centerPos.movedTowards(
             hexagonRadius + 10.f, sf::radians(sAngle - div))};
 
         menuQuads.batch_unsafe_emplace_back_quad(

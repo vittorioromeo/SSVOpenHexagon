@@ -51,8 +51,7 @@ public:
         vertex.y = tempX * xSin + tempY * xCos + centerPos.y;
     }
 
-    [[gnu::always_inline]] float getCurveRadians(
-        const float ft) const noexcept
+    [[gnu::always_inline]] float getCurveRadians(const float ft) const noexcept
     {
         constexpr float divBy60 = 1.f / 60.f;
         return _curve._speed * divBy60 * ft;

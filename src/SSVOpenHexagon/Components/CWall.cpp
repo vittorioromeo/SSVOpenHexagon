@@ -24,18 +24,16 @@ CWall::CWall(const unsigned int sides, const float wallAngleLeft,
     const float angleN = angle - div;
     const float angleP = angle + div;
 
-    _vertexPositions[0] =
-        centerPos.movedAndRotatedBy(distance, sf::radians(angleN));
+    _vertexPositions[0] = centerPos.movedTowards(distance, sf::radians(angleN));
 
-    _vertexPositions[1] =
-        centerPos.movedAndRotatedBy(distance, sf::radians(angleP));
+    _vertexPositions[1] = centerPos.movedTowards(distance, sf::radians(angleP));
 
     _vertexPositions[2] =
-        centerPos.movedAndRotatedBy(distance + thickness + wallSkewLeft,
+        centerPos.movedTowards(distance + thickness + wallSkewLeft,
             sf::radians(angleP + wallAngleLeft));
 
     _vertexPositions[3] =
-        centerPos.movedAndRotatedBy(distance + thickness + wallSkewRight,
+        centerPos.movedTowards(distance + thickness + wallSkewRight,
             sf::radians(angleN + wallAngleRight));
 }
 

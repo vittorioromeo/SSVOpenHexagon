@@ -9,7 +9,18 @@
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
-#include <SSVUtils/Core/Utils/Containers.hpp>
+
+
+namespace {
+
+template <typename TC, typename TV>
+inline bool contains(const TC& mContainer, const TV& mValue)
+{
+    return std::find(mContainer.begin(), mContainer.end(), mValue) !=
+           std::end(mContainer);
+}
+
+} // namespace
 
 namespace hg {
 
@@ -30,7 +41,7 @@ namespace hg {
             << "Attempted to " << msg << " of invalid custom wall " << h
             << '\n';
 
-        SSVOH_ASSERT(ssvu::contains(_freeHandles, h));
+        SSVOH_ASSERT(contains(_freeHandles, h));
         return false;
     }
 
@@ -103,7 +114,7 @@ void CCustomWallManager::destroyUnchecked(const CCustomWallHandle cwHandle)
     _handleAvailable[cwHandle] = true;
     --_count;
 
-    SSVOH_ASSERT(!ssvu::contains(_freeHandles, cwHandle));
+    SSVOH_ASSERT(!contains(_freeHandles, cwHandle));
     _freeHandles.emplace_back(cwHandle);
 }
 

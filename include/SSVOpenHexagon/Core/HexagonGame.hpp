@@ -25,8 +25,6 @@
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
 
-#include <SSVUtils/Timeline/Timeline.hpp>
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -158,8 +156,6 @@ private:
     };
 
     std::optional<PreShakeCenters> preShakeCenters;
-
-    ssvu::TimelineManager effectTimelineManager;
 
     const sf::Vector2f centerPos{0.f, 0.f};
 

@@ -16,7 +16,6 @@
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
-#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/MoveTowards.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
@@ -27,7 +26,9 @@
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
-#include "SSVUtils/Core/Utils/Rnd.hpp"
+
+#include <SSVUtils/Core/Utils/Rnd.hpp>
+#include <SSVUtils/Core/Common/Frametime.hpp>
 
 #ifndef SSVOH_ANDROID
 #include <imgui.h>
@@ -35,17 +36,26 @@
 #include <imgui-SFML.h>
 #endif
 
-#include <SSVUtils/Core/Utils/Containers.hpp>
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <array>
 #include <optional>
 #include <stdexcept>
 
 #include <cstring>
 #include <cstdint>
+
+namespace {
+
+template <typename TC, typename TP>
+[[gnu::always_inline]] inline void eraseRemoveIf(TC& mContainer, TP mPredicate)
+{
+    mContainer.erase(
+        std::remove_if(mContainer.begin(), mContainer.end(), mPredicate),
+        std::end(mContainer));
+}
+
+} // namespace
 
 namespace hg {
 
@@ -164,7 +174,6 @@ void HexagonGame::update(float mFT, const float timescale)
     if (!debugPause)
     {
         updateFlash(mFT);
-        effectTimelineManager.update(mFT);
 
         if (!mustReplayInput())
         {
@@ -318,8 +327,7 @@ void HexagonGame::update(float mFT, const float timescale)
                 player.updatePosition(getRadius());
 
                 updateWalls(mFT);
-                ssvu::eraseRemoveIf(
-                    walls, [](const CWall& w) { return w.isDead(); });
+                eraseRemoveIf(walls, [](const CWall& w) { return w.isDead(); });
 
                 updateCustomWalls(mFT);
             }
@@ -959,7 +967,7 @@ void HexagonGame::updateParticles(float mFT)
         return p;
     };
 
-    ssvu::eraseRemoveIf(particles, isOutOfBounds);
+    eraseRemoveIf(particles, isOutOfBounds);
 
     for (Particle& p : particles)
     {
@@ -1007,7 +1015,7 @@ void HexagonGame::updateTrailParticles(float mFT)
         return p;
     };
 
-    ssvu::eraseRemoveIf(trailParticles, isDead);
+    eraseRemoveIf(trailParticles, isDead);
 
     for (TrailParticle& p : trailParticles)
     {
@@ -1062,7 +1070,7 @@ void HexagonGame::updateSwapParticles(float mFT)
         return p;
     };
 
-    ssvu::eraseRemoveIf(swapParticles, isDead);
+    eraseRemoveIf(swapParticles, isDead);
 
     for (SwapParticle& p : swapParticles)
     {

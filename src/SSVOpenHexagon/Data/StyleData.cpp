@@ -227,10 +227,8 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
         }
 
         vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
-            mCenterPos.movedAndRotatedBy(
-                distance, sf::radians(angle + halfDiv)),
-            mCenterPos.movedAndRotatedBy(
-                distance, sf::radians(angle - halfDiv)));
+            mCenterPos.movedTowards(distance, sf::radians(angle + halfDiv)),
+            mCenterPos.movedTowards(distance, sf::radians(angle - halfDiv)));
     }
 }
 
@@ -253,15 +251,15 @@ void StyleData::drawBackgroundMenuHexagonImpl(
         const float angle{Utils::toRad(BGRotOff) + div * i};
 
         vertices.batch_unsafe_emplace_back(colorMain, mCenterPos,
-            mCenterPos.movedAndRotatedBy(
+            mCenterPos.movedTowards(
                 hexagonRadius + 10.f, sf::radians(angle + halfDiv)),
-            mCenterPos.movedAndRotatedBy(
+            mCenterPos.movedTowards(
                 hexagonRadius + 10.f, sf::radians(angle - halfDiv)));
 
         vertices.batch_unsafe_emplace_back(colorCap, mCenterPos,
-            mCenterPos.movedAndRotatedBy(
+            mCenterPos.movedTowards(
                 hexagonRadius, sf::radians(angle + halfDiv)),
-            mCenterPos.movedAndRotatedBy(
+            mCenterPos.movedTowards(
                 hexagonRadius, sf::radians(angle - halfDiv)));
     }
 }

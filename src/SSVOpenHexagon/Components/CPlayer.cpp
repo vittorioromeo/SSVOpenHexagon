@@ -90,17 +90,17 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
     const float tiltedAngle =
         _angle + (_currTiltedAngle * Utils::toRad(24.f) * angleTiltIntensity);
 
-    const sf::Vector2f pLeft = _pos.movedAndRotatedBy(
+    const sf::Vector2f pLeft = _pos.movedTowards(
         _size + _triangleWidth, sf::radians(tiltedAngle - Utils::toRad(100.f)));
 
-    const sf::Vector2f pRight = _pos.movedAndRotatedBy(
+    const sf::Vector2f pRight = _pos.movedTowards(
         _size + _triangleWidth, sf::radians(tiltedAngle + Utils::toRad(100.f)));
 
     playerTris.reserve_more(3);
     playerTris.batch_unsafe_emplace_back(
         swapBlinkingEffect ? getColorAdjustedForSwap(colorPlayer)
                            : getColor(colorPlayer),
-        _pos.movedAndRotatedBy(_size, sf::radians(tiltedAngle)), pLeft, pRight);
+        _pos.movedTowards(_size, sf::radians(tiltedAngle)), pLeft, pRight);
 }
 
 void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
@@ -118,12 +118,12 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
         const float sAngle{div * 2.f * i};
 
         const sf::Vector2f p1{
-            _startPos.movedAndRotatedBy(pRadius, sf::radians(sAngle - div))};
+            _startPos.movedTowards(pRadius, sf::radians(sAngle - div))};
         const sf::Vector2f p2{
-            _startPos.movedAndRotatedBy(pRadius, sf::radians(sAngle + div))};
-        const sf::Vector2f p3{_startPos.movedAndRotatedBy(
+            _startPos.movedTowards(pRadius, sf::radians(sAngle + div))};
+        const sf::Vector2f p3{_startPos.movedTowards(
             pRadius + baseThickness, sf::radians(sAngle + div))};
-        const sf::Vector2f p4{_startPos.movedAndRotatedBy(
+        const sf::Vector2f p4{_startPos.movedTowards(
             pRadius + baseThickness, sf::radians(sAngle - div))};
 
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
@@ -146,13 +146,13 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
         const float sAngle{div * 2.f * i};
 
         const sf::Vector2f p1{
-            _pos.movedAndRotatedBy(dRadius, sf::radians(sAngle - div))};
+            _pos.movedTowards(dRadius, sf::radians(sAngle - div))};
         const sf::Vector2f p2{
-            _pos.movedAndRotatedBy(dRadius, sf::radians(sAngle + div))};
-        const sf::Vector2f p3{_pos.movedAndRotatedBy(
-            dRadius + thickness, sf::radians(sAngle + div))};
-        const sf::Vector2f p4{_pos.movedAndRotatedBy(
-            dRadius + thickness, sf::radians(sAngle - div))};
+            _pos.movedTowards(dRadius, sf::radians(sAngle + div))};
+        const sf::Vector2f p3{
+            _pos.movedTowards(dRadius + thickness, sf::radians(sAngle + div))};
+        const sf::Vector2f p4{
+            _pos.movedTowards(dRadius + thickness, sf::radians(sAngle - div))};
 
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
     }
@@ -177,7 +177,7 @@ void CPlayer::kill(const bool fatal)
         {
             // Move back position to graphically show the tip of the triangle
             // hitting the wall rather than the center of the triangle.
-            _pos = _lastPos.movedAndRotatedBy(-_size, sf::radians(_angle));
+            _pos = _lastPos.movedTowards(-_size, sf::radians(_angle));
         }
     }
 }
@@ -486,12 +486,11 @@ void CPlayer::updatePosition(const float radius)
 {
     _radius = radius;
 
-    _prePushPos = _pos =
-        _startPos.movedAndRotatedBy(_radius, sf::radians(_angle));
-    _lastPos = _startPos.movedAndRotatedBy(_radius, sf::radians(_lastAngle));
+    _prePushPos = _pos = _startPos.movedTowards(_radius, sf::radians(_angle));
+    _lastPos = _startPos.movedTowards(_radius, sf::radians(_lastAngle));
 
     _maxSafeDistance =
-        (_lastPos - _startPos.movedAndRotatedBy(_radius,
+        (_lastPos - _startPos.movedTowards(_radius,
                         sf::radians(_lastAngle + Utils::toRad(_currentSpeed))))
             .lengthSq() +
         32.f;

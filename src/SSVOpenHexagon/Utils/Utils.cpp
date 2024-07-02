@@ -12,7 +12,6 @@
 
 #include <SSVStart/Camera/Camera.hpp>
 
-#include <SSVUtils/Timeline/Timeline.hpp>
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/System/Vector2.hpp>
