@@ -16,6 +16,7 @@
 
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/PlaybackDevice.hpp>
 
 #include <optional>
 #include <string>
@@ -26,6 +27,7 @@ class Audio::AudioImpl
 {
 private:
     // TODO (P2): cleaner way of doing this
+    sf::PlaybackDevice& _playbackDevice;
     SoundBufferGetter _soundBufferGetter;
     MusicPathGetter _musicPathGetter;
 
@@ -43,14 +45,16 @@ private:
         if (sf::SoundBuffer* soundBuffer = _soundBufferGetter(assetId);
             soundBuffer != nullptr)
         {
-            _soundPlayer.play(*soundBuffer, mode);
+            _soundPlayer.play(_playbackDevice, *soundBuffer, mode);
         }
     }
 
 public:
-    explicit AudioImpl(const SoundBufferGetter& soundBufferGetter,
+    explicit AudioImpl(sf::PlaybackDevice& playbackDevice,
+        const SoundBufferGetter& soundBufferGetter,
         const MusicPathGetter& musicPathGetter)
-        : _soundBufferGetter{soundBufferGetter},
+        : _playbackDevice{playbackDevice},
+          _soundBufferGetter{soundBufferGetter},
           _musicPathGetter{musicPathGetter},
           _soundPlayer{},
           _music{},
@@ -82,7 +86,7 @@ public:
         if (_music.has_value())
         {
             _music->setVolume(_musicVolume);
-            _music->play();
+            _music->play(_playbackDevice);
         }
     }
 
@@ -223,9 +227,11 @@ public:
     return *_impl;
 }
 
-Audio::Audio(const SoundBufferGetter& soundBufferGetter,
+Audio::Audio(sf::PlaybackDevice& playbackDevice,
+    const SoundBufferGetter& soundBufferGetter,
     const MusicPathGetter& musicPathGetter)
-    : _impl{Utils::makeUnique<AudioImpl>(soundBufferGetter, musicPathGetter)}
+    : _impl{Utils::makeUnique<AudioImpl>(
+          playbackDevice, soundBufferGetter, musicPathGetter)}
 {}
 
 Audio::~Audio() = default;

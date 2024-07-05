@@ -10,8 +10,9 @@
 #include <functional>
 
 namespace sf {
+class PlaybackDevice;
 class SoundBuffer;
-}
+} // namespace sf
 
 namespace hg {
 
@@ -33,7 +34,8 @@ private:
     [[nodiscard]] AudioImpl& impl() noexcept;
 
 public:
-    explicit Audio(const SoundBufferGetter& soundBufferGetter,
+    explicit Audio(sf::PlaybackDevice& playbackDevice,
+        const SoundBufferGetter& soundBufferGetter,
         const MusicPathGetter& musicPathGetter);
 
     ~Audio();

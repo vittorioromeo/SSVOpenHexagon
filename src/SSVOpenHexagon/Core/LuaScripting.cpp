@@ -1374,7 +1374,13 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const std::size_t shaderId, const std::string& name, const float a)
         {
             withValidShaderId("shdr_setUniformF", shaderId,
-                [&](sf::Shader& shader) { shader.setUniformUnsafe(name, a); });
+                [&](sf::Shader& shader)
+                {
+                    const auto location =
+                        shader.getUniformLocation(name)
+                            .value(); // TODO: optimization opportunity
+                    shader.setUniformUnsafe(location, a);
+                });
         })
         .arg("shaderId")
         .arg("name")
@@ -1389,7 +1395,12 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         {
             withValidShaderId("shdr_setUniformFVec2", shaderId,
                 [&](sf::Shader& shader)
-                { shader.setUniformUnsafe(name, sf::Glsl::Vec2{a, b}); });
+                {
+                    const auto location =
+                        shader.getUniformLocation(name)
+                            .value(); // TODO: optimization opportunity
+                    shader.setUniformUnsafe(location, sf::Glsl::Vec2{a, b});
+                });
         })
         .arg("shaderId")
         .arg("name")
@@ -1405,7 +1416,12 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         {
             withValidShaderId("shdr_setUniformFVec3", shaderId,
                 [&](sf::Shader& shader)
-                { shader.setUniformUnsafe(name, sf::Glsl::Vec3{a, b, c}); });
+                {
+                    const auto location =
+                        shader.getUniformLocation(name)
+                            .value(); // TODO: optimization opportunity
+                    shader.setUniformUnsafe(location, sf::Glsl::Vec3{a, b, c});
+                });
         })
         .arg("shaderId")
         .arg("name")
@@ -1422,7 +1438,13 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         {
             withValidShaderId("shdr_setUniformFVec4", shaderId,
                 [&](sf::Shader& shader)
-                { shader.setUniformUnsafe(name, sf::Glsl::Vec4{a, b, c, d}); });
+                {
+                    const auto location =
+                        shader.getUniformLocation(name)
+                            .value(); // TODO: optimization opportunity
+                    shader.setUniformUnsafe(
+                        location, sf::Glsl::Vec4{a, b, c, d});
+                });
         })
         .arg("shaderId")
         .arg("name")
@@ -1442,7 +1464,13 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const std::size_t shaderId, const std::string& name, const int a)
         {
             withValidShaderId("shdr_setUniformI", shaderId,
-                [&](sf::Shader& shader) { shader.setUniformUnsafe(name, a); });
+                [&](sf::Shader& shader)
+                {
+                    const auto location =
+                        shader.getUniformLocation(name)
+                            .value(); // TODO: optimization opportunity
+                    shader.setUniformUnsafe(location, a);
+                });
         })
         .arg("shaderId")
         .arg("name")
@@ -1457,7 +1485,12 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         {
             withValidShaderId("shdr_setUniformIVec2", shaderId,
                 [&](sf::Shader& shader)
-                { shader.setUniformUnsafe(name, sf::Glsl::Ivec2{a, b}); });
+                {
+                    const auto location =
+                        shader.getUniformLocation(name)
+                            .value(); // TODO: optimization opportunity
+                    shader.setUniformUnsafe(location, sf::Glsl::Ivec2{a, b});
+                });
         })
         .arg("shaderId")
         .arg("name")
@@ -1473,7 +1506,12 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         {
             withValidShaderId("shdr_setUniformIVec3", shaderId,
                 [&](sf::Shader& shader)
-                { shader.setUniformUnsafe(name, sf::Glsl::Ivec3{a, b, c}); });
+                {
+                    const auto location =
+                        shader.getUniformLocation(name)
+                            .value(); // TODO: optimization opportunity
+                    shader.setUniformUnsafe(location, sf::Glsl::Ivec3{a, b, c});
+                });
         })
         .arg("shaderId")
         .arg("name")
@@ -1489,8 +1527,13 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const int a, const int b, const int c, const int d)
         {
             withValidShaderId("shdr_setUniformIVec4", shaderId,
-                [&](sf::Shader& shader) {
-                    shader.setUniformUnsafe(name, sf::Glsl::Ivec4{a, b, c, d});
+                [&](sf::Shader& shader)
+                {
+                    const auto location =
+                        shader.getUniformLocation(name)
+                            .value(); // TODO: optimization opportunity
+                    shader.setUniformUnsafe(
+                        location, sf::Glsl::Ivec4{a, b, c, d});
                 });
         })
         .arg("shaderId")

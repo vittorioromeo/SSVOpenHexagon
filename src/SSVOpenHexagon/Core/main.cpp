@@ -31,6 +31,9 @@
 
 #include <SFML/Graphics/Image.hpp>
 
+#include <SFML/Audio/AudioContext.hpp>
+#include <SFML/Audio/PlaybackDevice.hpp>
+
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
@@ -389,8 +392,13 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     //
     // ------------------------------------------------------------------------
     // Initialize audio
+    auto audioContext = sf::AudioContext::create().value();
+    auto playbackDevice =
+        sf::PlaybackDevice::createDefault(audioContext).value();
+
     hg::Audio audio{
         //
+        playbackDevice,
         [&assets](const std::string& assetId) -> sf::SoundBuffer*
         { return assets.getSoundBuffer(assetId); }, //
         [&assets](const std::string& assetId) -> const std::string*

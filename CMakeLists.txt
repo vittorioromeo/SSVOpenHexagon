@@ -97,14 +97,23 @@ set(SFML_ENABLE_PCH true)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG 082d6eabdf5ffd8b79bc6f7beba80adf318b4cf6
+    GIT_TAG e327277b1d001079a85f3959ba2fc802f7dbbc6b
 )
 
-# set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
-# set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
-# set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
-# set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
-# set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-system PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
+
+set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-window PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
+
+set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
+
+set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-audio PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
+
+set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-network PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
 
 #
 #
@@ -125,6 +134,9 @@ CPMAddPackage(
 set(LUAJIT_DISABLE_FFI true)
 set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 
+set_target_properties(libluajit PROPERTIES UNITY_BUILD ON)
+set_target_properties(libluajit PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
+
 # Remove linking against libm on MinGW
 if(WIN32)
     file(READ "${luajit_SOURCE_DIR}/src/CMakeLists.txt" CONTENTS)
@@ -143,6 +155,8 @@ CPMAddPackage(
     GITHUB_REPOSITORY madler/zlib
     GIT_TAG cacf7f1d4e3d44d871b605da3b647f07d718623f
 )
+
+set_target_properties(zlib PROPERTIES UNITY_BUILD OFF) # not supported
 
 # Remove example binaries from CMakeLists
 file(READ "${zlib_SOURCE_DIR}/CMakeLists.txt" CONTENTS)
@@ -187,10 +201,11 @@ if(NOT SSVOH_ANDROID)
     CPMAddPackage(
         NAME imgui-sfml
         GITHUB_REPOSITORY vittorioromeo/imgui-sfml
-        GIT_TAG ea57da2bf7c7d4d66a10009371d96a31718bca45
+        GIT_TAG 6ea83b31a67876fe8c3061297e2ac39033a8e0f3
         )
 
     set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
+    set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
 endif()
 
 #
@@ -211,6 +226,8 @@ CPMAddPackage(
 
 set(SODIUM_DISABLE_TESTS ON)
 set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
+
+set_target_properties(sodium PROPERTIES UNITY_BUILD OFF) # not supported
 
 #
 #
