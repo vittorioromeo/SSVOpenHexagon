@@ -10,15 +10,20 @@
 #include <imgui-SFML.h>
 #endif
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/GraphicsContext.hpp>
+#include <SFML/Window/Window.hpp>
 
 namespace hg::Imgui {
 
-[[nodiscard]] bool initialize([[maybe_unused]] sf::RenderWindow& window)
+[[nodiscard]] bool initialize(
+    [[maybe_unused]] sf::GraphicsContext& graphicsContext,
+    [[maybe_unused]] sf::RenderWindow& window)
 {
 #ifndef SSVOH_ANDROID
-    return ImGui::SFML::Init(window);
+    return ImGui::SFML::Init(graphicsContext, window);
 #endif
 }
 

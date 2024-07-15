@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
+#include "SSVOpenHexagon/Global/Imgui.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
@@ -14,6 +15,10 @@
 #include <SFML/Graphics/Texture.hpp>
 
 #include <SFML/Audio/SoundBuffer.hpp>
+
+#include <SFML/Window/GraphicsContext.hpp>
+
+#include <SFML/Base/Optional.hpp>
 
 #include <string>
 #include <unordered_map>
@@ -35,12 +40,12 @@ private:
     std::unordered_map<std::string, sf::SoundBuffer> _soundBuffers;
 
 public:
-    [[nodiscard]] bool loadTexture(
+    [[nodiscard]] bool loadTexture(sf::GraphicsContext& graphicsContext,
         const std::string& id, const std::string& path)
     {
-        std::optional texture = sf::Texture::loadFromFile(path);
+        sf::base::Optional texture = sf::Texture::loadFromFile(graphicsContext, path);
 
-        if (!texture.has_value())
+        if (!texture.hasValue())
         {
             return false;
         }
@@ -49,11 +54,12 @@ public:
         return inserted;
     }
 
-    [[nodiscard]] bool loadFont(const std::string& id, const std::string& path)
+    [[nodiscard]] bool loadFont(sf::GraphicsContext& graphicsContext,
+        const std::string& id, const std::string& path)
     {
-        std::optional font = sf::Font::openFromFile(path);
+        sf::base::Optional font = sf::Font::openFromFile(graphicsContext, path);
 
-        if (!font.has_value())
+        if (!font.hasValue())
         {
             return false;
         }
@@ -65,9 +71,9 @@ public:
     [[nodiscard]] bool loadSoundBuffer(
         const std::string& id, const std::string& path)
     {
-        std::optional soundBuffer = sf::SoundBuffer::loadFromFile(path);
+        sf::base::Optional soundBuffer = sf::SoundBuffer::loadFromFile(path);
 
-        if (!soundBuffer.has_value())
+        if (!soundBuffer.hasValue())
         {
             return false;
         }
@@ -128,15 +134,16 @@ AssetStorage::AssetStorage() : _impl{Utils::makeUnique<AssetStorageImpl>()}
 AssetStorage::~AssetStorage() = default;
 
 [[nodiscard]] bool AssetStorage::loadTexture(
-    const std::string& id, const std::string& path)
+    sf::GraphicsContext& graphicsContext, const std::string& id,
+    const std::string& path)
 {
-    return impl().loadTexture(id, path);
+    return impl().loadTexture(graphicsContext, id, path);
 }
 
-[[nodiscard]] bool AssetStorage::loadFont(
+[[nodiscard]] bool AssetStorage::loadFont(sf::GraphicsContext& graphicsContext,
     const std::string& id, const std::string& path)
 {
-    return impl().loadFont(id, path);
+    return impl().loadFont(graphicsContext, id, path);
 }
 
 [[nodiscard]] bool AssetStorage::loadSoundBuffer(

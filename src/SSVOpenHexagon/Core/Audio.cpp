@@ -18,6 +18,8 @@
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/PlaybackDevice.hpp>
 
+#include <SFML/Base/Optional.hpp>
+
 #include <optional>
 #include <string>
 
@@ -34,7 +36,7 @@ private:
     // TODO (P2): remove these, roll own system
     ssvs::SoundPlayer _soundPlayer;
 
-    std::optional<sf::Music> _music;
+    sf::base::Optional<sf::Music> _music;
     float _musicVolume;
     std::string _lastLoadedMusicPath;
 
@@ -75,7 +77,7 @@ public:
         SSVOH_ASSERT(volume >= 0.f && volume <= 100.f);
         _musicVolume = volume;
 
-        if (_music.has_value())
+        if (_music.hasValue())
         {
             _music->setVolume(_musicVolume);
         }
@@ -83,7 +85,7 @@ public:
 
     void resumeMusic()
     {
-        if (_music.has_value())
+        if (_music.hasValue())
         {
             _music->setVolume(_musicVolume);
             _music->play(_playbackDevice);
@@ -92,7 +94,7 @@ public:
 
     void pauseMusic()
     {
-        if (_music.has_value())
+        if (_music.hasValue())
         {
             _music->pause();
         }
@@ -100,7 +102,7 @@ public:
 
     void stopMusic()
     {
-        if (_music.has_value())
+        if (_music.hasValue())
         {
             _music->stop();
         }
@@ -108,7 +110,7 @@ public:
 
     void setMusicPlayingOffsetSeconds(const float seconds)
     {
-        if (_music.has_value())
+        if (_music.hasValue())
         {
             _music->setPlayingOffset(sf::seconds(seconds));
         }
@@ -116,7 +118,7 @@ public:
 
     void setMusicPlayingOffsetMilliseconds(const int milliseconds)
     {
-        if (_music.has_value())
+        if (_music.hasValue())
         {
             _music->setPlayingOffset(sf::milliseconds(milliseconds));
         }
@@ -124,7 +126,7 @@ public:
 
     [[nodiscard]] float getMusicPlayingOffsetSeconds() const
     {
-        if (_music.has_value())
+        if (_music.hasValue())
         {
             return _music->getPlayingOffset().asSeconds();
         }
@@ -134,7 +136,7 @@ public:
 
     [[nodiscard]] int getMusicPlayingOffsetMilliseconds() const
     {
-        if (_music.has_value())
+        if (_music.hasValue())
         {
             return _music->getPlayingOffset().asMilliseconds();
         }
@@ -197,7 +199,7 @@ public:
             _lastLoadedMusicPath = *path;
         }
 
-        SSVOH_ASSERT(_music.has_value());
+        SSVOH_ASSERT(_music.hasValue());
 
         _music->setLoop(true);
         setMusicPlayingOffsetSeconds(playingOffsetSeconds);
@@ -208,7 +210,7 @@ public:
 
     void setCurrentMusicPitch(const float pitch)
     {
-        if (_music.has_value())
+        if (_music.hasValue())
         {
             _music->setPitch(pitch);
         }

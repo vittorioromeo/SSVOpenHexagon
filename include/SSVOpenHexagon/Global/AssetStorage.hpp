@@ -4,15 +4,17 @@
 
 #pragma once
 
+#include "Imgui.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <string>
 
 namespace sf {
 
+class Font;
+class GraphicsContext;
 class SoundBuffer;
 class Texture;
-class Font;
 
 } // namespace sf
 
@@ -32,10 +34,11 @@ public:
     explicit AssetStorage();
     ~AssetStorage();
 
-    [[nodiscard]] bool loadTexture(
+    [[nodiscard]] bool loadTexture(sf::GraphicsContext& graphicsContext,
         const std::string& id, const std::string& path);
 
-    [[nodiscard]] bool loadFont(const std::string& id, const std::string& path);
+    [[nodiscard]] bool loadFont(sf::GraphicsContext& graphicsContext,
+        const std::string& id, const std::string& path);
 
     [[nodiscard]] bool loadSoundBuffer(
         const std::string& id, const std::string& path);

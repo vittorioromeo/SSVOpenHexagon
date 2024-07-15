@@ -1379,7 +1379,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniformUnsafe(location, a);
+                    shader.setUniform(location, a);
                 });
         })
         .arg("shaderId")
@@ -1399,7 +1399,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniformUnsafe(location, sf::Glsl::Vec2{a, b});
+                    shader.setUniform(location, sf::Glsl::Vec2{a, b});
                 });
         })
         .arg("shaderId")
@@ -1420,7 +1420,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniformUnsafe(location, sf::Glsl::Vec3{a, b, c});
+                    shader.setUniform(location, sf::Glsl::Vec3{a, b, c});
                 });
         })
         .arg("shaderId")
@@ -1442,7 +1442,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniformUnsafe(
+                    shader.setUniform(
                         location, sf::Glsl::Vec4{a, b, c, d});
                 });
         })
@@ -1469,7 +1469,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniformUnsafe(location, a);
+                    shader.setUniform(location, a);
                 });
         })
         .arg("shaderId")
@@ -1489,7 +1489,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniformUnsafe(location, sf::Glsl::Ivec2{a, b});
+                    shader.setUniform(location, sf::Glsl::Ivec2{a, b});
                 });
         })
         .arg("shaderId")
@@ -1510,7 +1510,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniformUnsafe(location, sf::Glsl::Ivec3{a, b, c});
+                    shader.setUniform(location, sf::Glsl::Ivec3{a, b, c});
                 });
         })
         .arg("shaderId")
@@ -1532,7 +1532,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniformUnsafe(
+                    shader.setUniform(
                         location, sf::Glsl::Ivec4{a, b, c, d});
                 });
         })

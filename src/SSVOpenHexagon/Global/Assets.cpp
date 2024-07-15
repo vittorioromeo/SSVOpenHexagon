@@ -98,18 +98,20 @@ private:
     [[nodiscard]] std::string& concatIntoBuf(const Ts&...);
 
     [[nodiscard]] bool loadAllPackDatas();
-    [[nodiscard]] bool loadAllPackAssets(const bool headless);
+    [[nodiscard]] bool loadAllPackAssets(
+        sf::GraphicsContext* graphicsContext, const bool headless);
     [[nodiscard]] bool loadWorkshopPackDatasFromCache();
     [[nodiscard]] bool verifyAllPackDependencies();
     [[nodiscard]] bool loadAllLocalProfiles();
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
 
-    [[nodiscard]] bool loadPackAssets(
+    [[nodiscard]] bool loadPackAssets(sf::GraphicsContext* graphicsContext,
         const PackData& packData, const bool headless);
 
-    void loadPackAssets_loadShaders(const std::string& mPackId,
-        const ssvufs::Path& mPath, const bool headless);
+    void loadPackAssets_loadShaders(sf::GraphicsContext& graphicsContext,
+        const std::string& mPackId, const ssvufs::Path& mPath,
+        const bool headless);
     void loadPackAssets_loadMusic(
         const std::string& mPackId, const ssvufs::Path& mPath);
     void loadPackAssets_loadMusicData(
@@ -124,7 +126,8 @@ private:
     [[nodiscard]] std::string getCurrentLocalProfileFilePath();
 
 public:
-    HGAssetsImpl(Steam::steam_manager* mSteamManager, bool mHeadless,
+    HGAssetsImpl(sf::GraphicsContext* graphicsContext,
+        Steam::steam_manager* mSteamManager, bool mHeadless,
         bool mLevelsOnly = false);
 
     ~HGAssetsImpl();
@@ -133,8 +136,8 @@ public:
 
     [[nodiscard]] LoadInfo& getLoadResults();
 
+    [[nodiscard]] bool hasTexture(const std::string& mId);
     [[nodiscard]] sf::Texture& getTexture(const std::string& mId);
-    [[nodiscard]] sf::Texture& getTextureOrNullTexture(const std::string& mId);
 
     [[nodiscard]] sf::Font& getFont(const std::string& mId);
 
@@ -177,7 +180,7 @@ public:
     [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
     [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
 
-    void reloadAllShaders();
+    void reloadAllShaders(sf::GraphicsContext& graphicsContext);
     [[nodiscard]] std::string reloadPack(
         const std::string& mPackId, const std::string& mPath);
     [[nodiscard]] std::string reloadLevel(const std::string& mPackId,
@@ -227,13 +230,14 @@ public:
     getLuaFileCache() const;
 };
 
-static void loadAssetsFromJson(AssetStorage& assetStorage,
-    const ssvu::FileSystem::Path& mRootPath, const ssvuj::Obj& mObj)
+static void loadAssetsFromJson(sf::GraphicsContext& graphicsContext,
+    AssetStorage& assetStorage, const ssvu::FileSystem::Path& mRootPath,
+    const ssvuj::Obj& mObj)
 {
     for (const auto& f :
         ssvuj::getExtr<std::vector<std::string>>(mObj, "fonts"))
     {
-        if (!assetStorage.loadFont(f, mRootPath + f))
+        if (!assetStorage.loadFont(graphicsContext, f, mRootPath + f))
         {
             ssvu::lo("hg::loadAssetsFromJson")
                 << "Failed to load font '" << f << "'\n";
@@ -243,7 +247,7 @@ static void loadAssetsFromJson(AssetStorage& assetStorage,
     for (const auto& f :
         ssvuj::getExtr<std::vector<std::string>>(mObj, "textures"))
     {
-        if (!assetStorage.loadTexture(f, mRootPath + f))
+        if (!assetStorage.loadTexture(graphicsContext, f, mRootPath + f))
         {
             ssvu::lo("hg::loadAssetsFromJson")
                 << "Failed to load texture '" << f << "'\n";
@@ -311,7 +315,7 @@ template <typename... Ts>
     return buf;
 }
 
-HGAssets::HGAssetsImpl::HGAssetsImpl(
+HGAssets::HGAssetsImpl::HGAssetsImpl(sf::GraphicsContext* graphicsContext,
     Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
     : steamManager{mSteamManager},
       _headless{mHeadless},
@@ -334,7 +338,8 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(
         auto [object, error] =
             ssvuj::getFromFileWithErrors("Assets/assets.json");
 
-        loadAssetsFromJson(*assetStorage, "Assets/", object);
+        SSVOH_ASSERT(graphicsContext != nullptr);
+        loadAssetsFromJson(*graphicsContext, *assetStorage, "Assets/", object);
 
         loadInfo.addFormattedError(error);
     }
@@ -346,7 +351,7 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(
         return;
     }
 
-    if (!loadAllPackAssets(mHeadless))
+    if (!loadAllPackAssets(graphicsContext, mHeadless))
     {
         ssvu::lo("HGAssets::HGAssets") << "Error loading all pack assets\n";
         std::terminate();
@@ -496,7 +501,8 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::loadPackAssets(
-    const PackData& packData, const bool headless)
+    sf::GraphicsContext* graphicsContext, const PackData& packData,
+    const bool headless)
 {
     const std::string& packPath{packData.folderPath};
     const std::string& packId{packData.id};
@@ -509,7 +515,10 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
         {
             if (ssvufs::Path{packPath + "Shaders/"}.isFolder() && !levelsOnly)
             {
-                loadPackAssets_loadShaders(packId, packPath, headless);
+                SSVOH_ASSERT(graphicsContext != nullptr);
+
+                loadPackAssets_loadShaders(
+                    *graphicsContext, packId, packPath, headless);
             }
 
             if (!levelsOnly && ssvufs::Path{packPath + "Sounds/"}.isFolder())
@@ -573,6 +582,12 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
     return loadInfo;
 }
 
+[[nodiscard]] bool HGAssets::HGAssetsImpl::hasTexture(const std::string& mId)
+{
+    sf::Texture* ptr = assetStorage->getTexture(mId);
+    return ptr != nullptr;
+}
+
 [[nodiscard]] sf::Texture& HGAssets::HGAssetsImpl::getTexture(
     const std::string& mId)
 {
@@ -580,16 +595,6 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
     SSVOH_ASSERT(ptr);
 
     return *ptr;
-}
-
-[[nodiscard]] sf::Texture& HGAssets::HGAssetsImpl::getTextureOrNullTexture(
-    const std::string& mId)
-{
-    static auto nullTexture = sf::Texture::create({1u, 1u});
-    SSVOH_ASSERT(nullTexture.has_value());
-
-    sf::Texture* ptr = assetStorage->getTexture(mId);
-    return ptr ? *ptr : *nullTexture;
 }
 
 [[nodiscard]] sf::Font& HGAssets::HGAssetsImpl::getFont(const std::string& mId)
@@ -780,11 +785,11 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::loadAllPackAssets(
-    const bool headless)
+    sf::GraphicsContext* graphicsContext, const bool headless)
 {
     for (const auto& [packId, packData] : packDatas)
     {
-        if (loadPackAssets(packData, headless))
+        if (loadPackAssets(graphicsContext, packData, headless))
         {
             continue;
         }
@@ -883,7 +888,8 @@ void HGAssets::HGAssetsImpl::addLocalProfile(ProfileData&& profileData)
 }
 
 void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
-    const std::string& mPackId, const ssvufs::Path& mPath, const bool headless)
+    sf::GraphicsContext& graphicsContext, const std::string& mPackId,
+    const ssvufs::Path& mPath, const bool headless)
 {
     if (headless)
     {
@@ -896,10 +902,10 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
     {
         for (const auto& p : scanSingleByExt(mPath + "Shaders/", extension))
         {
-            std::optional shader =
-                sf::Shader::loadFromFile(p.getStr(), shaderType);
+            sf::base::Optional shader = sf::Shader::loadFromFile(
+                graphicsContext, p.getStr(), shaderType);
 
-            if (!shader.has_value())
+            if (!shader.hasValue())
             {
                 ssvu::lo("hg::loadPackAssets_loadShaders")
                     << "Failed to load shader '" << p << "'\n";
@@ -1172,18 +1178,23 @@ HGAssets::HGAssetsImpl::getShaderIdByPath(const std::string& mShaderPath)
 //**********************************************
 // RELOAD
 
-void HGAssets::HGAssetsImpl::reloadAllShaders()
+void HGAssets::HGAssetsImpl::reloadAllShaders(
+    sf::GraphicsContext& graphicsContext)
 {
     for (auto& [id, loadedShader] : shaders)
     {
-        if (!loadedShader.shader->loadFromFile(
-                loadedShader.path, loadedShader.shaderType))
+        auto reloadedShader = sf::Shader::loadFromFile(
+            graphicsContext, loadedShader.path, loadedShader.shaderType);
+
+        if (!reloadedShader.hasValue())
         {
             ssvu::lo("hg::HGAssetsImplImpl::reloadAllShaders")
                 << "Failed to load shader '" << loadedShader.path << "'\n";
 
             continue;
         }
+
+        (*loadedShader.shader) = *SSVOH_MOVE(reloadedShader);
     }
 }
 
@@ -1622,10 +1633,10 @@ HGAssets::HGAssetsImpl::getLuaFileCache() const
 
 // ----------------------------------------------------------------------------
 
-HGAssets::HGAssets(
+HGAssets::HGAssets(sf::GraphicsContext* graphicsContext,
     Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
     : _impl(Utils::makeUnique<HGAssetsImpl>(
-          mSteamManager, mHeadless, mLevelsOnly))
+          graphicsContext, mSteamManager, mHeadless, mLevelsOnly))
 {}
 
 HGAssets::~HGAssets() = default;
@@ -1635,14 +1646,14 @@ LoadInfo& HGAssets::getLoadResults()
     return _impl->getLoadResults();
 }
 
+bool HGAssets::hasTexture(const std::string& mId)
+{
+    return _impl->hasTexture(mId);
+}
+
 sf::Texture& HGAssets::getTexture(const std::string& mId)
 {
     return _impl->getTexture(mId);
-}
-
-sf::Texture& HGAssets::getTextureOrNullTexture(const std::string& mId)
-{
-    return _impl->getTextureOrNullTexture(mId);
 }
 
 sf::Font& HGAssets::getFont(const std::string& mId)
@@ -1737,9 +1748,9 @@ bool HGAssets::isValidShaderId(const std::size_t mShaderId) const
     return _impl->isValidShaderId(mShaderId);
 }
 
-void HGAssets::reloadAllShaders()
+void HGAssets::reloadAllShaders(sf::GraphicsContext& graphicsContext)
 {
-    return _impl->reloadAllShaders();
+    return _impl->reloadAllShaders(graphicsContext);
 }
 
 std::string HGAssets::reloadPack(

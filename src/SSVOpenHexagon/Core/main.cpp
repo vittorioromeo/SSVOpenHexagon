@@ -34,6 +34,10 @@
 #include <SFML/Audio/AudioContext.hpp>
 #include <SFML/Audio/PlaybackDevice.hpp>
 
+#include <SFML/Window/GraphicsContext.hpp>
+
+#include <SFML/Base/Optional.hpp>
+
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
@@ -167,17 +171,19 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 [[nodiscard]] int mainPrintLuaDocs()
 {
     hg::HGAssets assets{
-        nullptr, /* steamManager */ //
-        true /* headless */         //
+        nullptr, /* graphicsContext */ //
+        nullptr, /* steamManager */    //
+        true /* headless */            //
     };
 
     hg::HexagonGame hg{
-        nullptr /* steamManager */,   //
-        nullptr /* discordManager */, //
-        assets,                       //
-        nullptr /* audio */,          //
-        nullptr /* window */,         //
-        nullptr /* client */          //
+        nullptr, /* graphicsContext */ //
+        nullptr, /* steamManager */    //
+        nullptr, /* discordManager */  //
+        assets,                        //
+        nullptr, /* audio */           //
+        nullptr, /* window */          //
+        nullptr /* client */           //
     };
 
     std::cout << "\n\n\n\n\n";
@@ -208,17 +214,19 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     });
 
     hg::HGAssets assets{
-        &steamManager,      //
-        true /* headless */ //
+        nullptr, /* graphicsContext */ //
+        &steamManager,                 //
+        true /* headless */            //
     };
 
     hg::HexagonGame hg{
-        nullptr /* steamManager */,   //
-        nullptr /* discordManager */, //
-        assets,                       //
-        nullptr /* audio */,          //
-        nullptr /* window */,         //
-        nullptr /* client */          //
+        nullptr, /* graphicsContext */ //
+        nullptr /* steamManager */,    //
+        nullptr /* discordManager */,  //
+        assets,                        //
+        nullptr /* audio */,           //
+        nullptr /* window */,          //
+        nullptr /* client */           //
     };
 
     // TODO (P0): handle `resolve` errors
@@ -294,11 +302,12 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     //
     // ------------------------------------------------------------------------
     // Create the game window
+    sf::GraphicsContext graphicsContext;
     std::optional<ssvs::GameWindow> window;
 
     if (!headless)
     {
-        window.emplace();
+        window.emplace(graphicsContext);
 
         window->setTitle(makeWindowTitle());
         window->setSize(hg::Config::getWidth(), hg::Config::getHeight());
@@ -312,10 +321,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         {
             const auto resetIcon = [&window]
             {
-                const std::optional icon =
+                const sf::base::Optional icon =
                     sf::Image::loadFromFile("Assets/icon.png");
 
-                if (!icon.has_value())
+                if (!icon.hasValue())
                 {
                     ssvu::lo("::main") << "Failed to load icon image\n";
                     return;
@@ -360,7 +369,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     if (!headless)
     {
         SSVOH_ASSERT(window.has_value());
-        if (!hg::Imgui::initialize(*window))
+        if (!hg::Imgui::initialize(graphicsContext, *window))
         {
             ssvu::lo("::main") << "Failed to initialize ImGui...\n";
         }
@@ -381,7 +390,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     //
     // ------------------------------------------------------------------------
     // Initialize assets
-    hg::HGAssets assets{&steamManager, headless};
+    hg::HGAssets assets{&graphicsContext, &steamManager, headless};
     HG_SCOPE_GUARD({
         ssvu::lo("::main") << "Saving all local profiles...\n";
         assets.pSaveAll();
@@ -420,6 +429,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // ------------------------------------------------------------------------
     // Initialize hexagon game
     hg::HexagonGame hg{
+        &graphicsContext,
         &steamManager,                                             //
         (discordManager.has_value() ? &*discordManager : nullptr), //
         assets,                                                    //
@@ -439,7 +449,8 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         SSVOH_ASSERT(window.has_value());
         SSVOH_ASSERT(discordManager.has_value());
 
-        mg.emplace(steamManager, *discordManager, assets, audio, *window, hc);
+        mg.emplace(graphicsContext, steamManager, *discordManager, assets,
+            audio, *window, hc);
 
         mg->fnHGTriggerRefresh = [&](const ssvs::Input::Trigger& trigger,
                                      int bindId) //
@@ -596,7 +607,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     if (!headless)
     {
         SSVOH_ASSERT(window.has_value());
-        window->run();
+        window->run(graphicsContext);
     }
 
     ssvu::lo("::mainClient") << "Finished\n";

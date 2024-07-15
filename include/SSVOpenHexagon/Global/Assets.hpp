@@ -14,10 +14,11 @@
 #include <vector>
 
 namespace sf {
-class SoundBuffer;
 class Font;
-class Texture;
+class GraphicsContext;
 class Shader;
+class SoundBuffer;
+class Texture;
 } // namespace sf
 
 namespace ssvu::FileSystem {
@@ -46,7 +47,8 @@ private:
     Utils::UniquePtr<HGAssetsImpl> _impl;
 
 public:
-    HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless,
+    HGAssets(sf::GraphicsContext* graphicsContext,
+        Steam::steam_manager* mSteamManager, bool mHeadless,
         bool mLevelsOnly = false);
 
     ~HGAssets();
@@ -55,8 +57,8 @@ public:
 
     [[nodiscard]] LoadInfo& getLoadResults();
 
+    [[nodiscard]] bool hasTexture(const std::string& mId);
     [[nodiscard]] sf::Texture& getTexture(const std::string& mId);
-    [[nodiscard]] sf::Texture& getTextureOrNullTexture(const std::string& mId);
 
     [[nodiscard]] sf::Font& getFont(const std::string& mId);
 
@@ -99,7 +101,7 @@ public:
     [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
     [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
 
-    void reloadAllShaders();
+    void reloadAllShaders(sf::GraphicsContext& graphicsContext);
     [[nodiscard]] std::string reloadPack(
         const std::string& mPackId, const std::string& mPath);
     [[nodiscard]] std::string reloadLevel(const std::string& mPackId,

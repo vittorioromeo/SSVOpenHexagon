@@ -35,7 +35,12 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
+
+#include <SFML/System/Rect.hpp>
+#include <SFML/System/Angle.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include <cmath>
 
@@ -80,6 +85,18 @@ void HexagonGame::setMustStart(const bool x)
     mustStart = x;
 }
 
+static sf::Texture& getTextureOrNullTexture(HGAssets& assets,
+    sf::base::Optional<sf::Texture>& nullTexture, const std::string& mId)
+{
+    if (!assets.hasTexture(mId))
+    {
+        SSVOH_ASSERT(nullTexture.hasValue());
+        return *nullTexture;
+    }
+
+    return assets.getTexture(mId);
+}
+
 void HexagonGame::initKeyIcons()
 {
     if (window == nullptr)
@@ -90,7 +107,8 @@ void HexagonGame::initKeyIcons()
     for (const auto& t :
         {"keyArrow.png", "keyFocus.png", "keySwap.png", "replayIcon.png"})
     {
-        assets.getTextureOrNullTexture(t).setSmooth(true);
+        SSVOH_ASSERT(graphicsContext != nullptr);
+        getTextureOrNullTexture(assets, nullTexture, t).setSmooth(true);
     }
 
     updateKeyIcons();
@@ -302,10 +320,15 @@ HexagonGame::TextUI::TextUI(HGAssets& mAssets)
       replayText{initText(font, "", 20.f)}
 {}
 
-HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
+HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
+    Steam::steam_manager* mSteamManager,
     Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio* mAudio,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
-    : steamManager(mSteamManager),
+    : graphicsContext(mGraphicsContext),
+      nullTexture(graphicsContext != nullptr
+                      ? sf::Texture::create(*graphicsContext, {1u, 1u})
+                      : sf::base::nullOpt),
+      steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
       audio(mAudio),
@@ -345,14 +368,23 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         overlayCamera.emplace(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
             sf::Vector2f{width, height}});
 
-        txStarParticle = &assets.getTextureOrNullTexture("starParticle.png");
-        txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
+        SSVOH_ASSERT(graphicsContext != nullptr);
 
-        txKeyIconLeft = &assets.getTextureOrNullTexture("keyArrow.png");
-        txKeyIconRight = &assets.getTextureOrNullTexture("keyArrow.png");
-        txKeyIconFocus = &assets.getTextureOrNullTexture("keyFocus.png");
-        txKeyIconSwap = &assets.getTextureOrNullTexture("keySwap.png");
-        txReplayIcon = &assets.getTextureOrNullTexture("replayIcon.png");
+        txStarParticle =
+            &getTextureOrNullTexture(assets, nullTexture, "starParticle.png");
+        txSmallCircle =
+            &getTextureOrNullTexture(assets, nullTexture, "smallCircle.png");
+
+        txKeyIconLeft =
+            &getTextureOrNullTexture(assets, nullTexture, "keyArrow.png");
+        txKeyIconRight =
+            &getTextureOrNullTexture(assets, nullTexture, "keyArrow.png");
+        txKeyIconFocus =
+            &getTextureOrNullTexture(assets, nullTexture, "keyFocus.png");
+        txKeyIconSwap =
+            &getTextureOrNullTexture(assets, nullTexture, "keySwap.png");
+        txReplayIcon =
+            &getTextureOrNullTexture(assets, nullTexture, "replayIcon.png");
 
         keyIconLeft.setTextureRect(txKeyIconLeft->getRect());
         keyIconRight.setTextureRect(txKeyIconRight->getRect());

@@ -6,6 +6,7 @@
 
 namespace sf {
 class Event;
+class GraphicsContext;
 class RenderTarget;
 class RenderWindow;
 class Window;
@@ -13,7 +14,7 @@ class Window;
 
 namespace hg::Imgui {
 
-[[nodiscard]] bool initialize(sf::RenderWindow&);
+[[nodiscard]] bool initialize(sf::GraphicsContext&, sf::RenderWindow&);
 void shutdown();
 [[nodiscard]] bool wantCaptureKeyboard();
 [[nodiscard]] bool wantCaptureMouse();

@@ -26,6 +26,8 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
+#include <SFML/Window/GraphicsContext.hpp>
+
 #include <SFML/System/Vector2.hpp>
 
 #include <array>
@@ -97,6 +99,7 @@ private:
     //---------------------------------------
     // Classes
 
+    sf::GraphicsContext& graphicsContext;
     Steam::steam_manager& steamManager;
     Discord::discord_manager& discordManager;
     HGAssets& assets;
@@ -572,7 +575,8 @@ private:
         const std::string& extra = "");
 
 public:
-    MenuGame(Steam::steam_manager& mSteamManager,
+    MenuGame(sf::GraphicsContext& mGraphicsContext,
+        Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         Audio& mAudio, ssvs::GameWindow& mGameWindow,
         HexagonClient& mHexagonClient);

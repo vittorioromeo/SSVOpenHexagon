@@ -148,10 +148,12 @@ void MenuGame::initOnlineIcons()
 
 inline constexpr float maxOffset{100.f};
 
-MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
+MenuGame::MenuGame(sf::GraphicsContext& mGraphicsContext,
+    Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets, Audio& mAudio,
     ssvs::GameWindow& mGameWindow, HexagonClient& mHexagonClient)
-    : steamManager(mSteamManager),
+    : graphicsContext(mGraphicsContext),
+      steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
       openSquare(mAssets.getFont("OpenSquare-Regular.ttf")),
@@ -3089,7 +3091,7 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
         return;
     }
 
-    assets.reloadAllShaders();
+    assets.reloadAllShaders(graphicsContext);
 
     // Do the necessary asset reload operation and get the log
     // of the results.
@@ -5953,7 +5955,7 @@ void MenuGame::draw()
 
     if (mustTakeScreenshot)
     {
-        window.saveScreenshot("screenshot.png");
+        window.saveScreenshot(graphicsContext, "screenshot.png");
         mustTakeScreenshot = false;
     }
 

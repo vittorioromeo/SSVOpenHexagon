@@ -33,6 +33,8 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
+#include <SFML/Window/GraphicsContext.hpp>
+
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Clock.hpp>
 
@@ -100,6 +102,9 @@ private:
 
         TextUI(HGAssets& mAssets);
     };
+
+    sf::GraphicsContext* graphicsContext;
+    sf::base::Optional<sf::Texture> nullTexture;
 
     Steam::steam_manager* steamManager;
     Discord::discord_manager* discordManager;
@@ -453,7 +458,8 @@ private:
 public:
     std::function<void(const bool)> fnGoToMenu;
 
-    HexagonGame(Steam::steam_manager* mSteamManager,
+    HexagonGame(sf::GraphicsContext* graphicsContext,
+        Steam::steam_manager* mSteamManager,
         Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
         Audio* mAudio, ssvs::GameWindow* mGameWindow,
         HexagonClient* mHexagonClient);

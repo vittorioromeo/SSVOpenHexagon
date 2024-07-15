@@ -306,7 +306,8 @@ void HexagonGame::draw()
     {
         if (window != nullptr)
         {
-            window->saveScreenshot("screenshot.png");
+            SSVOH_ASSERT(graphicsContext != nullptr);
+            window->saveScreenshot(*graphicsContext, "screenshot.png");
         }
 
         mustTakeScreenshot = false;

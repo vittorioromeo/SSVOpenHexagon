@@ -30,6 +30,8 @@
 
 #include <SFML/Network.hpp>
 
+#include <SFML/Base/Optional.hpp>
+
 #include <boost/pfr.hpp>
 
 #include <chrono>
@@ -320,7 +322,7 @@ bool HexagonServer::runIteration_Control()
         return fail();
     }
 
-    std::optional<sf::IpAddress> senderIp;
+    sf::base::Optional<sf::IpAddress> senderIp;
     unsigned short senderPort;
 
     if (_controlSocket.receive(_packetBuffer, senderIp, senderPort) !=
@@ -336,7 +338,7 @@ bool HexagonServer::runIteration_Control()
         return fail("Failure decoding control packet");
     }
 
-    SSVOH_ASSERT(senderIp.has_value());
+    SSVOH_ASSERT(senderIp.hasValue());
 
     SSVOH_SLOG << "Received control packet from '" << senderIp.value() << ':'
                << senderPort << "', contents: '" << controlMsg << "'\n";
