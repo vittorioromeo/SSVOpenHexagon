@@ -8,7 +8,7 @@
 
 #include <cstdint>
 #include <functional>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <string_view>
 #include <string>
 
@@ -62,7 +62,7 @@ public:
 
     [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
 
-    [[nodiscard]] std::optional<std::uint64_t>
+    [[nodiscard]] sf::base::Optional<std::uint64_t>
     get_ticket_steam_id() const noexcept;
 };
 

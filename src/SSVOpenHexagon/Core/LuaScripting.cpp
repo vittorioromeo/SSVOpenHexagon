@@ -1244,10 +1244,10 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             const std::string shaderPath = Utils::getDependentShaderFilename(
                 execScriptPackPathContext, fPackPathGetter(), shaderFilename);
 
-            const std::optional<std::size_t> id =
+            const sf::base::Optional<std::size_t> id =
                 assets.getShaderIdByPath(shaderPath);
 
-            if (!id.has_value())
+            if (!id.hasValue())
             {
                 ssvu::lo("hg::LuaScripting::initShaders")
                     << "`u_getShaderId` failed, no id found for '"
@@ -1282,10 +1282,10 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
             auto setResult = [&assets, &result](const std::string& shaderPath)
             {
-                const std::optional<std::size_t> id =
+                const sf::base::Optional<std::size_t> id =
                     assets.getShaderIdByPath(shaderPath);
 
-                if (!id.has_value())
+                if (!id.hasValue())
                 {
                     ssvu::lo("hg::LuaScripting::initShaders")
                         << "`u_getDependencyShaderId` failed, no id found for '"
@@ -1442,8 +1442,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniform(
-                        location, sf::Glsl::Vec4{a, b, c, d});
+                    shader.setUniform(location, sf::Glsl::Vec4{a, b, c, d});
                 });
         })
         .arg("shaderId")
@@ -1532,8 +1531,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     const auto location =
                         shader.getUniformLocation(name)
                             .value(); // TODO: optimization opportunity
-                    shader.setUniform(
-                        location, sf::Glsl::Ivec4{a, b, c, d});
+                    shader.setUniform(location, sf::Glsl::Ivec4{a, b, c, d});
                 });
         })
         .arg("shaderId")
@@ -1557,7 +1555,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             for (std::size_t i = 0;
                  i < static_cast<std::size_t>(RenderStage::Count); ++i)
             {
-                ids[i] = std::nullopt;
+                ids[i] = sf::base::nullOpt;
             }
         })
         .doc("Reset all active fragment shaders in all render stages.");
@@ -1571,7 +1569,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             if (checkValidRenderStage(
                     "shdr_resetActiveFragmentShader", renderStage, ids))
             {
-                ids[renderStage] = std::nullopt;
+                ids[renderStage] = sf::base::nullOpt;
             }
         })
         .arg("renderStage")
@@ -1588,7 +1586,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             if (checkValidRenderStage(
                     "shdr_setActiveFragmentShader", renderStage, ids))
             {
-                ids[renderStage] = shaderId;
+                ids[renderStage].emplace(shaderId);
             }
         })
         .arg("renderStage")

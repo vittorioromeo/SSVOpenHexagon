@@ -8,7 +8,7 @@
 
 #include <array>
 #include <string>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -50,11 +50,11 @@ struct SodiumRTKeys
 
 [[nodiscard]] SodiumPSKeys generateSodiumPSKeys();
 
-[[nodiscard]] std::optional<SodiumRTKeys> calculateServerSessionSodiumRTKeys(
+[[nodiscard]] sf::base::Optional<SodiumRTKeys> calculateServerSessionSodiumRTKeys(
     const SodiumPSKeys& serverPSKeys,
     const SodiumPublicKeyArray& clientPublicKey);
 
-[[nodiscard]] std::optional<SodiumRTKeys> calculateClientSessionSodiumRTKeys(
+[[nodiscard]] sf::base::Optional<SodiumRTKeys> calculateClientSessionSodiumRTKeys(
     const SodiumPSKeys& clientPSKeys,
     const SodiumPublicKeyArray& serverPublicKey);
 

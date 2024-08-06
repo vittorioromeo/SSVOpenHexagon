@@ -6,8 +6,11 @@
 
 #include <sodium.h>
 
-#include <vector>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
+
+#include <array>
+#include <string>
+#include <cstdint>
 
 namespace hg {
 
@@ -25,8 +28,8 @@ namespace hg {
     return result;
 }
 
-[[nodiscard]] std::optional<SodiumRTKeys> calculateServerSessionSodiumRTKeys(
-    const SodiumPSKeys& serverPSKeys,
+[[nodiscard]] sf::base::Optional<SodiumRTKeys>
+calculateServerSessionSodiumRTKeys(const SodiumPSKeys& serverPSKeys,
     const SodiumPublicKeyArray& clientPublicKey)
 {
     SodiumRTKeys result;
@@ -35,14 +38,14 @@ namespace hg {
             result.keyTransmit.data(), serverPSKeys.keyPublic.data(),
             serverPSKeys.keySecret.data(), clientPublicKey.data()) != 0)
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
-    return result;
+    return sf::base::makeOptional(result);
 }
 
-[[nodiscard]] std::optional<SodiumRTKeys> calculateClientSessionSodiumRTKeys(
-    const SodiumPSKeys& clientPSKeys,
+[[nodiscard]] sf::base::Optional<SodiumRTKeys>
+calculateClientSessionSodiumRTKeys(const SodiumPSKeys& clientPSKeys,
     const SodiumPublicKeyArray& serverPublicKey)
 {
     SodiumRTKeys result;
@@ -51,10 +54,10 @@ namespace hg {
             result.keyTransmit.data(), clientPSKeys.keyPublic.data(),
             clientPSKeys.keySecret.data(), serverPublicKey.data()) != 0)
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
-    return result;
+    return sf::base::makeOptional(result);
 }
 
 // ----------------------------------------------------------------------------

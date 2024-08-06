@@ -19,7 +19,7 @@
 #include <SFML/Network/UdpSocket.hpp>
 
 #include <list>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <sstream>
 #include <string>
 #include <unordered_set>
@@ -69,8 +69,8 @@ private:
         Utils::SCTimePoint _lastActivity;
         int _consecutiveFailures;
         bool _mustDisconnect;
-        std::optional<SodiumPublicKeyArray> _clientPublicKey;
-        std::optional<SodiumRTKeys> _rtKeys;
+        sf::base::Optional<SodiumPublicKeyArray> _clientPublicKey;
+        sf::base::Optional<SodiumRTKeys> _rtKeys;
 
         struct LoginData
         {
@@ -81,7 +81,7 @@ private:
             std::uint64_t _loginToken;
         };
 
-        std::optional<LoginData> _loginData;
+        sf::base::Optional<LoginData> _loginData;
 
         State _state;
 
@@ -91,7 +91,7 @@ private:
             std::string _levelValidator;
         };
 
-        std::optional<GameStatus> _gameStatus;
+        sf::base::Optional<GameStatus> _gameStatus;
 
         explicit ConnectedClient(const Utils::SCTimePoint lastActivity);
         ~ConnectedClient();
@@ -139,7 +139,7 @@ private:
     [[nodiscard]] bool sendTopScoresAndOwnScore(ConnectedClient& c,
         const std::string& levelValidator,
         const std::vector<Database::ProcessedScore>& scores,
-        const std::optional<Database::ProcessedScore>& ownScore);
+        const sf::base::Optional<Database::ProcessedScore>& ownScore);
     [[nodiscard]] bool sendServerStatus(ConnectedClient& c,
         const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
         const std::vector<std::string>& supportedLevelValidators);

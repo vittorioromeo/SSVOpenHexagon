@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <sstream>
 #include <iostream>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <type_traits>
 
 namespace hg {
@@ -232,9 +232,9 @@ struct Extractor<std::vector<T>>
 };
 
 template <typename T>
-struct Extractor<std::optional<T>>
+struct Extractor<sf::base::Optional<T>>
 {
-    using Type = std::optional<T>;
+    using Type = sf::base::Optional<T>;
 
     [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
@@ -345,17 +345,17 @@ template <typename T>
 }
 
 template <typename T>
-[[nodiscard]] std::optional<T> extract(
+[[nodiscard]] sf::base::Optional<T> extract(
     std::ostringstream& errorOss, sf::Packet& p)
 {
     T temp;
 
     if (!extractInto(temp, errorOss, p))
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
-    return {std::move(temp)};
+    return sf::base::makeOptional<T>(std::move(temp));
 }
 
 template <typename T>
@@ -429,16 +429,16 @@ public:
     }
 
     template <typename T>
-    [[nodiscard]] std::optional<T> extractOrPrintError(const char* name)
+    [[nodiscard]] sf::base::Optional<T> extractOrPrintError(const char* name)
     {
         T temp;
 
         if (!extractIntoOrPrintError(name, temp))
         {
-            return std::nullopt;
+            return sf::base::nullOpt;
         }
 
-        return {std::move(temp)};
+        return sf::base::makeOptional<T>(std::move(temp));
     }
 
     template <typename T>
@@ -461,7 +461,7 @@ template <typename T>
 template <typename T>
 [[nodiscard]] auto makeExtractor(std::ostringstream& errorOss, sf::Packet& p)
 {
-    return [&](const char* name) -> std::optional<T>
+    return [&](const char* name) -> sf::base::Optional<T>
     { return AdvancedMatcher{errorOss, p}.extractOrPrintError<T>(name); };
 }
 
@@ -485,18 +485,18 @@ template <typename T>
         m.skipOrPrintError<std::uint8_t>("micro version");
 }
 
-[[nodiscard]] std::optional<PacketType> extractPacketType(
+[[nodiscard]] sf::base::Optional<PacketType> extractPacketType(
     std::ostringstream& errorOss, sf::Packet& p)
 {
-    const std::optional<std::uint8_t> extracted =
+    const sf::base::Optional<std::uint8_t> extracted =
         makeExtractor<std::uint8_t>(errorOss, p)("packet type");
 
-    if (!extracted.has_value())
+    if (!extracted.hasValue())
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
-    return {static_cast<PacketType>(*extracted)};
+    return sf::base::makeOptional(static_cast<PacketType>(*extracted));
 }
 
 template <typename T>
@@ -577,11 +577,12 @@ void encodeField(sf::Packet& p, const TData& data, const std::vector<T>& vec)
 }
 
 template <typename TData, typename T>
-void encodeField(sf::Packet& p, const TData& data, const std::optional<T>& opt)
+void encodeField(
+    sf::Packet& p, const TData& data, const sf::base::Optional<T>& opt)
 {
-    encodeField(p, data, opt.has_value());
+    encodeField(p, data, opt.hasValue());
 
-    if (opt.has_value())
+    if (opt.hasValue())
     {
         encodeField(p, data, *opt);
     }
@@ -771,24 +772,24 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
     }                                                       \
     while (false)
 
-#define INJECT_COMMON_PACKET_HANDLING_CODE(function)                     \
-    const std::optional<PacketType> pt = extractPacketType(errorOss, p); \
-                                                                         \
-    if (!pt.has_value())                                                 \
-    {                                                                    \
-        return {PInvalid{.error = errorOss.str()}};                      \
-    }                                                                    \
-                                                                         \
-    if (*pt == getPacketType<PEncryptedMsg>())                           \
-    {                                                                    \
-        if (!decodeEncryptedPacket(keyReceive, errorOss, p))             \
-        {                                                                \
-            return {PInvalid{.error = errorOss.str()}};                  \
-        }                                                                \
-                                                                         \
-        return function(keyReceive, errorOss, getStaticPacketBuffer());  \
-    }                                                                    \
-                                                                         \
+#define INJECT_COMMON_PACKET_HANDLING_CODE(function)                          \
+    const sf::base::Optional<PacketType> pt = extractPacketType(errorOss, p); \
+                                                                              \
+    if (!pt.hasValue())                                                       \
+    {                                                                         \
+        return {PInvalid{.error = errorOss.str()}};                           \
+    }                                                                         \
+                                                                              \
+    if (*pt == getPacketType<PEncryptedMsg>())                                \
+    {                                                                         \
+        if (!decodeEncryptedPacket(keyReceive, errorOss, p))                  \
+        {                                                                     \
+            return {PInvalid{.error = errorOss.str()}};                       \
+        }                                                                     \
+                                                                              \
+        return function(keyReceive, errorOss, getStaticPacketBuffer());       \
+    }                                                                         \
+                                                                              \
     const auto extractAllMembers = makeExtractAllMembers(errorOss, p)
 
 

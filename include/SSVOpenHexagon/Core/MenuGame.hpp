@@ -33,7 +33,7 @@
 #include <array>
 #include <cctype>
 #include <functional>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <string_view>
 #include <string>
 #include <utility>
@@ -272,9 +272,9 @@ private:
     bool mousePressed{false};
     bool mustFavorite{false};
     bool mustPlay{false};
-    std::optional<int> mustChangeIndexTo;
-    std::optional<int> mustChangePackIndexTo;
-    std::optional<int> mustUseMenuItem;
+    sf::base::Optional<int> mustChangeIndexTo;
+    sf::base::Optional<int> mustChangePackIndexTo;
+    sf::base::Optional<int> mustUseMenuItem;
     bool mouseCursorVisible{true};
     sf::Vector2i lastMouseMovedPosition{};
 

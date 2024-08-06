@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <cstring>
 #include <functional>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <string_view>
 #include <string>
 #include <unordered_set>
@@ -32,7 +32,7 @@
 
 namespace hg::Steam {
 
-[[nodiscard]] static std::optional<CSteamID> get_user_steam_id()
+[[nodiscard]] static sf::base::Optional<CSteamID> get_user_steam_id()
 {
     // Using C API here because C++ one doesn't work with MinGW.
 
@@ -43,10 +43,11 @@ namespace hg::Steam {
         ssvu::lo("Steam")
             << "Attempted to retrieve Steam ID when not logged in\n";
 
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
-    return CSteamID{SteamAPI_ISteamUser_GetSteamID(steam_user)};
+    return sf::base::makeOptional(
+        CSteamID{SteamAPI_ISteamUser_GetSteamID(steam_user)});
 }
 
 [[nodiscard]] static bool initialize_steamworks()
@@ -57,8 +58,9 @@ namespace hg::Steam {
     {
         ssvu::lo("Steam") << "Steam API successfully initialized\n";
 
-        if (const std::optional<CSteamID> user_steam_id = get_user_steam_id();
-            user_steam_id.has_value())
+        if (const sf::base::Optional<CSteamID> user_steam_id =
+                get_user_steam_id();
+            user_steam_id.hasValue())
         {
             ssvu::lo("Steam") << "User Steam ID: '"
                               << user_steam_id->ConvertToUint64() << "'\n";
@@ -89,7 +91,7 @@ private:
     bool _got_stats;
     bool _got_ticket_response;
     bool _got_ticket;
-    std::optional<CSteamID> _ticket_steam_id;
+    sf::base::Optional<CSteamID> _ticket_steam_id;
 
     std::unordered_set<std::string> _unlocked_achievements;
     std::unordered_set<std::string> _workshop_pack_folders;
@@ -149,7 +151,8 @@ public:
     bool set_and_store_stat(std::string_view name, int data);
     [[nodiscard]] bool get_achievement(bool* out, std::string_view name);
     [[nodiscard]] bool get_stat(int* out, std::string_view name);
-    [[nodiscard]] std::optional<bool> is_achievement_unlocked(const char* name);
+    [[nodiscard]] sf::base::Optional<bool> is_achievement_unlocked(
+        const char* name);
 
     bool update_hardcoded_achievements();
 
@@ -162,7 +165,7 @@ public:
 
     [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
 
-    [[nodiscard]] std::optional<std::uint64_t>
+    [[nodiscard]] sf::base::Optional<std::uint64_t>
     get_ticket_steam_id() const noexcept;
 };
 
@@ -447,7 +450,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
     return false;
 }
 
-[[nodiscard]] std::optional<bool>
+[[nodiscard]] sf::base::Optional<bool>
 steam_manager::steam_manager_impl::is_achievement_unlocked(const char* name)
 {
     bool res{false};
@@ -455,10 +458,10 @@ steam_manager::steam_manager_impl::is_achievement_unlocked(const char* name)
 
     if (!rc)
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
-    return res;
+    return sf::base::makeOptional(res);
 }
 
 bool steam_manager::steam_manager_impl::
@@ -470,7 +473,7 @@ bool steam_manager::steam_manager_impl::
     }
 
     const auto unlocked = [this](const char* name) -> int
-    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
+    { return is_achievement_unlocked(name).valueOr(false) ? 1 : 0; };
 
     // "Cube Master"
     {
@@ -514,7 +517,7 @@ bool steam_manager::steam_manager_impl::
     }
 
     const auto unlocked = [this](const char* name) -> int
-    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
+    { return is_achievement_unlocked(name).valueOr(false) ? 1 : 0; };
 
     // "Hypercube Master"
     {
@@ -557,7 +560,7 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
     }
 
     const auto unlocked = [this](const char* name) -> int
-    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
+    { return is_achievement_unlocked(name).valueOr(false) ? 1 : 0; };
 
     // "Cube God"
     {
@@ -600,7 +603,7 @@ bool steam_manager::steam_manager_impl::
     }
 
     const auto unlocked = [this](const char* name) -> int
-    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
+    { return is_achievement_unlocked(name).valueOr(false) ? 1 : 0; };
 
     // "Hypercube Master"
     {
@@ -782,8 +785,8 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     SteamEncryptedAppTicket_GetTicketSteamID(
         rgubDecrypted, cubDecrypted, &steamIDFromTicket);
 
-    if (const std::optional<CSteamID> user_steam_id = get_user_steam_id();
-        user_steam_id.has_value())
+    if (const sf::base::Optional<CSteamID> user_steam_id = get_user_steam_id();
+        user_steam_id.hasValue())
     {
         if (steamIDFromTicket != *user_steam_id)
         {
@@ -817,14 +820,14 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     }
 
     _got_ticket = true;
-    _ticket_steam_id = steamIDFromTicket;
+    _ticket_steam_id.emplace(steamIDFromTicket);
 
     ssvu::lo("Steam") << "GetEncryptedAppTicket succeeded (steamId: '"
                       << steamIDFromTicket.ConvertToUint64() << "')\n";
 #else
     _got_ticket_response = true;
     _got_ticket = false;
-    _ticket_steam_id = std::nullopt;
+    _ticket_steam_id.reset();
 #endif
 }
 
@@ -841,10 +844,10 @@ steam_manager::steam_manager_impl::got_encrypted_app_ticket() const noexcept
     return _got_ticket;
 }
 
-[[nodiscard]] std::optional<std::uint64_t>
+[[nodiscard]] sf::base::Optional<std::uint64_t>
 steam_manager::steam_manager_impl::get_ticket_steam_id() const noexcept
 {
-    return _ticket_steam_id->ConvertToUint64();
+    return sf::base::makeOptional(_ticket_steam_id->ConvertToUint64());
 }
 
 // ----------------------------------------------------------------------------
@@ -948,7 +951,7 @@ steam_manager::got_encrypted_app_ticket_response() const noexcept
     return impl().got_encrypted_app_ticket();
 }
 
-[[nodiscard]] std::optional<std::uint64_t>
+[[nodiscard]] sf::base::Optional<std::uint64_t>
 steam_manager::get_ticket_steam_id() const noexcept
 {
     return impl().get_ticket_steam_id();
@@ -1049,10 +1052,10 @@ steam_manager::got_encrypted_app_ticket_response() const noexcept
     return false;
 }
 
-[[nodiscard]] std::optional<std::uint64_t>
+[[nodiscard]] sf::base::Optional<std::uint64_t>
 steam_manager::get_ticket_steam_id() const noexcept
 {
-    return std::nullopt;
+    return sf::base::nullOpt;
 }
 
 } // namespace hg::Steam

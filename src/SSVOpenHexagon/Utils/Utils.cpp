@@ -253,10 +253,10 @@ T runLuaFunction(
 }
 
 template <typename T, typename... TArgs>
-std::optional<VoidToNothing<T>> runLuaFunctionIfExists(
+sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(
     Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
 {
-    using Ret = std::optional<VoidToNothing<T>>;
+    using Ret = sf::base::Optional<VoidToNothing<T>>;
 
     if (!mLua.doesVariableExist(mName))
     {
@@ -276,18 +276,18 @@ std::optional<VoidToNothing<T>> runLuaFunctionIfExists(
 
 template void runLuaFunction<void>(Lua::LuaContext&, std::string_view);
 
-template std::optional<VoidToNothing<void>> runLuaFunctionIfExists<void>(
+template sf::base::Optional<VoidToNothing<void>> runLuaFunctionIfExists<void>(
     Lua::LuaContext&, std::string_view);
 
-template std::optional<VoidToNothing<float>>
+template sf::base::Optional<VoidToNothing<float>>
 runLuaFunctionIfExists<float, float>(
     Lua::LuaContext&, std::string_view, const float&);
 
-template std::optional<VoidToNothing<int>>
+template sf::base::Optional<VoidToNothing<int>>
 runLuaFunctionIfExists<int, float, float>(
     Lua::LuaContext&, std::string_view, const float&, const float&);
 
-template std::optional<VoidToNothing<bool>>
+template sf::base::Optional<VoidToNothing<bool>>
 runLuaFunctionIfExists<bool, float, int, bool, bool>(Lua::LuaContext&,
     std::string_view, const float&, const int&, const bool&, const bool&);
 

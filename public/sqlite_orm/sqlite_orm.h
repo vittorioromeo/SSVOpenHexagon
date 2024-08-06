@@ -508,7 +508,7 @@ namespace sqlite_orm {
 // #include "cxx_core_features.h"
 
 #if SQLITE_ORM_HAS_INCLUDE(<optional>)
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #endif
 
 #if __cpp_lib_optional >= 201606L
@@ -2573,7 +2573,7 @@ namespace sqlite_orm {
         using unqualified_type = std::remove_cv_t<typename T::value_type>;
 
         std::string operator()(const T& t) const {
-            if(t.has_value()) {
+            if(t.hasValue()) {
                 return field_printer<unqualified_type>()(*t);
             } else {
                 return field_printer<std::nullopt_t>{}(std::nullopt);
@@ -18333,7 +18333,7 @@ namespace sqlite_orm {
                     object_from_column_builder<T> builder{res.emplace(), stmt};
                     table.for_each_column(builder);
                 });
-                if(!res.has_value()) {
+                if(!res.hasValue()) {
                     throw std::system_error{orm_error_code::not_found};
                 }
                 return move(res).value();

@@ -173,9 +173,9 @@ public:
     [[nodiscard]] sf::Shader* getShader(
         const std::string& mPackId, const std::string& mId);
 
-    [[nodiscard]] std::optional<std::size_t> getShaderId(
+    [[nodiscard]] sf::base::Optional<std::size_t> getShaderId(
         const std::string& mPackId, const std::string& mId);
-    [[nodiscard]] std::optional<std::size_t> getShaderIdByPath(
+    [[nodiscard]] sf::base::Optional<std::size_t> getShaderIdByPath(
         const std::string& mShaderPath);
     [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
     [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
@@ -1128,7 +1128,7 @@ void HGAssets::HGAssetsImpl::saveAllProfiles()
     return it->second.shader.get();
 }
 
-[[nodiscard]] std::optional<std::size_t> HGAssets::HGAssetsImpl::getShaderId(
+[[nodiscard]] sf::base::Optional<std::size_t> HGAssets::HGAssetsImpl::getShaderId(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
@@ -1137,13 +1137,13 @@ void HGAssets::HGAssetsImpl::saveAllProfiles()
     if (it == shaders.end())
     {
         ssvu::lo("getShaderId") << "Asset '" << assetId << "' not found\n";
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
-    return it->second.id;
+    return sf::base::makeOptional(it->second.id);
 }
 
-[[nodiscard]] std::optional<std::size_t>
+[[nodiscard]] sf::base::Optional<std::size_t>
 HGAssets::HGAssetsImpl::getShaderIdByPath(const std::string& mShaderPath)
 {
     const auto it = shadersPathToId.find(mShaderPath);
@@ -1152,10 +1152,10 @@ HGAssets::HGAssetsImpl::getShaderIdByPath(const std::string& mShaderPath)
         ssvu::lo("getShaderIdByPath") << "Shader with path '" << mShaderPath
                                       << "' not found, couldn't get id\n";
 
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
-    return it->second;
+    return sf::base::makeOptional(it->second);
 }
 
 [[nodiscard]] sf::Shader* HGAssets::HGAssetsImpl::getShaderByShaderId(
@@ -1726,13 +1726,13 @@ sf::Shader* HGAssets::getShader(
     return _impl->getShader(mPackId, mId);
 }
 
-std::optional<std::size_t> HGAssets::getShaderId(
+sf::base::Optional<std::size_t> HGAssets::getShaderId(
     const std::string& mPackId, const std::string& mId)
 {
     return _impl->getShaderId(mPackId, mId);
 }
 
-std::optional<std::size_t> HGAssets::getShaderIdByPath(
+sf::base::Optional<std::size_t> HGAssets::getShaderIdByPath(
     const std::string& mShaderPath)
 {
     return _impl->getShaderIdByPath(mShaderPath);

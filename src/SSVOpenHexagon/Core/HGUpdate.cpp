@@ -39,7 +39,7 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <stdexcept>
 
 #include <cstring>
@@ -90,7 +90,7 @@ void HexagonGame::update(float mFT, const float timescale)
 {
     // ------------------------------------------------------------------------
     // Fast-forwarding for level testing
-    if (fastForwardTarget.has_value())
+    if (fastForwardTarget.hasValue())
     {
         const double target = fastForwardTarget.value();
         fastForwardTarget.reset();
@@ -109,7 +109,7 @@ void HexagonGame::update(float mFT, const float timescale)
 
     // ------------------------------------------------------------------------
     // Advance by ticks for level testing
-    if (advanceTickCount.has_value())
+    if (advanceTickCount.hasValue())
     {
         const int nTicks = advanceTickCount.value();
         advanceTickCount.reset();
@@ -181,7 +181,7 @@ void HexagonGame::update(float mFT, const float timescale)
         }
         else
         {
-            SSVOH_ASSERT(activeReplay.has_value());
+            SSVOH_ASSERT(activeReplay.hasValue());
 
             if (!status.started)
             {
@@ -247,12 +247,12 @@ void HexagonGame::update(float mFT, const float timescale)
 
             if (!status.hasDied)
             {
-                const std::optional<bool> preventPlayerInput =
+                const sf::base::Optional<bool> preventPlayerInput =
                     runLuaFunctionIfExists<bool, float, int, bool, bool>(
                         "onInput", mFT, getInputMovement(), getInputFocused(),
                         getInputSwap());
 
-                if (!preventPlayerInput.has_value() || !(*preventPlayerInput))
+                if (!preventPlayerInput.hasValue() || !(*preventPlayerInput))
                 {
                     player.updateInputMovement(getInputMovement(),
                         getPlayerSpeedMult(), getInputFocused(), mFT);
@@ -267,20 +267,20 @@ void HexagonGame::update(float mFT, const float timescale)
                             playSoundOverride("swapBlip.ogg");
                         }
 
-                        swapParticlesSpawnInfo =
+                        swapParticlesSpawnInfo.emplace(
                             SwapParticleSpawnInfo{.ready{true},
                                 .position{player.getPosition()},
-                                .angle{player.getPlayerAngle()}};
+                                .angle{player.getPlayerAngle()}});
                     }
 
                     // Create particles after swap
                     if (getLevelStatus().swapEnabled && getInputSwap() &&
                         player.isReadyToSwap())
                     {
-                        swapParticlesSpawnInfo =
+                        swapParticlesSpawnInfo.emplace(
                             SwapParticleSpawnInfo{.ready{false},
                                 .position{player.getPosition()},
-                                .angle{player.getPlayerAngle()}};
+                                .angle{player.getPlayerAngle()}});
 
                         performPlayerSwap(true /* mPlaySound */);
                         player.resetSwap(getSwapCooldown());
@@ -367,8 +367,8 @@ void HexagonGame::update(float mFT, const float timescale)
 
         if (window != nullptr)
         {
-            SSVOH_ASSERT(overlayCamera.has_value());
-            SSVOH_ASSERT(backgroundCamera.has_value());
+            SSVOH_ASSERT(overlayCamera.hasValue());
+            SSVOH_ASSERT(backgroundCamera.hasValue());
 
             updateParticles(mFT);
 
@@ -511,7 +511,7 @@ void HexagonGame::start()
 {
     status.start();
 
-    if (textUI.has_value())
+    if (textUI.hasValue())
     {
         textUI->messageText.setString("");
     }
@@ -796,7 +796,7 @@ void HexagonGame::refreshPulse()
 {
     if (window != nullptr)
     {
-        SSVOH_ASSERT(backgroundCamera.has_value());
+        SSVOH_ASSERT(backgroundCamera.hasValue());
 
         const float p{
             Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
@@ -856,21 +856,21 @@ void HexagonGame::updateRotation(float mFT)
 
     if (window != nullptr)
     {
-        SSVOH_ASSERT(backgroundCamera.has_value());
+        SSVOH_ASSERT(backgroundCamera.hasValue());
         backgroundCamera->turn(nextRotation);
     }
 }
 
 void HexagonGame::updateCameraShake(float mFT)
 {
-    if (!backgroundCamera.has_value() || !overlayCamera.has_value())
+    if (!backgroundCamera.hasValue() || !overlayCamera.hasValue())
     {
         return;
     }
 
     if (status.cameraShake <= 0.f)
     {
-        if (preShakeCenters.has_value())
+        if (preShakeCenters.hasValue())
         {
             backgroundCamera->setCenter(preShakeCenters->background);
             overlayCamera->setCenter(preShakeCenters->overlay);
@@ -883,15 +883,15 @@ void HexagonGame::updateCameraShake(float mFT)
 
     status.cameraShake -= mFT;
 
-    if (!preShakeCenters.has_value())
+    if (!preShakeCenters.hasValue())
     {
-        preShakeCenters = PreShakeCenters{
-            backgroundCamera->getCenter(), overlayCamera->getCenter()};
+        preShakeCenters.emplace(
+            backgroundCamera->getCenter(), overlayCamera->getCenter());
     }
 
-    SSVOH_ASSERT(backgroundCamera.has_value());
-    SSVOH_ASSERT(overlayCamera.has_value());
-    SSVOH_ASSERT(preShakeCenters.has_value());
+    SSVOH_ASSERT(backgroundCamera.hasValue());
+    SSVOH_ASSERT(overlayCamera.hasValue());
+    SSVOH_ASSERT(preShakeCenters.hasValue());
 
     const auto makeShakeVec = [this]
     {
@@ -1087,7 +1087,7 @@ void HexagonGame::updateSwapParticles(float mFT)
         p.sprite.setPosition(p.sprite.getPosition() + p.velocity * mFT);
     }
 
-    if (swapParticlesSpawnInfo.has_value())
+    if (swapParticlesSpawnInfo.hasValue())
     {
         if (swapParticlesSpawnInfo->ready == false)
         {
@@ -1343,37 +1343,37 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     {
         const char* item = sItem.c_str();
 
-        const auto color = [&]() -> std::optional<ImVec4>
+        const auto color = [&]() -> sf::base::Optional<ImVec4>
         {
             if (std::strstr(item, "[error]"))
             {
-                return ImVec4(1.0f, 0.4f, 0.4f, 1.0f);
+                return sf::base::makeOptional<ImVec4>(1.0f, 0.4f, 0.4f, 1.0f);
             }
 
             if (std::strstr(item, "[warning]"))
             {
-                return ImVec4(1.0f, 0.4f, 1.0f, 1.0f);
+                return sf::base::makeOptional<ImVec4>(1.0f, 0.4f, 1.0f, 1.0f);
             }
 
             if (std::strstr(item, "[lua]"))
             {
-                return ImVec4(0.4f, 1.0f, 0.4f, 1.0f);
+                return sf::base::makeOptional<ImVec4>(0.4f, 1.0f, 0.4f, 1.0f);
             }
 
             if (std::strncmp(item, "# ", 2) == 0)
             {
-                return ImVec4(1.0f, 0.8f, 0.6f, 1.0f);
+                return sf::base::makeOptional<ImVec4>(1.0f, 0.8f, 0.6f, 1.0f);
             }
 
             if (std::strstr(item, "[?]"))
             {
-                return ImVec4(0.4f, 0.4f, 1.0f, 1.0f);
+                return sf::base::makeOptional<ImVec4>(0.4f, 0.4f, 1.0f, 1.0f);
             }
 
-            return std::nullopt;
+            return sf::base::nullOpt;
         }();
 
-        if (color.has_value())
+        if (color.hasValue())
         {
             ImGui::PushStyleColor(ImGuiCol_Text, *color);
         }
@@ -1416,7 +1416,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
             }
         }
 
-        if (color.has_value())
+        if (color.hasValue())
         {
             ImGui::PopStyleColor();
         }
@@ -1479,7 +1479,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
                 ilcCmdLog.emplace_back(
                     Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
 
-                fastForwardTarget = seconds;
+                fastForwardTarget.emplace(seconds);
             }
             catch (const std::invalid_argument&)
             {
@@ -1501,7 +1501,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
                 ilcCmdLog.emplace_back(Utils::concat(
                     "[advt]: advancing simulation by ", ticks, " ticks\n"));
 
-                advanceTickCount = ticks >= 0 ? ticks : 0;
+                advanceTickCount.emplace(ticks >= 0 ? ticks : 0);
             }
             catch (const std::invalid_argument&)
             {

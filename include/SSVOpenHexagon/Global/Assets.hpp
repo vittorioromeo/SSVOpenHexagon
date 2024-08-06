@@ -7,7 +7,7 @@
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <cstddef>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -94,9 +94,9 @@ public:
     [[nodiscard]] sf::Shader* getShader(
         const std::string& mPackId, const std::string& mId);
 
-    [[nodiscard]] std::optional<std::size_t> getShaderId(
+    [[nodiscard]] sf::base::Optional<std::size_t> getShaderId(
         const std::string& mPackId, const std::string& mId);
-    [[nodiscard]] std::optional<std::size_t> getShaderIdByPath(
+    [[nodiscard]] sf::base::Optional<std::size_t> getShaderIdByPath(
         const std::string& mShaderPath);
     [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
     [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;

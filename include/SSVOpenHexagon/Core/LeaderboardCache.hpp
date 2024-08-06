@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 
 namespace hg {
 
@@ -21,7 +21,7 @@ private:
     struct CachedScores
     {
         std::vector<Database::ProcessedScore> _scores;
-        std::optional<Database::ProcessedScore> _ownScore;
+        sf::base::Optional<Database::ProcessedScore> _ownScore;
         HRTimePoint _cacheTime;
     };
 

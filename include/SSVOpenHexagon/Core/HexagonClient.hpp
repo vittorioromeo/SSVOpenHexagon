@@ -14,7 +14,7 @@
 #include <SFML/Network/Packet.hpp>
 
 #include <deque>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <sstream>
 #include <unordered_set>
 #include <variant>
@@ -84,7 +84,7 @@ public:
 private:
     Steam::steam_manager& _steamManager;
 
-    std::optional<std::uint64_t> _ticketSteamID;
+    sf::base::Optional<std::uint64_t> _ticketSteamID;
 
     const sf::IpAddress _serverIp;
     const unsigned short _serverPort;
@@ -100,13 +100,13 @@ private:
     bool _verbose;
 
     const SodiumPSKeys _clientPSKeys;
-    std::optional<SodiumPublicKeyArray> _serverPublicKey;
-    std::optional<SodiumRTKeys> _clientRTKeys;
+    sf::base::Optional<SodiumPublicKeyArray> _serverPublicKey;
+    sf::base::Optional<SodiumRTKeys> _clientRTKeys;
 
     State _state;
 
-    std::optional<std::uint64_t> _loginToken;
-    std::optional<std::string> _loginName;
+    sf::base::Optional<std::uint64_t> _loginToken;
+    sf::base::Optional<std::string> _loginName;
 
     std::deque<Event> _events;
 
@@ -192,10 +192,10 @@ public:
     [[nodiscard]] State getState() const noexcept;
     [[nodiscard]] bool hasRTKeys() const noexcept;
 
-    [[nodiscard]] const std::optional<std::string>&
+    [[nodiscard]] const sf::base::Optional<std::string>&
     getLoginName() const noexcept;
 
-    [[nodiscard]] std::optional<Event> pollEvent();
+    [[nodiscard]] sf::base::Optional<Event> pollEvent();
 
     [[nodiscard]] bool isLevelSupportedByServer(
         const std::string& levelValidator) const noexcept;

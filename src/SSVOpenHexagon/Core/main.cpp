@@ -45,7 +45,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <string>
 #include <vector>
 
@@ -87,8 +87,8 @@ void createFolderIfNonExistant(const std::string& folderName)
 struct ParsedArgs
 {
     std::vector<std::string> args;
-    std::optional<std::string> cliLevelName;
-    std::optional<std::string> cliLevelPack;
+    sf::base::Optional<std::string> cliLevelName;
+    sf::base::Optional<std::string> cliLevelPack;
     bool printLuaDocs{false};
     bool headless{false};
     bool server{false};
@@ -104,7 +104,7 @@ struct ParsedArgs
         if (!std::strcmp(argv[i], "-p") && i + 1 < argc)
         {
             ++i;
-            result.cliLevelPack = argv[i];
+            result.cliLevelPack.emplace(argv[i]);
             continue;
         }
 
@@ -112,7 +112,7 @@ struct ParsedArgs
         if (!std::strcmp(argv[i], "-l") && i + 1 < argc)
         {
             ++i;
-            result.cliLevelName = argv[i];
+            result.cliLevelName.emplace(argv[i]);
             continue;
         }
 
@@ -149,18 +149,18 @@ struct ParsedArgs
         " - by Vittorio Romeo - https://vittorioromeo.info");
 }
 
-[[nodiscard]] std::optional<std::string>
+[[nodiscard]] sf::base::Optional<std::string>
 getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 {
     for (const std::string& arg : args)
     {
         if (arg.find(".ohr.z") != std::string::npos)
         {
-            return arg;
+            return sf::base::makeOptional(arg);
         }
     }
 
-    return std::nullopt;
+    return sf::base::nullOpt;
 }
 
 } // namespace
@@ -254,8 +254,8 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
 [[nodiscard]] int mainClient(const bool headless,
     const std::vector<std::string>& args,
-    const std::optional<std::string>& cliLevelName,
-    const std::optional<std::string>& cliLevelPack)
+    const sf::base::Optional<std::string>& cliLevelName,
+    const sf::base::Optional<std::string>& cliLevelPack)
 {
     // ------------------------------------------------------------------------
     // Steam integration
@@ -272,7 +272,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     //
     // ------------------------------------------------------------------------
     // Discord integration
-    std::optional<hg::Discord::discord_manager> discordManager;
+    sf::base::Optional<hg::Discord::discord_manager> discordManager;
 
     if (!headless)
     {
@@ -306,7 +306,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // ------------------------------------------------------------------------
     // Create the game window
     sf::GraphicsContext graphicsContext;
-    std::optional<ssvs::GameWindow> window;
+    sf::base::Optional<ssvs::GameWindow> window;
 
     if (!headless)
     {
@@ -348,7 +348,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
         // Signal handling: exit gracefully on CTRL-C
         {
-            SSVOH_ASSERT(window.has_value());
+            SSVOH_ASSERT(window.hasValue());
             static ssvs::GameWindow& globalWindow = *window;
 
             // TODO (P2): UB
@@ -371,7 +371,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // Initialize IMGUI
     if (!headless)
     {
-        SSVOH_ASSERT(window.has_value());
+        SSVOH_ASSERT(window.hasValue());
         if (!hg::Imgui::initialize(graphicsContext, *window))
         {
             ssvu::lo("::main") << "Failed to initialize ImGui...\n";
@@ -434,10 +434,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     hg::HexagonGame hg{
         &graphicsContext,
         &steamManager,                                             //
-        (discordManager.has_value() ? &*discordManager : nullptr), //
+        (discordManager.hasValue() ? &*discordManager : nullptr), //
         assets,                                                    //
         &audio,                                                    //
-        (window.has_value() ? &*window : nullptr),                 //
+        (window.hasValue() ? &*window : nullptr),                 //
         &hc                                                        //
     };
 
@@ -445,12 +445,12 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     //
     // ------------------------------------------------------------------------
     // Initialize menu game and link to hexagon game
-    std::optional<hg::MenuGame> mg;
+    sf::base::Optional<hg::MenuGame> mg;
 
     if (!headless)
     {
-        SSVOH_ASSERT(window.has_value());
-        SSVOH_ASSERT(discordManager.has_value());
+        SSVOH_ASSERT(window.hasValue());
+        SSVOH_ASSERT(discordManager.hasValue());
 
         mg.emplace(graphicsContext, steamManager, *discordManager, assets,
             audio, *window, hc);
@@ -488,12 +488,12 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     //
     // ------------------------------------------------------------------------
     // Load drag & drop replay, if any -- otherwise run game as normal
-    const std::optional<std::string> compressedReplayFilename =
+    const sf::base::Optional<std::string> compressedReplayFilename =
         getFirstCompressedReplayFilenameFromArgs(args);
 
     if (!headless)
     {
-        SSVOH_ASSERT(window.has_value());
+        SSVOH_ASSERT(window.hasValue());
 
         const auto gotoMenu = [&]
         {
@@ -504,10 +504,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         const auto gotoGameCompressedReplay =
             [&](const hg::compressed_replay_file& compressedReplayFile)
         {
-            std::optional<hg::replay_file> replayFileOpt =
+            sf::base::Optional<hg::replay_file> replayFileOpt =
                 hg::decompress_replay_file(compressedReplayFile);
 
-            if (!replayFileOpt.has_value())
+            if (!replayFileOpt.hasValue())
             {
                 std::cerr << "Could not decompress replay file\n";
                 return;
@@ -524,9 +524,9 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
             window->setGameState(hg.getGame());
         };
 
-        if (!compressedReplayFilename.has_value())
+        if (!compressedReplayFilename.hasValue())
         {
-            if (cliLevelPack.has_value() && cliLevelName.has_value())
+            if (cliLevelPack.hasValue() && cliLevelName.hasValue())
             {
                 // Load pack and levels specified via command line args.
                 mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
@@ -561,7 +561,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         SSVOH_ASSERT(headless);
 
         // TODO (P2): code repetition, cleanup
-        if (!compressedReplayFilename.has_value())
+        if (!compressedReplayFilename.hasValue())
         {
             std::cout << "Running in headless mode without replay...?\n";
             return 1;
@@ -570,10 +570,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         if (hg::compressed_replay_file crf;
             crf.deserialize_from_file(*compressedReplayFilename))
         {
-            std::optional<hg::replay_file> replayFileOpt =
+            sf::base::Optional<hg::replay_file> replayFileOpt =
                 hg::decompress_replay_file(crf);
 
-            if (!replayFileOpt.has_value())
+            if (!replayFileOpt.hasValue())
             {
                 std::cerr << "Could not decompress replay file\n";
                 return 1;
@@ -609,7 +609,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // Run the game!
     if (!headless)
     {
-        SSVOH_ASSERT(window.has_value());
+        SSVOH_ASSERT(window.hasValue());
         window->run(graphicsContext);
     }
 

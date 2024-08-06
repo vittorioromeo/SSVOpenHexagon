@@ -16,7 +16,7 @@
 
 #include <string>
 #include <cstdint>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <chrono>
 
 static auto& dlog(const char* funcName)
@@ -125,7 +125,7 @@ void dumpUsers()
     return !query.empty();
 }
 
-[[nodiscard]] std::optional<User> getUserWithSteamIdAndName(
+[[nodiscard]] sf::base::Optional<User> getUserWithSteamIdAndName(
     const std::uint64_t steamId, const std::string& name)
 {
     using namespace sqlite_orm;
@@ -135,7 +135,7 @@ void dumpUsers()
 
     if (query.empty())
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
     if (query.size() > 1)
@@ -144,11 +144,11 @@ void dumpUsers()
             << "Database integrity error, multiple users with same steamId '"
             << steamId << "' and name '" << name << "'\n";
 
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
     SSVOH_ASSERT(query.size() == 1);
-    return {query[0]};
+    return sf::base::makeOptional<User>(query[0]);
 }
 
 void removeAllLoginTokensForUser(const std::uint32_t userId)
@@ -178,14 +178,14 @@ void addLoginToken(const LoginToken& loginToken)
     return query;
 }
 
-[[nodiscard]] std::optional<User> getUserWithSteamId(
+[[nodiscard]] sf::base::Optional<User> getUserWithSteamId(
     const std::uint64_t steamId)
 {
     const auto query = getAllUsersWithSteamId(steamId);
 
     if (query.empty())
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
     if (query.size() > 1)
@@ -194,11 +194,11 @@ void addLoginToken(const LoginToken& loginToken)
             << "Database integrity error, multiple users with same steamId '"
             << steamId << "'\n";
 
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
     SSVOH_ASSERT(query.size() == 1);
-    return {query[0]};
+    return sf::base::makeOptional<User>(query[0]);
 }
 
 constexpr int tokenValiditySeconds = 3600;
@@ -321,7 +321,7 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
                << Impl::getStorage().dump(score) << '\n';
 }
 
-[[nodiscard]] std::optional<ProcessedScore> getScore(
+[[nodiscard]] sf::base::Optional<ProcessedScore> getScore(
     const std::string& levelValidator, const std::uint64_t userSteamId)
 {
     using namespace sqlite_orm;
@@ -335,7 +335,7 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
 
     if (query.empty())
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
     std::uint32_t index = 0;
@@ -343,21 +343,21 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
     {
         if (std::get<3>(row) == userSteamId)
         {
-            return {ProcessedScore{
+            return sf::base::makeOptional(ProcessedScore{
                 .position = index,                  //
                 .userName = std::get<0>(row),       //
                 .scoreTimestamp = std::get<1>(row), //
                 .scoreValue = std::get<2>(row),     //
-            }};
+            });
         }
 
         ++index;
     }
 
-    return std::nullopt;
+    return sf::base::nullOpt;
 }
 
-[[nodiscard]] std::optional<std::string> execute(const std::string& query)
+[[nodiscard]] sf::base::Optional<std::string> execute(const std::string& query)
 {
     const auto callback = [](void* a_param, int argc, char** argv,
                               char** column) -> int
@@ -382,10 +382,10 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
     if (error != nullptr)
     {
         HG_SCOPE_GUARD({ sqlite3_free(error); });
-        return {error};
+        return sf::base::makeOptional<std::string>(error);
     }
 
-    return std::nullopt;
+    return sf::base::nullOpt;
 }
 
 } // namespace hg::Database

@@ -8,7 +8,7 @@
 #include "SSVOpenHexagon/Utils/TinyVariant.hpp"
 
 #include <chrono>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <cstddef>
 #include <vector>
 
@@ -90,7 +90,7 @@ public:
 
 private:
     std::size_t _current_idx{0};
-    std::optional<time_point> _wait_start_tp;
+    sf::base::Optional<time_point> _wait_start_tp;
 
 public:
     outcome update(timeline2& timeline, const time_point tp);

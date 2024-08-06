@@ -7,7 +7,7 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include <chrono>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -26,7 +26,7 @@ void LeaderboardCache::receivedOwnScore(
     const std::string& levelValidator, const Database::ProcessedScore& score)
 {
     CachedScores& cs = _levelValidatorToScores[levelValidator];
-    cs._ownScore = score;
+    cs._ownScore.emplace(score);
     cs._cacheTime = HRClock::now();
 }
 
@@ -62,7 +62,7 @@ LeaderboardCache::getScores(const std::string& levelValidator) const
     SSVOH_ASSERT(hasInformation(levelValidator));
 
     const auto& os = _levelValidatorToScores.at(levelValidator)._ownScore;
-    return os.has_value() ? &*os : nullptr;
+    return os.hasValue() ? &*os : nullptr;
 }
 
 [[nodiscard]] bool LeaderboardCache::hasInformation(

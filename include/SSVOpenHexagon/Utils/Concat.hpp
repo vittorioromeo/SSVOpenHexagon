@@ -7,8 +7,10 @@
 #include <string>
 #include <sstream>
 #include <string_view>
-#include <type_traits>
 #include <cstddef>
+
+#include <SFML/Base/Traits/IsConvertible.hpp>
+#include <SFML/Base/Traits/IsSame.hpp>
 
 namespace hg::Utils {
 
@@ -36,8 +38,8 @@ struct IsCharArray<const char (&)[N]> : std::true_type
 
 template <typename... Ts>
 inline constexpr bool AllConvertibleToStringView =
-    ((std::is_convertible_v<Ts, std::string_view> || IsCharArray<Ts>::value ||
-         std::is_same_v<Ts, char>) &&
+    ((SFML_BASE_IS_CONVERTIBLE(Ts, std::string_view) ||
+         IsCharArray<Ts>::value || SFML_BASE_IS_SAME(Ts, char)) &&
         ...);
 
 template <std::size_t N>

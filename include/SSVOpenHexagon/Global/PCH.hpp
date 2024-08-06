@@ -47,7 +47,6 @@
 #include <list>
 #include <map>
 #include <memory>
-#include <optional>
 #include <random>
 #include <sstream>
 #include <stdexcept>
@@ -229,9 +228,9 @@
 
 extern template class std::vector<std::string>;
 
-extern template class std::optional<int>;
-extern template class std::optional<std::size_t>;
-extern template class std::optional<std::string>;
+extern template class sf::base::Optional<int>;
+extern template class sf::base::Optional<std::size_t>;
+extern template class sf::base::Optional<std::string>;
 
 extern template class std::unordered_map<std::string, float>;
 extern template class std::unordered_map<float, std::string>;

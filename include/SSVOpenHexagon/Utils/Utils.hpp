@@ -6,7 +6,7 @@
 
 #include <string>
 #include <vector>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <functional>
 
 namespace Lua {
@@ -71,7 +71,7 @@ T runLuaFunction(
     Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs);
 
 template <typename T, typename... TArgs>
-std::optional<VoidToNothing<T>> runLuaFunctionIfExists(
+sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(
     Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs);
 
 const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,

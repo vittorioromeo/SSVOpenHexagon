@@ -209,7 +209,7 @@ void HexagonGame::updateLevelInfo()
         return s;
     };
 
-    if (textUI.has_value())
+    if (textUI.hasValue())
     {
         textUI->levelInfoTextLevel.setFillColor(getColorText());
         textUI->levelInfoTextLevel.setCharacterSize(
@@ -638,7 +638,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     packId = mPackId;
     levelId = mId;
 
-    if (executeLastReplay && activeReplay.has_value())
+    if (executeLastReplay && activeReplay.hasValue())
     {
         firstPlay = activeReplay->replayFile._first_play;
     }
@@ -672,7 +672,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
     else
     {
-        if (!activeReplay.has_value())
+        if (!activeReplay.hasValue())
         {
             lastPlayedScore = tempReplayScore;
 
@@ -729,7 +729,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     debugPause = false;
 
     // Events cleanup
-    if (textUI.has_value())
+    if (textUI.hasValue())
     {
         textUI->messageText.setString("");
         textUI->pbText.setString("");
@@ -774,8 +774,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     if (window != nullptr)
     {
-        SSVOH_ASSERT(overlayCamera.has_value());
-        SSVOH_ASSERT(backgroundCamera.has_value());
+        SSVOH_ASSERT(overlayCamera.hasValue());
+        SSVOH_ASSERT(backgroundCamera.hasValue());
 
         // Reset zoom
         overlayCamera->setView(
@@ -896,8 +896,8 @@ void HexagonGame::death_shakeCamera()
         return;
     }
 
-    SSVOH_ASSERT(overlayCamera.has_value());
-    SSVOH_ASSERT(backgroundCamera.has_value());
+    SSVOH_ASSERT(overlayCamera.hasValue());
+    SSVOH_ASSERT(backgroundCamera.hasValue());
 
     overlayCamera->setView(
         sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
@@ -1004,7 +1004,7 @@ void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
 
     SSVOH_ASSERT(r == SaveScoreIfNeededResult::PersonalBest);
 
-    if (textUI.has_value())
+    if (textUI.hasValue())
     {
         textUI->pbText.setString("NEW PERSONAL BEST!");
     }
@@ -1085,10 +1085,10 @@ void HexagonGame::death(bool mForce)
 
 void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 {
-    const std::optional<compressed_replay_file> crfOpt =
+    const sf::base::Optional<compressed_replay_file> crfOpt =
         compress_replay_file(rf);
 
-    if (!crfOpt.has_value())
+    if (!crfOpt.hasValue())
     {
         ssvu::lo("Replay") << "Failed to compress replay, will not save to "
                               "file or send to server\n";
@@ -1170,7 +1170,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     return true;
 }
 
-[[nodiscard]] std::optional<HexagonGame::GameExecutionResult>
+[[nodiscard]] sf::base::Optional<HexagonGame::GameExecutionResult>
 HexagonGame::executeGameUntilDeath(
     const int maxProcessingSeconds, const float timescale)
 {
@@ -1186,19 +1186,19 @@ HexagonGame::executeGameUntilDeath(
 
         if (exceededProcessingTime())
         {
-            return std::nullopt;
+            return sf::base::nullOpt;
         }
     }
 
-    return GameExecutionResult{
+    return sf::base::makeOptional(GameExecutionResult{
         .playedTimeSeconds = status.getPlayedAccumulatedFrametimeInSeconds(), //
         .pausedTimeSeconds = status.getPausedAccumulatedFrametimeInSeconds(), //
         .totalTimeSeconds = status.getTotalAccumulatedFrametimeInSeconds(),   //
         .customScore = status.getCustomScore()                                //
-    };
+    });
 }
 
-[[nodiscard]] std::optional<HexagonGame::GameExecutionResult>
+[[nodiscard]] sf::base::Optional<HexagonGame::GameExecutionResult>
 HexagonGame::runReplayUntilDeathAndGetScore(const replay_file& mReplayFile,
     const int maxProcessingSeconds, const float timescale)
 {
@@ -1392,7 +1392,7 @@ void HexagonGame::addMessage(
                 playSoundOverride(levelStatus.beepSound);
             }
 
-            if (textUI.has_value())
+            if (textUI.hasValue())
             {
                 textUI->messageText.setString(mMessage);
             }
@@ -1402,7 +1402,7 @@ void HexagonGame::addMessage(
     messageTimeline.append_do(
         [this]
         {
-            if (textUI.has_value())
+            if (textUI.hasValue())
             {
                 textUI->messageText.setString("");
             }
@@ -1719,7 +1719,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::inReplay() const noexcept
 {
-    return activeReplay.has_value();
+    return activeReplay.hasValue();
 }
 
 [[nodiscard]] bool HexagonGame::mustReplayInput() const noexcept

@@ -42,7 +42,7 @@
 #include <sstream>
 #include <unordered_set>
 #include <functional>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <vector>
 #include <string>
 #include <string_view>
@@ -114,7 +114,7 @@ private:
     std::int8_t steamAttempt{1};
 
     HGAssets& assets;
-    std::optional<TextUI> textUI;
+    sf::base::Optional<TextUI> textUI;
 
     Audio* audio;
 
@@ -151,8 +151,8 @@ public:
     float timeUntilRichPresenceUpdate = 0.f;
 
 private:
-    std::optional<ssvs::Camera> backgroundCamera;
-    std::optional<ssvs::Camera> overlayCamera;
+    sf::base::Optional<ssvs::Camera> backgroundCamera;
+    sf::base::Optional<ssvs::Camera> overlayCamera;
 
     struct PreShakeCenters
     {
@@ -160,7 +160,7 @@ private:
         sf::Vector2f overlay;
     };
 
-    std::optional<PreShakeCenters> preShakeCenters;
+    sf::base::Optional<PreShakeCenters> preShakeCenters;
 
     const sf::Vector2f centerPos{0.f, 0.f};
 
@@ -219,7 +219,7 @@ private:
         float angle;
     };
 
-    std::optional<SwapParticleSpawnInfo> swapParticlesSpawnInfo;
+    sf::base::Optional<SwapParticleSpawnInfo> swapParticlesSpawnInfo;
     float nextPBParticleSpawn{0.f};
     float pbTextGrowth{0.f};
 
@@ -261,7 +261,7 @@ private:
         explicit ActiveReplay(const replay_file& mReplayFile);
     };
 
-    std::optional<ActiveReplay> activeReplay;
+    sf::base::Optional<ActiveReplay> activeReplay;
 
     random_number_generator::seed_type lastSeed{};
     replay_data lastReplayData{};
@@ -347,11 +347,11 @@ private:
     void initFlashEffect(int r, int g, int b);
 
     // Fast-forward
-    std::optional<double> fastForwardTarget;
+    sf::base::Optional<double> fastForwardTarget;
     void fastForwardTo(const double target);
 
     // Advance by ticks
-    std::optional<int> advanceTickCount;
+    sf::base::Optional<int> advanceTickCount;
     void advanceByTicks(const int nTicks);
 
     // Update methods
@@ -501,10 +501,10 @@ public:
         float customScore;
     };
 
-    [[nodiscard]] std::optional<GameExecutionResult> executeGameUntilDeath(
+    [[nodiscard]] sf::base::Optional<GameExecutionResult> executeGameUntilDeath(
         const int maxProcessingSeconds, const float timescale);
 
-    [[nodiscard]] std::optional<GameExecutionResult>
+    [[nodiscard]] sf::base::Optional<GameExecutionResult>
     runReplayUntilDeathAndGetScore(const replay_file& mReplayFile,
         const int maxProcessingSeconds, const float timescale);
 

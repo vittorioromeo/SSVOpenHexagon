@@ -17,7 +17,7 @@
 #include <sodium.h>
 
 #include <sstream>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <variant>
 #include <string>
 #include <vector>
@@ -113,7 +113,7 @@ struct STCPDeleteAccountSuccess   { };
 struct STCPDeleteAccountFailure   { std::string error; };
 struct STCPTopScores              { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
 struct STCPOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
-struct STCPTopScoresAndOwnScore   { std::string levelValidator; std::vector<Database::ProcessedScore> scores; std::optional<Database::ProcessedScore> ownScore; };
+struct STCPTopScoresAndOwnScore   { std::string levelValidator; std::vector<Database::ProcessedScore> scores; sf::base::Optional<Database::ProcessedScore> ownScore; };
 struct STCPServerStatus           { ProtocolVersion protocolVersion; GameVersion gameVersion; std::vector<std::string> supportedLevelValidators; };
 // clang-format on
 

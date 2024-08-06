@@ -64,10 +64,10 @@ void HexagonGame::draw()
             return sf::RenderStates::Default;
         }
 
-        const std::optional<std::size_t> fragmentShaderId =
+        const sf::base::Optional<std::size_t> fragmentShaderId =
             status.fragmentShaderIds[static_cast<std::size_t>(rs)];
 
-        if (!fragmentShaderId.has_value())
+        if (!fragmentShaderId.hasValue())
         {
             return sf::RenderStates::Default;
         }
@@ -77,8 +77,8 @@ void HexagonGame::draw()
         return sf::RenderStates{assets.getShaderByShaderId(*fragmentShaderId)};
     };
 
-    SSVOH_ASSERT(backgroundCamera.has_value());
-    SSVOH_ASSERT(overlayCamera.has_value());
+    SSVOH_ASSERT(backgroundCamera.hasValue());
+    SSVOH_ASSERT(overlayCamera.hasValue());
 
     window->clear(sf::Color::Black);
 
@@ -328,7 +328,7 @@ void HexagonGame::drawImguiLuaConsole()
         return;
     }
 
-    SSVOH_ASSERT(overlayCamera.has_value());
+    SSVOH_ASSERT(overlayCamera.hasValue());
 
     sf::RenderWindow& renderWindow = window->getRenderWindow();
     window->setView(renderWindow.getDefaultView());
@@ -389,7 +389,7 @@ void HexagonGame::drawLevelInfo(const sf::RenderStates& mStates)
 {
     render(levelInfoRectangle, /* texture */ nullptr, mStates);
 
-    if (textUI.has_value())
+    if (textUI.hasValue())
     {
         render(textUI->levelInfoTextLevel, mStates);
         render(textUI->levelInfoTextPack, mStates);
@@ -425,7 +425,7 @@ void HexagonGame::drawSwapParticles()
 
 void HexagonGame::updateText(float mFT)
 {
-    if (window == nullptr || !textUI.has_value())
+    if (window == nullptr || !textUI.hasValue())
     {
         return;
     }
@@ -610,7 +610,7 @@ void HexagonGame::updateText(float mFT)
 void HexagonGame::drawText_TimeAndStatus(
     const sf::Color& offsetColor, const sf::RenderStates& mStates)
 {
-    if (!textUI.has_value())
+    if (!textUI.hasValue())
     {
         return;
     }

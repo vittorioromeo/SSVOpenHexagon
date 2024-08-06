@@ -15,7 +15,7 @@
 #include "TestUtils.hpp"
 
 #include <array>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <stdexcept>
 
 int main()
@@ -66,7 +66,7 @@ try
             hg.alwaysSpinRight = true;
         }
 
-        std::optional<hg::replay_file> rf;
+        sf::base::Optional<hg::replay_file> rf;
 
         hg.onDeathReplayCreated = [&](const hg::replay_file& newRf)
         { rf.emplace(newRf); };
@@ -82,9 +82,9 @@ try
                 .value()
                 .playedTimeSeconds;
 
-        TEST_ASSERT(rf.has_value());
+        TEST_ASSERT(rf.hasValue());
 
-        std::optional<hg::HexagonGame::GameExecutionResult> score2;
+        sf::base::Optional<hg::HexagonGame::GameExecutionResult> score2;
         if (differentHG)
         {
             hg::HexagonGame hg2{
@@ -106,7 +106,7 @@ try
                 rf.value(), 1 /* maxProcessingSeconds */, 1.f /* timescale */);
         }
 
-        TEST_ASSERT(score2.has_value());
+        TEST_ASSERT(score2.hasValue());
         const double replayPlayedTimeSeconds = score2.value().playedTimeSeconds;
 
         std::cerr << score << " == " << replayPlayedTimeSeconds << std::endl;

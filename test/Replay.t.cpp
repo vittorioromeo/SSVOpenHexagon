@@ -185,7 +185,7 @@ void test_impl_packet_serialization(hg::replay_file& rf)
 
 void test_impl_file_compressed_serialization(hg::replay_file& rf)
 {
-    std::optional<hg::compressed_replay_file> crf =
+    sf::base::Optional<hg::compressed_replay_file> crf =
         hg::compress_replay_file(rf);
 
     TEST_ASSERT(crf.value().serialize_to_file("test.ohr"));
@@ -193,7 +193,7 @@ void test_impl_file_compressed_serialization(hg::replay_file& rf)
     hg::compressed_replay_file crf_out;
     TEST_ASSERT(crf_out.deserialize_from_file("test.ohr"));
 
-    std::optional<hg::replay_file> rf_out = hg::decompress_replay_file(crf_out);
+    sf::base::Optional<hg::replay_file> rf_out = hg::decompress_replay_file(crf_out);
 
     TEST_ASSERT_NS_EQ(rf_out.value(), rf);
 }

@@ -501,7 +501,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     return buf;
 }
 
-[[nodiscard]] std::optional<compressed_replay_file> compress_replay_file(
+[[nodiscard]] sf::base::Optional<compressed_replay_file> compress_replay_file(
     const replay_file& rf)
 {
     std::byte* buf = get_static_buf();
@@ -509,7 +509,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     const serialization_result sr = rf.serialize(buf, buf_size);
     if (!static_cast<bool>(sr))
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
     std::byte* compression_buf = get_static_compression_buf();
@@ -524,7 +524,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
         std::cerr << "Failed compression of replay file, error code: '" << rc
                   << "'\n";
 
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
     compressed_replay_file result;
@@ -533,10 +533,10 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     std::memcpy(static_cast<void*>(result._data.data()),
         static_cast<const void*>(compression_buf), result._data.size());
 
-    return {std::move(result)};
+    return sf::base::makeOptional(std::move(result));
 }
 
-[[nodiscard]] std::optional<replay_file> decompress_replay_file(
+[[nodiscard]] sf::base::Optional<replay_file> decompress_replay_file(
     const compressed_replay_file& crf)
 {
     std::byte* buf = get_static_buf();
@@ -550,7 +550,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
         std::cerr << "Failed compression of replay file, error code: '" << rc
                   << "'\n";
 
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
     replay_file result;
@@ -558,10 +558,10 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     const deserialization_result dr = result.deserialize(buf, in_out_dest_len);
     if (!static_cast<bool>(dr))
     {
-        return std::nullopt;
+        return sf::base::nullOpt;
     }
 
-    return {std::move(result)};
+    return sf::base::makeOptional(std::move(result));
 }
 
 } // namespace hg

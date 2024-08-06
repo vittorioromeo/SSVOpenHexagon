@@ -5,13 +5,13 @@
 #pragma once
 
 #include <string>
-#include <algorithm>
+#include <SFML/Base/Algorithm.hpp>
 
 namespace hg::Utils {
 
 inline void lTrim(std::string& str)
 {
-    const auto it = std::find_if(
+    const auto it = sf::base::findIf(
         str.begin(), str.end(), [](char ch) { return !std::isspace(ch); });
 
     str.erase(str.begin(), it);
@@ -19,7 +19,7 @@ inline void lTrim(std::string& str)
 
 inline void rTrim(std::string& str)
 {
-    const auto it = std::find_if(
+    const auto it = sf::base::findIf(
         str.rbegin(), str.rend(), [](char ch) { return !std::isspace(ch); });
 
     str.erase(it.base(), str.end());

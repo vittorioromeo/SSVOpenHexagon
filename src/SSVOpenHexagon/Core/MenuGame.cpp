@@ -1128,7 +1128,7 @@ void MenuGame::ignoreInputsAfterMenuExec()
     // otherwise the user would have to press enter twice to accept in a dialog
     // box.
 
-    setIgnoreAllInputs(mustUseMenuItem.has_value() ? 1 : 2);
+    setIgnoreAllInputs(mustUseMenuItem.hasValue() ? 1 : 2);
 }
 
 void MenuGame::initMenus()
@@ -2551,8 +2551,8 @@ void MenuGame::update(float mFT)
         SSVOH_ASSERT(ignoreInputs == 1);
     };
 
-    std::optional<HexagonClient::Event> hcEvent;
-    while ((hcEvent = hexagonClient.pollEvent()).has_value())
+    sf::base::Optional<HexagonClient::Event> hcEvent;
+    while ((hcEvent = hexagonClient.pollEvent()).hasValue())
     {
         Utils::match(
             *hcEvent, //
@@ -2672,7 +2672,7 @@ void MenuGame::update(float mFT)
     // TODO (P2): cleanup mouse control
     if ((state == States::SMain || state == States::MOpts ||
             state == States::MOnline || state == States::SLPSelect) &&
-        mustUseMenuItem.has_value())
+        mustUseMenuItem.hasValue())
     {
         if (getCurrentMenu() != nullptr)
         {
@@ -2705,7 +2705,7 @@ void MenuGame::update(float mFT)
             playSelectedLevel();
             mustPlay = false;
         }
-        else if (mustChangeIndexTo.has_value())
+        else if (mustChangeIndexTo.hasValue())
         {
             if (lvlDrawer != nullptr &&
                 lvlDrawer->currentIndex != *mustChangeIndexTo)
@@ -2716,7 +2716,7 @@ void MenuGame::update(float mFT)
 
             mustChangeIndexTo.reset();
         }
-        else if (mustChangePackIndexTo.has_value())
+        else if (mustChangePackIndexTo.hasValue())
         {
             if (lvlSlct.packIdx != *mustChangePackIndexTo)
             {
@@ -3749,10 +3749,10 @@ void MenuGame::drawMainMenu(
             quadHeight + doubleBorder + txtMenuBig.height, false);
 
         // TODO (P2): cleanup mouse control
-        if (mouseOverlap && !mustUseMenuItem.has_value() &&
+        if (mouseOverlap && !mustUseMenuItem.hasValue() &&
             mouseLeftRisingEdge() && items[i]->isEnabled())
         {
-            mustUseMenuItem = i;
+            mustUseMenuItem.emplace(i);
         }
 
         quadHeight += interline;
@@ -5063,9 +5063,9 @@ void MenuGame::drawLevelSelectionRightSide(
             {
                 mustPlay = true;
             }
-            else if (!mustChangeIndexTo.has_value())
+            else if (!mustChangeIndexTo.hasValue())
             {
-                mustChangeIndexTo = i;
+                mustChangeIndexTo.emplace(i);
             }
         }
 
@@ -5181,10 +5181,10 @@ void MenuGame::drawLevelSelectionRightSide(
             mouseOverlapColor(mouseOverlap, menuQuadColor), bodyMins, bodyMaxs);
 
         // TODO (P2): cleanup mouse control
-        if (mouseOverlap && !mustChangePackIndexTo.has_value() &&
+        if (mouseOverlap && !mustChangePackIndexTo.hasValue() &&
             mouseLeftRisingEdge())
         {
-            mustChangePackIndexTo = i;
+            mustChangePackIndexTo.emplace(i);
         }
 
         window.draw(menuQuads);
@@ -6040,7 +6040,7 @@ void MenuGame::drawOnlineStatus()
             case HexagonClient::State::LoggedIn_Ready:
             {
                 if (Config::getSaveLastLoginUsername() &&
-                    hexagonClient.getLoginName().has_value())
+                    hexagonClient.getLoginName().hasValue())
                 {
                     // Save last login username for quicker login next time.
 
@@ -6050,7 +6050,7 @@ void MenuGame::drawOnlineStatus()
 
                 return {
                     true, "LOGGED IN AS " +
-                              hexagonClient.getLoginName().value_or("UNKNOWN")};
+                              hexagonClient.getLoginName().valueOr("UNKNOWN")};
             }
         }
 

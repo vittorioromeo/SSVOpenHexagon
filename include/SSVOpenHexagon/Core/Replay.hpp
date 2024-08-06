@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <string>
 #include <vector>
 
@@ -161,10 +161,10 @@ struct compressed_replay_file
     [[nodiscard]] bool deserialize_from_packet(sf::Packet& p);
 };
 
-[[nodiscard]] std::optional<compressed_replay_file> compress_replay_file(
+[[nodiscard]] sf::base::Optional<compressed_replay_file> compress_replay_file(
     const replay_file& rf);
 
-[[nodiscard]] std::optional<replay_file> decompress_replay_file(
+[[nodiscard]] sf::base::Optional<replay_file> decompress_replay_file(
     const compressed_replay_file& crf);
 
 } // namespace hg

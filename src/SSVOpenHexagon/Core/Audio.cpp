@@ -20,7 +20,7 @@
 
 #include <SFML/Base/Optional.hpp>
 
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <string>
 
 namespace hg {

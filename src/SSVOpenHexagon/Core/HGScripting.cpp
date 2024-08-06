@@ -665,7 +665,7 @@ void HexagonGame::initLua_LevelControl()
         {
             // TODO (P2): might break replays if someone uses this to control
             // game logic
-            if (backgroundCamera.has_value())
+            if (backgroundCamera.hasValue())
             {
                 backgroundCamera->setRotation(mValue);
             }
@@ -678,7 +678,7 @@ void HexagonGame::initLua_LevelControl()
         {
             // TODO (P2): might break replays if someone uses this to control
             // game logic
-            return backgroundCamera.has_value()
+            return backgroundCamera.hasValue()
                        ? backgroundCamera->getRotation()
                        : 0.f;
         })

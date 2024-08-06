@@ -39,7 +39,7 @@
 #include <boost/pfr.hpp>
 
 #include <chrono>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -166,7 +166,7 @@ template <typename T>
 {
     const void* clientAddr = static_cast<void*>(&c);
 
-    if (!c._rtKeys.has_value())
+    if (!c._rtKeys.hasValue())
     {
         return fail(
             "Tried to send encrypted message without RT keys for client '",
@@ -272,7 +272,7 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendTopScoresAndOwnScore(ConnectedClient& c,
     const std::string& levelValidator,
     const std::vector<Database::ProcessedScore>& scores,
-    const std::optional<Database::ProcessedScore>& ownScore)
+    const sf::base::Optional<Database::ProcessedScore>& ownScore)
 {
     return sendEncrypted(c, //
         STCPTopScoresAndOwnScore{
@@ -300,7 +300,7 @@ bool HexagonServer::kickAndRemoveClient(ConnectedClient& c)
 {
     (void)sendKick(c);
 
-    if (c._loginData.has_value())
+    if (c._loginData.hasValue())
     {
         Database::removeAllLoginTokensForUser(c._loginData->_userId);
     }
@@ -445,10 +445,10 @@ bool HexagonServer::runIteration_Control()
                 query += splitted[i];
             }
 
-            const std::optional<std::string> executeOutcome =
+            const sf::base::Optional<std::string> executeOutcome =
                 Database::execute(query);
 
-            if(executeOutcome.has_value())
+            if(executeOutcome.hasValue())
             {
                 SSVOH_SLOG_ERROR << "'db exec' error:\n"
                                  << *executeOutcome << '\n';
@@ -638,7 +638,7 @@ void HexagonServer::runIteration_PurgeTokens()
             ConnectedClient& c = *it;
             const void* clientAddr = static_cast<void*>(&c);
 
-            if (!c._loginData.has_value())
+            if (!c._loginData.hasValue())
             {
                 continue;
             }
@@ -678,7 +678,7 @@ void HexagonServer::runIteration_FlushLogs()
 {
     const void* clientAddr = static_cast<void*>(&c);
 
-    if (!c._loginData.has_value())
+    if (!c._loginData.hasValue())
     {
         SSVOH_SLOG << "Client '" << clientAddr << "', is not logged in for "
                    << context << '\n';
@@ -720,7 +720,7 @@ void HexagonServer::runIteration_FlushLogs()
         return true;
     };
 
-    if (!c._gameStatus.has_value())
+    if (!c._gameStatus.hasValue())
     {
         return discard("no game started");
     }
@@ -750,11 +750,11 @@ void HexagonServer::runIteration_FlushLogs()
 
     constexpr int maxProcessingSeconds = 5;
 
-    const std::optional<HexagonGame::GameExecutionResult> ger =
+    const sf::base::Optional<HexagonGame::GameExecutionResult> ger =
         _hexagonGame.runReplayUntilDeathAndGetScore(
             rf, maxProcessingSeconds, 1.f /* timescale */);
 
-    if (!ger.has_value())
+    if (!ger.hasValue())
     {
         return discard(
             "max processing time exceeded (", maxProcessingSeconds, "s)");
@@ -797,7 +797,7 @@ void HexagonServer::runIteration_FlushLogs()
 
     SSVOH_SLOG << "Replay valid, adding to database\n";
 
-    SSVOH_ASSERT(c._loginData.has_value());
+    SSVOH_ASSERT(c._loginData.hasValue());
 
     Database::addScore(levelValidator, Utils::nowTimestamp(),
         c._loginData->_steamId, replayPlayedTime);
@@ -875,7 +875,7 @@ void HexagonServer::printCTSPDataVerbose(
 
     _errorOss.str("");
     const PVClientToServer pv = decodeClientToServerPacket(
-        c._rtKeys.has_value() ? &c._rtKeys->keyReceive : nullptr, _errorOss, p);
+        c._rtKeys.hasValue() ? &c._rtKeys->keyReceive : nullptr, _errorOss, p);
 
     const auto checkState = [&](const ConnectedClient::State state)
     {
@@ -938,7 +938,7 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "public key", ctsp);
 
-            if (c._clientPublicKey.has_value())
+            if (c._clientPublicKey.hasValue())
             {
                 SSVOH_SLOG_VERBOSE << "Already had public key, replacing\n";
             }
@@ -947,7 +947,7 @@ void HexagonServer::printCTSPDataVerbose(
                 SSVOH_SLOG_VERBOSE << "Did not have public key, setting\n";
             }
 
-            c._clientPublicKey = ctsp.key;
+            c._clientPublicKey.emplace(ctsp.key);
 
             SSVOH_SLOG_VERBOSE << "Client public key: '"
                                << sodiumKeyToString(ctsp.key) << "'\n";
@@ -956,7 +956,7 @@ void HexagonServer::printCTSPDataVerbose(
             c._rtKeys =
                 calculateServerSessionSodiumRTKeys(_serverPSKeys, ctsp.key);
 
-            if (!c._rtKeys.has_value())
+            if (!c._rtKeys.hasValue())
             {
                 SSVOH_SLOG_ERROR
                     << "Failed calculating RT keys, disconnecting client '"
@@ -1062,16 +1062,16 @@ void HexagonServer::printCTSPDataVerbose(
                 return sendFail("No user with name '", name, "' registered");
             }
 
-            const std::optional<Database::User> user =
+            const sf::base::Optional<Database::User> user =
                 Database::getUserWithSteamIdAndName(steamId, name);
 
-            if (!user.has_value())
+            if (!user.hasValue())
             {
                 return sendFail("No user matching '", steamId, "' and '", name,
                     "' registered");
             }
 
-            SSVOH_ASSERT(user.has_value());
+            SSVOH_ASSERT(user.hasValue());
 
             if (user->passwordHash != Utils::stringToCharVec(passwordHash))
             {
@@ -1092,13 +1092,13 @@ void HexagonServer::printCTSPDataVerbose(
                     .token = loginToken //
                 });
 
-            c._loginData = ConnectedClient::LoginData{
+            c._loginData.emplace(ConnectedClient::LoginData{
                 ._userId = user->id,
                 ._steamId = steamId,
                 ._name = name,
                 ._passwordHash = passwordHash,
                 ._loginToken = loginToken //
-            };
+            });
 
             c._state = ConnectedClient::State::LoggedIn;
 
@@ -1116,16 +1116,16 @@ void HexagonServer::printCTSPDataVerbose(
                 return true;
             }
 
-            const std::optional<Database::User> user =
+            const sf::base::Optional<Database::User> user =
                 Database::getUserWithSteamId(ctsp.steamId);
 
-            if (!user.has_value())
+            if (!user.hasValue())
             {
                 SSVOH_SLOG << "No user with steamId '" << ctsp.steamId << "'\n";
                 return sendLogoutFailure(c);
             }
 
-            SSVOH_ASSERT(user.has_value());
+            SSVOH_ASSERT(user.hasValue());
 
             Database::removeAllLoginTokensForUser(user->id);
 
@@ -1160,15 +1160,15 @@ void HexagonServer::printCTSPDataVerbose(
                     "No user with steamId '", steamId, "' registered");
             }
 
-            const std::optional<Database::User> user =
+            const sf::base::Optional<Database::User> user =
                 Database::getUserWithSteamId(ctsp.steamId);
 
-            if (!user.has_value())
+            if (!user.hasValue())
             {
                 return sendFail("No user with steamId '", ctsp.steamId, '\'');
             }
 
-            SSVOH_ASSERT(user.has_value());
+            SSVOH_ASSERT(user.hasValue());
 
             if (user->passwordHash != Utils::stringToCharVec(passwordHash))
             {
@@ -1235,10 +1235,10 @@ void HexagonServer::printCTSPDataVerbose(
                 return true;
             }
 
-            const std::optional<Database::ProcessedScore> ps =
+            const sf::base::Optional<Database::ProcessedScore> ps =
                 Database::getScore(ctsp.levelValidator, c._loginData->_steamId);
 
-            if (!ps.has_value())
+            if (!ps.hasValue())
             {
                 return true;
             }
@@ -1290,10 +1290,10 @@ void HexagonServer::printCTSPDataVerbose(
             SSVOH_SLOG << "Client '" << clientAddr
                        << "' started game for level '" << lv << "'\n";
 
-            c._gameStatus = ConnectedClient::GameStatus{
+            c._gameStatus.emplace(ConnectedClient::GameStatus{
                 ._startTP = Utils::SCClock::now(), //
                 ._levelValidator = lv              //
-            };
+            });
 
             return true;
         },
@@ -1309,10 +1309,10 @@ void HexagonServer::printCTSPDataVerbose(
 
             const auto& [loginToken, crf] = ctsp;
 
-            const std::optional<replay_file> rfOpt =
+            const sf::base::Optional<replay_file> rfOpt =
                 decompress_replay_file(crf);
 
-            if (!rfOpt.has_value())
+            if (!rfOpt.hasValue())
             {
                 SSVOH_SLOG_ERROR
                     << "Failed to decompress replay received from client '"

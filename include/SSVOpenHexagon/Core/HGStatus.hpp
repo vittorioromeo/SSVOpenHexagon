@@ -8,7 +8,7 @@
 
 #include <array>
 #include <cstddef>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 #include <string>
 
 namespace hg {
@@ -78,7 +78,7 @@ public:
     bool showPlayerTrail{true};
 
     // Shaders
-    std::array<std::optional<std::size_t>,
+    std::array<sf::base::Optional<std::size_t>,
         static_cast<std::size_t>(RenderStage::Count)>
         fragmentShaderIds;
 

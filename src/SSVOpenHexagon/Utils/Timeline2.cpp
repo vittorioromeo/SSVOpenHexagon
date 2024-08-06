@@ -8,7 +8,7 @@
 #include "SSVOpenHexagon/Utils/TinyVariant.hpp"
 
 #include <chrono>
-#include <optional>
+#include <SFML/Base/Optional.hpp>
 
 namespace hg::Utils {
 
@@ -74,10 +74,10 @@ timeline2_runner::outcome timeline2_runner::update(
             },
             [&](timeline2::action_wait_for& x)
             {
-                if (!_wait_start_tp.has_value())
+                if (!_wait_start_tp.hasValue())
                 {
                     // Just started waiting.
-                    _wait_start_tp = tp;
+                    _wait_start_tp.emplace(tp);
                 }
 
                 const auto elapsed = tp - _wait_start_tp.value();
