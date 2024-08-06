@@ -10,6 +10,8 @@
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
+#include <SFML/Graphics/GraphicsContext.hpp>
+
 #include "TestUtils.hpp"
 
 #include <array>
@@ -35,15 +37,18 @@ try
 
     hg::Config::loadConfig({});
 
-    hg::HGAssets assets{nullptr /* steamManager */, true /* headless */};
+    hg::HGAssets assets{nullptr /* graphicsContext */,
+        nullptr /* steamManager */, true /* headless */};
 
     hg::ProfileData fakeProfile{hg::GAME_VERSION, "testProfile", {}, {}};
     assets.addLocalProfile(std::move(fakeProfile));
     assets.pSetCurrent("testProfile");
 
-    const auto doTest = [&](int i, bool differentHG, ssvs::GameWindow* gw)
+    const auto doTest = [&](int i, bool differentHG, sf::GraphicsContext* gc,
+                            ssvs::GameWindow* gw)
     {
         hg::HexagonGame hg{
+            gc,                           //
             nullptr /* steamManager */,   //
             nullptr /* discordManager */, //
             assets,                       //
@@ -83,6 +88,7 @@ try
         if (differentHG)
         {
             hg::HexagonGame hg2{
+                gc,                           //
                 nullptr /* steamManager */,   //
                 nullptr /* discordManager */, //
                 assets,                       //
@@ -110,16 +116,17 @@ try
 
     for (int i = 0; i < 25; ++i)
     {
-        doTest(i, false, nullptr);
-        doTest(i, true, nullptr);
+        doTest(i, false, nullptr, nullptr);
+        doTest(i, true, nullptr, nullptr);
     }
 
 #ifndef SSVOH_HEADLESS_TESTS
-    ssvs::GameWindow gw;
+    sf::GraphicsContext gc;
+    ssvs::GameWindow gw(gc);
     for (int i = 0; i < 25; ++i)
     {
-        doTest(i, false, &gw);
-        doTest(i, true, &gw);
+        doTest(i, false, &gc, &gw);
+        doTest(i, true, &gc, &gw);
     }
 #endif
 

@@ -28,7 +28,11 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
-#include <SFML/Network.hpp>
+#include <SFML/Network/IpAddress.hpp>
+#include <SFML/Network/Packet.hpp>
+#include <SFML/Network/TcpListener.hpp>
+#include <SFML/Network/TcpSocket.hpp>
+#include <SFML/Network/UdpSocket.hpp>
 
 #include <SFML/Base/Optional.hpp>
 
@@ -62,6 +66,25 @@ static auto& slog(const char* funcName)
 
 namespace hg {
 
+HexagonServer::ConnectedClient::ConnectedClient(
+    const Utils::SCTimePoint lastActivity)
+    : _socket{true /* isBlocking */}, // TODO (P0): should this be blocking????
+      _lastActivity{lastActivity},
+      _consecutiveFailures{0},
+      _mustDisconnect{false},
+      _clientPublicKey{},
+      _loginData{},
+      _state{State::Disconnected}
+{}
+
+HexagonServer::ConnectedClient::~ConnectedClient()
+{
+    if (!_socket.disconnect())
+    {
+        SSVOH_SLOG_ERROR << "Failed to disconnect connected client socket\n";
+    }
+}
+
 template <typename... Ts>
 [[nodiscard]] bool HexagonServer::fail(const Ts&... xs)
 {
@@ -93,7 +116,11 @@ template <typename... Ts>
         return fail("Failure binding UDP control socket");
     }
 
-    _socketSelector.add(_controlSocket);
+    if (!_socketSelector.add(_controlSocket))
+    {
+        return fail("Failed to add UDP control to socket selector");
+    }
+
     return true;
 }
 
@@ -115,7 +142,11 @@ template <typename... Ts>
 {
     SSVOH_SLOG << "Initializing socket selector...\n";
 
-    _socketSelector.add(_listener);
+    if (!_socketSelector.add(_listener))
+    {
+        return fail("Failed to add listener to socket selector");
+    }
+
     return true;
 }
 
@@ -265,7 +296,7 @@ template <typename T>
     );
 }
 
-void HexagonServer::kickAndRemoveClient(ConnectedClient& c)
+bool HexagonServer::kickAndRemoveClient(ConnectedClient& c)
 {
     (void)sendKick(c);
 
@@ -274,7 +305,12 @@ void HexagonServer::kickAndRemoveClient(ConnectedClient& c)
         Database::removeAllLoginTokensForUser(c._loginData->_userId);
     }
 
-    _socketSelector.remove(c._socket);
+    if (!_socketSelector.remove(c._socket))
+    {
+        return fail("Failed to remove client socket from socket selector");
+    }
+
+    return true;
 }
 
 void HexagonServer::run()
@@ -460,7 +496,11 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     // Add the new client to the selector so that we will be notified when he
     // sends something
-    _socketSelector.add(potentialSocket);
+    if (!_socketSelector.add(potentialSocket))
+    {
+        return fail("Failed to add potential client socket to socket selector");
+    }
+
     return true;
 }
 
@@ -484,6 +524,7 @@ void HexagonServer::runIteration_LoopOverSockets()
         _packetBuffer.clear();
 
         // TODO (P1): potential hanging spot?
+        // TODO (P0): SHOULD WE SET THE SOCKET TO NONBLOCKING HERE???
         if (clientSocket.receive(_packetBuffer) == sf::Socket::Status::Done)
         {
             SSVOH_SLOG_VERBOSE << "Successfully received data from client '"
@@ -511,7 +552,12 @@ void HexagonServer::runIteration_LoopOverSockets()
             SSVOH_SLOG << "Too many consecutive failures for client '"
                        << clientAddr << "', removing from list\n";
 
-            kickAndRemoveClient(connectedClient);
+            if (!kickAndRemoveClient(connectedClient))
+            {
+                SSVOH_SLOG
+                    << "Failed kicking client after max consecutive failures\n";
+            }
+
             it = _connectedClients.erase(it);
         }
     }
@@ -534,7 +580,11 @@ void HexagonServer::runIteration_PurgeClients()
             SSVOH_SLOG << "Client '" << clientAddr
                        << "' disconnected, removing from list\n";
 
-            kickAndRemoveClient(connectedClient);
+            if (!kickAndRemoveClient(connectedClient))
+            {
+                SSVOH_SLOG << "Failed kicking client after must disconnect\n";
+            }
+
             it = _connectedClients.erase(it);
             continue;
         }
@@ -544,7 +594,11 @@ void HexagonServer::runIteration_PurgeClients()
             SSVOH_SLOG << "Client '" << clientAddr
                        << "' timed out, removing from list\n";
 
-            kickAndRemoveClient(connectedClient);
+            if (!kickAndRemoveClient(connectedClient))
+            {
+                SSVOH_SLOG << "Failed kicking client after inactivity\n";
+            }
+
             it = _connectedClients.erase(it);
             continue;
         }
@@ -594,7 +648,11 @@ void HexagonServer::runIteration_PurgeTokens()
                 SSVOH_SLOG << "Kicking stale token client '" << clientAddr
                            << "'\n";
 
-                kickAndRemoveClient(c);
+                if (!kickAndRemoveClient(c))
+                {
+                    SSVOH_SLOG << "Failed kicking client with stale token\n";
+                }
+
                 it = _connectedClients.erase(it);
             }
         }
@@ -1337,7 +1395,8 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
       _serverIp{serverIp},
       _serverPort{serverPort},
       _serverControlPort{serverControlPort},
-      _listener{},
+      _controlSocket{true /* isBlocking */},
+      _listener{true /* isBlocking */},
       _socketSelector{},
       _running{true},
       _verbose{false},
@@ -1390,7 +1449,12 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
             [](int s)
             {
                 std::printf("Caught signal %d\n", s);
-                globalListener.close();
+
+                if (!globalListener.close())
+                {
+                    std::printf("Failed closing global listener\n");
+                }
+
                 globalRunning = false;
             });
     }
@@ -1421,12 +1485,24 @@ HexagonServer::~HexagonServer()
         connectedClient._socket.setBlocking(true);
 
         (void)sendKick(connectedClient);
-        connectedClient._socket.disconnect();
+
+        if (!connectedClient._socket.disconnect())
+        {
+            SSVOH_SLOG << "Failed to disconnect connected client socket during "
+                          "shutdown\n";
+        }
     }
 
     _socketSelector.clear();
-    _listener.close();
-    _controlSocket.unbind();
+    if (!_listener.close())
+    {
+        SSVOH_SLOG << "Failed to close listener during shutdown\n";
+    }
+
+    if (!_controlSocket.unbind())
+    {
+        SSVOH_SLOG << "Failed to unbing control socket during shutdown\n";
+    }
 }
 
 } // namespace hg

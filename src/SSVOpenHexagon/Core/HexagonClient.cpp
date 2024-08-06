@@ -440,7 +440,7 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager,
       _ticketSteamID{},
       _serverIp{serverIp},
       _serverPort{serverPort},
-      _socket{},
+      _socket{true /* isBlocking */},
       _socketConnected{false},
       _packetBuffer{},
       _errorOss{},
@@ -497,7 +497,11 @@ void HexagonClient::disconnect()
         (void)sendDisconnect();
     }
 
-    _socket.disconnect();
+    if (!_socket.disconnect())
+    {
+        SSVOH_CLOG << "Failure disconnecting client socket\n";
+    }
+
     _socketConnected = false;
 
     SSVOH_CLOG << "Client disconnected\n";

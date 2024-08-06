@@ -13,7 +13,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <SFML/Window/Event.hpp>
-#include <SFML/Window/GraphicsContext.hpp>
+#include <SFML/Graphics/GraphicsContext.hpp>
 #include <SFML/Window/Window.hpp>
 
 namespace hg::Imgui {

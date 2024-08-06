@@ -36,7 +36,8 @@ try
 
     hg::Config::loadConfig({});
 
-    hg::HGAssets assets{nullptr /* steamManager */, true /* headless */};
+    hg::HGAssets assets{nullptr /* graphicsContext */,
+        nullptr /* steamManager */, true /* headless */};
 
     hg::ProfileData fakeProfile{hg::GAME_VERSION, "testProfile", {}, {}};
     assets.addLocalProfile(std::move(fakeProfile));
@@ -45,15 +46,16 @@ try
     const auto doTest = [&](int i, bool differentHG, ssvs::GameWindow* gw)
     {
         hg::HexagonGame hg{
-            nullptr /* steamManager */,   //
-            nullptr /* discordManager */, //
-            assets,                       //
-            nullptr /* audio */,          //
-            gw,                           //
-            nullptr /* client */          //
+            nullptr /* graphicsContext */, //
+            nullptr /* steamManager */,    //
+            nullptr /* discordManager */,  //
+            assets,                        //
+            nullptr /* audio */,           //
+            gw,                            //
+            nullptr /* client */           //
         };
 
-        if(getRndBool())
+        if (getRndBool())
         {
             hg.executeRandomInputs = true;
         }
@@ -81,15 +83,16 @@ try
         TEST_ASSERT(rf.has_value());
 
         std::optional<hg::HexagonGame::GameExecutionResult> score2;
-        if(differentHG)
+        if (differentHG)
         {
             hg::HexagonGame hg2{
-                nullptr /* steamManager */,   //
-                nullptr /* discordManager */, //
-                assets,                       //
-                nullptr /* audio */,          //
-                nullptr /* window */,         //
-                nullptr /* client */          //
+                nullptr /* graphicsContext */, //
+                nullptr /* steamManager */,    //
+                nullptr /* discordManager */,  //
+                assets,                        //
+                nullptr /* audio */,           //
+                nullptr /* window */,          //
+                nullptr /* client */           //
             };
 
             score2 = hg2.runReplayUntilDeathAndGetScore(
@@ -109,7 +112,7 @@ try
         TEST_ASSERT_EQ(score, replayPlayedTimeSeconds);
     };
 
-    for(int i = 0; i < 100; ++i)
+    for (int i = 0; i < 100; ++i)
     {
         doTest(i, false, nullptr);
         doTest(i, true, nullptr);
@@ -117,11 +120,11 @@ try
 
     return 0;
 }
-catch(const std::runtime_error& e)
+catch (const std::runtime_error& e)
 {
     std::cerr << "EXCEPTION: " << e.what() << std::endl;
 }
-catch(...)
+catch (...)
 {
     std::cerr << "EXCEPTION: unknown" << std::endl;
 }

@@ -1029,8 +1029,8 @@ void HexagonGame::updateTrailParticles(float mFT)
 
         p.sprite.setScale(p.sprite.getScale() * 0.98f);
 
-        p.sprite.setPosition(
-            sf::Vector2f::fromAngle(status.radius + 2.4f, sf::radians(p.angle)));
+        p.sprite.setPosition(sf::Vector2f::fromAngle(
+            status.radius + 2.4f, sf::radians(p.angle)));
     }
 
     if (player.hasChangedAngle())
@@ -1064,8 +1064,9 @@ void HexagonGame::updateSwapParticles(float mFT)
         c.a = alpha;
         p.sprite.setColor(c);
 
-        p.velocity = sf::Vector2f::fromAngle(ssvu::getRndR(0.1f, 10.f) * speedMult,
-            sf::radians(si.angle + ssvu::getRndR(-expand, expand)));
+        p.velocity =
+            sf::Vector2f::fromAngle(ssvu::getRndR(0.1f, 10.f) * speedMult,
+                sf::radians(si.angle + ssvu::getRndR(-expand, expand)));
 
         return p;
     };

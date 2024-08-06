@@ -33,7 +33,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
-#include <SFML/Window/GraphicsContext.hpp>
+#include <SFML/Graphics/GraphicsContext.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Clock.hpp>

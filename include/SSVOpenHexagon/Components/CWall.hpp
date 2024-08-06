@@ -9,6 +9,8 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Base/Math/Cos.hpp>
+#include <SFML/Base/Math/Sin.hpp>
 
 #include <array>
 #include <cstdint>
@@ -63,7 +65,7 @@ public:
         const float rad = getCurveRadians(ft);
 
         moveVertexAlongCurveImpl(
-            vertex, centerPos, std::sin(rad), std::cos(rad));
+            vertex, centerPos, sf::base::sin(rad), sf::base::cos(rad));
     }
 
     void draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads);

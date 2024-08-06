@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 
     std::string stringBuf;
     sf::Packet packet;
-    sf::UdpSocket controlSocket;
+    sf::UdpSocket controlSocket(true /* isBlocking */);
 
     const auto sendToServer = [&]
     {

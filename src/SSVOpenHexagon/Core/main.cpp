@@ -31,10 +31,13 @@
 
 #include <SFML/Graphics/Image.hpp>
 
+#include <SFML/Network/IpAddress.hpp>
+#include <SFML/Network/IpAddressUtils.hpp>
+
 #include <SFML/Audio/AudioContext.hpp>
 #include <SFML/Audio/PlaybackDevice.hpp>
 
-#include <SFML/Window/GraphicsContext.hpp>
+#include <SFML/Graphics/GraphicsContext.hpp>
 
 #include <SFML/Base/Optional.hpp>
 
@@ -233,7 +236,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     hg::HexagonServer hs{
         assets,                                                          //
         hg,                                                              //
-        sf::IpAddress::resolve(hg::Config::getServerIp()).value(),       //
+        sf::IpAddressUtils::resolve(hg::Config::getServerIp()).value(),  //
         hg::Config::getServerPort(),                                     //
         hg::Config::getServerControlPort(),                              //
         hg::Utils::toUnorderedSet(hg::Config::getServerLevelWhitelist()) //
@@ -421,7 +424,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // Initialize hexagon client
     // TODO (P0): handle `resolve` errors
     hg::HexagonClient hc{steamManager,
-        sf::IpAddress::resolve(hg::Config::getServerIp()).value(),
+        sf::IpAddressUtils::resolve(hg::Config::getServerIp()).value(),
         hg::Config::getServerPort()};
 
     //

@@ -17,7 +17,9 @@
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
 #include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/VideoModeUtils.hpp>
 #include <SFML/Window/Joystick.hpp>
+#include <SFML/Window/JoystickIdentification.hpp>
 
 #include <SFML/System/Vector2.hpp>
 
@@ -477,14 +479,14 @@ std::string uneligibilityReason;
 
 static void applyAutoWindowedResolution()
 {
-    auto d = sf::VideoMode::getDesktopMode();
+    auto d = sf::VideoModeUtils::getDesktopMode();
     windowedWidth() = d.size.x;
     windowedHeight() = d.size.y;
 }
 
 static void applyAutoFullscreenResolution()
 {
-    auto d = sf::VideoMode::getDesktopMode();
+    auto d = sf::VideoModeUtils::getDesktopMode();
     fullscreenWidth() = d.size.x;
     fullscreenHeight() = d.size.y;
 }

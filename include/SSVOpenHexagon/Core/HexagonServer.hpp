@@ -93,20 +93,8 @@ private:
 
         std::optional<GameStatus> _gameStatus;
 
-        explicit ConnectedClient(const Utils::SCTimePoint lastActivity)
-            : _socket{},
-              _lastActivity{lastActivity},
-              _consecutiveFailures{0},
-              _mustDisconnect{false},
-              _clientPublicKey{},
-              _loginData{},
-              _state{State::Disconnected}
-        {}
-
-        ~ConnectedClient()
-        {
-            _socket.disconnect();
-        }
+        explicit ConnectedClient(const Utils::SCTimePoint lastActivity);
+        ~ConnectedClient();
     };
 
     std::list<ConnectedClient> _connectedClients;
@@ -156,7 +144,7 @@ private:
         const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
         const std::vector<std::string>& supportedLevelValidators);
 
-    void kickAndRemoveClient(ConnectedClient& c);
+    [[nodiscard]] bool kickAndRemoveClient(ConnectedClient& c);
 
     void run();
     void runIteration();

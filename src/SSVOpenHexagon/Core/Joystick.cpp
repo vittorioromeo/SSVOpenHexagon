@@ -6,7 +6,7 @@
 
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 
-#include <SFML/Window.hpp>
+#include <SFML/Window/Joystick.hpp>
 
 #include <utility>
 #include <array>

@@ -54,6 +54,7 @@
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
 
 #include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/VideoModeUtils.hpp>
 
 #include <algorithm>
 #include <utility>
@@ -1325,7 +1326,7 @@ void MenuGame::initMenus()
 
     // Organize available resolutions based on their aspect ratio.
     int ratio;
-    for (const auto& vm : sf::VideoMode::getFullscreenModes())
+    for (const auto& vm : sf::VideoModeUtils::getFullscreenModes())
     {
         if (vm.bitsPerPixel == 32)
         {

@@ -16,7 +16,7 @@
 
 #include <SFML/Audio/SoundBuffer.hpp>
 
-#include <SFML/Window/GraphicsContext.hpp>
+#include <SFML/Graphics/GraphicsContext.hpp>
 
 #include <SFML/Base/Optional.hpp>
 
