@@ -69,7 +69,7 @@ bool runLuaFileCached(
         t.seekg(0, std::ios::beg);
         t.read(buffer.data(), size);
 
-        auto res = cache.emplace(mFileName, std::move(buffer));
+        auto res = cache.emplace(mFileName, SSVOH_MOVE(buffer));
         SSVOH_ASSERT(res.second);
         it = res.first;
     }
@@ -274,7 +274,7 @@ sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(
     }
 }
 
-template void runLuaFunction<void>(Lua::LuaContext&, std::string_view);
+template void runLuaFunction<void>(Lua::LuaContext&, std::string_view)
 
 template sf::base::Optional<VoidToNothing<void>> runLuaFunctionIfExists<void>(
     Lua::LuaContext&, std::string_view);

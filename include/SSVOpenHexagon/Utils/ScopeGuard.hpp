@@ -13,7 +13,7 @@ namespace hg::Utils {
 template <typename F>
 struct scope_guard : F
 {
-    explicit scope_guard(F&& f) noexcept : F{std::move(f)}
+    explicit scope_guard(F&& f) noexcept : F{static_cast<F&&>(f)}
     {}
 
     ~scope_guard() noexcept

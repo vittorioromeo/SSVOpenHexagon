@@ -4,31 +4,8 @@
 
 #pragma once
 
-namespace hg::Impl {
+#include <SFML/Base/Macros.hpp>
 
-template <typename T>
-struct RemoveRef
-{
-    using type = T;
-};
+#define SSVOH_MOVE SFML_BASE_MOVE
 
-template <typename T>
-struct RemoveRef<T&>
-{
-    using type = T;
-};
-
-template <typename T>
-struct RemoveRef<T&&>
-{
-    using type = T;
-};
-
-} // namespace hg::Impl
-
-#define SSVOH_MOVE(...)                                                 \
-    static_cast<                                                        \
-        typename ::hg::Impl::RemoveRef<decltype(__VA_ARGS__)>::type&&>( \
-        __VA_ARGS__)
-
-#define SSVOH_FWD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
+#define SSVOH_FWD SFML_BASE_FORWARD

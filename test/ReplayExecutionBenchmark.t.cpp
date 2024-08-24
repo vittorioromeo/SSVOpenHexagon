@@ -40,7 +40,7 @@ try
         nullptr /* steamManager */, true /* headless */};
 
     hg::ProfileData fakeProfile{hg::GAME_VERSION, "testProfile", {}, {}};
-    assets.addLocalProfile(std::move(fakeProfile));
+    assets.addLocalProfile(SSVOH_MOVE(fakeProfile));
     assets.pSetCurrent("testProfile");
 
     const auto doTest = [&](int i, bool differentHG, ssvs::GameWindow* gw)

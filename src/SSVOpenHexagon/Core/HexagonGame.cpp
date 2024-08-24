@@ -797,7 +797,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     inputImplCCW = inputImplCW = false;
     playerNowReadyToSwap = false;
 
-    if (!firstPlay) runLuaFunctionIfExists<void>("onPreUnload");
+    if (!firstPlay) runVoidLuaFunctionIfExists("onPreUnload");
     lua = Lua::LuaContext{};
     calledDeprecatedFunctions.clear();
     initLua();
@@ -805,7 +805,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     if (!firstPlay)
     {
-        runLuaFunctionIfExists<void>("onUnload");
+        runVoidLuaFunctionIfExists("onUnload");
         playSoundOverride("restart.ogg");
     }
     else
@@ -813,7 +813,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         playSoundOverride("select.ogg");
     }
 
-    runLuaFunctionIfExists<void>("onInit");
+    runVoidLuaFunctionIfExists("onInit");
 
     restartId = mId;
     restartFirstTime = false;
@@ -1025,14 +1025,14 @@ void HexagonGame::death(bool mForce)
 
     playSoundAbort(levelStatus.deathSound);
 
-    runLuaFunctionIfExists<void>("onPreDeath");
+    runVoidLuaFunctionIfExists("onPreDeath");
 
     if (!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
     {
         return;
     }
 
-    runLuaFunctionIfExists<void>("onDeath");
+    runVoidLuaFunctionIfExists("onDeath");
     death_shakeCamera();
     death_updateRichPresence();
     stopLevelMusic();
@@ -1245,7 +1245,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
     mustChangeSides = false;
 
     playSoundOverride(levelStatus.levelUpSound);
-    runLuaFunctionIfExists<void>("onIncrement");
+    runVoidLuaFunctionIfExists("onIncrement");
 }
 
 [[nodiscard]] bool HexagonGame::shouldSaveScore()
@@ -1345,7 +1345,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     // onUnload.
     if (!mError)
     {
-        runLuaFunctionIfExists<void>("onUnload");
+        runVoidLuaFunctionIfExists("onUnload");
     }
 
     if (fnGoToMenu)
@@ -1740,7 +1740,7 @@ void HexagonGame::setSides(unsigned int mSides)
 void HexagonGame::performPlayerSwap(const bool mPlaySound)
 {
     player.playerSwap();
-    runLuaFunctionIfExists<void>("onCursorSwap");
+    runVoidLuaFunctionIfExists("onCursorSwap");
 
     if (mPlaySound)
     {

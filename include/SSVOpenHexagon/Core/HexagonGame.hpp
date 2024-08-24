@@ -335,6 +335,13 @@ public:
             lua, mName, mArgs...)){};
     }
 
+    template <typename... TArgs>
+    void runVoidLuaFunctionIfExists(
+        std::string_view mName, const TArgs&... mArgs)
+    {
+        (void)runLuaFunctionIfExists<void>(mName, mArgs...);
+    }
+
     void raiseWarning(
         const std::string& mFunctionName, const std::string& mAdditionalInfo);
 

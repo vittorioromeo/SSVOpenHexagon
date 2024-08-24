@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
@@ -229,7 +230,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
             ssvuj::arch(
                 cacheArray, _workshop_pack_folders.size(), folderBufStr);
 
-            _workshop_pack_folders.emplace(std::move(folderBufStr));
+            _workshop_pack_folders.emplace(SSVOH_MOVE(folderBufStr));
         }
     }
 

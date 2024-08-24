@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Macros.hpp"
+
 #include <string_view>
-#include <utility>
 #include <algorithm>
 #include <vector>
 
@@ -37,7 +38,7 @@ template <typename TSplitType = std::string_view>
     std::vector<TSplitType> result;
 
     withSplit<TSplitType>([&](TSplitType&& piece)
-        { result.emplace_back(std::move(piece)); }, str, delims);
+        { result.emplace_back(SSVOH_MOVE(piece)); }, str, delims);
 
     return result;
 }

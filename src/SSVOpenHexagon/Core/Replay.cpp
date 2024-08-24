@@ -5,6 +5,8 @@
 #include "SSVOpenHexagon/Core/Replay.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
@@ -533,7 +535,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     std::memcpy(static_cast<void*>(result._data.data()),
         static_cast<const void*>(compression_buf), result._data.size());
 
-    return sf::base::makeOptional(std::move(result));
+    return sf::base::makeOptional(SSVOH_MOVE(result));
 }
 
 [[nodiscard]] sf::base::Optional<replay_file> decompress_replay_file(
@@ -561,7 +563,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
         return sf::base::nullOpt;
     }
 
-    return sf::base::makeOptional(std::move(result));
+    return sf::base::makeOptional(SSVOH_MOVE(result));
 }
 
 } // namespace hg

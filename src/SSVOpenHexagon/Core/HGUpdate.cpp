@@ -557,7 +557,7 @@ void HexagonGame::start()
         audio->resumeMusic();
     }
 
-    runLuaFunctionIfExists<void>("onLoad");
+    runVoidLuaFunctionIfExists("onLoad");
 }
 
 static void setInputImplIfFalse(bool& var, const bool x)
@@ -753,7 +753,7 @@ void HexagonGame::updateLevel(float mFT)
     if (o == Utils::timeline2_runner::outcome::finished && !mustChangeSides)
     {
         timeline.clear();
-        runLuaFunctionIfExists<void>("onStep");
+        runVoidLuaFunctionIfExists("onStep");
         timelineRunner = {};
     }
 }

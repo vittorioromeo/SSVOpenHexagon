@@ -82,7 +82,7 @@ public:
     template <typename TFFwd>
     FixedFunction(TFFwd&& f) noexcept : FixedFunction()
     {
-        using unref_type = typename hg::Impl::RemoveRef<TFFwd>::type;
+        using unref_type = SFML_BASE_REMOVE_REFERENCE(TFFwd);
 
         static_assert(sizeof(unref_type) < TStorageSize);
 

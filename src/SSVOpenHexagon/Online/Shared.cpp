@@ -355,7 +355,7 @@ template <typename T>
         return sf::base::nullOpt;
     }
 
-    return sf::base::makeOptional<T>(std::move(temp));
+    return sf::base::makeOptional<T>(SSVOH_MOVE(temp));
 }
 
 template <typename T>
@@ -438,7 +438,7 @@ public:
             return sf::base::nullOpt;
         }
 
-        return sf::base::makeOptional<T>(std::move(temp));
+        return sf::base::makeOptional<T>(SSVOH_MOVE(temp));
     }
 
     template <typename T>

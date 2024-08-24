@@ -74,6 +74,13 @@ template <typename T, typename... TArgs>
 sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(
     Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs);
 
+template <typename... TArgs>
+void runVoidLuaFunctionIfExists(
+    Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
+{
+    (void)runLuaFunctionIfExists<void>(mLua, mName, mArgs...);
+}
+
 const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
     const PackData& currentPack, const std::string& mPackDisambiguator,
     const std::string& mPackName, const std::string& mPackAuthor);
