@@ -74,7 +74,8 @@ void HexagonGame::draw()
 
         runLuaFunctionIfExists<int, float>(
             "onRenderStage", static_cast<int>(rs), 60.f / window->getFPS());
-        return sf::RenderStates{assets.getShaderByShaderId(*fragmentShaderId)};
+        return sf::RenderStates{
+            .shader = assets.getShaderByShaderId(*fragmentShaderId)};
     };
 
     SSVOH_ASSERT(backgroundCamera.hasValue());
@@ -307,7 +308,7 @@ void HexagonGame::draw()
         if (window != nullptr)
         {
             SSVOH_ASSERT(graphicsContext != nullptr);
-            window->saveScreenshot(*graphicsContext, "screenshot.png");
+            window->saveScreenshot("screenshot.png");
         }
 
         mustTakeScreenshot = false;

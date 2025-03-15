@@ -174,14 +174,14 @@ MenuGame::MenuGame(sf::GraphicsContext& mGraphicsContext,
       txCreditsBar1{assets.getTexture("creditsBar1.png")},
       txCreditsBar2{&assets.getTexture("creditsBar2.png")},
       txEpilepsyWarning{assets.getTexture("epilepsyWarning.png")},
-      titleBar{txTitleBar.getRect()},
-      creditsBar1{txCreditsBar1.getRect()},
-      creditsBar2{txCreditsBar2->getRect()},
-      epilepsyWarning{txEpilepsyWarning.getRect()},
+      titleBar{.textureRect = txTitleBar.getRect()},
+      creditsBar1{.textureRect = txCreditsBar1.getRect()},
+      creditsBar2{.textureRect = txCreditsBar2->getRect()},
+      epilepsyWarning{.textureRect = txEpilepsyWarning.getRect()},
       txSOnline{&assets.getTexture("onlineIconFail.png")},
-      sOnline{txSOnline->getRect()},
-      rsOnlineStatus{sf::Vector2f{128.f, 32.f}},
-      txtOnlineStatus{openSquare, "", 24},
+      sOnline{.textureRect = txSOnline->getRect()},
+      rsOnlineStatus{{.size = {128.f, 32.f}}},
+      txtOnlineStatus{openSquare, {.string = "", .characterSize = 24}},
       enteredChars{},
       backgroundCamera{{sf::Vector2f{0.f, 0.f},
           {Config::getSizeX() * Config::getZoomFactor(),
@@ -210,28 +210,28 @@ MenuGame::MenuGame(sf::GraphicsContext& mGraphicsContext,
       profileSelectionMenu{},
       levelData{},
       styleData{},
-      txtVersion{openSquare, {.string = "", .characterSize = 40}},
-      txtProf{openSquare, {.string = "", .characterSize = 18}},
+      txtVersion{{openSquare, {.string = "", .characterSize = 40}}},
+      txtProf{{openSquare, {.string = "", .characterSize = 18}}},
       // For the loading screen
-      txtLoadBig{openSquare, {.string = ""}},
-      txtLoadSmall{openSquareBold, {.string = ""}},
-      txtRandomTip{openSquare, {.string = ""}},
+      txtLoadBig{{openSquare, {.string = ""}}},
+      txtLoadSmall{{openSquareBold, {.string = ""}}},
+      txtRandomTip{{openSquare, {.string = ""}}},
       // For the Main Menu
-      txtMenuBig{openSquare, {.string = ""}},
-      txtMenuSmall{openSquare, {.string = ""}},
-      txtMenuTiny{openSquare, {.string = ""}},
-      txtProfile{openSquare, {.string = "", .characterSize = 32}},
-      txtInstructionsBig{openSquare, {.string = "", .characterSize = 46}},
-      txtInstructionsMedium{openSquare, {.string = ""}},
-      txtInstructionsSmall{openSquare, {.string = "", .characterSize = 20}},
+      txtMenuBig{{openSquare, {.string = ""}}},
+      txtMenuSmall{{openSquare, {.string = ""}}},
+      txtMenuTiny{{openSquare, {.string = ""}}},
+      txtProfile{{openSquare, {.string = "", .characterSize = 32}}},
+      txtInstructionsBig{{openSquare, {.string = "", .characterSize = 46}}},
+      txtInstructionsMedium{{openSquare, {.string = ""}}},
+      txtInstructionsSmall{{openSquare, {.string = "", .characterSize = 20}}},
       // Manual Input
-      txtEnteringText{openSquare, {.string = "", .characterSize = 54}},
+      txtEnteringText{{openSquare, {.string = "", .characterSize = 54}}},
       // For the Level Selection Screen
-      txtSelectionBig{openSquareBold, {.string = ""}},
-      txtSelectionMedium{openSquareBold, {.string = "", .characterSize = 19}},
-      txtSelectionSmall{openSquare, {.string = ""}},
-      txtSelectionScore{openSquare, {.string = "", .characterSize = 28}},
-      txtSelectionRanked{openSquareBold, {.string = ""}},
+      txtSelectionBig{{openSquareBold, {.string = ""}}},
+      txtSelectionMedium{{openSquareBold, {.string = "", .characterSize = 19}}},
+      txtSelectionSmall{{openSquare, {.string = ""}}},
+      txtSelectionScore{{openSquare, {.string = "", .characterSize = 28}}},
+      txtSelectionRanked{{openSquareBold, {.string = ""}}},
       menuTextColor{},
       menuQuadColor{},
       menuSelectionColor{},
@@ -3145,7 +3145,7 @@ void MenuGame::refreshCamera()
         {Config::getSizeX() * Config::getZoomFactor(),
             Config::getSizeY() * Config::getZoomFactor()}});
 
-    overlayCamera.setView(sf::View{sf::FloatRect({0, 0}, {w, h})});
+    overlayCamera.setView(sf::View{{0, 0}, {w, h}});
 
     titleBar.origin = sf::Vector2f{0.f, 0.f};
     titleBar.scale = {0.5f, 0.5f};
@@ -5966,7 +5966,7 @@ void MenuGame::draw()
 
     if (mustTakeScreenshot)
     {
-        window.saveScreenshot(graphicsContext, "screenshot.png");
+        window.saveScreenshot("screenshot.png");
         mustTakeScreenshot = false;
     }
 
@@ -5999,7 +5999,7 @@ void MenuGame::drawGraphics()
 void MenuGame::drawOnlineStatus()
 {
     window.getRenderWindow().setView(
-        sf::View{{{0.f, 0.f}, {getWindowWidth(), getWindowHeight()}}});
+        sf::View{{0.f, 0.f}, {getWindowWidth(), getWindowHeight()}});
 
     const float onlineStatusScaling = 1.5f;
     const float scaling = onlineStatusScaling / Config::getZoomFactor();

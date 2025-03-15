@@ -305,7 +305,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     //
     // ------------------------------------------------------------------------
     // Create the game window
-    sf::GraphicsContext graphicsContext;
+    auto graphicsContext = sf::GraphicsContext::create().value();
     sf::base::Optional<ssvs::GameWindow> window;
 
     if (!headless)
@@ -433,12 +433,12 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // Initialize hexagon game
     hg::HexagonGame hg{
         &graphicsContext,
-        &steamManager,                                             //
+        &steamManager,                                            //
         (discordManager.hasValue() ? &*discordManager : nullptr), //
-        assets,                                                    //
-        &audio,                                                    //
+        assets,                                                   //
+        &audio,                                                   //
         (window.hasValue() ? &*window : nullptr),                 //
-        &hc                                                        //
+        &hc                                                       //
     };
 
     //

@@ -201,7 +201,7 @@ public:
 
         SSVOH_ASSERT(_music.hasValue());
 
-        _music->setLoop(true);
+        _music->setLooping(true);
         setMusicPlayingOffsetSeconds(playingOffsetSeconds);
         resumeMusic();
 

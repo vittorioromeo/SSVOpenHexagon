@@ -309,11 +309,11 @@ HexagonGame::TextUI::TextUI(HGAssets& mAssets)
       fontBold{mAssets.getFont("OpenSquare-Bold.ttf")},
       messageText{initText(font, "", 38.f)},
       pbText{initText(fontBold, "", 65.f)},
-      levelInfoTextLevel{font, ""},
-      levelInfoTextPack{font, ""},
-      levelInfoTextAuthor{font, ""},
-      levelInfoTextBy{font, ""},
-      levelInfoTextDM{font, ""},
+      levelInfoTextLevel{font, {.string = ""}},
+      levelInfoTextPack{font, {.string = ""}},
+      levelInfoTextAuthor{font, {.string = ""}},
+      levelInfoTextBy{font, {.string = ""}},
+      levelInfoTextDM{font, {.string = ""}},
       fpsText{initText(font, "0", 25.f)},
       timeText{initText(fontBold, "0", 70.f)},
       text{initText(font, "", 25.f)},
@@ -325,9 +325,8 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
     Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio* mAudio,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
     : graphicsContext(mGraphicsContext),
-      nullTexture(graphicsContext != nullptr
-                      ? sf::Texture::create(*graphicsContext, {1u, 1u})
-                      : sf::base::nullOpt),
+      nullTexture(graphicsContext != nullptr ? sf::Texture::create({1u, 1u})
+                                             : sf::base::nullOpt),
       steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
@@ -749,9 +748,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Manager cleanup
     walls.clear();
     cwManager.clear();
-    player =
-        CPlayer{sf::Vector2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
-            Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()};
+    player = CPlayer{sf::Vector2f{0.f, 0.f}, getSwapCooldown(),
+        Config::getPlayerSize(), Config::getPlayerSpeed(),
+        Config::getPlayerFocusSpeed()};
 
     // Timeline cleanup
     timeline.clear();

@@ -948,7 +948,7 @@ void HexagonGame::updateParticles(float mFT)
     const auto makePBParticle = [this]
     {
         SSVOH_ASSERT(txStarParticle != nullptr);
-        Particle p{sf::Sprite{txStarParticle->getRect()}};
+        Particle p{sf::Sprite{.textureRect = txStarParticle->getRect()}};
 
         p.sprite.position = {
             ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f};
@@ -992,12 +992,12 @@ void HexagonGame::updateTrailParticles(float mFT)
     SSVOH_ASSERT(window != nullptr);
 
     const auto isDead = [&](const TrailParticle& p)
-    { return p.sprite.getColor().a <= 3; };
+    { return p.sprite.color.a <= 3; };
 
     const auto makeTrailParticle = [this]
     {
         SSVOH_ASSERT(txSmallCircle != nullptr);
-        TrailParticle p{sf::Sprite{txSmallCircle->getRect()}};
+        TrailParticle p{sf::Sprite{.textureRect = txSmallCircle->getRect()}};
 
         p.sprite.position = player.getPosition();
         p.sprite.origin = txSmallCircle->getSize().to<sf::Vector2f>() / 2.f;
@@ -1019,7 +1019,7 @@ void HexagonGame::updateTrailParticles(float mFT)
 
     for (TrailParticle& p : trailParticles)
     {
-        sf::Color color = p.sprite.getColor();
+        sf::Color color = p.sprite.color;
 
         const float newAlpha = Utils::getMoveTowardsZero(
             static_cast<float>(color.a), Config::getPlayerTrailDecay() * mFT);
@@ -1044,14 +1044,14 @@ void HexagonGame::updateSwapParticles(float mFT)
     SSVOH_ASSERT(window != nullptr);
 
     const auto isDead = [&](const SwapParticle& p)
-    { return p.sprite.getColor().a <= 3; };
+    { return p.sprite.color.a <= 3; };
 
     const auto makeSwapParticle = [this](const SwapParticleSpawnInfo& si,
                                       const float expand, const float speedMult,
                                       const float scaleMult, const float alpha)
     {
         SSVOH_ASSERT(txSmallCircle != nullptr);
-        SwapParticle p{sf::Sprite(txSmallCircle->getRect())};
+        SwapParticle p{sf::Sprite(.textureRect = txSmallCircle->getRect())};
 
         p.sprite.position = si.position;
         p.sprite.origin = txSmallCircle->getSize().to<sf::Vector2f>() / 2.f;
@@ -1075,7 +1075,7 @@ void HexagonGame::updateSwapParticles(float mFT)
 
     for (SwapParticle& p : swapParticles)
     {
-        sf::Color color = p.sprite.getColor();
+        sf::Color color = p.sprite.color;
 
         const float newAlpha =
             Utils::getMoveTowardsZero(static_cast<float>(color.a), 3.5f * mFT);
@@ -1083,7 +1083,7 @@ void HexagonGame::updateSwapParticles(float mFT)
         color.a = static_cast<std::uint8_t>(newAlpha);
         p.sprite.color = color;
 
-        p.sprite.scale = p.sprite.getScale() * 0.98f;
+        p.sprite.scale *= 0.98f;
         p.sprite.position += p.velocity * mFT;
     }
 
