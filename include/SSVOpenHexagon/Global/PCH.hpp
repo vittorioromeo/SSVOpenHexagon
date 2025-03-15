@@ -109,7 +109,6 @@
 
 #ifndef SSVOH_ANDROID
 #include <imgui.h>
-#include <imgui-SFML.h>
 #include <misc/cpp/imgui_stdlib.h>
 #endif
 

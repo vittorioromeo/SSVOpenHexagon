@@ -124,19 +124,19 @@ void HexagonGame::updateKeyIcons()
     constexpr float halfSize = 32.f;
     constexpr float size = halfSize * 2.f;
 
-    keyIconLeft.setOrigin({halfSize, halfSize});
-    keyIconRight.setOrigin({halfSize, halfSize});
-    keyIconFocus.setOrigin({halfSize, halfSize});
-    keyIconSwap.setOrigin({halfSize, halfSize});
+    keyIconLeft.origin = {halfSize, halfSize};
+    keyIconRight.origin = {halfSize, halfSize};
+    keyIconFocus.origin = {halfSize, halfSize};
+    keyIconSwap.origin = {halfSize, halfSize};
 
     keyIconLeft.setRotation(sf::degrees(180));
 
     const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
 
-    keyIconLeft.setScale({scaling, scaling});
-    keyIconRight.setScale({scaling, scaling});
-    keyIconFocus.setScale({scaling, scaling});
-    keyIconSwap.setScale({scaling, scaling});
+    keyIconLeft.scale = {scaling, scaling};
+    keyIconRight.scale = {scaling, scaling};
+    keyIconFocus.scale = {scaling, scaling};
+    keyIconSwap.scale = {scaling, scaling};
 
     const float scaledHalfSize = halfSize * scaling;
     const float scaledSize = size * scaling;
@@ -148,20 +148,20 @@ void HexagonGame::updateKeyIcons()
         Config::getWidth() - padding - scaledHalfSize,
         Config::getHeight() - padding - scaledHalfSize};
 
-    keyIconSwap.setPosition(bottomRight);
-    keyIconFocus.setPosition(keyIconSwap.getPosition() - finalPaddingX);
-    keyIconRight.setPosition(keyIconFocus.getPosition() - finalPaddingX);
-    keyIconLeft.setPosition(keyIconRight.getPosition() - finalPaddingX);
+    keyIconSwap.position = bottomRight;
+    keyIconFocus.position -= finalPaddingX;
+    keyIconRight.position -= finalPaddingX;
+    keyIconLeft.position -= finalPaddingX;
 
     // ------------------------------------------------------------------------
 
-    replayIcon.setOrigin({size, size});
-    replayIcon.setScale({scaling / 2.f, scaling / 2.f});
+    replayIcon.origin = {size, size};
+    replayIcon.scale = {scaling / 2.f, scaling / 2.f};
 
     const sf::Vector2f topRight{Config::getWidth() - padding - scaledHalfSize,
         padding + scaledHalfSize};
 
-    replayIcon.setPosition(topRight);
+    replayIcon.position = topRight;
 }
 
 void HexagonGame::updateLevelInfo()
@@ -180,7 +180,7 @@ void HexagonGame::updateLevelInfo()
     const sf::Vector2f scaledHalfSize{halfSize * scaling};
 
     levelInfoRectangle.setSize(size);
-    levelInfoRectangle.setScale({scaling, scaling});
+    levelInfoRectangle.scale = {scaling, scaling};
 
     const sf::Color offsetColor{
         Config::getBlackAndWhite() || styleData.getColors().empty()
@@ -189,13 +189,13 @@ void HexagonGame::updateLevelInfo()
 
     levelInfoRectangle.setFillColor(offsetColor);
     levelInfoRectangle.setOutlineColor(styleData.getMainColor());
-    levelInfoRectangle.setOrigin(halfSize);
+    levelInfoRectangle.origin = halfSize;
     levelInfoRectangle.setOutlineThickness(3.f);
 
     const sf::Vector2f bottomLeft{padding + scaledHalfSize.x,
         Config::getHeight() - padding - scaledHalfSize.y};
 
-    levelInfoRectangle.setPosition(bottomLeft);
+    levelInfoRectangle.position = bottomLeft;
 
     const float tPadding = padding;
 
@@ -216,11 +216,11 @@ void HexagonGame::updateLevelInfo()
             20.f / Config::getZoomFactor());
         textUI->levelInfoTextLevel.setString(
             trim(Utils::toUppercase(levelData->name)));
-        textUI->levelInfoTextLevel.setOrigin(
-            ssvs::getLocalNW(textUI->levelInfoTextLevel));
-        textUI->levelInfoTextLevel.setPosition(
+        textUI->levelInfoTextLevel.origin =
+            ssvs::getLocalNW(textUI->levelInfoTextLevel);
+        textUI->levelInfoTextLevel.position =
             ssvs::getGlobalNW(levelInfoRectangle) +
-            sf::Vector2f{tPadding, tPadding});
+            sf::Vector2f{tPadding, tPadding};
 
         const auto prepareText = [&](sf::Text& text, const float characterSize,
                                      const std::string& string)
@@ -232,38 +232,38 @@ void HexagonGame::updateLevelInfo()
 
         prepareText(textUI->levelInfoTextPack, 14.f,
             trim(Utils::toUppercase(getPackName())));
-        textUI->levelInfoTextPack.setOrigin(
-            ssvs::getLocalNW(textUI->levelInfoTextPack));
-        textUI->levelInfoTextPack.setPosition(
+        textUI->levelInfoTextPack.origin =
+            ssvs::getLocalNW(textUI->levelInfoTextPack);
+        textUI->levelInfoTextPack.position =
             ssvs::getGlobalSW(textUI->levelInfoTextLevel) +
-            sf::Vector2f{0.f, tPadding});
+            sf::Vector2f{0.f, tPadding};
 
         SSVOH_ASSERT(levelData != nullptr);
 
         prepareText(textUI->levelInfoTextAuthor, 20.f,
             trim(Utils::toUppercase(levelData->author)));
-        textUI->levelInfoTextAuthor.setOrigin(
-            ssvs::getLocalSE(textUI->levelInfoTextAuthor));
-        textUI->levelInfoTextAuthor.setPosition(
+        textUI->levelInfoTextAuthor.origin =
+            ssvs::getLocalSE(textUI->levelInfoTextAuthor);
+        textUI->levelInfoTextAuthor.position =
             ssvs::getGlobalSE(levelInfoRectangle) -
-            sf::Vector2f{tPadding, tPadding});
+            sf::Vector2f{tPadding, tPadding};
 
         prepareText(textUI->levelInfoTextBy, 12.f, "BY");
-        textUI->levelInfoTextBy.setOrigin(
-            ssvs::getLocalSE(textUI->levelInfoTextBy));
-        textUI->levelInfoTextBy.setPosition(
+        textUI->levelInfoTextBy.origin =
+            ssvs::getLocalSE(textUI->levelInfoTextBy);
+        textUI->levelInfoTextBy.position =
             ssvs::getGlobalSW(textUI->levelInfoTextAuthor) -
-            sf::Vector2f{tPadding, 0.f});
+            sf::Vector2f{tPadding, 0.f};
 
         if (levelData->difficultyMults.size() > 1)
         {
             prepareText(textUI->levelInfoTextDM, 14.f,
                 diffFormat(difficultyMult) + "x");
-            textUI->levelInfoTextDM.setOrigin(
-                ssvs::getLocalSW(textUI->levelInfoTextDM));
-            textUI->levelInfoTextDM.setPosition(
+            textUI->levelInfoTextDM.origin =
+                ssvs::getLocalSW(textUI->levelInfoTextDM);
+            textUI->levelInfoTextDM.position =
                 ssvs::getGlobalSW(levelInfoRectangle) +
-                sf::Vector2f{tPadding, -tPadding});
+                sf::Vector2f{tPadding, -tPadding};
         }
         else
         {
@@ -334,7 +334,7 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
-      player{sf::Vector2f::Zero, getSwapCooldown(), Config::getPlayerSize(),
+      player{sf::Vector2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
       txStarParticle{nullptr},
@@ -344,11 +344,11 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
       txKeyIconFocus{nullptr},
       txKeyIconSwap{nullptr},
       txReplayIcon{nullptr},
-      keyIconLeft{sf::IntRect{}},
-      keyIconRight{sf::IntRect{}},
-      keyIconFocus{sf::IntRect{}},
-      keyIconSwap{sf::IntRect{}},
-      replayIcon{sf::IntRect{}},
+      keyIconLeft{},
+      keyIconRight{},
+      keyIconFocus{},
+      keyIconSwap{},
+      replayIcon{},
       rng{initializeRng()}
 {
     if (!assets.isHeadless())
@@ -362,7 +362,7 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
 
-        backgroundCamera.emplace(sf::View{sf::Vector2f::Zero,
+        backgroundCamera.emplace(sf::View{sf::Vector2f{0.f, 0.f},
             sf::Vector2f{width * zoomFactor, height * zoomFactor}});
 
         overlayCamera.emplace(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
@@ -386,11 +386,11 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
         txReplayIcon =
             &getTextureOrNullTexture(assets, nullTexture, "replayIcon.png");
 
-        keyIconLeft.setTextureRect(txKeyIconLeft->getRect());
-        keyIconRight.setTextureRect(txKeyIconRight->getRect());
-        keyIconFocus.setTextureRect(txKeyIconFocus->getRect());
-        keyIconSwap.setTextureRect(txKeyIconSwap->getRect());
-        replayIcon.setTextureRect(txReplayIcon->getRect());
+        keyIconLeft.textureRect = txKeyIconLeft->getRect();
+        keyIconRight.textureRect = txKeyIconRight->getRect();
+        keyIconFocus.textureRect = txKeyIconFocus->getRect();
+        keyIconSwap.textureRect = txKeyIconSwap->getRect();
+        replayIcon.textureRect = txReplayIcon->getRect();
     }
 
     game.onUpdate += [this](float mFT) { update(mFT, Config::getTimescale()); };
@@ -750,7 +750,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     walls.clear();
     cwManager.clear();
     player =
-        CPlayer{sf::Vector2f::Zero, getSwapCooldown(), Config::getPlayerSize(),
+        CPlayer{sf::Vector2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
             Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()};
 
     // Timeline cleanup
@@ -782,7 +782,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
             sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
                 sf::Vector2f(Config::getWidth(), Config::getHeight())});
 
-        backgroundCamera->setView(sf::View{sf::Vector2f::Zero,
+        backgroundCamera->setView(sf::View{sf::Vector2f{0.f, 0.f},
             {Config::getWidth() * Config::getZoomFactor(),
                 Config::getHeight() * Config::getZoomFactor()}});
 
@@ -903,7 +903,7 @@ void HexagonGame::death_shakeCamera()
         sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
             sf::Vector2f(Config::getWidth(), Config::getHeight())});
 
-    backgroundCamera->setCenter(sf::Vector2f::Zero);
+    backgroundCamera->setCenter(sf::Vector2f{0.f, 0.f});
 
     status.cameraShake = 45.f * Config::getCameraShakeMultiplier();
 }

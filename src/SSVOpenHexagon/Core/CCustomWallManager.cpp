@@ -211,14 +211,14 @@ void CCustomWallManager::setKillingSide(
 {
     if (!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "get vertex pos"))
     {
-        return sf::Vector2f::Zero;
+        return sf::Vector2f{0.f, 0.f};
     }
 
     return _customWalls[cwHandle].getVertexPos(vertexIdx);
 }
 
-static const std::array<sf::Vector2f, 4> zeroArr{sf::Vector2f::Zero,
-    sf::Vector2f::Zero, sf::Vector2f::Zero, sf::Vector2f::Zero};
+static const std::array<sf::Vector2f, 4> zeroArr{sf::Vector2f{0.f, 0.f},
+    sf::Vector2f{0.f, 0.f}, sf::Vector2f{0.f, 0.f}, sf::Vector2f{0.f, 0.f}};
 
 [[nodiscard]] const std::array<sf::Vector2f, 4>&
 CCustomWallManager::getVertexPos4(const CCustomWallHandle cwHandle)

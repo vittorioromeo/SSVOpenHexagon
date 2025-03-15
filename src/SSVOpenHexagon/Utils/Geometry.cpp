@@ -58,7 +58,7 @@ namespace hg::Utils {
         case 1u: mIntersection = v1; return true;
 
         case 2u:
-            if ((v1 - mPos).lengthSq() > (v2 - mPos).lengthSq())
+            if ((v1 - mPos).lengthSquared() > (v2 - mPos).lengthSquared())
             {
                 mIntersection = v2;
             }

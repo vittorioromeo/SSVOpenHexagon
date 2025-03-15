@@ -36,6 +36,7 @@
 #include <SFML/Graphics/GraphicsContext.hpp>
 
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Base/Optional.hpp>
 #include <SFML/System/Clock.hpp>
 
 #include <cstdint>

@@ -55,6 +55,9 @@
 
 #include <SFML/Window/VideoMode.hpp>
 #include <SFML/Window/VideoModeUtils.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/System/Rect.hpp>
 
 #include <algorithm>
 #include <utility>
@@ -180,7 +183,7 @@ MenuGame::MenuGame(sf::GraphicsContext& mGraphicsContext,
       rsOnlineStatus{sf::Vector2f{128.f, 32.f}},
       txtOnlineStatus{openSquare, "", 24},
       enteredChars{},
-      backgroundCamera{{sf::Vector2f::Zero,
+      backgroundCamera{{sf::Vector2f{0.f, 0.f},
           {Config::getSizeX() * Config::getZoomFactor(),
               Config::getSizeY() * Config::getZoomFactor()}}},
       overlayCamera{{{Config::getWidth() / 2.f,
@@ -207,28 +210,28 @@ MenuGame::MenuGame(sf::GraphicsContext& mGraphicsContext,
       profileSelectionMenu{},
       levelData{},
       styleData{},
-      txtVersion{.font{openSquare, "", 40}},
-      txtProf{.font{openSquare, "", 18}},
+      txtVersion{openSquare, {.string = "", .characterSize = 40}},
+      txtProf{openSquare, {.string = "", .characterSize = 18}},
       // For the loading screen
-      txtLoadBig{.font{openSquare, ""}},
-      txtLoadSmall{.font{openSquareBold, ""}},
-      txtRandomTip{.font{openSquare, ""}},
+      txtLoadBig{openSquare, {.string = ""}},
+      txtLoadSmall{openSquareBold, {.string = ""}},
+      txtRandomTip{openSquare, {.string = ""}},
       // For the Main Menu
-      txtMenuBig{.font{openSquare, ""}},
-      txtMenuSmall{.font{openSquare, ""}},
-      txtMenuTiny{.font{openSquare, ""}},
-      txtProfile{.font{openSquare, "", 32}},
-      txtInstructionsBig{.font{openSquare, "", 46}},
-      txtInstructionsMedium{.font{openSquare, ""}},
-      txtInstructionsSmall{.font{openSquare, "", 20}},
+      txtMenuBig{openSquare, {.string = ""}},
+      txtMenuSmall{openSquare, {.string = ""}},
+      txtMenuTiny{openSquare, {.string = ""}},
+      txtProfile{openSquare, {.string = "", .characterSize = 32}},
+      txtInstructionsBig{openSquare, {.string = "", .characterSize = 46}},
+      txtInstructionsMedium{openSquare, {.string = ""}},
+      txtInstructionsSmall{openSquare, {.string = "", .characterSize = 20}},
       // Manual Input
-      txtEnteringText{.font{openSquare, "", 54}},
+      txtEnteringText{openSquare, {.string = "", .characterSize = 54}},
       // For the Level Selection Screen
-      txtSelectionBig{.font{openSquareBold, ""}},
-      txtSelectionMedium{.font{openSquareBold, "", 19}},
-      txtSelectionSmall{.font{openSquare, ""}},
-      txtSelectionScore{.font{openSquare, "", 28}},
-      txtSelectionRanked{.font{openSquareBold, ""}},
+      txtSelectionBig{openSquareBold, {.string = ""}},
+      txtSelectionMedium{openSquareBold, {.string = "", .characterSize = 19}},
+      txtSelectionSmall{openSquare, {.string = ""}},
+      txtSelectionScore{openSquare, {.string = "", .characterSize = 28}},
+      txtSelectionRanked{openSquareBold, {.string = ""}},
       menuTextColor{},
       menuQuadColor{},
       menuSelectionColor{},
@@ -1244,7 +1247,8 @@ void MenuGame::initMenus()
         { Config::rebindTrigger(trig, key, btn, index); };
     };
 
-    const auto mkClearBindFn = [](ssvs::Input::Trigger& trig) {
+    const auto mkClearBindFn = [](ssvs::Input::Trigger& trig)
+    {
         return [&trig](const int index)
         { Config::clearTriggerBind(trig, index); };
     };
@@ -2560,21 +2564,25 @@ void MenuGame::update(float mFT)
             [&](const HexagonClient::EConnectionSuccess&)
             { showHCEventDialogBox(false /* error */, "CONNECTION SUCCESS"); },
 
-            [&](const HexagonClient::EConnectionFailure& e) {
+            [&](const HexagonClient::EConnectionFailure& e)
+            {
                 showHCEventDialogBox(
                     true /* error */, "CONNECTION FAILURE", e.error);
             },
 
-            [&](const HexagonClient::EKicked&) {
+            [&](const HexagonClient::EKicked&)
+            {
                 showHCEventDialogBox(
                     true /* error */, "DISCONNECTED FROM SERVER");
             },
 
-            [&](const HexagonClient::ERegistrationSuccess&) {
+            [&](const HexagonClient::ERegistrationSuccess&)
+            {
                 showHCEventDialogBox(false /* error */, "REGISTRATION SUCCESS");
             },
 
-            [&](const HexagonClient::ERegistrationFailure& e) {
+            [&](const HexagonClient::ERegistrationFailure& e)
+            {
                 showHCEventDialogBox(
                     true /* error */, "REGISTRATION FAILURE", e.error);
             },
@@ -2585,7 +2593,8 @@ void MenuGame::update(float mFT)
                 steamManager.unlock_achievement("a23_login");
             },
 
-            [&](const HexagonClient::ELoginFailure& e) {
+            [&](const HexagonClient::ELoginFailure& e)
+            {
                 showHCEventDialogBox(
                     true /* error */, "LOGIN FAILURE", e.error);
             },
@@ -2596,12 +2605,14 @@ void MenuGame::update(float mFT)
             [&](const HexagonClient::ELogoutFailure&)
             { showHCEventDialogBox(true /* error */, "LOGOUT FAILURE"); },
 
-            [&](const HexagonClient::EDeleteAccountSuccess&) {
+            [&](const HexagonClient::EDeleteAccountSuccess&)
+            {
                 showHCEventDialogBox(
                     false /* error */, "DELETE ACCOUNT SUCCESS");
             },
 
-            [&](const HexagonClient::EDeleteAccountFailure& e) {
+            [&](const HexagonClient::EDeleteAccountFailure& e)
+            {
                 showHCEventDialogBox(
                     true /* error */, "DELETE ACCOUNT FAILURE", e.error);
             },
@@ -2842,7 +2853,7 @@ void MenuGame::update(float mFT)
     currentCreditsId += mFT;
     txCreditsBar2 = &assets.getTexture(
         ssvu::getByModIdx(creditsIds, ssvu::toInt(currentCreditsId / 100)));
-    creditsBar2.setTextureRect(txCreditsBar2->getRect());
+    creditsBar2.textureRect = txCreditsBar2->getRect();
 
     if (exitTimer > 20)
     {
@@ -3130,34 +3141,34 @@ void MenuGame::refreshCamera()
     w = getWindowWidth() * fmax;
     h = getWindowHeight() * fmax;
 
-    backgroundCamera.setView({sf::Vector2f::Zero,
+    backgroundCamera.setView({sf::Vector2f{0.f, 0.f},
         {Config::getSizeX() * Config::getZoomFactor(),
             Config::getSizeY() * Config::getZoomFactor()}});
 
     overlayCamera.setView(sf::View{sf::FloatRect({0, 0}, {w, h})});
 
-    titleBar.setOrigin(sf::Vector2f::Zero);
-    titleBar.setScale({0.5f, 0.5f});
-    titleBar.setPosition({20.f, 20.f});
+    titleBar.origin = sf::Vector2f{0.f, 0.f};
+    titleBar.scale = {0.5f, 0.5f};
+    titleBar.position = {20.f, 20.f};
 
     txtVersion.font.setString(GAME_VERSION_STR);
-    txtVersion.font.setOrigin({ssvs::getLocalRight(txtVersion.font), 0.f});
-    txtVersion.font.setPosition({ssvs::getGlobalRight(titleBar) - 15.f,
-        ssvs::getGlobalTop(titleBar) + 15.f});
+    txtVersion.font.origin = {ssvs::getLocalRight(txtVersion.font), 0.f};
+    txtVersion.font.position = {ssvs::getGlobalRight(titleBar) - 15.f,
+        ssvs::getGlobalTop(titleBar) + 15.f};
 
-    creditsBar1.setOrigin({ssvs::getLocalWidth(creditsBar1), 0.f});
-    creditsBar1.setScale({0.373f, 0.373f});
-    creditsBar1.setPosition({w - 20.f, 20.f});
+    creditsBar1.origin = {ssvs::getLocalWidth(creditsBar1), 0.f};
+    creditsBar1.scale = {0.373f, 0.373f};
+    creditsBar1.position = {w - 20.f, 20.f};
 
-    creditsBar2.setOrigin({ssvs::getLocalWidth(creditsBar2), 0});
-    creditsBar2.setScale({0.373f, 0.373f});
-    creditsBar2.setPosition(
-        {w - 20.f, 17.f + ssvs::getGlobalBottom(creditsBar1)});
+    creditsBar2.origin = {ssvs::getLocalWidth(creditsBar2), 0};
+    creditsBar2.scale = {0.373f, 0.373f};
+    creditsBar2.position = {
+        w - 20.f, 17.f + ssvs::getGlobalBottom(creditsBar1)};
 
     const float scaleFactor{w / 1024.f};
-    epilepsyWarning.setOrigin(ssvs::getLocalCenter(epilepsyWarning));
-    epilepsyWarning.setPosition({1024 / (2.f / scaleFactor), 768 / 2.f - 50});
-    epilepsyWarning.setScale({0.36f, 0.36f});
+    epilepsyWarning.origin = ssvs::getLocalCenter(epilepsyWarning);
+    epilepsyWarning.position = {1024 / (2.f / scaleFactor), 768 / 2.f - 50};
+    epilepsyWarning.scale = {0.36f, 0.36f};
 
     // Readjust the menu background skew and the indents
     fourByThree = 10.f * getWindowWidth() / getWindowHeight() < 16;
@@ -3255,7 +3266,7 @@ void MenuGame::renderText(
     const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
 {
     mText.setString(mStr);
-    mText.setPosition(mPos);
+    mText.position = mPos;
     window.draw(mText);
 }
 
@@ -3292,7 +3303,7 @@ void MenuGame::renderTextCentered(
     const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
 {
     mText.setString(mStr);
-    mText.setPosition({mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y});
+    mText.position = {mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y};
     window.draw(mText);
 }
 
@@ -3327,8 +3338,8 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
     sf::Text& mText, const sf::Vector2f& mPos, const float xOffset)
 {
     mText.setString(mStr);
-    mText.setPosition(
-        {xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y});
+    mText.position = {
+        xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y};
     window.draw(mText);
 }
 
@@ -3993,9 +4004,9 @@ void MenuGame::drawProfileSelection(
     }
 
     // Add message about profile deletion
-    txtInstructionsSmall.font.setPosition(
-        {indent + (textWidth - instructionsWidth) / 2.f,
-            quadHeight + totalHeight});
+    txtInstructionsSmall.font.position = {
+        indent + (textWidth - instructionsWidth) / 2.f,
+        quadHeight + totalHeight};
     window.draw(txtInstructionsSmall.font);
 }
 
@@ -4659,7 +4670,7 @@ void MenuGame::resetLevelNamesScrolls()
     // Reset all scrolls except the ones relative to the pack.
     namesScroll[static_cast<int>(Label::LevelName)] = 0.f;
     for (int i = static_cast<int>(Label::MusicName);
-         i < static_cast<int>(Label::ScrollsSize); ++i)
+        i < static_cast<int>(Label::ScrollsSize); ++i)
     {
         namesScroll[i] = 0.f;
     }
@@ -4717,7 +4728,7 @@ void MenuGame::formatLevelDescription()
     std::string candidate;
     std::string temp;
     for (std::size_t i{0};
-         i < words.size() && levelDescription.size() < descLines; ++i)
+        i < words.size() && levelDescription.size() < descLines; ++i)
     {
         if (!candidate.empty())
         {
@@ -5207,9 +5218,8 @@ void MenuGame::drawLevelSelectionRightSide(
                 quadsIndent + arrowWidth + 2.f * slctFrameSize + outerFrame) +
             panelOffset;
 
-        txtSelectionMedium.font.setPosition(
-            {temp, height + outerFrame -
-                       txtSelectionMedium.height * fontHeightOffset});
+        txtSelectionMedium.font.position = {temp,
+            height + outerFrame - txtSelectionMedium.height * fontHeightOffset};
 
         const sf::Color oldC = txtSelectionMedium.font.getFillColor();
         txtSelectionMedium.font.setFillColor(
@@ -5392,14 +5402,14 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     const float difficultyBumpFactor =
         1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
-    txtSelectionMedium.font.setScale(
-        {difficultyBumpFactor, difficultyBumpFactor});
+    txtSelectionMedium.font.scale = {
+        difficultyBumpFactor, difficultyBumpFactor};
 
     renderText(tempString, txtSelectionMedium.font,
         {textXPos + txtSelectionMedium.font.getGlobalBounds().size.y,
             difficultyHeight});
 
-    txtSelectionMedium.font.setScale({1.f, 1.f});
+    txtSelectionMedium.font.scale = {1.f, 1.f};
 
     // Bottom line
     height += txtSelectionMedium.height + textToQuadBorder + lineThickness;
@@ -5772,7 +5782,7 @@ void MenuGame::draw()
     {
         menuBackgroundTris.clear();
 
-        styleData.drawBackgroundMenu(menuBackgroundTris, sf::Vector2f::Zero,
+        styleData.drawBackgroundMenu(menuBackgroundTris, sf::Vector2f{0.f, 0.f},
             levelStatus.sides,
             Config::getDarkenUnevenBackgroundChunk() &&
                 levelStatus.darkenUnevenBackgroundChunk,
@@ -6072,23 +6082,23 @@ void MenuGame::drawOnlineStatus()
         txSOnline = &assets.getTexture("onlineIconFail.png");
     }
 
-    sOnline.setTextureRect(txSOnline->getRect());
-    sOnline.setScale({spriteScale, spriteScale});
-    sOnline.setOrigin(ssvs::getLocalSW(sOnline));
-    sOnline.setPosition({0.f + padding, getWindowHeight() - padding});
+    sOnline.textureRect = txSOnline->getRect();
+    sOnline.scale = {spriteScale, spriteScale};
+    sOnline.origin = ssvs::getLocalSW(sOnline);
+    sOnline.position = {0.f + padding, getWindowHeight() - padding};
 
     rsOnlineStatus.setSize(
         {ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
             txtHeight + padding * 2.f});
     rsOnlineStatus.setFillColor(sf::Color::Black);
-    rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));
-    rsOnlineStatus.setPosition(
-        {ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y});
+    rsOnlineStatus.origin = ssvs::getLocalSW(rsOnlineStatus);
+    rsOnlineStatus.position = {
+        ssvs::getGlobalRight(sOnline) + padding, sOnline.position.y};
 
-    txtOnlineStatus.setOrigin(ssvs::getLocalCenterW(txtOnlineStatus));
-    txtOnlineStatus.setPosition(
-        {ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
-            ssvs::getGlobalCenter(rsOnlineStatus).y});
+    txtOnlineStatus.origin = ssvs::getLocalCenterW(txtOnlineStatus);
+    txtOnlineStatus.position = {
+        ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
+        ssvs::getGlobalCenter(rsOnlineStatus).y};
 
     window.draw(sOnline, *txSOnline);
     window.draw(rsOnlineStatus, /* texture */ nullptr);

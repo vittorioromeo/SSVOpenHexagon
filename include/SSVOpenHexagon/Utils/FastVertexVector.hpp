@@ -129,7 +129,7 @@ public:
         }
 
         // UB:
-        mRenderTarget.draw(reinterpret_cast<const sf::Vertex*>(_data.get()),
+        mRenderTarget.drawVertices(reinterpret_cast<const sf::Vertex*>(_data.get()),
             _size, TPrimitive, mRenderStates);
     }
 

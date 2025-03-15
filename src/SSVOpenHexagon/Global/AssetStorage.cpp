@@ -43,7 +43,7 @@ public:
     [[nodiscard]] bool loadTexture(sf::GraphicsContext& graphicsContext,
         const std::string& id, const std::string& path)
     {
-        sf::base::Optional texture = sf::Texture::loadFromFile(graphicsContext, path);
+        sf::base::Optional texture = sf::Texture::loadFromFile(path);
 
         if (!texture.hasValue())
         {
@@ -57,7 +57,7 @@ public:
     [[nodiscard]] bool loadFont(sf::GraphicsContext& graphicsContext,
         const std::string& id, const std::string& path)
     {
-        sf::base::Optional font = sf::Font::openFromFile(graphicsContext, path);
+        sf::base::Optional font = sf::Font::openFromFile(path);
 
         if (!font.hasValue())
         {

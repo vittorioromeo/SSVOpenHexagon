@@ -24,7 +24,7 @@ namespace hg {
 }
 
 HexagonDialogBox::HexagonDialogBox(sf::Font& mFont, ssvs::GameWindow& mWindow)
-    : window{mWindow}, txtDialog{mFont, "", 0}
+    : window{mWindow}, txtDialog{mFont, {.string = "", .characterSize = 0}}
 {}
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
@@ -133,9 +133,9 @@ void HexagonDialogBox::drawText(
         if (!str.empty())
         {
             txtDialog.setString(str);
-            txtDialog.setPosition(
-                {xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
-                    yOffset + heightOffset + 5.f});
+            txtDialog.position = {
+                xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
+                yOffset + heightOffset + 5.f};
             window.draw(txtDialog);
         }
 
@@ -155,8 +155,8 @@ void HexagonDialogBox::drawText(
             txtDialog.setString(input);
         }
 
-        txtDialog.setPosition({xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
-            yOffset + heightOffset + 5.f});
+        txtDialog.position = {xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
+            yOffset + heightOffset + 5.f};
         window.draw(txtDialog);
     }
 }

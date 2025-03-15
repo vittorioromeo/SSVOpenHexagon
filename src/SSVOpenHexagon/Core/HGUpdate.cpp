@@ -33,7 +33,7 @@
 #ifndef SSVOH_ANDROID
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
-#include <imgui-SFML.h>
+#include <SFML/ImGui/ImGui.hpp>
 #endif
 
 #include <SFML/Graphics/Color.hpp>
@@ -802,7 +802,7 @@ void HexagonGame::refreshPulse()
             Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
         const float rotation{backgroundCamera->getRotation()};
 
-        backgroundCamera->setView(sf::View{sf::Vector2f::Zero,
+        backgroundCamera->setView(sf::View{sf::Vector2f{0.f, 0.f},
             {(Config::getWidth() * Config::getZoomFactor()) * p,
                 (Config::getHeight() * Config::getZoomFactor()) * p}});
 
@@ -938,7 +938,7 @@ void HexagonGame::updateParticles(float mFT)
     const auto isOutOfBounds = [](const Particle& p)
     {
         const sf::Sprite& sp = p.sprite;
-        const sf::Vector2f& pos = sp.getPosition();
+        const sf::Vector2f& pos = sp.position;
         constexpr float padding = 256.f;
 
         return (pos.x < 0 - padding || pos.x > Config::getWidth() + padding ||
@@ -950,16 +950,16 @@ void HexagonGame::updateParticles(float mFT)
         SSVOH_ASSERT(txStarParticle != nullptr);
         Particle p{sf::Sprite{txStarParticle->getRect()}};
 
-        p.sprite.setPosition(
-            {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
-        p.sprite.setRotation(sf::degrees(ssvu::getRndR(0.f, 360.f)));
+        p.sprite.position = {
+            ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f};
+        p.sprite.rotation = sf::degrees(ssvu::getRndR(0.f, 360.f));
 
         const float scale = ssvu::getRndR(0.75f, 1.35f);
-        p.sprite.setScale({scale, scale});
+        p.sprite.scale = {scale, scale};
 
         sf::Color c = getColorMain();
         c.a = ssvu::getRndI(90, 145);
-        p.sprite.setColor(c);
+        p.sprite.color = c;
 
         p.velocity = {ssvu::getRndR(-12.f, 12.f), ssvu::getRndR(4.f, 18.f)};
         p.angularVelocity = ssvu::getRndR(-6.f, 6.f);
@@ -972,8 +972,8 @@ void HexagonGame::updateParticles(float mFT)
     for (Particle& p : particles)
     {
         sf::Sprite& sp = p.sprite;
-        sp.setPosition(sp.getPosition() + p.velocity * mFT);
-        sp.setRotation(sp.getRotation() + sf::degrees(p.angularVelocity * mFT));
+        sp.position += p.velocity * mFT;
+        sp.rotation += sf::degrees(p.angularVelocity * mFT);
     }
 
     if (mustSpawnPBParticles)
@@ -999,16 +999,16 @@ void HexagonGame::updateTrailParticles(float mFT)
         SSVOH_ASSERT(txSmallCircle != nullptr);
         TrailParticle p{sf::Sprite{txSmallCircle->getRect()}};
 
-        p.sprite.setPosition(player.getPosition());
-        p.sprite.setOrigin(txSmallCircle->getSize().to<sf::Vector2f>() / 2.f);
+        p.sprite.position = player.getPosition();
+        p.sprite.origin = txSmallCircle->getSize().to<sf::Vector2f>() / 2.f;
 
         const float scale = Config::getPlayerTrailScale();
-        p.sprite.setScale({scale, scale});
+        p.sprite.scale = {scale, scale};
 
         sf::Color c = getColorPlayerTrail();
 
         c.a = Config::getPlayerTrailAlpha();
-        p.sprite.setColor(c);
+        p.sprite.color = c;
 
         p.angle = player.getPlayerAngle();
 
@@ -1025,12 +1025,12 @@ void HexagonGame::updateTrailParticles(float mFT)
             static_cast<float>(color.a), Config::getPlayerTrailDecay() * mFT);
 
         color.a = static_cast<std::uint8_t>(newAlpha);
-        p.sprite.setColor(color);
+        p.sprite.color = color;
 
-        p.sprite.setScale(p.sprite.getScale() * 0.98f);
+        p.sprite.scale *= 0.98f;
 
-        p.sprite.setPosition(sf::Vector2f::fromAngle(
-            status.radius + 2.4f, sf::radians(p.angle)));
+        p.sprite.position =
+            sf::Vector2f::fromAngle(status.radius + 2.4f, sf::radians(p.angle));
     }
 
     if (player.hasChangedAngle())
@@ -1053,16 +1053,16 @@ void HexagonGame::updateSwapParticles(float mFT)
         SSVOH_ASSERT(txSmallCircle != nullptr);
         SwapParticle p{sf::Sprite(txSmallCircle->getRect())};
 
-        p.sprite.setPosition(si.position);
-        p.sprite.setOrigin(txSmallCircle->getSize().to<sf::Vector2f>() / 2.f);
+        p.sprite.position = si.position;
+        p.sprite.origin = txSmallCircle->getSize().to<sf::Vector2f>() / 2.f;
 
         const float scale = ssvu::getRndR(0.65f, 1.35f) * scaleMult;
-        p.sprite.setScale({scale, scale});
+        p.sprite.scale = {scale, scale};
 
         sf::Color c = getColorPlayerTrail();
 
         c.a = alpha;
-        p.sprite.setColor(c);
+        p.sprite.color = c;
 
         p.velocity =
             sf::Vector2f::fromAngle(ssvu::getRndR(0.1f, 10.f) * speedMult,
@@ -1081,10 +1081,10 @@ void HexagonGame::updateSwapParticles(float mFT)
             Utils::getMoveTowardsZero(static_cast<float>(color.a), 3.5f * mFT);
 
         color.a = static_cast<std::uint8_t>(newAlpha);
-        p.sprite.setColor(color);
+        p.sprite.color = color;
 
-        p.sprite.setScale(p.sprite.getScale() * 0.98f);
-        p.sprite.setPosition(p.sprite.getPosition() + p.velocity * mFT);
+        p.sprite.scale = p.sprite.getScale() * 0.98f;
+        p.sprite.position += p.velocity * mFT;
     }
 
     if (swapParticlesSpawnInfo.hasValue())
@@ -1222,7 +1222,7 @@ int HexagonGame::ilcTextEditCallback(
                     int c = 0;
                     bool all_candidates_matches = true;
                     for (int i = 0;
-                         i < candidates.Size && all_candidates_matches; i++)
+                        i < candidates.Size && all_candidates_matches; i++)
                         if (i == 0)
                             c = std::toupper(candidates[i][match_len]);
                         else if (c == 0 ||

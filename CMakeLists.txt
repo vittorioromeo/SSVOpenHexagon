@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.24)
 
 # TODO: build timestamp
 # string(TIMESTAMP CMAKE_TIMESTAMP)
@@ -74,15 +74,7 @@ endif()
 # -----------------------------------------------------------------------------
 # CPM
 # -----------------------------------------------------------------------------
-
-file(
-    DOWNLOAD
-    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.40.0/CPM.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-    EXPECTED_HASH SHA256=7b354f3a5976c4626c876850c93944e52c83ec59a159ae5de5be7983f0e17a2a
-)
-
-include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+include(cmake/CPM.cmake)
 
 #
 #
@@ -97,7 +89,7 @@ set(SFML_ENABLE_PCH true)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG ae249dae3e3de4b1790098a1067c24750921c8ec
+    GIT_TAG cabd5ce12a67c203be092362588c74f6048f72c2
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -108,6 +100,9 @@ set_target_properties(sfml-window PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
 
 set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
+
+set_target_properties(sfml-imgui PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-imgui PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
 
 set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-audio PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
@@ -127,7 +122,7 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 
 CPMAddPackage(
     NAME luajit
-    GIT_REPOSITORY https://github.com/vittorioromeo/LuaJIT
+    GITHUB_REPOSITORY vittorioromeo/LuaJIT
     GIT_TAG 4dc5ffbf60b16e54274c470fcc022165685c96fe
 )
 
@@ -162,51 +157,6 @@ set_target_properties(zlib PROPERTIES UNITY_BUILD OFF) # not supported
 file(READ "${zlib_SOURCE_DIR}/CMakeLists.txt" CONTENTS)
 string(REGEX REPLACE "Example binaries.*" "" STRIPPED1 "${CONTENTS}")
 file(WRITE "${zlib_SOURCE_DIR}/CMakeLists.txt" "${STRIPPED1}")
-
-#
-#
-# -----------------------------------------------------------------------------
-# CPM: imgui
-# -----------------------------------------------------------------------------
-
-if(NOT SSVOH_ANDROID)
-    CPMAddPackage(
-        NAME imgui
-        GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 04316bd223f98e4c40bd82dc5f2a35c4891e4e5f
-        DOWNLOAD_ONLY YES
-    )
-
-    if (imgui_ADDED)
-        # imgui has no CMake support, so we create our own target
-
-        file(GLOB imgui_sources "${imgui_SOURCE_DIR}/*.cpp")
-        file(GLOB imgui_sources_cpp "${imgui_SOURCE_DIR}/misc/cpp/*.cpp")
-
-        list(REMOVE_ITEM imgui_sources "${imgui_SOURCE_DIR}/imgui_demo.cpp")
-
-        set(IMGUI_DIR ${imgui_SOURCE_DIR})
-        set(IMGUI_INCLUDE_DIR ${imgui_SOURCE_DIR})
-        set(IMGUI_SOURCES ${imgui_sources} ${imgui_sources_cpp})
-    endif()
-endif()
-
-#
-#
-# -----------------------------------------------------------------------------
-# CPM: imgui-sfml
-# -----------------------------------------------------------------------------
-
-if(NOT SSVOH_ANDROID)
-    CPMAddPackage(
-        NAME imgui-sfml
-        GITHUB_REPOSITORY vittorioromeo/imgui-sfml
-        GIT_TAG d65ebaba593dbda0353aab99ace9b895788f727d
-        )
-
-    set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
-    set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
-endif()
 
 #
 #
@@ -419,7 +369,7 @@ endif()
 set(PUBLIC_INCLUDE_DIRS "public" "public/sqlite" "public/sqlite_orm")
 
 set(SFML_LIBRARIES
-    sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
+    sfml-system sfml-window sfml-graphics imgui sfml-imgui sfml-audio sfml-network)
 
 if(NOT SSVOH_ANDROID)
     if(WIN32)
@@ -460,7 +410,6 @@ target_link_libraries(
 
 if(NOT SSVOH_ANDROID)
     target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${imgui_SOURCE_DIR})
-    target_link_libraries(SSVOpenHexagonLib ImGui-SFML::ImGui-SFML)
 endif()
 
 macro(ssvoh_find_extlib_for_target target extlib)

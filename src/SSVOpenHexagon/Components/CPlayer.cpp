@@ -206,7 +206,7 @@ template <typename Wall>
 
     const auto assignResult = [&]()
     {
-        tempDistance = (vec1 - pos).lengthSq();
+        tempDistance = (vec1 - pos).lengthSquared();
         if (tempDistance < safeDistance)
         {
             pos = vec1;
@@ -233,7 +233,7 @@ template <typename Wall>
 
             case 2u:
             {
-                if ((vec1 - pos).lengthSq() > (vec2 - pos).lengthSq())
+                if ((vec1 - pos).lengthSquared() > (vec2 - pos).lengthSquared())
                 {
                     vec1 = vec2;
                 }
@@ -282,7 +282,7 @@ template <typename Wall>
     {
         const sf::Vector2f posDiff = testPos - _prePushPos;
         const sf::Vector2f posDiffNormalized =
-            posDiff == sf::Vector2f::Zero ? posDiff : posDiff.normalized();
+            posDiff == sf::Vector2f{0.f, 0.f} ? posDiff : posDiff.normalized();
 
         _pos = testPos + posDiffNormalized * (2.f * collisionPadding);
         _angle = _pos.angle().asRadians();
@@ -492,7 +492,7 @@ void CPlayer::updatePosition(const float radius)
     _maxSafeDistance =
         (_lastPos - _startPos.movedTowards(_radius,
                         sf::radians(_lastAngle + Utils::toRad(_currentSpeed))))
-            .lengthSq() +
+            .lengthSquared() +
         32.f;
 }
 

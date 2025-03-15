@@ -7,7 +7,7 @@
 #ifndef SSVOH_ANDROID
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
-#include <imgui-SFML.h>
+#include <SFML/ImGui/ImGui.hpp>
 #endif
 
 #include <SFML/Graphics/RenderWindow.hpp>
