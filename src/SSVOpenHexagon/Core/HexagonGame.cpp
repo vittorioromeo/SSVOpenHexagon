@@ -129,7 +129,7 @@ void HexagonGame::updateKeyIcons()
     keyIconFocus.origin = {halfSize, halfSize};
     keyIconSwap.origin = {halfSize, halfSize};
 
-    keyIconLeft.setRotation(sf::degrees(180));
+    keyIconLeft.rotation = sf::degrees(180);
 
     const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
 
@@ -300,8 +300,9 @@ void HexagonGame::nameFormat(std::string& name)
 [[nodiscard]] static sf::Text initText(
     const sf::Font& font, const char* text, const float characterSize)
 {
-    return sf::Text{font, text,
-        ssvu::toNum<unsigned int>(characterSize / Config::getZoomFactor())};
+    return sf::Text{font, {.string = text,
+                              .characterSize = ssvu::toNum<unsigned int>(
+                                  characterSize / Config::getZoomFactor())}};
 }
 
 HexagonGame::TextUI::TextUI(HGAssets& mAssets)
@@ -333,6 +334,7 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
+      imguiCtx{},
       player{sf::Vector2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
@@ -348,6 +350,7 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
       keyIconFocus{},
       keyIconSwap{},
       replayIcon{},
+      levelInfoRectangle{{}},
       rng{initializeRng()}
 {
     if (!assets.isHeadless())
@@ -357,6 +360,11 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
 
     if (window != nullptr)
     {
+        if (!imguiCtx.init(window->getRenderWindow()))
+        {
+            ssvu::lo("imgui") << "Failed to initialize imgui";
+        }
+
         const float width = Config::getWidth();
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
@@ -399,7 +407,7 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
     game.onDraw += [this] { draw(); };
 
     game.onAnyEvent += [this](const sf::Event& e)
-    { Imgui::processEvent(window->getRenderWindow(), e); };
+    { imguiCtx.processEvent(window->getRenderWindow(), e); };
 
     if (window != nullptr)
     {

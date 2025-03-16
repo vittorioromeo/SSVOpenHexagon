@@ -310,7 +310,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
     if (!headless)
     {
-        window.emplace(graphicsContext);
+        window.emplace();
 
         window->setTitle(makeWindowTitle());
         window->setSize(hg::Config::getWidth(), hg::Config::getHeight());
@@ -364,30 +364,6 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
                 });
         }
     }
-
-    //
-    //
-    // ------------------------------------------------------------------------
-    // Initialize IMGUI
-    if (!headless)
-    {
-        SSVOH_ASSERT(window.hasValue());
-        if (!hg::Imgui::initialize(graphicsContext, *window))
-        {
-            ssvu::lo("::main") << "Failed to initialize ImGui...\n";
-        }
-    }
-
-    HG_SCOPE_GUARD({
-        ssvu::lo("::main") << "Shutting down ImGui...\n";
-
-        if (!headless)
-        {
-            hg::Imgui::shutdown();
-        }
-
-        ssvu::lo("::main") << "Done shutting down ImGui...\n";
-    });
 
     //
     //
@@ -610,7 +586,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     if (!headless)
     {
         SSVOH_ASSERT(window.hasValue());
-        window->run(graphicsContext);
+        window->run();
     }
 
     ssvu::lo("::mainClient") << "Finished\n";

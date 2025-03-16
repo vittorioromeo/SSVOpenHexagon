@@ -14,11 +14,7 @@ class Window;
 
 namespace hg::Imgui {
 
-[[nodiscard]] bool initialize(sf::GraphicsContext&, sf::RenderWindow&);
-void shutdown();
 [[nodiscard]] bool wantCaptureKeyboard();
 [[nodiscard]] bool wantCaptureMouse();
-void processEvent(const sf::Window& window, const sf::Event&);
-void render(sf::RenderTarget& renderTarget);
 
 } // namespace hg::Imgui

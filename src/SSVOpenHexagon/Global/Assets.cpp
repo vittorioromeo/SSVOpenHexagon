@@ -375,7 +375,8 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(sf::GraphicsContext* graphicsContext,
     for (auto& v : levelDataIdsByPack)
     {
         std::sort(v.second.begin(), v.second.end(),
-            [&](const std::string& mA, const std::string& mB) {
+            [&](const std::string& mA, const std::string& mB)
+            {
                 return levelDatas.at(mA).menuPriority <
                        levelDatas.at(mB).menuPriority;
             });
@@ -902,8 +903,8 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
     {
         for (const auto& p : scanSingleByExt(mPath + "Shaders/", extension))
         {
-            sf::base::Optional shader = sf::Shader::loadFromFile(
-                graphicsContext, p.getStr(), shaderType);
+            sf::base::Optional shader =
+                sf::Shader::loadFromFile(p.getStr(), shaderType);
 
             if (!shader.hasValue())
             {
@@ -1128,7 +1129,8 @@ void HGAssets::HGAssetsImpl::saveAllProfiles()
     return it->second.shader.get();
 }
 
-[[nodiscard]] sf::base::Optional<std::size_t> HGAssets::HGAssetsImpl::getShaderId(
+[[nodiscard]] sf::base::Optional<std::size_t>
+HGAssets::HGAssetsImpl::getShaderId(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string& assetId = concatIntoBuf(mPackId, '_', mId);
@@ -1184,7 +1186,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders(
     for (auto& [id, loadedShader] : shaders)
     {
         auto reloadedShader = sf::Shader::loadFromFile(
-            graphicsContext, loadedShader.path, loadedShader.shaderType);
+            loadedShader.path, loadedShader.shaderType);
 
         if (!reloadedShader.hasValue())
         {

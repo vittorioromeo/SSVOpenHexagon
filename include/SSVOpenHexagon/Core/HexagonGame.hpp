@@ -22,6 +22,7 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
+#include <SFML/ImGui/ImGui.hpp>
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
 
@@ -125,6 +126,8 @@ private:
     ssvs::GameWindow* window;
 
     HexagonClient* hexagonClient;
+
+    sf::ImGui::ImGuiContext imguiCtx;
 
     // IMGUI Lua Console
     sf::Clock ilcDeltaClock;

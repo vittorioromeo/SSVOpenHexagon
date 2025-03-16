@@ -3145,7 +3145,7 @@ void MenuGame::refreshCamera()
         {Config::getSizeX() * Config::getZoomFactor(),
             Config::getSizeY() * Config::getZoomFactor()}});
 
-    overlayCamera.setView(sf::View{{0, 0}, {w, h}});
+    overlayCamera.setView(sf::View{{w / 2.f, h / 2.f}, {w, h}});
 
     titleBar.origin = sf::Vector2f{0.f, 0.f};
     titleBar.scale = {0.5f, 0.5f};

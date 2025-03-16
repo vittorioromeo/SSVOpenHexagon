@@ -509,7 +509,7 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
 
                 const auto overrideRoot(ssvuj::getFromFile(p));
                 for (auto itr(std::begin(overrideRoot));
-                     itr != std::end(overrideRoot); ++itr)
+                    itr != std::end(overrideRoot); ++itr)
                 {
                     root()[ssvuj::getKey(itr)] = *itr;
                 }
@@ -1585,10 +1585,8 @@ std::string getJoystickBindName(const Joystick::Jid bindID)
     constexpr unsigned int msVendorId{0x045E};
     constexpr unsigned int sonyVendorId{0x54C};
 
-    const unsigned int vendorId{
-        sf::Joystick::isConnected(0)
-            ? sf::Joystick::getIdentification(0).vendorId
-            : 0};
+    auto query = sf::Joystick::query(0);
+    const unsigned int vendorId{query.hasValue() ? query->getVendorId() : 0};
 
     using namespace std::string_literals;
 

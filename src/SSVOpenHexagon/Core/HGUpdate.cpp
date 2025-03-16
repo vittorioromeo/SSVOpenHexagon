@@ -1051,7 +1051,7 @@ void HexagonGame::updateSwapParticles(float mFT)
                                       const float scaleMult, const float alpha)
     {
         SSVOH_ASSERT(txSmallCircle != nullptr);
-        SwapParticle p{sf::Sprite(.textureRect = txSmallCircle->getRect())};
+        SwapParticle p{sf::Sprite{.textureRect = txSmallCircle->getRect()}};
 
         p.sprite.position = si.position;
         p.sprite.origin = txSmallCircle->getSize().to<sf::Vector2f>() / 2.f;
@@ -1312,7 +1312,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         ilcShowConsole = !ilcShowConsole;
         ilcShowConsoleNext = false;
 
-        ImGui::SFML::ProcessEvent(
+        imguiCtx.processEvent(
             window->getRenderWindow(), sf::Event::FocusGained{});
     }
 
@@ -1321,7 +1321,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         return;
     }
 
-    ImGui::SFML::Update(*window, ilcDeltaClock.restart());
+    imguiCtx.update(*window, ilcDeltaClock.restart());
 
     ImGui::SetNextWindowSize(ImVec2(600, 700), ImGuiCond_FirstUseEver);
     ImGui::Begin("Lua Console");

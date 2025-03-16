@@ -108,10 +108,10 @@ enum class AxisDir : int
     return static_cast<AxisDir>(-static_cast<int>(dir));
 }
 
-[[nodiscard]] static AxisDir axisPressed(const float deadzone,
-    const unsigned int joyId, const sf::Joystick::Axis axis)
+[[nodiscard]] static AxisDir axisPressed(sf::Joystick::Query& query,
+    const float deadzone, const sf::Joystick::Axis axis)
 {
-    const auto pos = sf::Joystick::getAxisPosition(joyId, axis);
+    const auto pos = query.getAxisPosition(axis);
 
     if (pos < -deadzone)
     {
@@ -137,21 +137,29 @@ void update(const float deadzone)
         return;
     }
 
-    const auto dpadXIs = [&](const AxisDir axisDir) {
-        return axisPressed(deadzone, joyId, sf::Joystick::Axis::PovX) ==
+    auto query = sf::Joystick::query(joyId);
+    if (!query.hasValue())
+    {
+        return;
+    }
+
+    const auto dpadXIs = [&](const AxisDir axisDir)
+    {
+        return axisPressed(*query, deadzone, sf::Joystick::Axis::PovX) ==
                axisDir;
     };
 
-    const auto dpadYIs = [&](const AxisDir axisDir) {
-        return axisPressed(deadzone, joyId, sf::Joystick::Axis::PovY) ==
+    const auto dpadYIs = [&](const AxisDir axisDir)
+    {
+        return axisPressed(*query, deadzone, sf::Joystick::Axis::PovY) ==
                axisDir;
     };
 
     const auto leftStickXIs = [&](const AxisDir axisDir)
-    { return axisPressed(deadzone, joyId, sf::Joystick::Axis::X) == axisDir; };
+    { return axisPressed(*query, deadzone, sf::Joystick::Axis::X) == axisDir; };
 
     const auto leftStickYIs = [&](const AxisDir axisDir)
-    { return axisPressed(deadzone, joyId, sf::Joystick::Axis::Y) == axisDir; };
+    { return axisPressed(*query, deadzone, sf::Joystick::Axis::Y) == axisDir; };
 
     const auto xIs = [&](const AxisDir axisDir)
     { return dpadXIs(axisDir) || leftStickXIs(axisDir); };
@@ -172,9 +180,8 @@ void update(const float deadzone)
 
     const auto doButton = [&](const Jid jid)
     {
-        s.wasPressed[toSizeT(jid)] = std::exchange(
-            s.pressed[toSizeT(jid)], sf::Joystick::isButtonPressed(joyId,
-                                         s.joystickInputs[toSizeT(jid)]));
+        s.wasPressed[toSizeT(jid)] = std::exchange(s.pressed[toSizeT(jid)],
+            query->isButtonPressed(s.joystickInputs[toSizeT(jid)]));
     };
 
     doButton(Jid::Select);

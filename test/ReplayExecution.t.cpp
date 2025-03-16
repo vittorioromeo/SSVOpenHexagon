@@ -121,8 +121,8 @@ try
     }
 
 #ifndef SSVOH_HEADLESS_TESTS
-    sf::GraphicsContext gc;
-    ssvs::GameWindow gw(gc);
+    auto gc = sf::GraphicsContext::create().value();
+    ssvs::GameWindow gw;
     for (int i = 0; i < 25; ++i)
     {
         doTest(i, false, &gc, &gw);

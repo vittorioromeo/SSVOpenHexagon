@@ -332,9 +332,9 @@ void HexagonGame::drawImguiLuaConsole()
     SSVOH_ASSERT(overlayCamera.hasValue());
 
     sf::RenderWindow& renderWindow = window->getRenderWindow();
-    window->setView(renderWindow.getDefaultView());
+    renderWindow.setView({{500.f, 500.f}, {1000.f, 1000.f}});
 
-    Imgui::render(*window);
+    imguiCtx.render(renderWindow);
 }
 
 void HexagonGame::initFlashEffect(int r, int g, int b)

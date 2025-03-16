@@ -18,22 +18,6 @@
 
 namespace hg::Imgui {
 
-[[nodiscard]] bool initialize(
-    [[maybe_unused]] sf::GraphicsContext& graphicsContext,
-    [[maybe_unused]] sf::RenderWindow& window)
-{
-#ifndef SSVOH_ANDROID
-    return ImGui::SFML::Init(graphicsContext, window);
-#endif
-}
-
-void shutdown()
-{
-#ifndef SSVOH_ANDROID
-    ImGui::SFML::Shutdown();
-#endif
-}
-
 [[nodiscard]] bool wantCaptureKeyboard()
 {
 #ifndef SSVOH_ANDROID
@@ -49,21 +33,6 @@ void shutdown()
     return ImGui::GetIO().WantCaptureMouse;
 #else
     return false;
-#endif
-}
-
-void processEvent([[maybe_unused]] const sf::Window& window,
-    [[maybe_unused]] const sf::Event& event)
-{
-#ifndef SSVOH_ANDROID
-    ImGui::SFML::ProcessEvent(window, event);
-#endif
-}
-
-void render([[maybe_unused]] sf::RenderTarget& renderTarget)
-{
-#ifndef SSVOH_ANDROID
-    ImGui::SFML::Render(renderTarget);
 #endif
 }
 
