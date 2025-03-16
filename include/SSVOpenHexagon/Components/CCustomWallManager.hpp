@@ -77,7 +77,7 @@ public:
     void setVertexColor4Same(
         const CCustomWallHandle cwHandle, const sf::Color& color);
 
-    [[nodiscard]] const sf::Vector2f& getVertexPos(
+    [[nodiscard]] sf::Vector2f getVertexPos(
         const CCustomWallHandle cwHandle, const int vertexIdx);
 
     [[nodiscard]] const std::array<sf::Vector2f, 4>& getVertexPos4(

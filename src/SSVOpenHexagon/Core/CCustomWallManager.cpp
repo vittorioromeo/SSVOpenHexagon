@@ -206,7 +206,7 @@ void CCustomWallManager::setKillingSide(
     _customWalls[cwHandle].setKillingSide(side);
 }
 
-[[nodiscard]] const sf::Vector2f& CCustomWallManager::getVertexPos(
+[[nodiscard]] sf::Vector2f CCustomWallManager::getVertexPos(
     const CCustomWallHandle cwHandle, const int vertexIdx)
 {
     if (!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "get vertex pos"))
@@ -334,7 +334,7 @@ void CCustomWallManager::clear()
 void CCustomWallManager::draw(Utils::FastVertexVectorTris& wallQuads)
 {
     for (CCustomWallHandle h = 0; h < static_cast<int>(_customWalls.size());
-         ++h)
+        ++h)
     {
         if (!_handleAvailable[h])
         {
@@ -351,7 +351,7 @@ void CCustomWallManager::draw(Utils::FastVertexVectorTris& wallQuads)
     _tempAliveHandles.clear();
 
     for (CCustomWallHandle h = 0; h < static_cast<int>(_customWalls.size());
-         ++h)
+        ++h)
     {
         if (!_handleAvailable[h] && _customWalls[h].getCanCollide())
         {
