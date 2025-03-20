@@ -107,7 +107,6 @@ void HexagonGame::initKeyIcons()
     for (const auto& t :
         {"keyArrow.png", "keyFocus.png", "keySwap.png", "replayIcon.png"})
     {
-        SSVOH_ASSERT(graphicsContext != nullptr);
         getTextureOrNullTexture(assets, nullTexture, t).setSmooth(true);
     }
 
@@ -321,13 +320,11 @@ HexagonGame::TextUI::TextUI(HGAssets& mAssets)
       replayText{initText(font, "", 20.f)}
 {}
 
-HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
-    Steam::steam_manager* mSteamManager,
+HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio* mAudio,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
-    : graphicsContext(mGraphicsContext),
-      nullTexture(graphicsContext != nullptr ? sf::Texture::create({1u, 1u})
-                                             : sf::base::nullOpt),
+    : nullTexture(mGameWindow != nullptr ? sf::Texture::create({1u, 1u})
+                                         : sf::base::nullOpt),
       steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
@@ -374,8 +371,6 @@ HexagonGame::HexagonGame(sf::GraphicsContext* mGraphicsContext,
 
         overlayCamera.emplace(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
             sf::Vector2f{width, height}});
-
-        SSVOH_ASSERT(graphicsContext != nullptr);
 
         txStarParticle =
             &getTextureOrNullTexture(assets, nullTexture, "starParticle.png");

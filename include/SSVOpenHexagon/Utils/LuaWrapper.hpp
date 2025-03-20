@@ -37,7 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
+#include <SFML/Base/UniquePtr.hpp>
 
 #include <limits>
 #include <map>
@@ -649,7 +649,7 @@ public:
         }
 
         // elements storage
-        std::vector<hg::Utils::UniquePtr<ElementBase>> _elements;
+        std::vector<sf::base::UniquePtr<ElementBase>> _elements;
     };
 
 private:

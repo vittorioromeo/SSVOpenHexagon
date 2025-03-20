@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
-
 #include <cstdint>
 #include <functional>
 #include <SFML/Base/Optional.hpp>
+#include <SFML/Base/UniquePtr.hpp>
 #include <string_view>
 #include <string>
 
@@ -19,7 +18,7 @@ class steam_manager
 private:
     class steam_manager_impl;
 
-    Utils::UniquePtr<steam_manager_impl> _impl;
+    sf::base::UniquePtr<steam_manager_impl> _impl;
 
     [[nodiscard]] const steam_manager_impl& impl() const noexcept;
     [[nodiscard]] steam_manager_impl& impl() noexcept;

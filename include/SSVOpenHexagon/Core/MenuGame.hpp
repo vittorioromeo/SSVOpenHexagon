@@ -13,7 +13,6 @@
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
 
@@ -26,9 +25,8 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
-#include <SFML/Graphics/GraphicsContext.hpp>
-
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Base/UniquePtr.hpp>
 
 #include <array>
 #include <cctype>
@@ -99,7 +97,6 @@ private:
     //---------------------------------------
     // Classes
 
-    sf::GraphicsContext& graphicsContext;
     Steam::steam_manager& steamManager;
     Discord::discord_manager& discordManager;
     HGAssets& assets;
@@ -110,7 +107,7 @@ private:
     ssvs::GameWindow& window;
     HexagonClient& hexagonClient;
     HexagonDialogBox dialogBox;
-    Utils::UniquePtr<LeaderboardCache> leaderboardCache;
+    sf::base::UniquePtr<LeaderboardCache> leaderboardCache;
 
     Lua::LuaContext lua;
     std::vector<std::string> execScriptPackPathContext;
@@ -575,8 +572,7 @@ private:
         const std::string& extra = "");
 
 public:
-    MenuGame(sf::GraphicsContext& mGraphicsContext,
-        Steam::steam_manager& mSteamManager,
+    MenuGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         Audio& mAudio, ssvs::GameWindow& mGameWindow,
         HexagonClient& mHexagonClient);

@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
-
 #include <cstddef>
 #include <SFML/Base/Optional.hpp>
+#include <SFML/Base/UniquePtr.hpp>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -15,7 +14,6 @@
 
 namespace sf {
 class Font;
-class GraphicsContext;
 class Shader;
 class SoundBuffer;
 class Texture;
@@ -44,11 +42,10 @@ class HGAssets
 {
 private:
     class HGAssetsImpl;
-    Utils::UniquePtr<HGAssetsImpl> _impl;
+    sf::base::UniquePtr<HGAssetsImpl> _impl;
 
 public:
-    HGAssets(sf::GraphicsContext* graphicsContext,
-        Steam::steam_manager* mSteamManager, bool mHeadless,
+    HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless,
         bool mLevelsOnly = false);
 
     ~HGAssets();
@@ -101,7 +98,7 @@ public:
     [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
     [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
 
-    void reloadAllShaders(sf::GraphicsContext& graphicsContext);
+    void reloadAllShaders();
     [[nodiscard]] std::string reloadPack(
         const std::string& mPackId, const std::string& mPath);
     [[nodiscard]] std::string reloadLevel(const std::string& mPackId,

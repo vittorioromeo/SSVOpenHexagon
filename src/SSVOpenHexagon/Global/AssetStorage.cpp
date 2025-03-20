@@ -6,17 +6,13 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include "SSVOpenHexagon/Global/Imgui.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
 #include <SFML/Audio/SoundBuffer.hpp>
-
-#include <SFML/Graphics/GraphicsContext.hpp>
 
 #include <SFML/Base/Optional.hpp>
 
@@ -40,7 +36,7 @@ private:
     std::unordered_map<std::string, sf::SoundBuffer> _soundBuffers;
 
 public:
-    [[nodiscard]] bool loadTexture(sf::GraphicsContext& graphicsContext,
+    [[nodiscard]] bool loadTexture(
         const std::string& id, const std::string& path)
     {
         sf::base::Optional texture = sf::Texture::loadFromFile(path);
@@ -54,8 +50,7 @@ public:
         return inserted;
     }
 
-    [[nodiscard]] bool loadFont(sf::GraphicsContext& graphicsContext,
-        const std::string& id, const std::string& path)
+    [[nodiscard]] bool loadFont(const std::string& id, const std::string& path)
     {
         sf::base::Optional font = sf::Font::openFromFile(path);
 
@@ -128,22 +123,21 @@ AssetStorage::impl() const noexcept
     return *_impl;
 }
 
-AssetStorage::AssetStorage() : _impl{Utils::makeUnique<AssetStorageImpl>()}
+AssetStorage::AssetStorage() : _impl{sf::base::makeUnique<AssetStorageImpl>()}
 {}
 
 AssetStorage::~AssetStorage() = default;
 
 [[nodiscard]] bool AssetStorage::loadTexture(
-    sf::GraphicsContext& graphicsContext, const std::string& id,
-    const std::string& path)
-{
-    return impl().loadTexture(graphicsContext, id, path);
-}
-
-[[nodiscard]] bool AssetStorage::loadFont(sf::GraphicsContext& graphicsContext,
     const std::string& id, const std::string& path)
 {
-    return impl().loadFont(graphicsContext, id, path);
+    return impl().loadTexture(id, path);
+}
+
+[[nodiscard]] bool AssetStorage::loadFont(
+    const std::string& id, const std::string& path)
+{
+    return impl().loadFont(id, path);
 }
 
 [[nodiscard]] bool AssetStorage::loadSoundBuffer(

@@ -30,20 +30,10 @@ struct GameVersion
     }
 
     [[nodiscard]] constexpr bool operator==(
-        const GameVersion& other) const noexcept
-    {
-        return (major == other.major) && (minor == other.minor) &&
-               (micro == other.micro);
-    }
-
-    [[nodiscard]] constexpr bool operator!=(
-        const GameVersion& other) const noexcept
-    {
-        return !(*this == other);
-    }
+        const GameVersion& other) const noexcept = default;
 };
 
-inline constexpr GameVersion GAME_VERSION{2, 1, 7};
-inline constexpr auto& GAME_VERSION_STR = "2.1.7";
+inline constexpr GameVersion GAME_VERSION{2, 2, 0};
+inline constexpr auto& GAME_VERSION_STR = "2.2.0";
 
 } // namespace hg

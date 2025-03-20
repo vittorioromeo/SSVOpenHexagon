@@ -43,7 +43,6 @@
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SSVStart/Input/Input.hpp>
@@ -152,12 +151,10 @@ void MenuGame::initOnlineIcons()
 
 inline constexpr float maxOffset{100.f};
 
-MenuGame::MenuGame(sf::GraphicsContext& mGraphicsContext,
-    Steam::steam_manager& mSteamManager,
+MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets, Audio& mAudio,
     ssvs::GameWindow& mGameWindow, HexagonClient& mHexagonClient)
-    : graphicsContext(mGraphicsContext),
-      steamManager(mSteamManager),
+    : steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
       openSquare(mAssets.getFont("OpenSquare-Regular.ttf")),
@@ -166,7 +163,7 @@ MenuGame::MenuGame(sf::GraphicsContext& mGraphicsContext,
       window(mGameWindow),
       hexagonClient{mHexagonClient},
       dialogBox(openSquare, mGameWindow),
-      leaderboardCache{Utils::makeUnique<LeaderboardCache>()},
+      leaderboardCache{sf::base::makeUnique<LeaderboardCache>()},
       lua{},
       execScriptPackPathContext{},
       currentPack{nullptr},
@@ -3103,7 +3100,7 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
         return;
     }
 
-    assets.reloadAllShaders(graphicsContext);
+    assets.reloadAllShaders();
 
     // Do the necessary asset reload operation and get the log
     // of the results.

@@ -26,6 +26,6 @@ cmake .. -G"Ninja" \
             -frounding-math -ffp-contract=off \
             -Wno-unknown-warning-option \
             -Wno-deprecated-non-prototype -Wno-unknown-attributes -Wno-maybe-uninitialized \
-            -Wno-unused-command-line-argument \
+            -Wno-unused-command-line-argument -ftime-trace \
             -DSFML_ENABLE_LIFETIME_TRACKING=1" \
          -DCMAKE_C_FLAGS="-Wno-deprecated-non-prototype -Wno-unknown-attributes"

@@ -6,7 +6,6 @@
 
 namespace sf {
 class Event;
-class GraphicsContext;
 class RenderTarget;
 class RenderWindow;
 class Window;

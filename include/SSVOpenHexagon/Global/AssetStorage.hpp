@@ -4,15 +4,13 @@
 
 #pragma once
 
-#include "Imgui.hpp"
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
+#include <SFML/Base/UniquePtr.hpp>
 
 #include <string>
 
 namespace sf {
 
 class Font;
-class GraphicsContext;
 class SoundBuffer;
 class Texture;
 
@@ -25,7 +23,7 @@ class AssetStorage
 private:
     class AssetStorageImpl;
 
-    Utils::UniquePtr<AssetStorageImpl> _impl;
+    sf::base::UniquePtr<AssetStorageImpl> _impl;
 
     [[nodiscard]] const AssetStorageImpl& impl() const noexcept;
     [[nodiscard]] AssetStorageImpl& impl() noexcept;
@@ -34,11 +32,10 @@ public:
     explicit AssetStorage();
     ~AssetStorage();
 
-    [[nodiscard]] bool loadTexture(sf::GraphicsContext& graphicsContext,
+    [[nodiscard]] bool loadTexture(
         const std::string& id, const std::string& path);
 
-    [[nodiscard]] bool loadFont(sf::GraphicsContext& graphicsContext,
-        const std::string& id, const std::string& path);
+    [[nodiscard]] bool loadFont(const std::string& id, const std::string& path);
 
     [[nodiscard]] bool loadSoundBuffer(
         const std::string& id, const std::string& path);

@@ -86,11 +86,17 @@ set(BUILD_SHARED_LIBS false)
 set(SFML_STATIC_LIBRARIES true)
 set(SFML_ENABLE_PCH true)
 
-CPMAddPackage(
-    NAME SFML
-    GITHUB_REPOSITORY vittorioromeo/SFML
-    GIT_TAG cabd5ce12a67c203be092362588c74f6048f72c2
-)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../SFML/CMakeLists.txt")
+    message(STATUS "Found local SFML dependency. Adding it from ../SFML.")
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../SFML" SFML)
+else()
+    message(STATUS "Local SFML not found. Fetching SFML using CPMAddPackage.")
+    CPMAddPackage(
+        NAME SFML
+        GITHUB_REPOSITORY vittorioromeo/SFML
+        GIT_TAG a4a28a035b7ff60199588592aa1835014bfc2c57
+    )
+endif()
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD_BATCH_SIZE 512)

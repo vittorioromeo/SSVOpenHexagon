@@ -7,8 +7,6 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
-
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
@@ -866,7 +864,7 @@ steam_manager::impl() const noexcept
     return *_impl;
 }
 
-steam_manager::steam_manager() : _impl{Utils::makeUnique<steam_manager_impl>()}
+steam_manager::steam_manager() : _impl{sf::base::makeUnique<steam_manager_impl>()}
 {}
 
 steam_manager::~steam_manager() = default;

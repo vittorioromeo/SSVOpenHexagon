@@ -7,7 +7,6 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <SFML/System/Time.hpp>
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
@@ -232,7 +231,7 @@ public:
 Audio::Audio(sf::PlaybackDevice& playbackDevice,
     const SoundBufferGetter& soundBufferGetter,
     const MusicPathGetter& musicPathGetter)
-    : _impl{Utils::makeUnique<AudioImpl>(
+    : _impl{sf::base::makeUnique<AudioImpl>(
           playbackDevice, soundBufferGetter, musicPathGetter)}
 {}
 

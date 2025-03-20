@@ -129,8 +129,9 @@ public:
         }
 
         // UB:
-        mRenderTarget.drawVertices(reinterpret_cast<const sf::Vertex*>(_data.get()),
-            _size, TPrimitive, mRenderStates);
+        mRenderTarget.drawVertices(
+            reinterpret_cast<const sf::Vertex*>(_data.get()), _size, TPrimitive,
+            mRenderStates);
     }
 
     [[nodiscard, gnu::always_inline]] sf::Vertex& operator[](

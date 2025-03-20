@@ -14,7 +14,6 @@
 
 #include <array>
 #include <SFML/Base/Optional.hpp>
-#include <random>
 #include <stdexcept>
 
 int main()
@@ -36,8 +35,7 @@ try
 
     hg::Config::loadConfig({});
 
-    hg::HGAssets assets{nullptr /* graphicsContext */,
-        nullptr /* steamManager */, true /* headless */};
+    hg::HGAssets assets{nullptr /* steamManager */, true /* headless */};
 
     hg::ProfileData fakeProfile{hg::GAME_VERSION, "testProfile", {}, {}};
     assets.addLocalProfile(SSVOH_MOVE(fakeProfile));
@@ -46,13 +44,12 @@ try
     const auto doTest = [&](int i, bool differentHG, ssvs::GameWindow* gw)
     {
         hg::HexagonGame hg{
-            nullptr /* graphicsContext */, //
-            nullptr /* steamManager */,    //
-            nullptr /* discordManager */,  //
-            assets,                        //
-            nullptr /* audio */,           //
-            gw,                            //
-            nullptr /* client */           //
+            nullptr /* steamManager */,   //
+            nullptr /* discordManager */, //
+            assets,                       //
+            nullptr /* audio */,          //
+            gw,                           //
+            nullptr /* client */          //
         };
 
         if (getRndBool())
@@ -86,13 +83,12 @@ try
         if (differentHG)
         {
             hg::HexagonGame hg2{
-                nullptr /* graphicsContext */, //
-                nullptr /* steamManager */,    //
-                nullptr /* discordManager */,  //
-                assets,                        //
-                nullptr /* audio */,           //
-                nullptr /* window */,          //
-                nullptr /* client */           //
+                nullptr /* steamManager */,   //
+                nullptr /* discordManager */, //
+                assets,                       //
+                nullptr /* audio */,          //
+                nullptr /* window */,         //
+                nullptr /* client */          //
             };
 
             score2 = hg2.runReplayUntilDeathAndGetScore(

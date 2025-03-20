@@ -1,3 +1,8 @@
+in vec4 sf_v_color;
+in vec2 sf_v_texCoord;
+
+layout(location = 0) out vec4 sf_fragColor;
+
 uniform vec2 u_resolution;
 uniform float u_time;
 uniform float u_rotation;
@@ -50,7 +55,7 @@ void main()
     float c = cos(u_rotation);
     mat2 rot = mat2(c, s, -s, c);
     st = st * rot;
-    
+
     // Set up the noise and animate it
     vec2 noise_vec = st;
     vec2 pos = vec2(noise_vec / 2.0);
@@ -80,5 +85,5 @@ void main()
     // Apply our shader to the final colors
     // vec4(mix(vec4(u_color1, 1.0), vec4(u_color0, 1.0), st.y))
     // Considering that our style is B&W, blend the shader in a Multiplying style
-    gl_FragColor = gl_Color * vec4(color_map, 1.0);
+    sf_fragColor = sf_v_color * vec4(color_map, 1.0);
 }

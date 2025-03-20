@@ -27,7 +27,6 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/EraseIf.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
@@ -38,6 +37,8 @@
 
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
+
+#include <SFML/Base/UniquePtr.hpp>
 
 #include <algorithm>
 #include <chrono>
@@ -54,7 +55,7 @@ private:
 
     bool levelsOnly{false};
 
-    Utils::UniquePtr<AssetStorage> assetStorage;
+    sf::base::UniquePtr<AssetStorage> assetStorage;
 
     std::unordered_map<std::string, LevelData> levelDatas;
     std::unordered_map<std::string, std::vector<std::string>>
@@ -75,7 +76,7 @@ private:
 
     struct LoadedShader
     {
-        Utils::UniquePtr<sf::Shader> shader;
+        sf::base::UniquePtr<sf::Shader> shader;
         std::string path;
         sf::Shader::Type shaderType;
         std::size_t id;
@@ -98,20 +99,18 @@ private:
     [[nodiscard]] std::string& concatIntoBuf(const Ts&...);
 
     [[nodiscard]] bool loadAllPackDatas();
-    [[nodiscard]] bool loadAllPackAssets(
-        sf::GraphicsContext* graphicsContext, const bool headless);
+    [[nodiscard]] bool loadAllPackAssets(const bool headless);
     [[nodiscard]] bool loadWorkshopPackDatasFromCache();
     [[nodiscard]] bool verifyAllPackDependencies();
     [[nodiscard]] bool loadAllLocalProfiles();
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
 
-    [[nodiscard]] bool loadPackAssets(sf::GraphicsContext* graphicsContext,
+    [[nodiscard]] bool loadPackAssets(
         const PackData& packData, const bool headless);
 
-    void loadPackAssets_loadShaders(sf::GraphicsContext& graphicsContext,
-        const std::string& mPackId, const ssvufs::Path& mPath,
-        const bool headless);
+    void loadPackAssets_loadShaders(const std::string& mPackId,
+        const ssvufs::Path& mPath, const bool headless);
     void loadPackAssets_loadMusic(
         const std::string& mPackId, const ssvufs::Path& mPath);
     void loadPackAssets_loadMusicData(
@@ -126,8 +125,7 @@ private:
     [[nodiscard]] std::string getCurrentLocalProfileFilePath();
 
 public:
-    HGAssetsImpl(sf::GraphicsContext* graphicsContext,
-        Steam::steam_manager* mSteamManager, bool mHeadless,
+    HGAssetsImpl(Steam::steam_manager* mSteamManager, bool mHeadless,
         bool mLevelsOnly = false);
 
     ~HGAssetsImpl();
@@ -180,7 +178,7 @@ public:
     [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
     [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
 
-    void reloadAllShaders(sf::GraphicsContext& graphicsContext);
+    void reloadAllShaders();
     [[nodiscard]] std::string reloadPack(
         const std::string& mPackId, const std::string& mPath);
     [[nodiscard]] std::string reloadLevel(const std::string& mPackId,
@@ -230,14 +228,13 @@ public:
     getLuaFileCache() const;
 };
 
-static void loadAssetsFromJson(sf::GraphicsContext& graphicsContext,
-    AssetStorage& assetStorage, const ssvu::FileSystem::Path& mRootPath,
-    const ssvuj::Obj& mObj)
+static void loadAssetsFromJson(AssetStorage& assetStorage,
+    const ssvu::FileSystem::Path& mRootPath, const ssvuj::Obj& mObj)
 {
     for (const auto& f :
         ssvuj::getExtr<std::vector<std::string>>(mObj, "fonts"))
     {
-        if (!assetStorage.loadFont(graphicsContext, f, mRootPath + f))
+        if (!assetStorage.loadFont(f, mRootPath + f))
         {
             ssvu::lo("hg::loadAssetsFromJson")
                 << "Failed to load font '" << f << "'\n";
@@ -247,7 +244,7 @@ static void loadAssetsFromJson(sf::GraphicsContext& graphicsContext,
     for (const auto& f :
         ssvuj::getExtr<std::vector<std::string>>(mObj, "textures"))
     {
-        if (!assetStorage.loadTexture(graphicsContext, f, mRootPath + f))
+        if (!assetStorage.loadTexture(f, mRootPath + f))
         {
             ssvu::lo("hg::loadAssetsFromJson")
                 << "Failed to load texture '" << f << "'\n";
@@ -315,12 +312,12 @@ template <typename... Ts>
     return buf;
 }
 
-HGAssets::HGAssetsImpl::HGAssetsImpl(sf::GraphicsContext* graphicsContext,
+HGAssets::HGAssetsImpl::HGAssetsImpl(
     Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
     : steamManager{mSteamManager},
       _headless{mHeadless},
       levelsOnly{mLevelsOnly},
-      assetStorage{Utils::makeUnique<AssetStorage>()}
+      assetStorage{sf::base::makeUnique<AssetStorage>()}
 {
     const HRTimePoint tpBeforeLoad = HRClock::now();
 
@@ -338,8 +335,7 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(sf::GraphicsContext* graphicsContext,
         auto [object, error] =
             ssvuj::getFromFileWithErrors("Assets/assets.json");
 
-        SSVOH_ASSERT(graphicsContext != nullptr);
-        loadAssetsFromJson(*graphicsContext, *assetStorage, "Assets/", object);
+        loadAssetsFromJson(*assetStorage, "Assets/", object);
 
         loadInfo.addFormattedError(error);
     }
@@ -351,7 +347,7 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(sf::GraphicsContext* graphicsContext,
         return;
     }
 
-    if (!loadAllPackAssets(graphicsContext, mHeadless))
+    if (!loadAllPackAssets(mHeadless))
     {
         ssvu::lo("HGAssets::HGAssets") << "Error loading all pack assets\n";
         std::terminate();
@@ -502,8 +498,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::loadPackAssets(
-    sf::GraphicsContext* graphicsContext, const PackData& packData,
-    const bool headless)
+    const PackData& packData, const bool headless)
 {
     const std::string& packPath{packData.folderPath};
     const std::string& packId{packData.id};
@@ -516,10 +511,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
         {
             if (ssvufs::Path{packPath + "Shaders/"}.isFolder() && !levelsOnly)
             {
-                SSVOH_ASSERT(graphicsContext != nullptr);
-
-                loadPackAssets_loadShaders(
-                    *graphicsContext, packId, packPath, headless);
+                loadPackAssets_loadShaders(packId, packPath, headless);
             }
 
             if (!levelsOnly && ssvufs::Path{packPath + "Sounds/"}.isFolder())
@@ -786,11 +778,11 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::loadAllPackAssets(
-    sf::GraphicsContext* graphicsContext, const bool headless)
+    const bool headless)
 {
     for (const auto& [packId, packData] : packDatas)
     {
-        if (loadPackAssets(graphicsContext, packData, headless))
+        if (loadPackAssets(packData, headless))
         {
             continue;
         }
@@ -889,8 +881,7 @@ void HGAssets::HGAssetsImpl::addLocalProfile(ProfileData&& profileData)
 }
 
 void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
-    sf::GraphicsContext& graphicsContext, const std::string& mPackId,
-    const ssvufs::Path& mPath, const bool headless)
+    const std::string& mPackId, const ssvufs::Path& mPath, const bool headless)
 {
     if (headless)
     {
@@ -915,7 +906,7 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
             }
 
             auto shaderUptr =
-                Utils::makeUnique<sf::Shader>(*SSVOH_MOVE(shader));
+                sf::base::makeUnique<sf::Shader>(*SSVOH_MOVE(shader));
 
             shadersById.push_back(shaderUptr.get());
             SSVOH_ASSERT(shadersById.size() > 0);
@@ -1180,8 +1171,7 @@ HGAssets::HGAssetsImpl::getShaderIdByPath(const std::string& mShaderPath)
 //**********************************************
 // RELOAD
 
-void HGAssets::HGAssetsImpl::reloadAllShaders(
-    sf::GraphicsContext& graphicsContext)
+void HGAssets::HGAssetsImpl::reloadAllShaders()
 {
     for (auto& [id, loadedShader] : shaders)
     {
@@ -1635,10 +1625,10 @@ HGAssets::HGAssetsImpl::getLuaFileCache() const
 
 // ----------------------------------------------------------------------------
 
-HGAssets::HGAssets(sf::GraphicsContext* graphicsContext,
+HGAssets::HGAssets(
     Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
-    : _impl(Utils::makeUnique<HGAssetsImpl>(
-          graphicsContext, mSteamManager, mHeadless, mLevelsOnly))
+    : _impl(sf::base::makeUnique<HGAssetsImpl>(
+          mSteamManager, mHeadless, mLevelsOnly))
 {}
 
 HGAssets::~HGAssets() = default;
@@ -1750,9 +1740,9 @@ bool HGAssets::isValidShaderId(const std::size_t mShaderId) const
     return _impl->isValidShaderId(mShaderId);
 }
 
-void HGAssets::reloadAllShaders(sf::GraphicsContext& graphicsContext)
+void HGAssets::reloadAllShaders()
 {
-    return _impl->reloadAllShaders(graphicsContext);
+    return _impl->reloadAllShaders();
 }
 
 std::string HGAssets::reloadPack(

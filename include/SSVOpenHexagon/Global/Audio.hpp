@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
+#include <SFML/Base/UniquePtr.hpp>
 
 #include <string>
 #include <functional>
@@ -28,7 +28,7 @@ public:
 private:
     class AudioImpl;
 
-    Utils::UniquePtr<AudioImpl> _impl;
+    sf::base::UniquePtr<AudioImpl> _impl;
 
     [[nodiscard]] const AudioImpl& impl() const noexcept;
     [[nodiscard]] AudioImpl& impl() noexcept;
