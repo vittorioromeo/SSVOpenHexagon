@@ -15,6 +15,7 @@ cmake .. -G"Ninja" \
          -DCMAKE_C_COMPILER="gcc" \
          -DCMAKE_C_FLAGS="-fuse-ld=lld" \
          -DCMAKE_CXX_COMPILER="g++" \
+         -DCMAKE_CXX_SCAN_FOR_MODULES="OFF" \
          -DCMAKE_CXX_FLAGS="\
             -fuse-ld=lld \
             -Og -g3 -fno-omit-frame-pointer \

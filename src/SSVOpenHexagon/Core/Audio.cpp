@@ -68,7 +68,7 @@ public:
     void setSoundVolume(const float volume)
     {
         SSVOH_ASSERT(volume >= 0.f && volume <= 100.f);
-        _soundPlayer.setVolume(volume);
+        _soundPlayer.setVolume(volume / 100.f);
     }
 
     void setMusicVolume(const float volume)
@@ -78,7 +78,7 @@ public:
 
         if (_music.hasValue())
         {
-            _music->setVolume(_musicVolume);
+            _music->setVolume(_musicVolume / 100.f);
         }
     }
 
@@ -86,7 +86,7 @@ public:
     {
         if (_music.hasValue())
         {
-            _music->setVolume(_musicVolume);
+            _music->setVolume(_musicVolume / 100.f);
             _music->play(_playbackDevice);
         }
     }

@@ -894,8 +894,14 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
     {
         for (const auto& p : scanSingleByExt(mPath + "Shaders/", extension))
         {
-            sf::base::Optional shader =
-                sf::Shader::loadFromFile(p.getStr(), shaderType);
+            sf::base::Optional<sf::Shader> shader;
+
+            if (shaderType == sf::Shader::Type::Vertex)
+                shader = sf::Shader::loadFromFile({.vertexPath = p.getStr()});
+            else if (shaderType == sf::Shader::Type::Fragment)
+                shader = sf::Shader::loadFromFile({.fragmentPath = p.getStr()});
+            else if (shaderType == sf::Shader::Type::Geometry)
+                shader = sf::Shader::loadFromFile({.geometryPath = p.getStr()});
 
             if (!shader.hasValue())
             {
@@ -1175,8 +1181,17 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
 {
     for (auto& [id, loadedShader] : shaders)
     {
-        auto reloadedShader = sf::Shader::loadFromFile(
-            loadedShader.path, loadedShader.shaderType);
+        sf::base::Optional<sf::Shader> reloadedShader;
+
+        if (loadedShader.shaderType == sf::Shader::Type::Vertex)
+            reloadedShader =
+                sf::Shader::loadFromFile({.vertexPath = loadedShader.path});
+        else if (loadedShader.shaderType == sf::Shader::Type::Fragment)
+            reloadedShader =
+                sf::Shader::loadFromFile({.fragmentPath = loadedShader.path});
+        else if (loadedShader.shaderType == sf::Shader::Type::Geometry)
+            reloadedShader =
+                sf::Shader::loadFromFile({.geometryPath = loadedShader.path});
 
         if (!reloadedShader.hasValue())
         {

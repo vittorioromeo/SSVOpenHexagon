@@ -371,23 +371,23 @@ void HexagonGame::drawKeyIcons()
     keyIconFocus.color = getInputFocused() ? onColor : offColor;
     keyIconSwap.color = getInputSwap() ? onColor : offColor;
 
-    render(keyIconLeft, *txKeyIconLeft);
-    render(keyIconRight, *txKeyIconRight);
-    render(keyIconFocus, *txKeyIconFocus);
-    render(keyIconSwap, *txKeyIconSwap);
+    render(keyIconLeft, sf::RenderStates{.texture = txKeyIconLeft});
+    render(keyIconRight, sf::RenderStates{.texture = txKeyIconRight});
+    render(keyIconFocus, sf::RenderStates{.texture = txKeyIconFocus});
+    render(keyIconSwap, sf::RenderStates{.texture = txKeyIconSwap});
 
     // ------------------------------------------------------------------------
 
     if (mustShowReplayUI())
     {
         replayIcon.color = onColor;
-        render(replayIcon, *txReplayIcon);
+        render(replayIcon, sf::RenderStates{.texture = txReplayIcon});
     }
 }
 
 void HexagonGame::drawLevelInfo(const sf::RenderStates& mStates)
 {
-    render(levelInfoRectangle, /* texture */ nullptr, mStates);
+    render(levelInfoRectangle, mStates);
 
     if (textUI.hasValue())
     {
@@ -403,7 +403,7 @@ void HexagonGame::drawParticles()
 {
     for (Particle& p : particles)
     {
-        render(p.sprite, *txStarParticle);
+        render(p.sprite, sf::RenderStates{.texture = txStarParticle});
     }
 }
 
@@ -411,7 +411,7 @@ void HexagonGame::drawTrailParticles()
 {
     for (TrailParticle& p : trailParticles)
     {
-        render(p.sprite, *txSmallCircle);
+        render(p.sprite, sf::RenderStates{.texture = txSmallCircle});
     }
 }
 
@@ -419,7 +419,7 @@ void HexagonGame::drawSwapParticles()
 {
     for (SwapParticle& p : swapParticles)
     {
-        render(p.sprite, *txSmallCircle);
+        render(p.sprite, sf::RenderStates{.texture = txSmallCircle});
     }
 }
 

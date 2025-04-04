@@ -45,6 +45,8 @@
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
+#include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 #include <SSVStart/Utils/Input.hpp>
@@ -409,12 +411,40 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             {
                 enteredChars.emplace_back(ssvu::toNum<char>(e->unicode));
             }
+
+            if (!dialogBox.empty() && dialogBox.isInputBox())
+            {
+                std::string& input = dialogBox.getInput();
+
+                if (e->unicode >= 32 && e->unicode < 127)
+                {
+                    if (input.size() < 32)
+                    {
+                        playSoundOverride("beep.ogg");
+                        input.push_back(static_cast<char>(e->unicode));
+                    }
+                }
+            }
         }
-        else if (event.is<sf::Event::KeyPressed>())
+        else if (const auto* e = event.getIf<sf::Event::KeyPressed>())
         {
             if (window.hasFocus())
             {
                 setMouseCursorVisible(false);
+            }
+
+            if (!dialogBox.empty() && dialogBox.isInputBox())
+            {
+                std::string& input = dialogBox.getInput();
+
+                if (e->code == sf::Keyboard::Key::Backspace)
+                {
+                    if (!input.empty())
+                    {
+                        playSoundOverride("beep.ogg");
+                        input.pop_back();
+                    }
+                }
             }
         }
         else if (const auto* e = event.getIf<sf::Event::MouseMoved>())
@@ -487,32 +517,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             {
                 wheelProgress = 0.f;
                 downAction();
-            }
-        }
-        else if (const auto* e = event.getIf<sf::Event::TextEntered>())
-        {
-            if (dialogBox.empty() || !dialogBox.isInputBox())
-            {
-                return;
-            }
-
-            std::string& input = dialogBox.getInput();
-
-            if (e->unicode >= 32 && e->unicode < 127)
-            {
-                if (input.size() < 32)
-                {
-                    playSoundOverride("beep.ogg");
-                    input.push_back(static_cast<char>(e->unicode));
-                }
-            }
-            else if (e->unicode == 8) // backspace
-            {
-                if (!input.empty())
-                {
-                    playSoundOverride("beep.ogg");
-                    input.pop_back();
-                }
             }
         }
         else if (const auto* e = event.getIf<sf::Event::KeyReleased>())
@@ -5834,7 +5838,8 @@ void MenuGame::draw()
             return;
 
         case States::EpilepsyWarning:
-            window.draw(epilepsyWarning, txEpilepsyWarning);
+            window.draw(epilepsyWarning,
+                sf::RenderStates{.texture = &txEpilepsyWarning});
             renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
                 {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
@@ -5987,9 +5992,9 @@ void MenuGame::draw()
 
 void MenuGame::drawGraphics()
 {
-    window.draw(titleBar, txTitleBar);
-    window.draw(creditsBar1, txCreditsBar1);
-    window.draw(creditsBar2, *txCreditsBar2);
+    window.draw(titleBar, sf::RenderStates{.texture = &txTitleBar});
+    window.draw(creditsBar1, sf::RenderStates{.texture = &txCreditsBar1});
+    window.draw(creditsBar2, sf::RenderStates{.texture = txCreditsBar2});
     window.draw(txtVersion.font);
 }
 
@@ -6097,8 +6102,8 @@ void MenuGame::drawOnlineStatus()
         ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
         ssvs::getGlobalCenter(rsOnlineStatus).y};
 
-    window.draw(sOnline, *txSOnline);
-    window.draw(rsOnlineStatus, /* texture */ nullptr);
+    window.draw(sOnline, sf::RenderStates{.texture = txSOnline});
+    window.draw(rsOnlineStatus);
     window.draw(txtOnlineStatus);
 }
 

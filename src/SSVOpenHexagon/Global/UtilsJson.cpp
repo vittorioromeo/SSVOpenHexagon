@@ -134,7 +134,7 @@ void Converter<ssvs::Input::Combo>::toObj(Obj& mObj, const T& mValue)
     const auto& keys(mValue.getKeys());
     const auto& btns(mValue.getBtns());
 
-    for (auto j(0u); j < sf::Keyboard::KeyCount; ++j)
+    for (int j = 0; j < static_cast<int>(sf::Keyboard::KeyCount); ++j)
     {
         if (ssvs::getKeyBit(keys, sf::Keyboard::Key(j)))
         {
@@ -142,7 +142,7 @@ void Converter<ssvs::Input::Combo>::toObj(Obj& mObj, const T& mValue)
         }
     }
 
-    for (auto j(0u); j < sf::Mouse::ButtonCount; ++j)
+    for (int j = 0; j < static_cast<int>(sf::Mouse::ButtonCount); ++j)
     {
         if (ssvs::getBtnBit(btns, sf::Mouse::Button(j)))
         {
