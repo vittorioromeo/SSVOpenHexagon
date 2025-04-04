@@ -22,8 +22,8 @@
 #include <string>
 #include <vector>
 
-#include <cstdint>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace sf {
 
@@ -37,7 +37,7 @@ namespace Impl {
 
 struct CiphertextVectorPtr
 {
-    std::vector<std::uint8_t>* ptr;
+    std::vector<sf::base::U8>* ptr;
 };
 
 } // namespace Impl
@@ -50,8 +50,8 @@ struct PInvalid
 struct PEncryptedMsg
 {
     SodiumNonceArray nonce;
-    std::uint64_t messageLength;
-    std::uint64_t ciphertextLength;
+    sf::base::U64 messageLength;
+    sf::base::U64 ciphertextLength;
     Impl::CiphertextVectorPtr ciphertext;
 };
 
@@ -61,18 +61,18 @@ struct PEncryptedMsg
 struct CTSPHeartbeat                   { };
 struct CTSPDisconnect                  { };
 struct CTSPPublicKey                   { SodiumPublicKeyArray key; };
-struct CTSPRegister                    { std::uint64_t steamId; std::string name; std::string passwordHash; };
-struct CTSPLogin                       { std::uint64_t steamId; std::string name; std::string passwordHash; };
-struct CTSPLogout                      { std::uint64_t steamId; };
-struct CTSPDeleteAccount               { std::uint64_t steamId; std::string passwordHash; };
-struct CTSPRequestTopScores            { std::uint64_t loginToken; std::string levelValidator; };
-struct CTSPReplay                      { std::uint64_t loginToken; replay_file replayFile; };
-struct CTSPRequestOwnScore             { std::uint64_t loginToken; std::string levelValidator; };
-struct CTSPRequestTopScoresAndOwnScore { std::uint64_t loginToken; std::string levelValidator; };
-struct CTSPStartedGame                 { std::uint64_t loginToken; std::string levelValidator; };
-struct CTSPCompressedReplay            { std::uint64_t loginToken; compressed_replay_file compressedReplayFile; };
-struct CTSPRequestServerStatus         { std::uint64_t loginToken; };
-struct CTSPReady                       { std::uint64_t loginToken; };
+struct CTSPRegister                    { sf::base::U64 steamId; std::string name; std::string passwordHash; };
+struct CTSPLogin                       { sf::base::U64 steamId; std::string name; std::string passwordHash; };
+struct CTSPLogout                      { sf::base::U64 steamId; };
+struct CTSPDeleteAccount               { sf::base::U64 steamId; std::string passwordHash; };
+struct CTSPRequestTopScores            { sf::base::U64 loginToken; std::string levelValidator; };
+struct CTSPReplay                      { sf::base::U64 loginToken; replay_file replayFile; };
+struct CTSPRequestOwnScore             { sf::base::U64 loginToken; std::string levelValidator; };
+struct CTSPRequestTopScoresAndOwnScore { sf::base::U64 loginToken; std::string levelValidator; };
+struct CTSPStartedGame                 { sf::base::U64 loginToken; std::string levelValidator; };
+struct CTSPCompressedReplay            { sf::base::U64 loginToken; compressed_replay_file compressedReplayFile; };
+struct CTSPRequestServerStatus         { sf::base::U64 loginToken; };
+struct CTSPReady                       { sf::base::U64 loginToken; };
 // clang-format on
 
 #define SSVOH_CTS_PACKETS                                         \
@@ -105,7 +105,7 @@ struct STCPKick                   { };
 struct STCPPublicKey              { SodiumPublicKeyArray key; };
 struct STCPRegistrationSuccess    { };
 struct STCPRegistrationFailure    { std::string error; };
-struct STCPLoginSuccess           { std::uint64_t loginToken; std::string loginName; };
+struct STCPLoginSuccess           { sf::base::U64 loginToken; std::string loginName; };
 struct STCPLoginFailure           { std::string error; };
 struct STCPLogoutSuccess          { };
 struct STCPLogoutFailure          { };

@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
-using ProtocolVersion = std::uint8_t;
+using ProtocolVersion = sf::base::U8;
 
 inline constexpr ProtocolVersion PROTOCOL_VERSION = 0;
 

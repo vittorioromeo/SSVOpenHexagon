@@ -17,7 +17,7 @@
 
 #include <boost/pfr.hpp>
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <sstream>
 #include <iostream>
 #include <SFML/Base/Optional.hpp>
@@ -67,7 +67,7 @@ template <typename T, typename... Ts>
     return indexOfType<T>(TypeList<Ts...>{});
 }
 
-using PacketType = std::uint8_t;
+using PacketType = sf::base::U8;
 
 template <typename T>
 [[nodiscard]] constexpr PacketType getPacketType()
@@ -86,25 +86,25 @@ template <typename T>
     }
 }
 
-static constexpr std::uint8_t preamble1stByte{'o'};
-static constexpr std::uint8_t preamble2ndByte{'h'};
+static constexpr sf::base::U8 preamble1stByte{'o'};
+static constexpr sf::base::U8 preamble2ndByte{'h'};
 
 void encodePreamble(sf::Packet& p)
 {
-    p << static_cast<std::uint8_t>(preamble1stByte)
-      << static_cast<std::uint8_t>(preamble2ndByte);
+    p << static_cast<sf::base::U8>(preamble1stByte)
+      << static_cast<sf::base::U8>(preamble2ndByte);
 }
 
 void encodeProtocolVersion(sf::Packet& p)
 {
-    p << static_cast<std::uint8_t>(PROTOCOL_VERSION);
+    p << static_cast<sf::base::U8>(PROTOCOL_VERSION);
 }
 
 void encodeVersion(sf::Packet& p)
 {
-    p << static_cast<std::uint8_t>(GAME_VERSION.major)
-      << static_cast<std::uint8_t>(GAME_VERSION.minor)
-      << static_cast<std::uint8_t>(GAME_VERSION.micro);
+    p << static_cast<sf::base::U8>(GAME_VERSION.major)
+      << static_cast<sf::base::U8>(GAME_VERSION.minor)
+      << static_cast<sf::base::U8>(GAME_VERSION.micro);
 }
 
 void clearPacketAndEncodePreambleAndProtocolVersionAndGameVersion(sf::Packet& p)
@@ -119,7 +119,7 @@ void clearPacketAndEncodePreambleAndProtocolVersionAndGameVersion(sf::Packet& p)
 template <typename T>
 void encodePacketType(sf::Packet& p, const T&)
 {
-    p << static_cast<std::uint8_t>(getPacketType<T>());
+    p << static_cast<sf::base::U8>(getPacketType<T>());
 }
 
 template <typename T>
@@ -205,7 +205,7 @@ struct Extractor<std::vector<T>>
     [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
-        std::uint64_t size;
+        sf::base::U64 size;
         if (!(p >> size))
         {
             errorOss << "Error extracting vector size\n";
@@ -308,21 +308,21 @@ struct Extractor<hg::GameVersion>
     [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
-        std::int32_t major;
+        sf::base::I32 major;
         if (!(p >> major))
         {
             errorOss << "Error deserializing major version\n";
             return false;
         }
 
-        std::int32_t minor;
+        sf::base::I32 minor;
         if (!(p >> minor))
         {
             errorOss << "Error deserializing minor version\n";
             return false;
         }
 
-        std::int32_t micro;
+        sf::base::I32 micro;
         if (!(p >> micro))
         {
             errorOss << "Error deserializing micro version\n";
@@ -472,24 +472,24 @@ template <typename T>
 
     return
         // Preamble bytes and protocol version must match.
-        m.matchOrPrintError<std::uint8_t>(
+        m.matchOrPrintError<sf::base::U8>(
             "preamble 1st byte", preamble1stByte) &&
-        m.matchOrPrintError<std::uint8_t>(
+        m.matchOrPrintError<sf::base::U8>(
             "preamble 2st byte", preamble2ndByte) &&
-        m.matchOrPrintError<std::uint8_t>(
+        m.matchOrPrintError<sf::base::U8>(
             "protocol version", PROTOCOL_VERSION) &&
 
         // Game version is currently ignored.
-        m.skipOrPrintError<std::uint8_t>("major version") &&
-        m.skipOrPrintError<std::uint8_t>("minor version") &&
-        m.skipOrPrintError<std::uint8_t>("micro version");
+        m.skipOrPrintError<sf::base::U8>("major version") &&
+        m.skipOrPrintError<sf::base::U8>("minor version") &&
+        m.skipOrPrintError<sf::base::U8>("micro version");
 }
 
 [[nodiscard]] sf::base::Optional<PacketType> extractPacketType(
     std::ostringstream& errorOss, sf::Packet& p)
 {
-    const sf::base::Optional<std::uint8_t> extracted =
-        makeExtractor<std::uint8_t>(errorOss, p)("packet type");
+    const sf::base::Optional<sf::base::U8> extracted =
+        makeExtractor<sf::base::U8>(errorOss, p)("packet type");
 
     if (!extracted.hasValue())
     {
@@ -511,15 +511,15 @@ void encodeFirstNVectorElements(
     }
 }
 
-std::vector<std::uint8_t>& getStaticMessageBuffer()
+std::vector<sf::base::U8>& getStaticMessageBuffer()
 {
-    thread_local std::vector<std::uint8_t> result;
+    thread_local std::vector<sf::base::U8> result;
     return result;
 }
 
-std::vector<std::uint8_t>& getStaticCiphertextBuffer()
+std::vector<sf::base::U8>& getStaticCiphertextBuffer()
 {
-    thread_local std::vector<std::uint8_t> result;
+    thread_local std::vector<sf::base::U8> result;
     return result;
 }
 
@@ -568,7 +568,7 @@ void encodeField(sf::Packet& p, const TData& data, const std::array<T, N>& arr)
 template <typename TData, typename T>
 void encodeField(sf::Packet& p, const TData& data, const std::vector<T>& vec)
 {
-    encodeField(p, data, static_cast<std::uint64_t>(vec.size()));
+    encodeField(p, data, static_cast<sf::base::U64>(vec.size()));
 
     for (const T& x : vec)
     {
@@ -607,9 +607,9 @@ template <typename TData>
 void encodeField(sf::Packet& p, const TData& data, const hg::GameVersion& gv)
 {
     (void)data;
-    p << static_cast<std::int32_t>(gv.major)
-      << static_cast<std::int32_t>(gv.minor)
-      << static_cast<std::int32_t>(gv.micro);
+    p << static_cast<sf::base::I32>(gv.major)
+      << static_cast<sf::base::I32>(gv.minor)
+      << static_cast<sf::base::I32>(gv.micro);
 }
 
 template <typename TData>
@@ -641,21 +641,21 @@ void encodeOHPacket(sf::Packet& p, const T& data)
         return false;
     }
 
-    std::uint64_t messageLength;
+    sf::base::U64 messageLength;
     if (!extractInto(messageLength, errorOss, p))
     {
         errorOss << "Error decoding client message length\n";
         return false;
     }
 
-    std::uint64_t ciphertextLength;
+    sf::base::U64 ciphertextLength;
     if (!extractInto(ciphertextLength, errorOss, p))
     {
         errorOss << "Error decoding client ciphertext length\n";
         return false;
     }
 
-    std::vector<std::uint8_t>& ciphertext = getStaticCiphertextBuffer();
+    std::vector<sf::base::U8>& ciphertext = getStaticCiphertextBuffer();
     ciphertext.resize(ciphertextLength);
 
     for (std::size_t i = 0; i < ciphertextLength; ++i)
@@ -670,7 +670,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
         return false;
     }
 
-    std::vector<std::uint8_t>& message = getStaticMessageBuffer();
+    std::vector<sf::base::U8>& message = getStaticMessageBuffer();
     message.resize(messageLength);
 
     if (crypto_secretbox_open_easy(message.data(), ciphertext.data(),
@@ -706,7 +706,7 @@ template <typename F, typename T>
     encryptedMsg.ciphertext.ptr->resize(encryptedMsg.ciphertextLength);
 
     if (crypto_secretbox_easy(encryptedMsg.ciphertext.ptr->data(),
-            static_cast<const std::uint8_t*>(packetToEncrypt.getData()),
+            static_cast<const sf::base::U8*>(packetToEncrypt.getData()),
             encryptedMsg.messageLength, encryptedMsg.nonce.data(),
             keyTransmit.data()) != 0)
     {

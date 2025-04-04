@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cassert>
-#include <cstdint> // TODO: remove dependency?
+#include <SFML/Base/IntTypes.hpp> // TODO: remove dependency?
 
 // From:
 // https://github.com/redorav/crstl/blob/master/include/crstl/utility/placement_new.h
@@ -152,19 +152,19 @@ smallest_int_type_for() noexcept
 {
     if constexpr (N <= UINT8_MAX)
     {
-        return std::uint8_t{};
+        return sf::base::U8{};
     }
     else if constexpr (N <= UINT16_MAX)
     {
-        return std::uint16_t{};
+        return sf::base::U16{};
     }
     else if constexpr (N <= UINT32_MAX)
     {
-        return std::uint32_t{};
+        return sf::base::U32{};
     }
     else if constexpr (N <= UINT64_MAX)
     {
-        return std::uint64_t{};
+        return sf::base::U64{};
     }
     else
     {
@@ -365,35 +365,35 @@ private:
     static_assert(                                                            \
         (I) >= 0 && (I) < type_count, "Alternative index out of range")
 
-#define TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ(obj, Is, ...)                 \
-    do                                                                      \
-    {                                                                       \
-        if constexpr (sizeof...(Alternatives) == 1)                         \
-        {                                                                   \
-            if (constexpr impl::sz_t Is = 0; (obj)._index == Is)            \
-            {                                                               \
-                __VA_ARGS__;                                                \
-            }                                                               \
-        }                                                                   \
-        else if constexpr (sizeof...(Alternatives) == 2)                    \
-        {                                                                   \
-            if (constexpr impl::sz_t Is = 0; (obj)._index == Is)            \
-            {                                                               \
-                __VA_ARGS__;                                                \
-            }                                                               \
-            else if (constexpr impl::sz_t Is = 1; (obj)._index == Is)       \
-            {                                                               \
-                __VA_ARGS__;                                                \
-            }                                                               \
-        }                                                                   \
-        else                                                                \
-        {                                                                   \
-            [&]<impl::sz_t... Is>(impl::index_sequence<Is...>)              \
-                TINYVARIANT_ALWAYS_INLINE_LAMBDA {                          \
-                    ((((obj)._index == Is) ? ((__VA_ARGS__), 0) : 0), ...); \
-                }(alternative_index_sequence);                              \
-        }                                                                   \
-    }                                                                       \
+#define TINYVARIANT_DO_WITH_CURRENT_INDEX_OBJ(obj, Is, ...)              \
+    do                                                                   \
+    {                                                                    \
+        if constexpr (sizeof...(Alternatives) == 1)                      \
+        {                                                                \
+            if (constexpr impl::sz_t Is = 0; (obj)._index == Is)         \
+            {                                                            \
+                __VA_ARGS__;                                             \
+            }                                                            \
+        }                                                                \
+        else if constexpr (sizeof...(Alternatives) == 2)                 \
+        {                                                                \
+            if (constexpr impl::sz_t Is = 0; (obj)._index == Is)         \
+            {                                                            \
+                __VA_ARGS__;                                             \
+            }                                                            \
+            else if (constexpr impl::sz_t Is = 1; (obj)._index == Is)    \
+            {                                                            \
+                __VA_ARGS__;                                             \
+            }                                                            \
+        }                                                                \
+        else                                                             \
+        {                                                                \
+            [&]<impl::sz_t... Is>(impl::index_sequence<Is...>)           \
+                TINYVARIANT_ALWAYS_INLINE_LAMBDA                         \
+            { ((((obj)._index == Is) ? ((__VA_ARGS__), 0) : 0), ...); }( \
+                alternative_index_sequence);                             \
+        }                                                                \
+    }                                                                    \
     while (false)
 
 #define TINYVARIANT_DO_WITH_CURRENT_INDEX(Is, ...) \
@@ -696,7 +696,7 @@ public:
     template <typename... Fs>
     [[nodiscard, gnu::always_inline]] auto recursive_match(
         Fs&&... fs) & -> decltype(recursive_visit(impl::overload_set{
-                          static_cast<Fs&&>(fs)...}))
+        static_cast<Fs&&>(fs)...}))
     {
         return recursive_visit(impl::overload_set{static_cast<Fs&&>(fs)...});
     }
@@ -704,7 +704,7 @@ public:
     template <typename... Fs>
     [[nodiscard, gnu::always_inline]] auto recursive_match(
         Fs&&... fs) const& -> decltype(recursive_visit(impl::overload_set{
-                               static_cast<Fs&&>(fs)...}))
+        static_cast<Fs&&>(fs)...}))
     {
         return recursive_visit(impl::overload_set{static_cast<Fs&&>(fs)...});
     }
@@ -723,10 +723,14 @@ public:
         }
         else
         {
+#ifndef __clang__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
             alignas(R) byte ret_buffer[sizeof(R)];
+#ifndef __clang__
 #pragma GCC diagnostic pop
+#endif
 
             TINYVARIANT_DO_WITH_CURRENT_INDEX(I,
                 TINYVARIANT_PLACEMENT_NEW(ret_buffer)
@@ -751,10 +755,14 @@ public:
         }
         else
         {
+#ifndef __clang__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
             alignas(R) byte ret_buffer[sizeof(R)];
+#ifndef __clang__
 #pragma GCC diagnostic pop
+#endif
 
             TINYVARIANT_DO_WITH_CURRENT_INDEX(I,
                 TINYVARIANT_PLACEMENT_NEW(ret_buffer)
@@ -767,7 +775,7 @@ public:
     template <typename... Fs>
     [[nodiscard, gnu::always_inline]] auto linear_match(
         Fs&&... fs) & -> decltype(linear_visit(impl::overload_set{
-                          static_cast<Fs&&>(fs)...}))
+        static_cast<Fs&&>(fs)...}))
     {
         return linear_visit(impl::overload_set{static_cast<Fs&&>(fs)...});
     }
@@ -775,7 +783,7 @@ public:
     template <typename... Fs>
     [[nodiscard, gnu::always_inline]] auto linear_match(
         Fs&&... fs) const& -> decltype(linear_visit(impl::overload_set{
-                               static_cast<Fs&&>(fs)...}))
+        static_cast<Fs&&>(fs)...}))
     {
         return linear_visit(impl::overload_set{static_cast<Fs&&>(fs)...});
     }

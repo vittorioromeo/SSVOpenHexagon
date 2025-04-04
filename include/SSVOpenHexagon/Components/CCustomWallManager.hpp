@@ -12,7 +12,7 @@
 #include <SFML/Graphics/Color.hpp>
 
 #include <vector>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 #include <cstddef>
 
@@ -63,7 +63,7 @@ public:
     void setDeadly(const CCustomWallHandle cwHandle, const bool deadly);
 
     void setKillingSide(
-        const CCustomWallHandle cwHandle, const std::uint8_t killingSide);
+        const CCustomWallHandle cwHandle, const sf::base::U8 killingSide);
 
     void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIdx,
         const sf::Color& color);
@@ -87,7 +87,7 @@ public:
 
     [[nodiscard]] bool getDeadly(const CCustomWallHandle cwHandle);
 
-    [[nodiscard]] std::uint8_t getKillingSide(const CCustomWallHandle cwHandle);
+    [[nodiscard]] sf::base::U8 getKillingSide(const CCustomWallHandle cwHandle);
 
     void clear();
     void draw(Utils::FastVertexVectorTris& wallQuads);

@@ -241,7 +241,7 @@ static void test_replay_file_serialization_to_file_randomized(
 
     hg::replay_file rf{
         //
-        ._version{getRndInt<std::uint32_t>(0, 1000000)},
+        ._version{getRndInt<sf::base::U32>(0, 1000000)},
         ._player_name{"hello world"},
         ._seed{getRndInt<hg::replay_file::seed_type>(0, 1000000)},
         ._data{rd},

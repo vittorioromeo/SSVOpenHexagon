@@ -26,7 +26,7 @@
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
@@ -341,8 +341,8 @@ void HexagonGame::initFlashEffect(int r, int g, int b)
     flashPolygon.clear();
     flashPolygon.reserve(6);
 
-    const sf::Color color{static_cast<std::uint8_t>(r),
-        static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b), 0};
+    const sf::Color color{static_cast<sf::base::U8>(r),
+        static_cast<sf::base::U8>(g), static_cast<sf::base::U8>(b), 0};
 
     const auto width = static_cast<float>(Config::getWidth());
     const auto height = static_cast<float>(Config::getHeight());
@@ -358,8 +358,8 @@ void HexagonGame::initFlashEffect(int r, int g, int b)
 
 void HexagonGame::drawKeyIcons()
 {
-    constexpr std::uint8_t offOpacity = 90;
-    constexpr std::uint8_t onOpacity = 255;
+    constexpr sf::base::U8 offOpacity = 90;
+    constexpr sf::base::U8 onOpacity = 255;
 
     const sf::Color colorText = getColorText();
 

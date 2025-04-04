@@ -17,5 +17,5 @@ cmake .. -G"Ninja" \
             -Wall -Wextra -Wpedantic -Wno-braced-scalar-init -Wno-missing-field-initializers \
             -D_GLIBCXX_ASSERTIONS=1 \
             -fstack-protector -Wno-pragmas \
-            -fsanitize=address -g3"
-
+            -fsanitize=address -g3 \
+            -DSFML_ENABLE_LIFETIME_TRACKING=1"

@@ -187,7 +187,7 @@ void CCustomWallManager::setDeadly(
 }
 
 void CCustomWallManager::setKillingSide(
-    const CCustomWallHandle cwHandle, const std::uint8_t side)
+    const CCustomWallHandle cwHandle, const sf::base::U8 side)
 {
     if (side > 3u) [[unlikely]]
     {
@@ -253,7 +253,7 @@ CCustomWallManager::getVertexPos4(const CCustomWallHandle cwHandle)
     return _customWalls[cwHandle].getDeadly();
 }
 
-[[nodiscard]] std::uint8_t CCustomWallManager::getKillingSide(
+[[nodiscard]] sf::base::U8 CCustomWallManager::getKillingSide(
     const CCustomWallHandle cwHandle)
 {
     if (!checkValidHandle(cwHandle, "get killing side"))

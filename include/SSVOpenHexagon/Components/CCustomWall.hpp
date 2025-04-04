@@ -12,7 +12,7 @@
 
 #include <array>
 #include <bitset>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
@@ -25,7 +25,7 @@ private:
     std::array<sf::Vector2f, 4> _vertexPositions;
     std::array<sf::Vector2f, 4> _oldVertexPositions;
     std::array<sf::Color, 4> _vertexColors;
-    std::uint8_t _killingSide{0u};
+    sf::base::U8 _killingSide{0u};
 
     enum CWFlags : unsigned int
     {
@@ -137,12 +137,12 @@ public:
         return true;
     }
 
-    [[gnu::always_inline]] void setKillingSide(const std::uint8_t side) noexcept
+    [[gnu::always_inline]] void setKillingSide(const sf::base::U8 side) noexcept
     {
         _killingSide = side;
     }
 
-    [[nodiscard, gnu::always_inline]] std::uint8_t
+    [[nodiscard, gnu::always_inline]] sf::base::U8
     getKillingSide() const noexcept
     {
         return _killingSide;

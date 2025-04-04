@@ -18,7 +18,7 @@
 #include <iostream>
 #include <utility>
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
@@ -131,7 +131,7 @@ void replay_data::record_input(const bool left, const bool right,
 
     for (const input_bitset& ib : _inputs)
     {
-        const std::uint8_t ib_byte = ib.to_ulong();
+        const sf::base::U8 ib_byte = ib.to_ulong();
         SSVOH_TRY(write(ib_byte));
     }
 
@@ -155,7 +155,7 @@ void replay_data::record_input(const bool left, const bool right,
 #endif
     for (std::size_t i = 0; i < n_inputs; ++i)
     {
-        std::uint8_t ib_byte;
+        sf::base::U8 ib_byte;
         SSVOH_TRY(read(ib_byte));
 
         _inputs[i] = input_bitset{static_cast<unsigned long>(ib_byte)};
@@ -233,7 +233,7 @@ void replay_player::reset() noexcept
 
     const auto write_str = [&](const std::string& s)
     {
-        SSVOH_TRY(write(static_cast<std::uint32_t>(s.size())));
+        SSVOH_TRY(write(static_cast<sf::base::U32>(s.size())));
 
         for (const char c : s)
         {
@@ -276,7 +276,7 @@ void replay_player::reset() noexcept
 
     const auto read_str = [&](std::string& s)
     {
-        std::uint32_t s_size;
+        sf::base::U32 s_size;
         SSVOH_TRY(read(s_size));
 
         s.resize(s_size);
@@ -285,7 +285,7 @@ void replay_player::reset() noexcept
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-        for (std::uint32_t i = 0; i < s_size; ++i)
+        for (sf::base::U32 i = 0; i < s_size; ++i)
         {
             char c;
             SSVOH_TRY(read(c));
@@ -387,7 +387,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
         return false;
     }
 
-    const std::uint64_t written_bytes = sr.written_bytes();
+    const sf::base::U64 written_bytes = sr.written_bytes();
 
     p << written_bytes;
     p.append(static_cast<const void*>(buf), written_bytes);
@@ -396,10 +396,10 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
 [[nodiscard]] bool replay_file::deserialize_from_packet(sf::Packet& p)
 {
-    static_assert(sizeof(std::uint8_t) == sizeof(std::byte));
-    static_assert(alignof(std::uint8_t) == alignof(std::byte));
+    static_assert(sizeof(sf::base::U8) == sizeof(std::byte));
+    static_assert(alignof(sf::base::U8) == alignof(std::byte));
 
-    std::uint64_t bytes_to_read;
+    sf::base::U64 bytes_to_read;
     if (!(p >> bytes_to_read))
     {
         return false;
@@ -407,9 +407,9 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
     std::byte* buf = get_static_buf();
 
-    for (std::uint64_t i = 0; i < bytes_to_read; ++i)
+    for (sf::base::U64 i = 0; i < bytes_to_read; ++i)
     {
-        if (!(p >> reinterpret_cast<std::uint8_t&>(buf[i])))
+        if (!(p >> reinterpret_cast<sf::base::U8&>(buf[i])))
         {
             return false;
         }
@@ -467,7 +467,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 [[nodiscard]] bool compressed_replay_file::serialize_to_packet(
     sf::Packet& p) const
 {
-    p << static_cast<std::uint64_t>(_data.size());
+    p << static_cast<sf::base::U64>(_data.size());
     p.append(static_cast<const void*>(_data.data()), _data.size());
     return true;
 }
@@ -475,10 +475,10 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 [[nodiscard]] bool compressed_replay_file::deserialize_from_packet(
     sf::Packet& p)
 {
-    static_assert(sizeof(std::uint8_t) == sizeof(char));
-    static_assert(alignof(std::uint8_t) == alignof(char));
+    static_assert(sizeof(sf::base::U8) == sizeof(char));
+    static_assert(alignof(sf::base::U8) == alignof(char));
 
-    std::uint64_t bytes_to_read;
+    sf::base::U64 bytes_to_read;
     if (!(p >> bytes_to_read))
     {
         return false;
@@ -486,9 +486,9 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
     _data.resize(bytes_to_read);
 
-    for (std::uint64_t i = 0; i < bytes_to_read; ++i)
+    for (sf::base::U64 i = 0; i < bytes_to_read; ++i)
     {
-        if (!(p >> reinterpret_cast<std::uint8_t&>(_data[i])))
+        if (!(p >> reinterpret_cast<sf::base::U8&>(_data[i])))
         {
             return false;
         }

@@ -15,7 +15,7 @@
 #include <sqlite_orm.h>
 
 #include <string>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <SFML/Base/Optional.hpp>
 #include <chrono>
 
@@ -89,7 +89,7 @@ void addUser(const User& user)
                << Impl::getStorage().dump(user) << '\n';
 }
 
-void removeUser(const std::uint32_t id)
+void removeUser(const sf::base::U32 id)
 {
     Impl::getStorage().remove<User>(id);
 
@@ -110,7 +110,7 @@ void dumpUsers()
     }
 }
 
-[[nodiscard]] bool anyUserWithSteamId(const std::uint64_t steamId)
+[[nodiscard]] bool anyUserWithSteamId(const sf::base::U64 steamId)
 {
     return !getAllUsersWithSteamId(steamId).empty();
 }
@@ -126,7 +126,7 @@ void dumpUsers()
 }
 
 [[nodiscard]] sf::base::Optional<User> getUserWithSteamIdAndName(
-    const std::uint64_t steamId, const std::string& name)
+    const sf::base::U64 steamId, const std::string& name)
 {
     using namespace sqlite_orm;
 
@@ -151,7 +151,7 @@ void dumpUsers()
     return sf::base::makeOptional<User>(query[0]);
 }
 
-void removeAllLoginTokensForUser(const std::uint32_t userId)
+void removeAllLoginTokensForUser(const sf::base::U32 userId)
 {
     using namespace sqlite_orm;
 
@@ -168,7 +168,7 @@ void addLoginToken(const LoginToken& loginToken)
 }
 
 [[nodiscard]] std::vector<User> getAllUsersWithSteamId(
-    const std::uint64_t steamId)
+    const sf::base::U64 steamId)
 {
     using namespace sqlite_orm;
 
@@ -179,7 +179,7 @@ void addLoginToken(const LoginToken& loginToken)
 }
 
 [[nodiscard]] sf::base::Optional<User> getUserWithSteamId(
-    const std::uint64_t steamId)
+    const sf::base::U64 steamId)
 {
     const auto query = getAllUsersWithSteamId(steamId);
 
@@ -249,7 +249,7 @@ void removeAllStaleLoginTokens()
 
     std::vector<ProcessedScore> result;
 
-    std::uint32_t index = 0;
+    sf::base::U32 index = 0;
     for (const auto& row : query)
     {
         result.push_back( //
@@ -266,7 +266,7 @@ void removeAllStaleLoginTokens()
     return result;
 }
 
-[[nodiscard]] bool isLoginTokenValid(std::uint64_t token)
+[[nodiscard]] bool isLoginTokenValid(sf::base::U64 token)
 {
     using namespace sqlite_orm;
 
@@ -281,8 +281,8 @@ void removeAllStaleLoginTokens()
     return isLoginTokenTimestampValid(query.at(0));
 }
 
-void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
-    const std::uint64_t userSteamId, const double value)
+void addScore(const std::string& levelValidator, const sf::base::U64 timestamp,
+    const sf::base::U64 userSteamId, const double value)
 {
     using namespace sqlite_orm;
 
@@ -322,7 +322,7 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
 }
 
 [[nodiscard]] sf::base::Optional<ProcessedScore> getScore(
-    const std::string& levelValidator, const std::uint64_t userSteamId)
+    const std::string& levelValidator, const sf::base::U64 userSteamId)
 {
     using namespace sqlite_orm;
 
@@ -338,7 +338,7 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
         return sf::base::nullOpt;
     }
 
-    std::uint32_t index = 0;
+    sf::base::U32 index = 0;
     for (const auto& row : query)
     {
         if (std::get<3>(row) == userSteamId)

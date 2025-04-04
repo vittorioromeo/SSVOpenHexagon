@@ -11,7 +11,7 @@
 #include <SFML/Base/Optional.hpp>
 
 #include <cstddef>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
@@ -74,6 +74,6 @@ template <typename T>
 
 [[nodiscard]] std::string sodiumHash(const std::string& s);
 
-[[nodiscard]] std::uint64_t randomUInt64();
+[[nodiscard]] sf::base::U64 randomUInt64();
 
 } // namespace hg

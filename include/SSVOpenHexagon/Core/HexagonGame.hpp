@@ -38,7 +38,7 @@
 #include <SFML/Base/Optional.hpp>
 #include <SFML/System/Clock.hpp>
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <sstream>
 #include <unordered_set>
 #include <functional>
@@ -109,8 +109,8 @@ private:
     Discord::discord_manager* discordManager;
     bool discordHung{false};
     bool steamHung{false};
-    std::int8_t discordAttempt{1};
-    std::int8_t steamAttempt{1};
+    sf::base::I8 discordAttempt{1};
+    sf::base::I8 steamAttempt{1};
 
     HGAssets& assets;
     sf::base::Optional<TextUI> textUI;

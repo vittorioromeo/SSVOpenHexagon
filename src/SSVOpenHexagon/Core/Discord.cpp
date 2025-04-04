@@ -6,7 +6,7 @@
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <math.h> // Needed by `discord.h`...
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <chrono>
 
 #ifndef SSVOH_ANDROID
@@ -96,7 +96,7 @@ bool discord_manager::set_rich_presence_in_menu()
     activity.SetState("Selecting Level");
     activity.SetDetails("");
     discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
-    currentTimestamp.SetStart(static_cast<std::int64_t>(
+    currentTimestamp.SetStart(static_cast<sf::base::I64>(
         std::chrono::high_resolution_clock::now().time_since_epoch().count() /
         1'000'000'000));
     _core->ActivityManager().UpdateActivity(activity,
@@ -159,7 +159,7 @@ bool discord_manager::set_rich_presence_in_game(
         // Update the timestamp to show how long the current attempt is. This is
         // shown by "MM:SS elapsed".
         currentTimestamp.SetStart(
-            static_cast<std::int64_t>(std::chrono::high_resolution_clock::now()
+            static_cast<sf::base::I64>(std::chrono::high_resolution_clock::now()
                                           .time_since_epoch()
                                           .count() /
                                       1'000'000'000));

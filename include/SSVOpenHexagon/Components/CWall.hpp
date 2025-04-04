@@ -13,7 +13,7 @@
 #include <SFML/Base/Math/Sin.hpp>
 
 #include <array>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
@@ -102,7 +102,7 @@ public:
         return false;
     }
 
-    [[nodiscard, gnu::always_inline]] std::uint8_t
+    [[nodiscard, gnu::always_inline]] sf::base::U8
     getKillingSide() const noexcept
     {
         return 0u;

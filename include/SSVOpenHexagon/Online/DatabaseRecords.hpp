@@ -7,40 +7,40 @@
 #include <string>
 #include <vector>
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg::Database {
 
 struct User
 {
-    std::uint32_t id;
-    std::uint64_t steamId;
+    sf::base::U32 id;
+    sf::base::U64 steamId;
     std::string name;
     std::vector<char> passwordHash;
 };
 
 struct LoginToken
 {
-    std::uint32_t id;
-    std::uint32_t userId;
-    std::uint64_t timestamp;
-    std::uint64_t token;
+    sf::base::U32 id;
+    sf::base::U32 userId;
+    sf::base::U64 timestamp;
+    sf::base::U64 token;
 };
 
 struct Score
 {
-    std::uint32_t id;
+    sf::base::U32 id;
     std::string levelValidator;
-    std::uint64_t timestamp;
-    std::uint64_t userSteamId;
+    sf::base::U64 timestamp;
+    sf::base::U64 userSteamId;
     double value;
 };
 
 struct ProcessedScore // not stored in database
 {
-    std::uint32_t position;
+    sf::base::U32 position;
     std::string userName;
-    std::uint64_t scoreTimestamp;
+    sf::base::U64 scoreTimestamp;
     double scoreValue;
 };
 

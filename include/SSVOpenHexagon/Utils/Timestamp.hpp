@@ -5,7 +5,7 @@
 #pragma once
 
 #include <chrono>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <string>
 
 namespace hg::Utils {
@@ -13,11 +13,11 @@ namespace hg::Utils {
 using SCClock = std::chrono::system_clock;
 using SCTimePoint = std::chrono::time_point<SCClock>;
 
-[[nodiscard]] std::uint64_t timestamp(const SCTimePoint tp);
+[[nodiscard]] sf::base::U64 timestamp(const SCTimePoint tp);
 
-[[nodiscard]] std::uint64_t nowTimestamp();
+[[nodiscard]] sf::base::U64 nowTimestamp();
 
-[[nodiscard]] SCTimePoint toTimepoint(const std::uint64_t timestamp);
+[[nodiscard]] SCTimePoint toTimepoint(const sf::base::U64 timestamp);
 
 [[nodiscard]] std::string formatTimepoint(
     const SCTimePoint time, const std::string& format);

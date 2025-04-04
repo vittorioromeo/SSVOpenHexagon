@@ -8,7 +8,7 @@
 
 #include <bitset>
 #include <cstddef>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <cstring>
 #include <filesystem>
 #include <SFML/Base/Optional.hpp>
@@ -113,7 +113,7 @@ struct replay_file
 {
     using seed_type = random_number_generator_seed_type;
 
-    std::uint32_t _version;   // Replay format version.
+    sf::base::U32 _version;   // Replay format version.
     std::string _player_name; // Name of the player.
     seed_type _seed;          // RNG seed for the session.
     replay_data _data;        // Input data.

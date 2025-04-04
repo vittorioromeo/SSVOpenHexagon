@@ -24,7 +24,7 @@
 #include <string>
 #include <unordered_set>
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
@@ -57,7 +57,7 @@ private:
 
     struct ConnectedClient
     {
-        enum class State : std::uint8_t
+        enum class State : sf::base::U8
         {
             Disconnected = 0,
             Connected = 1,
@@ -74,11 +74,11 @@ private:
 
         struct LoginData
         {
-            std::uint32_t _userId;
-            std::uint64_t _steamId;
+            sf::base::U32 _userId;
+            sf::base::U64 _steamId;
             std::string _name;
             std::string _passwordHash;
-            std::uint64_t _loginToken;
+            sf::base::U64 _loginToken;
         };
 
         sf::base::Optional<LoginData> _loginData;
@@ -122,7 +122,7 @@ private:
     [[nodiscard]] bool sendRegistrationFailure(
         ConnectedClient& c, const std::string& error);
     [[nodiscard]] bool sendLoginSuccess(ConnectedClient& c,
-        const std::uint64_t loginToken, const std::string& loginName);
+        const sf::base::U64 loginToken, const std::string& loginName);
     [[nodiscard]] bool sendLoginFailure(
         ConnectedClient& c, const std::string& error);
     [[nodiscard]] bool sendLogoutSuccess(ConnectedClient& c);
@@ -156,10 +156,10 @@ private:
     void runIteration_FlushLogs();
 
     [[nodiscard]] bool validateLogin(ConnectedClient& c, const char* context,
-        const std::uint64_t ctspLoginToken);
+        const sf::base::U64 ctspLoginToken);
 
     [[nodiscard]] bool processReplay(ConnectedClient& c,
-        const std::uint64_t loginToken, const replay_file& rf);
+        const sf::base::U64 loginToken, const replay_file& rf);
 
     template <typename T>
     void printCTSPDataVerbose(

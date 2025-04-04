@@ -19,7 +19,7 @@
 #include "steam/steamencryptedappticket.h"
 #endif
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <cstring>
 #include <functional>
 #include <SFML/Base/Optional.hpp>
@@ -164,7 +164,7 @@ public:
 
     [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
 
-    [[nodiscard]] sf::base::Optional<std::uint64_t>
+    [[nodiscard]] sf::base::Optional<sf::base::U64>
     get_ticket_steam_id() const noexcept;
 };
 
@@ -665,7 +665,7 @@ void steam_manager::steam_manager_impl::for_workshop_pack_folders(
     }
 }
 
-[[maybe_unused]] static std::uint32_t unSecretData = 123456;
+[[maybe_unused]] static sf::base::U32 unSecretData = 123456;
 
 bool steam_manager::steam_manager_impl::request_encrypted_app_ticket()
 {
@@ -746,8 +746,8 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
 
     SSVOH_ASSERT(data->m_eResult == k_EResultOK);
 
-    std::uint8_t rgubTicket[1024];
-    std::uint32_t cubTicket;
+    sf::base::U8 rgubTicket[1024];
+    sf::base::U32 cubTicket;
 
     if (!SteamUser()->GetEncryptedAppTicket(
             rgubTicket, sizeof(rgubTicket), &cubTicket))
@@ -756,11 +756,11 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
         return;
     }
 
-    std::uint8_t rgubDecrypted[1024];
-    std::uint32_t cubDecrypted = sizeof(rgubDecrypted);
+    sf::base::U8 rgubDecrypted[1024];
+    sf::base::U32 cubDecrypted = sizeof(rgubDecrypted);
 
     // clang-format off
-    constexpr std::uint8_t rgubKey[k_nSteamEncryptedAppTicketSymmetricKeyLen] =
+    constexpr sf::base::U8 rgubKey[k_nSteamEncryptedAppTicketSymmetricKeyLen] =
     {
         #include "SSVOpenHexagon/Online/SecretSteamKey.hpp"
     };
@@ -803,17 +803,17 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
         return;
     }
 
-    std::uint32_t cubData;
-    std::uint32_t pUnSecretData;
+    sf::base::U32 cubData;
+    sf::base::U32 pUnSecretData;
 
-    const std::uint8_t* receivedData =
+    const sf::base::U8* receivedData =
         SteamEncryptedAppTicket_GetUserVariableData(
             rgubDecrypted, cubDecrypted, &cubData);
 
     std::memcpy(static_cast<void*>(&pUnSecretData),
         static_cast<const void*>(receivedData), sizeof(pUnSecretData));
 
-    if (cubData != sizeof(std::uint32_t) || pUnSecretData != unSecretData)
+    if (cubData != sizeof(sf::base::U32) || pUnSecretData != unSecretData)
     {
         ssvu::lo("Steam") << "Error: failed to retrieve secret data\n";
     }
@@ -843,7 +843,7 @@ steam_manager::steam_manager_impl::got_encrypted_app_ticket() const noexcept
     return _got_ticket;
 }
 
-[[nodiscard]] sf::base::Optional<std::uint64_t>
+[[nodiscard]] sf::base::Optional<sf::base::U64>
 steam_manager::steam_manager_impl::get_ticket_steam_id() const noexcept
 {
     return sf::base::makeOptional(_ticket_steam_id->ConvertToUint64());
@@ -950,7 +950,7 @@ steam_manager::got_encrypted_app_ticket_response() const noexcept
     return impl().got_encrypted_app_ticket();
 }
 
-[[nodiscard]] sf::base::Optional<std::uint64_t>
+[[nodiscard]] sf::base::Optional<sf::base::U64>
 steam_manager::get_ticket_steam_id() const noexcept
 {
     return impl().get_ticket_steam_id();
@@ -1051,7 +1051,7 @@ steam_manager::got_encrypted_app_ticket_response() const noexcept
     return false;
 }
 
-[[nodiscard]] sf::base::Optional<std::uint64_t>
+[[nodiscard]] sf::base::Optional<sf::base::U64>
 steam_manager::get_ticket_steam_id() const noexcept
 {
     return sf::base::nullOpt;

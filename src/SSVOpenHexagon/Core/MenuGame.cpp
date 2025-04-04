@@ -66,7 +66,7 @@
 #include <tuple>
 #include <string_view>
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
@@ -3693,9 +3693,9 @@ void MenuGame::setMouseCursorVisible(const bool x)
     }
 
     return sf::Color{
-        static_cast<std::uint8_t>(255 - c.r), //
-        static_cast<std::uint8_t>(255 - c.g), //
-        static_cast<std::uint8_t>(255 - c.b)  //
+        static_cast<sf::base::U8>(255 - c.r), //
+        static_cast<sf::base::U8>(255 - c.g), //
+        static_cast<sf::base::U8>(255 - c.b)  //
     };
 }
 
@@ -5650,7 +5650,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
 
         const auto drawEntry = [&](const int i, const std::string& userName,
-                                   const std::uint64_t scoreTimestamp,
+                                   const sf::base::U64 scoreTimestamp,
                                    const double scoreValue)
         {
             const float score = scoreValue;

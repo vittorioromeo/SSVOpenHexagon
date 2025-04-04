@@ -10,7 +10,7 @@
 
 #include <array>
 #include <string>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
@@ -76,9 +76,9 @@ calculateClientSessionSodiumRTKeys(const SodiumPSKeys& clientPSKeys,
     return out;
 }
 
-[[nodiscard]] std::uint64_t randomUInt64()
+[[nodiscard]] sf::base::U64 randomUInt64()
 {
-    std::uint64_t result;
+    sf::base::U64 result;
     randombytes_buf(static_cast<void*>(&result), sizeof(result));
     return result;
 }

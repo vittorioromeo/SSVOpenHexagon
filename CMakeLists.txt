@@ -136,7 +136,7 @@ CPMAddPackage(
 set(LUAJIT_DISABLE_FFI true)
 set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 
-set_target_properties(libluajit PROPERTIES UNITY_BUILD ON)
+set_target_properties(libluajit PROPERTIES UNITY_BUILD OFF)
 set_target_properties(libluajit PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
 
 # Remove linking against libm on MinGW

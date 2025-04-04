@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <functional>
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Base/UniquePtr.hpp>
@@ -61,7 +61,7 @@ public:
 
     [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
 
-    [[nodiscard]] sf::base::Optional<std::uint64_t>
+    [[nodiscard]] sf::base::Optional<sf::base::U64>
     get_ticket_steam_id() const noexcept;
 };
 

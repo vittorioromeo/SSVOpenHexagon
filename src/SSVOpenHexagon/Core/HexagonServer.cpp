@@ -47,7 +47,7 @@
 
 #include <csignal>
 #include <cstdlib>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <cstdio>
 
 static auto& slog(const char* funcName)
@@ -209,11 +209,11 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient& c,
-    const std::uint64_t loginToken, const std::string& loginName)
+    const sf::base::U64 loginToken, const std::string& loginName)
 {
     return sendEncrypted(c, //
         STCPLoginSuccess{
-            .loginToken = static_cast<std::uint64_t>(loginToken), //
+            .loginToken = static_cast<sf::base::U64>(loginToken), //
             .loginName = loginName                                //
         } //
     );
@@ -674,7 +674,7 @@ void HexagonServer::runIteration_FlushLogs()
 }
 
 [[nodiscard]] bool HexagonServer::validateLogin(
-    ConnectedClient& c, const char* context, const std::uint64_t ctspLoginToken)
+    ConnectedClient& c, const char* context, const sf::base::U64 ctspLoginToken)
 {
     const void* clientAddr = static_cast<void*>(&c);
 
@@ -700,7 +700,7 @@ void HexagonServer::runIteration_FlushLogs()
 }
 
 [[nodiscard]] bool HexagonServer::processReplay(
-    ConnectedClient& c, const std::uint64_t loginToken, const replay_file& rf)
+    ConnectedClient& c, const sf::base::U64 loginToken, const replay_file& rf)
 {
     const void* clientAddr = static_cast<void*>(&c);
 
@@ -1081,7 +1081,7 @@ void HexagonServer::printCTSPDataVerbose(
 
             SSVOH_SLOG << "Creating login token for user\n";
 
-            const std::uint64_t loginToken = randomUInt64();
+            const sf::base::U64 loginToken = randomUInt64();
 
             Database::removeAllLoginTokensForUser(user->id);
 

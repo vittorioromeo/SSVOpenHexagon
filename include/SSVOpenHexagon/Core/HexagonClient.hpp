@@ -20,7 +20,7 @@
 #include <variant>
 #include <vector>
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg::Steam {
 class steam_manager;
@@ -34,7 +34,7 @@ struct compressed_replay_file;
 class HexagonClient
 {
 public:
-    enum class State : std::uint8_t
+    enum class State : sf::base::U8
     {
         Disconnected = 0,
         InitError = 1,
@@ -84,7 +84,7 @@ public:
 private:
     Steam::steam_manager& _steamManager;
 
-    sf::base::Optional<std::uint64_t> _ticketSteamID;
+    sf::base::Optional<sf::base::U64> _ticketSteamID;
 
     const sf::IpAddress _serverIp;
     const unsigned short _serverPort;
@@ -105,7 +105,7 @@ private:
 
     State _state;
 
-    sf::base::Optional<std::uint64_t> _loginToken;
+    sf::base::Optional<sf::base::U64> _loginToken;
     sf::base::Optional<std::string> _loginName;
 
     std::deque<Event> _events;
@@ -124,26 +124,26 @@ private:
     [[nodiscard]] bool sendHeartbeat();
     [[nodiscard]] bool sendDisconnect();
     [[nodiscard]] bool sendPublicKey();
-    [[nodiscard]] bool sendRegister(const std::uint64_t steamId,
+    [[nodiscard]] bool sendRegister(const sf::base::U64 steamId,
         const std::string& name, const std::string& passwordHash);
-    [[nodiscard]] bool sendLogin(const std::uint64_t steamId,
+    [[nodiscard]] bool sendLogin(const sf::base::U64 steamId,
         const std::string& name, const std::string& passwordHash);
-    [[nodiscard]] bool sendLogout(const std::uint64_t steamId);
+    [[nodiscard]] bool sendLogout(const sf::base::U64 steamId);
     [[nodiscard]] bool sendDeleteAccount(
-        const std::uint64_t steamId, const std::string& passwordHash);
+        const sf::base::U64 steamId, const std::string& passwordHash);
     [[nodiscard]] bool sendRequestTopScores(
-        const std::uint64_t loginToken, const std::string& levelValidator);
+        const sf::base::U64 loginToken, const std::string& levelValidator);
     [[nodiscard]] bool sendRequestOwnScore(
-        const std::uint64_t loginToken, const std::string& levelValidator);
+        const sf::base::U64 loginToken, const std::string& levelValidator);
     [[nodiscard]] bool sendRequestTopScoresAndOwnScore(
-        const std::uint64_t loginToken, const std::string& levelValidator);
+        const sf::base::U64 loginToken, const std::string& levelValidator);
     [[nodiscard]] bool sendStartedGame(
-        const std::uint64_t loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendCompressedReplay(const std::uint64_t loginToken,
+        const sf::base::U64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendCompressedReplay(const sf::base::U64 loginToken,
         const std::string& levelValidator,
         const compressed_replay_file& compressedReplayFile);
-    [[nodiscard]] bool sendRequestServerStatus(const std::uint64_t loginToken);
-    [[nodiscard]] bool sendReady(const std::uint64_t loginToken);
+    [[nodiscard]] bool sendRequestServerStatus(const sf::base::U64 loginToken);
+    [[nodiscard]] bool sendReady(const sf::base::U64 loginToken);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);

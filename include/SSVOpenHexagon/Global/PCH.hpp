@@ -71,7 +71,7 @@
 #include <cmath>
 #include <csignal>
 #include <cstddef>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <cstdio>
 #include <cstdlib>
 

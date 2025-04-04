@@ -8,7 +8,7 @@
 #include <SFML/Graphics/Glsl.hpp>
 
 #include <cmath>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace hg::Utils {
 
@@ -33,19 +33,19 @@ namespace hg::Utils {
 
     return sf::Color{
         //
-        static_cast<std::uint8_t>((.701 * u + .168 * w) * in.r +
+        static_cast<sf::base::U8>((.701 * u + .168 * w) * in.r +
                                   (-.587 * u + .330 * w) * in.g +
                                   (-.114 * u - .497 * w) * in.b),
 
-        static_cast<std::uint8_t>((-.299 * u - .328 * w) * in.r +
+        static_cast<sf::base::U8>((-.299 * u - .328 * w) * in.r +
                                   (.413 * u + .035 * w) * in.g +
                                   (-.114 * u + .292 * w) * in.b),
 
-        static_cast<std::uint8_t>((-.3 * u + 1.25 * w) * in.r +
+        static_cast<sf::base::U8>((-.3 * u + 1.25 * w) * in.r +
                                   (-.588 * u - 1.05 * w) * in.g +
                                   (.886 * u - .203 * w) * in.b),
 
-        static_cast<std::uint8_t>(255) //
+        static_cast<sf::base::U8>(255) //
     };
 }
 
@@ -73,20 +73,20 @@ namespace hg::Utils {
     return ret(1.f, 0.f, q);
 }
 
-[[nodiscard, gnu::always_inline, gnu::pure]] inline constexpr std::uint8_t
+[[nodiscard, gnu::always_inline, gnu::pure]] inline constexpr sf::base::U8
 componentClamp(const float value) noexcept
 {
     if (value > 255.f)
     {
-        return std::uint8_t(255);
+        return sf::base::U8(255);
     }
 
     if (value < 0.f)
     {
-        return std::uint8_t(0);
+        return sf::base::U8(0);
     }
 
-    return static_cast<std::uint8_t>(value);
+    return static_cast<sf::base::U8>(value);
 }
 
 [[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Glsl::Vec3 toGLSLVec3(

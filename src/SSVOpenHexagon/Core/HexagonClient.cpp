@@ -21,7 +21,7 @@
 #include <thread>
 #include <chrono>
 
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 static auto& clog(const char* funcName)
 {
@@ -74,7 +74,7 @@ template <typename... Ts>
         return fail("Never got valid Steam encrypted app ticket");
     }
 
-    const sf::base::Optional<std::uint64_t> ticketSteamId =
+    const sf::base::Optional<sf::base::U64> ticketSteamId =
         _steamManager.get_ticket_steam_id();
 
     if (!ticketSteamId.hasValue())
@@ -254,7 +254,7 @@ template <typename T>
     return sendUnencrypted(CTSPPublicKey{_clientPSKeys.keyPublic});
 }
 
-[[nodiscard]] bool HexagonClient::sendRegister(const std::uint64_t steamId,
+[[nodiscard]] bool HexagonClient::sendRegister(const sf::base::U64 steamId,
     const std::string& name, const std::string& passwordHash)
 {
     SSVOH_CLOG_VERBOSE << "Sending registration request to server...\n";
@@ -268,7 +268,7 @@ template <typename T>
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendLogin(const std::uint64_t steamId,
+[[nodiscard]] bool HexagonClient::sendLogin(const sf::base::U64 steamId,
     const std::string& name, const std::string& passwordHash)
 {
     SSVOH_CLOG_VERBOSE << "Sending login request to server...\n";
@@ -282,14 +282,14 @@ template <typename T>
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendLogout(const std::uint64_t steamId)
+[[nodiscard]] bool HexagonClient::sendLogout(const sf::base::U64 steamId)
 {
     SSVOH_CLOG_VERBOSE << "Sending logout request to server...\n";
     return sendEncrypted(CTSPLogout{.steamId = steamId});
 }
 
 [[nodiscard]] bool HexagonClient::sendDeleteAccount(
-    const std::uint64_t steamId, const std::string& passwordHash)
+    const sf::base::U64 steamId, const std::string& passwordHash)
 {
     SSVOH_CLOG_VERBOSE << "Sending delete account request to server...\n";
 
@@ -302,7 +302,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestTopScores(
-    const std::uint64_t loginToken, const std::string& levelValidator)
+    const sf::base::U64 loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending top scores request to server...\n";
 
@@ -315,7 +315,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestOwnScore(
-    const std::uint64_t loginToken, const std::string& levelValidator)
+    const sf::base::U64 loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending own score request to server...\n";
 
@@ -328,7 +328,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestTopScoresAndOwnScore(
-    const std::uint64_t loginToken, const std::string& levelValidator)
+    const sf::base::U64 loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE
         << "Sending top scores and own score request to server...\n";
@@ -342,7 +342,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendStartedGame(
-    const std::uint64_t loginToken, const std::string& levelValidator)
+    const sf::base::U64 loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending started game packet to server...\n";
 
@@ -355,7 +355,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendCompressedReplay(
-    const std::uint64_t loginToken, const std::string& levelValidator,
+    const sf::base::U64 loginToken, const std::string& levelValidator,
     const compressed_replay_file& compressedReplayFile)
 {
     SSVOH_CLOG_VERBOSE << "Sending compressed replay for level validator '"
@@ -370,7 +370,7 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonClient::sendRequestServerStatus(
-    const std::uint64_t loginToken)
+    const sf::base::U64 loginToken)
 {
     SSVOH_CLOG_VERBOSE << "Sending status request to server...\n";
 
@@ -381,7 +381,7 @@ template <typename T>
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendReady(const std::uint64_t loginToken)
+[[nodiscard]] bool HexagonClient::sendReady(const sf::base::U64 loginToken)
 {
     SSVOH_CLOG_VERBOSE << "Sending ready to server...\n";
 

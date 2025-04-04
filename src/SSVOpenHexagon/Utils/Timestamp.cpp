@@ -9,19 +9,19 @@
 
 namespace hg::Utils {
 
-[[nodiscard]] std::uint64_t timestamp(const SCTimePoint tp)
+[[nodiscard]] sf::base::U64 timestamp(const SCTimePoint tp)
 {
     return std::chrono::duration_cast<std::chrono::seconds>(
         tp.time_since_epoch())
         .count();
 }
 
-[[nodiscard]] std::uint64_t nowTimestamp()
+[[nodiscard]] sf::base::U64 nowTimestamp()
 {
     return timestamp(SCClock::now());
 }
 
-[[nodiscard]] SCTimePoint toTimepoint(const std::uint64_t timestamp)
+[[nodiscard]] SCTimePoint toTimepoint(const sf::base::U64 timestamp)
 {
     return SCTimePoint{} + std::chrono::seconds(timestamp);
 }

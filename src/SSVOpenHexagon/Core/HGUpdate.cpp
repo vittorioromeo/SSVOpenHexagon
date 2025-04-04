@@ -43,7 +43,7 @@
 #include <stdexcept>
 
 #include <cstring>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace {
 
@@ -1024,7 +1024,7 @@ void HexagonGame::updateTrailParticles(float mFT)
         const float newAlpha = Utils::getMoveTowardsZero(
             static_cast<float>(color.a), Config::getPlayerTrailDecay() * mFT);
 
-        color.a = static_cast<std::uint8_t>(newAlpha);
+        color.a = static_cast<sf::base::U8>(newAlpha);
         p.sprite.color = color;
 
         p.sprite.scale *= 0.98f;
@@ -1080,7 +1080,7 @@ void HexagonGame::updateSwapParticles(float mFT)
         const float newAlpha =
             Utils::getMoveTowardsZero(static_cast<float>(color.a), 3.5f * mFT);
 
-        color.a = static_cast<std::uint8_t>(newAlpha);
+        color.a = static_cast<sf::base::U8>(newAlpha);
         p.sprite.color = color;
 
         p.sprite.scale *= 0.98f;

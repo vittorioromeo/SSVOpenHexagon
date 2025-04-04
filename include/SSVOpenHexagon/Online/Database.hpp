@@ -7,7 +7,7 @@
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
 #include <string>
-#include <cstdint>
+#include <SFML/Base/IntTypes.hpp>
 #include <SFML/Base/Optional.hpp>
 #include <vector>
 
@@ -17,26 +17,26 @@ namespace hg::Database {
 
 void addUser(const User& user);
 
-void removeUser(const std::uint32_t id);
+void removeUser(const sf::base::U32 id);
 
 void dumpUsers();
 
-[[nodiscard]] bool anyUserWithSteamId(const std::uint64_t steamId);
+[[nodiscard]] bool anyUserWithSteamId(const sf::base::U64 steamId);
 
 [[nodiscard]] bool anyUserWithName(const std::string& name);
 
 [[nodiscard]] sf::base::Optional<User> getUserWithSteamIdAndName(
-    const std::uint64_t steamId, const std::string& name);
+    const sf::base::U64 steamId, const std::string& name);
 
-void removeAllLoginTokensForUser(const std::uint32_t userId);
+void removeAllLoginTokensForUser(const sf::base::U32 userId);
 
 void addLoginToken(const LoginToken& loginToken);
 
 [[nodiscard]] std::vector<User> getAllUsersWithSteamId(
-    const std::uint64_t steamId);
+    const sf::base::U64 steamId);
 
 [[nodiscard]] sf::base::Optional<User> getUserWithSteamId(
-    const std::uint64_t steamId);
+    const sf::base::U64 steamId);
 
 [[nodiscard]] std::vector<LoginToken> getAllStaleLoginTokens();
 void removeAllStaleLoginTokens();
@@ -44,13 +44,13 @@ void removeAllStaleLoginTokens();
 [[nodiscard]] std::vector<ProcessedScore> getTopScores(
     const int topLimit, const std::string& levelValidator);
 
-[[nodiscard]] bool isLoginTokenValid(std::uint64_t token);
+[[nodiscard]] bool isLoginTokenValid(sf::base::U64 token);
 
-void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
-    const std::uint64_t userSteamId, const double value);
+void addScore(const std::string& levelValidator, const sf::base::U64 timestamp,
+    const sf::base::U64 userSteamId, const double value);
 
 [[nodiscard]] sf::base::Optional<ProcessedScore> getScore(
-    const std::string& levelValidator, const std::uint64_t userSteamId);
+    const std::string& levelValidator, const sf::base::U64 userSteamId);
 
 [[nodiscard]] sf::base::Optional<std::string> execute(const std::string& query);
 
