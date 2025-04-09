@@ -61,7 +61,7 @@ void HexagonGame::draw()
     {
         if (!Config::getShaders())
         {
-            return sf::RenderStates::Default;
+            return sf::RenderStates{};
         }
 
         const sf::base::Optional<std::size_t> fragmentShaderId =
@@ -69,7 +69,7 @@ void HexagonGame::draw()
 
         if (!fragmentShaderId.hasValue())
         {
-            return sf::RenderStates::Default;
+            return sf::RenderStates{};
         }
 
         runLuaFunctionIfExists<int, float>(
