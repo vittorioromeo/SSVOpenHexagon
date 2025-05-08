@@ -313,7 +313,8 @@ static void waitUntilSImpl(const double mDuration,
 void HexagonGame::initLua_MainTimeline()
 {
     addLuaFn(lua, "t_eval",
-        [this](const std::string& mCode) {
+        [this](const std::string& mCode)
+        {
             timeline.append_do(
                 [this, mCode] { Utils::runLuaCode(lua, mCode); });
         })
@@ -354,7 +355,8 @@ void HexagonGame::initLua_MainTimeline()
 void HexagonGame::initLua_EventTimeline()
 {
     addLuaFn(lua, "e_eval",
-        [this](const std::string& mCode) {
+        [this](const std::string& mCode)
+        {
             eventTimeline.append_do(
                 [=, this] { Utils::runLuaCode(lua, mCode); });
         })
@@ -678,9 +680,8 @@ void HexagonGame::initLua_LevelControl()
         {
             // TODO (P2): might break replays if someone uses this to control
             // game logic
-            return backgroundCamera.hasValue()
-                       ? backgroundCamera->getRotation()
-                       : 0.f;
+            return backgroundCamera.hasValue() ? backgroundCamera->getRotation()
+                                               : 0.f;
         })
         .doc("Return the background camera rotation, in degrees.");
 

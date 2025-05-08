@@ -182,7 +182,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       rsOnlineStatus{{.size = {128.f, 32.f}}},
       txtOnlineStatus{openSquare, {.string = "", .characterSize = 24}},
       enteredChars{},
-      backgroundCamera{{sf::Vector2f{0.f, 0.f},
+      backgroundCamera{{sf::Vec2f{0.f, 0.f},
           {Config::getSizeX() * Config::getZoomFactor(),
               Config::getSizeY() * Config::getZoomFactor()}}},
       overlayCamera{{{Config::getWidth() / 2.f,
@@ -449,8 +449,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
         else if (const auto* e = event.getIf<sf::Event::MouseMoved>())
         {
-            const sf::Vector2i mouseMoveVec = {e->position.x, e->position.y};
-            const sf::Vector2i mouseMoveDelta =
+            const sf::Vec2i mouseMoveVec = {e->position.x, e->position.y};
+            const sf::Vec2i mouseMoveDelta =
                 lastMouseMovedPosition - mouseMoveVec;
 
             lastMouseMovedPosition = mouseMoveVec;
@@ -1043,7 +1043,7 @@ void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
     }
 
     Config::setCurrentResolution(mWidth, mHeight);
-    window.getRenderWindow().setSize(sf::Vector2u{mWidth, mHeight});
+    window.getRenderWindow().setSize(sf::Vec2u{mWidth, mHeight});
 
     refreshCamera();
     adjustLevelsOffset();
@@ -3142,13 +3142,13 @@ void MenuGame::refreshCamera()
     w = getWindowWidth() * fmax;
     h = getWindowHeight() * fmax;
 
-    backgroundCamera.setView({sf::Vector2f{0.f, 0.f},
+    backgroundCamera.setView({sf::Vec2f{0.f, 0.f},
         {Config::getSizeX() * Config::getZoomFactor(),
             Config::getSizeY() * Config::getZoomFactor()}});
 
     overlayCamera.setView(sf::View{{w / 2.f, h / 2.f}, {w, h}});
 
-    titleBar.origin = sf::Vector2f{0.f, 0.f};
+    titleBar.origin = sf::Vec2f{0.f, 0.f};
     titleBar.scale = {0.5f, 0.5f};
     titleBar.position = {20.f, 20.f};
 
@@ -3264,7 +3264,7 @@ void MenuGame::refreshCamera()
     backgroundCamera.update(0.5f);
 }
 void MenuGame::renderText(
-    const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
+    const std::string& mStr, sf::Text& mText, const sf::Vec2f& mPos)
 {
     mText.setString(mStr);
     mText.position = mPos;
@@ -3272,7 +3272,7 @@ void MenuGame::renderText(
 }
 
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
-    const sf::Vector2f& mPos, const sf::Color& mColor)
+    const sf::Vec2f& mPos, const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3281,14 +3281,14 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
 }
 
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vector2f& mPos)
+    const unsigned int mSize, const sf::Vec2f& mPos)
 {
     mText.setCharacterSize(mSize);
     renderText(mStr, mText, mPos);
 }
 
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vector2f& mPos, const sf::Color& mColor)
+    const unsigned int mSize, const sf::Vec2f& mPos, const sf::Color& mColor)
 {
     const auto prevSize = mText.getCharacterSize();
     mText.setCharacterSize(mSize);
@@ -3301,7 +3301,7 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
 
 // Text rendering centered
 void MenuGame::renderTextCentered(
-    const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
+    const std::string& mStr, sf::Text& mText, const sf::Vec2f& mPos)
 {
     mText.setString(mStr);
     mText.position = {mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y};
@@ -3309,7 +3309,7 @@ void MenuGame::renderTextCentered(
 }
 
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
-    const sf::Vector2f& mPos, const sf::Color& mColor)
+    const sf::Vec2f& mPos, const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3318,14 +3318,14 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
 }
 
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vector2f& mPos)
+    const unsigned int mSize, const sf::Vec2f& mPos)
 {
     mText.setCharacterSize(mSize);
     renderTextCentered(mStr, mText, mPos);
 }
 
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vector2f& mPos, const sf::Color& mColor)
+    const unsigned int mSize, const sf::Vec2f& mPos, const sf::Color& mColor)
 {
     mText.setCharacterSize(mSize);
     const sf::Color prevColor = mText.getFillColor();
@@ -3336,7 +3336,7 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
 
 // Text rendering centered with an offset
 void MenuGame::renderTextCenteredOffset(const std::string& mStr,
-    sf::Text& mText, const sf::Vector2f& mPos, const float xOffset)
+    sf::Text& mText, const sf::Vec2f& mPos, const float xOffset)
 {
     mText.setString(mStr);
     mText.position = {
@@ -3345,7 +3345,7 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
 }
 
 void MenuGame::renderTextCenteredOffset(const std::string& mStr,
-    sf::Text& mText, const sf::Vector2f& mPos, const float xOffset,
+    sf::Text& mText, const sf::Vec2f& mPos, const float xOffset,
     const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
@@ -3527,12 +3527,12 @@ void MenuGame::calcMenuItemOffset(float& offset, bool selected)
 void MenuGame::createQuad(const sf::Color& color, const float x1,
     const float x2, const float y1, const float y2)
 {
-    sf::Vector2f nw{x1, y1}, ne{x2, y1}, se{x2, y2}, sw{x1, y2};
+    sf::Vec2f nw{x1, y1}, ne{x2, y1}, se{x2, y2}, sw{x1, y2};
     menuQuads.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
 }
 
 void MenuGame::createQuad(
-    const sf::Color& color, const sf::Vector2f& mins, const sf::Vector2f& maxs)
+    const sf::Color& color, const sf::Vec2f& mins, const sf::Vec2f& maxs)
 {
     createQuad(color, mins.x, maxs.x, mins.y, maxs.y);
 }
@@ -3541,7 +3541,7 @@ void MenuGame::createQuadTrapezoid(const sf::Color& color, const float x1,
     const float x2, const float x3, const float y1, const float y2,
     const bool left)
 {
-    sf::Vector2f nw, ne, se, sw;
+    sf::Vec2f nw, ne, se, sw;
 
     if (left)
     {
@@ -3657,7 +3657,7 @@ void MenuGame::setMouseCursorVisible(const bool x)
 }
 
 [[nodiscard]] bool MenuGame::overlayMouseOverlap(
-    const sf::Vector2f& mins, const sf::Vector2f& maxs) const
+    const sf::Vec2f& mins, const sf::Vec2f& maxs) const
 {
     constexpr float tolerance = 1.f;
 
@@ -3666,14 +3666,14 @@ void MenuGame::setMouseCursorVisible(const bool x)
         return false;
     }
 
-    const sf::Vector2f mp = overlayCamera.getMousePosition(window);
+    const sf::Vec2f mp = overlayCamera.getMousePosition(window);
 
     return mp.x > mins.x - tolerance && mp.x < maxs.x + tolerance &&
            mp.y > mins.y - tolerance && mp.y < maxs.y + tolerance;
 }
 
 [[nodiscard]] bool MenuGame::overlayMouseOverlapAndUpdateHover(
-    const sf::Vector2f& mins, const sf::Vector2f& maxs)
+    const sf::Vec2f& mins, const sf::Vec2f& maxs)
 {
     if (overlayMouseOverlap(mins, maxs))
     {
@@ -3741,10 +3741,9 @@ void MenuGame::drawMainMenu(
         calcMenuItemOffset(items[i]->getOffset(), i == mSubMenu.getIdx());
         indent = baseIndent - items[i]->getOffset();
 
-        const sf::Vector2f bodyMins{
-            indent - txtMenuBig.height * 2.5f, quadHeight};
+        const sf::Vec2f bodyMins{indent - txtMenuBig.height * 2.5f, quadHeight};
 
-        const sf::Vector2f bodyMaxs{
+        const sf::Vec2f bodyMaxs{
             w, quadHeight + doubleBorder + txtMenuBig.height};
 
         const bool mouseOverlap =
@@ -4179,7 +4178,7 @@ void MenuGame::drawLoadResults()
     //--------------------------------------
     // Hexagon
     const float div{Utils::tau / 6 * 0.5f}, hexagonRadius{100.f};
-    const sf::Vector2f centerPos = {w / 2.f, h / 5.f};
+    const sf::Vec2f centerPos = {w / 2.f, h / 5.f};
 
     menuQuads.clear();
 
@@ -4188,13 +4187,13 @@ void MenuGame::drawLoadResults()
     {
         const float sAngle{div * 2.f * (i + hexagonRotation)};
 
-        const sf::Vector2f nw{
+        const sf::Vec2f nw{
             centerPos.movedTowards(hexagonRadius, sf::radians(sAngle - div))};
-        const sf::Vector2f ne{
+        const sf::Vec2f ne{
             centerPos.movedTowards(hexagonRadius, sf::radians(sAngle + div))};
-        const sf::Vector2f se{centerPos.movedTowards(
+        const sf::Vec2f se{centerPos.movedTowards(
             hexagonRadius + 10.f, sf::radians(sAngle + div))};
-        const sf::Vector2f sw{centerPos.movedTowards(
+        const sf::Vec2f sw{centerPos.movedTowards(
             hexagonRadius + 10.f, sf::radians(sAngle - div))};
 
         menuQuads.batch_unsafe_emplace_back_quad(
@@ -4989,7 +4988,7 @@ void MenuGame::drawLevelSelectionRightSide(
 
     static std::string tempString;
     float prevLevelIndent{0.f}, height{0.f};
-    sf::Vector2f topLeft, topRight, bottomRight, bottomLeft;
+    sf::Vec2f topLeft, topRight, bottomRight, bottomLeft;
 
     // The drawing order is: levels list then pack labels.
     // The reason for it is that when a pack is deselected the
@@ -5054,10 +5053,10 @@ void MenuGame::drawLevelSelectionRightSide(
             height + slctFrameSize, height + levelLabelHeight);
 
         // Body
-        const sf::Vector2f bodyMins{
+        const sf::Vec2f bodyMins{
             indent + slctFrameSize, height + slctFrameSize};
 
-        const sf::Vector2f bodyMaxs{w, height + levelLabelHeight};
+        const sf::Vec2f bodyMaxs{w, height + levelLabelHeight};
 
         const bool mouseOverlap =
             overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
@@ -5183,8 +5182,8 @@ void MenuGame::drawLevelSelectionRightSide(
         createQuad(menuTextColor, temp - slctFrameSize, w, height,
             height + packLabelHeight + slctFrameSize);
 
-        const sf::Vector2f bodyMins{temp, height + slctFrameSize};
-        const sf::Vector2f bodyMaxs{w, height + packLabelHeight};
+        const sf::Vec2f bodyMins{temp, height + slctFrameSize};
+        const sf::Vec2f bodyMaxs{w, height + packLabelHeight};
 
         const bool mouseOverlap =
             overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
@@ -5518,10 +5517,10 @@ void MenuGame::drawLevelSelectionLeftSide(
         favoriteButtonBottom - lineThickness, favoriteButtonBottom);
 
     // Backdrop
-    const sf::Vector2f bodyMins{
+    const sf::Vec2f bodyMins{
         lineThickness - panelOffset, height + lineThickness};
 
-    const sf::Vector2f bodyMaxs{width, favoriteButtonBottom - lineThickness};
+    const sf::Vec2f bodyMaxs{width, favoriteButtonBottom - lineThickness};
 
     const bool mouseOverlap =
         overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
@@ -5783,7 +5782,7 @@ void MenuGame::draw()
     {
         menuBackgroundTris.clear();
 
-        styleData.drawBackgroundMenu(menuBackgroundTris, sf::Vector2f{0.f, 0.f},
+        styleData.drawBackgroundMenu(menuBackgroundTris, sf::Vec2f{0.f, 0.f},
             levelStatus.sides,
             Config::getDarkenUnevenBackgroundChunk() &&
                 levelStatus.darkenUnevenBackgroundChunk,
@@ -5817,7 +5816,7 @@ void MenuGame::draw()
         }
 
         renderText(strBuf, txtSelectionSmall.font,
-            sf::Vector2f{20.f, ssvs::getGlobalBottom(titleBar) + 8});
+            sf::Vec2f{20.f, ssvs::getGlobalBottom(titleBar) + 8});
     }
 
     float indentBig{400.f}, indentSmall{540.f}, profileIndent{-100.f};

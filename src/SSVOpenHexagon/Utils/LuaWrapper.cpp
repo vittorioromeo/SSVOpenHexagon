@@ -82,7 +82,7 @@ LuaContext::VariableDoesntExistException::VariableDoesntExistException(
     const std::string& variable)
     : std::runtime_error((std::string("Variable \"") + variable +
                           std::string("\" doesn't exist in lua context"))
-                             .c_str())
+              .c_str())
 {}
 
 LuaContext::SyntaxErrorException::SyntaxErrorException(const std::string& msg)

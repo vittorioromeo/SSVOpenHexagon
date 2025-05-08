@@ -7,13 +7,13 @@
 #include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 namespace hg {
 
 CWall::CWall(const unsigned int sides, const float wallAngleLeft,
     const float wallAngleRight, const float wallSkewLeft,
-    const float wallSkewRight, const sf::Vector2f& centerPos, const int side,
+    const float wallSkewRight, const sf::Vec2f& centerPos, const int side,
     const float thickness, const float distance, const SpeedData& speed,
     const SpeedData& curve, const float hueMod)
     : _speed{speed}, _curve{curve}, _hueMod{hueMod}, _killed{false}
@@ -49,7 +49,7 @@ void CWall::draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads)
 }
 
 void CWall::update(const float wallSpawnDist, const float radius,
-    const sf::Vector2f& centerPos, const float ft)
+    const sf::Vec2f& centerPos, const float ft)
 {
     _speed.update(ft);
     _curve.update(ft);
@@ -62,7 +62,7 @@ void CWall::update(const float wallSpawnDist, const float radius,
 }
 
 void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
-    const sf::Vector2f& centerPos, const float ft)
+    const sf::Vec2f& centerPos, const float ft)
 {
     const float halfRadius{radius * 0.5f};
     const float outerBounds{wallSpawnDist * 1.1f};
@@ -70,7 +70,7 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
     int pointsOutOfBounds{0};
     int pointsOnCenter{0};
 
-    for (sf::Vector2f& vp : _vertexPositions)
+    for (sf::Vec2f& vp : _vertexPositions)
     {
         const float xDistance = std::abs(vp.x - centerPos.x);
         const float yDistance = std::abs(vp.y - centerPos.y);
@@ -95,13 +95,13 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
     }
 }
 
-void CWall::moveCurve(const sf::Vector2f& centerPos, const float ft)
+void CWall::moveCurve(const sf::Vec2f& centerPos, const float ft)
 {
     const float rad = getCurveRadians(ft);
     const float radSin = std::sin(rad);
     const float radCos = std::cos(rad);
 
-    for (sf::Vector2f& vp : _vertexPositions)
+    for (sf::Vec2f& vp : _vertexPositions)
     {
         moveVertexAlongCurveImpl(vp, centerPos, radSin, radCos);
     }

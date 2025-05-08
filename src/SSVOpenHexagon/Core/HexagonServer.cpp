@@ -29,12 +29,14 @@
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Network/IpAddress.hpp>
+#include <SFML/Network/IpAddressUtils.hpp>
 #include <SFML/Network/Packet.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/UdpSocket.hpp>
 
 #include <SFML/Base/Optional.hpp>
+#include <SFML/Base/IntTypes.hpp>
 
 #include <boost/pfr.hpp>
 
@@ -47,7 +49,6 @@
 
 #include <csignal>
 #include <cstdlib>
-#include <SFML/Base/IntTypes.hpp>
 #include <cstdio>
 
 static auto& slog(const char* funcName)
@@ -63,6 +64,9 @@ static auto& slog(const char* funcName)
 #define SSVOH_SLOG_ERROR ::slog(__func__) << "[ERROR] "
 
 #define SSVOH_SLOG_VAR(x) '\'' << #x << "': '" << (x) << '\''
+
+#define SSVOH_CLOG_VAR_IP(x) \
+    '\'' << #x << "': '" << ::sf::IpAddressUtils::toString(x) << '\''
 
 namespace hg {
 
@@ -376,7 +380,8 @@ bool HexagonServer::runIteration_Control()
 
     SSVOH_ASSERT(senderIp.hasValue());
 
-    SSVOH_SLOG << "Received control packet from '" << senderIp.value() << ':'
+    SSVOH_SLOG << "Received control packet from '"
+               << sf::IpAddressUtils::toString(senderIp.value()) << ':'
                << senderPort << "', contents: '" << controlMsg << "'\n";
 
     if (controlMsg.empty())
@@ -507,7 +512,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 void HexagonServer::runIteration_LoopOverSockets()
 {
     for (auto it = _connectedClients.begin(); it != _connectedClients.end();
-         ++it)
+        ++it)
     {
         ConnectedClient& connectedClient = *it;
         const void* clientAddr = static_cast<void*>(&connectedClient);
@@ -570,7 +575,7 @@ void HexagonServer::runIteration_PurgeClients()
     const Utils::SCTimePoint now = Utils::SCClock::now();
 
     for (auto it = _connectedClients.begin(); it != _connectedClients.end();
-         ++it)
+        ++it)
     {
         ConnectedClient& connectedClient = *it;
         const void* clientAddr = static_cast<void*>(&connectedClient);
@@ -633,7 +638,7 @@ void HexagonServer::runIteration_PurgeTokens()
         SSVOH_SLOG << "Found stale token for user '" << lt.userId << "'\n";
 
         for (auto it = _connectedClients.begin(); it != _connectedClients.end();
-             ++it)
+            ++it)
         {
             ConnectedClient& c = *it;
             const void* clientAddr = static_cast<void*>(&c);
@@ -1407,7 +1412,7 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
     const auto sKeySecret = sodiumKeyToString(_serverPSKeys.keySecret);
 
     SSVOH_SLOG << "Initializing server...\n"
-               << " - " << SSVOH_SLOG_VAR(_serverIp) << '\n'
+               << " - " << SSVOH_CLOG_VAR_IP(_serverIp) << '\n'
                << " - " << SSVOH_SLOG_VAR(_serverPort) << '\n'
                << " - " << SSVOH_SLOG_VAR(_serverControlPort) << '\n'
                << " - " << SSVOH_SLOG_VAR(sKeyPublic) << '\n'

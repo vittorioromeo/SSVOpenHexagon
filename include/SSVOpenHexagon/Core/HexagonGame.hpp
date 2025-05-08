@@ -34,7 +34,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 #include <SFML/Base/Optional.hpp>
 #include <SFML/System/Clock.hpp>
 
@@ -157,13 +157,13 @@ private:
 
     struct PreShakeCenters
     {
-        sf::Vector2f background;
-        sf::Vector2f overlay;
+        sf::Vec2f background;
+        sf::Vec2f overlay;
     };
 
     sf::base::Optional<PreShakeCenters> preShakeCenters;
 
-    const sf::Vector2f centerPos{0.f, 0.f};
+    const sf::Vec2f centerPos{0.f, 0.f};
 
     Lua::LuaContext lua;
     std::unordered_set<std::string> calledDeprecatedFunctions;
@@ -189,7 +189,7 @@ private:
     struct Particle
     {
         sf::Sprite sprite;
-        sf::Vector2f velocity;
+        sf::Vec2f velocity;
         float angularVelocity;
     };
 
@@ -202,7 +202,7 @@ private:
     struct SwapParticle
     {
         sf::Sprite sprite;
-        sf::Vector2f velocity;
+        sf::Vec2f velocity;
     };
 
     sf::Texture* txStarParticle;
@@ -216,7 +216,7 @@ private:
     struct SwapParticleSpawnInfo
     {
         bool ready;
-        sf::Vector2f position;
+        sf::Vec2f position;
         float angle;
     };
 

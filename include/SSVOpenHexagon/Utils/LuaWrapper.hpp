@@ -911,9 +911,9 @@ private:
     template <typename... Args>
     [[gnu::always_inline]] inline int _push(const std::tuple<Args...>& t)
     {
-        return [this, &t]<int... Is>(std::integer_sequence<int, Is...>) {
-            return (this->_push(std::get<Is>(t)) + ... + 0);
-        }(std::make_integer_sequence<int, sizeof...(Args)>{});
+        return [this, &t]<int... Is>(std::integer_sequence<int, Is...>)
+        { return (this->_push(std::get<Is>(t)) + ... + 0); }(
+            std::make_integer_sequence<int, sizeof...(Args)>{});
     }
 
     /**************************************************/

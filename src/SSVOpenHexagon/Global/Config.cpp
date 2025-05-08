@@ -21,7 +21,7 @@
 #include <SFML/Window/Joystick.hpp>
 #include <SFML/Window/JoystickIdentification.hpp>
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -642,7 +642,7 @@ void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen)
 {
     fullscreen() = mFullscreen;
 
-    const sf::Vector2u res{getWidth(), getHeight()};
+    const sf::Vec2u res{getWidth(), getHeight()};
     mWindow.getRenderWindow().setSize(res);
     mWindow.setSize(res.x, res.y);
     mWindow.setFullscreen(getFullscreen());

@@ -14,9 +14,9 @@ class Combo;
 
 namespace sf {
 template <typename T>
-class Vector2;
+class Vec2;
 
-using Vector2f = Vector2<float>;
+using Vec2f = Vec2<float>;
 
 class Color;
 } // namespace sf
@@ -37,9 +37,9 @@ namespace ssvuj {
 
 
 template <>
-struct Converter<sf::Vector2f>
+struct Converter<sf::Vec2f>
 {
-    using T = sf::Vector2f;
+    using T = sf::Vec2f;
 
     static void fromObj(const Obj& mObj, T& mValue);
     static void toObj(Obj& mObj, const T& mValue);

@@ -131,8 +131,8 @@ void CCustomWallManager::destroy(const CCustomWallHandle cwHandle)
     destroyUnchecked(cwHandle);
 }
 
-void CCustomWallManager::setVertexPos(const CCustomWallHandle cwHandle,
-    const int vertexIdx, const sf::Vector2f& pos)
+void CCustomWallManager::setVertexPos(
+    const CCustomWallHandle cwHandle, const int vertexIdx, const sf::Vec2f& pos)
 {
     if (!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "set vertex pos"))
     {
@@ -143,7 +143,7 @@ void CCustomWallManager::setVertexPos(const CCustomWallHandle cwHandle,
 }
 
 void CCustomWallManager::moveVertexPos(const CCustomWallHandle cwHandle,
-    const int vertexIdx, const sf::Vector2f& offset)
+    const int vertexIdx, const sf::Vec2f& offset)
 {
     if (!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "add vertex pos"))
     {
@@ -154,7 +154,7 @@ void CCustomWallManager::moveVertexPos(const CCustomWallHandle cwHandle,
 }
 
 void CCustomWallManager::moveVertexPos4Same(
-    const CCustomWallHandle cwHandle, const sf::Vector2f& offset)
+    const CCustomWallHandle cwHandle, const sf::Vec2f& offset)
 {
     if (!checkValidHandle(cwHandle, "add four vertex pos same"))
     {
@@ -206,22 +206,22 @@ void CCustomWallManager::setKillingSide(
     _customWalls[cwHandle].setKillingSide(side);
 }
 
-[[nodiscard]] sf::Vector2f CCustomWallManager::getVertexPos(
+[[nodiscard]] sf::Vec2f CCustomWallManager::getVertexPos(
     const CCustomWallHandle cwHandle, const int vertexIdx)
 {
     if (!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "get vertex pos"))
     {
-        return sf::Vector2f{0.f, 0.f};
+        return sf::Vec2f{0.f, 0.f};
     }
 
     return _customWalls[cwHandle].getVertexPos(vertexIdx);
 }
 
-static const std::array<sf::Vector2f, 4> zeroArr{sf::Vector2f{0.f, 0.f},
-    sf::Vector2f{0.f, 0.f}, sf::Vector2f{0.f, 0.f}, sf::Vector2f{0.f, 0.f}};
+static const std::array<sf::Vec2f, 4> zeroArr{sf::Vec2f{0.f, 0.f},
+    sf::Vec2f{0.f, 0.f}, sf::Vec2f{0.f, 0.f}, sf::Vec2f{0.f, 0.f}};
 
-[[nodiscard]] const std::array<sf::Vector2f, 4>&
-CCustomWallManager::getVertexPos4(const CCustomWallHandle cwHandle)
+[[nodiscard]] const std::array<sf::Vec2f, 4>& CCustomWallManager::getVertexPos4(
+    const CCustomWallHandle cwHandle)
 {
     if (!checkValidHandle(cwHandle, "get four vertex pos"))
     {
@@ -276,8 +276,8 @@ void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle,
 }
 
 void CCustomWallManager::setVertexPos4(const CCustomWallHandle cwHandle,
-    const sf::Vector2f& p0, const sf::Vector2f& p1, const sf::Vector2f& p2,
-    const sf::Vector2f& p3)
+    const sf::Vec2f& p0, const sf::Vec2f& p1, const sf::Vec2f& p2,
+    const sf::Vec2f& p3)
 {
     if (!checkValidHandle(cwHandle, "set four vertex pos"))
     {
@@ -360,7 +360,7 @@ void CCustomWallManager::draw(Utils::FastVertexVectorTris& wallQuads)
     }
 
     const float radiusSquared{radius * radius};
-    const sf::Vector2f& pPos{mPlayer.getPosition()};
+    const sf::Vec2f& pPos{mPlayer.getPosition()};
 
     {
         bool collided{false};

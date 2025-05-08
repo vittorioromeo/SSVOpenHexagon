@@ -4,18 +4,18 @@
 
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 namespace hg::Utils {
 
 inline constexpr float epsilon{1.0e-4};
 
-[[nodiscard]] unsigned int getLineCircleIntersection(sf::Vector2f& i1,
-    sf::Vector2f& i2, const sf::Vector2f& p1, const sf::Vector2f& p2,
+[[nodiscard]] unsigned int getLineCircleIntersection(sf::Vec2f& i1,
+    sf::Vec2f& i2, const sf::Vec2f& p1, const sf::Vec2f& p2,
     const float mRadiusSquared);
 
-[[nodiscard]] bool getLineCircleClosestIntersection(sf::Vector2f& mIntersection,
-    const sf::Vector2f& mPos, const sf::Vector2f& p1, const sf::Vector2f& p2,
+[[nodiscard]] bool getLineCircleClosestIntersection(sf::Vec2f& mIntersection,
+    const sf::Vec2f& mPos, const sf::Vec2f& p1, const sf::Vec2f& p2,
     const float mRadiusSquared);
 
 } // namespace hg::Utils

@@ -14,6 +14,7 @@
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
+#include <SFML/Network/IpAddressUtils.hpp>
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Network/Packet.hpp>
@@ -36,6 +37,9 @@ static auto& clog(const char* funcName)
 #define SSVOH_CLOG_ERROR ::clog(__func__) << "[ERROR] "
 
 #define SSVOH_CLOG_VAR(x) '\'' << #x << "': '" << x << '\''
+
+#define SSVOH_CLOG_VAR_IP(x) \
+    '\'' << #x << "': '" << ::sf::IpAddressUtils::toString(x) << '\''
 
 namespace hg {
 
@@ -456,7 +460,7 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager,
     const auto sKeySecret = sodiumKeyToString(_clientPSKeys.keySecret);
 
     SSVOH_CLOG << "Initializing client...\n"
-               << " - " << SSVOH_CLOG_VAR(_serverIp) << '\n'
+               << " - " << SSVOH_CLOG_VAR_IP(_serverIp) << '\n'
                << " - " << SSVOH_CLOG_VAR(_serverPort) << '\n'
                << " - " << SSVOH_CLOG_VAR(sKeyPublic) << '\n'
                << " - " << SSVOH_CLOG_VAR(sKeySecret) << '\n';
@@ -559,7 +563,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                 _errorOss.str());
         },
 
-        [&](const PEncryptedMsg&) {
+        [&](const PEncryptedMsg&)
+        {
             return fail(
                 "Received non-decrypted encrypted msg packet from server");
         },
@@ -976,7 +981,8 @@ void HexagonClient::addEvent(const Event& e)
     return _socketConnected && (_state == s0 || _state == s1);
 }
 
-[[nodiscard]] sf::base::Optional<HexagonClient::Event> HexagonClient::pollEvent()
+[[nodiscard]] sf::base::Optional<HexagonClient::Event>
+HexagonClient::pollEvent()
 {
     if (_events.empty())
     {
@@ -984,7 +990,7 @@ void HexagonClient::addEvent(const Event& e)
     }
 
     HG_SCOPE_GUARD({ _events.pop_front(); });
-    return  sf::base::makeOptional(_events.front());
+    return sf::base::makeOptional(_events.front());
 }
 
 [[nodiscard]] bool HexagonClient::isLevelSupportedByServer(

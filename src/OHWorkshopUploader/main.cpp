@@ -559,7 +559,8 @@ private:
 
         _steam_helper.submit_item_update(update_handle.value(),
             changelog_note.c_str(),
-            [item_id] {
+            [item_id]
+            {
                 std::cout << "Successfully updated workshop item: " << item_id
                           << ".\n";
             });
@@ -603,7 +604,8 @@ private:
 
         _steam_helper.submit_item_update(update_handle.value(),
             changelog_note.c_str(),
-            [item_id] {
+            [item_id]
+            {
                 std::cout << "Successfully updated workshop item: " << item_id
                           << ".\n";
             });

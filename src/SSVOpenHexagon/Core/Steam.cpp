@@ -864,7 +864,8 @@ steam_manager::impl() const noexcept
     return *_impl;
 }
 
-steam_manager::steam_manager() : _impl{sf::base::makeUnique<steam_manager_impl>()}
+steam_manager::steam_manager()
+    : _impl{sf::base::makeUnique<steam_manager_impl>()}
 {}
 
 steam_manager::~steam_manager() = default;

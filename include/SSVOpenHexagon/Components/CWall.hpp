@@ -8,7 +8,7 @@
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 #include <SFML/Base/Math/Cos.hpp>
 #include <SFML/Base/Math/Sin.hpp>
 
@@ -20,7 +20,7 @@ namespace hg {
 class CWall
 {
 private:
-    std::array<sf::Vector2f, 4> _vertexPositions;
+    std::array<sf::Vec2f, 4> _vertexPositions;
 
     SpeedData _speed;
     SpeedData _curve;
@@ -29,22 +29,22 @@ private:
     bool _killed;
 
     void moveTowardsCenter(const float wallSpawnDist, const float radius,
-        const sf::Vector2f& centerPos, const float ft);
+        const sf::Vec2f& centerPos, const float ft);
 
-    void moveCurve(const sf::Vector2f& centerPos, const float ft);
+    void moveCurve(const sf::Vec2f& centerPos, const float ft);
 
 public:
     explicit CWall(const unsigned int sides, const float wallAngleLeft,
         const float wallAngleRight, const float wallSkewLeft,
-        const float wallSkewRight, const sf::Vector2f& centerPos,
-        const int side, const float thickness, const float distance,
-        const SpeedData& speed, const SpeedData& curve, const float hueMod);
+        const float wallSkewRight, const sf::Vec2f& centerPos, const int side,
+        const float thickness, const float distance, const SpeedData& speed,
+        const SpeedData& curve, const float hueMod);
 
     void update(const float wallSpawnDist, const float radius,
-        const sf::Vector2f& centerPos, const float ft);
+        const sf::Vec2f& centerPos, const float ft);
 
-    [[gnu::always_inline]] void moveVertexAlongCurveImpl(sf::Vector2f& vertex,
-        const sf::Vector2f& centerPos, const float xSin,
+    [[gnu::always_inline]] void moveVertexAlongCurveImpl(sf::Vec2f& vertex,
+        const sf::Vec2f& centerPos, const float xSin,
         const float xCos) const noexcept
     {
         const float tempX = vertex.x - centerPos.x;
@@ -59,8 +59,8 @@ public:
         return _curve._speed * divBy60 * ft;
     }
 
-    [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vector2f& vertex,
-        const sf::Vector2f& centerPos, const float ft) const noexcept
+    [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vec2f& vertex,
+        const sf::Vec2f& centerPos, const float ft) const noexcept
     {
         const float rad = getCurveRadians(ft);
 
@@ -72,7 +72,7 @@ public:
 
     void setHueMod(float hueMod) noexcept;
 
-    [[nodiscard, gnu::always_inline]] const std::array<sf::Vector2f, 4>&
+    [[nodiscard, gnu::always_inline]] const std::array<sf::Vec2f, 4>&
     getVertexPositions() const noexcept
     {
         return _vertexPositions;
@@ -89,7 +89,7 @@ public:
     }
 
     [[nodiscard, gnu::always_inline]] bool isOverlapping(
-        const sf::Vector2f& point) const noexcept
+        const sf::Vec2f& point) const noexcept
     {
         return Utils::pointInFourVertexPolygon(_vertexPositions[0],
             _vertexPositions[1], _vertexPositions[2], _vertexPositions[3],

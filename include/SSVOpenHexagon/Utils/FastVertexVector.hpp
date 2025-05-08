@@ -180,8 +180,8 @@ class FastVertexVectorTris
 {
 public:
     [[gnu::always_inline]] void batch_unsafe_emplace_back_quad(
-        const sf::Color& color, const sf::Vector2f& nw, const sf::Vector2f& sw,
-        const sf::Vector2f& se, const sf::Vector2f& ne)
+        const sf::Color& color, const sf::Vec2f& nw, const sf::Vec2f& sw,
+        const sf::Vec2f& se, const sf::Vec2f& ne)
     {
         batch_unsafe_emplace_back(color, //
             nw, sw, se,                  //
@@ -189,10 +189,10 @@ public:
     }
 
     [[gnu::always_inline]] void unsafe_emplace_back_quad( //
-        const sf::Vector2f& nw, const sf::Color& colorNW, //
-        const sf::Vector2f& sw, const sf::Color& colorSW, //
-        const sf::Vector2f& se, const sf::Color& colorSE, //
-        const sf::Vector2f& ne, const sf::Color& colorNE)
+        const sf::Vec2f& nw, const sf::Color& colorNW,    //
+        const sf::Vec2f& sw, const sf::Color& colorSW,    //
+        const sf::Vec2f& se, const sf::Color& colorSE,    //
+        const sf::Vec2f& ne, const sf::Color& colorNE)
     {
         unsafe_emplace_back(nw, colorNW);
         unsafe_emplace_back(sw, colorSW);

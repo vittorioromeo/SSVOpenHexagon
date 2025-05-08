@@ -130,9 +130,9 @@ template <typename T, typename = void>
 struct Extractor
 {
     template <typename U = T>
-    [[nodiscard]] static auto doExtractIntoImpl(U& target,
-        std::ostringstream& errorOss, sf::Packet& p,
-        int) -> decltype((p >> target), bool())
+    [[nodiscard]] static auto doExtractIntoImpl(
+        U& target, std::ostringstream& errorOss, sf::Packet& p, int)
+        -> decltype((p >> target), bool())
     {
         if (!(p >> target))
         {
@@ -452,7 +452,8 @@ public:
 template <typename T>
 [[nodiscard]] auto makeMatcher(std::ostringstream& errorOss, sf::Packet& p)
 {
-    return [&](const char* name, const T& expected) -> bool {
+    return [&](const char* name, const T& expected) -> bool
+    {
         return AdvancedMatcher{errorOss, p}.matchOrPrintError<T>(
             name, expected);
     };
@@ -544,8 +545,8 @@ void encodeFieldImpl(
 }
 
 template <typename TData, typename TField>
-auto encodeFieldImpl(sf::Packet& p, const TData&, const TField& field,
-    int) -> decltype((p << field), void())
+auto encodeFieldImpl(sf::Packet& p, const TData&, const TField& field, int)
+    -> decltype((p << field), void())
 {
     p << field;
 }

@@ -37,7 +37,7 @@
 #endif
 
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 #include <SFML/Base/Optional.hpp>
 #include <stdexcept>
@@ -434,7 +434,7 @@ void HexagonGame::updateWalls(float mFT)
 {
     bool collided{false};
     const float radiusSquared{status.radius * status.radius + 8.f};
-    const sf::Vector2f& pPos{player.getPosition()};
+    const sf::Vec2f& pPos{player.getPosition()};
 
     for (CWall& w : walls)
     {
@@ -802,7 +802,7 @@ void HexagonGame::refreshPulse()
             Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
         const float rotation{backgroundCamera->getRotation()};
 
-        backgroundCamera->setView(sf::View{sf::Vector2f{0.f, 0.f},
+        backgroundCamera->setView(sf::View{sf::Vec2f{0.f, 0.f},
             {(Config::getWidth() * Config::getZoomFactor()) * p,
                 (Config::getHeight() * Config::getZoomFactor()) * p}});
 
@@ -896,7 +896,7 @@ void HexagonGame::updateCameraShake(float mFT)
     const auto makeShakeVec = [this]
     {
         const float i = status.cameraShake;
-        return sf::Vector2f(rng.get_real(-i, i), rng.get_real(-i, i));
+        return sf::Vec2f(rng.get_real(-i, i), rng.get_real(-i, i));
     };
 
     backgroundCamera->setCenter(preShakeCenters->background + makeShakeVec());
@@ -938,7 +938,7 @@ void HexagonGame::updateParticles(float mFT)
     const auto isOutOfBounds = [](const Particle& p)
     {
         const sf::Sprite& sp = p.sprite;
-        const sf::Vector2f& pos = sp.position;
+        const sf::Vec2f& pos = sp.position;
         constexpr float padding = 256.f;
 
         return (pos.x < 0 - padding || pos.x > Config::getWidth() + padding ||
@@ -1000,7 +1000,7 @@ void HexagonGame::updateTrailParticles(float mFT)
         TrailParticle p{sf::Sprite{.textureRect = txSmallCircle->getRect()}};
 
         p.sprite.position = player.getPosition();
-        p.sprite.origin = txSmallCircle->getSize().to<sf::Vector2f>() / 2.f;
+        p.sprite.origin = txSmallCircle->getSize().to<sf::Vec2f>() / 2.f;
 
         const float scale = Config::getPlayerTrailScale();
         p.sprite.scale = {scale, scale};
@@ -1030,7 +1030,7 @@ void HexagonGame::updateTrailParticles(float mFT)
         p.sprite.scale *= 0.98f;
 
         p.sprite.position =
-            sf::Vector2f::fromAngle(status.radius + 2.4f, sf::radians(p.angle));
+            sf::Vec2f::fromAngle(status.radius + 2.4f, sf::radians(p.angle));
     }
 
     if (player.hasChangedAngle())
@@ -1054,7 +1054,7 @@ void HexagonGame::updateSwapParticles(float mFT)
         SwapParticle p{sf::Sprite{.textureRect = txSmallCircle->getRect()}};
 
         p.sprite.position = si.position;
-        p.sprite.origin = txSmallCircle->getSize().to<sf::Vector2f>() / 2.f;
+        p.sprite.origin = txSmallCircle->getSize().to<sf::Vec2f>() / 2.f;
 
         const float scale = ssvu::getRndR(0.65f, 1.35f) * scaleMult;
         p.sprite.scale = {scale, scale};
@@ -1064,9 +1064,8 @@ void HexagonGame::updateSwapParticles(float mFT)
         c.a = alpha;
         p.sprite.color = c;
 
-        p.velocity =
-            sf::Vector2f::fromAngle(ssvu::getRndR(0.1f, 10.f) * speedMult,
-                sf::radians(si.angle + ssvu::getRndR(-expand, expand)));
+        p.velocity = sf::Vec2f::fromAngle(ssvu::getRndR(0.1f, 10.f) * speedMult,
+            sf::radians(si.angle + ssvu::getRndR(-expand, expand)));
 
         return p;
     };

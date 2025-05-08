@@ -14,7 +14,7 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 #include <string>
 #include <fstream>

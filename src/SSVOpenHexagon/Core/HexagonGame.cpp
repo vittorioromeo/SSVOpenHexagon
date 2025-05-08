@@ -40,7 +40,7 @@
 
 #include <SFML/System/Rect.hpp>
 #include <SFML/System/Angle.hpp>
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 #include <cmath>
 
@@ -141,10 +141,9 @@ void HexagonGame::updateKeyIcons()
     const float scaledSize = size * scaling;
     const float padding = 8.f * scaling;
     const float finalPadding = scaledSize + padding;
-    const sf::Vector2f finalPaddingX{finalPadding, 0.f};
+    const sf::Vec2f finalPaddingX{finalPadding, 0.f};
 
-    const sf::Vector2f bottomRight{
-        Config::getWidth() - padding - scaledHalfSize,
+    const sf::Vec2f bottomRight{Config::getWidth() - padding - scaledHalfSize,
         Config::getHeight() - padding - scaledHalfSize};
 
     keyIconSwap.position = bottomRight;
@@ -157,7 +156,7 @@ void HexagonGame::updateKeyIcons()
     replayIcon.origin = {size, size};
     replayIcon.scale = {scaling / 2.f, scaling / 2.f};
 
-    const sf::Vector2f topRight{Config::getWidth() - padding - scaledHalfSize,
+    const sf::Vec2f topRight{Config::getWidth() - padding - scaledHalfSize,
         padding + scaledHalfSize};
 
     replayIcon.position = topRight;
@@ -174,9 +173,9 @@ void HexagonGame::updateLevelInfo()
     const float scaling = levelInfoScaling / Config::getZoomFactor();
     const float padding = 8.f * scaling;
 
-    const sf::Vector2f size{325.f, 75.f};
-    const sf::Vector2f halfSize{size / 2.f};
-    const sf::Vector2f scaledHalfSize{halfSize * scaling};
+    const sf::Vec2f size{325.f, 75.f};
+    const sf::Vec2f halfSize{size / 2.f};
+    const sf::Vec2f scaledHalfSize{halfSize * scaling};
 
     levelInfoRectangle.setSize(size);
     levelInfoRectangle.scale = {scaling, scaling};
@@ -191,7 +190,7 @@ void HexagonGame::updateLevelInfo()
     levelInfoRectangle.origin = halfSize;
     levelInfoRectangle.setOutlineThickness(3.f);
 
-    const sf::Vector2f bottomLeft{padding + scaledHalfSize.x,
+    const sf::Vec2f bottomLeft{padding + scaledHalfSize.x,
         Config::getHeight() - padding - scaledHalfSize.y};
 
     levelInfoRectangle.position = bottomLeft;
@@ -219,7 +218,7 @@ void HexagonGame::updateLevelInfo()
             ssvs::getLocalNW(textUI->levelInfoTextLevel);
         textUI->levelInfoTextLevel.position =
             ssvs::getGlobalNW(levelInfoRectangle) +
-            sf::Vector2f{tPadding, tPadding};
+            sf::Vec2f{tPadding, tPadding};
 
         const auto prepareText = [&](sf::Text& text, const float characterSize,
                                      const std::string& string)
@@ -235,7 +234,7 @@ void HexagonGame::updateLevelInfo()
             ssvs::getLocalNW(textUI->levelInfoTextPack);
         textUI->levelInfoTextPack.position =
             ssvs::getGlobalSW(textUI->levelInfoTextLevel) +
-            sf::Vector2f{0.f, tPadding};
+            sf::Vec2f{0.f, tPadding};
 
         SSVOH_ASSERT(levelData != nullptr);
 
@@ -245,14 +244,14 @@ void HexagonGame::updateLevelInfo()
             ssvs::getLocalSE(textUI->levelInfoTextAuthor);
         textUI->levelInfoTextAuthor.position =
             ssvs::getGlobalSE(levelInfoRectangle) -
-            sf::Vector2f{tPadding, tPadding};
+            sf::Vec2f{tPadding, tPadding};
 
         prepareText(textUI->levelInfoTextBy, 12.f, "BY");
         textUI->levelInfoTextBy.origin =
             ssvs::getLocalSE(textUI->levelInfoTextBy);
         textUI->levelInfoTextBy.position =
             ssvs::getGlobalSW(textUI->levelInfoTextAuthor) -
-            sf::Vector2f{tPadding, 0.f};
+            sf::Vec2f{tPadding, 0.f};
 
         if (levelData->difficultyMults.size() > 1)
         {
@@ -262,7 +261,7 @@ void HexagonGame::updateLevelInfo()
                 ssvs::getLocalSW(textUI->levelInfoTextDM);
             textUI->levelInfoTextDM.position =
                 ssvs::getGlobalSW(levelInfoRectangle) +
-                sf::Vector2f{tPadding, -tPadding};
+                sf::Vec2f{tPadding, -tPadding};
         }
         else
         {
@@ -332,7 +331,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       window(mGameWindow),
       hexagonClient{mHexagonClient},
       imguiCtx{},
-      player{sf::Vector2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
+      player{sf::Vec2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
       txStarParticle{nullptr},
@@ -366,11 +365,11 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
 
-        backgroundCamera.emplace(sf::View{sf::Vector2f{0.f, 0.f},
-            sf::Vector2f{width * zoomFactor, height * zoomFactor}});
+        backgroundCamera.emplace(sf::View{sf::Vec2f{0.f, 0.f},
+            sf::Vec2f{width * zoomFactor, height * zoomFactor}});
 
-        overlayCamera.emplace(sf::View{sf::Vector2f{width / 2.f, height / 2.f},
-            sf::Vector2f{width, height}});
+        overlayCamera.emplace(sf::View{
+            sf::Vec2f{width / 2.f, height / 2.f}, sf::Vec2f{width, height}});
 
         txStarParticle =
             &getTextureOrNullTexture(assets, nullTexture, "starParticle.png");
@@ -751,9 +750,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Manager cleanup
     walls.clear();
     cwManager.clear();
-    player = CPlayer{sf::Vector2f{0.f, 0.f}, getSwapCooldown(),
-        Config::getPlayerSize(), Config::getPlayerSpeed(),
-        Config::getPlayerFocusSpeed()};
+    player =
+        CPlayer{sf::Vec2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
+            Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()};
 
     // Timeline cleanup
     timeline.clear();
@@ -782,17 +781,17 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         // Reset zoom
         overlayCamera->setView(
             sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                sf::Vector2f(Config::getWidth(), Config::getHeight())});
+                sf::Vec2f(Config::getWidth(), Config::getHeight())});
 
-        backgroundCamera->setView(sf::View{sf::Vector2f{0.f, 0.f},
+        backgroundCamera->setView(sf::View{sf::Vec2f{0.f, 0.f},
             {Config::getWidth() * Config::getZoomFactor(),
                 Config::getHeight() * Config::getZoomFactor()}});
 
         backgroundCamera->setRotation(0);
 
         // Reset skew
-        overlayCamera->setSkew(sf::Vector2f{1.f, 1.f});
-        backgroundCamera->setSkew(sf::Vector2f{1.f, 1.f});
+        overlayCamera->setSkew(sf::Vec2f{1.f, 1.f});
+        backgroundCamera->setSkew(sf::Vec2f{1.f, 1.f});
     }
 
     // Lua context and game status cleanup
@@ -903,9 +902,9 @@ void HexagonGame::death_shakeCamera()
 
     overlayCamera->setView(
         sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            sf::Vector2f(Config::getWidth(), Config::getHeight())});
+            sf::Vec2f(Config::getWidth(), Config::getHeight())});
 
-    backgroundCamera->setCenter(sf::Vector2f{0.f, 0.f});
+    backgroundCamera->setCenter(sf::Vec2f{0.f, 0.f});
 
     status.cameraShake = 45.f * Config::getCameraShakeMultiplier();
 }

@@ -8,7 +8,7 @@
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
 #include <vector>
@@ -47,16 +47,16 @@ public:
 
     void destroy(const CCustomWallHandle cwHandle);
 
-    void destroyAllOutOfBounds(const sf::Vector2f& bounds);
+    void destroyAllOutOfBounds(const sf::Vec2f& bounds);
 
     void setVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
-        const sf::Vector2f& pos);
+        const sf::Vec2f& pos);
 
     void moveVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
-        const sf::Vector2f& offset);
+        const sf::Vec2f& offset);
 
     void moveVertexPos4Same(
-        const CCustomWallHandle cwHandle, const sf::Vector2f& offset);
+        const CCustomWallHandle cwHandle, const sf::Vec2f& offset);
 
     void setCanCollide(const CCustomWallHandle cwHandle, const bool collide);
 
@@ -68,8 +68,8 @@ public:
     void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIdx,
         const sf::Color& color);
 
-    void setVertexPos4(const CCustomWallHandle cwHandle, const sf::Vector2f& p0,
-        const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3);
+    void setVertexPos4(const CCustomWallHandle cwHandle, const sf::Vec2f& p0,
+        const sf::Vec2f& p1, const sf::Vec2f& p2, const sf::Vec2f& p3);
 
     void setVertexColor4(const CCustomWallHandle cwHandle, const sf::Color& c0,
         const sf::Color& c1, const sf::Color& c2, const sf::Color& c3);
@@ -77,10 +77,10 @@ public:
     void setVertexColor4Same(
         const CCustomWallHandle cwHandle, const sf::Color& color);
 
-    [[nodiscard]] sf::Vector2f getVertexPos(
+    [[nodiscard]] sf::Vec2f getVertexPos(
         const CCustomWallHandle cwHandle, const int vertexIdx);
 
-    [[nodiscard]] const std::array<sf::Vector2f, 4>& getVertexPos4(
+    [[nodiscard]] const std::array<sf::Vec2f, 4>& getVertexPos4(
         const CCustomWallHandle cwHandle);
 
     [[nodiscard]] bool getCanCollide(const CCustomWallHandle cwHandle);

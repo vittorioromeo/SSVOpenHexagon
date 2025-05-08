@@ -50,12 +50,12 @@ struct SodiumRTKeys
 
 [[nodiscard]] SodiumPSKeys generateSodiumPSKeys();
 
-[[nodiscard]] sf::base::Optional<SodiumRTKeys> calculateServerSessionSodiumRTKeys(
-    const SodiumPSKeys& serverPSKeys,
+[[nodiscard]] sf::base::Optional<SodiumRTKeys>
+calculateServerSessionSodiumRTKeys(const SodiumPSKeys& serverPSKeys,
     const SodiumPublicKeyArray& clientPublicKey);
 
-[[nodiscard]] sf::base::Optional<SodiumRTKeys> calculateClientSessionSodiumRTKeys(
-    const SodiumPSKeys& clientPSKeys,
+[[nodiscard]] sf::base::Optional<SodiumRTKeys>
+calculateClientSessionSodiumRTKeys(const SodiumPSKeys& clientPSKeys,
     const SodiumPublicKeyArray& serverPublicKey);
 
 template <typename T>

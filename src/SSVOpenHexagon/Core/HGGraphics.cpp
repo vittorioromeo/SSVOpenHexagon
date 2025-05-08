@@ -87,21 +87,20 @@ void HexagonGame::draw()
     {
         if (levelStatus.cameraShake > 0.f)
         {
-            const sf::Vector2f shake(ssvu::getRndR(-levelStatus.cameraShake,
-                                         levelStatus.cameraShake),
+            const sf::Vec2f shake(ssvu::getRndR(-levelStatus.cameraShake,
+                                      levelStatus.cameraShake),
                 ssvu::getRndR(
                     -levelStatus.cameraShake, levelStatus.cameraShake));
 
             backgroundCamera->setCenter(shake);
-            overlayCamera->setCenter(
-                shake + sf::Vector2f{Config::getWidth() / 2.f,
-                            Config::getHeight() / 2.f});
+            overlayCamera->setCenter(shake + sf::Vec2f{Config::getWidth() / 2.f,
+                                                 Config::getHeight() / 2.f});
         }
         else
         {
-            backgroundCamera->setCenter(sf::Vector2f{0.f, 0.f});
-            overlayCamera->setCenter(sf::Vector2f{
-                Config::getWidth() / 2.f, Config::getHeight() / 2.f});
+            backgroundCamera->setCenter(sf::Vec2f{0.f, 0.f});
+            overlayCamera->setCenter(
+                sf::Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
         }
     }
 
@@ -111,7 +110,7 @@ void HexagonGame::draw()
 
         backgroundTris.clear();
 
-        styleData.drawBackground(backgroundTris, sf::Vector2f{0.f, 0.f},
+        styleData.drawBackground(backgroundTris, sf::Vec2f{0.f, 0.f},
             levelStatus.sides,
             Config::getDarkenUnevenBackgroundChunk() &&
                 levelStatus.darkenUnevenBackgroundChunk,
@@ -162,7 +161,7 @@ void HexagonGame::draw()
         const float effect{
             styleData._3dSkew * Config::get3DMultiplier() * pulse3D};
 
-        const sf::Vector2f skew{1.f, 1.f + effect};
+        const sf::Vec2f skew{1.f, 1.f + effect};
         backgroundCamera->setSkew(skew);
 
         const float radRot(
@@ -199,7 +198,7 @@ void HexagonGame::draw()
                                (float(i + 1.f) * styleData._3dPerspectiveMult) *
                                (effect * 3.6f) * 1.4f);
 
-            const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
+            const sf::Vec2f newPos(offset * cosRot, offset * sinRot);
 
             sf::Color overrideColor;
 
@@ -348,10 +347,10 @@ void HexagonGame::initFlashEffect(int r, int g, int b)
     const auto height = static_cast<float>(Config::getHeight());
     const float offset = 100.f;
 
-    const sf::Vector2f nw{-offset, -offset};
-    const sf::Vector2f sw{-offset, height + offset};
-    const sf::Vector2f se{width + offset, height + offset};
-    const sf::Vector2f ne{width + offset, -offset};
+    const sf::Vec2f nw{-offset, -offset};
+    const sf::Vec2f sw{-offset, height + offset};
+    const sf::Vec2f se{width + offset, height + offset};
+    const sf::Vec2f ne{width + offset, -offset};
 
     flashPolygon.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
 }
@@ -688,14 +687,14 @@ void HexagonGame::drawText_TimeAndStatus(
         textUI->replayText.setFillColor(colorText);
         textUI->replayText.origin = ssvs::getLocalCenterE(textUI->replayText);
         textUI->replayText.position =
-            ssvs::getGlobalCenterW(replayIcon) - sf::Vector2f{replayPadding, 0};
+            ssvs::getGlobalCenterW(replayIcon) - sf::Vec2f{replayPadding, 0};
         render(textUI->replayText, mStates);
     }
 }
 
 template <typename FRender>
 static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
-    const sf::Vector2f& pos, const sf::Color& color, float outlineThickness,
+    const sf::Vec2f& pos, const sf::Color& color, float outlineThickness,
     FRender&& fRender)
 {
     if (text.getString().isEmpty())

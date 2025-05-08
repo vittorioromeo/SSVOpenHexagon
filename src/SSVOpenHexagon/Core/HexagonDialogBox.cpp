@@ -113,10 +113,10 @@ void HexagonDialogBox::drawBox(Utils::FastVertexVectorTris& quads,
     const sf::Color& frameColor, const float x1, const float x2, const float y1,
     const float y2)
 {
-    const sf::Vector2f nw{x1, y1};
-    const sf::Vector2f sw{x1, y2};
-    const sf::Vector2f se{x2, y2};
-    const sf::Vector2f ne{x2, y1};
+    const sf::Vec2f nw{x1, y1};
+    const sf::Vec2f sw{x1, y2};
+    const sf::Vec2f se{x2, y2};
+    const sf::Vec2f ne{x2, y1};
 
     quads.batch_unsafe_emplace_back_quad(frameColor, nw, sw, se, ne);
 }

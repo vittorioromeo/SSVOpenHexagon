@@ -7,7 +7,7 @@
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
 namespace hg {
@@ -18,16 +18,16 @@ class CCustomWall;
 class CPlayer
 {
 private:
-    sf::Vector2f _startPos; // Position at start of the level.
+    sf::Vec2f _startPos; // Position at start of the level.
 
-    sf::Vector2f _pos; // Actual position of player.
+    sf::Vec2f _pos; // Actual position of player.
 
-    sf::Vector2f _prePushPos; // Position before the player is pushed by a wall.
-                              // Unlike `pos` it is not updated after a
-                              // successful wall push.
+    sf::Vec2f _prePushPos; // Position before the player is pushed by a wall.
+                           // Unlike `pos` it is not updated after a
+                           // successful wall push.
 
-    sf::Vector2f _lastPos; // Position of the player in the previous frame,
-                           // adjusted according to the current frame's radius.
+    sf::Vec2f _lastPos; // Position of the player in the previous frame,
+                        // adjusted according to the current frame's radius.
 
     float _hue;
     float _angle;
@@ -71,15 +71,15 @@ private:
 
     template <typename Wall>
     [[nodiscard]] bool checkWallCollisionEscape(
-        const Wall& wall, sf::Vector2f& pos, const float radiusSquared);
+        const Wall& wall, sf::Vec2f& pos, const float radiusSquared);
 
     void updateTriangleWidthTransition(const bool focused, const float ft);
 
 public:
-    explicit CPlayer(const sf::Vector2f& pos, const float swapCooldown,
+    explicit CPlayer(const sf::Vec2f& pos, const float swapCooldown,
         const float size, const float speed, const float focusSpeed) noexcept;
 
-    [[nodiscard, gnu::always_inline]] const sf::Vector2f&
+    [[nodiscard, gnu::always_inline]] const sf::Vec2f&
     getPosition() const noexcept
     {
         return _pos;
@@ -123,7 +123,7 @@ public:
         const float angleTiltIntensity, const bool swapBlinkingEffect);
 
     [[nodiscard]] bool push(const int movementDir, const float radius,
-        const CWall& wall, const sf::Vector2f& mCenterPos,
+        const CWall& wall, const sf::Vec2f& mCenterPos,
         const float radiusSquared, float ft);
 
     [[nodiscard]] bool push(const int movementDir, const float radius,

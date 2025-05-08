@@ -19,17 +19,17 @@
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 namespace ssvuj {
 
-void Converter<sf::Vector2f>::fromObj(const Obj& mObj, T& mValue)
+void Converter<sf::Vec2f>::fromObj(const Obj& mObj, T& mValue)
 {
     extr(mObj, 0, mValue.x);
     extr(mObj, 1, mValue.y);
 }
 
-void Converter<sf::Vector2f>::toObj(Obj& mObj, const T& mValue)
+void Converter<sf::Vec2f>::toObj(Obj& mObj, const T& mValue)
 {
     arch(mObj, 0, mValue.x);
     arch(mObj, 1, mValue.y);

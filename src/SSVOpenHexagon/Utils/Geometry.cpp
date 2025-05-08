@@ -4,14 +4,14 @@
 
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 #include <cmath>
 
 namespace hg::Utils {
 
-[[nodiscard]] unsigned int getLineCircleIntersection(sf::Vector2f& i1,
-    sf::Vector2f& i2, const sf::Vector2f& p1, const sf::Vector2f& p2,
+[[nodiscard]] unsigned int getLineCircleIntersection(sf::Vec2f& i1,
+    sf::Vec2f& i2, const sf::Vec2f& p1, const sf::Vec2f& p2,
     const float mRadiusSquared)
 {
     const float dx{p2.x - p1.x};
@@ -47,11 +47,11 @@ namespace hg::Utils {
     return 2u;
 }
 
-[[nodiscard]] bool getLineCircleClosestIntersection(sf::Vector2f& mIntersection,
-    const sf::Vector2f& mPos, const sf::Vector2f& p1, const sf::Vector2f& p2,
+[[nodiscard]] bool getLineCircleClosestIntersection(sf::Vec2f& mIntersection,
+    const sf::Vec2f& mPos, const sf::Vec2f& p1, const sf::Vec2f& p2,
     const float mRadiusSquared)
 {
-    sf::Vector2f v1, v2;
+    sf::Vec2f v1, v2;
 
     switch (getLineCircleIntersection(v1, v2, p1, p2, mRadiusSquared))
     {

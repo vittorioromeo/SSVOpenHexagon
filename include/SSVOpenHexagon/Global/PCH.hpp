@@ -157,7 +157,7 @@
 #include <SFML/Network/UdpSocket.hpp>
 
 #include <SFML/System/Angle.hpp>
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 #include <SFML/Window/Joystick.hpp>
 #include <SFML/Window/Keyboard.hpp>

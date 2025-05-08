@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 namespace hg::Utils {
 
@@ -31,19 +31,18 @@ template <std::size_t N, typename TC, typename T>
 
 
 [[gnu::always_inline, gnu::pure, nodiscard]] inline bool
-pointInFourVertexPolygon(const sf::Vector2f& a, const sf::Vector2f& b,
-    const sf::Vector2f& c, const sf::Vector2f& d,
-    const sf::Vector2f& point) noexcept
+pointInFourVertexPolygon(const sf::Vec2f& a, const sf::Vec2f& b,
+    const sf::Vec2f& c, const sf::Vec2f& d, const sf::Vec2f& point) noexcept
 {
-    const sf::Vector2f ab = b - a;
-    const sf::Vector2f bc = c - b;
-    const sf::Vector2f cd = d - c;
-    const sf::Vector2f da = a - d;
+    const sf::Vec2f ab = b - a;
+    const sf::Vec2f bc = c - b;
+    const sf::Vec2f cd = d - c;
+    const sf::Vec2f da = a - d;
 
-    const sf::Vector2f ap_ab = point - a;
-    const sf::Vector2f bp_bc = point - b;
-    const sf::Vector2f cp_cd = point - c;
-    const sf::Vector2f dp_da = point - d;
+    const sf::Vec2f ap_ab = point - a;
+    const sf::Vec2f bp_bc = point - b;
+    const sf::Vec2f cp_cd = point - c;
+    const sf::Vec2f dp_da = point - d;
 
     const float ab_x_ap = ab.cross(ap_ab);
     const float bc_x_bp = bc.cross(bp_bc);

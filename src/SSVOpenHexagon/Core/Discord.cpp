@@ -160,9 +160,9 @@ bool discord_manager::set_rich_presence_in_game(
         // shown by "MM:SS elapsed".
         currentTimestamp.SetStart(
             static_cast<sf::base::I64>(std::chrono::high_resolution_clock::now()
-                                          .time_since_epoch()
-                                          .count() /
-                                      1'000'000'000));
+                                           .time_since_epoch()
+                                           .count() /
+                                       1'000'000'000));
     }
     else
     {

@@ -18,7 +18,7 @@
 #include <SFML/System/Angle.hpp>
 
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 #include <cmath>
 
@@ -30,7 +30,7 @@ inline constexpr float focusedTriangleWidth{-1.5f};
 inline constexpr float triangleWidthRange{
     unfocusedTriangleWidth - focusedTriangleWidth};
 
-CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
+CPlayer::CPlayer(const sf::Vec2f& pos, const float swapCooldown,
     const float size, const float speed, const float focusSpeed) noexcept
     : _startPos{pos},
       _pos{pos},
@@ -90,10 +90,10 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
     const float tiltedAngle =
         _angle + (_currTiltedAngle * Utils::toRad(24.f) * angleTiltIntensity);
 
-    const sf::Vector2f pLeft = _pos.movedTowards(
+    const sf::Vec2f pLeft = _pos.movedTowards(
         _size + _triangleWidth, sf::radians(tiltedAngle - Utils::toRad(100.f)));
 
-    const sf::Vector2f pRight = _pos.movedTowards(
+    const sf::Vec2f pRight = _pos.movedTowards(
         _size + _triangleWidth, sf::radians(tiltedAngle + Utils::toRad(100.f)));
 
     playerTris.reserve_more(3);
@@ -117,13 +117,13 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
     {
         const float sAngle{div * 2.f * i};
 
-        const sf::Vector2f p1{
+        const sf::Vec2f p1{
             _startPos.movedTowards(pRadius, sf::radians(sAngle - div))};
-        const sf::Vector2f p2{
+        const sf::Vec2f p2{
             _startPos.movedTowards(pRadius, sf::radians(sAngle + div))};
-        const sf::Vector2f p3{_startPos.movedTowards(
+        const sf::Vec2f p3{_startPos.movedTowards(
             pRadius + baseThickness, sf::radians(sAngle + div))};
-        const sf::Vector2f p4{_startPos.movedTowards(
+        const sf::Vec2f p4{_startPos.movedTowards(
             pRadius + baseThickness, sf::radians(sAngle - div))};
 
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
@@ -145,13 +145,13 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
     {
         const float sAngle{div * 2.f * i};
 
-        const sf::Vector2f p1{
+        const sf::Vec2f p1{
             _pos.movedTowards(dRadius, sf::radians(sAngle - div))};
-        const sf::Vector2f p2{
+        const sf::Vec2f p2{
             _pos.movedTowards(dRadius, sf::radians(sAngle + div))};
-        const sf::Vector2f p3{
+        const sf::Vec2f p3{
             _pos.movedTowards(dRadius + thickness, sf::radians(sAngle + div))};
-        const sf::Vector2f p4{
+        const sf::Vec2f p4{
             _pos.movedTowards(dRadius + thickness, sf::radians(sAngle - div))};
 
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
@@ -186,7 +186,7 @@ inline constexpr float collisionPadding{0.5f};
 
 template <typename Wall>
 [[nodiscard]] bool CPlayer::checkWallCollisionEscape(
-    const Wall& wall, sf::Vector2f& pos, const float radiusSquared)
+    const Wall& wall, sf::Vec2f& pos, const float radiusSquared)
 {
     // To find the closest wall side we intersect the circumference of the
     // possible player positions with the sides of the wall. We use the
@@ -194,10 +194,10 @@ template <typename Wall>
     // If an escape route could not be found player is killed.
 
     bool saved{false};
-    sf::Vector2f vec1, vec2;
+    sf::Vec2f vec1, vec2;
     float tempDistance, safeDistance{_maxSafeDistance};
     const unsigned int vxIncrement{wall.isCustomWall() ? 1u : 2u};
-    const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexPositions()};
+    const std::array<sf::Vec2f, 4>& wVertexes{wall.getVertexPositions()};
 
     // This is actually useless for normal walls, but if we removed
     // getKillingSide() for CWall we would have to write a separate
@@ -253,7 +253,7 @@ template <typename Wall>
 }
 
 [[nodiscard]] bool CPlayer::push(const int movementDir, const float radius,
-    const CWall& wall, const sf::Vector2f& centerPos, const float radiusSquared,
+    const CWall& wall, const sf::Vec2f& centerPos, const float radiusSquared,
     const float ft)
 {
     if (_dead)
@@ -261,8 +261,8 @@ template <typename Wall>
         return false;
     }
 
-    sf::Vector2f testPos{_pos};
-    sf::Vector2f pushVel{0.f, 0.f};
+    sf::Vec2f testPos{_pos};
+    sf::Vec2f pushVel{0.f, 0.f};
 
     // If it's a rotating wall push player in the direction the
     // wall is rotating by the appropriate amount, but only if the direction
@@ -280,9 +280,9 @@ template <typename Wall>
     // If player is not moving calculate now...
     if (!movementDir && !_forcedMove)
     {
-        const sf::Vector2f posDiff = testPos - _prePushPos;
-        const sf::Vector2f posDiffNormalized =
-            posDiff == sf::Vector2f{0.f, 0.f} ? posDiff : posDiff.normalized();
+        const sf::Vec2f posDiff = testPos - _prePushPos;
+        const sf::Vec2f posDiffNormalized =
+            posDiff == sf::Vec2f{0.f, 0.f} ? posDiff : posDiff.normalized();
 
         _pos = testPos + posDiffNormalized * (2.f * collisionPadding);
         _angle = _pos.angle().asRadians();
@@ -335,10 +335,9 @@ template <typename Wall>
     // player, such side is a candidate for pushing it like a curving wall would
     // do. (_lastPos is the best candidate for this check).
 
-    const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexPositions()};
-    const std::array<sf::Vector2f, 4>& wOldVertexes{
-        wall.getOldVertexPositions()};
-    sf::Vector2f pushVel{0.f, 0.f}, i1, i2;
+    const std::array<sf::Vec2f, 4>& wVertexes{wall.getVertexPositions()};
+    const std::array<sf::Vec2f, 4>& wOldVertexes{wall.getOldVertexPositions()};
+    sf::Vec2f pushVel{0.f, 0.f}, i1, i2;
     const unsigned int killingSide{wall.getKillingSide()};
     constexpr float pushDotThreshold{
         0.15f}; // 0.1 would be enough in most scenarios
@@ -351,7 +350,7 @@ template <typename Wall>
             continue;
         }
 
-        const std::array<sf::Vector2f, 4> collisionPolygon{
+        const std::array<sf::Vec2f, 4> collisionPolygon{
             wVertexes[i], wOldVertexes[i], wOldVertexes[j], wVertexes[j]};
 
         if (Utils::pointInPolygon<4>(collisionPolygon, _lastPos.x, _lastPos.y))
@@ -386,7 +385,7 @@ template <typename Wall>
     }
 
     // If alive try to find a close enough safe position.
-    sf::Vector2f testPos{_lastPos + pushVel};
+    sf::Vec2f testPos{_lastPos + pushVel};
     if (wall.isOverlapping(testPos) ||
         !checkWallCollisionEscape(wall, testPos, radiusSquared))
     {

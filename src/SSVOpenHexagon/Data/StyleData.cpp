@@ -196,7 +196,7 @@ void StyleData::computeColors()
 }
 
 void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
-    const sf::Vector2f& mCenterPos, const unsigned int sides,
+    const sf::Vec2f& mCenterPos, const unsigned int sides,
     const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const
 {
     const float div{Utils::tau / sides * 1.0001f};
@@ -233,7 +233,7 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
 }
 
 void StyleData::drawBackgroundMenuHexagonImpl(
-    Utils::FastVertexVectorTris& vertices, const sf::Vector2f& mCenterPos,
+    Utils::FastVertexVectorTris& vertices, const sf::Vec2f& mCenterPos,
     const unsigned int sides, const bool fourByThree,
     const bool blackAndWhite) const
 {
@@ -265,7 +265,7 @@ void StyleData::drawBackgroundMenuHexagonImpl(
 }
 
 void StyleData::drawBackground(Utils::FastVertexVectorTris& mTris,
-    const sf::Vector2f& mCenterPos, const unsigned int sides,
+    const sf::Vec2f& mCenterPos, const unsigned int sides,
     const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const
 {
     mTris.reserve_more(sides * 3);
@@ -275,7 +275,7 @@ void StyleData::drawBackground(Utils::FastVertexVectorTris& mTris,
 }
 
 void StyleData::drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
-    const sf::Vector2f& mCenterPos, const unsigned int sides,
+    const sf::Vec2f& mCenterPos, const unsigned int sides,
     const bool darkenUnevenBackgroundChunk, const bool blackAndWhite,
     const bool fourByThree) const
 {

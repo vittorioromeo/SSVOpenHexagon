@@ -259,7 +259,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
         .doc("Create a new custom wall and return a integer handle to it.");
 
     addLuaFn(lua, "cw_createDeadly", //
-        [&cwManager]() -> CCustomWallHandle {
+        [&cwManager]() -> CCustomWallHandle
+        {
             return cwManager.create(
                 [](CCustomWall& cw) { cw.setDeadly(true); });
         })
@@ -268,7 +269,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "it.");
 
     addLuaFn(lua, "cw_createNoCollision", //
-        [&cwManager]() -> CCustomWallHandle {
+        [&cwManager]() -> CCustomWallHandle
+        {
             return cwManager.create(
                 [](CCustomWall& cw) { cw.setCanCollide(false); });
         })
@@ -285,7 +287,7 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
     addLuaFn(lua, "cw_setVertexPos", //
         [&cwManager](
             CCustomWallHandle cwHandle, int vertexIndex, float x, float y)
-        { cwManager.setVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y}); })
+        { cwManager.setVertexPos(cwHandle, vertexIndex, sf::Vec2f{x, y}); })
         .arg("cwHandle")
         .arg("vertexIndex")
         .arg("x")
@@ -297,7 +299,7 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
     addLuaFn(lua, "cw_moveVertexPos", //
         [&cwManager](
             CCustomWallHandle cwHandle, int vertexIndex, float x, float y)
-        { cwManager.moveVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y}); })
+        { cwManager.moveVertexPos(cwHandle, vertexIndex, sf::Vec2f{x, y}); })
         .arg("cwHandle")
         .arg("vertexIndex")
         .arg("offsetX")
@@ -308,7 +310,7 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
 
     addLuaFn(lua, "cw_moveVertexPos4Same", //
         [&cwManager](CCustomWallHandle cwHandle, float x, float y)
-        { cwManager.moveVertexPos4Same(cwHandle, sf::Vector2f{x, y}); })
+        { cwManager.moveVertexPos4Same(cwHandle, sf::Vec2f{x, y}); })
         .arg("cwHandle")
         .arg("offsetX")
         .arg("offsetY")
@@ -318,7 +320,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
 
     addLuaFn(lua, "cw_setVertexColor", //
         [&cwManager](CCustomWallHandle cwHandle, int vertexIndex, int r, int g,
-            int b, int a) {
+            int b, int a)
+        {
             cwManager.setVertexColor(
                 cwHandle, vertexIndex, sf::Color(r, g, b, a));
         })
@@ -340,10 +343,10 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             float x3, float y3)
         {
             cwManager.setVertexPos4(cwHandle, //
-                sf::Vector2f{x0, y0},         //
-                sf::Vector2f{x1, y1},         //
-                sf::Vector2f{x2, y2},         //
-                sf::Vector2f{x3, y3});
+                sf::Vec2f{x0, y0},            //
+                sf::Vec2f{x1, y1},            //
+                sf::Vec2f{x2, y2},            //
+                sf::Vec2f{x3, y3});
         })
         .arg("cwHandle")
         .arg("x0")
@@ -473,7 +476,7 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
         [&cwManager](CCustomWallHandle cwHandle,
             int vertexIndex) -> std::tuple<float, float>
         {
-            const sf::Vector2f& pos =
+            const sf::Vec2f& pos =
                 cwManager.getVertexPos(cwHandle, vertexIndex);
 
             return {pos.x, pos.y};
@@ -1553,7 +1556,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             auto& ids = hexagonGameStatus.fragmentShaderIds;
 
             for (std::size_t i = 0;
-                 i < static_cast<std::size_t>(RenderStage::Count); ++i)
+                i < static_cast<std::size_t>(RenderStage::Count); ++i)
             {
                 ids[i] = sf::base::nullOpt;
             }

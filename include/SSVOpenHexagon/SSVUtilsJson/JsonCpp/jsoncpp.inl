@@ -684,7 +684,7 @@ inline std::string Reader::getFormattedErrorMessages() const
 {
     std::string formattedMessage;
     for (Errors::const_iterator itError = errors_.begin();
-         itError != errors_.end(); ++itError)
+        itError != errors_.end(); ++itError)
     {
         const ErrorInfo& error = *itError;
         formattedMessage +=
@@ -815,7 +815,7 @@ inline ValueIteratorBase::difference_type ValueIteratorBase::computeDistance(
     if (isNull_ && other.isNull_) return 0;
     difference_type myDistance = 0;
     for (Value::ObjectValues::iterator it = current_; it != other.current_;
-         ++it)
+        ++it)
         ++myDistance;
     return myDistance;
 }
@@ -1756,7 +1756,7 @@ inline void Path::makePath(const std::string& path, const InArgs& in)
             {
                 ArrayIndex index = 0;
                 for (; current != end && *current >= '0' && *current <= '9';
-                     ++current)
+                    ++current)
                     index = index * 10 + ArrayIndex(*current - '0');
                 args_.emplace_back(index);
             }
@@ -1998,7 +1998,7 @@ inline void FastWriter::writeValue(const Value& value)
             Value::Members members(value.getMemberNames());
             document_ += "{";
             for (Value::Members::iterator it = members.begin();
-                 it != members.end(); ++it)
+                it != members.end(); ++it)
             {
                 const std::string& name = *it;
                 if (it != members.begin()) document_ += ",";
