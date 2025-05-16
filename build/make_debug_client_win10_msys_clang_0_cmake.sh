@@ -15,6 +15,7 @@ cmake .. -G"Ninja" \
          -DCMAKE_C_COMPILER="clang" \
          -DCMAKE_C_FLAGS="-fuse-ld=lld" \
          -DCMAKE_CXX_COMPILER="clang++" \
+         -DCMAKE_CXX_SCAN_FOR_MODULES="OFF" \
          -DCMAKE_CXX_FLAGS="\
             -fuse-ld=lld \
             -ftime-trace \

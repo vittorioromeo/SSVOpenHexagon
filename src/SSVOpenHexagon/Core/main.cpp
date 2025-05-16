@@ -377,8 +377,8 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // ------------------------------------------------------------------------
     // Initialize audio
     auto audioContext = sf::AudioContext::create().value();
-    auto playbackDevice =
-        sf::PlaybackDevice::createDefault(audioContext).value();
+    sf::PlaybackDevice playbackDevice{
+        sf::AudioContext::getDefaultPlaybackDeviceHandle().value()};
 
     hg::Audio audio{
         //

@@ -33,7 +33,7 @@
 #ifndef SSVOH_ANDROID
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
-#include <SFML/ImGui/ImGui.hpp>
+#include <SFML/ImGui/ImGuiContext.hpp>
 #endif
 
 #include <SFML/Graphics/Color.hpp>

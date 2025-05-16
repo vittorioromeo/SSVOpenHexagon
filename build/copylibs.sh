@@ -4,6 +4,7 @@ function copyTo
 {
     cp ./_deps/zlib-build/libzlib.dll $1 &
     cp /c/msys64/ucrt64/bin/libstdc++-6.dll $1 &
+    cp /c/msys64/ucrt64/bin/zlib1.dll $1 &
     cp /c/msys64/ucrt64/bin/libgcc_s_seh-1.dll $1 &
     cp /c/msys64/ucrt64/bin/libwinpthread-1.dll $1 &
 }

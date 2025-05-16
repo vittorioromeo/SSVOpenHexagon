@@ -353,7 +353,7 @@ private:
     index_type _index;
 
 #if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ >= 10)
-#define TINYVARIANT_ALWAYS_INLINE_LAMBDA [[gnu::always_inline]]
+#define TINYVARIANT_ALWAYS_INLINE_LAMBDA __attribute__((always_inline))
 #else
 #define TINYVARIANT_ALWAYS_INLINE_LAMBDA
 #endif

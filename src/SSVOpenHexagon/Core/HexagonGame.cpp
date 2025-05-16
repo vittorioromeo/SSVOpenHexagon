@@ -356,11 +356,6 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     if (window != nullptr)
     {
-        if (!imguiCtx.init(window->getRenderWindow()))
-        {
-            ssvu::lo("imgui") << "Failed to initialize imgui";
-        }
-
         const float width = Config::getWidth();
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();

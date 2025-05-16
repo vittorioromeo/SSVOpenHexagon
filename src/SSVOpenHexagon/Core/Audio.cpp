@@ -9,17 +9,19 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include <SFML/System/Time.hpp>
-#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/MusicReader.hpp>
+#include <SFML/Audio/AudioSettings.hpp>
 #include <SFML/Audio/PlaybackDevice.hpp>
+#include <SFML/Audio/Sound.hpp>
 
 #include <SFML/Base/Optional.hpp>
 
-#include <SFML/Base/Optional.hpp>
+#include <SFML/Base/InPlaceVector.hpp>
 #include <string>
 
 namespace hg {
@@ -33,21 +35,50 @@ private:
     MusicPathGetter _musicPathGetter;
 
     // TODO (P2): remove these, roll own system
-    ssvs::SoundPlayer _soundPlayer;
+    sf::base::InPlaceVector<sf::Sound, 32> _sounds;
+    float _soundVolume{1.f};
 
+    sf::base::Optional<sf::MusicReader> _musicReader;
     sf::base::Optional<sf::Music> _music;
     float _musicVolume;
     std::string _lastLoadedMusicPath;
 
-
-    void playSoundImpl(
-        const std::string& assetId, const ssvs::SoundPlayer::Mode mode)
+    void playSoundImpl(const std::string& assetId, const bool modeOverride)
     {
-        if (sf::SoundBuffer* soundBuffer = _soundBufferGetter(assetId);
-            soundBuffer != nullptr)
+        sf::SoundBuffer* soundBuffer = _soundBufferGetter(assetId);
+        if (soundBuffer == nullptr)
         {
-            _soundPlayer.play(_playbackDevice, *soundBuffer, mode);
+            return;
         }
+
+        if (modeOverride)
+        {
+            for (auto& sound : _sounds)
+                if (&sound.getBuffer() == soundBuffer)
+                {
+                    sound.stop();
+                }
+
+            for (auto& sound : _sounds)
+                if (&sound.getBuffer() == soundBuffer)
+                {
+                    sound.play();
+                    return;
+                }
+        }
+        else
+        {
+            for (const auto& sound : _sounds)
+                if (&sound.getBuffer() == soundBuffer && sound.isPlaying())
+                {
+                    return;
+                }
+        }
+
+        _sounds
+            .emplaceBack(_playbackDevice, *soundBuffer,
+                sf::AudioSettings{.volume = _soundVolume})
+            .play();
     }
 
 public:
@@ -57,7 +88,6 @@ public:
         : _playbackDevice{playbackDevice},
           _soundBufferGetter{soundBufferGetter},
           _musicPathGetter{musicPathGetter},
-          _soundPlayer{},
           _music{},
           _musicVolume{100.f},
           _lastLoadedMusicPath{}
@@ -68,7 +98,9 @@ public:
     void setSoundVolume(const float volume)
     {
         SSVOH_ASSERT(volume >= 0.f && volume <= 100.f);
-        _soundPlayer.setVolume(volume / 100.f);
+        _soundVolume = volume / 100.f;
+
+        for (auto& sound : _sounds) sound.setVolume(_soundVolume);
     }
 
     void setMusicVolume(const float volume)
@@ -87,7 +119,7 @@ public:
         if (_music.hasValue())
         {
             _music->setVolume(_musicVolume / 100.f);
-            _music->play(_playbackDevice);
+            _music->resume();
         }
     }
 
@@ -145,29 +177,27 @@ public:
 
     void stopSounds()
     {
-        _soundPlayer.stop();
+        for (auto& sound : _sounds) sound.stop();
     }
 
     void playSoundOverride(const std::string& id)
     {
-        playSoundImpl(id, ssvs::SoundPlayer::Mode::Override);
+        playSoundImpl(id, /* modeOverride */ true);
     }
 
     void playPackSoundOverride(const std::string& packId, const std::string& id)
     {
-        playSoundImpl(
-            Utils::concat(packId, '_', id), ssvs::SoundPlayer::Mode::Override);
+        playSoundImpl(Utils::concat(packId, '_', id), /* modeOverride */ true);
     }
 
     void playSoundAbort(const std::string& id)
     {
-        playSoundImpl(id, ssvs::SoundPlayer::Mode::Abort);
+        playSoundImpl(id, /* modeOverride */ false);
     }
 
     void playPackSoundAbort(const std::string& packId, const std::string& id)
     {
-        playSoundImpl(
-            Utils::concat(packId, '_', id), ssvs::SoundPlayer::Mode::Abort);
+        playSoundImpl(Utils::concat(packId, '_', id), /* modeOverride */ false);
     }
 
     [[nodiscard]] bool loadAndPlayMusic(const std::string& packId,
@@ -186,7 +216,7 @@ public:
 
         if (_lastLoadedMusicPath != *path)
         {
-            if (!(_music = sf::Music::openFromFile(*path)))
+            if (!(_musicReader = sf::MusicReader::openFromFile(*path)))
             {
                 ssvu::lo("hg::AudioImpl::loadAndPlayMusic")
                     << "Failed loading music file '" << path << "'\n";
@@ -194,6 +224,9 @@ public:
                 _music.reset();
                 return false;
             }
+
+            _music.emplace(_playbackDevice, *_musicReader,
+                sf::AudioSettings{.volume = _musicVolume / 100.f});
 
             _lastLoadedMusicPath = *path;
         }
