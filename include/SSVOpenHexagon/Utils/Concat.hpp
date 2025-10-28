@@ -9,8 +9,8 @@
 #include <string_view>
 #include <cstddef>
 
-#include <SFML/Base/Traits/IsConvertible.hpp>
-#include <SFML/Base/Traits/IsSame.hpp>
+#include <SFML/Base/Trait/IsConvertible.hpp>
+#include <SFML/Base/Trait/IsSame.hpp>
 
 namespace hg::Utils {
 
