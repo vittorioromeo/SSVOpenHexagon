@@ -17,13 +17,12 @@
 #include <sodium.h>
 
 #include <sstream>
-#include <SFML/Base/Optional.hpp>
-#include <variant>
 #include <string>
 #include <vector>
 
 #include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
+#include <SFML/Base/Variant.hpp>
 
 namespace sf {
 
@@ -82,7 +81,7 @@ struct CTSPReady                       { sf::base::U64 loginToken; };
         CTSPRequestTopScoresAndOwnScore, CTSPStartedGame,         \
         CTSPCompressedReplay, CTSPRequestServerStatus, CTSPReady)
 
-using PVClientToServer = std::variant<PInvalid, PEncryptedMsg,
+using PVClientToServer = sf::base::Variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS)>;
 
 // ----------------------------------------------------------------------------
@@ -124,7 +123,7 @@ struct STCPServerStatus           { ProtocolVersion protocolVersion; GameVersion
         STCPDeleteAccountFailure, STCPTopScores, STCPOwnScore,          \
         STCPTopScoresAndOwnScore, STCPServerStatus)
 
-using PVServerToClient = std::variant<PInvalid, PEncryptedMsg,
+using PVServerToClient = sf::base::Variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS)>;
 
 // ----------------------------------------------------------------------------

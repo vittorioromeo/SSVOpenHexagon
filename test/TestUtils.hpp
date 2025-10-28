@@ -1,10 +1,12 @@
 #pragma once
 
-#include <exception>
-#include <string>
 #include <sstream>
 #include <iostream>
 #include <random>
+
+#include <SFML/Base/Trait/IsSame.hpp>
+#include <SFML/Base/Trait/CommonType.hpp>
+
 
 #define TEST_MAIN(...) int __attribute__((const)) main(__VA_ARGS__)
 
@@ -12,10 +14,10 @@
 
 #define SA_SAME(value, type) \
     static_assert(           \
-        ::std::is_same_v<TEST_IMPL_DEPARENS value, TEST_IMPL_DEPARENS type>)
+        SFML_BASE_IS_SAME(TEST_IMPL_DEPARENS value, TEST_IMPL_DEPARENS type))
 
 #define SA_TYPE(value, type) \
-    static_assert(::std::is_same_v<decltype value, TEST_IMPL_DEPARENS type>)
+    static_assert(SFML_BASE_IS_SAME(decltype value, TEST_IMPL_DEPARENS type))
 
 namespace test_impl::impl {
 
@@ -79,7 +81,7 @@ void output_expected(TStream& s, const char* expected, const T& rhs_result)
 template <typename TF>
 void do_test(bool x, TF&& f)
 {
-    if(x) [[likely]]
+    if (x) [[likely]]
     {
         return;
     }
@@ -154,12 +156,12 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
                                                                               \
         test_impl::test_expr(__LINE__, static_cast<bool>(_t_x), expr, #expr); \
     }                                                                         \
-    while(false)
+    while (false)
 
 #define TEST_ASSERT_OP(lhs, op, rhs)                                        \
     do                                                                      \
     {                                                                       \
-        using ct = std::common_type_t<decltype(lhs), decltype(rhs)>;        \
+        using ct = SFML_BASE_COMMON_TYPE(decltype(lhs), decltype(rhs));     \
                                                                             \
         auto _t_xl(lhs);                                                    \
         auto _t_xr(rhs);                                                    \
@@ -169,7 +171,7 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
         test_impl::test_op(__LINE__, static_cast<bool>(_t_x), _t_xl, _t_xr, \
             #lhs " " #op " " #rhs, #rhs);                                   \
     }                                                                       \
-    while(false)
+    while (false)
 
 #define TEST_ASSERT_EQ(lhs, rhs) TEST_ASSERT_OP(lhs, ==, rhs)
 #define TEST_ASSERT_NE(lhs, rhs) TEST_ASSERT_OP(lhs, !=, rhs)
@@ -187,7 +189,7 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
                                                                            \
         test_impl::test_expr_ns(__LINE__, static_cast<bool>(_t_x), #expr); \
     }                                                                      \
-    while(false)
+    while (false)
 
 #define TEST_ASSERT_NS_OP(lhs, op, rhs)                                      \
     do                                                                       \
@@ -198,7 +200,7 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
         test_impl::test_op_ns(                                               \
             __LINE__, static_cast<bool>(_t_x), #lhs " " #op " " #rhs, #rhs); \
     }                                                                        \
-    while(false)
+    while (false)
 
 #define TEST_ASSERT_NS_EQ(lhs, rhs) TEST_ASSERT_NS_OP(lhs, ==, rhs)
 #define TEST_ASSERT_NS_NE(lhs, rhs) TEST_ASSERT_NS_OP(lhs, !=, rhs)

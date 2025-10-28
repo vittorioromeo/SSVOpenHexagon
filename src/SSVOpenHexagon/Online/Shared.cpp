@@ -13,15 +13,19 @@
 
 #include <SFML/Network/Packet.hpp>
 
+#include <SFML/Base/Optional.hpp>
+#include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Variant.hpp>
+#include <SFML/Base/TypePackIndex.hpp>
+#include <SFML/Base/Trait/IsSame.hpp>
+
 #include <sodium.h>
 
 #include <boost/pfr.hpp>
 
-#include <SFML/Base/IntTypes.hpp>
+
 #include <sstream>
 #include <iostream>
-#include <SFML/Base/Optional.hpp>
-#include <type_traits>
 
 namespace hg {
 
@@ -32,39 +36,16 @@ struct TypeList
 {};
 
 template <typename T, typename... Ts>
-[[nodiscard]] constexpr bool contains(TypeList<Ts...>)
+[[nodiscard]] consteval bool variantContains(TypeList<sf::base::Variant<Ts...>>)
 {
-    return (std::is_same_v<T, Ts> || ...);
+    return (SFML_BASE_IS_SAME(T, Ts) || ...);
 }
 
 template <typename T, typename... Ts>
-[[nodiscard]] constexpr std::size_t indexOfType(TypeList<Ts...>)
+[[nodiscard]] consteval std::size_t indexOfVariantType(
+    TypeList<sf::base::Variant<Ts...>>)
 {
-    static_assert(contains<T>(TypeList<Ts...>{}));
-
-    constexpr std::array test{std::is_same_v<T, Ts>...};
-    for (std::size_t i = 0; i < test.size(); ++i)
-    {
-        if (test[i])
-        {
-            return i;
-        }
-    }
-
-    throw;
-}
-
-template <typename T, typename... Ts>
-[[nodiscard]] constexpr bool variantContains(TypeList<std::variant<Ts...>>)
-{
-    return contains<T>(TypeList<Ts...>{});
-}
-
-template <typename T, typename... Ts>
-[[nodiscard]] constexpr std::size_t indexOfVariantType(
-    TypeList<std::variant<Ts...>>)
-{
-    return indexOfType<T>(TypeList<Ts...>{});
+    return sf::base::getTypePackIndex<T, Ts...>();
 }
 
 using PacketType = sf::base::U8;
@@ -756,21 +737,21 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
 
 // ----------------------------------------------------------------------------
 
-#define HANDLE_PACKET(type)                                 \
-    do                                                      \
-    {                                                       \
-        if (*pt == getPacketType<type>())                   \
-        {                                                   \
-            type result;                                    \
-                                                            \
-            if (!extractAllMembers(result))                 \
-            {                                               \
-                return {PInvalid{.error = errorOss.str()}}; \
-            }                                               \
-                                                            \
-            return {result};                                \
-        }                                                   \
-    }                                                       \
+#define HANDLE_PACKET(type)                                            \
+    do                                                                 \
+    {                                                                  \
+        if (*pt == getPacketType<type>())                              \
+        {                                                              \
+            type result;                                               \
+                                                                       \
+            if (!extractAllMembers(result))                            \
+            {                                                          \
+                return VariantType{PInvalid{.error = errorOss.str()}}; \
+            }                                                          \
+                                                                       \
+            return VariantType{result};                                \
+        }                                                              \
+    }                                                                  \
     while (false)
 
 #define INJECT_COMMON_PACKET_HANDLING_CODE(function)                          \
@@ -778,14 +759,14 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
                                                                               \
     if (!pt.hasValue())                                                       \
     {                                                                         \
-        return {PInvalid{.error = errorOss.str()}};                           \
+        return VariantType{PInvalid{.error = errorOss.str()}};                \
     }                                                                         \
                                                                               \
     if (*pt == getPacketType<PEncryptedMsg>())                                \
     {                                                                         \
         if (!decodeEncryptedPacket(keyReceive, errorOss, p))                  \
         {                                                                     \
-            return {PInvalid{.error = errorOss.str()}};                       \
+            return VariantType{PInvalid{.error = errorOss.str()}};            \
         }                                                                     \
                                                                               \
         return function(keyReceive, errorOss, getStaticPacketBuffer());       \
@@ -845,13 +826,15 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
+    using VariantType = PVClientToServer;
+
     INJECT_COMMON_PACKET_HANDLING_CODE(decodeClientToServerPacketInner);
 
     VRM_PP_FOREACH_REVERSE(FORIMPL_HANDLE_PACKET, VRM_PP_EMPTY(),
         VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS))
 
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
-    return {PInvalid{.error = errorOss.str()}};
+    return PVClientToServer{PInvalid{.error = errorOss.str()}};
 }
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(
@@ -861,7 +844,7 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
     if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
             errorOss, p))
     {
-        return {PInvalid{.error = errorOss.str()}};
+        return PVClientToServer{PInvalid{.error = errorOss.str()}};
     }
 
     return decodeClientToServerPacketInner(keyReceive, errorOss, p);
@@ -907,13 +890,15 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
+    using VariantType = PVServerToClient;
+
     INJECT_COMMON_PACKET_HANDLING_CODE(decodeServerToClientPacketInner);
 
     VRM_PP_FOREACH_REVERSE(FORIMPL_HANDLE_PACKET, VRM_PP_EMPTY(),
         VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS))
 
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
-    return {PInvalid{.error = errorOss.str()}};
+    return PVServerToClient{PInvalid{.error = errorOss.str()}};
 }
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(
@@ -923,7 +908,7 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
     if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
             errorOss, p))
     {
-        return {PInvalid{.error = errorOss.str()}};
+        return PVServerToClient{PInvalid{.error = errorOss.str()}};
     }
 
     return decodeServerToClientPacketInner(keyReceive, errorOss, p);

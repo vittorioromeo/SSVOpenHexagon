@@ -87,8 +87,8 @@ template <std::size_t N>
 } // namespace Impl
 
 template <typename... Ts>
-[[nodiscard]] auto concat(const Ts&... xs)
-    -> std::enable_if_t<!Impl::AllConvertibleToStringView<Ts...>, std::string>
+[[nodiscard]] std::string concat(const Ts&... xs)
+    requires(!Impl::AllConvertibleToStringView<Ts...>)
 {
     thread_local std::ostringstream oss;
     oss.str("");
@@ -98,8 +98,8 @@ template <typename... Ts>
 }
 
 template <typename... Ts>
-auto concatInto(std::string& result, const Ts&... xs)
-    -> std::enable_if_t<Impl::AllConvertibleToStringView<Ts...>, void>
+void concatInto(std::string& result, const Ts&... xs)
+    requires(Impl::AllConvertibleToStringView<Ts...>)
 {
     const std::size_t space = (1 + ... + Impl::getSize(xs));
     result.reserve(result.size() + space);
@@ -107,8 +107,8 @@ auto concatInto(std::string& result, const Ts&... xs)
 }
 
 template <typename... Ts>
-[[nodiscard]] auto concat(const Ts&... xs)
-    -> std::enable_if_t<Impl::AllConvertibleToStringView<Ts...>, std::string>
+[[nodiscard]] std::string concat(const Ts&... xs)
+    requires(Impl::AllConvertibleToStringView<Ts...>)
 {
     std::string result;
     concatInto(result, xs...);

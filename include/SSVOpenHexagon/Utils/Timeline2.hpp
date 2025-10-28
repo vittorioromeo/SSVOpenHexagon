@@ -5,10 +5,11 @@
 #pragma once
 
 #include "SSVOpenHexagon/Utils/FixedFunction.hpp"
-#include "SSVOpenHexagon/Utils/TinyVariant.hpp"
+
+#include <SFML/Base/Optional.hpp>
+#include <SFML/Base/Variant.hpp>
 
 #include <chrono>
-#include <SFML/Base/Optional.hpp>
 #include <cstddef>
 #include <vector>
 
@@ -41,7 +42,7 @@ public:
         Utils::FixedFunction<time_point(), 32> _time_point_fn;
     };
 
-    using action = vittorioromeo::tinyvariant<action_do, action_wait_for,
+    using action = sf::base::Variant<action_do, action_wait_for,
         action_wait_until, action_wait_until_fn>;
 
 private:
@@ -54,8 +55,7 @@ public:
     void append_do(F&& func)
     {
         _actions.emplace_back(
-            vittorioromeo::impl::tinyvariant_inplace_type_t<action_do>{},
-            SSVOH_FWD(func));
+            sf::base::inPlaceType<action_do>, SSVOH_FWD(func));
     }
 
     void append_wait_for(const duration d);
@@ -66,9 +66,8 @@ public:
     template <typename F>
     void append_wait_until_fn(F&& tp_fn)
     {
-        _actions.emplace_back(vittorioromeo::impl::tinyvariant_inplace_type_t<
-                                  action_wait_until_fn>{},
-            SSVOH_FWD(tp_fn));
+        _actions.emplace_back(
+            sf::base::inPlaceType<action_wait_until_fn>, SSVOH_FWD(tp_fn));
     }
 
     [[nodiscard]] std::size_t size() const noexcept;

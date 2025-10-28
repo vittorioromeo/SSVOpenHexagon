@@ -39,8 +39,8 @@
 #include <SFML/Audio/Music.hpp>
 
 #include <SFML/Base/UniquePtr.hpp>
+#include <SFML/Base/Algorithm/Sort.hpp>
 
-#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <exception>
@@ -370,7 +370,7 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(
 
     for (auto& v : levelDataIdsByPack)
     {
-        std::sort(v.second.begin(), v.second.end(),
+        sf::base::quickSort(v.second.begin(), v.second.end(),
             [&](const std::string& mA, const std::string& mB)
             {
                 return levelDatas.at(mA).menuPriority <
@@ -378,11 +378,11 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(
             });
     }
 
-    std::sort(packInfos.begin(), packInfos.end(),
+    sf::base::quickSort(packInfos.begin(), packInfos.end(),
         [&](const PackInfo& mA, const PackInfo& mB)
         { return getPackData(mA.id).priority < getPackData(mB.id).priority; });
 
-    std::sort(selectablePackInfos.begin(), selectablePackInfos.end(),
+    sf::base::quickSort(selectablePackInfos.begin(), selectablePackInfos.end(),
         [&](const PackInfo& mA, const PackInfo& mB)
         { return getPackData(mA.id).priority < getPackData(mB.id).priority; });
 

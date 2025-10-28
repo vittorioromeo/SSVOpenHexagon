@@ -22,9 +22,10 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
-#include <SFML/ImGui/ImGuiContext.hpp>
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
+
+#include <SFML/ImGui/ImGuiContext.hpp>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -35,14 +36,14 @@
 #include <SFML/Graphics/Texture.hpp>
 
 #include <SFML/System/Vec2.hpp>
-#include <SFML/Base/Optional.hpp>
 #include <SFML/System/Clock.hpp>
 
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
+
 #include <sstream>
 #include <unordered_set>
 #include <functional>
-#include <SFML/Base/Optional.hpp>
 #include <vector>
 #include <string>
 #include <string_view>

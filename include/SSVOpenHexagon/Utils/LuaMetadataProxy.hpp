@@ -10,6 +10,8 @@
 
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
+#include <SFML/Base/Trait/Decay.hpp>
+
 #include <string>
 #include <vector>
 #include <tuple>
@@ -54,7 +56,7 @@ private:
             std::string res;
 
             res += typeToStr(
-                TypeWrapper<std::decay_t<typename AE::template NthArg<0>>>{});
+                TypeWrapper<SFML_BASE_DECAY(typename AE::template NthArg<0>>){});
 
             res += ' ';
             res += self->argNames.at(0);
@@ -69,7 +71,7 @@ private:
             {
                 (( //
                      res += typeToStr(TypeWrapper<
-                         std::decay_t<typename AE::template NthArg<Is>>>{}), //
+                         SFML_BASE_DECAY(typename AE::template NthArg<Is>>>){}), //
                      res += ' ',                                             //
                      res += self->argNames.at(Is),                           //
                      res += ", "),
@@ -92,7 +94,7 @@ private:
     [[nodiscard]] static std::string makeErasedRet(LuaMetadataProxy*)
     {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
-        return typeToStr(TypeWrapper<std::decay_t<Ret>>{});
+        return typeToStr(TypeWrapper<SFML_BASE_DECAY(Ret)>{});
 #else
         return "";
 #endif
@@ -100,7 +102,7 @@ private:
 
 public:
 #ifdef SSVOH_PRODUCE_LUA_METADATA
-    template <typename F, typename FOp = decltype(&std::decay_t<F>::operator())>
+    template <typename F, typename FOp = decltype(&SFML_BASE_DECAY(F)::operator())>
     explicit LuaMetadataProxy(
         TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName)
         : luaMetadata{mLuaMetadata},

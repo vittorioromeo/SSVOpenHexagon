@@ -14,13 +14,13 @@
 #include <SFML/Network/Packet.hpp>
 
 #include <deque>
-#include <SFML/Base/Optional.hpp>
 #include <sstream>
 #include <unordered_set>
-#include <variant>
 #include <vector>
 
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
+#include <SFML/Base/Variant.hpp>
 
 namespace hg::Steam {
 class steam_manager;
@@ -63,22 +63,22 @@ public:
     struct EProtocolVersionMismatch { };
     // clang-format on
 
-    using Event = std::variant<  //
-        EConnectionSuccess,      //
-        EConnectionFailure,      //
-        EKicked,                 //
-        ERegistrationSuccess,    //
-        ERegistrationFailure,    //
-        ELoginSuccess,           //
-        ELoginFailure,           //
-        ELogoutSuccess,          //
-        ELogoutFailure,          //
-        EDeleteAccountSuccess,   //
-        EDeleteAccountFailure,   //
-        EReceivedTopScores,      //
-        EReceivedOwnScore,       //
-        EGameVersionMismatch,    //
-        EProtocolVersionMismatch //
+    using Event = sf::base::Variant< //
+        EConnectionSuccess,          //
+        EConnectionFailure,          //
+        EKicked,                     //
+        ERegistrationSuccess,        //
+        ERegistrationFailure,        //
+        ELoginSuccess,               //
+        ELoginFailure,               //
+        ELogoutSuccess,              //
+        ELogoutFailure,              //
+        EDeleteAccountSuccess,       //
+        EDeleteAccountFailure,       //
+        EReceivedTopScores,          //
+        EReceivedOwnScore,           //
+        EGameVersionMismatch,        //
+        EProtocolVersionMismatch     //
         >;
 
 private:

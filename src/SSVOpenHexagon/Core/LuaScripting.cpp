@@ -33,6 +33,8 @@
 #include <SFML/Graphics/Glsl.hpp>
 #include <SFML/Graphics/Shader.hpp>
 
+#include <SFML/Base/Trait/Decay.hpp>
+
 #include <cstddef>
 #include <sstream>
 #include <string>
@@ -59,7 +61,7 @@ auto makeLuaAccessor(Lua::LuaContext& lua, T& obj, const std::string& prefix)
     return [&lua, &obj, prefix](const std::string& name, auto pmd,
                const std::string& getterDesc, const std::string& setterDesc)
     {
-        using Type = std::decay_t<decltype(obj.*pmd)>;
+        using Type = sf::base::Decay<decltype(obj.*pmd)>;
 
         const std::string getterString = prefix + "_get" + name;
         const std::string setterString = prefix + "_set" + name;

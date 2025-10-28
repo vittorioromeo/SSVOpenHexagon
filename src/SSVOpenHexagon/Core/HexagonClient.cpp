@@ -10,7 +10,6 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
-#include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
@@ -410,7 +409,7 @@ bool HexagonClient::connect()
         const std::string errorStr = "Failure connecting, error " + reason;
         SSVOH_CLOG_ERROR << errorStr << '\n';
 
-        addEvent(EConnectionFailure{errorStr});
+        addEvent(Event{EConnectionFailure{errorStr}});
         _state = State::ConnectionError;
 
         return false;
@@ -433,7 +432,7 @@ bool HexagonClient::connect()
         return failEvent("sending public key");
     }
 
-    addEvent(EConnectionSuccess{});
+    addEvent(Event{EConnectionSuccess{}});
     _state = State::Connected;
     return true;
 }
@@ -554,8 +553,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         _clientRTKeys.hasValue() ? &_clientRTKeys->keyReceive : nullptr,
         _errorOss, p);
 
-    return Utils::match(
-        pv,
+    return pv.linearMatch( //
 
         [&](const PInvalid&)
         {
@@ -573,7 +571,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         {
             SSVOH_CLOG << "Received kick packet from server, disconnecting\n";
 
-            addEvent(EKicked{});
+            addEvent(Event{EKicked{}});
 
             disconnect();
             return true;
@@ -629,7 +627,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         {
             SSVOH_CLOG << "Successfully registered to server\n";
 
-            addEvent(ERegistrationSuccess{});
+            addEvent(Event{ERegistrationSuccess{}});
             return true;
         },
 
@@ -638,7 +636,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             SSVOH_CLOG << "Registration to server failed, error: '"
                        << stcp.error << "'\n";
 
-            addEvent(ERegistrationFailure{stcp.error});
+            addEvent(Event{ERegistrationFailure{stcp.error}});
             return true;
         },
 
@@ -670,7 +668,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             SSVOH_CLOG << "Login to server failed, error: '" << stcp.error
                        << "'\n";
 
-            addEvent(ELoginFailure{stcp.error});
+            addEvent(Event{ELoginFailure{stcp.error}});
             return true;
         },
 
@@ -678,7 +676,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         {
             SSVOH_CLOG << "Logout from server success\n";
 
-            addEvent(ELogoutSuccess{});
+            addEvent(Event{ELogoutSuccess{}});
             return true;
         },
 
@@ -686,7 +684,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         {
             SSVOH_CLOG << "Logout from server failure\n";
 
-            addEvent(ELogoutFailure{});
+            addEvent(Event{ELogoutFailure{}});
             return true;
         },
 
@@ -694,7 +692,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         {
             SSVOH_CLOG << "Delete account from server success\n";
 
-            addEvent(EDeleteAccountSuccess{});
+            addEvent(Event{EDeleteAccountSuccess{}});
             return true;
         },
 
@@ -703,7 +701,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             SSVOH_CLOG << "Delete account from server failure, error: '"
                        << stcp.error << "'\n";
 
-            addEvent(EDeleteAccountFailure{stcp.error});
+            addEvent(Event{EDeleteAccountFailure{stcp.error}});
             return true;
         },
 
@@ -713,8 +711,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                        << stcp.levelValidator << "', size: '"
                        << stcp.scores.size() << "'\n";
 
-            addEvent(EReceivedTopScores{
-                .levelValidator = stcp.levelValidator, .scores = stcp.scores});
+            addEvent(Event{EReceivedTopScores{
+                .levelValidator = stcp.levelValidator, .scores = stcp.scores}});
 
             return true;
         },
@@ -724,8 +722,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             SSVOH_CLOG << "Received own score from server, levelValidator: '"
                        << stcp.levelValidator << "'\n";
 
-            addEvent(EReceivedOwnScore{
-                .levelValidator = stcp.levelValidator, .score = stcp.score});
+            addEvent(Event{EReceivedOwnScore{
+                .levelValidator = stcp.levelValidator, .score = stcp.score}});
 
             return true;
         },
@@ -736,14 +734,14 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                           "levelValidator: '"
                        << stcp.levelValidator << "'\n";
 
-            addEvent(EReceivedTopScores{
-                .levelValidator = stcp.levelValidator, .scores = stcp.scores});
+            addEvent(Event{EReceivedTopScores{
+                .levelValidator = stcp.levelValidator, .scores = stcp.scores}});
 
             if (stcp.ownScore.hasValue())
             {
-                addEvent(
+                addEvent(Event{
                     EReceivedOwnScore{.levelValidator = stcp.levelValidator,
-                        .score = *stcp.ownScore});
+                        .score = *stcp.ownScore}});
             }
 
             return true;
@@ -758,12 +756,12 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
             if (serverGameVersion != GAME_VERSION)
             {
-                addEvent(EGameVersionMismatch{});
+                addEvent(Event{EGameVersionMismatch{}});
             }
 
             if (serverProtocolVersion != PROTOCOL_VERSION)
             {
-                addEvent(EProtocolVersionMismatch{});
+                addEvent(Event{EProtocolVersionMismatch{}});
                 disconnect();
                 return true;
             }
@@ -773,7 +771,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                 supportedLevelValidatorsVector.end());
 
             _state = State::LoggedIn_Ready;
-            addEvent(ELoginSuccess{});
+            addEvent(Event{ELoginSuccess{}});
 
             SSVOH_ASSERT(_loginToken.hasValue());
             return sendReady(_loginToken.value());
@@ -829,8 +827,8 @@ bool HexagonClient::tryRegister(
 
     if (name.empty() || name.size() > 32 || password.empty())
     {
-        addEvent(
-            ERegistrationFailure{"Name or password fields too long or empty"});
+        addEvent(Event{
+            ERegistrationFailure{"Name or password fields too long or empty"}});
         return false;
     }
 
@@ -848,7 +846,8 @@ bool HexagonClient::tryLogin(
 
     if (name.empty() || name.size() > 32 || password.empty())
     {
-        addEvent(ELoginFailure{"Name or password fields too long or empty"});
+        addEvent(
+            Event{ELoginFailure{"Name or password fields too long or empty"}});
         return false;
     }
 

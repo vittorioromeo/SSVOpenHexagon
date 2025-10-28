@@ -11,7 +11,6 @@
 
 #include <SFML/Graphics/Font.hpp>
 
-#include <algorithm>
 #include <string>
 #include <tuple>
 

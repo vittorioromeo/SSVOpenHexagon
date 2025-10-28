@@ -8,7 +8,8 @@
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 
-#include <algorithm>
+#include <SFML/Base/Algorithm/Sort.hpp>
+
 #include <string>
 #include <vector>
 
@@ -34,7 +35,7 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
       unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)}
 {
     difficultyMults.emplace_back(1.f);
-    std::sort(difficultyMults.begin(), difficultyMults.end());
+    sf::base::quickSort(difficultyMults.begin(), difficultyMults.end());
 
     for (const float dm : difficultyMults)
     {

@@ -38,6 +38,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include <SFML/Base/UniquePtr.hpp>
+#include <SFML/Base/Trait/IsSame.hpp>
+#include <SFML/Base/Trait/IsVoid.hpp>
+#include <SFML/Base/Trait/IsIntegral.hpp>
+#include <SFML/Base/Trait/IsFloatingPoint.hpp>
+#include <SFML/Base/Trait/Decay.hpp>
 
 #include <limits>
 #include <map>
@@ -46,10 +51,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <string_view>
 #include <tuple>
-#include <type_traits>
-#include <vector>
-
-#include <cstring>
 
 #include <lua.hpp>
 
@@ -339,7 +340,7 @@ public:
     template <typename T>
     void writeVariable(std::string_view mVarName, T&& data)
     {
-        static_assert(!std::is_same_v<std::tuple<T>, T>,
+        static_assert(!SFML_BASE_IS_SAME(std::tuple<T>, T),
             "Error: you can't use LuaContext::writeVariable with a tuple");
 
         const int pushedElems = _push(SSVOH_FWD(data));
@@ -389,8 +390,9 @@ private:
     // parameter index
     // if _read generates an exception, stack is popped anyway
     template <typename R>
-    [[gnu::always_inline]] inline std::enable_if_t<!std::is_void_v<R>, R>
-    _readTopAndPop(int nb, R* ptr = nullptr) const
+    [[gnu::always_inline]] inline R _readTopAndPop(
+        int nb, R* ptr = nullptr) const
+        requires(!sf::base::isVoid<R>)
     {
         try
         {
@@ -558,8 +560,9 @@ public:
         template <typename Key, typename Value, typename... Args>
         void insert(Key&& k, Value&& v, Args&&... args)
         {
-            using RKey = typename ToPushableType<std::decay_t<Key>>::type;
-            using RValue = typename ToPushableType<std::decay_t<Value>>::type;
+            using RKey = typename ToPushableType<SFML_BASE_DECAY(Key)>::type;
+            using RValue =
+                typename ToPushableType<SFML_BASE_DECAY(Value)>::type;
 
             _elements.emplace_back(
                 new Element<RKey, RValue>(SSVOH_FWD(k), SSVOH_FWD(v)));
@@ -657,7 +660,7 @@ private:
     /*                PUSH FUNCTIONS                  */
     /**************************************************/
     // this structure converts an input type to a pushable output type
-    template <typename Input, typename = void>
+    template <typename Input>
     struct ToPushableType;
 
     // first the basic ones: integer, number, boolean, string
@@ -686,9 +689,8 @@ private:
 
     // pushing floating numbers
     template <typename T>
-    [[gnu::always_inline]] inline std::enable_if_t<std::is_floating_point_v<T>,
-        int>
-    _push(T nb)
+    [[gnu::always_inline]] inline int _push(T nb)
+        requires sf::base::isFloatingPoint<T>
     {
         lua_pushnumber(_state, nb);
         return 1;
@@ -696,15 +698,16 @@ private:
 
     // pushing integers
     template <typename T>
-    [[gnu::always_inline]] inline std::enable_if_t<std::is_integral_v<T>, int>
-    _push(T nb)
+    [[gnu::always_inline]] inline int _push(T nb)
+        requires sf::base::isIntegral<T>
     {
         lua_pushinteger(_state, nb);
         return 1;
     }
 
     // using variadic templates, you can push multiple values at once
-    template <typename... Ts, typename = std::enable_if_t<(sizeof...(Ts) > 1)>>
+    template <typename... Ts>
+        requires(sizeof...(Ts) > 1)
     [[gnu::always_inline]] inline int _push(Ts&&... xs)
     {
         int p = 0;
@@ -823,7 +826,7 @@ private:
     // (thanks to SFINAE)
     // it will determine the function category using its () operator, then
     //   generate a callable user data and push it
-    template <typename T, typename DecayT = std::decay_t<T>,
+    template <typename T, typename DecayT = sf::base::Decay<T>,
         typename Op = decltype(&DecayT::operator())>
     int _push(T&& fn, Op = nullptr)
     {
@@ -930,9 +933,9 @@ private:
 
     // first the integer types
     template <typename T>
-    [[gnu::always_inline]] inline std::enable_if_t<
-        std::numeric_limits<T>::is_integer, T>
-    _read(const int index, T const* = nullptr) const
+    [[gnu::always_inline]] inline T _read(
+        const int index, T const* = nullptr) const
+        requires(std::numeric_limits<T>::is_integer)
     {
         if (lua_isuserdata(_state, index))
         {
@@ -944,11 +947,10 @@ private:
 
     // then the floating types
     template <typename T>
-    [[gnu::always_inline]] inline std::enable_if_t<
-        std::numeric_limits<T>::is_specialized &&
-            !std::numeric_limits<T>::is_integer,
-        T>
-    _read(const int index, T const* = nullptr) const
+    [[gnu::always_inline]] inline T _read(
+        const int index, T const* = nullptr) const
+        requires(std::numeric_limits<T>::is_specialized &&
+                 !std::numeric_limits<T>::is_integer)
     {
         if (lua_isuserdata(_state, index))
         {
@@ -1092,7 +1094,7 @@ return table;*/
         return [this, index]<int... Is>(std::integer_sequence<int, Is...>)
         {
             return std::make_tuple(this->_read(
-                index + Is, static_cast<std::decay_t<Ts>*>(nullptr))...);
+                index + Is, static_cast<sf::base::Decay<Ts>*>(nullptr))...);
         }(std::make_integer_sequence<int, sizeof...(Ts)>{});
     }
 
@@ -1116,14 +1118,15 @@ struct LuaContext::ToPushableType<const T&>
 };
 
 template <typename T>
-struct LuaContext::ToPushableType<T, std::enable_if_t<std::is_integral_v<T>>>
+    requires sf::base::isIntegral<T>
+struct LuaContext::ToPushableType<T>
 {
     using type = lua_Integer;
 };
 
 template <typename T>
-struct LuaContext::ToPushableType<T,
-    std::enable_if_t<std::is_floating_point_v<T>>>
+    requires sf::base::isFloatingPoint<T>
+struct LuaContext::ToPushableType<T>
 {
     using type = lua_Number;
 };
@@ -1177,7 +1180,8 @@ struct LuaContext::ToPushableType<LuaContext::Table>
 };
 
 template <typename T>
-struct LuaContext::ToPushableType<T, decltype(&T::operator(), void())>
+    requires requires(const T&) { &T::operator(); }
+struct LuaContext::ToPushableType<T>
 {
     using type = T;
 };

@@ -8,10 +8,10 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
+#include <SFML/Base/Trait/IsSame.hpp>
+
+
 #include <string>
-#include <vector>
-#include <utility>
-#include <type_traits>
 #include <tuple>
 #include <cstddef>
 
@@ -21,10 +21,10 @@ template <typename T>
 [[nodiscard]] const char* LuaMetadataProxy::typeToStr(TypeWrapper<T>) noexcept
 {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
-#define RETURN_T_STR(type)    \
-    (std::is_same_v<T, type>) \
-    {                         \
-        return #type;         \
+#define RETURN_T_STR(type)       \
+    (SFML_BASE_IS_SAME(T, type)) \
+    {                            \
+        return #type;            \
     }
 
     // clang-format off

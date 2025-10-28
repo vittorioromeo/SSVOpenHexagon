@@ -5,16 +5,17 @@
 #pragma once
 
 #include <SFML/System/Vec2.hpp>
+#include <SFML/Base/SizeT.hpp>
 
 namespace hg::Utils {
 
-template <std::size_t N, typename TC, typename T>
+template <sf::base::SizeT N, typename TC, typename T>
 [[gnu::always_inline, gnu::pure, nodiscard]] inline bool pointInPolygon(
     const TC& mVertices, const T x, const T y) noexcept
 {
     bool result{false};
 
-    for (std::size_t i{0}, j{N - 1}; i < N; j = i++)
+    for (sf::base::SizeT i{0}, j{N - 1}; i < N; j = i++)
     {
         const auto& vI{mVertices[i]};
         const auto& vJ{mVertices[j]};

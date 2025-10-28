@@ -16,7 +16,6 @@
 
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
-#include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/StringToCharVec.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
@@ -37,14 +36,13 @@
 
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Trait/IsSame.hpp>
 
 #include <boost/pfr.hpp>
 
 #include <chrono>
-#include <SFML/Base/Optional.hpp>
 #include <sstream>
 #include <string>
-#include <type_traits>
 #include <stdexcept>
 
 #include <csignal>
@@ -821,19 +819,19 @@ void HexagonServer::printCTSPDataVerbose(
 
     const auto stringify = []<typename U>(const U& field) -> decltype(auto)
     {
-        if constexpr (std::is_same_v<U, SodiumPublicKeyArray>)
+        if constexpr (SFML_BASE_IS_SAME(U, SodiumPublicKeyArray))
         {
             return sodiumKeyToString(field);
         }
-        else if constexpr (std::is_same_v<U, replay_file>)
+        else if constexpr (SFML_BASE_IS_SAME(U, replay_file))
         {
             return "<REPLAY_FILE>";
         }
-        else if constexpr (std::is_same_v<U, compressed_replay_file>)
+        else if constexpr (SFML_BASE_IS_SAME(U, compressed_replay_file))
         {
             return "<COMPRESSED_REPLAY_FILE>";
         }
-        else if constexpr (std::is_same_v<U, std::string>)
+        else if constexpr (SFML_BASE_IS_SAME(U, std::string))
         {
             return field;
         }
@@ -912,8 +910,7 @@ void HexagonServer::printCTSPDataVerbose(
         return true;
     };
 
-    return Utils::match(
-        pv,
+    return pv.linearMatch( //
 
         [&](const PInvalid&)
         {

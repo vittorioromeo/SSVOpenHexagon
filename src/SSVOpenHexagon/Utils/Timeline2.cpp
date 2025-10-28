@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Utils/TinyVariant.hpp"
 
 #include <chrono>
 #include <SFML/Base/Optional.hpp>
@@ -20,8 +19,7 @@ void timeline2::clear()
 
 void timeline2::append_wait_for(const duration d)
 {
-    _actions.emplace_back(
-        vittorioromeo::impl::tinyvariant_inplace_type_t<action_wait_for>{}, d);
+    _actions.emplace_back(sf::base::inPlaceType<action_wait_for>, d);
 }
 
 void timeline2::append_wait_for_seconds(const double s)
@@ -36,9 +34,7 @@ void timeline2::append_wait_for_sixths(const double s)
 
 void timeline2::append_wait_until(const time_point tp)
 {
-    _actions.emplace_back(
-        vittorioromeo::impl::tinyvariant_inplace_type_t<action_wait_until>{},
-        tp);
+    _actions.emplace_back(sf::base::inPlaceType<action_wait_until>, tp);
 }
 
 [[nodiscard]] std::size_t timeline2::size() const noexcept
@@ -66,7 +62,7 @@ timeline2_runner::outcome timeline2_runner::update(
     {
         timeline2::action& a = timeline.action_at(_current_idx);
 
-        const outcome o = a.linear_match(
+        const outcome o = a.linearMatch(
             [&](timeline2::action_do& x)
             {
                 x._func();

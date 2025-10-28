@@ -342,7 +342,7 @@ StyleData::getColors() const noexcept
 
 sf::Color StyleData::getCapColorResult() const noexcept
 {
-    return capColor.linear_match(                              //
+    return capColor.linearMatch(                               //
         [this](CapColorMode::Main) { return getMainColor(); }, //
         [this](CapColorMode::MainDarkened)
         { return Utils::getColorDarkened(getMainColor(), 1.4f); },      //

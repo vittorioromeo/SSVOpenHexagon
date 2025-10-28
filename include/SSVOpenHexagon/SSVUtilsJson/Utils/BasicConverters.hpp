@@ -6,11 +6,11 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
+#include <SFML/Base/Trait/IsEnum.hpp>
+#include <SFML/Base/Trait/UnderlyingType.hpp>
+
 #include <string>
-#include <tuple>
-#include <type_traits>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 namespace ssvuj {
@@ -19,17 +19,17 @@ namespace ssvuj {
 template <typename T>
 struct Converter
 {
-    static void fromObj(const Obj& mObj, T& mValue,
-        std::enable_if_t<std::is_enum_v<T>>* = nullptr)
+    static void fromObj(const Obj& mObj, T& mValue)
+        requires sf::base::isEnum<T>
     {
-        mValue = T(getExtr<std::underlying_type_t<T>>(mObj));
+        mValue = T(getExtr<SFML_BASE_UNDERLYING_TYPE(T)>(mObj));
     }
 
-    static void toObj(Obj& mObj, const T& mValue,
-        std::enable_if_t<std::is_enum_v<T>>* = nullptr)
+    static void toObj(Obj& mObj, const T& mValue)
+        requires sf::base::isEnum<T>
     {
-        arch<std::underlying_type_t<T>>(
-            mObj, std::underlying_type_t<T>(mValue));
+        arch<SFML_BASE_UNDERLYING_TYPE(T)>(
+            mObj, static_cast<SFML_BASE_UNDERLYING_TYPE(T)>(mValue));
     }
 };
 

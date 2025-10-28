@@ -33,7 +33,6 @@
 // C++ Standard Library
 // ----------------------------------------------------------------------------
 
-#include <algorithm>
 #include <array>
 #include <atomic>
 #include <bitset>
@@ -58,7 +57,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
-#include <variant>
 #include <vector>
 
 //

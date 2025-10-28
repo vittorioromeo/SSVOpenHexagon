@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include <cstddef>
-#include <tuple>
+#include <SFML/Base/TypePackElement.hpp>
 
 namespace hg::Utils {
 
@@ -23,8 +22,8 @@ struct ArgExtractor<R (F::*)(Args...)>
         numArgs = sizeof...(Args)
     };
 
-    template <std::size_t I>
-    using NthArg = std::tuple_element_t<I, std::tuple<Args...>>;
+    template <auto I>
+    using NthArg = SFML_BASE_TYPE_PACK_ELEMENT(I, Args...);
 };
 
 template <typename R, typename F, typename... Args>

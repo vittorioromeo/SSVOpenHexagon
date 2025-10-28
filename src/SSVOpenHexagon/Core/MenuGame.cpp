@@ -38,7 +38,6 @@
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-#include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
@@ -59,8 +58,8 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Rect.hpp>
+#include <SFML/Base/Algorithm/Sort.hpp>
 
-#include <algorithm>
 #include <utility>
 #include <array>
 #include <tuple>
@@ -2559,8 +2558,7 @@ void MenuGame::update(float mFT)
     sf::base::Optional<HexagonClient::Event> hcEvent;
     while ((hcEvent = hexagonClient.pollEvent()).hasValue())
     {
-        Utils::match(
-            *hcEvent, //
+        hcEvent->linearMatch( //
 
             [&](const HexagonClient::EConnectionSuccess&)
             { showHCEventDialogBox(false /* error */, "CONNECTION SUCCESS"); },
@@ -4797,7 +4795,7 @@ void MenuGame::changeFavoriteLevelsToProfile()
         favoriteLevelDataIds.push_back(id);
     }
 
-    std::sort(favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(),
+    sf::base::quickSort(favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(),
         [this](const std::string& a, const std::string& b) -> bool
         {
             return ssvu::toLower(assets.getLevelData(a).name) <

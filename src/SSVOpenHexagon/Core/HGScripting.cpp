@@ -33,6 +33,8 @@
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
+#include <SFML/Base/Trait/Decay.hpp>
+
 #include <iostream>
 #include <string>
 #include <chrono>
@@ -611,7 +613,7 @@ auto HexagonGame::makeLuaAccessor(T& obj, const std::string& prefix)
     return [this, &obj, prefix](const std::string& name, auto pmd,
                const std::string& getterDesc, const std::string& setterDesc)
     {
-        using Type = std::decay_t<decltype(obj.*pmd)>;
+        using Type = SFML_BASE_DECAY(decltype(obj.*pmd));
 
         const std::string getterString = prefix + "_get" + name;
         const std::string setterString = prefix + "_set" + name;
