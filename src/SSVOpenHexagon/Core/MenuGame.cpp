@@ -57,7 +57,7 @@
 #include <SFML/Window/VideoModeUtils.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <SFML/System/Rect.hpp>
+#include <SFML/System/Rect2.hpp>
 #include <SFML/Base/Algorithm/Sort.hpp>
 
 #include <utility>

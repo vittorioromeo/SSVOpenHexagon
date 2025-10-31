@@ -316,7 +316,7 @@ private:
     void createQuad(
         const sf::Color& color, const sf::Vec2f& mins, const sf::Vec2f& maxs);
 
-    void createQuad(const sf::Color& color, const sf::FloatRect& rect);
+    void createQuad(const sf::Color& color, const sf::Rect2f& rect);
 
     void createQuadTrapezoid(const sf::Color& color, float x1, float x2,
         float x3, float y1, float y2, bool left);
