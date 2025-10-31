@@ -4795,7 +4795,8 @@ void MenuGame::changeFavoriteLevelsToProfile()
         favoriteLevelDataIds.push_back(id);
     }
 
-    sf::base::quickSort(favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(),
+    sf::base::quickSort(favoriteLevelDataIds.begin(),
+        favoriteLevelDataIds.end(),
         [this](const std::string& a, const std::string& b) -> bool
         {
             return ssvu::toLower(assets.getLevelData(a).name) <
