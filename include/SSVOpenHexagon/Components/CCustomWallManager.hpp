@@ -10,9 +10,9 @@
 
 #include <SFML/System/Vec2.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Base/IntTypes.hpp>
 
 #include <vector>
-#include <SFML/Base/IntTypes.hpp>
 
 #include <cstddef>
 

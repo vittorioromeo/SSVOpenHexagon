@@ -3151,21 +3151,21 @@ void MenuGame::refreshCamera()
     titleBar.position = {20.f, 20.f};
 
     txtVersion.font.setString(GAME_VERSION_STR);
-    txtVersion.font.origin = {ssvs::getLocalRight(txtVersion.font), 0.f};
+    txtVersion.font.origin = {txtVersion.font.getLocalBounds().getRight(), 0.f};
     txtVersion.font.position = {ssvs::getGlobalRight(titleBar) - 15.f,
         ssvs::getGlobalTop(titleBar) + 15.f};
 
-    creditsBar1.origin = {ssvs::getLocalWidth(creditsBar1), 0.f};
+    creditsBar1.origin = {creditsBar1.getLocalBounds().size.x, 0.f};
     creditsBar1.scale = {0.373f, 0.373f};
     creditsBar1.position = {w - 20.f, 20.f};
 
-    creditsBar2.origin = {ssvs::getLocalWidth(creditsBar2), 0};
+    creditsBar2.origin = {creditsBar2.getLocalBounds().size.x, 0};
     creditsBar2.scale = {0.373f, 0.373f};
     creditsBar2.position = {
         w - 20.f, 17.f + ssvs::getGlobalBottom(creditsBar1)};
 
     const float scaleFactor{w / 1024.f};
-    epilepsyWarning.origin = ssvs::getLocalCenter(epilepsyWarning);
+    epilepsyWarning.origin = epilepsyWarning.getLocalBounds().getCenter();
     epilepsyWarning.position = {1024 / (2.f / scaleFactor), 768 / 2.f - 50};
     epilepsyWarning.scale = {0.36f, 0.36f};
 
@@ -6084,18 +6084,18 @@ void MenuGame::drawOnlineStatus()
 
     sOnline.textureRect = txSOnline->getRect();
     sOnline.scale = {spriteScale, spriteScale};
-    sOnline.origin = ssvs::getLocalSW(sOnline);
+    sOnline.origin = sOnline.getLocalBounds().getBottomLeft();
     sOnline.position = {0.f + padding, getWindowHeight() - padding};
 
     rsOnlineStatus.setSize(
         {ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
             txtHeight + padding * 2.f});
     rsOnlineStatus.setFillColor(sf::Color::Black);
-    rsOnlineStatus.origin = ssvs::getLocalSW(rsOnlineStatus);
+    rsOnlineStatus.origin = rsOnlineStatus.getLocalBounds().getBottomLeft();
     rsOnlineStatus.position = {
         ssvs::getGlobalRight(sOnline) + padding, sOnline.position.y};
 
-    txtOnlineStatus.origin = ssvs::getLocalCenterW(txtOnlineStatus);
+    txtOnlineStatus.origin = txtOnlineStatus.getLocalBounds().getCenterLeft();
     txtOnlineStatus.position = {
         ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
         ssvs::getGlobalCenter(rsOnlineStatus).y};

@@ -69,7 +69,6 @@
 #include <cmath>
 #include <csignal>
 #include <cstddef>
-#include <SFML/Base/IntTypes.hpp>
 #include <cstdio>
 #include <cstdlib>
 
@@ -130,6 +129,7 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 
 #include <SFML/Base/Optional.hpp>
+#include <SFML/Base/IntTypes.hpp>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>

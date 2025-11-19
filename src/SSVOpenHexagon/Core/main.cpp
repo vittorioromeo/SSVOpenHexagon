@@ -45,7 +45,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-#include <SFML/Base/Optional.hpp>
 #include <string>
 #include <vector>
 

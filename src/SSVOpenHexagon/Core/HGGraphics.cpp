@@ -17,7 +17,6 @@
 
 #include "SSVStart/Utils/SFML.hpp"
 
-#include <SFML/Graphics/RenderStates.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 
 #include <SSVUtils/Core/Log/Log.hpp>
@@ -25,6 +24,7 @@
 
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 
 #include <SFML/Base/IntTypes.hpp>
 
@@ -643,7 +643,8 @@ void HexagonGame::drawText_TimeAndStatus(
     if (Config::getShowTimer())
     {
         textUI->timeText.setFillColor(colorText);
-        textUI->timeText.origin = ssvs::getLocalNW(textUI->timeText);
+        textUI->timeText.origin =
+            textUI->timeText.getLocalBounds().getTopLeft();
         textUI->timeText.position = {padding, padding};
 
         render(textUI->timeText, mStates);
@@ -652,7 +653,7 @@ void HexagonGame::drawText_TimeAndStatus(
     if (Config::getShowStatusText())
     {
         textUI->text.setFillColor(colorText);
-        textUI->text.origin = ssvs::getLocalNW(textUI->text);
+        textUI->text.origin = textUI->text.getLocalBounds().getTopLeft();
         textUI->text.position = {
             padding, ssvs::getGlobalBottom(textUI->timeText) + padding};
 
@@ -662,7 +663,8 @@ void HexagonGame::drawText_TimeAndStatus(
     if (Config::getShowFPS())
     {
         textUI->fpsText.setFillColor(colorText);
-        textUI->fpsText.origin = ssvs::getLocalSW(textUI->fpsText);
+        textUI->fpsText.origin =
+            textUI->fpsText.getLocalBounds().getBottomLeft();
 
         if (Config::getShowLevelInfo() || mustShowReplayUI())
         {
@@ -685,7 +687,8 @@ void HexagonGame::drawText_TimeAndStatus(
         const float replayPadding = 8.f * scaling;
 
         textUI->replayText.setFillColor(colorText);
-        textUI->replayText.origin = ssvs::getLocalCenterE(textUI->replayText);
+        textUI->replayText.origin =
+            textUI->replayText.getLocalBounds().getCenterRight();
         textUI->replayText.position =
             ssvs::getGlobalCenterW(replayIcon) - sf::Vec2f{replayPadding, 0};
         render(textUI->replayText, mStates);

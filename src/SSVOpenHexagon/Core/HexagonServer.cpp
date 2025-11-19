@@ -37,6 +37,8 @@
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Base/IntTypes.hpp>
 #include <SFML/Base/Trait/IsSame.hpp>
+#include <SFML/Base/String.hpp>
+#include <SFML/Base/StringStreamOp.hpp>
 
 #include <boost/pfr.hpp>
 

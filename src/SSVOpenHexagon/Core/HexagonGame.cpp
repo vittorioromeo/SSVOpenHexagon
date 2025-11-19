@@ -215,10 +215,9 @@ void HexagonGame::updateLevelInfo()
         textUI->levelInfoTextLevel.setString(
             trim(Utils::toUppercase(levelData->name)));
         textUI->levelInfoTextLevel.origin =
-            ssvs::getLocalNW(textUI->levelInfoTextLevel);
+            textUI->levelInfoTextLevel.getLocalBounds().getTopLeft();
         textUI->levelInfoTextLevel.position =
-            ssvs::getGlobalNW(levelInfoRectangle) +
-            sf::Vec2f{tPadding, tPadding};
+            levelInfoRectangle.getTopLeft() + sf::Vec2f{tPadding, tPadding};
 
         const auto prepareText = [&](sf::Text& text, const float characterSize,
                                      const std::string& string)
@@ -231,7 +230,7 @@ void HexagonGame::updateLevelInfo()
         prepareText(textUI->levelInfoTextPack, 14.f,
             trim(Utils::toUppercase(getPackName())));
         textUI->levelInfoTextPack.origin =
-            ssvs::getLocalNW(textUI->levelInfoTextPack);
+            textUI->levelInfoTextPack.getLocalBounds().getTopLeft();
         textUI->levelInfoTextPack.position =
             ssvs::getGlobalSW(textUI->levelInfoTextLevel) +
             sf::Vec2f{0.f, tPadding};
@@ -241,14 +240,14 @@ void HexagonGame::updateLevelInfo()
         prepareText(textUI->levelInfoTextAuthor, 20.f,
             trim(Utils::toUppercase(levelData->author)));
         textUI->levelInfoTextAuthor.origin =
-            ssvs::getLocalSE(textUI->levelInfoTextAuthor);
+            textUI->levelInfoTextAuthor.getLocalBounds().getBottomRight();
         textUI->levelInfoTextAuthor.position =
             ssvs::getGlobalSE(levelInfoRectangle) -
             sf::Vec2f{tPadding, tPadding};
 
         prepareText(textUI->levelInfoTextBy, 12.f, "BY");
         textUI->levelInfoTextBy.origin =
-            ssvs::getLocalSE(textUI->levelInfoTextBy);
+            textUI->levelInfoTextBy.getLocalBounds().getBottomRight();
         textUI->levelInfoTextBy.position =
             ssvs::getGlobalSW(textUI->levelInfoTextAuthor) -
             sf::Vec2f{tPadding, 0.f};
@@ -258,7 +257,7 @@ void HexagonGame::updateLevelInfo()
             prepareText(textUI->levelInfoTextDM, 14.f,
                 diffFormat(difficultyMult) + "x");
             textUI->levelInfoTextDM.origin =
-                ssvs::getLocalSW(textUI->levelInfoTextDM);
+                textUI->levelInfoTextDM.getLocalBounds().getBottomLeft();
             textUI->levelInfoTextDM.position =
                 ssvs::getGlobalSW(levelInfoRectangle) +
                 sf::Vec2f{tPadding, -tPadding};

@@ -18,10 +18,13 @@
 
 #include <SFML/Network/Packet.hpp>
 
+#include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/String.hpp>
+#include <SFML/Base/StringStreamOp.hpp>
+
 #include <thread>
 #include <chrono>
 
-#include <SFML/Base/IntTypes.hpp>
 
 static auto& clog(const char* funcName)
 {
