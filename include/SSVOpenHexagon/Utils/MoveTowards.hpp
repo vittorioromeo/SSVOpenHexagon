@@ -6,8 +6,6 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include <cmath>
-
 namespace hg::Utils {
 
 [[nodiscard, gnu::always_inline, gnu::const]] inline constexpr float

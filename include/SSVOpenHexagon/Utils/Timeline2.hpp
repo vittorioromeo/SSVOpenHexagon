@@ -8,9 +8,9 @@
 
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Base/Variant.hpp>
+#include <SFML/Base/SizeT.hpp>
 
 #include <chrono>
-#include <cstddef>
 #include <vector>
 
 namespace hg::Utils {
@@ -70,8 +70,8 @@ public:
             sf::base::inPlaceType<action_wait_until_fn>, SSVOH_FWD(tp_fn));
     }
 
-    [[nodiscard]] std::size_t size() const noexcept;
-    [[nodiscard]] action& action_at(const std::size_t i) noexcept;
+    [[nodiscard]] sf::base::SizeT size() const noexcept;
+    [[nodiscard]] action& action_at(const sf::base::SizeT i) noexcept;
 };
 
 class timeline2_runner
@@ -88,7 +88,7 @@ public:
     };
 
 private:
-    std::size_t _current_idx{0};
+    sf::base::SizeT _current_idx{0};
     sf::base::Optional<time_point> _wait_start_tp;
 
 public:

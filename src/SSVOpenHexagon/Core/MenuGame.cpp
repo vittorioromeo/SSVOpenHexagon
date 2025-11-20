@@ -58,14 +58,15 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Rect2.hpp>
+
 #include <SFML/Base/Algorithm/Sort.hpp>
+#include <SFML/Base/Array.hpp>
+#include <SFML/Base/IntTypes.hpp>
 
 #include <utility>
-#include <array>
 #include <tuple>
 #include <string_view>
 
-#include <SFML/Base/IntTypes.hpp>
 
 namespace hg {
 
@@ -757,8 +758,9 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     }
 
     // Setup for the loading menu
-    static constexpr std::array<std::array<std::string_view, 2>, 4> tips{
-        {{"HOLDING FOCUS WHILE CHANGING PACK", "SKIPS THE SWITCH ANIMATION"},
+    static constexpr sf::base::Array<sf::base::Array<std::string_view, 2>, 4>
+        tips{{{"HOLDING FOCUS WHILE CHANGING PACK",
+                  "SKIPS THE SWITCH ANIMATION"},
             {"REMEMBER TO TAKE BREAKS", "OPEN HEXAGON IS AN INTENSE GAME"},
             {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
             {"IF A LEVEL IS TOO CHALLENGING",
@@ -767,7 +769,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     // Set size of the level offsets vector to the minimum required
     unsigned int maxSize{0}, packSize;
-    for (std::size_t i{0}; i < getSelectablePackInfosSize(); ++i)
+    for (sf::base::SizeT i{0}; i < getSelectablePackInfosSize(); ++i)
     {
         const std::string& packId = getNthSelectablePackInfo(i).id;
 
@@ -1257,7 +1259,7 @@ void MenuGame::initMenus()
         [&](const char* name, const Tid tid,
             const sf::Keyboard::Key hardcodedKey = sf::Keyboard::Key::Unknown)
     {
-        const auto trigGetter = Config::triggerGetters[toSizeT(tid)];
+        const auto trigGetter = Config::triggerGetters[SSVOH_TO_SIZET(tid)];
 
         ssvs::Input::Trigger& trig = trigGetter();
 
@@ -1292,9 +1294,11 @@ void MenuGame::initMenus()
 
     const auto createJoystickBindControl = [&](const char* name, const Jid jid)
     {
-        const auto btnGetter = Config::joystickTriggerGetters[toSizeT(jid)];
+        const auto btnGetter =
+            Config::joystickTriggerGetters[SSVOH_TO_SIZET(jid)];
 
-        const auto btnSetter = Config::joystickTriggerSetters[toSizeT(jid)];
+        const auto btnSetter =
+            Config::joystickTriggerSetters[SSVOH_TO_SIZET(jid)];
 
         joystick.create<JoystickBindControl>(name, btnGetter, btnSetter,
             joystickCallBack, static_cast<int>(jid));
@@ -2851,7 +2855,7 @@ void MenuGame::update(float mFT)
 
     currentCreditsId += mFT;
     txCreditsBar2 = &assets.getTexture(
-        ssvu::getByModIdx(creditsIds, ssvu::toInt(currentCreditsId / 100)));
+        creditsIds[ssvu::toInt(currentCreditsId / 100) % creditsIds.size()]);
     creditsBar2.textureRect = txCreditsBar2->getRect();
 
     if (exitTimer > 20)
@@ -3151,9 +3155,9 @@ void MenuGame::refreshCamera()
     titleBar.position = {20.f, 20.f};
 
     txtVersion.font.setString(GAME_VERSION_STR);
-    txtVersion.font.origin = {txtVersion.font.getLocalBounds().getRight(), 0.f};
-    txtVersion.font.position = {ssvs::getGlobalRight(titleBar) - 15.f,
-        ssvs::getGlobalTop(titleBar) + 15.f};
+    txtVersion.font.origin = {txtVersion.font.getLocalRight(), 0.f};
+    txtVersion.font.position = {
+        titleBar.getGlobalRight() - 15.f, titleBar.getGlobalTop() + 15.f};
 
     creditsBar1.origin = {creditsBar1.getLocalBounds().size.x, 0.f};
     creditsBar1.scale = {0.373f, 0.373f};
@@ -3161,11 +3165,10 @@ void MenuGame::refreshCamera()
 
     creditsBar2.origin = {creditsBar2.getLocalBounds().size.x, 0};
     creditsBar2.scale = {0.373f, 0.373f};
-    creditsBar2.position = {
-        w - 20.f, 17.f + ssvs::getGlobalBottom(creditsBar1)};
+    creditsBar2.position = {w - 20.f, 17.f + creditsBar1.getGlobalBottom()};
 
     const float scaleFactor{w / 1024.f};
-    epilepsyWarning.origin = epilepsyWarning.getLocalBounds().getCenter();
+    epilepsyWarning.origin = epilepsyWarning.getLocalCenter();
     epilepsyWarning.position = {1024 / (2.f / scaleFactor), 768 / 2.f - 50};
     epilepsyWarning.scale = {0.36f, 0.36f};
 
@@ -3262,7 +3265,7 @@ void MenuGame::refreshCamera()
     backgroundCamera.update(0.5f);
 }
 void MenuGame::renderText(
-    const std::string& mStr, sf::Text& mText, const sf::Vec2f& mPos)
+    const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
 {
     mText.setString(mStr);
     mText.position = mPos;
@@ -3270,7 +3273,7 @@ void MenuGame::renderText(
 }
 
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
-    const sf::Vec2f& mPos, const sf::Color& mColor)
+    const sf::Vec2f mPos, const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3279,14 +3282,14 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
 }
 
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vec2f& mPos)
+    const unsigned int mSize, const sf::Vec2f mPos)
 {
     mText.setCharacterSize(mSize);
     renderText(mStr, mText, mPos);
 }
 
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vec2f& mPos, const sf::Color& mColor)
+    const unsigned int mSize, const sf::Vec2f mPos, const sf::Color& mColor)
 {
     const auto prevSize = mText.getCharacterSize();
     mText.setCharacterSize(mSize);
@@ -3299,7 +3302,7 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
 
 // Text rendering centered
 void MenuGame::renderTextCentered(
-    const std::string& mStr, sf::Text& mText, const sf::Vec2f& mPos)
+    const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
 {
     mText.setString(mStr);
     mText.position = {mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y};
@@ -3307,7 +3310,7 @@ void MenuGame::renderTextCentered(
 }
 
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
-    const sf::Vec2f& mPos, const sf::Color& mColor)
+    const sf::Vec2f mPos, const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3316,14 +3319,14 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
 }
 
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vec2f& mPos)
+    const unsigned int mSize, const sf::Vec2f mPos)
 {
     mText.setCharacterSize(mSize);
     renderTextCentered(mStr, mText, mPos);
 }
 
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vec2f& mPos, const sf::Color& mColor)
+    const unsigned int mSize, const sf::Vec2f mPos, const sf::Color& mColor)
 {
     mText.setCharacterSize(mSize);
     const sf::Color prevColor = mText.getFillColor();
@@ -3334,7 +3337,7 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
 
 // Text rendering centered with an offset
 void MenuGame::renderTextCenteredOffset(const std::string& mStr,
-    sf::Text& mText, const sf::Vec2f& mPos, const float xOffset)
+    sf::Text& mText, const sf::Vec2f mPos, const float xOffset)
 {
     mText.setString(mStr);
     mText.position = {
@@ -3343,7 +3346,7 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
 }
 
 void MenuGame::renderTextCenteredOffset(const std::string& mStr,
-    sf::Text& mText, const sf::Vec2f& mPos, const float xOffset,
+    sf::Text& mText, const sf::Vec2f mPos, const float xOffset,
     const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
@@ -3378,7 +3381,7 @@ void MenuGame::returnToLevelSelection()
 void MenuGame::refreshBinds()
 {
     // Keyboard-mouse
-    for (std::size_t i{0u}; i < Config::triggerGetters.size(); ++i)
+    for (sf::base::SizeT i{0u}; i < Config::triggerGetters.size(); ++i)
     {
         game.refreshTrigger(Config::triggerGetters[i](), i);
 
@@ -3530,7 +3533,7 @@ void MenuGame::createQuad(const sf::Color& color, const float x1,
 }
 
 void MenuGame::createQuad(
-    const sf::Color& color, const sf::Vec2f& mins, const sf::Vec2f& maxs)
+    const sf::Color& color, const sf::Vec2f mins, const sf::Vec2f maxs)
 {
     createQuad(color, mins.x, maxs.x, mins.y, maxs.y);
 }
@@ -3655,7 +3658,7 @@ void MenuGame::setMouseCursorVisible(const bool x)
 }
 
 [[nodiscard]] bool MenuGame::overlayMouseOverlap(
-    const sf::Vec2f& mins, const sf::Vec2f& maxs) const
+    const sf::Vec2f mins, const sf::Vec2f maxs) const
 {
     constexpr float tolerance = 1.f;
 
@@ -3671,7 +3674,7 @@ void MenuGame::setMouseCursorVisible(const bool x)
 }
 
 [[nodiscard]] bool MenuGame::overlayMouseOverlapAndUpdateHover(
-    const sf::Vec2f& mins, const sf::Vec2f& maxs)
+    const sf::Vec2f mins, const sf::Vec2f maxs)
 {
     if (overlayMouseOverlap(mins, maxs))
     {
@@ -3798,7 +3801,7 @@ void MenuGame::drawOptionsSubmenus(
     const float totalHeight{
         interline * (size - 1) + 2.f * doubleBorder + txtMenuSmall.height};
     const float quadHeight{std::max(menuHalfHeight - totalHeight / 2.f,
-        ssvs::getGlobalBottom(creditsBar2) + 10.f)};
+        creditsBar2.getGlobalBottom() + 10.f)};
 
     // Offset
     const float panelOffset{
@@ -3838,8 +3841,8 @@ void MenuGame::drawOptionsSubmenus(
         if (!items[i]->isEnabled())
         {
             renderText("[OFFICIAL MODE ENABLED]", txtMenuTiny.font,
-                {ssvs::getGlobalRight(txtMenuSmall.font) + 6.f,
-                    ssvs::getGlobalTop(txtMenuSmall.font) - 2.f},
+                {txtMenuSmall.font.getGlobalRight() + 6.f,
+                    txtMenuSmall.font.getGlobalTop() - 2.f},
                 sf::Color{150, 150, 150, 255});
         }
 
@@ -3936,8 +3939,8 @@ void MenuGame::drawProfileSelection(
     }
 
     // Calculate vertical coordinates
-    float quadHeight{std::max(
-        (h - totalHeight) / 2.f, ssvs::getGlobalBottom(titleBar) + 60.f)},
+    float quadHeight{
+        std::max((h - totalHeight) / 2.f, titleBar.getGlobalBottom() + 60.f)},
         txtHeight{quadHeight - fontHeight * fontHeightOffset + doubleBorder +
                   profFrameSize * 0.5f};
 
@@ -4028,8 +4031,8 @@ void MenuGame::drawProfileSelectionBoot()
     // Draw instructions
     const float instructionsHeight{1.5f * txtInstructionsBig.height};
     // Make sure the instructions do not overlap the title bar or the credits
-    height = std::max(height - 2.f * instructionsHeight,
-        ssvs::getGlobalBottom(titleBar) + 40.f);
+    height = std::max(
+        height - 2.f * instructionsHeight, titleBar.getGlobalBottom() + 40.f);
 
     const std::string instructions[] = {
         "SELECT LOCAL PROFILE", "PRESS ESC TO CREATE A NEW PROFILE"};
@@ -4704,7 +4707,7 @@ void MenuGame::formatLevelDescription()
         // Split description into words.
         desc += '\n'; // Add a safety newline
 
-        for (std::size_t i{0}, j{0}; i < desc.size(); ++i)
+        for (sf::base::SizeT i{0}, j{0}; i < desc.size(); ++i)
         {
             if (desc[i] == '\n')
             {
@@ -4725,7 +4728,7 @@ void MenuGame::formatLevelDescription()
     const float maxWidth{getMaximumTextWidth()};
     std::string candidate;
     std::string temp;
-    for (std::size_t i{0};
+    for (sf::base::SizeT i{0};
         i < words.size() && levelDescription.size() < descLines; ++i)
     {
         if (!candidate.empty())
@@ -4826,13 +4829,13 @@ void MenuGame::changeFavoriteLevelsToProfile()
     return lvlDrawer->isFavorites;
 }
 
-[[nodiscard]] std::size_t MenuGame::getSelectablePackInfosSize() const
+[[nodiscard]] sf::base::SizeT MenuGame::getSelectablePackInfosSize() const
 {
     return isFavoriteLevels() ? 1 : assets.getSelectablePackInfos().size();
 }
 
 [[nodiscard]] const PackInfo& MenuGame::getNthSelectablePackInfo(
-    const std::size_t i)
+    const sf::base::SizeT i)
 {
     return assets.getSelectablePackInfos().at(i);
 }
@@ -5815,7 +5818,7 @@ void MenuGame::draw()
         }
 
         renderText(strBuf, txtSelectionSmall.font,
-            sf::Vec2f{20.f, ssvs::getGlobalBottom(titleBar) + 8});
+            sf::Vec2f{20.f, titleBar.getGlobalBottom() + 8});
     }
 
     float indentBig{400.f}, indentSmall{540.f}, profileIndent{-100.f};
@@ -6084,21 +6087,20 @@ void MenuGame::drawOnlineStatus()
 
     sOnline.textureRect = txSOnline->getRect();
     sOnline.scale = {spriteScale, spriteScale};
-    sOnline.origin = sOnline.getLocalBounds().getBottomLeft();
+    sOnline.origin = sOnline.getLocalBottomLeft();
     sOnline.position = {0.f + padding, getWindowHeight() - padding};
 
     rsOnlineStatus.setSize(
         {ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
             txtHeight + padding * 2.f});
     rsOnlineStatus.setFillColor(sf::Color::Black);
-    rsOnlineStatus.origin = rsOnlineStatus.getLocalBounds().getBottomLeft();
+    rsOnlineStatus.origin = rsOnlineStatus.getLocalBottomLeft();
     rsOnlineStatus.position = {
-        ssvs::getGlobalRight(sOnline) + padding, sOnline.position.y};
+        sOnline.getGlobalRight() + padding, sOnline.position.y};
 
-    txtOnlineStatus.origin = txtOnlineStatus.getLocalBounds().getCenterLeft();
-    txtOnlineStatus.position = {
-        ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
-        ssvs::getGlobalCenter(rsOnlineStatus).y};
+    txtOnlineStatus.origin = txtOnlineStatus.getLocalCenterLeft();
+    txtOnlineStatus.position = {rsOnlineStatus.getGlobalLeft() + padding * 2.f,
+        rsOnlineStatus.getGlobalCenter().y};
 
     window.draw(sOnline, sf::RenderStates{.texture = txSOnline});
     window.draw(rsOnlineStatus);

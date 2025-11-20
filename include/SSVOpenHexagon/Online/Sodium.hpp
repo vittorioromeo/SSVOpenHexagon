@@ -6,30 +6,30 @@
 
 #include <sodium.h>
 
-#include <array>
-#include <string>
+#include <SFML/Base/Array.hpp>
 #include <SFML/Base/Optional.hpp>
-
-#include <cstddef>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/SizeT.hpp>
+
+#include <string>
 
 namespace hg {
 
-inline constexpr std::size_t sodiumPublicKeyBytes = crypto_kx_PUBLICKEYBYTES;
-inline constexpr std::size_t sodiumSecretKeyBytes = crypto_kx_SECRETKEYBYTES;
-inline constexpr std::size_t sodiumReceiveKeyBytes = crypto_kx_SESSIONKEYBYTES;
-inline constexpr std::size_t sodiumTransmitKeyBytes = crypto_kx_SESSIONKEYBYTES;
-inline constexpr std::size_t sodiumNonceBytes = crypto_secretbox_NONCEBYTES;
+inline constexpr sf::base::SizeT sodiumPublicKeyBytes = crypto_kx_PUBLICKEYBYTES;
+inline constexpr sf::base::SizeT sodiumSecretKeyBytes = crypto_kx_SECRETKEYBYTES;
+inline constexpr sf::base::SizeT sodiumReceiveKeyBytes = crypto_kx_SESSIONKEYBYTES;
+inline constexpr sf::base::SizeT sodiumTransmitKeyBytes = crypto_kx_SESSIONKEYBYTES;
+inline constexpr sf::base::SizeT sodiumNonceBytes = crypto_secretbox_NONCEBYTES;
 
-using SodiumPublicKeyArray = std::array<unsigned char, sodiumPublicKeyBytes>;
-using SodiumSecretKeyArray = std::array<unsigned char, sodiumSecretKeyBytes>;
-using SodiumReceiveKeyArray = std::array<unsigned char, sodiumReceiveKeyBytes>;
+using SodiumPublicKeyArray = sf::base::Array<unsigned char, sodiumPublicKeyBytes>;
+using SodiumSecretKeyArray = sf::base::Array<unsigned char, sodiumSecretKeyBytes>;
+using SodiumReceiveKeyArray = sf::base::Array<unsigned char, sodiumReceiveKeyBytes>;
 using SodiumTransmitKeyArray =
-    std::array<unsigned char, sodiumTransmitKeyBytes>;
-using SodiumNonceArray = std::array<unsigned char, sodiumNonceBytes>;
+    sf::base::Array<unsigned char, sodiumTransmitKeyBytes>;
+using SodiumNonceArray = sf::base::Array<unsigned char, sodiumNonceBytes>;
 
-[[nodiscard]] inline constexpr std::size_t getCiphertextLength(
-    const std::size_t messageLength)
+[[nodiscard]] inline constexpr sf::base::SizeT getCiphertextLength(
+    const sf::base::SizeT messageLength)
 {
     return crypto_secretbox_MACBYTES + messageLength;
 }

@@ -76,10 +76,10 @@ private:
     void updateTriangleWidthTransition(const bool focused, const float ft);
 
 public:
-    explicit CPlayer(const sf::Vec2f& pos, const float swapCooldown,
+    explicit CPlayer(const sf::Vec2f pos, const float swapCooldown,
         const float size, const float speed, const float focusSpeed) noexcept;
 
-    [[nodiscard, gnu::always_inline]] const sf::Vec2f&
+    [[nodiscard, gnu::always_inline]] const sf::Vec2f
     getPosition() const noexcept
     {
         return _pos;
@@ -123,7 +123,7 @@ public:
         const float angleTiltIntensity, const bool swapBlinkingEffect);
 
     [[nodiscard]] bool push(const int movementDir, const float radius,
-        const CWall& wall, const sf::Vec2f& mCenterPos,
+        const CWall& wall, const sf::Vec2f mCenterPos,
         const float radiusSquared, float ft);
 
     [[nodiscard]] bool push(const int movementDir, const float radius,

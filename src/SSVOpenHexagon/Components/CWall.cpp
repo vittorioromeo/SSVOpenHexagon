@@ -9,11 +9,16 @@
 
 #include <SFML/System/Vec2.hpp>
 
+#include <SFML/Base/Math/Fabs.hpp>
+#include <SFML/Base/Math/Sin.hpp>
+#include <SFML/Base/Math/Cos.hpp>
+
+
 namespace hg {
 
 CWall::CWall(const unsigned int sides, const float wallAngleLeft,
     const float wallAngleRight, const float wallSkewLeft,
-    const float wallSkewRight, const sf::Vec2f& centerPos, const int side,
+    const float wallSkewRight, const sf::Vec2f centerPos, const int side,
     const float thickness, const float distance, const SpeedData& speed,
     const SpeedData& curve, const float hueMod)
     : _speed{speed}, _curve{curve}, _hueMod{hueMod}, _killed{false}
@@ -49,7 +54,7 @@ void CWall::draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads)
 }
 
 void CWall::update(const float wallSpawnDist, const float radius,
-    const sf::Vec2f& centerPos, const float ft)
+    const sf::Vec2f centerPos, const float ft)
 {
     _speed.update(ft);
     _curve.update(ft);
@@ -62,7 +67,7 @@ void CWall::update(const float wallSpawnDist, const float radius,
 }
 
 void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
-    const sf::Vec2f& centerPos, const float ft)
+    const sf::Vec2f centerPos, const float ft)
 {
     const float halfRadius{radius * 0.5f};
     const float outerBounds{wallSpawnDist * 1.1f};
@@ -72,8 +77,8 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
 
     for (sf::Vec2f& vp : _vertexPositions)
     {
-        const float xDistance = std::abs(vp.x - centerPos.x);
-        const float yDistance = std::abs(vp.y - centerPos.y);
+        const float xDistance = SFML_BASE_MATH_FABSF(vp.x - centerPos.x);
+        const float yDistance = SFML_BASE_MATH_FABSF(vp.y - centerPos.y);
 
         if (xDistance < halfRadius && yDistance < halfRadius)
         {
@@ -95,11 +100,11 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
     }
 }
 
-void CWall::moveCurve(const sf::Vec2f& centerPos, const float ft)
+void CWall::moveCurve(const sf::Vec2f centerPos, const float ft)
 {
     const float rad = getCurveRadians(ft);
-    const float radSin = std::sin(rad);
-    const float radCos = std::cos(rad);
+    const float radSin = SFML_BASE_MATH_SINF(rad);
+    const float radCos = SFML_BASE_MATH_COSF(rad);
 
     for (sf::Vec2f& vp : _vertexPositions)
     {

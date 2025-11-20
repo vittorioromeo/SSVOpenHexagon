@@ -138,7 +138,7 @@ bool discord_manager::set_rich_presence_on_replay()
 }
 
 bool discord_manager::set_rich_presence_in_game(
-    const std::string& level_info, const std::string& second_info, bool dead)
+    const sf::base::StringView level_info, const sf::base::StringView second_info, bool dead)
 {
     if (!_initialized)
     {
@@ -210,8 +210,8 @@ bool discord_manager::set_rich_presence_on_replay()
 }
 
 bool discord_manager::set_rich_presence_in_game(
-    [[maybe_unused]] const std::string& level_info,
-    [[maybe_unused]] const std::string& second_info, [[maybe_unused]] bool dead)
+    [[maybe_unused]] const sf::base::StringView level_info,
+    [[maybe_unused]] const sf::base::StringView second_info, [[maybe_unused]] bool dead)
 {
     return false;
 }

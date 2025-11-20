@@ -1436,30 +1436,30 @@ std::string bindToHumanReadableName(std::string s)
 }
 
 
-const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
-    []() -> ssvs::Input::Trigger& { return triggerRotateCCW(); },
-    []() -> ssvs::Input::Trigger& { return triggerRotateCW(); },
-    []() -> ssvs::Input::Trigger& { return triggerFocus(); },
-    []() -> ssvs::Input::Trigger& { return triggerSelect(); },
-    []() -> ssvs::Input::Trigger& { return triggerExit(); },
-    []() -> ssvs::Input::Trigger& { return triggerForceRestart(); },
-    []() -> ssvs::Input::Trigger& { return triggerRestart(); },
-    []() -> ssvs::Input::Trigger& { return triggerReplay(); },
-    []() -> ssvs::Input::Trigger& { return triggerScreenshot(); },
-    []() -> ssvs::Input::Trigger& { return triggerSwap(); },
-    []() -> ssvs::Input::Trigger& { return triggerUp(); },
-    []() -> ssvs::Input::Trigger& { return triggerDown(); },
-    []() -> ssvs::Input::Trigger& { return triggerNextPack(); },
-    []() -> ssvs::Input::Trigger& { return triggerPreviousPack(); },
-    []() -> ssvs::Input::Trigger& { return triggerLuaConsole(); },
-    []() -> ssvs::Input::Trigger& { return triggerPause(); }};
+const sf::base::Array<TriggerGetter, SSVOH_TO_SIZET(Tid::TriggersCount)>
+    triggerGetters{[]() -> ssvs::Input::Trigger& { return triggerRotateCCW(); },
+        []() -> ssvs::Input::Trigger& { return triggerRotateCW(); },
+        []() -> ssvs::Input::Trigger& { return triggerFocus(); },
+        []() -> ssvs::Input::Trigger& { return triggerSelect(); },
+        []() -> ssvs::Input::Trigger& { return triggerExit(); },
+        []() -> ssvs::Input::Trigger& { return triggerForceRestart(); },
+        []() -> ssvs::Input::Trigger& { return triggerRestart(); },
+        []() -> ssvs::Input::Trigger& { return triggerReplay(); },
+        []() -> ssvs::Input::Trigger& { return triggerScreenshot(); },
+        []() -> ssvs::Input::Trigger& { return triggerSwap(); },
+        []() -> ssvs::Input::Trigger& { return triggerUp(); },
+        []() -> ssvs::Input::Trigger& { return triggerDown(); },
+        []() -> ssvs::Input::Trigger& { return triggerNextPack(); },
+        []() -> ssvs::Input::Trigger& { return triggerPreviousPack(); },
+        []() -> ssvs::Input::Trigger& { return triggerLuaConsole(); },
+        []() -> ssvs::Input::Trigger& { return triggerPause(); }};
 
 [[nodiscard]] std::string getKeyboardBindNames(const Tid bindID)
 {
     int j;
     std::string bindNames;
 
-    const auto combos = triggerGetters.at(toSizeT(bindID))().getCombos();
+    const auto combos = triggerGetters[SSVOH_TO_SIZET(bindID)]().getCombos();
 
     for (const auto& c : combos)
     {
@@ -1551,8 +1551,8 @@ void clearTriggerBind(ssvs::Input::Trigger& trig, const int index)
 //**********************************************
 // Get binds names
 
-const std::array<JoystickTriggerGetter,
-    toSizeT(Joystick::Jid::JoystickBindsCount)>
+const sf::base::Array<JoystickTriggerGetter,
+    SSVOH_TO_SIZET(Joystick::Jid::JoystickBindsCount)>
     joystickTriggerGetters{//
         []() -> unsigned int { return joystickSelect(); },
         []() -> unsigned int { return joystickExit(); },
@@ -1569,13 +1569,13 @@ const std::array<JoystickTriggerGetter,
 
 std::string getJoystickBindName(const Joystick::Jid bindID)
 {
-    static std::array<std::array<std::string, 2>, 12> buttonsNames{
+    static sf::base::Array<sf::base::Array<std::string, 2>, 12> buttonsNames{
         {{"A", "SQUARE"}, {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"},
             {"LB", "L1"}, {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"},
             {"LEFT STICK", "SELECT"}, {"RIGHT STICK", "START"},
             {"LT", "LEFT STICK"}, {"RT", "RIGHT STICK"}}};
 
-    const unsigned int value{joystickTriggerGetters[toSizeT(bindID)]()};
+    const unsigned int value{joystickTriggerGetters[SSVOH_TO_SIZET(bindID)]()};
 
     if (value == 33)
     {
@@ -1608,7 +1608,7 @@ std::string getJoystickBindName(const Joystick::Jid bindID)
 
 void loadAllJoystickBinds()
 {
-    for (std::size_t i{0u}; i < Config::joystickTriggerGetters.size(); ++i)
+    for (sf::base::SizeT i{0u}; i < Config::joystickTriggerGetters.size(); ++i)
     {
         Joystick::setJoystickBind(Config::joystickTriggerGetters[i](), i);
     }
@@ -1617,8 +1617,8 @@ void loadAllJoystickBinds()
 //**********************************************
 // Set bind
 
-const std::array<JoystickTriggerSetter,
-    toSizeT(Joystick::Jid::JoystickBindsCount)>
+const sf::base::Array<JoystickTriggerSetter,
+    SSVOH_TO_SIZET(Joystick::Jid::JoystickBindsCount)>
     joystickTriggerSetters{//
         [](const unsigned int btn) { joystickSelect() = btn; },
         [](const unsigned int btn) { joystickExit() = btn; },
@@ -1635,7 +1635,7 @@ const std::array<JoystickTriggerSetter,
 
 [[nodiscard]] ssvs::Input::Trigger& getTrigger(const Tid tid)
 {
-    return triggerGetters[toSizeT(tid)]();
+    return triggerGetters[SSVOH_TO_SIZET(tid)]();
 }
 
 } // namespace hg::Config

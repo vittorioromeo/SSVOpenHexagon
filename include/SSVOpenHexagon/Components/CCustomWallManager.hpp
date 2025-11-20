@@ -11,10 +11,10 @@
 #include <SFML/System/Vec2.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Array.hpp>
+#include <SFML/Base/SizeT.hpp>
 
 #include <vector>
-
-#include <cstddef>
 
 namespace hg {
 
@@ -26,7 +26,7 @@ class CCustomWallManager
     std::vector<CCustomWallHandle> _freeHandles;
     std::vector<bool> _handleAvailable;
     CCustomWallHandle _nextFreeHandle{0};
-    std::size_t _count{0};
+    sf::base::SizeT _count{0};
     std::vector<CCustomWallHandle> _tempAliveHandles;
 
     [[nodiscard]] bool isValidHandle(const CCustomWallHandle h) const noexcept;
@@ -47,16 +47,16 @@ public:
 
     void destroy(const CCustomWallHandle cwHandle);
 
-    void destroyAllOutOfBounds(const sf::Vec2f& bounds);
+    void destroyAllOutOfBounds(const sf::Vec2f bounds);
 
     void setVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
-        const sf::Vec2f& pos);
+        const sf::Vec2f pos);
 
     void moveVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
-        const sf::Vec2f& offset);
+        const sf::Vec2f offset);
 
     void moveVertexPos4Same(
-        const CCustomWallHandle cwHandle, const sf::Vec2f& offset);
+        const CCustomWallHandle cwHandle, const sf::Vec2f offset);
 
     void setCanCollide(const CCustomWallHandle cwHandle, const bool collide);
 
@@ -68,8 +68,8 @@ public:
     void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIdx,
         const sf::Color& color);
 
-    void setVertexPos4(const CCustomWallHandle cwHandle, const sf::Vec2f& p0,
-        const sf::Vec2f& p1, const sf::Vec2f& p2, const sf::Vec2f& p3);
+    void setVertexPos4(const CCustomWallHandle cwHandle, const sf::Vec2f p0,
+        const sf::Vec2f p1, const sf::Vec2f p2, const sf::Vec2f p3);
 
     void setVertexColor4(const CCustomWallHandle cwHandle, const sf::Color& c0,
         const sf::Color& c1, const sf::Color& c2, const sf::Color& c3);
@@ -80,7 +80,7 @@ public:
     [[nodiscard]] sf::Vec2f getVertexPos(
         const CCustomWallHandle cwHandle, const int vertexIdx);
 
-    [[nodiscard]] const std::array<sf::Vec2f, 4>& getVertexPos4(
+    [[nodiscard]] const sf::base::Array<sf::Vec2f, 4>& getVertexPos4(
         const CCustomWallHandle cwHandle);
 
     [[nodiscard]] bool getCanCollide(const CCustomWallHandle cwHandle);
@@ -95,12 +95,12 @@ public:
     [[nodiscard]] bool handleCollision(
         const int movement, const float radius, CPlayer& mPlayer, float mFT);
 
-    [[nodiscard]] std::size_t count() const noexcept
+    [[nodiscard]] sf::base::SizeT count() const noexcept
     {
         return _count;
     }
 
-    [[nodiscard]] std::size_t maxHandles() const noexcept
+    [[nodiscard]] sf::base::SizeT maxHandles() const noexcept
     {
         return _customWalls.size();
     }

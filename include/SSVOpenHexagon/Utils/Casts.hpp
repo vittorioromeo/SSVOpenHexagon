@@ -4,15 +4,4 @@
 
 #pragma once
 
-#include <cstddef>
-
-namespace hg {
-
-template <typename T>
-[[nodiscard, gnu::always_inline]] inline constexpr std::size_t toSizeT(
-    const T value) noexcept
-{
-    return static_cast<std::size_t>(value);
-}
-
-} // namespace hg
+#define SSVOH_TO_SIZET(...) static_cast<decltype(sizeof(int))>(__VA_ARGS__)

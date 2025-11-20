@@ -4,9 +4,10 @@
 
 #include "SSVOpenHexagon/Data/LoadInfo.hpp"
 
+#include <SFML/Base/SizeT.hpp>
+
 #include <string>
 #include <vector>
-#include <cstddef>
 
 namespace hg {
 
@@ -22,7 +23,7 @@ void LoadInfo::addFormattedError(std::string& error)
 
     // Replace first newline with '-', place a space before it,
     // and remove a space after it.
-    std::size_t i = error.find('\n');
+    sf::base::SizeT i = error.find('\n');
     error.insert(i, " ");
     error[++i] = '-';
     error.erase(++i, 1);

@@ -9,6 +9,8 @@
 #include <SFML/Base/Trait/IsEnum.hpp>
 #include <SFML/Base/Trait/UnderlyingType.hpp>
 
+#include <SFML/Base/SizeT.hpp>
+
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -163,7 +165,7 @@ struct Converter<std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>>
     }
 };
 
-template <typename TItem, std::size_t TN>
+template <typename TItem, sf::base::SizeT TN>
 struct Converter<TItem[TN]>
 {
     using T = TItem[TN];

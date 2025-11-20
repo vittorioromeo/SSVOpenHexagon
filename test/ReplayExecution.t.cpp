@@ -14,21 +14,22 @@
 
 #include "TestUtils.hpp"
 
-#include <array>
+#include <SFML/Base/Array.hpp>
 #include <SFML/Base/Optional.hpp>
+
 #include <stdexcept>
 
 int main()
 try
 {
-    constexpr std::array packs{
+    constexpr sf::base::Array packs{
         // "ohvrvanilla_vittorio_romeo_cube_1",        //
         // "ohvrvanilla_vittorio_romeo_cube_1",        //
         "ohvrvanilla_vittorio_romeo_cube_1",        //
         "ohvrvanilla_vittorio_romeo_experimental_1" //
     };
 
-    constexpr std::array levels{
+    constexpr sf::base::Array levels{
         // "ohvrvanilla_vittorio_romeo_cube_1_pointless",        //
         // "ohvrvanilla_vittorio_romeo_cube_1_seconddimension",  //
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon",        //

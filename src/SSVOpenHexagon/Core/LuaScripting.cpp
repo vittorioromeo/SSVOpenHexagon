@@ -34,8 +34,10 @@
 #include <SFML/Graphics/Shader.hpp>
 
 #include <SFML/Base/Trait/Decay.hpp>
+#include <SFML/Base/StringViewStreamOp.hpp>
 
-#include <cstddef>
+#include <SFML/Base/SizeT.hpp>
+
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -478,8 +480,7 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
         [&cwManager](CCustomWallHandle cwHandle,
             int vertexIndex) -> std::tuple<float, float>
         {
-            const sf::Vec2f& pos =
-                cwManager.getVertexPos(cwHandle, vertexIndex);
+            const sf::Vec2f pos = cwManager.getVertexPos(cwHandle, vertexIndex);
 
             return {pos.x, pos.y};
         })
@@ -494,7 +495,7 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             CCustomWallHandle cwHandle) -> std::tuple<float, float, float,
                                             float, float, float, float, float>
         {
-            const auto& [p0, p1, p2, p3] = cwManager.getVertexPos4(cwHandle);
+            const auto& [p0, p1, p2, p3] = cwManager.getVertexPos4(cwHandle).elements;
             return {p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y};
         })
         .arg("cwHandle")
@@ -1237,19 +1238,19 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
     addLuaFn(lua, "shdr_getShaderId",
         [&assets, &execScriptPackPathContext, fPackPathGetter, headless](
-            const std::string& shaderFilename) -> std::size_t
+            const std::string& shaderFilename) -> sf::base::SizeT
         {
             if (headless)
             {
                 // Always return early in headless mode.
-                return static_cast<std::size_t>(-1);
+                return static_cast<sf::base::SizeT>(-1);
             }
 
             // With format "Packs/<PACK>/Shaders/<SHADER>"
             const std::string shaderPath = Utils::getDependentShaderFilename(
                 execScriptPackPathContext, fPackPathGetter(), shaderFilename);
 
-            const sf::base::Optional<std::size_t> id =
+            const sf::base::Optional<sf::base::SizeT> id =
                 assets.getShaderIdByPath(shaderPath);
 
             if (!id.hasValue())
@@ -1258,7 +1259,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                     << "`u_getShaderId` failed, no id found for '"
                     << shaderFilename << "'\n";
 
-                return static_cast<std::size_t>(-1);
+                return static_cast<sf::base::SizeT>(-1);
             }
 
             return *id;
@@ -1275,19 +1276,19 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         [&assets, &execScriptPackPathContext, fGetPackData, headless](
             const std::string& packDisambiguator, const std::string& packName,
             const std::string& packAuthor,
-            const std::string& shaderFilename) -> std::size_t
+            const std::string& shaderFilename) -> sf::base::SizeT
         {
             if (headless)
             {
                 // Always return early in headless mode.
-                return static_cast<std::size_t>(-1);
+                return static_cast<sf::base::SizeT>(-1);
             }
 
-            std::size_t result = static_cast<std::size_t>(-1);
+            sf::base::SizeT result = static_cast<sf::base::SizeT>(-1);
 
             auto setResult = [&assets, &result](const std::string& shaderPath)
             {
-                const sf::base::Optional<std::size_t> id =
+                const sf::base::Optional<sf::base::SizeT> id =
                     assets.getShaderIdByPath(shaderPath);
 
                 if (!id.hasValue())
@@ -1296,7 +1297,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
                         << "`u_getDependencyShaderId` failed, no id found for '"
                         << shaderPath << "'\n";
 
-                    result = static_cast<std::size_t>(-1);
+                    result = static_cast<sf::base::SizeT>(-1);
                     return;
                 }
 
@@ -1326,7 +1327,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
     // Utility functions
 
     auto withValidShaderId = [&assets, headless](const char* caller,
-                                 const std::size_t shaderId, auto&& f)
+                                 const sf::base::SizeT shaderId, auto&& f)
     {
         if (headless)
         {
@@ -1350,7 +1351,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
     };
 
     const auto checkValidRenderStage = [headless](const char* caller,
-                                           const std::size_t renderStage,
+                                           const sf::base::SizeT renderStage,
                                            auto& ids) -> bool
     {
         if (headless)
@@ -1376,7 +1377,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
     addLuaFn(lua, "shdr_setUniformF",
         [withValidShaderId](
-            const std::size_t shaderId, const std::string& name, const float a)
+            const sf::base::SizeT shaderId, const std::string& name, const float a)
         {
             withValidShaderId("shdr_setUniformF", shaderId,
                 [&](sf::Shader& shader)
@@ -1395,7 +1396,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             "to `$2`.");
 
     addLuaFn(lua, "shdr_setUniformFVec2",
-        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+        [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name,
             const float a, const float b)
         {
             withValidShaderId("shdr_setUniformFVec2", shaderId,
@@ -1416,7 +1417,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             "id `$0` to `{$2, $3}`.");
 
     addLuaFn(lua, "shdr_setUniformFVec3",
-        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+        [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name,
             const float a, const float b, const float c)
         {
             withValidShaderId("shdr_setUniformFVec3", shaderId,
@@ -1438,7 +1439,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             "id `$0` to `{$2, $3, $4}`.");
 
     addLuaFn(lua, "shdr_setUniformFVec4",
-        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+        [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name,
             const float a, const float b, const float c, const float d)
         {
             withValidShaderId("shdr_setUniformFVec4", shaderId,
@@ -1465,7 +1466,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
     addLuaFn(lua, "shdr_setUniformI",
         [withValidShaderId](
-            const std::size_t shaderId, const std::string& name, const int a)
+            const sf::base::SizeT shaderId, const std::string& name, const int a)
         {
             withValidShaderId("shdr_setUniformI", shaderId,
                 [&](sf::Shader& shader)
@@ -1484,7 +1485,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             "to `$2`.");
 
     addLuaFn(lua, "shdr_setUniformIVec2",
-        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+        [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name,
             const int a, const int b)
         {
             withValidShaderId("shdr_setUniformIVec2", shaderId,
@@ -1505,7 +1506,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             "id `$0` to `{$2, $3}`.");
 
     addLuaFn(lua, "shdr_setUniformIVec3",
-        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+        [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name,
             const int a, const int b, const int c)
         {
             withValidShaderId("shdr_setUniformIVec3", shaderId,
@@ -1527,7 +1528,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
             "id `$0` to `{$2, $3, $4}`.");
 
     addLuaFn(lua, "shdr_setUniformIVec4",
-        [withValidShaderId](const std::size_t shaderId, const std::string& name,
+        [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name,
             const int a, const int b, const int c, const int d)
         {
             withValidShaderId("shdr_setUniformIVec4", shaderId,
@@ -1557,8 +1558,8 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
         {
             auto& ids = hexagonGameStatus.fragmentShaderIds;
 
-            for (std::size_t i = 0;
-                i < static_cast<std::size_t>(RenderStage::Count); ++i)
+            for (sf::base::SizeT i = 0;
+                i < static_cast<sf::base::SizeT>(RenderStage::Count); ++i)
             {
                 ids[i] = sf::base::nullOpt;
             }
@@ -1567,7 +1568,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
     addLuaFn(lua, "shdr_resetActiveFragmentShader",
         [checkValidRenderStage, &hexagonGameStatus](
-            const std::size_t renderStage)
+            const sf::base::SizeT renderStage)
         {
             auto& ids = hexagonGameStatus.fragmentShaderIds;
 
@@ -1584,7 +1585,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
     addLuaFn(lua, "shdr_setActiveFragmentShader",
         [checkValidRenderStage, &hexagonGameStatus](
-            const std::size_t renderStage, const std::size_t shaderId)
+            const sf::base::SizeT renderStage, const sf::base::SizeT shaderId)
         {
             auto& ids = hexagonGameStatus.fragmentShaderIds;
 
@@ -1650,9 +1651,9 @@ void printDocs()
 {
     Utils::LuaMetadata& lm = getMetadata();
 
-    for (std::size_t i = 0; i < lm.getNumCategories(); ++i)
+    for (sf::base::SizeT i = 0; i < lm.getNumCategories(); ++i)
     {
-        std::cout << '\n' << lm.prefixHeaders.at(i) << "\n\n";
+        std::cout << '\n' << lm.prefixHeaders[i] << "\n\n";
 
         lm.forFnEntries(
             [](const std::string& ret, const std::string& name,
@@ -1673,7 +1674,7 @@ const std::vector<std::string>& getAllFunctionNames()
     {
         std::vector<std::string> v;
 
-        for (std::size_t i = 0; i < lm.getNumCategories(); ++i)
+        for (sf::base::SizeT i = 0; i < lm.getNumCategories(); ++i)
         {
             lm.forFnEntries([&](const std::string&, const std::string& name,
                                 const std::string&, const std::string&)
@@ -1694,7 +1695,7 @@ std::string getDocsForFunction(const std::string& fnName)
     bool found = false;
     std::ostringstream oss;
 
-    for (std::size_t i = 0; i < lm.getNumCategories(); ++i)
+    for (sf::base::SizeT i = 0; i < lm.getNumCategories(); ++i)
     {
         lm.forFnEntries(
             [&](const std::string& ret, const std::string& name,

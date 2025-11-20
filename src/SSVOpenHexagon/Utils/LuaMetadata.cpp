@@ -5,26 +5,27 @@
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 
 #include <string>
-#include <cstddef>
-#include <string_view>
+
+#include <SFML/Base/StringView.hpp>
 
 namespace hg::Utils {
 
-[[nodiscard]] std::size_t LuaMetadata::getCategoryIndexFromName(
-    const std::string_view fnName)
+[[nodiscard]] sf::base::SizeT LuaMetadata::getCategoryIndexFromName(
+    const sf::base::StringView fnName)
 {
-    const std::size_t underscoreIndex = fnName.find("_");
+    const sf::base::SizeT underscoreIndex = fnName.find("_");
     if (underscoreIndex == std::string::npos)
     {
         // Return the last index: the miscellaneous index.
         return NUM_CATEGORIES - 1;
     }
 
-    const std::string_view prefix = fnName.substr(0, underscoreIndex + 1);
+    const sf::base::StringView prefix =
+        fnName.substrByPosLen(0, underscoreIndex + 1);
 
     // Find the category it should be placed in, otherwise it'll be
     // considered Miscellaneous
-    for (std::size_t i = 0; i < prefixCategories.size() - 1; ++i)
+    for (sf::base::SizeT i = 0; i < prefixCategories.size() - 1; ++i)
     {
         if (prefix == prefixCategories[i])
         {
@@ -35,17 +36,16 @@ namespace hg::Utils {
     return NUM_CATEGORIES - 1;
 }
 
-void LuaMetadata::addFnEntry(const std::string& fnRet,
-    const std::string& fnName, const std::string& fnArgs,
-    const std::string& fnDocs)
+void LuaMetadata::addFnEntry(const sf::base::String& fnRet,
+    const sf::base::String& fnName, const sf::base::String& fnArgs,
+    const sf::base::String& fnDocs)
 {
-    const std::size_t categoryIndex = getCategoryIndexFromName(fnName);
+    const sf::base::SizeT categoryIndex = getCategoryIndexFromName(fnName);
 
-    fnEntries.at(categoryIndex)
-        .push_back(FnEntry{fnRet, fnName, fnArgs, fnDocs});
+    fnEntries[categoryIndex].emplaceBack(fnRet, fnName, fnArgs, fnDocs);
 }
 
-[[nodiscard]] std::size_t LuaMetadata::getNumCategories() const noexcept
+[[nodiscard]] sf::base::SizeT LuaMetadata::getNumCategories() const noexcept
 {
     return NUM_CATEGORIES;
 }

@@ -6,12 +6,13 @@
 
 #include "SSVOpenHexagon/Core/RandomNumberGeneratorTypes.hpp"
 
-#include <bitset>
-#include <cstddef>
+#include <SFML/Base/SizeT.hpp>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
+
+#include <bitset>
 #include <cstring>
 #include <filesystem>
-#include <SFML/Base/Optional.hpp>
 #include <string>
 #include <vector>
 
@@ -37,7 +38,7 @@ using input_bitset = std::bitset<static_cast<unsigned int>(input_bit::k_count)>;
 
 struct serialization_result
 {
-    std::size_t _written_bytes{0};
+    sf::base::SizeT _written_bytes{0};
     bool _success{true};
 
     [[nodiscard]] explicit operator bool() const noexcept
@@ -45,7 +46,7 @@ struct serialization_result
         return _success;
     }
 
-    [[nodiscard]] std::size_t written_bytes() const noexcept
+    [[nodiscard]] sf::base::SizeT written_bytes() const noexcept
     {
         return _written_bytes;
     }
@@ -53,7 +54,7 @@ struct serialization_result
 
 struct deserialization_result
 {
-    std::size_t _read_bytes{0};
+    sf::base::SizeT _read_bytes{0};
     bool _success{true};
 
     [[nodiscard]] explicit operator bool() const noexcept
@@ -61,7 +62,7 @@ struct deserialization_result
         return _success;
     }
 
-    [[nodiscard]] std::size_t read_bytes() const noexcept
+    [[nodiscard]] sf::base::SizeT read_bytes() const noexcept
     {
         return _read_bytes;
     }
@@ -76,17 +77,17 @@ public:
     void record_input(const bool left, const bool right, const bool swap,
         const bool focus) noexcept;
 
-    [[nodiscard]] input_bitset at(const std::size_t index) const noexcept;
-    [[nodiscard]] std::size_t size() const noexcept;
+    [[nodiscard]] input_bitset at(const sf::base::SizeT index) const noexcept;
+    [[nodiscard]] sf::base::SizeT size() const noexcept;
 
     [[nodiscard]] bool operator==(const replay_data& rhs) const noexcept;
     [[nodiscard]] bool operator!=(const replay_data& rhs) const noexcept;
 
     [[nodiscard]] serialization_result serialize(
-        std::byte* buffer, const std::size_t buffer_size) const;
+        std::byte* buffer, const sf::base::SizeT buffer_size) const;
 
     [[nodiscard]] deserialization_result deserialize(
-        const std::byte* buffer, const std::size_t buffer_size);
+        const std::byte* buffer, const sf::base::SizeT buffer_size);
 
     [[nodiscard]] serialization_result serialize(
         std::byte* buffer, const std::byte* const buffer_end) const;
@@ -99,7 +100,7 @@ class replay_player
 {
 private:
     const replay_data& _replay_data;
-    std::size_t _current_index;
+    sf::base::SizeT _current_index;
 
 public:
     explicit replay_player(const replay_data& rd) noexcept;
@@ -128,10 +129,10 @@ struct replay_file
     [[nodiscard]] bool operator!=(const replay_file& rhs) const noexcept;
 
     [[nodiscard]] serialization_result serialize(
-        std::byte* buffer, const std::size_t buffer_size) const;
+        std::byte* buffer, const sf::base::SizeT buffer_size) const;
 
     [[nodiscard]] deserialization_result deserialize(
-        const std::byte* buffer, const std::size_t buffer_size);
+        const std::byte* buffer, const sf::base::SizeT buffer_size);
 
     [[nodiscard]] serialization_result serialize(
         std::byte* buffer, const std::byte* const buffer_end) const;

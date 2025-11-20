@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <cstddef>
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Base/UniquePtr.hpp>
+#include <SFML/Base/SizeT.hpp>
+
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -91,12 +92,12 @@ public:
     [[nodiscard]] sf::Shader* getShader(
         const std::string& mPackId, const std::string& mId);
 
-    [[nodiscard]] sf::base::Optional<std::size_t> getShaderId(
+    [[nodiscard]] sf::base::Optional<sf::base::SizeT> getShaderId(
         const std::string& mPackId, const std::string& mId);
-    [[nodiscard]] sf::base::Optional<std::size_t> getShaderIdByPath(
+    [[nodiscard]] sf::base::Optional<sf::base::SizeT> getShaderIdByPath(
         const std::string& mShaderPath);
-    [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
-    [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
+    [[nodiscard]] sf::Shader* getShaderByShaderId(const sf::base::SizeT mShaderId);
+    [[nodiscard]] bool isValidShaderId(const sf::base::SizeT mShaderId) const;
 
     void reloadAllShaders();
     [[nodiscard]] std::string reloadPack(
@@ -116,7 +117,7 @@ public:
     [[nodiscard]] ProfileData* getLocalProfileByName(const std::string& mName);
     [[nodiscard]] const ProfileData* getLocalProfileByName(
         const std::string& mName) const;
-    [[nodiscard]] std::size_t getLocalProfilesSize();
+    [[nodiscard]] sf::base::SizeT getLocalProfilesSize();
     [[nodiscard]] std::vector<std::string> getLocalProfileNames();
 
     [[nodiscard]] bool pIsValidLocalProfile() const;

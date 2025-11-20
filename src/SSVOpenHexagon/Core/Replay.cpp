@@ -85,13 +85,13 @@ void replay_data::record_input(const bool left, const bool right,
 }
 
 [[nodiscard]] input_bitset replay_data::at(
-    const std::size_t index) const noexcept
+    const sf::base::SizeT index) const noexcept
 {
     SSVOH_ASSERT(index < size());
     return _inputs[index];
 }
 
-[[nodiscard]] std::size_t replay_data::size() const noexcept
+[[nodiscard]] sf::base::SizeT replay_data::size() const noexcept
 {
     return _inputs.size();
 }
@@ -109,13 +109,13 @@ void replay_data::record_input(const bool left, const bool right,
 }
 
 [[nodiscard]] serialization_result replay_data::serialize(
-    std::byte* buffer, const std::size_t buffer_size) const
+    std::byte* buffer, const sf::base::SizeT buffer_size) const
 {
     return serialize(buffer, buffer + buffer_size);
 }
 
 [[nodiscard]] deserialization_result replay_data::deserialize(
-    const std::byte* buffer, const std::size_t buffer_size)
+    const std::byte* buffer, const sf::base::SizeT buffer_size)
 {
     return deserialize(buffer, buffer + buffer_size);
 }
@@ -126,7 +126,7 @@ void replay_data::record_input(const bool left, const bool right,
     serialization_result result;
     const auto write = make_write(result, buffer, buffer_end);
 
-    const std::size_t n_inputs = _inputs.size();
+    const sf::base::SizeT n_inputs = _inputs.size();
     SSVOH_TRY(write(n_inputs));
 
     for (const input_bitset& ib : _inputs)
@@ -144,7 +144,7 @@ void replay_data::record_input(const bool left, const bool right,
     deserialization_result result;
     const auto read = make_read(result, buffer, buffer_end);
 
-    std::size_t n_inputs;
+    sf::base::SizeT n_inputs;
     SSVOH_TRY(read(n_inputs));
 
     _inputs.resize(n_inputs);
@@ -153,7 +153,7 @@ void replay_data::record_input(const bool left, const bool right,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-    for (std::size_t i = 0; i < n_inputs; ++i)
+    for (sf::base::SizeT i = 0; i < n_inputs; ++i)
     {
         sf::base::U8 ib_byte;
         SSVOH_TRY(read(ib_byte));
@@ -214,13 +214,13 @@ void replay_player::reset() noexcept
 }
 
 [[nodiscard]] serialization_result replay_file::serialize(
-    std::byte* buffer, const std::size_t buffer_size) const
+    std::byte* buffer, const sf::base::SizeT buffer_size) const
 {
     return serialize(buffer, buffer + buffer_size);
 }
 
 [[nodiscard]] deserialization_result replay_file::deserialize(
-    const std::byte* buffer, const std::size_t buffer_size)
+    const std::byte* buffer, const sf::base::SizeT buffer_size)
 {
     return deserialize(buffer, buffer + buffer_size);
 }
@@ -324,7 +324,7 @@ void replay_player::reset() noexcept
     return result;
 }
 
-static constexpr std::size_t buf_size{2097152}; // 2MB
+static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
 
 [[nodiscard]] static std::byte* get_static_buf()
 {
@@ -361,7 +361,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     }
 
     is.seekg(0, std::ios::end);
-    const std::size_t bytes_to_read = is.tellg();
+    const sf::base::SizeT bytes_to_read = is.tellg();
     is.seekg(0, std::ios::beg);
 
     std::byte* buf = get_static_buf();
@@ -455,7 +455,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     }
 
     is.seekg(0, std::ios::end);
-    const std::size_t bytes_to_read = is.tellg();
+    const sf::base::SizeT bytes_to_read = is.tellg();
     is.seekg(0, std::ios::beg);
 
     _data.resize(bytes_to_read);

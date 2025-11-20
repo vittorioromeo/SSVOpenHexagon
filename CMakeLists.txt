@@ -356,15 +356,17 @@ endif()
 # PCH
 # -----------------------------------------------------------------------------
 
-target_precompile_headers(
-    SSVOpenHexagonLib PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/SSVOpenHexagon/Global/PCH.hpp"
-)
+if(SSVOH_USE_PCH)
+    target_precompile_headers(
+        SSVOpenHexagonLib PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/SSVOpenHexagon/Global/PCH.hpp"
+    )
 
-target_precompile_headers(SSVOpenHexagon REUSE_FROM SSVOpenHexagonLib)
+    target_precompile_headers(SSVOpenHexagon REUSE_FROM SSVOpenHexagonLib)
 
-if(SSVOH_BUILD_WIN32_CONSOLE)
-    target_precompile_headers(SSVOpenHexagon-Console REUSE_FROM SSVOpenHexagonLib)
+    if(SSVOH_BUILD_WIN32_CONSOLE)
+        target_precompile_headers(SSVOpenHexagon-Console REUSE_FROM SSVOpenHexagonLib)
+    endif()
 endif()
 
 #

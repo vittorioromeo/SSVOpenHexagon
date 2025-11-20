@@ -45,7 +45,7 @@ static void test_replay_data_serialization_to_buffer()
     TEST_ASSERT_EQ(rd.at(4), hg::input_bitset{"0010"});
     TEST_ASSERT_EQ(rd.at(5), hg::input_bitset{"1001"});
 
-    constexpr std::size_t buf_size{1024};
+    constexpr sf::base::SizeT buf_size{1024};
     std::byte buf[buf_size];
 
     TEST_ASSERT_NS(rd.serialize(buf, buf_size));
@@ -76,7 +76,7 @@ static void test_replay_data_serialization_to_buffer_too_small()
     TEST_ASSERT_EQ(rd.at(4), hg::input_bitset{"0010"});
     TEST_ASSERT_EQ(rd.at(5), hg::input_bitset{"1001"});
 
-    constexpr std::size_t buf_size{10};
+    constexpr sf::base::SizeT buf_size{10};
     std::byte buf[buf_size];
 
     TEST_ASSERT_NS(!rd.serialize(buf, buf_size));
@@ -151,7 +151,7 @@ static void test_replay_file_serialization_to_buffer()
         //
     };
 
-    constexpr std::size_t buf_size{2048};
+    constexpr sf::base::SizeT buf_size{2048};
     std::byte buf[buf_size];
 
     TEST_ASSERT_NS(rf.serialize(buf, buf_size));

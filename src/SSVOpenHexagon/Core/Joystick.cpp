@@ -7,9 +7,9 @@
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 
 #include <SFML/Window/Joystick.hpp>
+#include <SFML/Base/Array.hpp>
 
 #include <utility>
-#include <array>
 
 /*
 
@@ -57,12 +57,12 @@ struct JoystickState
 {
     bool ignoreAllPresses;
 
-    std::array<bool, toSizeT(Jdir::JoystickDirectionsCount)> dirWasPressed;
-    std::array<bool, toSizeT(Jdir::JoystickDirectionsCount)> dirPressed;
-    std::array<bool, toSizeT(Jid::JoystickBindsCount)> wasPressed;
-    std::array<bool, toSizeT(Jid::JoystickBindsCount)> pressed;
+    sf::base::Array<bool, SSVOH_TO_SIZET(Jdir::JoystickDirectionsCount)> dirWasPressed;
+    sf::base::Array<bool, SSVOH_TO_SIZET(Jdir::JoystickDirectionsCount)> dirPressed;
+    sf::base::Array<bool, SSVOH_TO_SIZET(Jid::JoystickBindsCount)> wasPressed;
+    sf::base::Array<bool, SSVOH_TO_SIZET(Jid::JoystickBindsCount)> pressed;
 
-    unsigned int joystickInputs[toSizeT(hg::Joystick::Jid::JoystickBindsCount)];
+    unsigned int joystickInputs[SSVOH_TO_SIZET(hg::Joystick::Jid::JoystickBindsCount)];
 };
 
 [[nodiscard]] static JoystickState& getJoystickState()
@@ -169,8 +169,8 @@ void update(const float deadzone)
 
     const auto doDir = [&](const Jdir jdir, const bool check)
     {
-        s.dirWasPressed[toSizeT(jdir)] =
-            std::exchange(s.dirPressed[toSizeT(jdir)], check);
+        s.dirWasPressed[SSVOH_TO_SIZET(jdir)] =
+            std::exchange(s.dirPressed[SSVOH_TO_SIZET(jdir)], check);
     };
 
     doDir(Jdir::Left, xIs(AxisDir::Left));
@@ -180,8 +180,8 @@ void update(const float deadzone)
 
     const auto doButton = [&](const Jid jid)
     {
-        s.wasPressed[toSizeT(jid)] = std::exchange(s.pressed[toSizeT(jid)],
-            query->isButtonPressed(s.joystickInputs[toSizeT(jid)]));
+        s.wasPressed[SSVOH_TO_SIZET(jid)] = std::exchange(s.pressed[SSVOH_TO_SIZET(jid)],
+            query->isButtonPressed(s.joystickInputs[SSVOH_TO_SIZET(jid)]));
     };
 
     doButton(Jid::Select);
@@ -200,24 +200,24 @@ void update(const float deadzone)
 
 [[nodiscard]] bool pressed(const Jdir jdir)
 {
-    return getJoystickState().dirPressed[toSizeT(jdir)];
+    return getJoystickState().dirPressed[SSVOH_TO_SIZET(jdir)];
 }
 
 [[nodiscard]] bool risingEdge(const Jdir jdir)
 {
-    return getJoystickState().dirPressed[toSizeT(jdir)] &&
-           !getJoystickState().dirWasPressed[toSizeT(jdir)];
+    return getJoystickState().dirPressed[SSVOH_TO_SIZET(jdir)] &&
+           !getJoystickState().dirWasPressed[SSVOH_TO_SIZET(jdir)];
 }
 
 [[nodiscard]] bool pressed(const Jid jid)
 {
-    return getJoystickState().pressed[toSizeT(jid)];
+    return getJoystickState().pressed[SSVOH_TO_SIZET(jid)];
 }
 
 [[nodiscard]] bool risingEdge(const Jid jid)
 {
-    return getJoystickState().pressed[toSizeT(jid)] &&
-           !getJoystickState().wasPressed[toSizeT(jid)];
+    return getJoystickState().pressed[SSVOH_TO_SIZET(jid)] &&
+           !getJoystickState().wasPressed[SSVOH_TO_SIZET(jid)];
 }
 
 } // namespace hg::Joystick

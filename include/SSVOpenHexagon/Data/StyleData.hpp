@@ -55,11 +55,11 @@ private:
         const ColorData& mDefault);
 
     void drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
-        const sf::Vec2f& mCenterPos, const unsigned int sides,
+        const sf::Vec2f mCenterPos, const unsigned int sides,
         const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const;
 
     void drawBackgroundMenuHexagonImpl(Utils::FastVertexVectorTris& vertices,
-        const sf::Vec2f& mCenterPos, const unsigned int sides,
+        const sf::Vec2f mCenterPos, const unsigned int sides,
         const bool fourByThree, const bool blackAndWhite) const;
 
 public:
@@ -109,12 +109,12 @@ public:
     void computeColors();
 
     void drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
-        const sf::Vec2f& mCenterPos, const unsigned int sides,
+        const sf::Vec2f mCenterPos, const unsigned int sides,
         const bool darkenUnevenBackgroundChunk, const bool blackAndWhite,
         const bool fourByThree) const;
 
     void drawBackground(Utils::FastVertexVectorTris& mTris,
-        const sf::Vec2f& mCenterPos, const unsigned int sides,
+        const sf::Vec2f mCenterPos, const unsigned int sides,
         const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const;
 
     void setCapColor(const CapColor& mCapColor);
@@ -125,7 +125,7 @@ public:
     [[nodiscard]] const sf::Color& getWallColor() const noexcept;
     [[nodiscard]] const std::vector<sf::Color>& getColors() const noexcept;
     [[nodiscard]] const sf::Color& getColor(
-        const std::size_t mIdx) const noexcept;
+        const sf::base::SizeT mIdx) const noexcept;
     [[nodiscard]] float getCurrentHue() const noexcept;
     [[nodiscard]] float getCurrentSwapTime() const noexcept;
     [[nodiscard]] const sf::Color& get3DOverrideColor() const noexcept;

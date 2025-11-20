@@ -19,8 +19,8 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vec2.hpp>
-
-#include <cmath>
+#include <SFML/Base/Math/Fmod.hpp>
+#include <SFML/Base/Math/Fabs.hpp>
 
 namespace hg {
 
@@ -30,7 +30,7 @@ inline constexpr float focusedTriangleWidth{-1.5f};
 inline constexpr float triangleWidthRange{
     unfocusedTriangleWidth - focusedTriangleWidth};
 
-CPlayer::CPlayer(const sf::Vec2f& pos, const float swapCooldown,
+CPlayer::CPlayer(const sf::Vec2f pos, const float swapCooldown,
     const float size, const float speed, const float focusSpeed) noexcept
     : _startPos{pos},
       _pos{pos},
@@ -68,7 +68,7 @@ CPlayer::CPlayer(const sf::Vec2f& pos, const float swapCooldown,
     if (!_swapTimer.isRunning() && !_dead)
     {
         return Utils::getColorFromHue(
-            std::fmod(_swapBlinkTimer.getCurrent() / 12.f, 0.2f));
+            sf::base::fmod(_swapBlinkTimer.getCurrent() / 12.f, 0.2f));
     }
 
     return getColor(colorPlayer);
@@ -197,7 +197,7 @@ template <typename Wall>
     sf::Vec2f vec1, vec2;
     float tempDistance, safeDistance{_maxSafeDistance};
     const unsigned int vxIncrement{wall.isCustomWall() ? 1u : 2u};
-    const std::array<sf::Vec2f, 4>& wVertexes{wall.getVertexPositions()};
+    const sf::base::Array<sf::Vec2f, 4>& wVertexes{wall.getVertexPositions()};
 
     // This is actually useless for normal walls, but if we removed
     // getKillingSide() for CWall we would have to write a separate
@@ -253,7 +253,7 @@ template <typename Wall>
 }
 
 [[nodiscard]] bool CPlayer::push(const int movementDir, const float radius,
-    const CWall& wall, const sf::Vec2f& centerPos, const float radiusSquared,
+    const CWall& wall, const sf::Vec2f centerPos, const float radiusSquared,
     const float ft)
 {
     if (_dead)
@@ -335,8 +335,8 @@ template <typename Wall>
     // player, such side is a candidate for pushing it like a curving wall would
     // do. (_lastPos is the best candidate for this check).
 
-    const std::array<sf::Vec2f, 4>& wVertexes{wall.getVertexPositions()};
-    const std::array<sf::Vec2f, 4>& wOldVertexes{wall.getOldVertexPositions()};
+    const sf::base::Array<sf::Vec2f, 4>& wVertexes{wall.getVertexPositions()};
+    const sf::base::Array<sf::Vec2f, 4>& wOldVertexes{wall.getOldVertexPositions()};
     sf::Vec2f pushVel{0.f, 0.f}, i1, i2;
     const unsigned int killingSide{wall.getKillingSide()};
     constexpr float pushDotThreshold{
@@ -350,7 +350,7 @@ template <typename Wall>
             continue;
         }
 
-        const std::array<sf::Vec2f, 4> collisionPolygon{
+        const sf::base::Array<sf::Vec2f, 4> collisionPolygon{
             wVertexes[i], wOldVertexes[i], wOldVertexes[j], wVertexes[j]};
 
         if (Utils::pointInPolygon<4>(collisionPolygon, _lastPos.x, _lastPos.y))
@@ -364,7 +364,7 @@ template <typename Wall>
                     i2, _lastPos, wVertexes[i], wVertexes[j], radiusSquared))
             {
                 pushVel = i2 - i1;
-                if (std::abs(pushVel.normalized().dot(_lastPos.normalized())) >
+                if (sf::base::fabs(pushVel.normalized().dot(_lastPos.normalized())) >
                     pushDotThreshold)
                 {
                     pushVel = {0.f, 0.f};

@@ -5,10 +5,13 @@
 #pragma once
 
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Glsl.hpp>
 
-#include <cmath>
 #include <SFML/Base/IntTypes.hpp>
+
+#include <SFML/Base/Math/Cos.hpp>
+#include <SFML/Base/Math/Sin.hpp>
+#include <SFML/Base/Math/Floor.hpp>
+
 
 namespace hg::Utils {
 
@@ -28,8 +31,8 @@ namespace hg::Utils {
 [[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Color transformHue(
     const sf::Color& in, const float H) noexcept
 {
-    const float u{std::cos(H * 3.14f / 180.f)};
-    const float w{std::sin(H * 3.14f / 180.f)};
+    const float u{SFML_BASE_MATH_COSF(H * 3.14f / 180.f)};
+    const float w{SFML_BASE_MATH_SINF(H * 3.14f / 180.f)};
 
     return sf::Color{
         //
@@ -52,7 +55,7 @@ namespace hg::Utils {
 [[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Color getColorFromHue(
     const float hue) noexcept
 {
-    const int i = std::floor(hue * 6.f);
+    const int i = SFML_BASE_MATH_FLOORF(hue * 6.f);
 
     const float f = (hue * 6.f) - i;
     const float q = 1.f - f;
@@ -87,25 +90,6 @@ componentClamp(const float value) noexcept
     }
 
     return static_cast<sf::base::U8>(value);
-}
-
-[[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Glsl::Vec3 toGLSLVec3(
-    const sf::Color& color) noexcept
-{
-    return {//
-        static_cast<float>(color.r) / 255.f,
-        static_cast<float>(color.g) / 255.f,
-        static_cast<float>(color.b) / 255.f};
-}
-
-[[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Glsl::Vec4 toGLSLVec4(
-    const sf::Color& color) noexcept
-{
-    return {//
-        static_cast<float>(color.r) / 255.f,
-        static_cast<float>(color.g) / 255.f,
-        static_cast<float>(color.b) / 255.f,
-        static_cast<float>(color.a) / 255.f};
 }
 
 } // namespace hg::Utils

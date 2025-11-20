@@ -42,6 +42,9 @@
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Vec2.hpp>
 
+#include <SFML/Base/String.hpp>
+#include <SFML/Base/StringView.hpp>
+
 #include <cmath>
 
 namespace hg {
@@ -215,9 +218,10 @@ void HexagonGame::updateLevelInfo()
         textUI->levelInfoTextLevel.setString(
             trim(Utils::toUppercase(levelData->name)));
         textUI->levelInfoTextLevel.origin =
-            textUI->levelInfoTextLevel.getLocalBounds().getTopLeft();
+            textUI->levelInfoTextLevel.getLocalTopLeft();
         textUI->levelInfoTextLevel.position =
-            levelInfoRectangle.getTopLeft() + sf::Vec2f{tPadding, tPadding};
+            levelInfoRectangle.getGlobalTopLeft() +
+            sf::Vec2f{tPadding, tPadding};
 
         const auto prepareText = [&](sf::Text& text, const float characterSize,
                                      const std::string& string)
@@ -230,9 +234,9 @@ void HexagonGame::updateLevelInfo()
         prepareText(textUI->levelInfoTextPack, 14.f,
             trim(Utils::toUppercase(getPackName())));
         textUI->levelInfoTextPack.origin =
-            textUI->levelInfoTextPack.getLocalBounds().getTopLeft();
+            textUI->levelInfoTextPack.getLocalTopLeft();
         textUI->levelInfoTextPack.position =
-            ssvs::getGlobalSW(textUI->levelInfoTextLevel) +
+            textUI->levelInfoTextLevel.getGlobalBottomLeft() +
             sf::Vec2f{0.f, tPadding};
 
         SSVOH_ASSERT(levelData != nullptr);
@@ -240,16 +244,16 @@ void HexagonGame::updateLevelInfo()
         prepareText(textUI->levelInfoTextAuthor, 20.f,
             trim(Utils::toUppercase(levelData->author)));
         textUI->levelInfoTextAuthor.origin =
-            textUI->levelInfoTextAuthor.getLocalBounds().getBottomRight();
+            textUI->levelInfoTextAuthor.getLocalBottomRight();
         textUI->levelInfoTextAuthor.position =
-            ssvs::getGlobalSE(levelInfoRectangle) -
+            levelInfoRectangle.getGlobalBottomRight() -
             sf::Vec2f{tPadding, tPadding};
 
         prepareText(textUI->levelInfoTextBy, 12.f, "BY");
         textUI->levelInfoTextBy.origin =
-            textUI->levelInfoTextBy.getLocalBounds().getBottomRight();
+            textUI->levelInfoTextBy.getLocalBottomRight();
         textUI->levelInfoTextBy.position =
-            ssvs::getGlobalSW(textUI->levelInfoTextAuthor) -
+            textUI->levelInfoTextAuthor.getGlobalBottomLeft() -
             sf::Vec2f{tPadding, 0.f};
 
         if (levelData->difficultyMults.size() > 1)
@@ -257,9 +261,9 @@ void HexagonGame::updateLevelInfo()
             prepareText(textUI->levelInfoTextDM, 14.f,
                 diffFormat(difficultyMult) + "x");
             textUI->levelInfoTextDM.origin =
-                textUI->levelInfoTextDM.getLocalBounds().getBottomLeft();
+                textUI->levelInfoTextDM.getLocalBottomLeft();
             textUI->levelInfoTextDM.position =
-                ssvs::getGlobalSW(levelInfoRectangle) +
+                levelInfoRectangle.getGlobalBottomLeft() +
                 sf::Vec2f{tPadding, -tPadding};
         }
         else
@@ -1095,8 +1099,8 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     // ------------------------------------------------------------------------
     // Send compressed replay to server.
-    if (const std::string levelValidator =
-            Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
+    const auto lv = Utils::getLevelValidator(rf._level_id, rf._difficulty_mult); // TODO
+    if (const std::string levelValidator{lv.data(), lv.size()};
         !death_sendReplay(levelValidator, crf))
     {
         ssvu::lo("Replay") << "Failure sending replay\n";

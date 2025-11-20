@@ -6,15 +6,16 @@
 
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include <string_view>
+#include <SFML/Base/StringView.hpp>
+
 #include <algorithm>
 #include <vector>
 
 namespace hg::Utils {
 
-template <typename TSplitType = std::string_view, typename F>
-void withSplit(
-    F&& f, const std::string_view str, const std::string_view delims = " ")
+template <typename TSplitType = sf::base::StringView, typename F>
+void withSplit(F&& f, const sf::base::StringView str,
+    const sf::base::StringView delims = " ")
 {
     for (auto first = str.data(), second = str.data(),
               last = first + str.size();
@@ -31,9 +32,9 @@ void withSplit(
     }
 }
 
-template <typename TSplitType = std::string_view>
+template <typename TSplitType = sf::base::StringView>
 [[nodiscard]] inline std::vector<TSplitType> split(
-    const std::string_view str, const std::string_view delims = " ")
+    const sf::base::StringView str, const sf::base::StringView delims = " ")
 {
     std::vector<TSplitType> result;
 

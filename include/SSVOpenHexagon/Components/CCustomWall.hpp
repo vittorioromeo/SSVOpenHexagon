@@ -10,9 +10,10 @@
 #include <SFML/System/Vec2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-#include <array>
-#include <bitset>
+#include <SFML/Base/Array.hpp>
 #include <SFML/Base/IntTypes.hpp>
+
+#include <bitset>
 
 namespace hg {
 
@@ -22,9 +23,9 @@ public:
     using Handle = int;
 
 private:
-    std::array<sf::Vec2f, 4> _vertexPositions;
-    std::array<sf::Vec2f, 4> _oldVertexPositions;
-    std::array<sf::Color, 4> _vertexColors;
+    sf::base::Array<sf::Vec2f, 4> _vertexPositions;
+    sf::base::Array<sf::Vec2f, 4> _oldVertexPositions;
+    sf::base::Array<sf::Color, 4> _vertexColors;
     sf::base::U8 _killingSide{0u};
 
     enum CWFlags : unsigned int
@@ -54,7 +55,7 @@ public:
     }
 
     [[nodiscard, gnu::always_inline]] bool isOverlapping(
-        const sf::Vec2f& point) const noexcept
+        const sf::Vec2f point) const noexcept
     {
         // Cannot use `pointInFourVertexPolygon` here due to vertex ordering
         // requirements.
@@ -63,21 +64,21 @@ public:
     }
 
     [[gnu::always_inline]] void setVertexPos(
-        const int vertexIndex, const sf::Vec2f& pos) noexcept
+        const int vertexIndex, const sf::Vec2f pos) noexcept
     {
         _oldVertexPositions[vertexIndex] = _vertexPositions[vertexIndex];
         _vertexPositions[vertexIndex] = pos;
     }
 
     [[gnu::always_inline]] void moveVertexPos(
-        const int vertexIndex, const sf::Vec2f& offset) noexcept
+        const int vertexIndex, const sf::Vec2f offset) noexcept
     {
         _oldVertexPositions[vertexIndex] = _vertexPositions[vertexIndex];
         _vertexPositions[vertexIndex] += offset;
     }
 
     [[gnu::always_inline]] void moveVertexPos4Same(
-        const sf::Vec2f& offset) noexcept
+        const sf::Vec2f offset) noexcept
     {
         _oldVertexPositions = _vertexPositions;
 
@@ -103,19 +104,19 @@ public:
         _flags[CWFlags::Deadly] = deadly;
     }
 
-    [[nodiscard, gnu::always_inline]] const sf::Vec2f& getVertexPos(
+    [[nodiscard, gnu::always_inline]] const sf::Vec2f getVertexPos(
         const int vertexIndex) const noexcept
     {
         return _vertexPositions[vertexIndex];
     }
 
-    [[nodiscard, gnu::always_inline]] const std::array<sf::Vec2f, 4>&
+    [[nodiscard, gnu::always_inline]] const sf::base::Array<sf::Vec2f, 4>&
     getVertexPositions() const noexcept
     {
         return _vertexPositions;
     }
 
-    [[nodiscard, gnu::always_inline]] const std::array<sf::Vec2f, 4>&
+    [[nodiscard, gnu::always_inline]] const sf::base::Array<sf::Vec2f, 4>&
     getOldVertexPositions() const noexcept
     {
         return _oldVertexPositions;

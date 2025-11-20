@@ -48,6 +48,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <map>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 #include <string>
 #include <string_view>
 #include <tuple>

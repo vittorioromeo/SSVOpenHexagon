@@ -5,13 +5,12 @@
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
 
 #include <SFML/System/Vec2.hpp>
-
-#include <cmath>
+#include <SFML/Base/Math/Sqrt.hpp>
 
 namespace hg::Utils {
 
 [[nodiscard]] unsigned int getLineCircleIntersection(sf::Vec2f& i1,
-    sf::Vec2f& i2, const sf::Vec2f& p1, const sf::Vec2f& p2,
+    sf::Vec2f& i2, const sf::Vec2f p1, const sf::Vec2f p2,
     const float mRadiusSquared)
 {
     const float dx{p2.x - p1.x};
@@ -39,7 +38,7 @@ namespace hg::Utils {
     }
 
     // Two intersections.
-    const float sqrtDelta{std::sqrt(delta)};
+    const float sqrtDelta{SFML_BASE_MATH_SQRTF(delta)};
     t = (-b + sqrtDelta) / twoA;
     i1 = {p1.x + t * dx, p1.y + t * dy};
     t = (-b - sqrtDelta) / twoA;
@@ -48,7 +47,7 @@ namespace hg::Utils {
 }
 
 [[nodiscard]] bool getLineCircleClosestIntersection(sf::Vec2f& mIntersection,
-    const sf::Vec2f& mPos, const sf::Vec2f& p1, const sf::Vec2f& p2,
+    const sf::Vec2f mPos, const sf::Vec2f p1, const sf::Vec2f p2,
     const float mRadiusSquared)
 {
     sf::Vec2f v1, v2;

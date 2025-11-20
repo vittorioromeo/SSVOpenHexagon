@@ -5,8 +5,10 @@
 #pragma once
 
 #include <string>
-#include <cstddef>
 #include <vector>
+
+#include <SFML/Base/SizeT.hpp>
+
 
 namespace hg {
 
@@ -38,7 +40,7 @@ public:
         const std::string& mName, const std::string& mAlbum,
         const std::string& mAuthor);
 
-    [[nodiscard]] const Segment& getSegment(std::size_t index) const;
+    [[nodiscard]] const Segment& getSegment(sf::base::SizeT index) const;
 
     void addSegment(float mSeconds, float mBeatPulseDelayOffset);
 
@@ -46,7 +48,7 @@ public:
         const std::string& mPackId, Audio& mAudio);
 
     [[nodiscard]] Segment playSegment(
-        const std::string& mPackId, Audio& mAudio, std::size_t mIdx);
+        const std::string& mPackId, Audio& mAudio, sf::base::SizeT mIdx);
 
     void playSeconds(
         const std::string& mPackId, Audio& mAudio, float mSeconds) const;

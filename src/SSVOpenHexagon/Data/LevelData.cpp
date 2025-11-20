@@ -10,6 +10,8 @@
 
 #include <SFML/Base/Algorithm/Sort.hpp>
 
+#include <SFML/Base/String.hpp>
+
 #include <string>
 #include <vector>
 
@@ -39,10 +41,16 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
 
     for (const float dm : difficultyMults)
     {
-        validators[dm] =
+        const auto lvWithPackId =
             Utils::getLevelValidator(Utils::concat(packId, '_', id), dm);
+        const auto lvWithoutPackId = Utils::getLevelValidator(id, dm);
 
-        validatorsWithoutPackId[dm] = Utils::getLevelValidator(id, dm);
+        // TODO
+        validators[dm].assign(lvWithPackId.data(), lvWithPackId.size());
+
+        // TODO
+        validatorsWithoutPackId[dm].assign(
+            lvWithoutPackId.data(), lvWithoutPackId.size());
     }
 }
 

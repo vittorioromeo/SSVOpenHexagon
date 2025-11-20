@@ -6,8 +6,6 @@
 
 #include <vrm/pp/cat.hpp>
 
-#include <utility>
-
 namespace hg::Utils {
 
 template <typename F>

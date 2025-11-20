@@ -9,7 +9,7 @@
 
 namespace hg::Utils {
 
-[[nodiscard]] std::vector<char> stringToCharVec(const std::string& s)
+[[nodiscard]] inline std::vector<char> stringToCharVec(const std::string& s)
 {
     return std::vector<char>(s.begin(), s.end());
 }

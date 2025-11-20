@@ -9,11 +9,11 @@
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Base/Trait/IsSame.hpp>
-
+#include <SFML/Base/SizeT.hpp>
 
 #include <string>
 #include <tuple>
-#include <cstddef>
+
 
 namespace hg::Utils {
 
@@ -106,7 +106,7 @@ template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
     [[maybe_unused]] const std::string& docs)
 {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
-    std::size_t argNameSize = 0;
+    sf::base::SizeT argNameSize = 0;
     for (const auto& argName : argNames)
     {
         argNameSize += argName.size() + 4;
@@ -115,7 +115,7 @@ template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
     std::string result;
     result.reserve(docs.size() + argNameSize);
 
-    for (std::size_t i = 0; i < docs.size(); ++i)
+    for (sf::base::SizeT i = 0; i < docs.size(); ++i)
     {
         if (docs[i] != '$')
         {
@@ -125,7 +125,7 @@ template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
 
         ++i;
 
-        std::size_t j = i;
+        sf::base::SizeT j = i;
         for (; j < docs.size(); ++j)
         {
             const char next = docs.at(j);
@@ -138,10 +138,10 @@ template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
         // Range `[i, j)` is now the position of the argument.
         // Parse into integer.
 
-        std::size_t indexAcc = 0;
-        std::size_t tens = 1;
+        sf::base::SizeT indexAcc = 0;
+        sf::base::SizeT tens = 1;
 
-        for (std::size_t k = j - 1; k >= i; --k)
+        for (sf::base::SizeT k = j - 1; k >= i; --k)
         {
             indexAcc += tens * (docs.at(k) - '0');
             tens *= 10;

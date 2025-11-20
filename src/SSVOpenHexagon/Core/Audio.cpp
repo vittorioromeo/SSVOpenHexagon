@@ -19,9 +19,11 @@
 #include <SFML/Audio/PlaybackDevice.hpp>
 #include <SFML/Audio/Sound.hpp>
 
-#include <SFML/Base/Optional.hpp>
+#include <SFML/System/Path.hpp>
 
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/InPlaceVector.hpp>
+
 #include <string>
 
 namespace hg {

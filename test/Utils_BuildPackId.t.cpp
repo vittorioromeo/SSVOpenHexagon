@@ -6,6 +6,9 @@
 
 #include "TestUtils.hpp"
 
+#include <SFML/Base/String.hpp>
+#include <SFML/Base/StringStreamOp.hpp>
+
 int main()
 {
     TEST_ASSERT_EQ(                                                         //
@@ -25,6 +28,6 @@ int main()
 
     TEST_ASSERT_EQ(                                       //
         hg::Utils::buildPackId(" a ", " b ", " c ", 123), //
-        "_a___b___c__123"                                    //
+        "_a___b___c__123"                                 //
     );
 }

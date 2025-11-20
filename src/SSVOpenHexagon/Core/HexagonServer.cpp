@@ -444,7 +444,7 @@ bool HexagonServer::runIteration_Control()
             }
 
             std::string query = splitted[2];
-            for(std::size_t i = 3; i < splitted.size(); ++i)
+            for(sf::base::SizeT i = 3; i < splitted.size(); ++i)
             {
                 query += ' ';
                 query += splitted[i];
@@ -747,8 +747,10 @@ void HexagonServer::runIteration_FlushLogs()
         return discard("unscored level id '", rf._level_id, '\'');
     }
 
-    const std::string levelValidator =
-        Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
+    const auto lv =
+        Utils::getLevelValidator(rf._level_id, rf._difficulty_mult); // TODO
+
+    const std::string levelValidator{lv.data(), lv.size()};
 
     SSVOH_SLOG << "Processing replay from client '" << clientAddr
                << "' for level '" << levelValidator << "'\n";
@@ -850,10 +852,10 @@ void HexagonServer::printCTSPDataVerbose(
     stream << "Received '" << title << "' packet from client '" << clientAddr
            << "', contents: {";
 
-    constexpr std::size_t nFields = boost::pfr::tuple_size_v<T>;
+    constexpr sf::base::SizeT nFields = boost::pfr::tuple_size_v<T>;
     if constexpr (nFields > 0)
     {
-        std::size_t i = 0;
+        sf::base::SizeT i = 0;
         boost::pfr::for_each_field(ctsp,
             [&](const auto& field)
             {

@@ -68,7 +68,6 @@
 #include <cctype>
 #include <cmath>
 #include <csignal>
-#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 
@@ -130,6 +129,7 @@
 
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/SizeT.hpp>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -225,7 +225,7 @@
 extern template class std::vector<std::string>;
 
 extern template class sf::base::Optional<int>;
-extern template class sf::base::Optional<std::size_t>;
+extern template class sf::base::Optional<sf::base::SizeT>;
 extern template class sf::base::Optional<std::string>;
 
 extern template class std::unordered_map<std::string, float>;

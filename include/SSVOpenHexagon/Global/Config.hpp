@@ -11,9 +11,10 @@
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
+#include <SFML/Base/Array.hpp>
+
 #include <vector>
 #include <string>
-#include <array>
 
 namespace ssvs {
 class GameWindow;
@@ -209,7 +210,7 @@ void keyboardBindsSanityCheck();
 [[nodiscard]] std::string getKeyboardBindNames(const Tid bindID);
 
 using TriggerGetter = ssvs::Input::Trigger& (*)();
-extern const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)>
+extern const sf::base::Array<TriggerGetter, SSVOH_TO_SIZET(Tid::TriggersCount)>
     triggerGetters;
 
 void rebindTrigger(ssvs::Input::Trigger& trig, const sf::Keyboard::Key key,
@@ -224,15 +225,15 @@ void joystickBindsSanityCheck();
 [[nodiscard]] std::string getJoystickBindName(const Joystick::Jid bindID);
 
 using JoystickTriggerGetter = unsigned int (*)();
-extern const std::array<JoystickTriggerGetter,
-    toSizeT(Joystick::Jid::JoystickBindsCount)>
+extern const sf::base::Array<JoystickTriggerGetter,
+    SSVOH_TO_SIZET(Joystick::Jid::JoystickBindsCount)>
     joystickTriggerGetters;
 
 void loadAllJoystickBinds();
 
 using JoystickTriggerSetter = void (*)(const unsigned int button);
-extern const std::array<JoystickTriggerSetter,
-    toSizeT(Joystick::Jid::JoystickBindsCount)>
+extern const sf::base::Array<JoystickTriggerSetter,
+    SSVOH_TO_SIZET(Joystick::Jid::JoystickBindsCount)>
     joystickTriggerSetters;
 
 [[nodiscard]] ssvs::Input::Trigger& getTrigger(const Tid tid);

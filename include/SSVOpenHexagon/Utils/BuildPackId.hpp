@@ -4,12 +4,16 @@
 
 #pragma once
 
-#include <string>
+namespace sf::base {
+class String;
+class StringView;
+} // namespace sf::base
 
 namespace hg::Utils {
 
-[[nodiscard]] std::string buildPackId(const std::string& packDisambiguator,
-    const std::string& packAuthor, const std::string& packName,
+[[nodiscard]] sf::base::String buildPackId(
+    const sf::base::StringView packDisambiguator,
+    const sf::base::StringView packAuthor, const sf::base::StringView packName,
     const int packVersion);
 
 } // namespace hg::Utils

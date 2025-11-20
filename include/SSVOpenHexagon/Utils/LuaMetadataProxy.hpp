@@ -67,7 +67,7 @@ private:
         {
             std::string res;
 
-            [&]<std::size_t... Is>(std::index_sequence<Is...>)
+            [&]<sf::base::SizeT... Is>(std::index_sequence<Is...>)
             {
                 (( //
                      res += typeToStr(TypeWrapper<

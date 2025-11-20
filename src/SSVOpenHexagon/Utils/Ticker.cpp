@@ -114,7 +114,7 @@ void Ticker::setLoop(bool mX) noexcept
     return total;
 }
 
-[[nodiscard]] std::size_t Ticker::getTicks() const noexcept
+[[nodiscard]] sf::base::SizeT Ticker::getTicks() const noexcept
 {
     return ticks;
 }

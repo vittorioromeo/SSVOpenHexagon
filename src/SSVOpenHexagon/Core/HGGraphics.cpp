@@ -64,8 +64,8 @@ void HexagonGame::draw()
             return sf::RenderStates{};
         }
 
-        const sf::base::Optional<std::size_t> fragmentShaderId =
-            status.fragmentShaderIds[static_cast<std::size_t>(rs)];
+        const sf::base::Optional<sf::base::SizeT> fragmentShaderId =
+            status.fragmentShaderIds[static_cast<sf::base::SizeT>(rs)];
 
         if (!fragmentShaderId.hasValue())
         {
@@ -149,9 +149,9 @@ void HexagonGame::draw()
     if (Config::get3D())
     {
         const float depth(styleData._3dDepth);
-        const std::size_t numWallQuads(wallQuads.size());
-        const std::size_t numPivotQuads(pivotQuads.size());
-        const std::size_t numPlayerTris(playerTris.size());
+        const sf::base::SizeT numWallQuads(wallQuads.size());
+        const sf::base::SizeT numPivotQuads(pivotQuads.size());
+        const sf::base::SizeT numPlayerTris(playerTris.size());
 
         wallQuads3D.reserve(numWallQuads * depth);
         pivotQuads3D.reserve(numPivotQuads * depth);
@@ -169,7 +169,7 @@ void HexagonGame::draw()
         const float sinRot(std::sin(radRot));
         const float cosRot(std::cos(radRot));
 
-        for (std::size_t i = 0; i < depth; ++i)
+        for (sf::base::SizeT i = 0; i < depth; ++i)
         {
             wallQuads3D.unsafe_emplace_other(wallQuads);
             pivotQuads3D.unsafe_emplace_other(pivotQuads);
@@ -216,7 +216,7 @@ void HexagonGame::draw()
             adjustAlpha(overrideColor, i);
 
             // Draw pivot layers
-            for (std::size_t k = j * numPivotQuads; k < (j + 1) * numPivotQuads;
+            for (sf::base::SizeT k = j * numPivotQuads; k < (j + 1) * numPivotQuads;
                 ++k)
             {
                 pivotQuads3D[k].position += newPos;
@@ -232,7 +232,7 @@ void HexagonGame::draw()
             }
 
             // Draw wall layers
-            for (std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
+            for (sf::base::SizeT k = j * numWallQuads; k < (j + 1) * numWallQuads;
                 ++k)
             {
                 wallQuads3D[k].position += newPos;
@@ -249,7 +249,7 @@ void HexagonGame::draw()
             }
 
             // Draw player layers
-            for (std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
+            for (sf::base::SizeT k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
                 ++k)
             {
                 playerTris3D[k].position += newPos;
@@ -643,8 +643,7 @@ void HexagonGame::drawText_TimeAndStatus(
     if (Config::getShowTimer())
     {
         textUI->timeText.setFillColor(colorText);
-        textUI->timeText.origin =
-            textUI->timeText.getLocalBounds().getTopLeft();
+        textUI->timeText.origin = textUI->timeText.getLocalTopLeft();
         textUI->timeText.position = {padding, padding};
 
         render(textUI->timeText, mStates);
@@ -653,9 +652,9 @@ void HexagonGame::drawText_TimeAndStatus(
     if (Config::getShowStatusText())
     {
         textUI->text.setFillColor(colorText);
-        textUI->text.origin = textUI->text.getLocalBounds().getTopLeft();
+        textUI->text.origin = textUI->text.getLocalTopLeft();
         textUI->text.position = {
-            padding, ssvs::getGlobalBottom(textUI->timeText) + padding};
+            padding, textUI->timeText.getGlobalBottom() + padding};
 
         render(textUI->text, mStates);
     }
@@ -663,13 +662,12 @@ void HexagonGame::drawText_TimeAndStatus(
     if (Config::getShowFPS())
     {
         textUI->fpsText.setFillColor(colorText);
-        textUI->fpsText.origin =
-            textUI->fpsText.getLocalBounds().getBottomLeft();
+        textUI->fpsText.origin = textUI->fpsText.getLocalBottomLeft();
 
         if (Config::getShowLevelInfo() || mustShowReplayUI())
         {
             textUI->fpsText.position = {
-                padding, ssvs::getGlobalTop(levelInfoRectangle) - padding};
+                padding, levelInfoRectangle.getGlobalTop() - padding};
         }
         else
         {
@@ -687,8 +685,7 @@ void HexagonGame::drawText_TimeAndStatus(
         const float replayPadding = 8.f * scaling;
 
         textUI->replayText.setFillColor(colorText);
-        textUI->replayText.origin =
-            textUI->replayText.getLocalBounds().getCenterRight();
+        textUI->replayText.origin = textUI->replayText.getLocalCenterRight();
         textUI->replayText.position =
             ssvs::getGlobalCenterW(replayIcon) - sf::Vec2f{replayPadding, 0};
         render(textUI->replayText, mStates);
@@ -697,7 +694,7 @@ void HexagonGame::drawText_TimeAndStatus(
 
 template <typename FRender>
 static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
-    const sf::Vec2f& pos, const sf::Color& color, float outlineThickness,
+    const sf::Vec2f pos, const sf::Color& color, float outlineThickness,
     FRender&& fRender)
 {
     if (text.getString().isEmpty())

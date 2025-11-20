@@ -14,7 +14,7 @@ void testSplit(const std::string& s, const std::vector<std::string>& expected)
     const std::vector<std::string> splitted = hg::Utils::split<std::string>(s);
 
     TEST_ASSERT_EQ(splitted.size(), expected.size());
-    for(std::size_t i = 0; i < expected.size(); ++i)
+    for(sf::base::SizeT i = 0; i < expected.size(); ++i)
     {
         TEST_ASSERT_EQ(splitted.at(i), expected.at(i));
     }

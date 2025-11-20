@@ -6,9 +6,10 @@
 
 #include <SFML/Graphics/Color.hpp>
 
-#include <array>
-#include <cstddef>
+#include <SFML/Base/Array.hpp>
 #include <SFML/Base/Optional.hpp>
+#include <SFML/Base/SizeT.hpp>
+
 #include <string>
 
 namespace hg {
@@ -23,7 +24,7 @@ enum class StateChange
     MustReplay
 };
 
-enum class RenderStage : std::size_t
+enum class RenderStage : sf::base::SizeT
 {
     BackgroundTris = 0,
     WallQuads3D = 1,
@@ -78,8 +79,8 @@ public:
     bool showPlayerTrail{true};
 
     // Shaders
-    std::array<sf::base::Optional<std::size_t>,
-        static_cast<std::size_t>(RenderStage::Count)>
+    sf::base::Array<sf::base::Optional<sf::base::SizeT>,
+        static_cast<sf::base::SizeT>(RenderStage::Count)>
         fragmentShaderIds;
 
     // Reset all the time points and signal that we started

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <string>
+#include <SFML/Base/StringView.hpp>
 
 namespace discord {
 class Core;
@@ -32,8 +32,8 @@ public:
 
     bool set_rich_presence_in_menu();
     bool set_rich_presence_on_replay();
-    bool set_rich_presence_in_game(const std::string& level_info,
-        const std::string& second_info, bool dead = false);
+    bool set_rich_presence_in_game(const sf::base::StringView level_info,
+        const sf::base::StringView second_info, bool dead = false);
 };
 
 } // namespace hg::Discord

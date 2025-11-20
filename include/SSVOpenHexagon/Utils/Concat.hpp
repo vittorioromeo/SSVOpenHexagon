@@ -7,8 +7,8 @@
 #include <string>
 #include <sstream>
 #include <string_view>
-#include <cstddef>
 
+#include <SFML/Base/SizeT.hpp>
 #include <SFML/Base/Trait/IsConvertible.hpp>
 #include <SFML/Base/Trait/IsSame.hpp>
 
@@ -20,19 +20,19 @@ template <typename T>
 struct IsCharArray : std::false_type
 {};
 
-template <std::size_t N>
+template <sf::base::SizeT N>
 struct IsCharArray<char[N]> : std::true_type
 {};
 
-template <std::size_t N>
+template <sf::base::SizeT N>
 struct IsCharArray<const char[N]> : std::true_type
 {};
 
-template <std::size_t N>
+template <sf::base::SizeT N>
 struct IsCharArray<char (&)[N]> : std::true_type
 {};
 
-template <std::size_t N>
+template <sf::base::SizeT N>
 struct IsCharArray<const char (&)[N]> : std::true_type
 {};
 
@@ -42,21 +42,21 @@ inline constexpr bool AllConvertibleToStringView =
          IsCharArray<Ts>::value || SFML_BASE_IS_SAME(Ts, char)) &&
         ...);
 
-template <std::size_t N>
-[[nodiscard, gnu::always_inline]] constexpr inline std::size_t getSize(
+template <sf::base::SizeT N>
+[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
     char (&)[N]) noexcept
 {
     return N;
 }
 
-template <std::size_t N>
-[[nodiscard, gnu::always_inline]] constexpr inline std::size_t getSize(
+template <sf::base::SizeT N>
+[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
     const char (&)[N]) noexcept
 {
     return N;
 }
 
-[[nodiscard, gnu::always_inline]] constexpr inline std::size_t getSize(
+[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
     const char* s) noexcept
 {
     const char* end = s;
@@ -66,19 +66,19 @@ template <std::size_t N>
     return end - s - 1;
 }
 
-[[nodiscard, gnu::always_inline]] constexpr inline std::size_t getSize(
+[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
     const char&) noexcept
 {
     return 1;
 }
 
-[[nodiscard, gnu::always_inline]] inline std::size_t getSize(
+[[nodiscard, gnu::always_inline]] inline sf::base::SizeT getSize(
     const std::string& s) noexcept
 {
     return s.size();
 }
 
-[[nodiscard, gnu::always_inline]] constexpr inline std::size_t getSize(
+[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
     const std::string_view& s) noexcept
 {
     return s.size();
@@ -101,7 +101,7 @@ template <typename... Ts>
 void concatInto(std::string& result, const Ts&... xs)
     requires(Impl::AllConvertibleToStringView<Ts...>)
 {
-    const std::size_t space = (1 + ... + Impl::getSize(xs));
+    const sf::base::SizeT space = (1 + ... + Impl::getSize(xs));
     result.reserve(result.size() + space);
     ((result += xs), ...);
 }

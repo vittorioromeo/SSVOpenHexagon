@@ -6,11 +6,12 @@
 
 #include <sodium.h>
 
+#include <SFML/Base/Array.hpp>
 #include <SFML/Base/Optional.hpp>
-
-#include <array>
-#include <string>
 #include <SFML/Base/IntTypes.hpp>
+
+#include <string>
+
 
 namespace hg {
 
@@ -64,7 +65,7 @@ calculateClientSessionSodiumRTKeys(const SodiumPSKeys& clientPSKeys,
 
 [[nodiscard]] std::string sodiumHash(const std::string& in)
 {
-    constexpr std::array<unsigned char, crypto_generichash_KEYBYTES> key{};
+    constexpr sf::base::Array<unsigned char, crypto_generichash_KEYBYTES> key{};
 
     std::string out;
     out.resize(crypto_generichash_BYTES);

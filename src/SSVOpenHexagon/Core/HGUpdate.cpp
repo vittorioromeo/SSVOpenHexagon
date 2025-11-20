@@ -434,7 +434,7 @@ void HexagonGame::updateWalls(float mFT)
 {
     bool collided{false};
     const float radiusSquared{status.radius * status.radius + 8.f};
-    const sf::Vec2f& pPos{player.getPosition()};
+    const sf::Vec2f pPos{player.getPosition()};
 
     for (CWall& w : walls)
     {
@@ -938,7 +938,7 @@ void HexagonGame::updateParticles(float mFT)
     const auto isOutOfBounds = [](const Particle& p)
     {
         const sf::Sprite& sp = p.sprite;
-        const sf::Vec2f& pos = sp.position;
+        const sf::Vec2f pos = sp.position;
         constexpr float padding = 256.f;
 
         return (pos.x < 0 - padding || pos.x > Config::getWidth() + padding ||
@@ -1378,9 +1378,9 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         }
 
         std::vector<std::string> split;
-        std::size_t last = 0;
+        sf::base::SizeT last = 0;
 
-        for (std::size_t j = 0; j < sItem.size(); ++j)
+        for (sf::base::SizeT j = 0; j < sItem.size(); ++j)
         {
             if (sItem[j] == '\n')
             {
@@ -1397,17 +1397,17 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 
         for (const std::string& s : split)
         {
-            constexpr std::size_t lineLimit = 80;
+            constexpr sf::base::SizeT lineLimit = 80;
             if (s.size() <= lineLimit)
             {
                 ImGui::TextUnformatted(s.c_str());
             }
             else
             {
-                constexpr std::size_t charsPerSubstr = lineLimit;
-                const std::size_t nSubstrs = s.size() / charsPerSubstr;
+                constexpr sf::base::SizeT charsPerSubstr = lineLimit;
+                const sf::base::SizeT nSubstrs = s.size() / charsPerSubstr;
 
-                for (std::size_t j = 0; j < nSubstrs + 1; ++j)
+                for (sf::base::SizeT j = 0; j < nSubstrs + 1; ++j)
                 {
                     ImGui::TextUnformatted(
                         s.substr(j * charsPerSubstr, charsPerSubstr).c_str());
@@ -1595,7 +1595,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         ilcLuaTrackedResults.clear();
         bool problem = false;
 
-        for (std::size_t i = 0; i < ilcLuaTracked.size(); ++i)
+        for (sf::base::SizeT i = 0; i < ilcLuaTracked.size(); ++i)
         {
             const std::string& code = ilcLuaTracked[i];
 
@@ -1634,7 +1634,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 
             if (ImGui::BeginTable("TrackedResults", 2))
             {
-                for (std::size_t i = 0; i < ilcLuaTracked.size(); ++i)
+                for (sf::base::SizeT i = 0; i < ilcLuaTracked.size(); ++i)
                 {
                     ImGui::TableNextRow();
 

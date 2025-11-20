@@ -9,8 +9,9 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
+#include <SFML/Base/SizeT.hpp>
+
 #include <chrono>
-#include <cstddef>
 #include <vector>
 
 namespace hg {
@@ -56,14 +57,14 @@ void CustomTimelineManager::updateAllTimelines(const HRTimePoint tp)
     const CustomTimelineHandle h) noexcept
 {
     SSVOH_ASSERT(isHandleValid(h));
-    return _timelines.at(static_cast<std::size_t>(h));
+    return _timelines.at(static_cast<sf::base::SizeT>(h));
 }
 
 [[nodiscard]] const CustomTimeline& CustomTimelineManager::get(
     const CustomTimelineHandle h) const noexcept
 {
     SSVOH_ASSERT(isHandleValid(h));
-    return _timelines.at(static_cast<std::size_t>(h));
+    return _timelines.at(static_cast<sf::base::SizeT>(h));
 }
 
 } // namespace hg

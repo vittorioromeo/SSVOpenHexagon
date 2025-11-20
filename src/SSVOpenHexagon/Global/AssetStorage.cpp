@@ -14,6 +14,8 @@
 
 #include <SFML/Audio/SoundBuffer.hpp>
 
+#include <SFML/System/Path.hpp>
+
 #include <SFML/Base/Optional.hpp>
 
 #include <string>

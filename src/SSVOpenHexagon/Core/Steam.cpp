@@ -20,9 +20,11 @@
 #endif
 
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/SizeT.hpp>
+#include <SFML/Base/Optional.hpp>
+
 #include <cstring>
 #include <functional>
-#include <SFML/Base/Optional.hpp>
 #include <string_view>
 #include <string>
 #include <unordered_set>
@@ -201,7 +203,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
     std::vector<PublishedFileId_t> subscribedItemsIds(nSubscribedItems);
     SteamUGC()->GetSubscribedItems(subscribedItemsIds.data(), nSubscribedItems);
 
-    constexpr std::size_t folderBufSize = 512;
+    constexpr sf::base::SizeT folderBufSize = 512;
     char folderBuf[folderBufSize];
 
     ssvuj::Obj cacheArray;

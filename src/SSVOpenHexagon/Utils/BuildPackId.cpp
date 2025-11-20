@@ -4,15 +4,18 @@
 
 #include "SSVOpenHexagon/Utils/BuildPackId.hpp"
 
-#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include <string>
+#include <SFML/Base/String.hpp>
+#include <SFML/Base/ToString.hpp>
+#include <SFML/Base/StringView.hpp>
+
 
 namespace hg::Utils {
 
-[[nodiscard]] std::string buildPackId(const std::string& packDisambiguator,
-    const std::string& packAuthor, const std::string& packName,
+[[nodiscard]] sf::base::String buildPackId(
+    const sf::base::StringView packDisambiguator,
+    const sf::base::StringView packAuthor, const sf::base::StringView packName,
     const int packVersion)
 {
     SSVOH_ASSERT(!packDisambiguator.empty());
@@ -20,28 +23,20 @@ namespace hg::Utils {
     SSVOH_ASSERT(!packName.empty());
     SSVOH_ASSERT(packVersion > 0);
 
-    const auto spaceToUnderscore = [](std::string x)
-    {
-        for (char& c : x)
-        {
-            if (c == ' ' || c == '\n' || c == '\t')
-            {
-                c = '_';
-            }
-        }
+    const auto spaceToUnderscore = [](const char c)
+    { return (c == ' ' || c == '\n' || c == '\t') ? '_' : c; };
 
-        return x;
-    };
+    sf::base::String result;
 
-    return Utils::concat(                     //
-        spaceToUnderscore(packDisambiguator), //
-        '_',                                  //
-        spaceToUnderscore(packAuthor),        //
-        '_',                                  //
-        spaceToUnderscore(packName),          //
-        '_',                                  //
-        packVersion                           //
-    );
+    for (const char c : packDisambiguator) result += spaceToUnderscore(c);
+    result += '_';
+    for (const char c : packAuthor) result += spaceToUnderscore(c);
+    result += '_';
+    for (const char c : packName) result += spaceToUnderscore(c);
+    result += '_';
+    sf::base::appendToString(result, packVersion);
+
+    return result;
 }
 
 } // namespace hg::Utils

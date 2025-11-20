@@ -32,8 +32,8 @@ template <sf::base::SizeT N, typename TC, typename T>
 
 
 [[gnu::always_inline, gnu::pure, nodiscard]] inline bool
-pointInFourVertexPolygon(const sf::Vec2f& a, const sf::Vec2f& b,
-    const sf::Vec2f& c, const sf::Vec2f& d, const sf::Vec2f& point) noexcept
+pointInFourVertexPolygon(const sf::Vec2f a, const sf::Vec2f b,
+    const sf::Vec2f c, const sf::Vec2f d, const sf::Vec2f point) noexcept
 {
     const sf::Vec2f ab = b - a;
     const sf::Vec2f bc = c - b;

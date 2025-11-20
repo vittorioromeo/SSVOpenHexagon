@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <cstddef>
+#include <SFML/Base/SizeT.hpp>
 
 namespace hg {
 
@@ -16,7 +16,7 @@ private:
     float total{0.f};
     bool running{true};
     bool loop{true};
-    std::size_t ticks{0};
+    sf::base::SizeT ticks{0};
 
 public:
     Ticker(float mTarget, bool mRunning = true) noexcept;
@@ -42,7 +42,7 @@ public:
     [[nodiscard]] float getTarget() const noexcept;
     [[nodiscard]] float getCurrent() const noexcept;
     [[nodiscard]] float getTotal() const noexcept;
-    [[nodiscard]] std::size_t getTicks() const noexcept;
+    [[nodiscard]] sf::base::SizeT getTicks() const noexcept;
 
     template <typename T = float>
     [[nodiscard]] T getTotalSecs() const noexcept

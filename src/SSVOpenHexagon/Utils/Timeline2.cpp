@@ -37,13 +37,13 @@ void timeline2::append_wait_until(const time_point tp)
     _actions.emplace_back(sf::base::inPlaceType<action_wait_until>, tp);
 }
 
-[[nodiscard]] std::size_t timeline2::size() const noexcept
+[[nodiscard]] sf::base::SizeT timeline2::size() const noexcept
 {
     return _actions.size();
 }
 
 [[nodiscard]] timeline2::action& timeline2::action_at(
-    const std::size_t i) noexcept
+    const sf::base::SizeT i) noexcept
 {
     SSVOH_ASSERT(i < size());
     return _actions[i];

@@ -10,8 +10,10 @@
 #include <SSVUtils/Core/Utils/Rnd.hpp>
 #include <SSVUtils/Core/Log/Log.hpp>
 
+#include <SFML/Base/SizeT.hpp>
+
 #include <string>
-#include <cstddef>
+
 
 namespace hg {
 
@@ -24,7 +26,7 @@ MusicData::MusicData(const std::string& mId, const std::string& mFileName,
 {}
 
 [[nodiscard]] const MusicData::Segment& MusicData::getSegment(
-    std::size_t index) const
+    sf::base::SizeT index) const
 {
     return segments[index];
 }
@@ -43,12 +45,12 @@ void MusicData::addSegment(float mSeconds, float mBeatPulseDelayOffset)
         return playSegment(mPackId, mAudio, 0);
     }
 
-    const std::size_t rndIdx = ssvu::getRndI(std::size_t(0), segments.size());
+    const sf::base::SizeT rndIdx = ssvu::getRndI(sf::base::SizeT(0), segments.size());
     return playSegment(mPackId, mAudio, rndIdx);
 }
 
 [[nodiscard]] MusicData::Segment MusicData::playSegment(
-    const std::string& mPackId, Audio& mAudio, std::size_t mIdx)
+    const std::string& mPackId, Audio& mAudio, sf::base::SizeT mIdx)
 {
     const Segment& segment = segments[mIdx];
     playSeconds(mPackId, mAudio, segment.time);

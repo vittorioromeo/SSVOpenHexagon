@@ -15,6 +15,7 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
+#include <SSVStart/GameSystem/GameState.hpp>
 
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
 
@@ -26,12 +27,12 @@
 #include <SFML/Graphics/Texture.hpp>
 
 #include <SFML/System/Vec2.hpp>
+
+#include <SFML/Base/Array.hpp>
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/UniquePtr.hpp>
 
-#include <array>
-#include <cctype>
 #include <functional>
-#include <SFML/Base/Optional.hpp>
 #include <string_view>
 #include <string>
 #include <utility>
@@ -128,7 +129,7 @@ private:
     //---------------------------------------
     // Assets
 
-    static constexpr std::array<const char*, 3> creditsIds{
+    static constexpr sf::base::Array<const char*, 3> creditsIds{
         "creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png"};
 
     sf::Texture& txTitleBar;
@@ -284,10 +285,10 @@ private:
     [[nodiscard]] bool isMouseCursorVisible() const;
 
     [[nodiscard]] bool overlayMouseOverlap(
-        const sf::Vec2f& mins, const sf::Vec2f& maxs) const;
+        const sf::Vec2f mins, const sf::Vec2f maxs) const;
 
     [[nodiscard]] bool overlayMouseOverlapAndUpdateHover(
-        const sf::Vec2f& mins, const sf::Vec2f& maxs);
+        const sf::Vec2f mins, const sf::Vec2f maxs);
 
     [[nodiscard]] sf::Color mouseOverlapColor(
         const bool mouseOverlap, const sf::Color& c) const;
@@ -314,7 +315,7 @@ private:
         const sf::Color& color, float x1, float x2, float y1, float y2);
 
     void createQuad(
-        const sf::Color& color, const sf::Vec2f& mins, const sf::Vec2f& maxs);
+        const sf::Color& color, const sf::Vec2f mins, const sf::Vec2f maxs);
 
     void createQuad(const sf::Color& color, const sf::Rect2f& rect);
 
@@ -338,7 +339,7 @@ private:
 
     // Load menu
     LoadInfo& loadInfo;
-    std::array<std::string_view, 2> randomTip;
+    sf::base::Array<std::string_view, 2> randomTip;
     float hexagonRotation;
     void drawLoadResults();
 
@@ -406,8 +407,9 @@ private:
 
     void changeFavoriteLevelsToProfile();
     [[nodiscard]] bool isFavoriteLevels() const;
-    [[nodiscard]] std::size_t getSelectablePackInfosSize() const;
-    [[nodiscard]] const PackInfo& getNthSelectablePackInfo(const std::size_t i);
+    [[nodiscard]] sf::base::SizeT getSelectablePackInfosSize() const;
+    [[nodiscard]] const PackInfo& getNthSelectablePackInfo(
+        const sf::base::SizeT i);
 
     int diffMultIdx{0};
     bool firstLevelSelection{true};
@@ -488,38 +490,38 @@ private:
 
     // Text rendering
     void renderText(
-        const std::string& mStr, sf::Text& mText, const sf::Vec2f& mPos);
+        const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos);
 
     void renderText(const std::string& mStr, sf::Text& mText,
-        const sf::Vec2f& mPos, const sf::Color& mColor);
+        const sf::Vec2f mPos, const sf::Color& mColor);
 
     void renderText(const std::string& mStr, sf::Text& mText,
-        const unsigned int mSize, const sf::Vec2f& mPos);
+        const unsigned int mSize, const sf::Vec2f mPos);
 
     void renderText(const std::string& mStr, sf::Text& mText,
-        const unsigned int mSize, const sf::Vec2f& mPos,
+        const unsigned int mSize, const sf::Vec2f mPos,
         const sf::Color& mColor);
 
     // Text rendering centered
     void renderTextCentered(
-        const std::string& mStr, sf::Text& mText, const sf::Vec2f& mPos);
+        const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos);
 
     void renderTextCentered(const std::string& mStr, sf::Text& mText,
-        const sf::Vec2f& mPos, const sf::Color& mColor);
+        const sf::Vec2f mPos, const sf::Color& mColor);
 
     void renderTextCentered(const std::string& mStr, sf::Text& mText,
-        const unsigned int mSize, const sf::Vec2f& mPos);
+        const unsigned int mSize, const sf::Vec2f mPos);
 
     void renderTextCentered(const std::string& mStr, sf::Text& mText,
-        const unsigned int mSize, const sf::Vec2f& mPos,
+        const unsigned int mSize, const sf::Vec2f mPos,
         const sf::Color& mColor);
 
     // Text rendering centered with an offset
     void renderTextCenteredOffset(const std::string& mStr, sf::Text& mText,
-        const sf::Vec2f& mPos, const float xOffset);
+        const sf::Vec2f mPos, const float xOffset);
 
     void renderTextCenteredOffset(const std::string& mStr, sf::Text& mText,
-        const sf::Vec2f& mPos, const float xOffset, const sf::Color& mColor);
+        const sf::Vec2f mPos, const float xOffset, const sf::Color& mColor);
 
     //---------------------------------------
     // Misc / Unused

@@ -40,6 +40,7 @@
 
 #include <SFML/Base/UniquePtr.hpp>
 #include <SFML/Base/Algorithm/Sort.hpp>
+#include <SFML/Base/String.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -79,11 +80,11 @@ private:
         sf::base::UniquePtr<sf::Shader> shader;
         std::string path;
         sf::Shader::Type shaderType;
-        std::size_t id;
+        sf::base::SizeT id;
     };
 
     std::unordered_map<std::string, LoadedShader> shaders;
-    std::unordered_map<std::string, std::size_t> shadersPathToId;
+    std::unordered_map<std::string, sf::base::SizeT> shadersPathToId;
     std::vector<sf::Shader*> shadersById;
 
     std::string buf;
@@ -171,12 +172,12 @@ public:
     [[nodiscard]] sf::Shader* getShader(
         const std::string& mPackId, const std::string& mId);
 
-    [[nodiscard]] sf::base::Optional<std::size_t> getShaderId(
+    [[nodiscard]] sf::base::Optional<sf::base::SizeT> getShaderId(
         const std::string& mPackId, const std::string& mId);
-    [[nodiscard]] sf::base::Optional<std::size_t> getShaderIdByPath(
+    [[nodiscard]] sf::base::Optional<sf::base::SizeT> getShaderIdByPath(
         const std::string& mShaderPath);
-    [[nodiscard]] sf::Shader* getShaderByShaderId(const std::size_t mShaderId);
-    [[nodiscard]] bool isValidShaderId(const std::size_t mShaderId) const;
+    [[nodiscard]] sf::Shader* getShaderByShaderId(const sf::base::SizeT mShaderId);
+    [[nodiscard]] bool isValidShaderId(const sf::base::SizeT mShaderId) const;
 
     void reloadAllShaders();
     [[nodiscard]] std::string reloadPack(
@@ -196,7 +197,7 @@ public:
     [[nodiscard]] ProfileData* getLocalProfileByName(const std::string& mName);
     [[nodiscard]] const ProfileData* getLocalProfileByName(
         const std::string& mName) const;
-    [[nodiscard]] std::size_t getLocalProfilesSize();
+    [[nodiscard]] sf::base::SizeT getLocalProfilesSize();
     [[nodiscard]] std::vector<std::string> getLocalProfileNames();
 
     [[nodiscard]] bool pIsValidLocalProfile() const;
@@ -446,7 +447,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 
     const auto packPriority = ssvuj::getExtr<float>(packRoot, "priority", 100);
 
-    const std::string packId = Utils::buildPackId(
+    const sf::base::String packId = Utils::buildPackId(
         packDisambiguator, packAuthor, packName, packVersion);
 
     const auto getPackDependencies = [&]
@@ -464,7 +465,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
         const auto dependencyCount = ssvuj::getObjSize(objDependencies);
         result.reserve(dependencyCount);
 
-        for (std::size_t i = 0; i < dependencyCount; ++i)
+        for (sf::base::SizeT i = 0; i < dependencyCount; ++i)
         {
             const ssvuj::Obj& pdRoot = ssvuj::getObj(objDependencies, i);
 
@@ -479,12 +480,14 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
         return result;
     };
 
-    packInfos.emplace_back(PackInfo{packId, packPath});
+    std::string packIdStdString{packId.data(), packId.size()};
 
-    packDatas.emplace(packId, //
+    packInfos.emplace_back(PackInfo{packIdStdString, packPath});
+
+    packDatas.emplace(packIdStdString, //
         PackData{
             .folderPath{packPath.getStr()},                //
-            .id{packId},                                   //
+            .id{packIdStdString},              //
             .disambiguator{SSVOH_MOVE(packDisambiguator)}, //
             .name{SSVOH_MOVE(packName)},                   //
             .author{SSVOH_MOVE(packAuthor)},               //
@@ -712,8 +715,8 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
     }
     else
     {
-        ssvu::lo("::loadAssets")
-            << "[ERROR]: Cannot locate cache array in workshop cache file\n";
+        ssvu::lo("::loadAssets") << "[ERROR]: Cannot locate cache array in "
+                                    "workshop cache file\n";
 
         return false;
     }
@@ -765,8 +768,8 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
         }
         else if (loadWorkshopPackDatasFromCache())
         {
-            // In the case the Steam API can't be retrieved, look for a cache
-            // that contains the paths we need to load
+            // In the case the Steam API can't be retrieved, look for a
+            // cache that contains the paths we need to load
             for (const auto& cachedPath : cachedWorkshopPackIds)
             {
                 tryLoadPackFromPath(cachedPath);
@@ -916,7 +919,7 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
 
             shadersById.push_back(shaderUptr.get());
             SSVOH_ASSERT(shadersById.size() > 0);
-            const std::size_t shaderId = shadersById.size() - 1;
+            const sf::base::SizeT shaderId = shadersById.size() - 1;
 
             LoadedShader ls{.shader{SSVOH_MOVE(shaderUptr)},
                 .path{p},
@@ -1126,7 +1129,7 @@ void HGAssets::HGAssetsImpl::saveAllProfiles()
     return it->second.shader.get();
 }
 
-[[nodiscard]] sf::base::Optional<std::size_t>
+[[nodiscard]] sf::base::Optional<sf::base::SizeT>
 HGAssets::HGAssetsImpl::getShaderId(
     const std::string& mPackId, const std::string& mId)
 {
@@ -1142,7 +1145,7 @@ HGAssets::HGAssetsImpl::getShaderId(
     return sf::base::makeOptional(it->second.id);
 }
 
-[[nodiscard]] sf::base::Optional<std::size_t>
+[[nodiscard]] sf::base::Optional<sf::base::SizeT>
 HGAssets::HGAssetsImpl::getShaderIdByPath(const std::string& mShaderPath)
 {
     const auto it = shadersPathToId.find(mShaderPath);
@@ -1158,7 +1161,7 @@ HGAssets::HGAssetsImpl::getShaderIdByPath(const std::string& mShaderPath)
 }
 
 [[nodiscard]] sf::Shader* HGAssets::HGAssetsImpl::getShaderByShaderId(
-    const std::size_t mShaderId)
+    const sf::base::SizeT mShaderId)
 {
     if (!isValidShaderId(mShaderId))
     {
@@ -1169,7 +1172,7 @@ HGAssets::HGAssetsImpl::getShaderIdByPath(const std::string& mShaderPath)
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::isValidShaderId(
-    const std::size_t mShaderId) const
+    const sf::base::SizeT mShaderId) const
 {
     return mShaderId < shadersById.size();
 }
@@ -1530,7 +1533,7 @@ HGAssets::HGAssetsImpl::getCurrentLocalProfileFilePath()
 }
 
 
-[[nodiscard]] std::size_t HGAssets::HGAssetsImpl::getLocalProfilesSize()
+[[nodiscard]] sf::base::SizeT HGAssets::HGAssetsImpl::getLocalProfilesSize()
 {
     return profileDataMap.size();
 }
@@ -1733,24 +1736,24 @@ sf::Shader* HGAssets::getShader(
     return _impl->getShader(mPackId, mId);
 }
 
-sf::base::Optional<std::size_t> HGAssets::getShaderId(
+sf::base::Optional<sf::base::SizeT> HGAssets::getShaderId(
     const std::string& mPackId, const std::string& mId)
 {
     return _impl->getShaderId(mPackId, mId);
 }
 
-sf::base::Optional<std::size_t> HGAssets::getShaderIdByPath(
+sf::base::Optional<sf::base::SizeT> HGAssets::getShaderIdByPath(
     const std::string& mShaderPath)
 {
     return _impl->getShaderIdByPath(mShaderPath);
 }
 
-sf::Shader* HGAssets::getShaderByShaderId(const std::size_t mShaderId)
+sf::Shader* HGAssets::getShaderByShaderId(const sf::base::SizeT mShaderId)
 {
     return _impl->getShaderByShaderId(mShaderId);
 }
 
-bool HGAssets::isValidShaderId(const std::size_t mShaderId) const
+bool HGAssets::isValidShaderId(const sf::base::SizeT mShaderId) const
 {
     return _impl->isValidShaderId(mShaderId);
 }
@@ -1818,7 +1821,7 @@ const ProfileData* HGAssets::getLocalProfileByName(
     return _impl->getLocalProfileByName(mName);
 }
 
-std::size_t HGAssets::getLocalProfilesSize()
+sf::base::SizeT HGAssets::getLocalProfilesSize()
 {
     return _impl->getLocalProfilesSize();
 }

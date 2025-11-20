@@ -6,16 +6,12 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include <cstring>
-#include <limits>
-#include <map>
-#include <memory>
-#include <sstream>
+#include <SFML/Base/SizeT.hpp>
+#include <SFML/Base/Algorithm/Find.hpp>
+
 #include <stdexcept>
 #include <string>
-#include <tuple>
-#include <type_traits>
-#include <vector>
+#include <istream>
 
 namespace Lua {
 
@@ -25,7 +21,8 @@ LuaContext::LuaContext(bool openDefaultLibs)
     // allocator instead of luaL_newstate, to trace memory usage
     struct Allocator
     {
-        static void* allocator(void*, void* ptr, std::size_t, std::size_t nsize)
+        static void* allocator(
+            void*, void* ptr, sf::base::SizeT, sf::base::SizeT nsize)
         {
             if (nsize == 0)
             {
@@ -96,7 +93,7 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
 {
     // first a little optimization: if mVarName contains no dot, we can
     // directly call lua_getglobal
-    if (std::find(mVarName.begin(), mVarName.end(), '.') == mVarName.end())
+    if (sf::base::find(mVarName.begin(), mVarName.end(), '.') == mVarName.end())
     {
         lua_getglobal(_state, mVarName.data());
         return;
@@ -114,7 +111,7 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
 
         // first we extract the part between currentVar and the next dot
         // we encounter
-        nextVar = std::find(currentVar, mVarName.end(), '.');
+        nextVar = sf::base::find(currentVar, mVarName.end(), '.');
         std::string buffer(currentVar, nextVar);
         // since nextVar is pointing to a dot, we have to increase it
         // first in order to find the next variable
@@ -172,7 +169,7 @@ try
 
     // two possibilities: either "variable" is a global variable, or
     // a member of an array
-    std::size_t lastDot = mVarName.find_last_of('.');
+    sf::base::SizeT lastDot = mVarName.find_last_of('.');
 
     if (lastDot == std::string::npos)
     {
@@ -249,7 +246,7 @@ void LuaContext::_load(std::istream& code)
         {}
 
         // read function; "data" must be an instance of Reader
-        static const char* read(lua_State*, void* data, std::size_t* size)
+        static const char* read(lua_State*, void* data, sf::base::SizeT* size)
         {
             SSVOH_ASSERT(size != nullptr);
             SSVOH_ASSERT(data != nullptr);
@@ -262,9 +259,9 @@ void LuaContext::_load(std::istream& code)
             }
 
             me.stream.read(me.buffer, sizeof(me.buffer));
-            *size = std::size_t(
+            *size = sf::base::SizeT(
                 me.stream.gcount()); // gcount could return a value
-                                     // larger than a std::size_t, but
+                                     // larger than a sf::base::SizeT, but
                                      // its maximum is sizeof(me.buffer)
                                      // so there's no problem
             return me.buffer;

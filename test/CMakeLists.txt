@@ -15,7 +15,9 @@ include_directories(${CMAKE_CURRENT_LIST_DIR})
 vrm_cmake_generate_unit_tests_glob("*.cpp")
 
 foreach(_t IN LISTS vrm_cmake_out)
-    target_precompile_headers(${_t} REUSE_FROM SSVOpenHexagonLib)
+    if(SSVOH_USE_PCH)
+        target_precompile_headers(${_t} REUSE_FROM SSVOpenHexagonLib)
+    endif()
 
     if(${SSVOH_HEADLESS_TESTS})
         target_compile_definitions(${_t} PUBLIC "SSVOH_HEADLESS_TESTS")

@@ -42,7 +42,7 @@ template <typename T, typename... Ts>
 }
 
 template <typename T, typename... Ts>
-[[nodiscard]] consteval std::size_t indexOfVariantType(
+[[nodiscard]] consteval sf::base::SizeT indexOfVariantType(
     TypeList<sf::base::Variant<Ts...>>)
 {
     return sf::base::getTypePackIndex<T, Ts...>();
@@ -152,15 +152,15 @@ struct Extractor
     }
 };
 
-template <typename T, std::size_t N>
-struct Extractor<std::array<T, N>>
+template <typename T, sf::base::SizeT N>
+struct Extractor<sf::base::Array<T, N>>
 {
-    using Type = std::array<T, N>;
+    using Type = sf::base::Array<T, N>;
 
     [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
-        for (std::size_t i = 0; i < N; ++i)
+        for (sf::base::SizeT i = 0; i < N; ++i)
         {
             if (extractInto(result[i], errorOss, p))
             {
@@ -195,7 +195,7 @@ struct Extractor<std::vector<T>>
 
         result.resize(size);
 
-        for (std::size_t i = 0; i < size; ++i)
+        for (sf::base::SizeT i = 0; i < size; ++i)
         {
             if (extractInto(result[i], errorOss, p))
             {
@@ -483,11 +483,11 @@ template <typename T>
 
 template <typename T>
 void encodeFirstNVectorElements(
-    sf::Packet& p, const std::vector<T>& data, const std::size_t len)
+    sf::Packet& p, const std::vector<T>& data, const sf::base::SizeT len)
 {
     SSVOH_ASSERT(data.size() >= len);
 
-    for (std::size_t i = 0; i < len; ++i)
+    for (sf::base::SizeT i = 0; i < len; ++i)
     {
         p << data[i];
     }
@@ -538,10 +538,10 @@ auto encodeField(sf::Packet& p, const TData& data, const TField& field)
     encodeFieldImpl(p, data, field, 0);
 }
 
-template <typename TData, typename T, std::size_t N>
-void encodeField(sf::Packet& p, const TData& data, const std::array<T, N>& arr)
+template <typename TData, typename T, sf::base::SizeT N>
+void encodeField(sf::Packet& p, const TData& data, const sf::base::Array<T, N>& arr)
 {
-    for (std::size_t i = 0; i < arr.size(); ++i)
+    for (sf::base::SizeT i = 0; i < arr.size(); ++i)
     {
         encodeField(p, data, arr[i]);
     }
@@ -640,7 +640,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
     std::vector<sf::base::U8>& ciphertext = getStaticCiphertextBuffer();
     ciphertext.resize(ciphertextLength);
 
-    for (std::size_t i = 0; i < ciphertextLength; ++i)
+    for (sf::base::SizeT i = 0; i < ciphertextLength; ++i)
     {
         if (p >> ciphertext[i])
         {
@@ -788,7 +788,7 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
         if constexpr ((boost::pfr::tuple_size_v<T>) > 0)
         {
             boost::pfr::for_each_field(target,
-                [&](auto& field, std::size_t i)
+                [&](auto& field, sf::base::SizeT i)
                 {
                     if (!extractInto(field, errorOss, p))
                     {

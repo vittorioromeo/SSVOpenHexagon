@@ -4,16 +4,23 @@
 
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 
-#include "SSVOpenHexagon/Utils/Concat.hpp"
+#include <SFML/Base/String.hpp>
+#include <SFML/Base/ToString.hpp>
+#include <SFML/Base/StringView.hpp>
 
-#include <string>
 
 namespace hg::Utils {
 
-[[nodiscard]] std::string getLevelValidator(
-    const std::string& levelId, const float diffMult)
+[[nodiscard]] sf::base::String getLevelValidator(
+    const sf::base::StringView levelId, const float diffMult)
 {
-    return Utils::concat(levelId, "_m_", diffMult);
+    sf::base::String result;
+
+    result += levelId;
+    result += "_m_";
+    sf::base::appendToString(result, diffMult);
+
+    return result;
 }
 
 } // namespace hg::Utils
