@@ -6,7 +6,7 @@
 
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Base/Trait/IsSame.hpp>
 #include <SFML/Base/SizeT.hpp>
@@ -166,12 +166,12 @@ try
 }
 catch (const std::exception& e)
 {
-    ssvu::lo("LuaMetadataProxy")
+    hg::lo("LuaMetadataProxy")
         << "Failed to generate documentation: " << e.what() << '\n';
 }
 catch (...)
 {
-    ssvu::lo("LuaMetadataProxy") << "Failed to generate documentation\n";
+    hg::lo("LuaMetadataProxy") << "Failed to generate documentation\n";
 }
 #else
 {

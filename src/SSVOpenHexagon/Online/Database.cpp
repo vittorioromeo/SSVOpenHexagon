@@ -6,22 +6,23 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <sqlite3.h>
 #include <sqlite_orm.h>
 
-#include <string>
 #include <SFML/Base/IntTypes.hpp>
 #include <SFML/Base/Optional.hpp>
+#include <SFML/Base/ScopeGuard.hpp>
+
+#include <string>
 #include <chrono>
 
 static auto& dlog(const char* funcName)
 {
-    return ::ssvu::lo(::hg::Utils::concat("hg::Database::", funcName));
+    return ::hg::lo(::hg::Utils::concat("hg::Database::", funcName));
 }
 
 #define SSVOH_DLOG ::dlog(__func__)
@@ -381,7 +382,7 @@ void addScore(const std::string& levelValidator, const sf::base::U64 timestamp,
 
     if (error != nullptr)
     {
-        HG_SCOPE_GUARD({ sqlite3_free(error); });
+        SFML_BASE_SCOPE_GUARD({ sqlite3_free(error); });
         return sf::base::makeOptional<std::string>(error);
     }
 

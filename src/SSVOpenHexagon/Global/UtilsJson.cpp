@@ -12,7 +12,7 @@
 #include <SSVStart/Input/Trigger.hpp>
 #include <SSVStart/Utils/Input.hpp>
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Graphics/Color.hpp>
 
@@ -112,7 +112,7 @@ void Converter<ssvs::Input::Combo>::fromObj(const Obj& mObj, T& mValue)
         }
         else
         {
-            ssvu::lo("ssvs::getInputComboFromJSON")
+            hg::lo("ssvs::getInputComboFromJSON")
                 << "<" << i
                 << "> is not a valid input name, an empty bind has been "
                    "put in its place\n";

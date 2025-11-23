@@ -9,7 +9,7 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <stdint.h> // Steam API needs this.
 
@@ -41,7 +41,7 @@ namespace hg::Steam {
 
     if (!SteamAPI_ISteamUser_BLoggedOn(steam_user))
     {
-        ssvu::lo("Steam")
+        hg::lo("Steam")
             << "Attempted to retrieve Steam ID when not logged in\n";
 
         return sf::base::nullOpt;
@@ -53,36 +53,36 @@ namespace hg::Steam {
 
 [[nodiscard]] static bool initialize_steamworks()
 {
-    ssvu::lo("Steam") << "Initializing Steam API\n";
+    hg::lo("Steam") << "Initializing Steam API\n";
 
     if (SteamAPI_Init())
     {
-        ssvu::lo("Steam") << "Steam API successfully initialized\n";
+        hg::lo("Steam") << "Steam API successfully initialized\n";
 
         if (const sf::base::Optional<CSteamID> user_steam_id =
                 get_user_steam_id();
             user_steam_id.hasValue())
         {
-            ssvu::lo("Steam") << "User Steam ID: '"
+            hg::lo("Steam") << "User Steam ID: '"
                               << user_steam_id->ConvertToUint64() << "'\n";
         }
         else
         {
-            ssvu::lo("Steam") << "Could not retrieve user Steam ID\n";
+            hg::lo("Steam") << "Could not retrieve user Steam ID\n";
         }
 
         return true;
     }
 
-    ssvu::lo("Steam") << "Failed to initialize Steam API\n";
+    hg::lo("Steam") << "Failed to initialize Steam API\n";
     return false;
 }
 
 static void shutdown_steamworks()
 {
-    ssvu::lo("Steam") << "Shutting down Steam API\n";
+    hg::lo("Steam") << "Shutting down Steam API\n";
     SteamAPI_Shutdown();
-    ssvu::lo("Steam") << "Shut down Steam API\n";
+    hg::lo("Steam") << "Shut down Steam API\n";
 }
 
 class steam_manager::steam_manager_impl
@@ -175,7 +175,7 @@ void steam_manager::steam_manager_impl::on_user_stats_received(
 {
     (void)data;
 
-    ssvu::lo("Steam") << "Received user stats (rc: " << data->m_eResult
+    hg::lo("Steam") << "Received user stats (rc: " << data->m_eResult
                       << ")\n";
 
     _got_stats = true;
@@ -186,7 +186,7 @@ void steam_manager::steam_manager_impl::on_user_stats_stored(
 {
     (void)data;
 
-    ssvu::lo("Steam") << "Stored user stats\n";
+    hg::lo("Steam") << "Stored user stats\n";
 }
 
 void steam_manager::steam_manager_impl::on_user_achievement_stored(
@@ -194,7 +194,7 @@ void steam_manager::steam_manager_impl::on_user_achievement_stored(
 {
     (void)data;
 
-    ssvu::lo("Steam") << "Stored user achievement\n";
+    hg::lo("Steam") << "Stored user achievement\n";
 }
 
 void steam_manager::steam_manager_impl::load_workshop_data()
@@ -210,7 +210,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
 
     for (PublishedFileId_t id : subscribedItemsIds)
     {
-        ssvu::lo("Steam") << "Workshop subscribed item id: " << id << '\n';
+        hg::lo("Steam") << "Workshop subscribed item id: " << id << '\n';
 
         uint64 itemDiskSize;
         uint32 lastUpdateTimestamp;
@@ -222,7 +222,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
         {
             std::string folderBufStr{folderBuf};
 
-            ssvu::lo("Steam")
+            hg::lo("Steam")
                 << "Workshop id " << id << " is installed, with size "
                 << itemDiskSize << " at folder " << folderBufStr << '\n';
 
@@ -237,7 +237,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
     // Update the workshop cache with our loaded folders
     if (_workshop_pack_folders.size() > 0)
     {
-        ssvu::lo("Steam") << "Updating workshop cache\n";
+        hg::lo("Steam") << "Updating workshop cache\n";
         ssvuj::Obj cacheObj;
 
         ssvuj::arch(cacheObj, "cachedPacks", cacheArray);
@@ -278,18 +278,18 @@ bool steam_manager::steam_manager_impl::request_stats_and_achievements()
 {
     if (!_initialized)
     {
-        ssvu::lo("Steam") << "Attempted to request stats when uninitialized\n";
+        hg::lo("Steam") << "Attempted to request stats when uninitialized\n";
         return false;
     }
 
     if (!SteamUserStats()->RequestCurrentStats())
     {
-        ssvu::lo("Steam") << "Failed to get stats and achievements\n";
+        hg::lo("Steam") << "Failed to get stats and achievements\n";
         _got_stats = false;
         return false;
     }
 
-    ssvu::lo("Steam") << "Successfully requested stats and achievements\n";
+    hg::lo("Steam") << "Successfully requested stats and achievements\n";
     return true;
 }
 
@@ -308,19 +308,19 @@ bool steam_manager::steam_manager_impl::store_stats()
 {
     if (!_initialized)
     {
-        ssvu::lo("Steam") << "Attempted to store stats when uninitialized\n";
+        hg::lo("Steam") << "Attempted to store stats when uninitialized\n";
         return false;
     }
 
     if (!_got_stats)
     {
-        ssvu::lo("Steam") << "Attempted to store stat without stats\n";
+        hg::lo("Steam") << "Attempted to store stat without stats\n";
         return false;
     }
 
     if (!SteamUserStats()->StoreStats())
     {
-        ssvu::lo("Steam") << "Failed to store stats\n";
+        hg::lo("Steam") << "Failed to store stats\n";
         return false;
     }
 
@@ -332,14 +332,14 @@ bool steam_manager::steam_manager_impl::unlock_achievement(
 {
     if (!_initialized)
     {
-        ssvu::lo("Steam")
+        hg::lo("Steam")
             << "Attempted to unlock achievement when uninitialized\n";
         return false;
     }
 
     if (!_got_stats)
     {
-        ssvu::lo("Steam") << "Attempted to unlock achievement without stats\n";
+        hg::lo("Steam") << "Attempted to unlock achievement without stats\n";
         return false;
     }
 
@@ -350,7 +350,7 @@ bool steam_manager::steam_manager_impl::unlock_achievement(
 
     if (!SteamUserStats()->SetAchievement(name.data()))
     {
-        ssvu::lo("Steam") << "Failed to unlock achievement " << name << '\n';
+        hg::lo("Steam") << "Failed to unlock achievement " << name << '\n';
         return false;
     }
 
@@ -399,7 +399,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
     if (!SteamUserStats()->SetStat(name.data(), as_float) && // Try with float.
         !SteamUserStats()->SetStat(name.data(), data)) // Try with integer.
     {
-        ssvu::lo("Steam") << "Error setting stat '" << name << "' to '"
+        hg::lo("Steam") << "Error setting stat '" << name << "' to '"
                           << as_float << "'\n";
 
         return false;
@@ -418,7 +418,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
 
     if (!SteamUserStats()->GetAchievement(name.data(), out))
     {
-        ssvu::lo("Steam") << "Error getting achievement " << name << '\n';
+        hg::lo("Steam") << "Error getting achievement " << name << '\n';
         return false;
     }
 
@@ -447,7 +447,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
         return true;
     }
 
-    ssvu::lo("Steam") << "Error getting stat " << name.data() << '\n';
+    hg::lo("Steam") << "Error getting stat " << name.data() << '\n';
     return false;
 }
 
@@ -673,7 +673,7 @@ bool steam_manager::steam_manager_impl::request_encrypted_app_ticket()
 {
     if (!_initialized)
     {
-        ssvu::lo("Steam")
+        hg::lo("Steam")
             << "Attempted to request encrypted app ticket when uninitialized\n";
 
         return false;
@@ -688,7 +688,7 @@ bool steam_manager::steam_manager_impl::request_encrypted_app_ticket()
 
     return true;
 #else
-    ssvu::lo("Steam")
+    hg::lo("Steam")
         << "Attempted to request encrypted app ticket without secret key\n";
 
     return false;
@@ -700,12 +700,12 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     [[maybe_unused]] bool io_failure)
 {
 #if __has_include("SSVOpenHexagon/Online/SecretSteamKey.hpp")
-    ssvu::lo("Steam") << "Received encrypted app ticket response\n";
+    hg::lo("Steam") << "Received encrypted app ticket response\n";
     _got_ticket_response = true;
 
     if (io_failure)
     {
-        ssvu::lo("Steam")
+        hg::lo("Steam")
             << "Error: encrypted app ticket response IO failure\n";
 
         return;
@@ -713,7 +713,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
 
     if (data->m_eResult == k_EResultNoConnection)
     {
-        ssvu::lo("Steam")
+        hg::lo("Steam")
             << "Error: requested encrypted app ticket while not connected to "
                "Steam\n";
 
@@ -722,7 +722,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
 
     if (data->m_eResult == k_EResultDuplicateRequest)
     {
-        ssvu::lo("Steam")
+        hg::lo("Steam")
             << "Error: requested encrypted app ticket while there is already a "
                "pending request\n";
 
@@ -731,7 +731,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
 
     if (data->m_eResult == k_EResultLimitExceeded)
     {
-        ssvu::lo("Steam") << "Error: requested encrypted app ticket more than "
+        hg::lo("Steam") << "Error: requested encrypted app ticket more than "
                              "once per minute\n";
 
         return;
@@ -739,7 +739,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
 
     if (data->m_eResult != k_EResultOK)
     {
-        ssvu::lo("Steam")
+        hg::lo("Steam")
             << "Error: requested encrypted app ticket, got unexpected result '"
             << data->m_eResult << "'\n";
 
@@ -754,7 +754,7 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     if (!SteamUser()->GetEncryptedAppTicket(
             rgubTicket, sizeof(rgubTicket), &cubTicket))
     {
-        ssvu::lo("Steam") << "Error: 'GetEncryptedAppTicket' failed\n";
+        hg::lo("Steam") << "Error: 'GetEncryptedAppTicket' failed\n";
         return;
     }
 
@@ -771,14 +771,14 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     if (!SteamEncryptedAppTicket_BDecryptTicket(rgubTicket, cubTicket,
             rgubDecrypted, &cubDecrypted, rgubKey, sizeof(rgubKey)))
     {
-        ssvu::lo("Steam") << "Error: 'BDecryptTicket' failed\n";
+        hg::lo("Steam") << "Error: 'BDecryptTicket' failed\n";
         return;
     }
 
     if (!SteamEncryptedAppTicket_BIsTicketForApp(
             rgubDecrypted, cubDecrypted, SteamUtils()->GetAppID()))
     {
-        ssvu::lo("Steam") << "Error: ticket for wrong app id\n";
+        hg::lo("Steam") << "Error: ticket for wrong app id\n";
         return;
     }
 
@@ -791,17 +791,17 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     {
         if (steamIDFromTicket != *user_steam_id)
         {
-            ssvu::lo("Steam") << "Error: ticket for wrong user\n";
+            hg::lo("Steam") << "Error: ticket for wrong user\n";
             return;
         }
         else
         {
-            ssvu::lo("Steam") << "Steam ID ticket matches user Steam ID\n";
+            hg::lo("Steam") << "Steam ID ticket matches user Steam ID\n";
         }
     }
     else
     {
-        ssvu::lo("Steam") << "Could not retrieve user Steam ID\n";
+        hg::lo("Steam") << "Could not retrieve user Steam ID\n";
         return;
     }
 
@@ -817,13 +817,13 @@ void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
 
     if (cubData != sizeof(sf::base::U32) || pUnSecretData != unSecretData)
     {
-        ssvu::lo("Steam") << "Error: failed to retrieve secret data\n";
+        hg::lo("Steam") << "Error: failed to retrieve secret data\n";
     }
 
     _got_ticket = true;
     _ticket_steam_id.emplace(steamIDFromTicket);
 
-    ssvu::lo("Steam") << "GetEncryptedAppTicket succeeded (steamId: '"
+    hg::lo("Steam") << "GetEncryptedAppTicket succeeded (steamId: '"
                       << steamIDFromTicket.ConvertToUint64() << "')\n";
 #else
     _got_ticket_response = true;

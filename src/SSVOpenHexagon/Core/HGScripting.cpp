@@ -23,17 +23,17 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
-#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 #include <SFML/Base/Trait/Decay.hpp>
+#include <SFML/Base/ScopeGuard.hpp>
 
 #include <iostream>
 #include <string>
@@ -82,7 +82,7 @@ void HexagonGame::initLua_Utils()
                 return;
             }
 
-            ssvu::lo("lua") << mLog << '\n';
+            hg::lo("lua") << mLog << '\n';
             ilcCmdLog.emplace_back("[lua]: " + mLog + '\n');
         })
         .arg("message")
@@ -482,7 +482,7 @@ void HexagonGame::initLua_CustomTimelines()
             return true;
         }
 
-        ssvu::lo("CustomTimelineManager")
+        hg::lo("CustomTimelineManager")
             << "Invalid handle '" << cth << "' during '" << title << "'\n";
 
         return false;

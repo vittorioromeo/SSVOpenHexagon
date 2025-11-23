@@ -39,10 +39,10 @@
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
-#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -53,6 +53,8 @@
 
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
 
+#include <SSVUtils/Core/String/ToStr.hpp>
+
 #include <SFML/Window/VideoMode.hpp>
 #include <SFML/Window/VideoModeUtils.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -62,6 +64,7 @@
 #include <SFML/Base/Algorithm/Sort.hpp>
 #include <SFML/Base/Array.hpp>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/ScopeGuard.hpp>
 
 #include <utility>
 #include <tuple>
@@ -303,14 +306,14 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             [this, closeBox](const DialogInputState newState)
         {
             dialogInputState = newState;
-            HG_SCOPE_GUARD({ closeBox(); });
+            SFML_BASE_SCOPE_GUARD({ closeBox(); });
             return dialogBox.getInput();
         };
 
         const auto endInputSequence = [this, closeBox]
         {
             dialogInputState = DialogInputState::Nothing;
-            HG_SCOPE_GUARD({ closeBox(); });
+            SFML_BASE_SCOPE_GUARD({ closeBox(); });
             return dialogBox.getInput();
         };
 
@@ -789,7 +792,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
 MenuGame::~MenuGame()
 {
-    ssvu::lo("MenuGame::~MenuGame") << "Cleaning up menu resources...\n";
+    hg::lo("MenuGame::~MenuGame") << "Cleaning up menu resources...\n";
 }
 
 void MenuGame::init(bool error)
@@ -1032,8 +1035,8 @@ try
 catch (...)
 {
     playSoundOverride("error.ogg");
-    ssvu::lo("hg::MenuGame::initLua") << "Fatal error in menu for Lua file '"
-                                      << mFileName << '\'' << std::endl;
+    hg::lo("hg::MenuGame::initLua") << "Fatal error in menu for Lua file '"
+                                      << mFileName << '\'' << logEndl;
 }
 
 void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
@@ -1075,7 +1078,7 @@ void MenuGame::initLua()
         false /* headless */);
 
     lua.writeVariable("u_log",
-        [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
+        [](const std::string& mLog) { hg::lo("lua-menu") << mLog << '\n'; });
 
     lua.writeVariable("u_getDifficultyMult", [] { return 1; });
 
@@ -1703,7 +1706,7 @@ bool MenuGame::loadCommandLineLevel(
 
     if (packID.empty())
     {
-        ssvu::lo("hg::Menugame::MenuGame()")
+        hg::lo("hg::Menugame::MenuGame()")
             << "Invalid pack name '" << pack
             << "' command line parameter, aborting boot level load\n";
 
@@ -1712,7 +1715,7 @@ bool MenuGame::loadCommandLineLevel(
 
     if (!assets.packHasLevels(packID))
     {
-        ssvu::lo("hg::Menugame::MenuGame()")
+        hg::lo("hg::Menugame::MenuGame()")
             << "Pack '" << pack
             << "' has no levels, aborting boot level load\n";
 
@@ -1737,7 +1740,7 @@ bool MenuGame::loadCommandLineLevel(
         if (it == levelsList.end())
         {
 
-            ssvu::lo("hg::Menugame::MenuGame()")
+            hg::lo("hg::Menugame::MenuGame()")
                 << "Invalid level name '" << level
                 << "' command line parameter, aborting boot level load\n";
 
@@ -1759,7 +1762,7 @@ bool MenuGame::loadCommandLineLevel(
 
     if (state == States::ETLPNew)
     {
-        ssvu::lo("hg::Menugame::MenuGame()")
+        hg::lo("hg::Menugame::MenuGame()")
             << "No player profiles exist, aborting boot level load\n";
 
         return false;
@@ -1794,8 +1797,8 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
     // If there is no `menubackgrounds.json` abort
     if (!ssvufs::Path{"Assets/menubackgrounds.json"}.isFile())
     {
-        ssvu::lo("MenuGame::$")
-            << "File 'Assets/menubackgrounds.json' does not exist" << std::endl;
+        hg::lo("MenuGame::$")
+            << "File 'Assets/menubackgrounds.json' does not exist" << logEndl;
 
         return {0, 0};
     }
@@ -2421,7 +2424,7 @@ void MenuGame::eraseAction()
         if (const std::string fileName{"Profiles/" + name + ".json"};
             std::remove(fileName.c_str()) != 0)
         {
-            ssvu::lo("eraseAction()")
+            hg::lo("eraseAction()")
                 << "Error: file " << fileName << " does not exist\n";
 
             return;
@@ -2628,7 +2631,7 @@ void MenuGame::update(float mFT)
 
             [&](const HexagonClient::EGameVersionMismatch&)
             {
-                ssvu::lo("hg::MenuGame::update")
+                hg::lo("hg::MenuGame::update")
                     << "Client/server game version mismatch, likely not a "
                        "problem\n";
             },

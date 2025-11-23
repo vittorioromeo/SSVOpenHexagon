@@ -8,7 +8,7 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include <SSVUtils/Core/Utils/Rnd.hpp>
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Base/SizeT.hpp>
 
@@ -62,7 +62,7 @@ void MusicData::playSeconds(
 {
     if (!mAudio.loadAndPlayMusic(mPackId, id, mSeconds))
     {
-        ssvu::lo("MusicData::playSeconds")
+        hg::lo("MusicData::playSeconds")
             << "Failed playing music '" << mPackId << '_' << id << "'\n";
     }
 }

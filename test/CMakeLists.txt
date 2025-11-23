@@ -11,19 +11,22 @@ include_directories(${SSVOPENHEXAGON_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
-# Generate all the unit tests.
-vrm_cmake_generate_unit_tests_glob("*.cpp")
+function(ssvoh_add_test file)
+    set(target_name "${file}-test")
 
-foreach(_t IN LISTS vrm_cmake_out)
+    add_executable(${target_name} "${file}")
+    add_dependencies(tests ${target_name})
+    add_test(NAME ${target_name} COMMAND ${target_name})
+
     if(SSVOH_USE_PCH)
-        target_precompile_headers(${_t} REUSE_FROM SSVOpenHexagonLib)
+        target_precompile_headers(${target_name} REUSE_FROM SSVOpenHexagonLib)
     endif()
 
     if(${SSVOH_HEADLESS_TESTS})
-        target_compile_definitions(${_t} PUBLIC "SSVOH_HEADLESS_TESTS")
+        target_compile_definitions(${target_name} PUBLIC "SSVOH_HEADLESS_TESTS")
     endif()
 
-    target_link_libraries(${_t}
+    target_link_libraries(${target_name}
         ${SFML_LIBRARIES}
         libluajit
         zlib
@@ -31,4 +34,12 @@ foreach(_t IN LISTS vrm_cmake_out)
         SSVOpenHexagonLib
         SSVOpenHexagonLibC
     )
-endforeach()
+endfunction()
+
+# Generate all the unit tests.
+ssvoh_add_test("FixedFunction.t.cpp")
+ssvoh_add_test("Replay.t.cpp")
+ssvoh_add_test("ReplayExecution.t.cpp")
+ssvoh_add_test("ReplayExecutionBenchmark.t.cpp")
+ssvoh_add_test("Utils_BuildPackId.t.cpp")
+ssvoh_add_test("Utils_Split.t.cpp")

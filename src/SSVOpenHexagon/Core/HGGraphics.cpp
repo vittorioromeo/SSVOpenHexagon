@@ -19,8 +19,9 @@
 
 #include <SSVStart/Utils/SFML.hpp>
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 #include <SSVUtils/Core/Utils/Rnd.hpp>
+#include <SSVUtils/Core/String/ToStr.hpp>
 
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
@@ -40,7 +41,7 @@ void HexagonGame::render(Ts&&... xs)
 {
     if (window == nullptr)
     {
-        ssvu::lo("hg::HexagonGame::render")
+        hg::lo("hg::HexagonGame::render")
             << "Attempted to render without a game window\n";
 
         return;
@@ -216,8 +217,8 @@ void HexagonGame::draw()
             adjustAlpha(overrideColor, i);
 
             // Draw pivot layers
-            for (sf::base::SizeT k = j * numPivotQuads; k < (j + 1) * numPivotQuads;
-                ++k)
+            for (sf::base::SizeT k = j * numPivotQuads;
+                k < (j + 1) * numPivotQuads; ++k)
             {
                 pivotQuads3D[k].position += newPos;
                 pivotQuads3D[k].color = overrideColor;
@@ -232,8 +233,8 @@ void HexagonGame::draw()
             }
 
             // Draw wall layers
-            for (sf::base::SizeT k = j * numWallQuads; k < (j + 1) * numWallQuads;
-                ++k)
+            for (sf::base::SizeT k = j * numWallQuads;
+                k < (j + 1) * numWallQuads; ++k)
             {
                 wallQuads3D[k].position += newPos;
                 wallQuads3D[k].color = overrideColor;
@@ -249,8 +250,8 @@ void HexagonGame::draw()
             }
 
             // Draw player layers
-            for (sf::base::SizeT k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
-                ++k)
+            for (sf::base::SizeT k = j * numPlayerTris;
+                k < (j + 1) * numPlayerTris; ++k)
             {
                 playerTris3D[k].position += newPos;
                 playerTris3D[k].color = overrideColor;
@@ -332,7 +333,8 @@ void HexagonGame::drawImguiLuaConsole()
     sf::RenderWindow& renderWindow = window->getRenderWindow();
     renderWindow.setView({{500.f, 500.f}, {1000.f, 1000.f}});
 
-    imguiCtx.render(renderWindow);
+    SSVOH_ASSERT(imguiCtx.hasValue());
+    imguiCtx->render(renderWindow);
 }
 
 void HexagonGame::initFlashEffect(int r, int g, int b)

@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 #include <string>
 #include <sstream>
+#include <iostream>
 
 namespace ssvuj {
 
@@ -28,8 +28,8 @@ namespace Impl {
         return true;
     }
 
-    ssvu::lo("ssvuj::logReadError") << mReader.getFormattedErrorMessages()
-                                    << "\nFrom: [" << mSrc << "]" << std::endl;
+    std::cout << "ssvuj::logReadError:" << mReader.getFormattedErrorMessages()
+              << "\nFrom: [" << mSrc << "]" << std::endl;
 
     return false;
 }

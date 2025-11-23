@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <vrm/pp/sep_to_str.hpp>
-
 namespace hg::Impl {
 
 [[gnu::cold]] void assertionFailure(
@@ -18,12 +16,9 @@ namespace hg::Impl {
 #define SSVOH_ASSERT(...)                                                  \
     do                                                                     \
     {                                                                      \
-        constexpr const char* assert_code =                                \
-            VRM_PP_SEP_TOSTR(" ", VRM_PP_EMPTY(), __VA_ARGS__);            \
-                                                                           \
         if (!static_cast<bool>(__VA_ARGS__)) [[unlikely]]                  \
         {                                                                  \
-            ::hg::Impl::assertionFailure(assert_code, __FILE__, __LINE__); \
+            ::hg::Impl::assertionFailure(#__VA_ARGS__, __FILE__, __LINE__); \
         }                                                                  \
     }                                                                      \
     while (false)

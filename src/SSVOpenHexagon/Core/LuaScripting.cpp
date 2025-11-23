@@ -13,7 +13,6 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
-#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
@@ -28,7 +27,7 @@
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Graphics/Glsl.hpp>
 #include <SFML/Graphics/Shader.hpp>
@@ -37,6 +36,7 @@
 #include <SFML/Base/StringViewStreamOp.hpp>
 
 #include <SFML/Base/SizeT.hpp>
+#include <SFML/Base/ScopeGuard.hpp>
 
 #include <sstream>
 #include <string>
@@ -151,7 +151,7 @@ try
 }
 catch (...)
 {
-    ssvu::lo("hg::LuaScripting::redefineIoOpen")
+    hg::lo("hg::LuaScripting::redefineIoOpen")
         << "Failure to redefine Lua's `io.open` function\n";
 
     throw;
@@ -173,7 +173,7 @@ end
 }
 catch (...)
 {
-    ssvu::lo("hg::LuaScripting::redefineRandom")
+    hg::lo("hg::LuaScripting::redefineRandom")
         << "Failure to redefine Lua's `math.random` function\n";
 
     throw;
@@ -1255,7 +1255,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
             if (!id.hasValue())
             {
-                ssvu::lo("hg::LuaScripting::initShaders")
+                hg::lo("hg::LuaScripting::initShaders")
                     << "`u_getShaderId` failed, no id found for '"
                     << shaderFilename << "'\n";
 
@@ -1293,7 +1293,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
                 if (!id.hasValue())
                 {
-                    ssvu::lo("hg::LuaScripting::initShaders")
+                    hg::lo("hg::LuaScripting::initShaders")
                         << "`u_getDependencyShaderId` failed, no id found for '"
                         << shaderPath << "'\n";
 
@@ -1337,7 +1337,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
         if (!assets.isValidShaderId(shaderId))
         {
-            ssvu::lo("hg::LuaScripting::initShaders")
+            hg::lo("hg::LuaScripting::initShaders")
                 << "`" << caller << "` failed, invalid shader id '" << shaderId
                 << "'\n";
 
@@ -1362,7 +1362,7 @@ static void initShaders(Lua::LuaContext& lua, HGAssets& assets,
 
         if (renderStage >= ids.size())
         {
-            ssvu::lo("hg::LuaScripting::initShaders")
+            hg::lo("hg::LuaScripting::initShaders")
                 << "`" << caller << "` failed, invalid render stage id '"
                 << renderStage << "'\n";
 

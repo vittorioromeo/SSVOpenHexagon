@@ -12,8 +12,6 @@
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 
-#include <vrm/pp/tpl.hpp>
-
 #include <sodium.h>
 
 #include <sstream>
@@ -74,15 +72,22 @@ struct CTSPRequestServerStatus         { sf::base::U64 loginToken; };
 struct CTSPReady                       { sf::base::U64 loginToken; };
 // clang-format on
 
-#define SSVOH_CTS_PACKETS                                         \
-    VRM_PP_TPL_MAKE(CTSPHeartbeat, CTSPDisconnect, CTSPPublicKey, \
-        CTSPRegister, CTSPLogin, CTSPLogout, CTSPDeleteAccount,   \
-        CTSPRequestTopScores, CTSPReplay, CTSPRequestOwnScore,    \
-        CTSPRequestTopScoresAndOwnScore, CTSPStartedGame,         \
-        CTSPCompressedReplay, CTSPRequestServerStatus, CTSPReady)
+#define SSVOH_IDENTITY(x) x
+#define SSVOH_COMMA() ,
 
-using PVClientToServer = sf::base::Variant<PInvalid, PEncryptedMsg,
-    VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS)>;
+#define SSVOH_CTS_PACKETS_X(x, c)                                              \
+    x(CTSPHeartbeat) c() x(CTSPDisconnect) c() x(CTSPPublicKey) c()            \
+        x(CTSPRegister) c() x(CTSPLogin) c() x(CTSPLogout) c()                 \
+            x(CTSPDeleteAccount) c() x(CTSPRequestTopScores) c() x(CTSPReplay) \
+                c() x(CTSPRequestOwnScore) c()                                 \
+                    x(CTSPRequestTopScoresAndOwnScore) c() x(CTSPStartedGame)  \
+                        c() x(CTSPCompressedReplay) c()                        \
+                            x(CTSPRequestServerStatus) c() x(CTSPReady)
+
+#define SSVOH_CTS_PACKETS SSVOH_CTS_PACKETS_X(SSVOH_IDENTITY, SSVOH_COMMA)
+
+using PVClientToServer =
+    sf::base::Variant<PInvalid, PEncryptedMsg, SSVOH_CTS_PACKETS>;
 
 // ----------------------------------------------------------------------------
 
@@ -116,15 +121,19 @@ struct STCPTopScoresAndOwnScore   { std::string levelValidator; std::vector<Data
 struct STCPServerStatus           { ProtocolVersion protocolVersion; GameVersion gameVersion; std::vector<std::string> supportedLevelValidators; };
 // clang-format on
 
-#define SSVOH_STC_PACKETS                                               \
-    VRM_PP_TPL_MAKE(STCPKick, STCPPublicKey, STCPRegistrationSuccess,   \
-        STCPRegistrationFailure, STCPLoginSuccess, STCPLoginFailure,    \
-        STCPLogoutSuccess, STCPLogoutFailure, STCPDeleteAccountSuccess, \
-        STCPDeleteAccountFailure, STCPTopScores, STCPOwnScore,          \
-        STCPTopScoresAndOwnScore, STCPServerStatus)
+#define SSVOH_STC_PACKETS_X(x, c)                                           \
+    x(STCPKick) c() x(STCPPublicKey) c() x(STCPRegistrationSuccess) c()     \
+        x(STCPRegistrationFailure) c() x(STCPLoginSuccess) c()              \
+            x(STCPLoginFailure) c() x(STCPLogoutSuccess) c()                \
+                x(STCPLogoutFailure) c() x(STCPDeleteAccountSuccess) c()    \
+                    x(STCPDeleteAccountFailure) c() x(STCPTopScores) c()    \
+                        x(STCPOwnScore) c() x(STCPTopScoresAndOwnScore) c() \
+                            x(STCPServerStatus)
 
-using PVServerToClient = sf::base::Variant<PInvalid, PEncryptedMsg,
-    VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS)>;
+#define SSVOH_STC_PACKETS SSVOH_STC_PACKETS_X(SSVOH_IDENTITY, SSVOH_COMMA)
+
+using PVServerToClient =
+    sf::base::Variant<PInvalid, PEncryptedMsg, SSVOH_STC_PACKETS>;
 
 // ----------------------------------------------------------------------------
 

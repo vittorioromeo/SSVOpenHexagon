@@ -18,15 +18,13 @@
 #include "SSVOpenHexagon/Global/Version.hpp"
 
 #include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <sodium.h>
 
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
-#include <SSVUtils/Core/Log/Log.hpp>
-#include <SSVUtils/Core/Log/Log.inl>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 #include <SFML/Graphics/Image.hpp>
@@ -40,6 +38,7 @@
 #include <SFML/Graphics/GraphicsContext.hpp>
 
 #include <SFML/Base/Optional.hpp>
+#include <SFML/Base/ScopeGuard.hpp>
 
 #include <csignal>
 #include <cstdio>
@@ -77,7 +76,7 @@ void createFolderIfNonExistant(const std::string& folderName)
         return;
     }
 
-    ssvu::lo("::createFolderIfNonExistant")
+    hg::lo("::createFolderIfNonExistant")
         << "'" << folderName << "' folder does not exist, creating\n";
 
     createFolder(path);
@@ -190,7 +189,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     hg.initLuaAndPrintDocs();
     std::cout << "\n\n\n\n\n";
 
-    ssvu::lo("::mainPrintLuaDocs") << "Finished\n";
+    hg::lo("::mainPrintLuaDocs") << "Finished\n";
     return 0;
 }
 
@@ -207,10 +206,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     hg::Config::loadConfig({} /* overrideIds */);
     hg::Config::setUseLuaFileCache(true);
 
-    HG_SCOPE_GUARD({
-        ssvu::lo("::main") << "Saving config...\n";
+    SFML_BASE_SCOPE_GUARD({
+        hg::lo("::main") << "Saving config...\n";
         hg::Config::saveConfig();
-        ssvu::lo("::main") << "Done saving config\n";
+        hg::lo("::main") << "Done saving config\n";
     });
 
     hg::HGAssets assets{
@@ -237,7 +236,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         hg::Utils::toUnorderedSet(hg::Config::getServerLevelWhitelist()) //
     };
 
-    ssvu::lo("::mainServer") << "Finished\n";
+    hg::lo("::mainServer") << "Finished\n";
     return 0;
 }
 
@@ -290,10 +289,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
     // TODO (P0): server gets ALSA errors during asset load, is it loading
     // musics/sounds?
-    HG_SCOPE_GUARD({
-        ssvu::lo("::main") << "Saving config...\n";
+    SFML_BASE_SCOPE_GUARD({
+        hg::lo("::main") << "Saving config...\n";
         hg::Config::saveConfig();
-        ssvu::lo("::main") << "Done saving config\n";
+        hg::lo("::main") << "Done saving config\n";
     });
 
     //
@@ -324,7 +323,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
                 if (!icon.hasValue())
                 {
-                    ssvu::lo("::main") << "Failed to load icon image\n";
+                    hg::lo("::main") << "Failed to load icon image\n";
                     return;
                 }
 
@@ -350,12 +349,12 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
             std::signal(SIGINT,
                 [](int s)
                 {
-                    ssvu::lo("::main") << "Caught signal '" << s
+                    hg::lo("::main") << "Caught signal '" << s
                                        << "' with game window open\n";
 
-                    ssvu::lo("::main") << "Stopping game window...\n";
+                    hg::lo("::main") << "Stopping game window...\n";
                     globalWindow.stop();
-                    ssvu::lo("::main") << "Done stopping game window\n";
+                    hg::lo("::main") << "Done stopping game window\n";
                 });
         }
     }
@@ -365,10 +364,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // ------------------------------------------------------------------------
     // Initialize assets
     hg::HGAssets assets{&steamManager, headless};
-    HG_SCOPE_GUARD({
-        ssvu::lo("::main") << "Saving all local profiles...\n";
+    SFML_BASE_SCOPE_GUARD({
+        hg::lo("::main") << "Saving all local profiles...\n";
         assets.pSaveAll();
-        ssvu::lo("::main") << "Done saving all local profiles\n";
+        hg::lo("::main") << "Done saving all local profiles\n";
     });
 
     //
@@ -511,14 +510,14 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
             if (hg::compressed_replay_file crf;
                 crf.deserialize_from_file(*compressedReplayFilename))
             {
-                ssvu::lo("Replay") << "Playing compressed replay file '"
+                hg::lo("Replay") << "Playing compressed replay file '"
                                    << *compressedReplayFilename << "'\n";
 
                 gotoGameCompressedReplay(crf);
             }
             else
             {
-                ssvu::lo("Replay") << "Failed to read compressed replay file '"
+                hg::lo("Replay") << "Failed to read compressed replay file '"
                                    << compressedReplayFilename.value() << "'\n";
 
                 gotoMenu();
@@ -550,7 +549,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
             hg::replay_file& replayFile = replayFileOpt.value();
 
-            ssvu::lo("Replay")
+            hg::lo("Replay")
                 << "Playing compressed replay file in headless mode '"
                 << *compressedReplayFilename << "'\n";
 
@@ -566,7 +565,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         }
         else
         {
-            ssvu::lo("Replay")
+            hg::lo("Replay")
                 << "Failed to read compressed replay file in headless mode '"
                 << compressedReplayFilename.value() << "'\n";
         }
@@ -582,7 +581,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         window->run();
     }
 
-    ssvu::lo("::mainClient") << "Finished\n";
+    hg::lo("::mainClient") << "Finished\n";
     return 0;
 }
 
@@ -606,7 +605,7 @@ int main(int argc, char* argv[])
     // libsodium initialization
     if (sodium_init() < 0)
     {
-        ssvu::lo("::main") << "Failed initializing libsodium\n";
+        hg::lo("::main") << "Failed initializing libsodium\n";
         return 1;
     }
 
@@ -618,7 +617,7 @@ int main(int argc, char* argv[])
     std::signal(SIGINT,
         [](int s)
         {
-            ssvu::lo("::main") << "Caught signal '" << s
+            hg::lo("::main") << "Caught signal '" << s
                                << "' without game window open, exiting...\n";
 
             std::exit(1);
@@ -628,13 +627,10 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Flush and save log (at the end of the scope)
-    HG_SCOPE_GUARD({
-        ssvu::lo("::main") << "Saving log to 'log.txt'...\n";
-
-        ssvu::lo().flush();
-        ssvu::saveLogToFile("log.txt");
-
-        ssvu::lo("::main") << "Done saving log to 'log.txt'\n";
+    SFML_BASE_SCOPE_GUARD({
+        hg::lo("::main") << "Flushing log to 'log.txt'...\n";
+        hg::lo().flush();
+        hg::lo("::main") << "Done flushing log to 'log.txt'\n";
     });
 
     //

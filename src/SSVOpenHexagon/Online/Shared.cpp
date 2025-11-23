@@ -23,7 +23,6 @@
 
 #include <boost/pfr.hpp>
 
-
 #include <sstream>
 #include <iostream>
 
@@ -539,7 +538,8 @@ auto encodeField(sf::Packet& p, const TData& data, const TField& field)
 }
 
 template <typename TData, typename T, sf::base::SizeT N>
-void encodeField(sf::Packet& p, const TData& data, const sf::base::Array<T, N>& arr)
+void encodeField(
+    sf::Packet& p, const TData& data, const sf::base::Array<T, N>& arr)
 {
     for (sf::base::SizeT i = 0; i < arr.size(); ++i)
     {
@@ -712,11 +712,12 @@ void makeClientToServerPacket(sf::Packet& p, const T& data)
 
 template void makeClientToServerPacket(sf::Packet&, const PEncryptedMsg&);
 
-#define INSTANTIATE_MAKE_CTS(mIdx, mData, mArg) \
+#define INSTANTIATE_MAKE_CTS(mArg) \
     template void makeClientToServerPacket(sf::Packet&, const mArg&);
 
-VRM_PP_FOREACH_REVERSE(
-    INSTANTIATE_MAKE_CTS, VRM_PP_EMPTY(), VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS))
+#define NOTHING()
+
+SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS, NOTHING)
 
 // ----------------------------------------------------------------------------
 
@@ -728,12 +729,12 @@ template <typename T>
         { makeClientToServerPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
 }
 
-#define INSTANTIATE_MAKE_CTS_ENCRYPTED(mIdx, mData, mArg) \
-    template bool makeClientToServerEncryptedPacket(      \
+#define INSTANTIATE_MAKE_CTS_ENCRYPTED(mArg)         \
+    template bool makeClientToServerEncryptedPacket( \
         const SodiumTransmitKeyArray&, sf::Packet&, const mArg&);
 
-VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
-    VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS))
+SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS_ENCRYPTED, NOTHING)
+
 
 // ----------------------------------------------------------------------------
 
@@ -822,19 +823,68 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
 
 // ----------------------------------------------------------------------------
 
+template <typename VariantType, typename... Ts>
+VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive,
+    std::ostringstream& errorOss, sf::Packet& p, auto&& func)
+{
+    const sf::base::Optional<PacketType> pt = extractPacketType(errorOss, p);
+
+    if (!pt.hasValue())
+    {
+        return VariantType{PInvalid{.error = errorOss.str()}};
+    }
+
+    if (*pt == getPacketType<PEncryptedMsg>())
+    {
+        if (!decodeEncryptedPacket(keyReceive, errorOss, p))
+        {
+            return VariantType{PInvalid{.error = errorOss.str()}};
+        }
+
+        return func(keyReceive, errorOss, getStaticPacketBuffer());
+    }
+
+    const auto extractAllMembers = makeExtractAllMembers(errorOss, p);
+
+    VariantType variantResult;
+    bool found = false;
+
+    (...,
+        [&]
+        {
+            if (*pt == getPacketType<Ts>())
+            {
+                found = true;
+
+                Ts result;
+
+                if (!extractAllMembers(result))
+                {
+                    variantResult =
+                        VariantType{PInvalid{.error = errorOss.str()}};
+                }
+
+                variantResult = VariantType{result};
+            }
+        }());
+
+    if (!found)
+    {
+        errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
+        return VariantType{PInvalid{.error = errorOss.str()}};
+    }
+
+    return variantResult;
+}
+
+// ----------------------------------------------------------------------------
+
 [[nodiscard]] static PVClientToServer decodeClientToServerPacketInner(
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
-    using VariantType = PVClientToServer;
-
-    INJECT_COMMON_PACKET_HANDLING_CODE(decodeClientToServerPacketInner);
-
-    VRM_PP_FOREACH_REVERSE(FORIMPL_HANDLE_PACKET, VRM_PP_EMPTY(),
-        VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS))
-
-    errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
-    return PVClientToServer{PInvalid{.error = errorOss.str()}};
+    return packetHandlerImpl<PVClientToServer, SSVOH_CTS_PACKETS>(
+        keyReceive, errorOss, p, decodeClientToServerPacketInner);
 }
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(
@@ -861,11 +911,10 @@ void makeServerToClientPacket(sf::Packet& p, const T& data)
 
 template void makeServerToClientPacket(sf::Packet&, const PEncryptedMsg&);
 
-#define INSTANTIATE_MAKE_STC(mIdx, mData, mArg) \
+#define INSTANTIATE_MAKE_STC(mArg) \
     template void makeServerToClientPacket(sf::Packet&, const mArg&);
 
-VRM_PP_FOREACH_REVERSE(
-    INSTANTIATE_MAKE_STC, VRM_PP_EMPTY(), VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS))
+SSVOH_STC_PACKETS_X(INSTANTIATE_MAKE_STC, NOTHING)
 
 // ----------------------------------------------------------------------------
 
@@ -877,12 +926,11 @@ template <typename T>
         { makeServerToClientPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
 }
 
-#define INSTANTIATE_MAKE_STC_ENCRYPTED(mIdx, mData, mArg) \
-    template bool makeServerToClientEncryptedPacket(      \
+#define INSTANTIATE_MAKE_STC_ENCRYPTED(mArg)         \
+    template bool makeServerToClientEncryptedPacket( \
         const SodiumTransmitKeyArray&, sf::Packet&, const mArg&);
 
-VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
-    VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS))
+SSVOH_STC_PACKETS_X(INSTANTIATE_MAKE_STC_ENCRYPTED, NOTHING)
 
 // ----------------------------------------------------------------------------
 
@@ -890,15 +938,8 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
-    using VariantType = PVServerToClient;
-
-    INJECT_COMMON_PACKET_HANDLING_CODE(decodeServerToClientPacketInner);
-
-    VRM_PP_FOREACH_REVERSE(FORIMPL_HANDLE_PACKET, VRM_PP_EMPTY(),
-        VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS))
-
-    errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
-    return PVServerToClient{PInvalid{.error = errorOss.str()}};
+    return packetHandlerImpl<PVServerToClient, SSVOH_STC_PACKETS>(
+        keyReceive, errorOss, p, decodeServerToClientPacketInner);
 }
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(

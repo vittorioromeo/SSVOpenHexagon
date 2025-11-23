@@ -8,7 +8,9 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
+
+#include <SFML/Base/Algorithm/Find.hpp>
 
 
 namespace {
@@ -16,8 +18,8 @@ namespace {
 template <typename TC, typename TV>
 inline bool contains(const TC& mContainer, const TV& mValue)
 {
-    return std::find(mContainer.begin(), mContainer.end(), mValue) !=
-           std::end(mContainer);
+    return sf::base::find(mContainer.begin(), mContainer.end(), mValue) !=
+           mContainer.end();
 }
 
 } // namespace
@@ -37,9 +39,8 @@ namespace hg {
 {
     if (_handleAvailable[h]) [[unlikely]]
     {
-        ssvu::lo("CustomWallManager")
-            << "Attempted to " << msg << " of invalid custom wall " << h
-            << '\n';
+        hg::lo("CustomWallManager") << "Attempted to " << msg
+                                    << " of invalid custom wall " << h << '\n';
 
         SSVOH_ASSERT(contains(_freeHandles, h));
         return false;
@@ -54,7 +55,7 @@ namespace hg {
 {
     if (vertexIdx < 0 || vertexIdx > 3) [[unlikely]]
     {
-        ssvu::lo("CustomWallManager")
+        hg::lo("CustomWallManager")
             << "Invalid vertex index " << vertexIdx << " for custom wall " << h
             << " while attempting to " << msg << '\n';
 
@@ -122,7 +123,7 @@ void CCustomWallManager::destroy(const CCustomWallHandle cwHandle)
 {
     if (_handleAvailable[cwHandle]) [[unlikely]]
     {
-        ssvu::lo("CustomWallManager")
+        hg::lo("CustomWallManager")
             << "Attempted to destroy invalid wall " << cwHandle << '\n';
 
         return;
@@ -191,7 +192,7 @@ void CCustomWallManager::setKillingSide(
 {
     if (side > 3u) [[unlikely]]
     {
-        ssvu::lo("CustomWallManager")
+        hg::lo("CustomWallManager")
             << "Attempted to set killing side with invalid value " << side
             << ", acceptable values are 0 to 3\n";
 
@@ -220,8 +221,8 @@ void CCustomWallManager::setKillingSide(
 static const sf::base::Array<sf::Vec2f, 4> zeroArr{sf::Vec2f{0.f, 0.f},
     sf::Vec2f{0.f, 0.f}, sf::Vec2f{0.f, 0.f}, sf::Vec2f{0.f, 0.f}};
 
-[[nodiscard]] const sf::base::Array<sf::Vec2f, 4>& CCustomWallManager::getVertexPos4(
-    const CCustomWallHandle cwHandle)
+[[nodiscard]] const sf::base::Array<sf::Vec2f, 4>&
+CCustomWallManager::getVertexPos4(const CCustomWallHandle cwHandle)
 {
     if (!checkValidHandle(cwHandle, "get four vertex pos"))
     {

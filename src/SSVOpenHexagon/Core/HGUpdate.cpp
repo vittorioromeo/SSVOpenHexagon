@@ -1306,12 +1306,14 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         return;
     }
 
+    SSVOH_ASSERT(imguiCtx.hasValue());
+
     if (ilcShowConsoleNext)
     {
         ilcShowConsole = !ilcShowConsole;
         ilcShowConsoleNext = false;
 
-        imguiCtx.processEvent(
+        imguiCtx->processEvent(
             window->getRenderWindow(), sf::Event::FocusGained{});
     }
 
@@ -1320,7 +1322,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         return;
     }
 
-    imguiCtx.update(*window, ilcDeltaClock.restart());
+    imguiCtx->update(*window, ilcDeltaClock.restart());
 
     ImGui::SetNextWindowSize(ImVec2(600, 700), ImGuiCond_FirstUseEver);
     ImGui::Begin("Lua Console");

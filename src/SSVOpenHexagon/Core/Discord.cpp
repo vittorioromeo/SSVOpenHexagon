@@ -3,7 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 #include "SSVOpenHexagon/Core/Discord.hpp"
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <math.h> // Needed by `discord.h`...
 #include <SFML/Base/IntTypes.hpp>
@@ -24,11 +24,11 @@ namespace hg::Discord {
 
     if (result != discord::Result::Ok)
     {
-        ssvu::lo("Discord") << "Failed to initialize core\n";
+        hg::lo("Discord") << "Failed to initialize core\n";
         return false;
     }
 
-    ssvu::lo("Discord") << "Successfully initialized core\n";
+    hg::lo("Discord") << "Successfully initialized core\n";
     return true;
 }
 
@@ -42,27 +42,27 @@ discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
     _core->SetLogHook(discord::LogLevel::Debug,
         [](discord::LogLevel level, const char* message)
         {
-            ssvu::lo("Discord")
+            hg::lo("Discord")
                 << static_cast<uint32_t>(level) << ": " << message << '\n';
         });
 
     if (_core->ActivityManager().RegisterCommand("SSVOpenHexagon.exe") !=
         discord::Result::Ok)
     {
-        ssvu::lo("Discord") << "Failed to register command\n";
+        hg::lo("Discord") << "Failed to register command\n";
     }
     else
     {
-        ssvu::lo("Discord") << "Successfully registered command\n";
+        hg::lo("Discord") << "Successfully registered command\n";
     }
 
     if (_core->ActivityManager().RegisterSteam(1358090) != discord::Result::Ok)
     {
-        ssvu::lo("Discord") << "Failed to register Steam app\n";
+        hg::lo("Discord") << "Failed to register Steam app\n";
     }
     else
     {
-        ssvu::lo("Discord") << "Successfully registered Steam app\n";
+        hg::lo("Discord") << "Successfully registered Steam app\n";
     }
 }
 
@@ -78,7 +78,7 @@ bool discord_manager::run_callbacks()
 
     if (_core->RunCallbacks() != discord::Result::Ok)
     {
-        ssvu::lo("Discord") << "Failed to run callbacks\n";
+        hg::lo("Discord") << "Failed to run callbacks\n";
         return false;
     }
 
@@ -104,7 +104,7 @@ bool discord_manager::set_rich_presence_in_menu()
         {
             if (r != discord::Result::Ok)
             {
-                ssvu::lo("Discord") << "Fail\n";
+                hg::lo("Discord") << "Fail\n";
             }
         });
 
@@ -130,7 +130,7 @@ bool discord_manager::set_rich_presence_on_replay()
         {
             if (r != discord::Result::Ok)
             {
-                ssvu::lo("Discord") << "Fail\n";
+                hg::lo("Discord") << "Fail\n";
             }
         });
 
@@ -175,7 +175,7 @@ bool discord_manager::set_rich_presence_in_game(
         {
             if (r != discord::Result::Ok)
             {
-                ssvu::lo("Discord") << "Fail\n";
+                hg::lo("Discord") << "Fail\n";
             }
         });
 

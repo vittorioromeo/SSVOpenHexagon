@@ -25,7 +25,7 @@
 #include "SSVOpenHexagon/Online/Database.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/IpAddressUtils.hpp>
@@ -53,7 +53,7 @@
 
 static auto& slog(const char* funcName)
 {
-    return ::ssvu::lo(::hg::Utils::concat("hg::HexagonServer::", funcName));
+    return ::hg::lo(::hg::Utils::concat("hg::HexagonServer::", funcName));
 }
 
 #define SSVOH_SLOG ::slog(__func__)
@@ -675,7 +675,7 @@ void HexagonServer::runIteration_FlushLogs()
 
     std::cout.flush();
     std::cerr.flush();
-    ssvu::lo().flush();
+    hg::lo().flush();
 }
 
 [[nodiscard]] bool HexagonServer::validateLogin(

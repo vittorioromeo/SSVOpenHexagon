@@ -125,7 +125,7 @@ private:
 
     HexagonClient* hexagonClient;
 
-    sf::ImGuiContext imguiCtx;
+    sf::base::Optional<sf::ImGuiContext> imguiCtx;
 
     // IMGUI Lua Console
     sf::Clock ilcDeltaClock;

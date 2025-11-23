@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
+#include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
@@ -15,6 +16,8 @@
 #include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/GameSystem/GameWindow.hpp>
+
+#include <SSVUtils/Core/String/ToStr.hpp>
 
 #include <SFML/Window/VideoMode.hpp>
 #include <SFML/Window/VideoModeUtils.hpp>
@@ -381,13 +384,13 @@ namespace hg::Config {
     {
         if (ssvufs::Path{"config.json"}.isFile())
         {
-            ssvu::lo("hg::Config::root()")
+            hg::lo("hg::Config::root()")
                 << "User-defined `config.json` file found\n";
 
             return ssvuj::getFromFile("config.json");
         }
 
-        ssvu::lo("hg::Config::root()")
+        hg::lo("hg::Config::root()")
             << "No suitable config file found, using defaults\n";
 
         return ssvuj::Obj{};
@@ -493,7 +496,7 @@ static void applyAutoFullscreenResolution()
 
 void loadConfig(const std::vector<std::string>& mOverridesIds)
 {
-    ssvu::lo("::loadConfig") << "loading config\n";
+    hg::lo("::loadConfig") << "loading config\n";
 
     if (ssvufs::Path{"ConfigOverrides/"}.isFolder())
     {
@@ -503,7 +506,7 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
         {
             if (ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
             {
-                ssvu::lo("::loadConfig")
+                hg::lo("::loadConfig")
                     << "applying config override '"
                     << p.getFileNameNoExtensions() << "'\n";
 
@@ -522,7 +525,7 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
 
 void reapplyResolution()
 {
-    ssvu::lo("::reapplyResolution") << "reapplying resolution\n";
+    hg::lo("::reapplyResolution") << "reapplying resolution\n";
 
     if (getWindowedAutoResolution())
     {
@@ -539,7 +542,7 @@ void reapplyResolution()
 
 void resetConfigToDefaults()
 {
-    ssvu::lo("::resetConfigToDefaults") << "resetting configs\n";
+    hg::lo("::resetConfigToDefaults") << "resetting configs\n";
 
     resetAllFromDefault();
     reapplyResolution();
@@ -547,14 +550,14 @@ void resetConfigToDefaults()
 
 void resetBindsToDefaults()
 {
-    ssvu::lo("::resetBindsToDefaults") << "resetting binds to defaults\n";
+    hg::lo("::resetBindsToDefaults") << "resetting binds to defaults\n";
 
     resetBindsFromDefault();
 }
 
 void saveConfig()
 {
-    ssvu::lo("::saveConfig") << "saving config\n";
+    hg::lo("::saveConfig") << "saving config\n";
     syncAllToObj();
     ssvuj::writeToFile(root(), "config.json");
 }

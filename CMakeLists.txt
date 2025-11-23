@@ -206,21 +206,6 @@ endif()
 #
 #
 # -----------------------------------------------------------------------------
-# vrm_cmake
-# -----------------------------------------------------------------------------
-
-# Include `vrm_cmake`.
-list(APPEND CMAKE_MODULE_PATH
-    "${CMAKE_SOURCE_DIR}/cmake/"
-    "${CMAKE_SOURCE_DIR}/cmake/modules/"
-    "${CMAKE_SOURCE_DIR}/../vrm_cmake/cmake/"
-    "${CMAKE_SOURCE_DIR}/extlibs/vrm_cmake/cmake/")
-
-include(vrm_cmake)
-
-#
-#
-# -----------------------------------------------------------------------------
 # C++ Standard
 # -----------------------------------------------------------------------------
 
@@ -301,40 +286,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 #
 #
 # -----------------------------------------------------------------------------
-# Flags and extlibs
-# -----------------------------------------------------------------------------
-
-string(TOLOWER "${CMAKE_BUILD_TYPE}" vrm_cmake_build_type_lower)
-vrm_cmake_include_vc_dependency_once(vc_detection)
-
-# TODO: decide how to handle flags
-# vrm_cmake_add_common_compiler_flags()
-
-#
-#
-# -----------------------------------------------------------------------------
-# LTO
-# -----------------------------------------------------------------------------
-
-# include(CheckIPOSupported)
-# check_ipo_supported(RESULT result)
-#
-# if(result)
-#     if("${vrm_cmake_build_type_lower}" STREQUAL "release")
-#         message(STATUS "Enabling LTO")
-#         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-#     endif()
-# else()
-#     message(STATUS "LTO not supported")
-# endif()
-
-#
-#
-# -----------------------------------------------------------------------------
 # Targets
 # -----------------------------------------------------------------------------
 
-if(WIN32 AND "${vrm_cmake_build_type_lower}" MATCHES "rel")
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
     set(SSVOH_BUILD_WIN32_CONSOLE TRUE)
 else()
     set(SSVOH_BUILD_WIN32_CONSOLE FALSE)
@@ -434,7 +389,6 @@ macro(ssvoh_find_extlib_for_target target extlib)
     target_include_directories(${target} PUBLIC "${${${extlib}_UPPER}_INCLUDE_DIR}")
 endmacro()
 
-ssvoh_find_extlib_for_target(SSVOpenHexagonLib vrm_pp)
 ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVUtils)
 ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVMenuSystem)
 ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
@@ -547,5 +501,9 @@ endif()
 # Tests
 # -----------------------------------------------------------------------------
 
-vrm_check_target()
+add_custom_target(check
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Build and then run all the tests.")
+
 add_subdirectory(test)

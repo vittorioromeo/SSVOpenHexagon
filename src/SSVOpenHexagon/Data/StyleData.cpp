@@ -12,6 +12,7 @@
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
 #include <SSVUtils/Core/Utils/Math.hpp>
+#include <SSVUtils/Core/Utils/Containers.hpp>
 
 #include <SSVStart/Utils/SFML.hpp>
 
@@ -189,9 +190,10 @@ void StyleData::computeColors()
     {
         const unsigned int rotation = currentSwapTime / (maxSwapTime / 2.f);
 
-        ssvu::rotate(currentColors,
-            std::begin(currentColors) +
-                ssvu::getMod(rotation + BGColorOffset, currentColors.size()));
+        std::rotate(currentColors.begin(),
+            currentColors.begin() +
+                ssvu::getMod(rotation + BGColorOffset, currentColors.size()),
+            currentColors.end());
     }
 }
 

@@ -27,6 +27,7 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/EraseIf.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
@@ -176,7 +177,8 @@ public:
         const std::string& mPackId, const std::string& mId);
     [[nodiscard]] sf::base::Optional<sf::base::SizeT> getShaderIdByPath(
         const std::string& mShaderPath);
-    [[nodiscard]] sf::Shader* getShaderByShaderId(const sf::base::SizeT mShaderId);
+    [[nodiscard]] sf::Shader* getShaderByShaderId(
+        const sf::base::SizeT mShaderId);
     [[nodiscard]] bool isValidShaderId(const sf::base::SizeT mShaderId) const;
 
     void reloadAllShaders();
@@ -237,7 +239,7 @@ static void loadAssetsFromJson(AssetStorage& assetStorage,
     {
         if (!assetStorage.loadFont(f, mRootPath + f))
         {
-            ssvu::lo("hg::loadAssetsFromJson")
+            hg::lo("hg::loadAssetsFromJson")
                 << "Failed to load font '" << f << "'\n";
         }
     }
@@ -247,7 +249,7 @@ static void loadAssetsFromJson(AssetStorage& assetStorage,
     {
         if (!assetStorage.loadTexture(f, mRootPath + f))
         {
-            ssvu::lo("hg::loadAssetsFromJson")
+            hg::lo("hg::loadAssetsFromJson")
                 << "Failed to load texture '" << f << "'\n";
         }
     }
@@ -257,7 +259,7 @@ static void loadAssetsFromJson(AssetStorage& assetStorage,
     {
         if (!assetStorage.loadSoundBuffer(f, mRootPath + f))
         {
-            ssvu::lo("hg::loadAssetsFromJson")
+            hg::lo("hg::loadAssetsFromJson")
                 << "Failed to load sound buffer '" << f << "'\n";
         }
     }
@@ -326,8 +328,7 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(
     {
         if (!ssvufs::Path{"Assets/"}.isFolder())
         {
-            ssvu::lo("FATAL ERROR")
-                << "Folder Assets/ does not exist" << std::endl;
+            hg::lo("FATAL ERROR") << "Folder Assets/ does not exist" << logEndl;
 
             std::terminate();
             return;
@@ -343,28 +344,28 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(
 
     if (!loadAllPackDatas())
     {
-        ssvu::lo("HGAssets::HGAssets") << "Error loading all pack datas\n";
+        hg::lo("HGAssets::HGAssets") << "Error loading all pack datas\n";
         std::terminate();
         return;
     }
 
     if (!loadAllPackAssets(mHeadless))
     {
-        ssvu::lo("HGAssets::HGAssets") << "Error loading all pack assets\n";
+        hg::lo("HGAssets::HGAssets") << "Error loading all pack assets\n";
         std::terminate();
         return;
     }
 
     if (!verifyAllPackDependencies())
     {
-        ssvu::lo("HGAssets::HGAssets") << "Error verifying pack dependencies\n";
+        hg::lo("HGAssets::HGAssets") << "Error verifying pack dependencies\n";
         std::terminate();
         return;
     }
 
     if (!loadAllLocalProfiles())
     {
-        ssvu::lo("HGAssets::HGAssets") << "Error loading local profiles\n";
+        hg::lo("HGAssets::HGAssets") << "Error loading local profiles\n";
         // No need to terminate here, some tests do not require profiles.
         return;
     }
@@ -393,7 +394,7 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(
 
     const std::chrono::duration durElapsed = HRClock::now() - tpBeforeLoad;
 
-    ssvu::lo("HGAssets::HGAssets")
+    hg::lo("HGAssets::HGAssets")
         << "Loaded all assets in "
         << std::chrono::duration_cast<std::chrono::milliseconds>(durElapsed)
                .count()
@@ -402,7 +403,7 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(
 
 HGAssets::HGAssetsImpl::~HGAssetsImpl()
 {
-    ssvu::lo("HGAssets::~HGAssets") << "Cleaning up assets...\n";
+    hg::lo("HGAssets::~HGAssets") << "Cleaning up assets...\n";
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::isHeadless() const
@@ -487,7 +488,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
     packDatas.emplace(packIdStdString, //
         PackData{
             .folderPath{packPath.getStr()},                //
-            .id{packIdStdString},              //
+            .id{packIdStdString},                          //
             .disambiguator{SSVOH_MOVE(packDisambiguator)}, //
             .name{SSVOH_MOVE(packName)},                   //
             .author{SSVOH_MOVE(packAuthor)},               //
@@ -506,7 +507,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
     const std::string& packPath{packData.folderPath};
     const std::string& packId{packData.id};
 
-    ssvu::lo("::loadAssets") << "loading '" << packId << "' assets\n";
+    hg::lo("::loadAssets") << "loading '" << packId << "' assets\n";
 
     try
     {
@@ -549,7 +550,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
             concatIntoBuf("Exception during asset loading: ", mEx.what(), '\n');
 
         loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
-        ssvu::lo("FATAL ERROR") << errorMessage;
+        hg::lo("FATAL ERROR") << errorMessage;
         return false;
     }
     catch (...)
@@ -558,7 +559,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
             "Exception during asset loading: unknown.\n";
 
         loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
-        ssvu::lo("FATAL ERROR") << errorMessage;
+        hg::lo("FATAL ERROR") << errorMessage;
         return false;
     }
 
@@ -676,14 +677,14 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
 {
     if (!ssvufs::Path{"workshopCache.json"}.isFile())
     {
-        ssvu::lo("::loadAssets") << "Workshop cache file does not exist. No "
-                                    "workshop packs to load\n";
+        hg::lo("::loadAssets") << "Workshop cache file does not exist. No "
+                                  "workshop packs to load\n";
         return false;
     }
     auto [cacheObject, cacheError] =
         ssvuj::getFromFileWithErrors("workshopCache.json");
 
-    ssvu::lo("::loadAssets") << "Loading workshop packs from cache\n";
+    hg::lo("::loadAssets") << "Loading workshop packs from cache\n";
     if (ssvuj::hasObj(cacheObject, "cachedPacks"))
     {
         // Null check
@@ -691,7 +692,7 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
         if (packValue.type() == Json::ValueType::nullValue ||
             packValue.type() != Json::ValueType::arrayValue)
         {
-            ssvu::lo("::loadAssets")
+            hg::lo("::loadAssets")
                 << "Cache array is null. No workshop packs to load\n";
             return false;
         }
@@ -702,7 +703,7 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
 
         if (packArray.size() <= 0)
         {
-            ssvu::lo("::loadAssets")
+            hg::lo("::loadAssets")
                 << "Cache array is empty. No workshop packs to load\n";
             return false;
         }
@@ -715,8 +716,8 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
     }
     else
     {
-        ssvu::lo("::loadAssets") << "[ERROR]: Cannot locate cache array in "
-                                    "workshop cache file\n";
+        hg::lo("::loadAssets") << "[ERROR]: Cannot locate cache array in "
+                                  "workshop cache file\n";
 
         return false;
     }
@@ -729,7 +730,7 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
 {
     if (!ssvufs::Path{"Packs/"}.isFolder())
     {
-        ssvu::lo("::loadAssets") << "Folder Packs/ does not exist" << std::endl;
+        hg::lo("::loadAssets") << "Folder Packs/ does not exist" << logEndl;
         return false;
     }
 
@@ -743,7 +744,7 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
                     static_cast<const std::string&>(packPath), '\n');
 
             loadInfo.errorMessages.emplace_back(errorMessage);
-            ssvu::lo("::loadAssets") << errorMessage;
+            hg::lo("::loadAssets") << errorMessage;
         }
         else
         {
@@ -794,7 +795,7 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
             concatIntoBuf("Error loading pack info '", packId, '\n');
 
         loadInfo.errorMessages.emplace_back(errorMessage);
-        ssvu::lo("::loadAssets") << errorMessage;
+        hg::lo("::loadAssets") << errorMessage;
 
         return false;
     }
@@ -837,13 +838,20 @@ HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
                     "' for pack '", packData.name, "'\n");
 
             loadInfo.errorMessages.emplace_back(errorMessage);
-            ssvu::lo("::loadAssets") << errorMessage;
+            hg::lo("::loadAssets") << errorMessage;
 
             packIdsWithMissingDependencies.emplace(packId);
         }
     }
 
-    ssvu::eraseRemoveIf(selectablePackInfos, [&](const PackInfo& pi)
+    auto eraseRemoveIf = [](auto& mContainer, auto&& mPredicate)
+    {
+        mContainer.erase(
+            std::remove_if(mContainer.begin(), mContainer.end(), mPredicate),
+            std::end(mContainer));
+    };
+
+    eraseRemoveIf(selectablePackInfos, [&](const PackInfo& pi)
         { return packIdsWithMissingDependencies.contains(pi.id); });
 
     return true;
@@ -863,13 +871,12 @@ void HGAssets::HGAssetsImpl::addLocalProfile(ProfileData&& profileData)
 {
     if (!ssvufs::Path{"Profiles/"}.isFolder())
     {
-        ssvu::lo("::loadAssets")
-            << "Folder Profiles/ does not exist" << std::endl;
+        hg::lo("::loadAssets") << "Folder Profiles/ does not exist" << logEndl;
 
         return false;
     }
 
-    ssvu::lo("::loadAssets") << "loading local profiles\n";
+    hg::lo("::loadAssets") << "loading local profiles\n";
 
     for (const auto& p : scanSingleByExt("Profiles/", ".json"))
     {
@@ -908,7 +915,7 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(
 
             if (!shader.hasValue())
             {
-                ssvu::lo("hg::loadPackAssets_loadShaders")
+                hg::lo("hg::loadPackAssets_loadShaders")
                     << "Failed to load shader '" << p << "'\n";
 
                 continue;
@@ -948,7 +955,7 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadCustomSounds(
         if (!assetStorage->loadSoundBuffer(
                 concatIntoBuf(mPackId, '_', p.getFileName()), p))
         {
-            ssvu::lo("hg::loadPackAssets_loadCustomSounds")
+            hg::lo("hg::loadPackAssets_loadCustomSounds")
                 << "Failed to load sound buffer '" << p << "'\n";
         }
 
@@ -1088,7 +1095,7 @@ void HGAssets::HGAssetsImpl::saveAllProfiles()
     const auto it = musicDataMap.find(assetId);
     if (it == musicDataMap.end())
     {
-        ssvu::lo("getMusicData") << "Asset '" << assetId << "' not found\n";
+        hg::lo("getMusicData") << "Asset '" << assetId << "' not found\n";
 
         SSVOH_ASSERT(!musicDataMap.empty());
         return musicDataMap.begin()->second;
@@ -1105,7 +1112,7 @@ void HGAssets::HGAssetsImpl::saveAllProfiles()
     const auto it = styleDataMap.find(assetId);
     if (it == styleDataMap.end())
     {
-        ssvu::lo("getStyleData") << "Asset '" << assetId << "' not found\n";
+        hg::lo("getStyleData") << "Asset '" << assetId << "' not found\n";
 
         SSVOH_ASSERT(!styleDataMap.empty());
         return styleDataMap.begin()->second;
@@ -1122,7 +1129,7 @@ void HGAssets::HGAssetsImpl::saveAllProfiles()
     const auto it = shaders.find(assetId);
     if (it == shaders.end())
     {
-        ssvu::lo("getShader") << "Asset '" << assetId << "' not found\n";
+        hg::lo("getShader") << "Asset '" << assetId << "' not found\n";
         return nullptr;
     }
 
@@ -1138,7 +1145,7 @@ HGAssets::HGAssetsImpl::getShaderId(
     const auto it = shaders.find(assetId);
     if (it == shaders.end())
     {
-        ssvu::lo("getShaderId") << "Asset '" << assetId << "' not found\n";
+        hg::lo("getShaderId") << "Asset '" << assetId << "' not found\n";
         return sf::base::nullOpt;
     }
 
@@ -1151,8 +1158,8 @@ HGAssets::HGAssetsImpl::getShaderIdByPath(const std::string& mShaderPath)
     const auto it = shadersPathToId.find(mShaderPath);
     if (it == shadersPathToId.end())
     {
-        ssvu::lo("getShaderIdByPath") << "Shader with path '" << mShaderPath
-                                      << "' not found, couldn't get id\n";
+        hg::lo("getShaderIdByPath") << "Shader with path '" << mShaderPath
+                                    << "' not found, couldn't get id\n";
 
         return sf::base::nullOpt;
     }
@@ -1198,7 +1205,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
 
         if (!reloadedShader.hasValue())
         {
-            ssvu::lo("hg::HGAssetsImplImpl::reloadAllShaders")
+            hg::lo("hg::HGAssetsImplImpl::reloadAllShaders")
                 << "Failed to load shader '" << loadedShader.path << "'\n";
 
             continue;
@@ -1593,7 +1600,7 @@ void HGAssets::HGAssetsImpl::pCreate(const std::string& mName)
 
     if (!loadAllLocalProfiles())
     {
-        ssvu::lo("HGAssets::HGAssets") << "Error loading local profiles\n";
+        hg::lo("HGAssets::HGAssets") << "Error loading local profiles\n";
         std::terminate();
         return;
     }

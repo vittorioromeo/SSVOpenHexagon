@@ -10,7 +10,7 @@
 
 #include <SFML/System/Time.hpp>
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
@@ -210,7 +210,7 @@ public:
 
         if (path == nullptr)
         {
-            ssvu::lo("hg::AudioImpl::loadAndPlayMusic")
+            hg::lo("hg::AudioImpl::loadAndPlayMusic")
                 << "No path for music id '" << assetId << "'\n";
 
             return false;
@@ -220,8 +220,8 @@ public:
         {
             if (!(_musicReader = sf::MusicReader::openFromFile(*path)))
             {
-                ssvu::lo("hg::AudioImpl::loadAndPlayMusic")
-                    << "Failed loading music file '" << path << "'\n";
+                hg::lo("hg::AudioImpl::loadAndPlayMusic")
+                    << "Failed loading music file '" << *path << "'\n";
 
                 _music.reset();
                 return false;

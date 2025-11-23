@@ -29,11 +29,13 @@
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
+#include <SFML/Base/Optional.hpp>
+#include <SFML/ImGui/ImGuiContext.hpp>
 #include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 #include <SSVStart/Input/Trigger.hpp>
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -333,7 +335,6 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
-      imguiCtx{},
       player{sf::Vec2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
@@ -359,6 +360,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     if (window != nullptr)
     {
+        imguiCtx.emplace();
+
         const float width = Config::getWidth();
         const float height = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
@@ -399,7 +402,10 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     game.onDraw += [this] { draw(); };
 
     game.onAnyEvent += [this](const sf::Event& e)
-    { imguiCtx.processEvent(window->getRenderWindow(), e); };
+    {
+        if (imguiCtx.hasValue())
+            imguiCtx->processEvent(window->getRenderWindow(), e);
+    };
 
     if (window != nullptr)
     {
@@ -522,7 +528,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
 HexagonGame::~HexagonGame()
 {
-    ssvu::lo("HexagonGame::~HexagonGame") << "Cleaning up game resources...\n";
+    hg::lo("HexagonGame::~HexagonGame") << "Cleaning up game resources...\n";
 }
 
 void HexagonGame::refreshTrigger(
@@ -552,7 +558,7 @@ void HexagonGame::updateRichPresenceCallbacks()
             if (steamAttempt > 20)
             {
                 steamHung = true;
-                ssvu::lo("Steam") << "Too many failed callbacks. Stopping "
+                hg::lo("Steam") << "Too many failed callbacks. Stopping "
                                      "Steam callbacks.\n";
             }
         }
@@ -567,7 +573,7 @@ void HexagonGame::updateRichPresenceCallbacks()
             if (discordAttempt > 20)
             {
                 discordHung = true;
-                ssvu::lo("Discord") << "Too many failed callbacks. Stopping "
+                hg::lo("Discord") << "Too many failed callbacks. Stopping "
                                        "Discord callbacks.\n";
             }
         }
@@ -617,7 +623,7 @@ void HexagonGame::saveReplay()
 
         const replay_file rf = death_createReplayFile();
 
-        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+        hg::lo("Replay") << "Attempting to send and save replay...\n";
         death_sendAndSaveReplay(rf);
     }
 }
@@ -1050,7 +1056,7 @@ void HexagonGame::death(bool mForce)
             onDeathReplayCreated(rf);
         }
 
-        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+        hg::lo("Replay") << "Attempting to send and save replay...\n";
         death_sendAndSaveReplay(rf);
     }
 
@@ -1089,7 +1095,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     if (!crfOpt.hasValue())
     {
-        ssvu::lo("Replay") << "Failed to compress replay, will not save to "
+        hg::lo("Replay") << "Failed to compress replay, will not save to "
                               "file or send to server\n";
 
         return;
@@ -1099,11 +1105,12 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     // ------------------------------------------------------------------------
     // Send compressed replay to server.
-    const auto lv = Utils::getLevelValidator(rf._level_id, rf._difficulty_mult); // TODO
+    const auto lv =
+        Utils::getLevelValidator(rf._level_id, rf._difficulty_mult); // TODO
     if (const std::string levelValidator{lv.data(), lv.size()};
         !death_sendReplay(levelValidator, crf))
     {
-        ssvu::lo("Replay") << "Failure sending replay\n";
+        hg::lo("Replay") << "Failure sending replay\n";
     }
 
     // ------------------------------------------------------------------------
@@ -1111,7 +1118,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     if (const std::string filename = Utils::concat(rf.create_filename(), ".z");
         !death_saveReplay(filename, crf))
     {
-        ssvu::lo("Replay") << "Failure saving replay\n";
+        hg::lo("Replay") << "Failure saving replay\n";
     }
 }
 
@@ -1125,11 +1132,11 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
         return false;
     }
 
-    ssvu::lo("Replay") << "Sending compressed replay to server...\n";
+    hg::lo("Replay") << "Sending compressed replay to server...\n";
 
     if (!hexagonClient->trySendCompressedReplay(levelValidator, crf))
     {
-        ssvu::lo("Replay") << "Could not send compressed replay to server\n";
+        hg::lo("Replay") << "Could not send compressed replay to server\n";
         return false;
     }
 
@@ -1157,13 +1164,13 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     if (!crf.serialize_to_file(p))
     {
-        ssvu::lo("Replay") << "Failed to save new compressed replay file '" << p
+        hg::lo("Replay") << "Failed to save new compressed replay file '" << p
                            << "'\n";
 
         return false;
     }
 
-    ssvu::lo("Replay") << "Successfully saved new compressed replay file '" << p
+    hg::lo("Replay") << "Successfully saved new compressed replay file '" << p
                        << "'\n";
 
     return true;
@@ -1251,7 +1258,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 {
     if (!assets.anyLocalProfileActive())
     {
-        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+        hg::lo("hg::HexagonGame::shouldSaveScore()")
             << "No local profile active, rejecting\n";
 
         return false;
@@ -1259,7 +1266,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     if (!Config::isEligibleForScore())
     {
-        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+        hg::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - not eligible - "
             << Config::getUneligibilityReason() << '\n';
 
@@ -1268,7 +1275,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     if (status.scoreInvalid)
     {
-        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+        hg::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - score invalidated\n";
 
         return false;
@@ -1276,7 +1283,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     if (levelStatus.tutorialMode)
     {
-        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+        hg::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - in tutorial mode\n";
 
         return false;
@@ -1284,7 +1291,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     if (levelData->unscored)
     {
-        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+        hg::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - unscored level\n";
 
         return false;
@@ -1292,7 +1299,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     if (inReplay())
     {
-        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+        hg::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - currently in replay\n";
 
         return false;
@@ -1313,7 +1320,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
     if (window == nullptr)
     {
-        ssvu::lo("hg::HexagonGame::goToMenu")
+        hg::lo("hg::HexagonGame::goToMenu")
             << "Attempted to go back to menu without a game window\n";
 
         return;
@@ -1499,7 +1506,7 @@ void HexagonGame::invalidateScore(const std::string& mReason)
     status.scoreInvalid = true;
     status.invalidReason = mReason;
 
-    ssvu::lo("HexagonGame::invalidateScore")
+    hg::lo("HexagonGame::invalidateScore")
         << "Invalidating official game (" << mReason << ")\n";
 }
 

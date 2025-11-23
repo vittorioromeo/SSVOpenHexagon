@@ -6,15 +6,17 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/System/Vec2.hpp>
+
+#include <SFML/Base/ScopeGuard.hpp>
+#include <SFML/Base/Algorithm/Find.hpp>
 
 #include <string>
 #include <fstream>
@@ -31,18 +33,18 @@ try
 }
 catch (std::runtime_error& mError)
 {
-    ssvu::lo("hg::Utils::runLuaCode") << "Fatal Lua error\n"
-                                      << "Code: " << mCode << '\n'
-                                      << "Error: " << mError.what() << '\n'
-                                      << std::endl;
+    hg::lo("hg::Utils::runLuaCode") << "Fatal Lua error\n"
+                                    << "Code: " << mCode << '\n'
+                                    << "Error: " << mError.what() << '\n'
+                                    << logEndl;
 
     throw;
 }
 catch (...)
 {
-    ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown Lua error\n"
-                                      << "Code: " << mCode << '\n'
-                                      << std::endl;
+    hg::lo("hg::Utils::runLuaCode") << "Fatal unknown Lua error\n"
+                                    << "Code: " << mCode << '\n'
+                                    << logEndl;
 
     throw;
 }
@@ -87,7 +89,7 @@ void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
         const std::string errorStr = concat(
             "Fatal Lua error\n", "Could not open file: ", mFileName, '\n');
 
-        ssvu::lo("hg::Utils::runLuaFile") << errorStr << std::endl;
+        hg::lo("hg::Utils::runLuaFile") << errorStr << logEndl;
         throw std::runtime_error(errorStr);
     }
 
@@ -97,18 +99,18 @@ void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
     }
     catch (std::runtime_error& mError)
     {
-        ssvu::lo("hg::Utils::runLuaFile") << "Fatal Lua error\n"
-                                          << "Filename: " << mFileName << '\n'
-                                          << "Error: " << mError.what() << '\n'
-                                          << std::endl;
+        hg::lo("hg::Utils::runLuaFile") << "Fatal Lua error\n"
+                                        << "Filename: " << mFileName << '\n'
+                                        << "Error: " << mError.what() << '\n'
+                                        << logEndl;
 
         throw;
     }
     catch (...)
     {
-        ssvu::lo("hg::Utils::runLuaFile") << "Fatal unknown Lua error\n"
-                                          << "Filename: " << mFileName << '\n'
-                                          << std::endl;
+        hg::lo("hg::Utils::runLuaFile") << "Fatal unknown Lua error\n"
+                                        << "Filename: " << mFileName << '\n'
+                                        << logEndl;
 
         throw;
     }
@@ -122,13 +124,14 @@ const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
 
     // ------------------------------------------------------------------------
     // Check if provided arguments are a dependency of current pack.
-    const auto depIt = std::find_if(dependencies.begin(), dependencies.end(),
-        [&](const PackDependency& pd)
-        {
-            return pd.disambiguator == mPackDisambiguator && //
-                   pd.name == mPackName &&                   //
-                   pd.author == mPackAuthor;
-        });
+    const auto depIt =
+        sf::base::findIf(dependencies.begin(), dependencies.end(),
+            [&](const PackDependency& pd)
+            {
+                return pd.disambiguator == mPackDisambiguator && //
+                       pd.name == mPackName &&                   //
+                       pd.author == mPackAuthor;
+            });
 
     if (depIt == dependencies.end())
     {
@@ -186,23 +189,23 @@ try
         assets, currentPack, mPackDisambiguator, mPackName, mPackAuthor);
 
     execScriptPackPathContext.emplace_back(dependencyData.folderPath);
-    HG_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
+    SFML_BASE_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
 
     return f(
         concat(dependencyData.folderPath, assetSubfolder, '/', mAssetName));
 }
 catch (const std::runtime_error& err)
 {
-    ssvu::lo("hg::Utils::withDependencyAssetFilename")
+    hg::lo("hg::Utils::withDependencyAssetFilename")
         << "Fatal error while looking for Lua dependency\nError: " << err.what()
-        << std::endl;
+        << logEndl;
 
     throw;
 }
 catch (...)
 {
-    ssvu::lo("hg::Utils::withDependencyAssetFilename")
-        << "Fatal unknown error while looking for Lua dependency" << std::endl;
+    hg::lo("hg::Utils::withDependencyAssetFilename")
+        << "Fatal unknown error while looking for Lua dependency" << logEndl;
 
     throw;
 }

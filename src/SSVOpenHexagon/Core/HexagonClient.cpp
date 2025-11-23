@@ -10,16 +10,16 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
-#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
 #include <SFML/Network/IpAddressUtils.hpp>
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Network/Packet.hpp>
 
 #include <SFML/Base/IntTypes.hpp>
 #include <SFML/Base/String.hpp>
+#include <SFML/Base/ScopeGuard.hpp>
 #include <SFML/Base/StringStreamOp.hpp>
 
 #include <thread>
@@ -28,7 +28,7 @@
 
 static auto& clog(const char* funcName)
 {
-    return ::ssvu::lo(::hg::Utils::concat("hg::HexagonClient::", funcName));
+    return ::hg::lo(::hg::Utils::concat("hg::HexagonClient::", funcName));
 }
 
 #define SSVOH_CLOG ::clog(__func__)
@@ -991,7 +991,7 @@ HexagonClient::pollEvent()
         return sf::base::nullOpt;
     }
 
-    HG_SCOPE_GUARD({ _events.pop_front(); });
+    SFML_BASE_SCOPE_GUARD({ _events.pop_front(); });
     return sf::base::makeOptional(_events.front());
 }
 
