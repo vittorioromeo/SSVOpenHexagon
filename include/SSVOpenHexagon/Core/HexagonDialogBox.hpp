@@ -6,6 +6,7 @@
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/View.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 #include <string>
@@ -59,15 +60,17 @@ private:
     bool inputBoxPassword{false};
     std::string input;
 
-    void drawText(
-        const sf::Color& txtColor, const float xOffset, const float yOffset);
+    void drawText(const sf::View& view, const sf::Color& txtColor,
+        const float xOffset, const float yOffset);
     void drawBox(Utils::FastVertexVectorTris& quads,
         const sf::Color& frameColor, const float x1, const float x2,
         const float y1, const float y2);
-    void drawCenter(const sf::Color& txtColor, const sf::Color& backdropColor);
+    void drawCenter(
+        const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
     void drawCenterUpperHalf(
-        const sf::Color& txtColor, const sf::Color& backdropColor);
-    void drawTopLeft(const sf::Color& txtColor, const sf::Color& backdropColor);
+        const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
+    void drawTopLeft(
+        const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
 
 public:
     explicit HexagonDialogBox(sf::Font& font, ssvs::GameWindow& window);
@@ -85,7 +88,8 @@ public:
     void createInput(const std::string& output, const int charSize,
         const float mFrameSize, const DBoxDraw mDrawMode);
 
-    void draw(const sf::Color& txtColor, const sf::Color& backdropColor);
+    void draw(const sf::View& view, const sf::Color& txtColor,
+        const sf::Color& backdropColor);
 
     void clearDialogBox();
 

@@ -31,6 +31,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -528,8 +529,12 @@ public:
         const std::string& mPackId, const std::string& mId);
 
     // Graphics-related methods
-    template <typename... Ts>
-    void render(Ts&&... xs);
+    template <typename TDrawable>
+    void renderWithView(const sf::View& view, TDrawable&& drawable);
+
+    template <typename TDrawable>
+    void renderWithView(
+        const sf::View& view, TDrawable&& drawable, sf::RenderStates states);
 
     // Setters
     void setSides(unsigned int mSides);

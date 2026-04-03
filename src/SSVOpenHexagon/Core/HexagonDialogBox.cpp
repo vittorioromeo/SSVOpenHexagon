@@ -16,6 +16,14 @@
 
 namespace hg {
 
+template <typename TDrawable>
+void drawWithView(ssvs::GameWindow& window, const sf::View& view,
+    const TDrawable& drawable, sf::RenderStates states = {})
+{
+    states.view = view;
+    window.getRenderWindow().draw(drawable, states);
+}
+
 [[nodiscard]] static Utils::FastVertexVectorTris& getDialogFrame()
 {
     thread_local Utils::FastVertexVectorTris result;
@@ -82,27 +90,27 @@ void HexagonDialogBox::createInput(const std::string& output,
     keyToClose = KKey::Enter;
 }
 
-void HexagonDialogBox::draw(
-    const sf::Color& txtColor, const sf::Color& backdropColor)
+void HexagonDialogBox::draw(const sf::View& view, const sf::Color& txtColor,
+    const sf::Color& backdropColor)
 {
     switch (drawMode)
     {
         case DBoxDraw::topLeft:
         {
-            drawTopLeft(txtColor, backdropColor);
+            drawTopLeft(view, txtColor, backdropColor);
             break;
         }
 
         case DBoxDraw::center:
         {
-            drawCenter(txtColor, backdropColor);
+            drawCenter(view, txtColor, backdropColor);
             break;
         }
 
         default:
         {
             SSVOH_ASSERT(drawMode == DBoxDraw::centerUpperHalf);
-            drawCenterUpperHalf(txtColor, backdropColor);
+            drawCenterUpperHalf(view, txtColor, backdropColor);
             break;
         }
     }
@@ -120,7 +128,7 @@ void HexagonDialogBox::drawBox(Utils::FastVertexVectorTris& quads,
     quads.batch_unsafe_emplace_back_quad(frameColor, nw, sw, se, ne);
 }
 
-void HexagonDialogBox::drawText(
+void HexagonDialogBox::drawText(const sf::View& view,
     const sf::Color& txtColor, const float xOffset, const float yOffset)
 {
     float heightOffset = 0.f;
@@ -135,7 +143,7 @@ void HexagonDialogBox::drawText(
             txtDialog.position = {
                 xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
                 yOffset + heightOffset + 5.f};
-            window.draw(txtDialog);
+            drawWithView(window, view, txtDialog);
         }
 
         heightOffset += interline;
@@ -156,13 +164,13 @@ void HexagonDialogBox::drawText(
 
         txtDialog.position = {xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
             yOffset + heightOffset + 5.f};
-        window.draw(txtDialog);
+        drawWithView(window, view, txtDialog);
     }
 }
 
 inline constexpr float fontHeightDifferential = 0.9f;
 
-void HexagonDialogBox::drawTopLeft(
+void HexagonDialogBox::drawTopLeft(const sf::View& view,
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
     Utils::FastVertexVectorTris& dialogFrame = getDialogFrame();
@@ -178,10 +186,10 @@ void HexagonDialogBox::drawTopLeft(
         doubleFrameSize + frameSize + dialogWidth + xPos, frameSize + yPos,
         totalHeight - frameSize + yPos);
 
-    window.draw(dialogFrame);
+    drawWithView(window, view, dialogFrame);
 
     // Text
-    drawText(txtColor, xPos + doubleFrameSize + dialogWidth / 2.f,
+    drawText(view, txtColor, xPos + doubleFrameSize + dialogWidth / 2.f,
         yPos - lineHeight * fontHeightDifferential + doubleFrameSize);
 }
 
@@ -201,7 +209,7 @@ void HexagonDialogBox::drawTopLeft(
     return {fmax, w, h};
 }
 
-void HexagonDialogBox::drawCenter(
+void HexagonDialogBox::drawCenter(const sf::View& view,
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
     const auto [fmax, w, h] =
@@ -224,14 +232,14 @@ void HexagonDialogBox::drawCenter(
         rightBorder + frameSize, h - halfHeight + frameSize,
         h + halfHeight - frameSize);
 
-    window.draw(dialogFrame);
+    drawWithView(window, view, dialogFrame);
 
     // Text
-    drawText(txtColor, w / 2.f,
+    drawText(view, txtColor, w / 2.f,
         h - halfHeight - lineHeight * fontHeightDifferential + doubleFrameSize);
 }
 
-void HexagonDialogBox::drawCenterUpperHalf(
+void HexagonDialogBox::drawCenterUpperHalf(const sf::View& view,
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
     const auto [fmax, w, h] =
@@ -252,10 +260,10 @@ void HexagonDialogBox::drawCenterUpperHalf(
     drawBox(dialogFrame, backdropColor, leftBorder - frameSize,
         rightBorder + frameSize, h - totalHeight + frameSize, h - frameSize);
 
-    window.draw(dialogFrame);
+    drawWithView(window, view, dialogFrame);
 
     // Text
-    drawText(txtColor, w / 2.f,
+    drawText(view, txtColor, w / 2.f,
         h - totalHeight - lineHeight * fontHeightDifferential +
             doubleFrameSize);
 }

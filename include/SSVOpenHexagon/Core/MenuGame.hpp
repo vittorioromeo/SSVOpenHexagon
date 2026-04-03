@@ -15,6 +15,7 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
+#include <SSVStart/GameSystem/GameWindow.hpp>
 #include <SSVStart/GameSystem/GameState.hpp>
 
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
@@ -22,6 +23,7 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -37,10 +39,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-namespace ssvs {
-class GameWindow;
-}
 
 namespace ssvs::Input {
 class Trigger;
@@ -95,6 +93,61 @@ public:
     std::function<void()> fnHGUpdateRichPresenceCallbacks;
 
 private:
+    template <typename TDrawable>
+    void drawWithView(const sf::View& view, const TDrawable& drawable)
+    {
+        drawWithView(view, drawable, sf::RenderStates{});
+    }
+
+    template <typename TDrawable>
+    void drawWithView(
+        const sf::View& view, const TDrawable& drawable, sf::RenderStates states)
+    {
+        states.view = view;
+        window.getRenderWindow().draw(drawable, states);
+    }
+
+    template <typename TDrawable>
+    void drawBackground(const TDrawable& drawable)
+    {
+        drawWithView(backgroundCamera.apply(), drawable);
+    }
+
+    template <typename TDrawable>
+    void drawBackground(
+        const TDrawable& drawable, sf::RenderStates states)
+    {
+        drawWithView(backgroundCamera.apply(), drawable, states);
+    }
+
+    template <typename TDrawable>
+    void drawOverlay(const TDrawable& drawable)
+    {
+        drawWithView(overlayCamera.apply(), drawable);
+    }
+
+    template <typename TDrawable>
+    void drawOverlay(const TDrawable& drawable, sf::RenderStates states)
+    {
+        drawWithView(overlayCamera.apply(), drawable, states);
+    }
+
+    template <typename TDrawable>
+    void drawScreen(const TDrawable& drawable)
+    {
+        drawWithView(
+            sf::View{{0.f, 0.f}, {getWindowWidth(), getWindowHeight()}},
+            drawable);
+    }
+
+    template <typename TDrawable>
+    void drawScreen(const TDrawable& drawable, sf::RenderStates states)
+    {
+        drawWithView(
+            sf::View{{0.f, 0.f}, {getWindowWidth(), getWindowHeight()}},
+            drawable, states);
+    }
+
     //---------------------------------------
     // Classes
 
