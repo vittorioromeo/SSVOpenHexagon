@@ -22,13 +22,13 @@
 #include "SSVOpenHexagon/Utils/String.hpp"
 
 #include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/Frametime.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
 #include <SSVUtils/Core/Utils/Rnd.hpp>
-#include <SSVUtils/Core/Common/Frametime.hpp>
 
 #ifndef SSVOH_ANDROID
 #include <imgui.h>
@@ -148,7 +148,7 @@ void HexagonGame::update(float mFT, const float timescale)
         const std::string timeStr = timeFormat(status.getTimeSeconds());
 
         constexpr float DELAY_TO_UPDATE = 5.f; // X seconds
-        timeUntilRichPresenceUpdate -= ssvu::getFTToSeconds(mFT);
+        timeUntilRichPresenceUpdate -= getFTToSeconds(mFT);
 
         if (timeUntilRichPresenceUpdate <= 0.f)
         {

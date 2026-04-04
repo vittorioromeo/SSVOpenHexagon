@@ -10,7 +10,8 @@
 #include <SFML/Base/Variant.hpp>
 #include <SFML/Base/SizeT.hpp>
 
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 #include <vector>
 
 namespace hg::Utils {

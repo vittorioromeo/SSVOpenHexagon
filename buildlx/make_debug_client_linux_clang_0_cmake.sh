@@ -18,4 +18,5 @@ cmake .. -G"Ninja" \
             -D_GLIBCXX_ASSERTIONS=1 \
             -fstack-protector -Wno-pragmas \
             -fsanitize=address -g3 \
+            -ftime-trace \
             -DSFML_ENABLE_LIFETIME_TRACKING=1"

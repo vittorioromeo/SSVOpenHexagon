@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
-
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
+
+#include "SSVOpenHexagon/Core/Frametime.hpp"
 
 namespace ssvs {
 
@@ -26,9 +26,7 @@ private:
 public:
     TimerStatic(const float step = 1.f, const float timeSlice = 1.f,
         const float maxLoops = 50.f) noexcept
-        : step{step},
-          timeSlice{timeSlice},
-          maxLoops{maxLoops}
+        : step{step}, timeSlice{timeSlice}, maxLoops{maxLoops}
     {}
 
     void reset()
@@ -53,12 +51,12 @@ public:
 
     void runFrameTime()
     {
-        frameTime = ssvu::getSecondsToFT(clock.restart().asSeconds());
+        frameTime = hg::getSecondsToFT(clock.restart().asSeconds());
     }
 
     void runFPS()
     {
-        fps = ssvu::getFTToFPS(frameTime);
+        fps = hg::getFTToFPS(frameTime);
     }
 
     void setStep(const float newStep) noexcept

@@ -37,7 +37,8 @@
 
 #include <iostream>
 #include <string>
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 #include <cmath>
 
 namespace hg {
@@ -108,7 +109,7 @@ void HexagonGame::initLua_Utils()
 
     addLuaFn(lua, "u_haltTime", //
         [this](double mDuration)
-        { status.pauseTime(ssvu::getFTToSeconds(mDuration)); })
+        { status.pauseTime(getFTToSeconds(mDuration)); })
         .arg("duration")
         .doc("Pause the game timer for `$0` seconds.");
 
@@ -375,7 +376,7 @@ void HexagonGame::initLua_EventTimeline()
         [this](double mDuration)
         {
             eventTimeline.append_do([this, mDuration]
-                { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
+                { status.pauseTime(getFTToSeconds(mDuration)); });
         })
         .arg("duration")
         .doc(
@@ -529,7 +530,7 @@ void HexagonGame::initLua_CustomTimelines()
 
             _customTimelineManager.get(cth)._timeline.append_do(
                 [this, mDuration]
-                { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
+                { status.pauseTime(getFTToSeconds(mDuration)); });
         })
         .arg("handle")
         .arg("duration")
@@ -937,7 +938,7 @@ void HexagonGame::initLua_Deprecated()
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_stopTime\" in your level files.");
             eventTimeline.append_do([this, mDuration]
-                { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
+                { status.pauseTime(getFTToSeconds(mDuration)); });
         })
         .arg("duration")
         .doc(

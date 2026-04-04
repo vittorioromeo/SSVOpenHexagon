@@ -7,5 +7,5 @@
 // Include as system header to suppress jsoncpp warnings.
 #pragma GCC system_header
 
-#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/jsoncpp.inl"
+#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp" // IWYU pragma: export
+#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/jsoncpp.inl" // IWYU pragma: export

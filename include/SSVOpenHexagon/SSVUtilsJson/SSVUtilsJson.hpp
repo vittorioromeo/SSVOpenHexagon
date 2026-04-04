@@ -4,6 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/JsonCpp.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/Utils.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/JsonCpp.hpp" // IWYU pragma: export
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp" // IWYU pragma: export
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Utils.hpp"   // IWYU pragma: export

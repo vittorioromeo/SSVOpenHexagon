@@ -36,7 +36,8 @@
 #include <array>
 #include <atomic>
 #include <bitset>
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 #include <deque>
 #include <exception>
 #include <filesystem>
@@ -169,7 +170,6 @@
 // SSVUtils
 // ----------------------------------------------------------------------------
 
-#include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include <SSVUtils/Core/Utils/Rnd.hpp>

@@ -42,7 +42,8 @@
 
 #include <boost/pfr.hpp>
 
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 #include <sstream>
 #include <string>
 #include <stdexcept>

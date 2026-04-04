@@ -6,7 +6,8 @@
 
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 
 namespace hg {
 

@@ -43,7 +43,8 @@
 #include <SFML/Base/Algorithm/Sort.hpp>
 #include <SFML/Base/String.hpp>
 
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 #include <iostream>
 #include <exception>
 

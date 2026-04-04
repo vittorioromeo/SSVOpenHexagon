@@ -7,7 +7,8 @@
 
 #include <math.h> // Needed by `discord.h`...
 #include <SFML/Base/IntTypes.hpp>
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 
 #ifndef SSVOH_ANDROID
 #include "discord/discord.h"

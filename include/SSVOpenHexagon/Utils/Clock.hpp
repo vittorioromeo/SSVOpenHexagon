@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 
 namespace hg {
 

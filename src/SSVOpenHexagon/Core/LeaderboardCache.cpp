@@ -6,7 +6,8 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 #include <SFML/Base/Optional.hpp>
 #include <string>
 #include <unordered_map>

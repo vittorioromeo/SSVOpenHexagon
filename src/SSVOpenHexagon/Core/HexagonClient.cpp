@@ -23,7 +23,8 @@
 #include <SFML/Base/StringStreamOp.hpp>
 
 #include <thread>
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 
 
 static auto& clog(const char* funcName)

@@ -11,6 +11,7 @@
 #include <SSVUtils/Delegate/Delegate.hpp>
 
 #include <SFML/Base/Array.hpp>
+#include <SFML/Base/StdChrono.hpp>
 #include <SFML/Base/Vector.hpp>
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -24,7 +25,6 @@
 #include <SFML/Window/VideoMode.hpp>
 
 #include <cassert>
-#include <chrono>
 #include <string>
 #include <utility>
 

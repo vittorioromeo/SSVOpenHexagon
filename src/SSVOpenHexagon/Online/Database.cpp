@@ -18,7 +18,8 @@
 #include <SFML/Base/ScopeGuard.hpp>
 
 #include <string>
-#include <chrono>
+#include <SFML/Base/StdChrono.hpp>
+
 
 static auto& dlog(const char* funcName)
 {
