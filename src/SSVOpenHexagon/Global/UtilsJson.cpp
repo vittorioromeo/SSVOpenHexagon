@@ -3,24 +3,20 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-
 #include "SSVOpenHexagon/Input/Combo.hpp"
 #include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 #include "SSVOpenHexagon/Input/Utils.hpp"
-
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/Graphics/Color.hpp>
-
-#include <SFML/Window/Mouse.hpp>
-#include <SFML/Window/Keyboard.hpp>
-
 #include <SFML/System/Vec2.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 
-namespace ssvuj {
+namespace ssvuj
+{
 
 void Converter<sf::Vec2f>::fromObj(const Obj& mObj, T& mValue)
 {
@@ -129,7 +125,7 @@ void Converter<ssvs::Input::Combo>::toObj(Obj& mObj, const T& mValue)
         return;
     }
 
-    auto i(0u);
+    auto        i(0u);
     const auto& keys(mValue.getKeys());
     const auto& btns(mValue.getBtns());
 

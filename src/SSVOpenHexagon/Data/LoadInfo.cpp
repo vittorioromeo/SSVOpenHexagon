@@ -5,11 +5,11 @@
 #include "SSVOpenHexagon/Data/LoadInfo.hpp"
 
 #include <SFML/Base/SizeT.hpp>
-
 #include <string>
 #include <vector>
 
-namespace hg {
+namespace hg
+{
 
 void LoadInfo::addFormattedError(std::string& error)
 {

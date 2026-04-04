@@ -2,11 +2,9 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Components/CPlayer.hpp"
-
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
+#include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
-
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
@@ -15,70 +13,71 @@
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 
-#include <SFML/System/Angle.hpp>
-
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vec2.hpp>
-#include <SFML/Base/Math/Fmod.hpp>
 #include <SFML/Base/Math/Fabs.hpp>
+#include <SFML/Base/Math/Fmod.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Angle.hpp>
+#include <SFML/System/Vec2.hpp>
 
-namespace hg {
+namespace hg
+{
 
 inline constexpr float baseThickness{5.f};
 inline constexpr float unfocusedTriangleWidth{3.f};
 inline constexpr float focusedTriangleWidth{-1.5f};
-inline constexpr float triangleWidthRange{
-    unfocusedTriangleWidth - focusedTriangleWidth};
+inline constexpr float triangleWidthRange{unfocusedTriangleWidth - focusedTriangleWidth};
 
-CPlayer::CPlayer(const sf::Vec2f pos, const float swapCooldown,
-    const float size, const float speed, const float focusSpeed) noexcept
-    : _startPos{pos},
-      _pos{pos},
-      _prePushPos{pos},
-      _lastPos{pos},
-      _hue{0},
-      _angle{0},
-      _lastAngle{0},
-      _size{size},
-      _speed{speed},
-      _focusSpeed{focusSpeed},
-      _dead{false},
-      _justSwapped{false},
-      _forcedMove{false},
-      _radius{0.f},
-      _maxSafeDistance{0.f},
-      _currentSpeed{0.f},
-      _triangleWidth{unfocusedTriangleWidth},
-      _triangleWidthTransitionTime{0.f},
-      _swapTimer{swapCooldown},
-      _swapBlinkTimer{6.f},
-      _deadEffectTimer{80.f, false},
-      _currTiltedAngle{0}
-{}
+CPlayer::CPlayer(const sf::Vec2f pos, const float swapCooldown, const float size, const float speed, const float focusSpeed) noexcept
+    :
+    _startPos{pos},
+    _pos{pos},
+    _prePushPos{pos},
+    _lastPos{pos},
+    _hue{0},
+    _angle{0},
+    _lastAngle{0},
+    _size{size},
+    _speed{speed},
+    _focusSpeed{focusSpeed},
+    _dead{false},
+    _justSwapped{false},
+    _forcedMove{false},
+    _radius{0.f},
+    _maxSafeDistance{0.f},
+    _currentSpeed{0.f},
+    _triangleWidth{unfocusedTriangleWidth},
+    _triangleWidthTransitionTime{0.f},
+    _swapTimer{swapCooldown},
+    _swapBlinkTimer{6.f},
+    _deadEffectTimer{80.f, false},
+    _currTiltedAngle{0}
+{
+}
 
 [[nodiscard]] sf::Color CPlayer::getColor(const sf::Color& colorPlayer) const
 {
-    return !_deadEffectTimer.isRunning() ? colorPlayer
-                                         : Utils::getColorFromHue(_hue / 360.f);
+    return !_deadEffectTimer.isRunning() ? colorPlayer : Utils::getColorFromHue(_hue / 360.f);
 }
 
-[[nodiscard]] sf::Color CPlayer::getColorAdjustedForSwap(
-    const sf::Color& colorPlayer) const
+[[nodiscard]] sf::Color CPlayer::getColorAdjustedForSwap(const sf::Color& colorPlayer) const
 {
     if (!_swapTimer.isRunning() && !_dead)
     {
-        return Utils::getColorFromHue(
-            sf::base::fmod(_swapBlinkTimer.getCurrent() / 12.f, 0.2f));
+        return Utils::getColorFromHue(sf::base::fmod(_swapBlinkTimer.getCurrent() / 12.f, 0.2f));
     }
 
     return getColor(colorPlayer);
 }
 
-void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
-    const sf::Color& colorPlayer, Utils::FastVertexVectorTris& wallQuads,
-    Utils::FastVertexVectorTris& capTris,
-    Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor,
-    const float angleTiltIntensity, const bool swapBlinkingEffect)
+void CPlayer::draw(const unsigned int           sides,
+                   const sf::Color&             colorMain,
+                   const sf::Color&             colorPlayer,
+                   Utils::FastVertexVectorTris& wallQuads,
+                   Utils::FastVertexVectorTris& capTris,
+                   Utils::FastVertexVectorTris& playerTris,
+                   const sf::Color&             capColor,
+                   const float                  angleTiltIntensity,
+                   const bool                   swapBlinkingEffect)
 {
     drawPivot(sides, colorMain, wallQuads, capTris, capColor);
 
@@ -87,25 +86,24 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
         drawDeathEffect(wallQuads);
     }
 
-    const float tiltedAngle =
-        _angle + (_currTiltedAngle * Utils::toRad(24.f) * angleTiltIntensity);
+    const float tiltedAngle = _angle + (_currTiltedAngle * Utils::toRad(24.f) * angleTiltIntensity);
 
-    const sf::Vec2f pLeft = _pos.movedTowards(
-        _size + _triangleWidth, sf::radians(tiltedAngle - Utils::toRad(100.f)));
+    const sf::Vec2f pLeft = _pos.movedTowards(_size + _triangleWidth, sf::radians(tiltedAngle - Utils::toRad(100.f)));
 
-    const sf::Vec2f pRight = _pos.movedTowards(
-        _size + _triangleWidth, sf::radians(tiltedAngle + Utils::toRad(100.f)));
+    const sf::Vec2f pRight = _pos.movedTowards(_size + _triangleWidth, sf::radians(tiltedAngle + Utils::toRad(100.f)));
 
     playerTris.reserve_more(3);
-    playerTris.batch_unsafe_emplace_back(
-        swapBlinkingEffect ? getColorAdjustedForSwap(colorPlayer)
-                           : getColor(colorPlayer),
-        _pos.movedTowards(_size, sf::radians(tiltedAngle)), pLeft, pRight);
+    playerTris.batch_unsafe_emplace_back(swapBlinkingEffect ? getColorAdjustedForSwap(colorPlayer) : getColor(colorPlayer),
+                                         _pos.movedTowards(_size, sf::radians(tiltedAngle)),
+                                         pLeft,
+                                         pRight);
 }
 
-void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
-    Utils::FastVertexVectorTris& wallQuads,
-    Utils::FastVertexVectorTris& capTris, const sf::Color& capColor)
+void CPlayer::drawPivot(const unsigned int           sides,
+                        const sf::Color&             colorMain,
+                        Utils::FastVertexVectorTris& wallQuads,
+                        Utils::FastVertexVectorTris& capTris,
+                        const sf::Color&             capColor)
 {
     const float div{Utils::tau / sides * 0.5f};
     const float pRadius{_radius * 0.75f};
@@ -117,14 +115,10 @@ void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
     {
         const float sAngle{div * 2.f * i};
 
-        const sf::Vec2f p1{
-            _startPos.movedTowards(pRadius, sf::radians(sAngle - div))};
-        const sf::Vec2f p2{
-            _startPos.movedTowards(pRadius, sf::radians(sAngle + div))};
-        const sf::Vec2f p3{_startPos.movedTowards(
-            pRadius + baseThickness, sf::radians(sAngle + div))};
-        const sf::Vec2f p4{_startPos.movedTowards(
-            pRadius + baseThickness, sf::radians(sAngle - div))};
+        const sf::Vec2f p1{_startPos.movedTowards(pRadius, sf::radians(sAngle - div))};
+        const sf::Vec2f p2{_startPos.movedTowards(pRadius, sf::radians(sAngle + div))};
+        const sf::Vec2f p3{_startPos.movedTowards(pRadius + baseThickness, sf::radians(sAngle + div))};
+        const sf::Vec2f p4{_startPos.movedTowards(pRadius + baseThickness, sf::radians(sAngle - div))};
 
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
         capTris.batch_unsafe_emplace_back(capColor, p1, p2, _startPos);
@@ -145,14 +139,10 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
     {
         const float sAngle{div * 2.f * i};
 
-        const sf::Vec2f p1{
-            _pos.movedTowards(dRadius, sf::radians(sAngle - div))};
-        const sf::Vec2f p2{
-            _pos.movedTowards(dRadius, sf::radians(sAngle + div))};
-        const sf::Vec2f p3{
-            _pos.movedTowards(dRadius + thickness, sf::radians(sAngle + div))};
-        const sf::Vec2f p4{
-            _pos.movedTowards(dRadius + thickness, sf::radians(sAngle - div))};
+        const sf::Vec2f p1{_pos.movedTowards(dRadius, sf::radians(sAngle - div))};
+        const sf::Vec2f p2{_pos.movedTowards(dRadius, sf::radians(sAngle + div))};
+        const sf::Vec2f p3{_pos.movedTowards(dRadius + thickness, sf::radians(sAngle + div))};
+        const sf::Vec2f p4{_pos.movedTowards(dRadius + thickness, sf::radians(sAngle - div))};
 
         wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
     }
@@ -185,18 +175,17 @@ void CPlayer::kill(const bool fatal)
 inline constexpr float collisionPadding{0.5f};
 
 template <typename Wall>
-[[nodiscard]] bool CPlayer::checkWallCollisionEscape(
-    const Wall& wall, sf::Vec2f& pos, const float radiusSquared)
+[[nodiscard]] bool CPlayer::checkWallCollisionEscape(const Wall& wall, sf::Vec2f& pos, const float radiusSquared)
 {
     // To find the closest wall side we intersect the circumference of the
     // possible player positions with the sides of the wall. We use the
     // intersection closest to the player's position as post collision target.
     // If an escape route could not be found player is killed.
 
-    bool saved{false};
-    sf::Vec2f vec1, vec2;
-    float tempDistance, safeDistance{_maxSafeDistance};
-    const unsigned int vxIncrement{wall.isCustomWall() ? 1u : 2u};
+    bool                                 saved{false};
+    sf::Vec2f                            vec1, vec2;
+    float                                tempDistance, safeDistance{_maxSafeDistance};
+    const unsigned int                   vxIncrement{wall.isCustomWall() ? 1u : 2u};
     const sf::base::Array<sf::Vec2f, 4>& wVertexes{wall.getVertexPositions()};
 
     // This is actually useless for normal walls, but if we removed
@@ -209,8 +198,8 @@ template <typename Wall>
         tempDistance = (vec1 - pos).lengthSquared();
         if (tempDistance < safeDistance)
         {
-            pos = vec1;
-            saved = true;
+            pos          = vec1;
+            saved        = true;
             safeDistance = tempDistance;
         }
     };
@@ -222,8 +211,7 @@ template <typename Wall>
             continue;
         }
 
-        switch (Utils::getLineCircleIntersection(
-            vec1, vec2, wVertexes[i], wVertexes[j], radiusSquared))
+        switch (Utils::getLineCircleIntersection(vec1, vec2, wVertexes[i], wVertexes[j], radiusSquared))
         {
             case 1u:
             {
@@ -252,9 +240,12 @@ template <typename Wall>
     return saved;
 }
 
-[[nodiscard]] bool CPlayer::push(const int movementDir, const float radius,
-    const CWall& wall, const sf::Vec2f centerPos, const float radiusSquared,
-    const float ft)
+[[nodiscard]] bool CPlayer::push(const int       movementDir,
+                                 const float     radius,
+                                 const CWall&    wall,
+                                 const sf::Vec2f centerPos,
+                                 const float     radiusSquared,
+                                 const float     ft)
 {
     if (_dead)
     {
@@ -270,8 +261,7 @@ template <typename Wall>
     // Save the position difference in case we need to do a second attempt
     // at saving player.
     const SpeedData& curveData{wall.getCurve()};
-    if (curveData._speed != 0.f &&
-        Utils::getSign(curveData._speed) != movementDir)
+    if (curveData._speed != 0.f && Utils::getSign(curveData._speed) != movementDir)
     {
         wall.moveVertexAlongCurve(testPos, centerPos, ft);
         pushVel = testPos - _pos;
@@ -280,11 +270,10 @@ template <typename Wall>
     // If player is not moving calculate now...
     if (!movementDir && !_forcedMove)
     {
-        const sf::Vec2f posDiff = testPos - _prePushPos;
-        const sf::Vec2f posDiffNormalized =
-            posDiff == sf::Vec2f{0.f, 0.f} ? posDiff : posDiff.normalized();
+        const sf::Vec2f posDiff           = testPos - _prePushPos;
+        const sf::Vec2f posDiffNormalized = posDiff == sf::Vec2f{0.f, 0.f} ? posDiff : posDiff.normalized();
 
-        _pos = testPos + posDiffNormalized * (2.f * collisionPadding);
+        _pos   = testPos + posDiffNormalized * (2.f * collisionPadding);
         _angle = _pos.angle().asRadians();
         updatePosition(radius);
         return wall.isOverlapping(_pos);
@@ -306,8 +295,7 @@ template <typename Wall>
     //  |       | *****     |*****  |    it is the other one that is closer
     //  |       |           |       |
     testPos = _lastPos + pushVel;
-    if (wall.isOverlapping(testPos) ||
-        !checkWallCollisionEscape(wall, testPos, radiusSquared))
+    if (wall.isOverlapping(testPos) || !checkWallCollisionEscape(wall, testPos, radiusSquared))
     {
         return true;
     }
@@ -315,14 +303,17 @@ template <typename Wall>
     // If player survived assign it the saving testPos, but displace it further
     // out the wall border, otherwise player would be lying right on top of the
     // border.
-    _pos = testPos + (testPos - _prePushPos).normalized() * collisionPadding;
+    _pos   = testPos + (testPos - _prePushPos).normalized() * collisionPadding;
     _angle = _pos.angle().asRadians();
     updatePosition(radius);
     return false;
 }
 
-[[nodiscard]] bool CPlayer::push(const int movementDir, const float radius,
-    const CCustomWall& wall, const float radiusSquared, const float ft)
+[[nodiscard]] bool CPlayer::push(const int          movementDir,
+                                 const float        radius,
+                                 const CCustomWall& wall,
+                                 const float        radiusSquared,
+                                 const float        ft)
 {
     (void)ft; // Currently unused.
 
@@ -337,11 +328,10 @@ template <typename Wall>
 
     const sf::base::Array<sf::Vec2f, 4>& wVertexes{wall.getVertexPositions()};
     const sf::base::Array<sf::Vec2f, 4>& wOldVertexes{wall.getOldVertexPositions()};
-    sf::Vec2f pushVel{0.f, 0.f}, i1, i2;
-    const unsigned int killingSide{wall.getKillingSide()};
-    constexpr float pushDotThreshold{
-        0.15f}; // 0.1 would be enough in most scenarios
-                // but we raise it to 0.15 for really fast walls.
+    sf::Vec2f                            pushVel{0.f, 0.f}, i1, i2;
+    const unsigned int                   killingSide{wall.getKillingSide()};
+    constexpr float                      pushDotThreshold{0.15f}; // 0.1 would be enough in most scenarios
+                                                                  // but we raise it to 0.15 for really fast walls.
 
     for (unsigned int i{0u}, j{3u}; i < 4; j = i++)
     {
@@ -350,22 +340,18 @@ template <typename Wall>
             continue;
         }
 
-        const sf::base::Array<sf::Vec2f, 4> collisionPolygon{
-            wVertexes[i], wOldVertexes[i], wOldVertexes[j], wVertexes[j]};
+        const sf::base::Array<sf::Vec2f, 4> collisionPolygon{wVertexes[i], wOldVertexes[i], wOldVertexes[j], wVertexes[j]};
 
         if (Utils::pointInPolygon<4>(collisionPolygon, _lastPos.x, _lastPos.y))
         {
             // For a side to be an effective source of push it must have
             // intersected the player's positions circle both now and the
             // previous frame.
-            if (Utils::getLineCircleClosestIntersection(i1, _lastPos,
-                    wOldVertexes[i], wOldVertexes[j], radiusSquared) &&
-                Utils::getLineCircleClosestIntersection(
-                    i2, _lastPos, wVertexes[i], wVertexes[j], radiusSquared))
+            if (Utils::getLineCircleClosestIntersection(i1, _lastPos, wOldVertexes[i], wOldVertexes[j], radiusSquared) &&
+                Utils::getLineCircleClosestIntersection(i2, _lastPos, wVertexes[i], wVertexes[j], radiusSquared))
             {
                 pushVel = i2 - i1;
-                if (sf::base::fabs(pushVel.normalized().dot(_lastPos.normalized())) >
-                    pushDotThreshold)
+                if (sf::base::fabs(pushVel.normalized().dot(_lastPos.normalized())) > pushDotThreshold)
                 {
                     pushVel = {0.f, 0.f};
                 }
@@ -386,8 +372,7 @@ template <typename Wall>
 
     // If alive try to find a close enough safe position.
     sf::Vec2f testPos{_lastPos + pushVel};
-    if (wall.isOverlapping(testPos) ||
-        !checkWallCollisionEscape(wall, testPos, radiusSquared))
+    if (wall.isOverlapping(testPos) || !checkWallCollisionEscape(wall, testPos, radiusSquared))
     {
         return true;
     }
@@ -395,7 +380,7 @@ template <typename Wall>
     // If player survived assign it the saving testPos, but displace it further
     // out the wall border, otherwise player would be lying right on top of the
     // border.
-    _pos = testPos + (testPos - _prePushPos).normalized() * collisionPadding;
+    _pos   = testPos + (testPos - _prePushPos).normalized() * collisionPadding;
     _angle = _pos.angle().asRadians();
     updatePosition(radius);
 
@@ -413,9 +398,7 @@ void CPlayer::updateTriangleWidthTransition(const bool focused, const float ft)
         Utils::moveTowardsZero(_triangleWidthTransitionTime, ft * 0.1f);
     }
 
-    _triangleWidth =
-        triangleWidthRange *
-        (1.f - Utils::getSmoothStep(0.f, 1.f, _triangleWidthTransitionTime));
+    _triangleWidth = triangleWidthRange * (1.f - Utils::getSmoothStep(0.f, 1.f, _triangleWidthTransitionTime));
 }
 
 void CPlayer::update(const bool focused, const bool swapEnabled, const float ft)
@@ -452,22 +435,19 @@ void CPlayer::update(const bool focused, const bool swapEnabled, const float ft)
         _swapTimer.stop();
     }
 
-    _lastAngle = _angle;
+    _lastAngle  = _angle;
     _forcedMove = false;
 }
 
-void CPlayer::updateInputMovement(const float movementDir,
-    const float playerSpeedMult, const bool focused, const float ft)
+void CPlayer::updateInputMovement(const float movementDir, const float playerSpeedMult, const bool focused, const float ft)
 {
     _currentSpeed = playerSpeedMult * (focused ? _focusSpeed : _speed) * ft;
     _angle += Utils::toRad(_currentSpeed * movementDir);
 
     const float inc = ft / 10.f;
 
-    _currTiltedAngle =
-        (movementDir == 0.f)
-            ? Utils::getMoveTowardsZero(_currTiltedAngle, inc)
-            : Utils::getMoveTowards(_currTiltedAngle, movementDir, inc * 2.f);
+    _currTiltedAngle = (movementDir == 0.f) ? Utils::getMoveTowardsZero(_currTiltedAngle, inc)
+                                            : Utils::getMoveTowards(_currTiltedAngle, movementDir, inc * 2.f);
 }
 
 void CPlayer::resetSwap(const float swapCooldown)
@@ -486,13 +466,11 @@ void CPlayer::updatePosition(const float radius)
     _radius = radius;
 
     _prePushPos = _pos = _startPos.movedTowards(_radius, sf::radians(_angle));
-    _lastPos = _startPos.movedTowards(_radius, sf::radians(_lastAngle));
+    _lastPos           = _startPos.movedTowards(_radius, sf::radians(_lastAngle));
 
-    _maxSafeDistance =
-        (_lastPos - _startPos.movedTowards(_radius,
-                        sf::radians(_lastAngle + Utils::toRad(_currentSpeed))))
-            .lengthSquared() +
-        32.f;
+    _maxSafeDistance = (_lastPos - _startPos.movedTowards(_radius, sf::radians(_lastAngle + Utils::toRad(_currentSpeed))))
+                           .lengthSquared() +
+                       32.f;
 }
 
 [[nodiscard]] bool CPlayer::getJustSwapped() const noexcept

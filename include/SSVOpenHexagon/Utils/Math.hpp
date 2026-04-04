@@ -4,7 +4,8 @@
 
 #pragma once
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 inline constexpr float pi{3.14159265359f};
 inline constexpr float tau{6.28318530718f};

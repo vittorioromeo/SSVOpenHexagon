@@ -5,13 +5,14 @@
 #pragma once
 
 #include <SFML/Base/IntTypes.hpp>
-#include <functional>
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Base/UniquePtr.hpp>
-#include <string_view>
+#include <functional>
 #include <string>
+#include <string_view>
 
-namespace hg::Steam {
+namespace hg::Steam
+{
 
 class steam_manager
 {
@@ -21,16 +22,16 @@ private:
     sf::base::UniquePtr<steam_manager_impl> _impl;
 
     [[nodiscard]] const steam_manager_impl& impl() const noexcept;
-    [[nodiscard]] steam_manager_impl& impl() noexcept;
+    [[nodiscard]] steam_manager_impl&       impl() noexcept;
 
 public:
     explicit steam_manager();
     ~steam_manager();
 
-    steam_manager(const steam_manager&) = delete;
+    steam_manager(const steam_manager&)            = delete;
     steam_manager& operator=(const steam_manager&) = delete;
 
-    steam_manager(steam_manager&&) = delete;
+    steam_manager(steam_manager&&)            = delete;
     steam_manager& operator=(steam_manager&&) = delete;
 
     [[nodiscard]] bool is_initialized() const noexcept;
@@ -44,16 +45,16 @@ public:
 
     bool set_rich_presence_in_menu();
     bool set_rich_presence_in_game(std::string_view level_name_format,
-        std::string_view difficulty_mult_format, std::string_view time_format);
+                                   std::string_view difficulty_mult_format,
+                                   std::string_view time_format);
 
-    bool set_and_store_stat(std::string_view name, int data);
+    bool               set_and_store_stat(std::string_view name, int data);
     [[nodiscard]] bool get_achievement(bool* out, std::string_view name);
     [[nodiscard]] bool get_stat(int* out, std::string_view name);
 
     bool update_hardcoded_achievements();
 
-    void for_workshop_pack_folders(
-        const std::function<void(const std::string&)>& f) const;
+    void for_workshop_pack_folders(const std::function<void(const std::string&)>& f) const;
 
     bool request_encrypted_app_ticket();
 
@@ -61,8 +62,7 @@ public:
 
     [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
 
-    [[nodiscard]] sf::base::Optional<sf::base::U64>
-    get_ticket_steam_id() const noexcept;
+    [[nodiscard]] sf::base::Optional<sf::base::U64> get_ticket_steam_id() const noexcept;
 };
 
 } // namespace hg::Steam

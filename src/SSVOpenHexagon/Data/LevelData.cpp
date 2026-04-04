@@ -3,54 +3,47 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/LevelData.hpp"
-
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 
 #include <SFML/Base/Algorithm/Sort.hpp>
-
 #include <SFML/Base/String.hpp>
-
 #include <string>
 #include <vector>
 
-namespace hg {
+namespace hg
+{
 
-LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
-    const std::string& mPackId)
-    : packPath{mPackPath},
-      packId{mPackId},
-      id{ssvuj::getExtr<std::string>(mRoot, "id", "nullId")},
-      name{ssvuj::getExtr<std::string>(mRoot, "name", "nullName")},
-      description{ssvuj::getExtr<std::string>(mRoot, "description", "")},
-      author{ssvuj::getExtr<std::string>(mRoot, "author", "")},
-      menuPriority{ssvuj::getExtr<int>(mRoot, "menuPriority", 0)},
-      selectable{ssvuj::getExtr<bool>(mRoot, "selectable", true)},
-      musicId{ssvuj::getExtr<std::string>(mRoot, "musicId", "nullMusicId")},
-      soundId{ssvuj::getExtr<std::string>(mRoot, "soundId", "nullSoundId")},
-      styleId{ssvuj::getExtr<std::string>(mRoot, "styleId", "nullStyleId")},
-      luaScriptPath{packPath + ssvuj::getExtr<std::string>(
-                                   mRoot, "luaFile", "nullLuaPath")},
-      difficultyMults{
-          ssvuj::getExtr<std::vector<float>>(mRoot, "difficultyMults", {})},
-      unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)}
+LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath, const std::string& mPackId) :
+    packPath{mPackPath},
+    packId{mPackId},
+    id{ssvuj::getExtr<std::string>(mRoot, "id", "nullId")},
+    name{ssvuj::getExtr<std::string>(mRoot, "name", "nullName")},
+    description{ssvuj::getExtr<std::string>(mRoot, "description", "")},
+    author{ssvuj::getExtr<std::string>(mRoot, "author", "")},
+    menuPriority{ssvuj::getExtr<int>(mRoot, "menuPriority", 0)},
+    selectable{ssvuj::getExtr<bool>(mRoot, "selectable", true)},
+    musicId{ssvuj::getExtr<std::string>(mRoot, "musicId", "nullMusicId")},
+    soundId{ssvuj::getExtr<std::string>(mRoot, "soundId", "nullSoundId")},
+    styleId{ssvuj::getExtr<std::string>(mRoot, "styleId", "nullStyleId")},
+    luaScriptPath{packPath + ssvuj::getExtr<std::string>(mRoot, "luaFile", "nullLuaPath")},
+    difficultyMults{ssvuj::getExtr<std::vector<float>>(mRoot, "difficultyMults", {})},
+    unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)}
 {
     difficultyMults.emplace_back(1.f);
     sf::base::quickSort(difficultyMults.begin(), difficultyMults.end());
 
     for (const float dm : difficultyMults)
     {
-        const auto lvWithPackId =
-            Utils::getLevelValidator(Utils::concat(packId, '_', id), dm);
+        const auto lvWithPackId    = Utils::getLevelValidator(Utils::concat(packId, '_', id), dm);
         const auto lvWithoutPackId = Utils::getLevelValidator(id, dm);
 
         // TODO
         validators[dm].assign(lvWithPackId.data(), lvWithPackId.size());
 
         // TODO
-        validatorsWithoutPackId[dm].assign(
-            lvWithoutPackId.data(), lvWithoutPackId.size());
+        validatorsWithoutPackId[dm].assign(lvWithoutPackId.data(), lvWithoutPackId.size());
     }
 }
 
@@ -69,18 +62,15 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
     return difficultyMults.at(index);
 }
 
-[[nodiscard]] const std::string& LevelData::getValidator(
-    const float diffMult) const
+[[nodiscard]] const std::string& LevelData::getValidator(const float diffMult) const
 {
     SSVOH_ASSERT(validators.find(diffMult) != validators.end());
     return validators.at(diffMult);
 }
 
-[[nodiscard]] const std::string& LevelData::getValidatorWithoutPackId(
-    const float diffMult) const
+[[nodiscard]] const std::string& LevelData::getValidatorWithoutPackId(const float diffMult) const
 {
-    SSVOH_ASSERT(validatorsWithoutPackId.find(diffMult) !=
-                 validatorsWithoutPackId.end());
+    SSVOH_ASSERT(validatorsWithoutPackId.find(diffMult) != validatorsWithoutPackId.end());
     return validatorsWithoutPackId.at(diffMult);
 }
 

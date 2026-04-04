@@ -12,54 +12,54 @@
 #include "SSVOpenHexagon/Input/InputState.hpp"
 #include "SSVUtils/Delegate/Inc/Delegate.hpp"
 
-#include <SFML/System/Vec2Base.hpp>
-#include <SFML/Window/ContextSettings.hpp>
-#include <SFML/Window/WindowSettings.hpp>
-#include <SSVUtils/Delegate/Delegate.hpp>
-
 #include <SFML/Base/Array.hpp>
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/StdChrono.hpp>
 #include <SFML/Base/Vector.hpp>
-#include <SFML/Base/Optional.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Path.hpp>
+#include <SFML/System/Vec2Base.hpp>
+#include <SFML/Window/ContextSettings.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Touch.hpp>
 #include <SFML/Window/VideoMode.hpp>
-
-#include <cassert>
-#include <cstddef>
+#include <SFML/Window/WindowSettings.hpp>
+#include <SSVUtils/Delegate/Delegate.hpp>
 #include <ratio>
 #include <string>
 #include <utility>
 
-namespace ssvs {
+#include <cassert>
+#include <cstddef>
+
+namespace ssvs
+{
 
 class GameWindow
 {
 private:
-    Input::InputState inputState;
-    TimerStatic timer;
-    GameState* gameState{nullptr};
-    bool running{true};
-    sf::base::Optional<sf::RenderWindow> renderWindow;
-    std::string title;
-    float msUpdate{0.f};
-    float msDraw{0.f};
-    float maxFPS{60.f};
-    float pixelMult{1.f};
-    unsigned int width{640};
-    unsigned int height{480};
-    unsigned int antialiasingLevel{3};
-    bool fpsLimited{false};
-    bool focus{true};
-    bool mustRecreate{true};
-    bool vsync{false};
-    bool fullscreen{false};
+    Input::InputState                       inputState;
+    TimerStatic                             timer;
+    GameState*                              gameState{nullptr};
+    bool                                    running{true};
+    sf::base::Optional<sf::RenderWindow>    renderWindow;
+    std::string                             title;
+    float                                   msUpdate{0.f};
+    float                                   msDraw{0.f};
+    float                                   maxFPS{60.f};
+    float                                   pixelMult{1.f};
+    unsigned int                            width{640};
+    unsigned int                            height{480};
+    unsigned int                            antialiasingLevel{3};
+    bool                                    fpsLimited{false};
+    bool                                    focus{true};
+    bool                                    mustRecreate{true};
+    bool                                    vsync{false};
+    bool                                    fullscreen{false};
     sf::base::Array<sf::Vec2i, fingerCount> fingerPositions{};
 
     void runEvents()
@@ -100,7 +100,7 @@ private:
             else if (auto* e = event.getIf<sf::Event::TouchBegan>())
             {
                 inputState.getFinger(e->finger) = true;
-                fingerPositions[e->finger] = e->position;
+                fingerPositions[e->finger]      = e->position;
             }
             else if (auto* e = event.getIf<sf::Event::TouchMoved>())
             {
@@ -109,7 +109,7 @@ private:
             else if (auto* e = event.getIf<sf::Event::TouchEnded>())
             {
                 inputState.getFinger(e->finger) = false;
-                fingerPositions[e->finger] = e->position;
+                fingerPositions[e->finger]      = e->position;
             }
 
             gameState->handleEvent(event);
@@ -121,11 +121,10 @@ private:
         renderWindow.reset();
 
         sf::WindowSettings settings{
-            .size = {width, height},
-            .title = title,
-            .fullscreen = fullscreen,
-            .contextSettings = {.attributeFlags =
-                                    sf::ContextSettings::Attribute::Default},
+            .size            = {width, height},
+            .title           = title,
+            .fullscreen      = fullscreen,
+            .contextSettings = {.attributeFlags = sf::ContextSettings::Attribute::Default},
         };
 
         renderWindow = sf::RenderWindow::create(settings);
@@ -141,16 +140,15 @@ private:
 public:
     ssvu::Delegate<void()> onRecreation;
 
-    explicit GameWindow(const float timerStep, const float timerTimeSlice)
-        : timer{timerStep, timerTimeSlice}
+    explicit GameWindow(const float timerStep, const float timerTimeSlice) : timer{timerStep, timerTimeSlice}
     {
         recreateWindow();
     }
 
-    GameWindow(const GameWindow&) = delete;
+    GameWindow(const GameWindow&)            = delete;
     GameWindow& operator=(const GameWindow&) = delete;
-    GameWindow(GameWindow&&) = delete;
-    GameWindow& operator=(GameWindow&&) = delete;
+    GameWindow(GameWindow&&)                 = delete;
+    GameWindow& operator=(GameWindow&&)      = delete;
 
     void run()
     {
@@ -173,26 +171,21 @@ public:
                 runEvents();
 
                 gameState->refreshInput(inputState);
-                timer.runUpdate(
-                    [this](const float step)
-                    {
-                        gameState->updateInput(inputState, step);
-                        gameState->update(step);
-                    });
+                timer.runUpdate([this](const float step)
+                {
+                    gameState->updateInput(inputState, step);
+                    gameState->update(step);
+                });
                 gameState->onPostUpdate();
             }
-            msUpdate = std::chrono::duration_cast<FTDuration>(
-                std::chrono::high_resolution_clock::now() - tempMs)
-                           .count();
+            msUpdate = std::chrono::duration_cast<FTDuration>(std::chrono::high_resolution_clock::now() - tempMs).count();
 
             tempMs = std::chrono::high_resolution_clock::now();
             {
                 gameState->draw();
                 renderWindow->display();
             }
-            msDraw = std::chrono::duration_cast<FTDuration>(
-                std::chrono::high_resolution_clock::now() - tempMs)
-                         .count();
+            msDraw = std::chrono::duration_cast<FTDuration>(std::chrono::high_resolution_clock::now() - tempMs).count();
 
             timer.runFrameTime();
             timer.runFPS();
@@ -217,8 +210,7 @@ public:
 
     void saveScreenshot(const std::string& path) const
     {
-        auto texture = sf::Texture::create(
-            {renderWindow->getSize().x, renderWindow->getSize().y});
+        auto texture = sf::Texture::create({renderWindow->getSize().x, renderWindow->getSize().y});
 
         if (!texture.hasValue())
         {
@@ -232,33 +224,32 @@ public:
 
     void setFullscreen(const bool newFullscreen) noexcept
     {
-        fullscreen = newFullscreen;
+        fullscreen   = newFullscreen;
         mustRecreate = true;
     }
 
-    void setSize(
-        const unsigned int newWidth, const unsigned int newHeight) noexcept
+    void setSize(const unsigned int newWidth, const unsigned int newHeight) noexcept
     {
-        width = newWidth;
-        height = newHeight;
+        width        = newWidth;
+        height       = newHeight;
         mustRecreate = true;
     }
 
     void setAntialiasingLevel(const unsigned int level) noexcept
     {
         antialiasingLevel = level;
-        mustRecreate = true;
+        mustRecreate      = true;
     }
 
     void setVsync(const bool enabled) noexcept
     {
-        vsync = enabled;
+        vsync        = enabled;
         mustRecreate = true;
     }
 
     void setPixelMult(const float newPixelMult) noexcept
     {
-        pixelMult = newPixelMult;
+        pixelMult    = newPixelMult;
         mustRecreate = true;
     }
 

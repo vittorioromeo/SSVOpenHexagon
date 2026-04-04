@@ -17,12 +17,16 @@ private:
     Category& target;
 
 public:
-    Goto(Menu& mMenu, Category& mCategory, const std::string& mName,
-        Category& mTarget)
-        : ItemBase{mMenu, mCategory, mName}, target{mTarget}
-    {}
+    Goto(Menu& mMenu, Category& mCategory, const std::string& mName, Category& mTarget) :
+        ItemBase{mMenu, mCategory, mName},
+        target{mTarget}
+    {
+    }
 
-    void exec() override { menu.setCategory(target); }
+    void exec() override
+    {
+        menu.setCategory(target);
+    }
 };
 } // namespace Items
 } // namespace ssvms

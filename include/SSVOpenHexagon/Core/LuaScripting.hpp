@@ -8,11 +8,13 @@
 #include <string>
 #include <vector>
 
-namespace Lua {
+namespace Lua
+{
 class LuaContext;
 }
 
-namespace hg {
+namespace hg
+{
 class random_number_generator;
 class CCustomWallManager;
 struct LevelStatus;
@@ -22,22 +24,29 @@ class HGAssets;
 struct PackData;
 } // namespace hg
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 class LuaMetadata;
 }
 
-namespace hg::LuaScripting {
+namespace hg::LuaScripting
+{
 
 [[nodiscard]] Utils::LuaMetadata& getMetadata();
 
-void init(Lua::LuaContext& lua, random_number_generator& rng, const bool inMenu,
-    CCustomWallManager& cwManager, LevelStatus& levelStatus,
-    HexagonGameStatus& hexagonGameStatus, StyleData& styleData,
-    HGAssets& assets,
-    const std::function<void(const std::string&)>& fRunLuaFile,
-    std::vector<std::string>& execScriptPackPathContext,
-    const std::function<const std::string&()>& fPackPathGetter,
-    const std::function<const PackData&()>& fGetPackData, const bool headless);
+void init(Lua::LuaContext&                               lua,
+          random_number_generator&                       rng,
+          const bool                                     inMenu,
+          CCustomWallManager&                            cwManager,
+          LevelStatus&                                   levelStatus,
+          HexagonGameStatus&                             hexagonGameStatus,
+          StyleData&                                     styleData,
+          HGAssets&                                      assets,
+          const std::function<void(const std::string&)>& fRunLuaFile,
+          std::vector<std::string>&                      execScriptPackPathContext,
+          const std::function<const std::string&()>&     fPackPathGetter,
+          const std::function<const PackData&()>&        fGetPackData,
+          const bool                                     headless);
 
 void printDocs();
 

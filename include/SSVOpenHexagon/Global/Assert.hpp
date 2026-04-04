@@ -4,27 +4,26 @@
 
 #pragma once
 
-namespace hg::Impl {
+namespace hg::Impl
+{
 
-[[gnu::cold]] void assertionFailure(
-    const char* code, const char* file, const int line);
+[[gnu::cold]] void assertionFailure(const char* code, const char* file, const int line);
 
 }
 
 #ifndef NDEBUG
 
-#define SSVOH_ASSERT(...)                                                  \
-    do                                                                     \
-    {                                                                      \
-        if (!static_cast<bool>(__VA_ARGS__)) [[unlikely]]                  \
-        {                                                                  \
-            ::hg::Impl::assertionFailure(#__VA_ARGS__, __FILE__, __LINE__); \
-        }                                                                  \
-    }                                                                      \
-    while (false)
+    #define SSVOH_ASSERT(...)                                                   \
+        do                                                                      \
+        {                                                                       \
+            if (!static_cast<bool>(__VA_ARGS__)) [[unlikely]]                   \
+            {                                                                   \
+                ::hg::Impl::assertionFailure(#__VA_ARGS__, __FILE__, __LINE__); \
+            }                                                                   \
+        } while (false)
 
 #else
 
-#define SSVOH_ASSERT(...)
+    #define SSVOH_ASSERT(...)
 
 #endif

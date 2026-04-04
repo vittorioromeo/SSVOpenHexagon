@@ -4,23 +4,26 @@
 
 #pragma once
 
-namespace Json {
+namespace Json
+{
 class Value;
 }
 
-namespace ssvuj {
+namespace ssvuj
+{
 using Obj = Json::Value;
 }
 
-namespace ssvuj {
+namespace ssvuj
+{
 
 template <typename T>
 class LinkedValue
 {
 private:
     const char* const name;
-    T value;
-    const T defValue;
+    T                 value;
+    const T           defValue;
 
 public:
     explicit LinkedValue(const char* mLinkedName, const T& mDefault);

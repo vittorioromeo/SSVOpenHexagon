@@ -4,7 +4,8 @@
 
 #pragma once
 
-namespace hg {
+namespace hg
+{
 
 using random_number_generator_seed_type = unsigned long long;
 

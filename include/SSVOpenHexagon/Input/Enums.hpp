@@ -4,7 +4,8 @@
 
 #pragma once
 
-namespace ssvs::Input {
+namespace ssvs::Input
+{
 
 enum class Type
 {

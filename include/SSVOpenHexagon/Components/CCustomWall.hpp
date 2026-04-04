@@ -4,18 +4,17 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
-
-#include <SFML/System/Vec2.hpp>
-#include <SFML/Graphics/Color.hpp>
+#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 
 #include <SFML/Base/Array.hpp>
 #include <SFML/Base/IntTypes.hpp>
-
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vec2.hpp>
 #include <bitset>
 
-namespace hg {
+namespace hg
+{
 
 class CCustomWall
 {
@@ -26,7 +25,7 @@ private:
     sf::base::Array<sf::Vec2f, 4> _vertexPositions;
     sf::base::Array<sf::Vec2f, 4> _oldVertexPositions;
     sf::base::Array<sf::Color, 4> _vertexColors;
-    sf::base::U8 _killingSide{0u};
+    sf::base::U8                  _killingSide{0u};
 
     enum CWFlags : unsigned int
     {
@@ -47,15 +46,18 @@ public:
 
     [[gnu::always_inline]] void draw(Utils::FastVertexVectorTris& wallQuads)
     {
-        wallQuads.unsafe_emplace_back_quad(        //
-            _vertexPositions[0], _vertexColors[0], //
-            _vertexPositions[1], _vertexColors[1], //
-            _vertexPositions[2], _vertexColors[2], //
-            _vertexPositions[3], _vertexColors[3]);
+        wallQuads.unsafe_emplace_back_quad( //
+            _vertexPositions[0],
+            _vertexColors[0], //
+            _vertexPositions[1],
+            _vertexColors[1], //
+            _vertexPositions[2],
+            _vertexColors[2], //
+            _vertexPositions[3],
+            _vertexColors[3]);
     }
 
-    [[nodiscard, gnu::always_inline]] bool isOverlapping(
-        const sf::Vec2f point) const noexcept
+    [[nodiscard, gnu::always_inline]] bool isOverlapping(const sf::Vec2f point) const noexcept
     {
         // Cannot use `pointInFourVertexPolygon` here due to vertex ordering
         // requirements.
@@ -63,22 +65,19 @@ public:
         return Utils::pointInPolygon<4>(_vertexPositions, point.x, point.y);
     }
 
-    [[gnu::always_inline]] void setVertexPos(
-        const int vertexIndex, const sf::Vec2f pos) noexcept
+    [[gnu::always_inline]] void setVertexPos(const int vertexIndex, const sf::Vec2f pos) noexcept
     {
         _oldVertexPositions[vertexIndex] = _vertexPositions[vertexIndex];
-        _vertexPositions[vertexIndex] = pos;
+        _vertexPositions[vertexIndex]    = pos;
     }
 
-    [[gnu::always_inline]] void moveVertexPos(
-        const int vertexIndex, const sf::Vec2f offset) noexcept
+    [[gnu::always_inline]] void moveVertexPos(const int vertexIndex, const sf::Vec2f offset) noexcept
     {
         _oldVertexPositions[vertexIndex] = _vertexPositions[vertexIndex];
         _vertexPositions[vertexIndex] += offset;
     }
 
-    [[gnu::always_inline]] void moveVertexPos4Same(
-        const sf::Vec2f offset) noexcept
+    [[gnu::always_inline]] void moveVertexPos4Same(const sf::Vec2f offset) noexcept
     {
         _oldVertexPositions = _vertexPositions;
 
@@ -88,8 +87,7 @@ public:
         }
     }
 
-    [[gnu::always_inline]] void setVertexColor(
-        const int vertexIndex, const sf::Color& color) noexcept
+    [[gnu::always_inline]] void setVertexColor(const int vertexIndex, const sf::Color& color) noexcept
     {
         _vertexColors[vertexIndex] = color;
     }
@@ -104,20 +102,17 @@ public:
         _flags[CWFlags::Deadly] = deadly;
     }
 
-    [[nodiscard, gnu::always_inline]] const sf::Vec2f getVertexPos(
-        const int vertexIndex) const noexcept
+    [[nodiscard, gnu::always_inline]] const sf::Vec2f getVertexPos(const int vertexIndex) const noexcept
     {
         return _vertexPositions[vertexIndex];
     }
 
-    [[nodiscard, gnu::always_inline]] const sf::base::Array<sf::Vec2f, 4>&
-    getVertexPositions() const noexcept
+    [[nodiscard, gnu::always_inline]] const sf::base::Array<sf::Vec2f, 4>& getVertexPositions() const noexcept
     {
         return _vertexPositions;
     }
 
-    [[nodiscard, gnu::always_inline]] const sf::base::Array<sf::Vec2f, 4>&
-    getOldVertexPositions() const noexcept
+    [[nodiscard, gnu::always_inline]] const sf::base::Array<sf::Vec2f, 4>& getOldVertexPositions() const noexcept
     {
         return _oldVertexPositions;
     }
@@ -132,8 +127,7 @@ public:
         return _flags[CWFlags::Deadly];
     }
 
-    [[nodiscard, gnu::always_inline]] constexpr bool
-    isCustomWall() const noexcept
+    [[nodiscard, gnu::always_inline]] constexpr bool isCustomWall() const noexcept
     {
         return true;
     }
@@ -143,8 +137,7 @@ public:
         _killingSide = side;
     }
 
-    [[nodiscard, gnu::always_inline]] sf::base::U8
-    getKillingSide() const noexcept
+    [[nodiscard, gnu::always_inline]] sf::base::U8 getKillingSide() const noexcept
     {
         return _killingSide;
     }

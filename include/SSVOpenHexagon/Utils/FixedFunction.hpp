@@ -7,7 +7,8 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 using SizeT = decltype(sizeof(int));
 
@@ -30,7 +31,7 @@ private:
 
     using fn_ptr_type = ret_type (*)(Ts...);
     using method_type = ret_type (*)(Byte*, fn_ptr_type, Ts...);
-    using alloc_type = void (*)(Byte*, void* object_ptr);
+    using alloc_type  = void (*)(Byte*, void* object_ptr);
 
     union
     {
@@ -39,7 +40,7 @@ private:
     };
 
     method_type _method_ptr;
-    alloc_type _alloc_ptr;
+    alloc_type  _alloc_ptr;
 
     void moveImpl(FixedFunction& o) noexcept
     {
@@ -55,7 +56,7 @@ private:
             _function_ptr = nullptr;
         }
 
-        _method_ptr = o._method_ptr;
+        _method_ptr   = o._method_ptr;
         o._method_ptr = nullptr;
 
         if (o._alloc_ptr)
@@ -70,9 +71,9 @@ private:
     }
 
 public:
-    FixedFunction() noexcept
-        : _function_ptr{nullptr}, _method_ptr{nullptr}, _alloc_ptr{nullptr}
-    {}
+    FixedFunction() noexcept : _function_ptr{nullptr}, _method_ptr{nullptr}, _alloc_ptr{nullptr}
+    {
+    }
 
     /**
      * @brief FixedFunction Constructor from functional object.
@@ -86,8 +87,7 @@ public:
 
         static_assert(sizeof(unref_type) < TStorageSize);
 
-        _method_ptr = [](Byte* s, fn_ptr_type, Ts... xs)
-        { return reinterpret_cast<unref_type*>(s)->operator()(xs...); };
+        _method_ptr = [](Byte* s, fn_ptr_type, Ts... xs) { return reinterpret_cast<unref_type*>(s)->operator()(xs...); };
 
         _alloc_ptr = [](Byte* s, void* o)
         {
@@ -108,12 +108,11 @@ public:
     FixedFunction(TFReturn (*f)(TFs...)) noexcept : FixedFunction()
     {
         _function_ptr = f;
-        _method_ptr = [](Byte*, fn_ptr_type xf, Ts... xs)
-        { return static_cast<decltype(f)>(xf)(xs...); };
+        _method_ptr   = [](Byte*, fn_ptr_type xf, Ts... xs) { return static_cast<decltype(f)>(xf)(xs...); };
     }
 
     FixedFunction& operator=(const FixedFunction&) = delete;
-    FixedFunction(const FixedFunction&) = delete;
+    FixedFunction(const FixedFunction&)            = delete;
 
     FixedFunction(FixedFunction&& rhs) noexcept : FixedFunction()
     {
@@ -135,8 +134,7 @@ public:
     }
 
     template <typename... TFwdTs>
-    auto operator()(TFwdTs&&... xs) noexcept(
-        noexcept(_method_ptr(_storage, _function_ptr, SSVOH_FWD(xs)...)))
+    auto operator()(TFwdTs&&... xs) noexcept(noexcept(_method_ptr(_storage, _function_ptr, SSVOH_FWD(xs)...)))
     {
         SSVOH_ASSERT(_method_ptr != nullptr);
         return _method_ptr(_storage, _function_ptr, SSVOH_FWD(xs)...);

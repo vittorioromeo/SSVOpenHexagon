@@ -2,24 +2,23 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/jsoncpp.inl"
+#include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVUtils/Core/FileSystem/Path.hpp"
 
 #include <SFML/Base/String.hpp>
 #include <SFML/Base/StringView.hpp>
 #include <SFML/Base/StringViewStreamOp.hpp>
-
+#include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <steam/steamclientpublic.h>
 #include <string>
-#include <iostream>
-#include <filesystem>
-
-#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/jsoncpp.inl"
 
 
-namespace hg {
+namespace hg
+{
 
 struct LogStream::Impl
 {
@@ -48,14 +47,13 @@ LogStream& LogStream::operator<<(const T& value)
     return *this;
 }
 
-#define INSTANTIATE_LOGSTREAM_OPERATOR(...)                  \
-    template LogStream& LogStream::operator<< <__VA_ARGS__>( \
-        __VA_ARGS__ const& value)
+#define INSTANTIATE_LOGSTREAM_OPERATOR(...) \
+    template LogStream& LogStream::operator<< <__VA_ARGS__>(__VA_ARGS__ const& value)
 
 INSTANTIATE_LOGSTREAM_OPERATOR(bool);
 INSTANTIATE_LOGSTREAM_OPERATOR(char);
 INSTANTIATE_LOGSTREAM_OPERATOR(char*);
-INSTANTIATE_LOGSTREAM_OPERATOR(char const*);
+INSTANTIATE_LOGSTREAM_OPERATOR(const char*);
 INSTANTIATE_LOGSTREAM_OPERATOR(float);
 INSTANTIATE_LOGSTREAM_OPERATOR(int);
 INSTANTIATE_LOGSTREAM_OPERATOR(long);

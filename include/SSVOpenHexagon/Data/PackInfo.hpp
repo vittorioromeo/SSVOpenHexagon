@@ -6,7 +6,8 @@
 
 #include <string>
 
-namespace hg {
+namespace hg
+{
 
 struct PackInfo
 {

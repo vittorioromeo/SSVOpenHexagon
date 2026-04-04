@@ -2,23 +2,20 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/Config.hpp"
-
-#include "SSVOpenHexagon/Global/UtilsJson.hpp"
-#include "SSVOpenHexagon/Utils/String.hpp"
-#include "SSVOpenHexagon/Utils/Casts.hpp"
-#include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
-
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/LinkedValue/LinkedValue.hpp"
-
-#include "SSVOpenHexagon/Input/Utils.hpp"
+#include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Input/Combo.hpp"
 #include "SSVOpenHexagon/Input/InputState.hpp"
 #include "SSVOpenHexagon/Input/Manager.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
-#include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
+#include "SSVOpenHexagon/Input/Utils.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/LinkedValue/LinkedValue.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Utils/Casts.hpp"
+#include "SSVOpenHexagon/Utils/Log.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVUtils/Core/FileSystem/Enums.hpp"
 #include "SSVUtils/Core/FileSystem/Path.hpp"
 #include "SSVUtils/Core/FileSystem/Scan.hpp"
@@ -26,25 +23,20 @@
 
 #include <SFML/Base/Array.hpp>
 #include <SFML/Base/SizeT.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
-#include <SSVUtils/Core/String/ToStr.hpp>
-
-#include <SFML/Window/VideoMode.hpp>
-#include <SFML/Window/VideoModeUtils.hpp>
+#include <SFML/System/Vec2.hpp>
 #include <SFML/Window/Joystick.hpp>
 #include <SFML/Window/JoystickIdentification.hpp>
-
-
-#include <SFML/System/Vec2.hpp>
-
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/VideoModeUtils.hpp>
+#include <SSVUtils/Core/String/ToStr.hpp>
 #include <algorithm>
 #include <initializer_list>
 #include <string>
 #include <vector>
 
-[[nodiscard]] static const std::vector<std::string>&
-defaultServerLevelWhitelist()
+[[nodiscard]] static const std::vector<std::string>& defaultServerLevelWhitelist()
 {
     static const std::vector<std::string> result{
         // Vittorio Romeo - Cube
@@ -251,13 +243,13 @@ defaultServerLevelWhitelist()
     return result;
 }
 
-using uint = unsigned int;
+using uint   = unsigned int;
 using ushort = unsigned short;
 
 using trig = ssvs::Input::Trigger;
 
-using k = sf::Keyboard::Key;
-using m = sf::Mouse::Button;
+using k   = sf::Keyboard::Key;
+using m   = sf::Mouse::Button;
 using cmb = ssvs::Input::Combo;
 
 using kil = std::initializer_list<sf::Keyboard::Key>;
@@ -278,117 +270,108 @@ using cil = std::initializer_list<cmb>;
     X(joystickAddToFavorites, uint, "j_add_favorite", 8) \
     X(joystickFavoritesMenu, uint, "j_favorite_menu", 9)
 
-#define X_LINKEDVALUES_BINDS_TRIGGERS                                      \
-    X(triggerRotateCCW, trig, "t_rotate_ccw",                              \
-        cil{cmb{{k::A}}, cmb{{k::Left}}, cmb{kil{}, mil{m::Left}}})        \
-    X(triggerRotateCW, trig, "t_rotate_cw",                                \
-        cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})      \
-    X(triggerFocus, trig, "t_focus",                                       \
-        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::Extra1}}})                 \
-    X(triggerSelect, trig, "t_select",                                     \
-        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
-    X(triggerExit, trig, "t_exit",                                         \
-        cil{cmb{{k::T}}, cmb{kil{}, mil{m::Extra2}}})                      \
-    X(triggerForceRestart, trig, "t_force_restart",                        \
-        cil{cmb{{k::Up}}, cmb{{k::R}}})                                    \
-    X(triggerRestart, trig, "t_restart",                                   \
-        cil{cmb{{k::Space}}, cmb{{k::Enter}}, cmb{kil{}, mil{m::Middle}}}) \
-    X(triggerReplay, trig, "t_replay", cil{cmb{{k::Y}}})                   \
-    X(triggerScreenshot, trig, "t_screenshot", cil{cmb{{k::F12}}})         \
-    X(triggerSwap, trig, "t_swap",                                         \
-        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                  \
-    X(triggerUp, trig, "t_up", cil{cmb{{k::W}}})                           \
-    X(triggerDown, trig, "t_down", cil{cmb{{k::S}}})                       \
-    X(triggerNextPack, trig, "t_next", cil{cmb{{k::PageDown}}})            \
-    X(triggerPreviousPack, trig, "t_previous", cil{cmb{{k::PageUp}}})      \
-    X(triggerLuaConsole, trig, "t_lua_console", cil{cmb{{k::F1}}})         \
+#define X_LINKEDVALUES_BINDS_TRIGGERS                                                                       \
+    X(triggerRotateCCW, trig, "t_rotate_ccw", cil{cmb{{k::A}}, cmb{{k::Left}}, cmb{kil{}, mil{m::Left}}})   \
+    X(triggerRotateCW, trig, "t_rotate_cw", cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})   \
+    X(triggerFocus, trig, "t_focus", cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::Extra1}}})                     \
+    X(triggerSelect, trig, "t_select", cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                    \
+    X(triggerExit, trig, "t_exit", cil{cmb{{k::T}}, cmb{kil{}, mil{m::Extra2}}})                            \
+    X(triggerForceRestart, trig, "t_force_restart", cil{cmb{{k::Up}}, cmb{{k::R}}})                         \
+    X(triggerRestart, trig, "t_restart", cil{cmb{{k::Space}}, cmb{{k::Enter}}, cmb{kil{}, mil{m::Middle}}}) \
+    X(triggerReplay, trig, "t_replay", cil{cmb{{k::Y}}})                                                    \
+    X(triggerScreenshot, trig, "t_screenshot", cil{cmb{{k::F12}}})                                          \
+    X(triggerSwap, trig, "t_swap", cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                        \
+    X(triggerUp, trig, "t_up", cil{cmb{{k::W}}})                                                            \
+    X(triggerDown, trig, "t_down", cil{cmb{{k::S}}})                                                        \
+    X(triggerNextPack, trig, "t_next", cil{cmb{{k::PageDown}}})                                             \
+    X(triggerPreviousPack, trig, "t_previous", cil{cmb{{k::PageUp}}})                                       \
+    X(triggerLuaConsole, trig, "t_lua_console", cil{cmb{{k::F1}}})                                          \
     X(triggerPause, trig, "t_pause", cil{cmb{{k::F2}}})
 
 #define X_LINKEDVALUES_BINDS      \
     X_LINKEDVALUES_BINDS_JOYSTICK \
     X_LINKEDVALUES_BINDS_TRIGGERS
 
-#define X_LINKEDVALUES                                                     \
-    X(official, bool, "official", true)                                    \
-    X(noPulse, bool, "no_pulse", false)                                    \
-    X(noRotation, bool, "no_rotation", false)                              \
-    X(noBackground, bool, "no_background", false)                          \
-    X(noSound, bool, "no_sound", false)                                    \
-    X(noMusic, bool, "no_music", false)                                    \
-    X(blackAndWhite, bool, "black_and_white", false)                       \
-    X(pulseEnabled, bool, "pulse_enabled", true)                           \
-    X(_3DEnabled, bool, "3D_enabled", true)                                \
-    X(shadersEnabled, bool, "shaders_enabled", true)                       \
-    X(_3DMultiplier, float, "3D_multiplier", 1.f)                          \
-    X(_3DMaxDepth, uint, "3D_max_depth", 100)                              \
-    X(invincible, bool, "invincible", false)                               \
-    X(autoRestart, bool, "auto_restart", false)                            \
-    X(soundVolume, float, "sound_volume", 100.f)                           \
-    X(musicVolume, float, "music_volume", 100.f)                           \
-    X(flashEnabled, bool, "flash_enabled", true)                           \
-    X(zoomFactor, float, "zoom_factor", 1.27f)                             \
-    X(pixelMultiplier, int, "pixel_multiplier", 1)                         \
-    X(playerSpeed, float, "player_speed", 9.45f)                           \
-    X(playerFocusSpeed, float, "player_focus_speed", 4.625f)               \
-    X(playerSize, float, "player_size", 7.3f)                              \
-    X(limitFPS, bool, "limit_fps", true)                                   \
-    X(vsync, bool, "vsync", false)                                         \
-    X(autoZoomFactor, bool, "auto_zoom_factor", true)                      \
-    X(fullscreen, bool, "fullscreen", false)                               \
-    X(windowedAutoResolution, bool, "windowed_auto_resolution", false)     \
-    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution", false) \
-    X(fullscreenWidth, uint, "fullscreen_width", 1920)                     \
-    X(fullscreenHeight, uint, "fullscreen_height", 1080)                   \
-    X(windowedWidth, uint, "windowed_width", 800)                          \
-    X(windowedHeight, uint, "windowed_height", 600)                        \
-    X(showMessages, bool, "show_messages", true)                           \
-    X(debug, bool, "debug", false)                                         \
-    X(beatPulse, bool, "beatpulse_enabled", true)                          \
-    X(showTrackedVariables, bool, "show_tracked_variables", true)          \
-    X(musicSpeedDMSync, bool, "music_speed_dm_sync", true)                 \
-    X(maxFPS, uint, "max_fps", 200)                                        \
-    X(antialiasingLevel, uint, "antialiasing_level", 4)                    \
-    X(showFPS, bool, "show_fps", false)                                    \
-    X(musicSpeedMult, float, "music_speed_mult", 1.0f)                     \
-    X(drawTextOutlines, bool, "draw_text_outlines", true)                  \
-    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk", \
-        true)                                                              \
-    X(rotateToStart, bool, "rotate_to_start", false)                       \
-    X(joystickDeadzone, float, "joystick_deadzone", 5.0f)                  \
-    X(textPadding, float, "text_padding", 8.0f)                            \
-    X(textScaling, float, "text_scaling", 1.0f)                            \
-    X(timescale, float, "timescale", 1.0f)                                 \
-    X(showKeyIcons, bool, "show_key_icons", false)                         \
-    X(keyIconsScale, float, "key_icons_scale", 0.75f)                      \
-    X(firstTimePlaying, bool, "first_time_playing", true)                  \
-    X(showLevelInfo, bool, "show_level_info", false)                       \
-    X(showTimer, bool, "show_timer", true)                                 \
-    X(showStatusText, bool, "show_status_text", true)                      \
-    X(serverIp, std::string, "server_ip", "139.162.199.162")               \
-    X(serverPort, ushort, "server_port", 50505)                            \
-    X(serverControlPort, ushort, "server_control_port", 50506)             \
-    X(serverLevelWhitelist, std::vector<std::string>,                      \
-        "server_level_whitelist", defaultServerLevelWhitelist())           \
-    X(saveLastLoginUsername, bool, "save_last_login_username", true)       \
-    X(lastLoginUsername, std::string, "last_login_username", "")           \
-    X(showLoginAtStartup, bool, "show_login_at_startup", false)            \
-    X(cameraShakeMultiplier, float, "camera_shake_multiplier", 1.f)        \
-    X(angleTiltIntensity, float, "angle_tilt_intensity", 1.f)              \
-    X(showPlayerTrail, bool, "show_player_trail", true)                    \
-    X(playerTrailAlpha, uint, "player_trail_alpha", 35)                    \
-    X(playerTrailScale, float, "player_trail_scale", 0.9f)                 \
-    X(playerTrailDecay, float, "player_trail_decay", 3.0f)                 \
-    X(playerTrailHasSwapColor, bool, "player_trail_has_swap_color", true)  \
-    X(showSwapParticles, bool, "show_swap_particles", true)                \
-    X(playSwapReadySound, bool, "play_swap_ready_sound", true)             \
-    X(showSwapBlinkingEffect, bool, "show_swap_blinking_effect", true)     \
-    X(useLuaFileCache, bool, "use_lua_file_cache", false)                  \
-    X(disableGameRendering, bool, "disable_game_rendering", false)         \
+#define X_LINKEDVALUES                                                                                         \
+    X(official, bool, "official", true)                                                                        \
+    X(noPulse, bool, "no_pulse", false)                                                                        \
+    X(noRotation, bool, "no_rotation", false)                                                                  \
+    X(noBackground, bool, "no_background", false)                                                              \
+    X(noSound, bool, "no_sound", false)                                                                        \
+    X(noMusic, bool, "no_music", false)                                                                        \
+    X(blackAndWhite, bool, "black_and_white", false)                                                           \
+    X(pulseEnabled, bool, "pulse_enabled", true)                                                               \
+    X(_3DEnabled, bool, "3D_enabled", true)                                                                    \
+    X(shadersEnabled, bool, "shaders_enabled", true)                                                           \
+    X(_3DMultiplier, float, "3D_multiplier", 1.f)                                                              \
+    X(_3DMaxDepth, uint, "3D_max_depth", 100)                                                                  \
+    X(invincible, bool, "invincible", false)                                                                   \
+    X(autoRestart, bool, "auto_restart", false)                                                                \
+    X(soundVolume, float, "sound_volume", 100.f)                                                               \
+    X(musicVolume, float, "music_volume", 100.f)                                                               \
+    X(flashEnabled, bool, "flash_enabled", true)                                                               \
+    X(zoomFactor, float, "zoom_factor", 1.27f)                                                                 \
+    X(pixelMultiplier, int, "pixel_multiplier", 1)                                                             \
+    X(playerSpeed, float, "player_speed", 9.45f)                                                               \
+    X(playerFocusSpeed, float, "player_focus_speed", 4.625f)                                                   \
+    X(playerSize, float, "player_size", 7.3f)                                                                  \
+    X(limitFPS, bool, "limit_fps", true)                                                                       \
+    X(vsync, bool, "vsync", false)                                                                             \
+    X(autoZoomFactor, bool, "auto_zoom_factor", true)                                                          \
+    X(fullscreen, bool, "fullscreen", false)                                                                   \
+    X(windowedAutoResolution, bool, "windowed_auto_resolution", false)                                         \
+    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution", false)                                     \
+    X(fullscreenWidth, uint, "fullscreen_width", 1920)                                                         \
+    X(fullscreenHeight, uint, "fullscreen_height", 1080)                                                       \
+    X(windowedWidth, uint, "windowed_width", 800)                                                              \
+    X(windowedHeight, uint, "windowed_height", 600)                                                            \
+    X(showMessages, bool, "show_messages", true)                                                               \
+    X(debug, bool, "debug", false)                                                                             \
+    X(beatPulse, bool, "beatpulse_enabled", true)                                                              \
+    X(showTrackedVariables, bool, "show_tracked_variables", true)                                              \
+    X(musicSpeedDMSync, bool, "music_speed_dm_sync", true)                                                     \
+    X(maxFPS, uint, "max_fps", 200)                                                                            \
+    X(antialiasingLevel, uint, "antialiasing_level", 4)                                                        \
+    X(showFPS, bool, "show_fps", false)                                                                        \
+    X(musicSpeedMult, float, "music_speed_mult", 1.0f)                                                         \
+    X(drawTextOutlines, bool, "draw_text_outlines", true)                                                      \
+    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk", true)                               \
+    X(rotateToStart, bool, "rotate_to_start", false)                                                           \
+    X(joystickDeadzone, float, "joystick_deadzone", 5.0f)                                                      \
+    X(textPadding, float, "text_padding", 8.0f)                                                                \
+    X(textScaling, float, "text_scaling", 1.0f)                                                                \
+    X(timescale, float, "timescale", 1.0f)                                                                     \
+    X(showKeyIcons, bool, "show_key_icons", false)                                                             \
+    X(keyIconsScale, float, "key_icons_scale", 0.75f)                                                          \
+    X(firstTimePlaying, bool, "first_time_playing", true)                                                      \
+    X(showLevelInfo, bool, "show_level_info", false)                                                           \
+    X(showTimer, bool, "show_timer", true)                                                                     \
+    X(showStatusText, bool, "show_status_text", true)                                                          \
+    X(serverIp, std::string, "server_ip", "139.162.199.162")                                                   \
+    X(serverPort, ushort, "server_port", 50'505)                                                               \
+    X(serverControlPort, ushort, "server_control_port", 50'506)                                                \
+    X(serverLevelWhitelist, std::vector<std::string>, "server_level_whitelist", defaultServerLevelWhitelist()) \
+    X(saveLastLoginUsername, bool, "save_last_login_username", true)                                           \
+    X(lastLoginUsername, std::string, "last_login_username", "")                                               \
+    X(showLoginAtStartup, bool, "show_login_at_startup", false)                                                \
+    X(cameraShakeMultiplier, float, "camera_shake_multiplier", 1.f)                                            \
+    X(angleTiltIntensity, float, "angle_tilt_intensity", 1.f)                                                  \
+    X(showPlayerTrail, bool, "show_player_trail", true)                                                        \
+    X(playerTrailAlpha, uint, "player_trail_alpha", 35)                                                        \
+    X(playerTrailScale, float, "player_trail_scale", 0.9f)                                                     \
+    X(playerTrailDecay, float, "player_trail_decay", 3.0f)                                                     \
+    X(playerTrailHasSwapColor, bool, "player_trail_has_swap_color", true)                                      \
+    X(showSwapParticles, bool, "show_swap_particles", true)                                                    \
+    X(playSwapReadySound, bool, "play_swap_ready_sound", true)                                                 \
+    X(showSwapBlinkingEffect, bool, "show_swap_blinking_effect", true)                                         \
+    X(useLuaFileCache, bool, "use_lua_file_cache", false)                                                      \
+    X(disableGameRendering, bool, "disable_game_rendering", false)                                             \
     X_LINKEDVALUES_BINDS
 
 // TODO: enable cache on server
 
-namespace hg::Config {
+namespace hg::Config
+{
 
 [[nodiscard]] static ssvuj::Obj& root() noexcept
 {
@@ -396,14 +379,12 @@ namespace hg::Config {
     {
         if (ssvufs::Path{"config.json"}.isFile())
         {
-            hg::lo("hg::Config::root()")
-                << "User-defined `config.json` file found\n";
+            hg::lo("hg::Config::root()") << "User-defined `config.json` file found\n";
 
             return ssvuj::getFromFile("config.json");
         }
 
-        hg::lo("hg::Config::root()")
-            << "No suitable config file found, using defaults\n";
+        hg::lo("hg::Config::root()") << "No suitable config file found, using defaults\n";
 
         return ssvuj::Obj{};
     }();
@@ -412,8 +393,8 @@ namespace hg::Config {
 }
 
 #if defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wbraced-scalar-init"
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wbraced-scalar-init"
 #endif
 
 #define X(name, type, key, ...)                                               \
@@ -426,7 +407,7 @@ X_LINKEDVALUES
 #undef X
 
 #if defined(__clang__)
-#pragma GCC diagnostic pop
+    #pragma GCC diagnostic pop
 #endif
 
 static void fixupMissingTriggers()
@@ -488,21 +469,21 @@ static void resetBindsFromDefault()
 #undef X_LINKEDVALUES_BINDS_TRIGGERS
 #undef X_LINKEDVALUES_BINDS_JOYSTICK
 
-float sizeX{1500}, sizeY{1500};
+float           sizeX{1500}, sizeY{1500};
 constexpr float defaultSpawnDistance{1600};
-std::string uneligibilityReason;
+std::string     uneligibilityReason;
 
 static void applyAutoWindowedResolution()
 {
-    auto d = sf::VideoModeUtils::getDesktopMode();
-    windowedWidth() = d.size.x;
+    auto d           = sf::VideoModeUtils::getDesktopMode();
+    windowedWidth()  = d.size.x;
     windowedHeight() = d.size.y;
 }
 
 static void applyAutoFullscreenResolution()
 {
-    auto d = sf::VideoModeUtils::getDesktopMode();
-    fullscreenWidth() = d.size.x;
+    auto d             = sf::VideoModeUtils::getDesktopMode();
+    fullscreenWidth()  = d.size.x;
     fullscreenHeight() = d.size.y;
 }
 
@@ -513,17 +494,14 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
     if (ssvufs::Path{"ConfigOverrides/"}.isFolder())
     {
         for (const ssvufs::Path& p :
-            ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
-                ssvufs::Pick::ByExt>("ConfigOverrides/", ".json"))
+             ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File, ssvufs::Pick::ByExt>("ConfigOverrides/", ".json"))
         {
             if (ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
             {
-                hg::lo("::loadConfig") << "applying config override '"
-                                       << p.getFileNameNoExtensions() << "'\n";
+                hg::lo("::loadConfig") << "applying config override '" << p.getFileNameNoExtensions() << "'\n";
 
                 const auto overrideRoot(ssvuj::getFromFile(p));
-                for (auto itr(std::begin(overrideRoot));
-                    itr != std::end(overrideRoot); ++itr)
+                for (auto itr(std::begin(overrideRoot)); itr != std::end(overrideRoot); ++itr)
                 {
                     root()[ssvuj::getKey(itr)] = *itr;
                 }
@@ -669,14 +647,14 @@ void setCurrentResolution(unsigned int mWidth, unsigned int mHeight)
     if (getFullscreen())
     {
         fullscreenAutoResolution() = false;
-        fullscreenWidth() = mWidth;
-        fullscreenHeight() = mHeight;
+        fullscreenWidth()          = mWidth;
+        fullscreenHeight()         = mHeight;
     }
     else
     {
         windowedAutoResolution() = false;
-        windowedWidth() = mWidth;
-        windowedHeight() = mHeight;
+        windowedWidth()          = mWidth;
+        windowedHeight()         = mHeight;
     }
 
     recalculateSizes();
@@ -1451,26 +1429,27 @@ std::string bindToHumanReadableName(std::string s)
 
 
 const sf::base::Array<TriggerGetter, SSVOH_TO_SIZET(Tid::TriggersCount)>
-    triggerGetters{[]() -> ssvs::Input::Trigger& { return triggerRotateCCW(); },
-        []() -> ssvs::Input::Trigger& { return triggerRotateCW(); },
-        []() -> ssvs::Input::Trigger& { return triggerFocus(); },
-        []() -> ssvs::Input::Trigger& { return triggerSelect(); },
-        []() -> ssvs::Input::Trigger& { return triggerExit(); },
-        []() -> ssvs::Input::Trigger& { return triggerForceRestart(); },
-        []() -> ssvs::Input::Trigger& { return triggerRestart(); },
-        []() -> ssvs::Input::Trigger& { return triggerReplay(); },
-        []() -> ssvs::Input::Trigger& { return triggerScreenshot(); },
-        []() -> ssvs::Input::Trigger& { return triggerSwap(); },
-        []() -> ssvs::Input::Trigger& { return triggerUp(); },
-        []() -> ssvs::Input::Trigger& { return triggerDown(); },
-        []() -> ssvs::Input::Trigger& { return triggerNextPack(); },
-        []() -> ssvs::Input::Trigger& { return triggerPreviousPack(); },
-        []() -> ssvs::Input::Trigger& { return triggerLuaConsole(); },
-        []() -> ssvs::Input::Trigger& { return triggerPause(); }};
+    triggerGetters{[]() -> ssvs::Input::Trigger& { return triggerRotateCCW(); }, []() -> ssvs::Input::Trigger& {
+    return triggerRotateCW();
+}, []() -> ssvs::Input::Trigger& { return triggerFocus(); }, []() -> ssvs::Input::Trigger& {
+    return triggerSelect();
+}, []() -> ssvs::Input::Trigger& { return triggerExit(); }, []() -> ssvs::Input::Trigger& {
+    return triggerForceRestart();
+}, []() -> ssvs::Input::Trigger& { return triggerRestart(); }, []() -> ssvs::Input::Trigger& {
+    return triggerReplay();
+}, []() -> ssvs::Input::Trigger& { return triggerScreenshot(); }, []() -> ssvs::Input::Trigger& {
+    return triggerSwap();
+}, []() -> ssvs::Input::Trigger& { return triggerUp(); }, []() -> ssvs::Input::Trigger& {
+    return triggerDown();
+}, []() -> ssvs::Input::Trigger& { return triggerNextPack(); }, []() -> ssvs::Input::Trigger& {
+    return triggerPreviousPack();
+}, []() -> ssvs::Input::Trigger& { return triggerLuaConsole(); }, []() -> ssvs::Input::Trigger& {
+    return triggerPause();
+}};
 
 [[nodiscard]] std::string getKeyboardBindNames(const Tid bindID)
 {
-    int j;
+    int         j;
     std::string bindNames;
 
     const auto combos = triggerGetters[SSVOH_TO_SIZET(bindID)]().getCombos();
@@ -1496,8 +1475,7 @@ const sf::base::Array<TriggerGetter, SSVOH_TO_SIZET(Tid::TriggersCount)>
             }
 
             // names are shifted compared to the Key enum
-            bindNames += bindToHumanReadableName(
-                ssvs::getKKeyName(sf::Keyboard::Key(j - 1)));
+            bindNames += bindToHumanReadableName(ssvs::getKKeyName(sf::Keyboard::Key(j - 1)));
             break;
         }
 
@@ -1515,8 +1493,7 @@ const sf::base::Array<TriggerGetter, SSVOH_TO_SIZET(Tid::TriggersCount)>
             }
 
             // same as with keys
-            bindNames += bindToHumanReadableName(
-                ssvs::getMBtnName(sf::Mouse::Button(j - 1)));
+            bindNames += bindToHumanReadableName(ssvs::getMBtnName(sf::Mouse::Button(j - 1)));
             break;
         }
     }
@@ -1528,8 +1505,7 @@ const sf::base::Array<TriggerGetter, SSVOH_TO_SIZET(Tid::TriggersCount)>
 //**************************************************
 // Add new key binds
 
-void rebindTrigger(ssvs::Input::Trigger& trig, const sf::Keyboard::Key key,
-    const sf::Mouse::Button btn, int index)
+void rebindTrigger(ssvs::Input::Trigger& trig, const sf::Keyboard::Key key, const sf::Mouse::Button btn, int index)
 {
     // if both slots are taken replace the first one
     if (index >= maxBinds)
@@ -1566,28 +1542,36 @@ void clearTriggerBind(ssvs::Input::Trigger& trig, const int index)
 // Get binds names
 
 const sf::base::Array<JoystickTriggerGetter,
-    SSVOH_TO_SIZET(Joystick::Jid::JoystickBindsCount)>
+                      SSVOH_TO_SIZET(Joystick::Jid::JoystickBindsCount)>
     joystickTriggerGetters{//
-        []() -> unsigned int { return joystickSelect(); },
-        []() -> unsigned int { return joystickExit(); },
-        []() -> unsigned int { return joystickFocus(); },
-        []() -> unsigned int { return joystickSwap(); },
-        []() -> unsigned int { return joystickForceRestart(); },
-        []() -> unsigned int { return joystickRestart(); },
-        []() -> unsigned int { return joystickReplay(); },
-        []() -> unsigned int { return joystickScreenshot(); },
-        []() -> unsigned int { return joystickNextPack(); },
-        []() -> unsigned int { return joystickPreviousPack(); },
-        []() -> unsigned int { return joystickAddToFavorites(); },
-        []() -> unsigned int { return joystickFavoritesMenu(); }};
+                           []() -> unsigned int { return joystickSelect(); },
+                           []() -> unsigned int { return joystickExit(); },
+                           []() -> unsigned int { return joystickFocus(); },
+                           []() -> unsigned int { return joystickSwap(); },
+                           []() -> unsigned int { return joystickForceRestart(); },
+                           []() -> unsigned int { return joystickRestart(); },
+                           []() -> unsigned int { return joystickReplay(); },
+                           []() -> unsigned int { return joystickScreenshot(); },
+                           []() -> unsigned int { return joystickNextPack(); },
+                           []() -> unsigned int { return joystickPreviousPack(); },
+                           []() -> unsigned int { return joystickAddToFavorites(); },
+                           []() -> unsigned int { return joystickFavoritesMenu(); }};
 
 std::string getJoystickBindName(const Joystick::Jid bindID)
 {
     static sf::base::Array<sf::base::Array<std::string, 2>, 12> buttonsNames{
-        {{"A", "SQUARE"}, {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"},
-            {"LB", "L1"}, {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"},
-            {"LEFT STICK", "SELECT"}, {"RIGHT STICK", "START"},
-            {"LT", "LEFT STICK"}, {"RT", "RIGHT STICK"}}};
+        {{"A", "SQUARE"},
+         {"B", "CROSS"},
+         {"X", "CIRCLE"},
+         {"Y", "TRIANGLE"},
+         {"LB", "L1"},
+         {"RB", "R1"},
+         {"BACK", "L2"},
+         {"START", "R2"},
+         {"LEFT STICK", "SELECT"},
+         {"RIGHT STICK", "START"},
+         {"LT", "LEFT STICK"},
+         {"RT", "RIGHT STICK"}}};
 
     const unsigned int value{joystickTriggerGetters[SSVOH_TO_SIZET(bindID)]()};
 
@@ -1596,10 +1580,10 @@ std::string getJoystickBindName(const Joystick::Jid bindID)
         return "";
     }
 
-    constexpr unsigned int msVendorId{0x045E};
-    constexpr unsigned int sonyVendorId{0x54C};
+    constexpr unsigned int msVendorId{0x04'5E};
+    constexpr unsigned int sonyVendorId{0x5'4C};
 
-    auto query = sf::Joystick::query(0);
+    auto               query = sf::Joystick::query(0);
     const unsigned int vendorId{query.hasValue() ? query->getVendorId() : 0};
 
     using namespace std::string_literals;
@@ -1632,20 +1616,20 @@ void loadAllJoystickBinds()
 // Set bind
 
 const sf::base::Array<JoystickTriggerSetter,
-    SSVOH_TO_SIZET(Joystick::Jid::JoystickBindsCount)>
+                      SSVOH_TO_SIZET(Joystick::Jid::JoystickBindsCount)>
     joystickTriggerSetters{//
-        [](const unsigned int btn) { joystickSelect() = btn; },
-        [](const unsigned int btn) { joystickExit() = btn; },
-        [](const unsigned int btn) { joystickFocus() = btn; },
-        [](const unsigned int btn) { joystickSwap() = btn; },
-        [](const unsigned int btn) { joystickForceRestart() = btn; },
-        [](const unsigned int btn) { joystickRestart() = btn; },
-        [](const unsigned int btn) { joystickReplay() = btn; },
-        [](const unsigned int btn) { joystickScreenshot() = btn; },
-        [](const unsigned int btn) { joystickNextPack() = btn; },
-        [](const unsigned int btn) { joystickPreviousPack() = btn; },
-        [](const unsigned int btn) { joystickAddToFavorites() = btn; },
-        [](const unsigned int btn) { joystickFavoritesMenu() = btn; }};
+                           [](const unsigned int btn) { joystickSelect() = btn; },
+                           [](const unsigned int btn) { joystickExit() = btn; },
+                           [](const unsigned int btn) { joystickFocus() = btn; },
+                           [](const unsigned int btn) { joystickSwap() = btn; },
+                           [](const unsigned int btn) { joystickForceRestart() = btn; },
+                           [](const unsigned int btn) { joystickRestart() = btn; },
+                           [](const unsigned int btn) { joystickReplay() = btn; },
+                           [](const unsigned int btn) { joystickScreenshot() = btn; },
+                           [](const unsigned int btn) { joystickNextPack() = btn; },
+                           [](const unsigned int btn) { joystickPreviousPack() = btn; },
+                           [](const unsigned int btn) { joystickAddToFavorites() = btn; },
+                           [](const unsigned int btn) { joystickFavoritesMenu() = btn; }};
 
 [[nodiscard]] ssvs::Input::Trigger& getTrigger(const Tid tid)
 {

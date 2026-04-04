@@ -3,28 +3,23 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
-
+#include "SSVOpenHexagon/Core/Replay.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
-#include "SSVOpenHexagon/Core/Replay.hpp"
-#include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
-
-#include <SFML/Network/IpAddressUtils.hpp>
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <SFML/Network/Packet.hpp>
-
 #include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/String.hpp>
 #include <SFML/Base/ScopeGuard.hpp>
-#include <SFML/Base/StringStreamOp.hpp>
-
-#include <thread>
 #include <SFML/Base/StdChrono.hpp>
-
+#include <SFML/Base/String.hpp>
+#include <SFML/Base/StringStreamOp.hpp>
+#include <SFML/Network/IpAddressUtils.hpp>
+#include <SFML/Network/Packet.hpp>
+#include <thread>
 
 
 static auto& clog(const char* funcName)
@@ -35,16 +30,17 @@ static auto& clog(const char* funcName)
 #define SSVOH_CLOG ::clog(__func__)
 
 #define SSVOH_CLOG_VERBOSE \
-    if (_verbose) ::clog(__func__)
+    if (_verbose)          \
+    ::clog(__func__)
 
 #define SSVOH_CLOG_ERROR ::clog(__func__) << "[ERROR] "
 
 #define SSVOH_CLOG_VAR(x) '\'' << #x << "': '" << x << '\''
 
-#define SSVOH_CLOG_VAR_IP(x) \
-    '\'' << #x << "': '" << ::sf::IpAddressUtils::toString(x) << '\''
+#define SSVOH_CLOG_VAR_IP(x) '\'' << #x << "': '" << ::sf::IpAddressUtils::toString(x) << '\''
 
-namespace hg {
+namespace hg
+{
 
 template <typename... Ts>
 [[nodiscard]] bool HexagonClient::fail(const Ts&... xs)
@@ -81,8 +77,7 @@ template <typename... Ts>
         return fail("Never got valid Steam encrypted app ticket");
     }
 
-    const sf::base::Optional<sf::base::U64> ticketSteamId =
-        _steamManager.get_ticket_steam_id();
+    const sf::base::Optional<sf::base::U64> ticketSteamId = _steamManager.get_ticket_steam_id();
 
     if (!ticketSteamId.hasValue())
     {
@@ -106,8 +101,9 @@ template <typename... Ts>
 
     SSVOH_CLOG << "Connecting socket to server...\n";
 
-    if (_socket.connect(_serverIp, _serverPort,
-            /* timeout */ sf::seconds(0.5)) != sf::Socket::Status::Done)
+    if (_socket.connect(_serverIp,
+                        _serverPort,
+                        /* timeout */ sf::seconds(0.5)) != sf::Socket::Status::Done)
     {
         SSVOH_CLOG_ERROR << "Failure connecting socket to server\n";
 
@@ -122,8 +118,7 @@ template <typename... Ts>
     return true;
 }
 
-[[nodiscard]] bool HexagonClient::sendPacketRecursive(
-    const int tries, sf::Packet& p)
+[[nodiscard]] bool HexagonClient::sendPacketRecursive(const int tries, sf::Packet& p)
 {
     if (tries > 5)
     {
@@ -156,8 +151,7 @@ template <typename... Ts>
     return sendPacketRecursive(tries + 1, p);
 }
 
-[[nodiscard]] bool HexagonClient::recvPacketRecursive(
-    const int tries, sf::Packet& p)
+[[nodiscard]] bool HexagonClient::recvPacketRecursive(const int tries, sf::Packet& p)
 {
     if (tries > 5)
     {
@@ -231,8 +225,7 @@ template <typename T>
         return fail("Tried to send encrypted message without RT keys");
     }
 
-    if (!makeClientToServerEncryptedPacket(
-            _clientRTKeys->keyTransmit, _packetBuffer, data))
+    if (!makeClientToServerEncryptedPacket(_clientRTKeys->keyTransmit, _packetBuffer, data))
     {
         return fail("Error building encrypted message packet");
     }
@@ -261,29 +254,27 @@ template <typename T>
     return sendUnencrypted(CTSPPublicKey{_clientPSKeys.keyPublic});
 }
 
-[[nodiscard]] bool HexagonClient::sendRegister(const sf::base::U64 steamId,
-    const std::string& name, const std::string& passwordHash)
+[[nodiscard]] bool HexagonClient::sendRegister(const sf::base::U64 steamId, const std::string& name, const std::string& passwordHash)
 {
     SSVOH_CLOG_VERBOSE << "Sending registration request to server...\n";
 
     return sendEncrypted( //
         CTSPRegister{
-            .steamId = steamId,          //
-            .name = name,                //
+            .steamId      = steamId,     //
+            .name         = name,        //
             .passwordHash = passwordHash //
         } //
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendLogin(const sf::base::U64 steamId,
-    const std::string& name, const std::string& passwordHash)
+[[nodiscard]] bool HexagonClient::sendLogin(const sf::base::U64 steamId, const std::string& name, const std::string& passwordHash)
 {
     SSVOH_CLOG_VERBOSE << "Sending login request to server...\n";
 
     return sendEncrypted( //
         CTSPLogin{
-            .steamId = steamId,          //
-            .name = name,                //
+            .steamId      = steamId,     //
+            .name         = name,        //
             .passwordHash = passwordHash //
         } //
     );
@@ -295,89 +286,81 @@ template <typename T>
     return sendEncrypted(CTSPLogout{.steamId = steamId});
 }
 
-[[nodiscard]] bool HexagonClient::sendDeleteAccount(
-    const sf::base::U64 steamId, const std::string& passwordHash)
+[[nodiscard]] bool HexagonClient::sendDeleteAccount(const sf::base::U64 steamId, const std::string& passwordHash)
 {
     SSVOH_CLOG_VERBOSE << "Sending delete account request to server...\n";
 
     return sendEncrypted( //
         CTSPDeleteAccount{
-            .steamId = steamId,          //
+            .steamId      = steamId,     //
             .passwordHash = passwordHash //
         } //
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendRequestTopScores(
-    const sf::base::U64 loginToken, const std::string& levelValidator)
+[[nodiscard]] bool HexagonClient::sendRequestTopScores(const sf::base::U64 loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending top scores request to server...\n";
 
     return sendEncrypted( //
         CTSPRequestTopScores{
-            .loginToken = loginToken,        //
+            .loginToken     = loginToken,    //
             .levelValidator = levelValidator //
         } //
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendRequestOwnScore(
-    const sf::base::U64 loginToken, const std::string& levelValidator)
+[[nodiscard]] bool HexagonClient::sendRequestOwnScore(const sf::base::U64 loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending own score request to server...\n";
 
     return sendEncrypted( //
         CTSPRequestOwnScore{
-            .loginToken = loginToken,        //
+            .loginToken     = loginToken,    //
             .levelValidator = levelValidator //
         } //
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendRequestTopScoresAndOwnScore(
-    const sf::base::U64 loginToken, const std::string& levelValidator)
+[[nodiscard]] bool HexagonClient::sendRequestTopScoresAndOwnScore(const sf::base::U64 loginToken, const std::string& levelValidator)
 {
-    SSVOH_CLOG_VERBOSE
-        << "Sending top scores and own score request to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending top scores and own score request to server...\n";
 
     return sendEncrypted( //
         CTSPRequestTopScoresAndOwnScore{
-            .loginToken = loginToken,        //
+            .loginToken     = loginToken,    //
             .levelValidator = levelValidator //
         } //
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendStartedGame(
-    const sf::base::U64 loginToken, const std::string& levelValidator)
+[[nodiscard]] bool HexagonClient::sendStartedGame(const sf::base::U64 loginToken, const std::string& levelValidator)
 {
     SSVOH_CLOG_VERBOSE << "Sending started game packet to server...\n";
 
     return sendEncrypted( //
         CTSPStartedGame{
-            .loginToken = loginToken,        //
+            .loginToken     = loginToken,    //
             .levelValidator = levelValidator //
         } //
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendCompressedReplay(
-    const sf::base::U64 loginToken, const std::string& levelValidator,
-    const compressed_replay_file& compressedReplayFile)
+[[nodiscard]] bool HexagonClient::sendCompressedReplay(const sf::base::U64           loginToken,
+                                                       const std::string&            levelValidator,
+                                                       const compressed_replay_file& compressedReplayFile)
 {
-    SSVOH_CLOG_VERBOSE << "Sending compressed replay for level validator '"
-                       << levelValidator << "' to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending compressed replay for level validator '" << levelValidator << "' to server...\n";
 
     return sendEncrypted( //
         CTSPCompressedReplay{
-            .loginToken = loginToken,                    //
+            .loginToken           = loginToken,          //
             .compressedReplayFile = compressedReplayFile //
         } //
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendRequestServerStatus(
-    const sf::base::U64 loginToken)
+[[nodiscard]] bool HexagonClient::sendRequestServerStatus(const sf::base::U64 loginToken)
 {
     SSVOH_CLOG_VERBOSE << "Sending status request to server...\n";
 
@@ -441,23 +424,22 @@ bool HexagonClient::connect()
     return true;
 }
 
-HexagonClient::HexagonClient(Steam::steam_manager& steamManager,
-    const sf::IpAddress& serverIp, const unsigned short serverPort)
-    : _steamManager{steamManager},
-      _ticketSteamID{},
-      _serverIp{serverIp},
-      _serverPort{serverPort},
-      _socket{true /* isBlocking */},
-      _socketConnected{false},
-      _packetBuffer{},
-      _errorOss{},
-      _lastHeartbeatTime{},
-      _verbose{true},
-      _clientPSKeys{generateSodiumPSKeys()},
-      _state{State::Disconnected},
-      _loginToken{},
-      _loginName{},
-      _events{}
+HexagonClient::HexagonClient(Steam::steam_manager& steamManager, const sf::IpAddress& serverIp, const unsigned short serverPort) :
+    _steamManager{steamManager},
+    _ticketSteamID{},
+    _serverIp{serverIp},
+    _serverPort{serverPort},
+    _socket{true /* isBlocking */},
+    _socketConnected{false},
+    _packetBuffer{},
+    _errorOss{},
+    _lastHeartbeatTime{},
+    _verbose{true},
+    _clientPSKeys{generateSodiumPSKeys()},
+    _state{State::Disconnected},
+    _loginToken{},
+    _loginName{},
+    _events{}
 {
     const auto sKeyPublic = sodiumKeyToString(_clientPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_clientPSKeys.keySecret);
@@ -492,14 +474,12 @@ void HexagonClient::disconnect()
 
     _socket.setBlocking(true);
 
-    if ((_state == State::LoggedIn || _state == State::LoggedIn_Ready) &&
-        _ticketSteamID.hasValue())
+    if ((_state == State::LoggedIn || _state == State::LoggedIn_Ready) && _ticketSteamID.hasValue())
     {
         (void)sendLogout(*_ticketSteamID);
     }
 
-    if (_state == State::Connected || _state == State::LoggedIn ||
-        _state == State::LoggedIn_Ready)
+    if (_state == State::Connected || _state == State::LoggedIn || _state == State::LoggedIn_Ready)
     {
         (void)sendDisconnect();
     }
@@ -529,8 +509,7 @@ bool HexagonClient::sendHeartbeatIfNecessary()
     {
         if (!sendHeartbeat())
         {
-            SSVOH_CLOG_ERROR
-                << "Error sending heartbeat, disconnecting client\n";
+            SSVOH_CLOG_ERROR << "Error sending heartbeat, disconnecting client\n";
 
             disconnect();
             return fail();
@@ -553,233 +532,208 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
     }
 
     _errorOss.str("");
-    const PVServerToClient pv = decodeServerToClientPacket(
-        _clientRTKeys.hasValue() ? &_clientRTKeys->keyReceive : nullptr,
-        _errorOss, p);
+    const PVServerToClient pv = decodeServerToClientPacket(_clientRTKeys.hasValue() ? &_clientRTKeys->keyReceive : nullptr,
+                                                           _errorOss,
+                                                           p);
 
     return pv.linearMatch( //
 
-        [&](const PInvalid&)
-        {
-            return fail("Error processing packet from server, details: ",
-                _errorOss.str());
-        },
+        [&](const PInvalid&) { return fail("Error processing packet from server, details: ", _errorOss.str()); },
 
-        [&](const PEncryptedMsg&)
-        {
-            return fail(
-                "Received non-decrypted encrypted msg packet from server");
-        },
+        [&](const PEncryptedMsg&) { return fail("Received non-decrypted encrypted msg packet from server"); },
 
         [&](const STCPKick&)
-        {
-            SSVOH_CLOG << "Received kick packet from server, disconnecting\n";
+    {
+        SSVOH_CLOG << "Received kick packet from server, disconnecting\n";
 
-            addEvent(Event{EKicked{}});
+        addEvent(Event{EKicked{}});
 
-            disconnect();
-            return true;
-        },
+        disconnect();
+        return true;
+    },
 
         [&](const STCPPublicKey& stcp)
+    {
+        SSVOH_CLOG << "Received public key packet from server\n";
+
+        if (_serverPublicKey.hasValue())
         {
-            SSVOH_CLOG << "Received public key packet from server\n";
+            SSVOH_CLOG << "Already had public key, replacing\n";
+        }
+        else
+        {
+            SSVOH_CLOG << "Did not have public key, setting\n";
+        }
 
-            if (_serverPublicKey.hasValue())
-            {
-                SSVOH_CLOG << "Already had public key, replacing\n";
-            }
-            else
-            {
-                SSVOH_CLOG << "Did not have public key, setting\n";
-            }
+        _serverPublicKey.emplace(stcp.key);
 
-            _serverPublicKey.emplace(stcp.key);
+        SSVOH_CLOG << "Server public key: '" << sodiumKeyToString(stcp.key) << "'\n";
 
-            SSVOH_CLOG << "Server public key: '" << sodiumKeyToString(stcp.key)
-                       << "'\n";
+        SSVOH_CLOG << "Calculating RT keys\n";
+        _clientRTKeys = calculateClientSessionSodiumRTKeys(_clientPSKeys, stcp.key);
 
-            SSVOH_CLOG << "Calculating RT keys\n";
-            _clientRTKeys =
-                calculateClientSessionSodiumRTKeys(_clientPSKeys, stcp.key);
+        if (!_clientRTKeys.hasValue())
+        {
+            SSVOH_CLOG_ERROR << "Failed calculating RT keys, disconnecting "
+                                "from server\n";
 
-            if (!_clientRTKeys.hasValue())
-            {
-                SSVOH_CLOG_ERROR << "Failed calculating RT keys, disconnecting "
-                                    "from server\n";
+            disconnect();
+            return fail();
+        }
 
-                disconnect();
-                return fail();
-            }
+        const auto keyReceive = sodiumKeyToString(_clientRTKeys->keyReceive);
 
-            const auto keyReceive =
-                sodiumKeyToString(_clientRTKeys->keyReceive);
+        const auto keyTransmit = sodiumKeyToString(_clientRTKeys->keyTransmit);
 
-            const auto keyTransmit =
-                sodiumKeyToString(_clientRTKeys->keyTransmit);
+        SSVOH_CLOG << "Calculated RT keys\n"
+                   << " - " << SSVOH_CLOG_VAR(keyReceive) << '\n'
+                   << " - " << SSVOH_CLOG_VAR(keyTransmit) << '\n';
 
-            SSVOH_CLOG << "Calculated RT keys\n"
-                       << " - " << SSVOH_CLOG_VAR(keyReceive) << '\n'
-                       << " - " << SSVOH_CLOG_VAR(keyTransmit) << '\n';
+        SSVOH_CLOG << "Replying with login attempt\n";
 
-            SSVOH_CLOG << "Replying with login attempt\n";
-
-            return true;
-        },
+        return true;
+    },
 
         [&](const STCPRegistrationSuccess&)
-        {
-            SSVOH_CLOG << "Successfully registered to server\n";
+    {
+        SSVOH_CLOG << "Successfully registered to server\n";
 
-            addEvent(Event{ERegistrationSuccess{}});
-            return true;
-        },
+        addEvent(Event{ERegistrationSuccess{}});
+        return true;
+    },
 
         [&](const STCPRegistrationFailure& stcp)
-        {
-            SSVOH_CLOG << "Registration to server failed, error: '"
-                       << stcp.error << "'\n";
+    {
+        SSVOH_CLOG << "Registration to server failed, error: '" << stcp.error << "'\n";
 
-            addEvent(Event{ERegistrationFailure{stcp.error}});
-            return true;
-        },
+        addEvent(Event{ERegistrationFailure{stcp.error}});
+        return true;
+    },
 
         [&](const STCPLoginSuccess& stcp)
+    {
+        SSVOH_CLOG << "Successfully logged into server, token: '" << stcp.loginToken << "'\n";
+
+        if (_loginToken.hasValue())
         {
-            SSVOH_CLOG << "Successfully logged into server, token: '"
-                       << stcp.loginToken << "'\n";
+            SSVOH_CLOG << "Already had login token, replacing\n";
+        }
+        else
+        {
+            SSVOH_CLOG << "Did not have login token, setting\n";
+        }
 
-            if (_loginToken.hasValue())
-            {
-                SSVOH_CLOG << "Already had login token, replacing\n";
-            }
-            else
-            {
-                SSVOH_CLOG << "Did not have login token, setting\n";
-            }
+        _loginToken.emplace(stcp.loginToken);
+        _loginName.emplace(stcp.loginName);
 
-            _loginToken.emplace(stcp.loginToken);
-            _loginName.emplace(stcp.loginName);
+        _state = State::LoggedIn;
 
-            _state = State::LoggedIn;
-
-            SSVOH_ASSERT(_loginToken.hasValue());
-            return sendRequestServerStatus(_loginToken.value());
-        },
+        SSVOH_ASSERT(_loginToken.hasValue());
+        return sendRequestServerStatus(_loginToken.value());
+    },
 
         [&](const STCPLoginFailure& stcp)
-        {
-            SSVOH_CLOG << "Login to server failed, error: '" << stcp.error
-                       << "'\n";
+    {
+        SSVOH_CLOG << "Login to server failed, error: '" << stcp.error << "'\n";
 
-            addEvent(Event{ELoginFailure{stcp.error}});
-            return true;
-        },
+        addEvent(Event{ELoginFailure{stcp.error}});
+        return true;
+    },
 
         [&](const STCPLogoutSuccess&)
-        {
-            SSVOH_CLOG << "Logout from server success\n";
+    {
+        SSVOH_CLOG << "Logout from server success\n";
 
-            addEvent(Event{ELogoutSuccess{}});
-            return true;
-        },
+        addEvent(Event{ELogoutSuccess{}});
+        return true;
+    },
 
         [&](const STCPLogoutFailure&)
-        {
-            SSVOH_CLOG << "Logout from server failure\n";
+    {
+        SSVOH_CLOG << "Logout from server failure\n";
 
-            addEvent(Event{ELogoutFailure{}});
-            return true;
-        },
+        addEvent(Event{ELogoutFailure{}});
+        return true;
+    },
 
         [&](const STCPDeleteAccountSuccess&)
-        {
-            SSVOH_CLOG << "Delete account from server success\n";
+    {
+        SSVOH_CLOG << "Delete account from server success\n";
 
-            addEvent(Event{EDeleteAccountSuccess{}});
-            return true;
-        },
+        addEvent(Event{EDeleteAccountSuccess{}});
+        return true;
+    },
 
         [&](const STCPDeleteAccountFailure& stcp)
-        {
-            SSVOH_CLOG << "Delete account from server failure, error: '"
-                       << stcp.error << "'\n";
+    {
+        SSVOH_CLOG << "Delete account from server failure, error: '" << stcp.error << "'\n";
 
-            addEvent(Event{EDeleteAccountFailure{stcp.error}});
-            return true;
-        },
+        addEvent(Event{EDeleteAccountFailure{stcp.error}});
+        return true;
+    },
 
         [&](const STCPTopScores& stcp)
-        {
-            SSVOH_CLOG << "Received top scores from server, levelValidator: '"
-                       << stcp.levelValidator << "', size: '"
-                       << stcp.scores.size() << "'\n";
+    {
+        SSVOH_CLOG << "Received top scores from server, levelValidator: '" << stcp.levelValidator << "', size: '"
+                   << stcp.scores.size() << "'\n";
 
-            addEvent(Event{EReceivedTopScores{
-                .levelValidator = stcp.levelValidator, .scores = stcp.scores}});
+        addEvent(Event{EReceivedTopScores{.levelValidator = stcp.levelValidator, .scores = stcp.scores}});
 
-            return true;
-        },
+        return true;
+    },
 
         [&](const STCPOwnScore& stcp)
-        {
-            SSVOH_CLOG << "Received own score from server, levelValidator: '"
-                       << stcp.levelValidator << "'\n";
+    {
+        SSVOH_CLOG << "Received own score from server, levelValidator: '" << stcp.levelValidator << "'\n";
 
-            addEvent(Event{EReceivedOwnScore{
-                .levelValidator = stcp.levelValidator, .score = stcp.score}});
+        addEvent(Event{EReceivedOwnScore{.levelValidator = stcp.levelValidator, .score = stcp.score}});
 
-            return true;
-        },
+        return true;
+    },
 
         [&](const STCPTopScoresAndOwnScore& stcp)
+    {
+        SSVOH_CLOG << "Received top scores and own score from server, "
+                      "levelValidator: '"
+                   << stcp.levelValidator << "'\n";
+
+        addEvent(Event{EReceivedTopScores{.levelValidator = stcp.levelValidator, .scores = stcp.scores}});
+
+        if (stcp.ownScore.hasValue())
         {
-            SSVOH_CLOG << "Received top scores and own score from server, "
-                          "levelValidator: '"
-                       << stcp.levelValidator << "'\n";
+            addEvent(Event{EReceivedOwnScore{.levelValidator = stcp.levelValidator, .score = *stcp.ownScore}});
+        }
 
-            addEvent(Event{EReceivedTopScores{
-                .levelValidator = stcp.levelValidator, .scores = stcp.scores}});
-
-            if (stcp.ownScore.hasValue())
-            {
-                addEvent(Event{
-                    EReceivedOwnScore{.levelValidator = stcp.levelValidator,
-                        .score = *stcp.ownScore}});
-            }
-
-            return true;
-        },
+        return true;
+    },
 
         [&](const STCPServerStatus& stcp)
+    {
+        SSVOH_CLOG << "Received server status from server\n";
+
+        const auto& [serverProtocolVersion, serverGameVersion, supportedLevelValidatorsVector] = stcp;
+
+        if (serverGameVersion != GAME_VERSION)
         {
-            SSVOH_CLOG << "Received server status from server\n";
-
-            const auto& [serverProtocolVersion, serverGameVersion,
-                supportedLevelValidatorsVector] = stcp;
-
-            if (serverGameVersion != GAME_VERSION)
-            {
-                addEvent(Event{EGameVersionMismatch{}});
-            }
-
-            if (serverProtocolVersion != PROTOCOL_VERSION)
-            {
-                addEvent(Event{EProtocolVersionMismatch{}});
-                disconnect();
-                return true;
-            }
-
-            _levelValidatorsSupportedByServer.insert(
-                supportedLevelValidatorsVector.begin(),
-                supportedLevelValidatorsVector.end());
-
-            _state = State::LoggedIn_Ready;
-            addEvent(Event{ELoginSuccess{}});
-
-            SSVOH_ASSERT(_loginToken.hasValue());
-            return sendReady(_loginToken.value());
+            addEvent(Event{EGameVersionMismatch{}});
         }
+
+        if (serverProtocolVersion != PROTOCOL_VERSION)
+        {
+            addEvent(Event{EProtocolVersionMismatch{}});
+            disconnect();
+            return true;
+        }
+
+        _levelValidatorsSupportedByServer.insert(supportedLevelValidatorsVector.begin(),
+                                                 supportedLevelValidatorsVector.end());
+
+        _state = State::LoggedIn_Ready;
+        addEvent(Event{ELoginSuccess{}});
+
+        SSVOH_ASSERT(_loginToken.hasValue());
+        return sendReady(_loginToken.value());
+    }
 
         //
     );
@@ -796,12 +750,10 @@ void HexagonClient::update()
     {
         sendHeartbeatIfNecessary();
         receiveDataFromServer(_packetBuffer);
-    }
-    catch (const std::runtime_error& e)
+    } catch (const std::runtime_error& e)
     {
         SSVOH_CLOG_ERROR << "Exception: '" << e.what() << "'\n";
-    }
-    catch (...)
+    } catch (...)
     {
         SSVOH_CLOG_ERROR << "Unknown exception";
     }
@@ -811,7 +763,7 @@ static std::string saltAndHashPwd(const std::string& password)
 {
 #if __has_include("SSVOpenHexagon/Online/SecretPasswordSalt.hpp")
     const std::string salt =
-#include "SSVOpenHexagon/Online/SecretPasswordSalt.hpp"
+    #include "SSVOpenHexagon/Online/SecretPasswordSalt.hpp"
         ;
 #else
     const std::string salt = "salt";
@@ -821,8 +773,7 @@ static std::string saltAndHashPwd(const std::string& password)
     return sodiumHash(saltedPassword);
 }
 
-bool HexagonClient::tryRegister(
-    const std::string& name, const std::string& password)
+bool HexagonClient::tryRegister(const std::string& name, const std::string& password)
 {
     if (!connectedAndInState(State::Connected))
     {
@@ -831,8 +782,7 @@ bool HexagonClient::tryRegister(
 
     if (name.empty() || name.size() > 32 || password.empty())
     {
-        addEvent(Event{
-            ERegistrationFailure{"Name or password fields too long or empty"}});
+        addEvent(Event{ERegistrationFailure{"Name or password fields too long or empty"}});
         return false;
     }
 
@@ -840,8 +790,7 @@ bool HexagonClient::tryRegister(
     return sendRegister(_ticketSteamID.value(), name, saltAndHashPwd(password));
 }
 
-bool HexagonClient::tryLogin(
-    const std::string& name, const std::string& password)
+bool HexagonClient::tryLogin(const std::string& name, const std::string& password)
 {
     if (!connectedAndInState(State::Connected))
     {
@@ -850,8 +799,7 @@ bool HexagonClient::tryLogin(
 
     if (name.empty() || name.size() > 32 || password.empty())
     {
-        addEvent(
-            Event{ELoginFailure{"Name or password fields too long or empty"}});
+        addEvent(Event{ELoginFailure{"Name or password fields too long or empty"}});
         return false;
     }
 
@@ -896,8 +844,7 @@ bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
     return sendRequestTopScores(_loginToken.value(), levelValidator);
 }
 
-bool HexagonClient::trySendCompressedReplay(const std::string& levelValidator,
-    const compressed_replay_file& compressedReplayFile)
+bool HexagonClient::trySendCompressedReplay(const std::string& levelValidator, const compressed_replay_file& compressedReplayFile)
 {
     if (!connectedAndInState(State::LoggedIn_Ready))
     {
@@ -906,15 +853,13 @@ bool HexagonClient::trySendCompressedReplay(const std::string& levelValidator,
 
     if (!isLevelSupportedByServer(levelValidator))
     {
-        SSVOH_CLOG_VERBOSE << "Not sending compressed replay for level '"
-                           << levelValidator << "', unsupported by server\n";
+        SSVOH_CLOG_VERBOSE << "Not sending compressed replay for level '" << levelValidator << "', unsupported by server\n";
 
         return true;
     }
 
     SSVOH_ASSERT(_loginToken.hasValue());
-    return sendCompressedReplay(
-        _loginToken.value(), levelValidator, compressedReplayFile);
+    return sendCompressedReplay(_loginToken.value(), levelValidator, compressedReplayFile);
 }
 
 bool HexagonClient::tryRequestOwnScore(const std::string& levelValidator)
@@ -928,8 +873,7 @@ bool HexagonClient::tryRequestOwnScore(const std::string& levelValidator)
     return sendRequestOwnScore(_loginToken.value(), levelValidator);
 }
 
-bool HexagonClient::tryRequestTopScoresAndOwnScore(
-    const std::string& levelValidator)
+bool HexagonClient::tryRequestTopScoresAndOwnScore(const std::string& levelValidator)
 {
     if (!connectedAndInState(State::LoggedIn_Ready))
     {
@@ -961,8 +905,7 @@ bool HexagonClient::trySendStartedGame(const std::string& levelValidator)
     return _clientRTKeys.hasValue();
 }
 
-[[nodiscard]] const sf::base::Optional<std::string>&
-HexagonClient::getLoginName() const noexcept
+[[nodiscard]] const sf::base::Optional<std::string>& HexagonClient::getLoginName() const noexcept
 {
     return _loginName;
 }
@@ -972,20 +915,17 @@ void HexagonClient::addEvent(const Event& e)
     _events.push_back(e);
 }
 
-[[nodiscard]] bool HexagonClient::connectedAndInState(
-    const State s) const noexcept
+[[nodiscard]] bool HexagonClient::connectedAndInState(const State s) const noexcept
 {
     return _socketConnected && _state == s;
 }
 
-[[nodiscard]] bool HexagonClient::connectedAndInAnyState(
-    const State s0, const State s1) const noexcept
+[[nodiscard]] bool HexagonClient::connectedAndInAnyState(const State s0, const State s1) const noexcept
 {
     return _socketConnected && (_state == s0 || _state == s1);
 }
 
-[[nodiscard]] sf::base::Optional<HexagonClient::Event>
-HexagonClient::pollEvent()
+[[nodiscard]] sf::base::Optional<HexagonClient::Event> HexagonClient::pollEvent()
 {
     if (_events.empty())
     {
@@ -996,8 +936,7 @@ HexagonClient::pollEvent()
     return sf::base::makeOptional(_events.front());
 }
 
-[[nodiscard]] bool HexagonClient::isLevelSupportedByServer(
-    const std::string& levelValidator) const noexcept
+[[nodiscard]] bool HexagonClient::isLevelSupportedByServer(const std::string& levelValidator) const noexcept
 {
     return _levelValidatorsSupportedByServer.contains(levelValidator);
 }

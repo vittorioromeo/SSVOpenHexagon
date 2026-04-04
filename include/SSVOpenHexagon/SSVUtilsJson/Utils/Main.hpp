@@ -8,7 +8,8 @@
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/TypeChecker.hpp"
 
 
-namespace ssvuj {
+namespace ssvuj
+{
 /// @brief Gets a JSON Obj from another JSON Obj.
 /// @param mObj Source JSON Obj.
 inline Obj& getObj(Obj& mObj) noexcept
@@ -27,8 +28,7 @@ inline const Obj& getObj(const Obj& mObj) noexcept
 {
     return mObj[mKey];
 }
-[[gnu::no_dangling]] inline const Obj& getObj(
-    const Obj& mObj, const Key& mKey) noexcept
+[[gnu::no_dangling]] inline const Obj& getObj(const Obj& mObj, const Key& mKey) noexcept
 {
     return mObj[mKey];
 }

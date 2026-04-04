@@ -5,14 +5,15 @@
 #pragma once
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-
-#include <string>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 
-namespace ssvuj {
+namespace ssvuj
+{
 
-namespace Impl {
+namespace Impl
+{
 
 [[nodiscard]] inline std::string& getBuffer()
 {
@@ -20,16 +21,14 @@ namespace Impl {
     return buffer;
 }
 
-[[nodiscard]] inline bool tryParse(
-    Obj& mObj, Reader& mReader, const std::string& mSrc)
+[[nodiscard]] inline bool tryParse(Obj& mObj, Reader& mReader, const std::string& mSrc)
 {
     if (mReader.parse(mSrc, mObj, false))
     {
         return true;
     }
 
-    std::cout << "ssvuj::logReadError:" << mReader.getFormattedErrorMessages()
-              << "\nFrom: [" << mSrc << "]" << std::endl;
+    std::cout << "ssvuj::logReadError:" << mReader.getFormattedErrorMessages() << "\nFrom: [" << mSrc << "]" << std::endl;
 
     return false;
 }
@@ -45,16 +44,13 @@ namespace Impl {
 [[nodiscard]] inline bool readFromFile(Obj& mObj, const ssvufs::Path& mPath)
 {
     Reader reader;
-    return Impl::tryParse(
-        mObj, reader, mPath.getContentsAsStr(Impl::getBuffer()));
+    return Impl::tryParse(mObj, reader, mPath.getContentsAsStr(Impl::getBuffer()));
 }
 
-[[nodiscard]] inline bool readFromFile(
-    Obj& mObj, const ssvufs::Path& mPath, std::string& mError)
+[[nodiscard]] inline bool readFromFile(Obj& mObj, const ssvufs::Path& mPath, std::string& mError)
 {
     Reader reader;
-    if (!Impl::tryParse(
-            mObj, reader, mPath.getContentsAsStr(Impl::getBuffer())))
+    if (!Impl::tryParse(mObj, reader, mPath.getContentsAsStr(Impl::getBuffer())))
     {
         if (reader.getFormattedErrorMessages().empty())
         {
@@ -62,8 +58,7 @@ namespace Impl {
         }
         else
         {
-            mError = reader.getFormattedErrorMessages() + " in file " +
-                     mPath.getFileName();
+            mError = reader.getFormattedErrorMessages() + " in file " + mPath.getFileName();
         }
 
         return false;
@@ -86,10 +81,9 @@ namespace Impl {
     return result;
 }
 
-[[nodiscard]] inline std::pair<Obj, std::string> getFromFileWithErrors(
-    const ssvufs::Path& mPath)
+[[nodiscard]] inline std::pair<Obj, std::string> getFromFileWithErrors(const ssvufs::Path& mPath)
 {
-    Obj result;
+    Obj         result;
     std::string error;
     (void)readFromFile(result, mPath, error);
     return {result, error};

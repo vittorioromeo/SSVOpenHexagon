@@ -3,7 +3,6 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
 
 #include <SFML/Base/FixedFunction.hpp>
-
 #include <string>
 
 namespace ssvms
@@ -19,12 +18,16 @@ private:
     sf::base::FixedFunction<void(), 128> action;
 
 public:
-    Single(Menu& mMenu, Category& mCategory, const std::string& mName,
-        sf::base::FixedFunction<void(), 128> mAction)
-        : ItemBase{mMenu, mCategory, mName}, action{std::move(mAction)}
-    {}
+    Single(Menu& mMenu, Category& mCategory, const std::string& mName, sf::base::FixedFunction<void(), 128> mAction) :
+        ItemBase{mMenu, mCategory, mName},
+        action{std::move(mAction)}
+    {
+    }
 
-    void exec() override { action(); }
+    void exec() override
+    {
+        action();
+    }
 };
 } // namespace Items
 } // namespace ssvms

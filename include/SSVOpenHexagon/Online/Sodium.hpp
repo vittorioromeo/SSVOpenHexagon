@@ -4,32 +4,29 @@
 
 #pragma once
 
-#include <sodium.h>
-
 #include <SFML/Base/Array.hpp>
-#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/SizeT.hpp>
-
+#include <sodium.h>
 #include <string>
 
-namespace hg {
+namespace hg
+{
 
-inline constexpr sf::base::SizeT sodiumPublicKeyBytes = crypto_kx_PUBLICKEYBYTES;
-inline constexpr sf::base::SizeT sodiumSecretKeyBytes = crypto_kx_SECRETKEYBYTES;
-inline constexpr sf::base::SizeT sodiumReceiveKeyBytes = crypto_kx_SESSIONKEYBYTES;
+inline constexpr sf::base::SizeT sodiumPublicKeyBytes   = crypto_kx_PUBLICKEYBYTES;
+inline constexpr sf::base::SizeT sodiumSecretKeyBytes   = crypto_kx_SECRETKEYBYTES;
+inline constexpr sf::base::SizeT sodiumReceiveKeyBytes  = crypto_kx_SESSIONKEYBYTES;
 inline constexpr sf::base::SizeT sodiumTransmitKeyBytes = crypto_kx_SESSIONKEYBYTES;
-inline constexpr sf::base::SizeT sodiumNonceBytes = crypto_secretbox_NONCEBYTES;
+inline constexpr sf::base::SizeT sodiumNonceBytes       = crypto_secretbox_NONCEBYTES;
 
-using SodiumPublicKeyArray = sf::base::Array<unsigned char, sodiumPublicKeyBytes>;
-using SodiumSecretKeyArray = sf::base::Array<unsigned char, sodiumSecretKeyBytes>;
-using SodiumReceiveKeyArray = sf::base::Array<unsigned char, sodiumReceiveKeyBytes>;
-using SodiumTransmitKeyArray =
-    sf::base::Array<unsigned char, sodiumTransmitKeyBytes>;
-using SodiumNonceArray = sf::base::Array<unsigned char, sodiumNonceBytes>;
+using SodiumPublicKeyArray   = sf::base::Array<unsigned char, sodiumPublicKeyBytes>;
+using SodiumSecretKeyArray   = sf::base::Array<unsigned char, sodiumSecretKeyBytes>;
+using SodiumReceiveKeyArray  = sf::base::Array<unsigned char, sodiumReceiveKeyBytes>;
+using SodiumTransmitKeyArray = sf::base::Array<unsigned char, sodiumTransmitKeyBytes>;
+using SodiumNonceArray       = sf::base::Array<unsigned char, sodiumNonceBytes>;
 
-[[nodiscard]] inline constexpr sf::base::SizeT getCiphertextLength(
-    const sf::base::SizeT messageLength)
+[[nodiscard]] inline constexpr sf::base::SizeT getCiphertextLength(const sf::base::SizeT messageLength)
 {
     return crypto_secretbox_MACBYTES + messageLength;
 }
@@ -44,18 +41,18 @@ struct SodiumPSKeys
 
 struct SodiumRTKeys
 {
-    SodiumReceiveKeyArray keyReceive;
+    SodiumReceiveKeyArray  keyReceive;
     SodiumTransmitKeyArray keyTransmit;
 };
 
 [[nodiscard]] SodiumPSKeys generateSodiumPSKeys();
 
-[[nodiscard]] sf::base::Optional<SodiumRTKeys>
-calculateServerSessionSodiumRTKeys(const SodiumPSKeys& serverPSKeys,
+[[nodiscard]] sf::base::Optional<SodiumRTKeys> calculateServerSessionSodiumRTKeys(
+    const SodiumPSKeys&         serverPSKeys,
     const SodiumPublicKeyArray& clientPublicKey);
 
-[[nodiscard]] sf::base::Optional<SodiumRTKeys>
-calculateClientSessionSodiumRTKeys(const SodiumPSKeys& clientPSKeys,
+[[nodiscard]] sf::base::Optional<SodiumRTKeys> calculateClientSessionSodiumRTKeys(
+    const SodiumPSKeys&         clientPSKeys,
     const SodiumPublicKeyArray& serverPublicKey);
 
 template <typename T>

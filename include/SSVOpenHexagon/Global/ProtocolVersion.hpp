@@ -6,7 +6,8 @@
 
 #include <SFML/Base/IntTypes.hpp>
 
-namespace hg {
+namespace hg
+{
 
 using ProtocolVersion = sf::base::U8;
 

@@ -3,24 +3,20 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/Replay.hpp"
-
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
-
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
+#include <SFML/Base/IntTypes.hpp>
 #include <SFML/Network/Packet.hpp>
-
-#include <zlib.h>
-
 #include <fstream>
 #include <iostream>
 #include <utility>
+#include <zlib.h>
 
-#include <SFML/Base/IntTypes.hpp>
-
-namespace hg {
+namespace hg
+{
 
 [[gnu::cold]] static void printTryFailure(const char* code)
 {
@@ -37,11 +33,9 @@ namespace hg {
             printTryFailure(#__VA_ARGS__); \
             return result;                 \
         }                                  \
-    }                                      \
-    while (false)
+    } while (false)
 
-static auto make_write(serialization_result& result, std::byte*& buffer,
-    const std::byte* const buffer_end)
+static auto make_write(serialization_result& result, std::byte*& buffer, const std::byte* const buffer_end)
 {
     return [&result, &buffer, buffer_end](const auto& datum)
     {
@@ -57,8 +51,7 @@ static auto make_write(serialization_result& result, std::byte*& buffer,
     };
 }
 
-static auto make_read(deserialization_result& result, const std::byte*& buffer,
-    const std::byte* const buffer_end)
+static auto make_read(deserialization_result& result, const std::byte*& buffer, const std::byte* const buffer_end)
 {
     return [&result, &buffer, buffer_end](auto& target)
     {
@@ -74,18 +67,16 @@ static auto make_read(deserialization_result& result, const std::byte*& buffer,
     };
 }
 
-void replay_data::record_input(const bool left, const bool right,
-    const bool swap, const bool focus) noexcept
+void replay_data::record_input(const bool left, const bool right, const bool swap, const bool focus) noexcept
 {
-    input_bitset& ib = _inputs.emplace_back();
-    ib[static_cast<unsigned int>(input_bit::left)] = left;
+    input_bitset& ib                                = _inputs.emplace_back();
+    ib[static_cast<unsigned int>(input_bit::left)]  = left;
     ib[static_cast<unsigned int>(input_bit::right)] = right;
-    ib[static_cast<unsigned int>(input_bit::swap)] = swap;
+    ib[static_cast<unsigned int>(input_bit::swap)]  = swap;
     ib[static_cast<unsigned int>(input_bit::focus)] = focus;
 }
 
-[[nodiscard]] input_bitset replay_data::at(
-    const sf::base::SizeT index) const noexcept
+[[nodiscard]] input_bitset replay_data::at(const sf::base::SizeT index) const noexcept
 {
     SSVOH_ASSERT(index < size());
     return _inputs[index];
@@ -96,35 +87,30 @@ void replay_data::record_input(const bool left, const bool right,
     return _inputs.size();
 }
 
-[[nodiscard]] bool replay_data::operator==(
-    const replay_data& rhs) const noexcept
+[[nodiscard]] bool replay_data::operator==(const replay_data& rhs) const noexcept
 {
     return _inputs == rhs._inputs;
 }
 
-[[nodiscard]] bool replay_data::operator!=(
-    const replay_data& rhs) const noexcept
+[[nodiscard]] bool replay_data::operator!=(const replay_data& rhs) const noexcept
 {
     return !(*this == rhs);
 }
 
-[[nodiscard]] serialization_result replay_data::serialize(
-    std::byte* buffer, const sf::base::SizeT buffer_size) const
+[[nodiscard]] serialization_result replay_data::serialize(std::byte* buffer, const sf::base::SizeT buffer_size) const
 {
     return serialize(buffer, buffer + buffer_size);
 }
 
-[[nodiscard]] deserialization_result replay_data::deserialize(
-    const std::byte* buffer, const sf::base::SizeT buffer_size)
+[[nodiscard]] deserialization_result replay_data::deserialize(const std::byte* buffer, const sf::base::SizeT buffer_size)
 {
     return deserialize(buffer, buffer + buffer_size);
 }
 
-[[nodiscard]] serialization_result replay_data::serialize(
-    std::byte* buffer, const std::byte* const buffer_end) const
+[[nodiscard]] serialization_result replay_data::serialize(std::byte* buffer, const std::byte* const buffer_end) const
 {
     serialization_result result;
-    const auto write = make_write(result, buffer, buffer_end);
+    const auto           write = make_write(result, buffer, buffer_end);
 
     const sf::base::SizeT n_inputs = _inputs.size();
     SSVOH_TRY(write(n_inputs));
@@ -138,11 +124,10 @@ void replay_data::record_input(const bool left, const bool right,
     return result;
 }
 
-[[nodiscard]] deserialization_result replay_data::deserialize(
-    const std::byte* buffer, const std::byte* const buffer_end)
+[[nodiscard]] deserialization_result replay_data::deserialize(const std::byte* buffer, const std::byte* const buffer_end)
 {
     deserialization_result result;
-    const auto read = make_read(result, buffer, buffer_end);
+    const auto             read = make_read(result, buffer, buffer_end);
 
     sf::base::SizeT n_inputs;
     SSVOH_TRY(read(n_inputs));
@@ -150,8 +135,8 @@ void replay_data::record_input(const bool left, const bool right,
     _inputs.resize(n_inputs);
 
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
     for (sf::base::SizeT i = 0; i < n_inputs; ++i)
     {
@@ -161,18 +146,17 @@ void replay_data::record_input(const bool left, const bool right,
         _inputs[i] = input_bitset{static_cast<unsigned long>(ib_byte)};
     }
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
+    #pragma GCC diagnostic pop
 #endif
 
     return result;
 }
 
-replay_player::replay_player(const replay_data& rd) noexcept
-    : _replay_data{rd}, _current_index{0}
-{}
+replay_player::replay_player(const replay_data& rd) noexcept : _replay_data{rd}, _current_index{0}
+{
+}
 
-[[nodiscard]] input_bitset
-replay_player::get_current_and_move_forward() noexcept
+[[nodiscard]] input_bitset replay_player::get_current_and_move_forward() noexcept
 {
     if (_replay_data.size() <= _current_index)
     {
@@ -193,8 +177,7 @@ void replay_player::reset() noexcept
 }
 
 
-[[nodiscard]] bool replay_file::operator==(
-    const replay_file& rhs) const noexcept
+[[nodiscard]] bool replay_file::operator==(const replay_file& rhs) const noexcept
 {
     return _version == rhs._version &&                 //
            _player_name == rhs._player_name &&         //
@@ -207,29 +190,25 @@ void replay_player::reset() noexcept
            _played_score == rhs._played_score;
 }
 
-[[nodiscard]] bool replay_file::operator!=(
-    const replay_file& rhs) const noexcept
+[[nodiscard]] bool replay_file::operator!=(const replay_file& rhs) const noexcept
 {
     return !(*this == rhs);
 }
 
-[[nodiscard]] serialization_result replay_file::serialize(
-    std::byte* buffer, const sf::base::SizeT buffer_size) const
+[[nodiscard]] serialization_result replay_file::serialize(std::byte* buffer, const sf::base::SizeT buffer_size) const
 {
     return serialize(buffer, buffer + buffer_size);
 }
 
-[[nodiscard]] deserialization_result replay_file::deserialize(
-    const std::byte* buffer, const sf::base::SizeT buffer_size)
+[[nodiscard]] deserialization_result replay_file::deserialize(const std::byte* buffer, const sf::base::SizeT buffer_size)
 {
     return deserialize(buffer, buffer + buffer_size);
 }
 
-[[nodiscard]] serialization_result replay_file::serialize(
-    std::byte* buffer, const std::byte* const buffer_end) const
+[[nodiscard]] serialization_result replay_file::serialize(std::byte* buffer, const std::byte* const buffer_end) const
 {
     serialization_result result;
-    const auto write = make_write(result, buffer, buffer_end);
+    const auto           write = make_write(result, buffer, buffer_end);
 
     const auto write_str = [&](const std::string& s)
     {
@@ -247,8 +226,7 @@ void replay_player::reset() noexcept
     SSVOH_TRY(write_str(_player_name));
     SSVOH_TRY(write(_seed));
 
-    const serialization_result data_result =
-        _data.serialize(buffer, buffer_end);
+    const serialization_result data_result = _data.serialize(buffer, buffer_end);
 
     if (!data_result._success)
     {
@@ -268,11 +246,10 @@ void replay_player::reset() noexcept
     return result;
 }
 
-[[nodiscard]] deserialization_result replay_file::deserialize(
-    const std::byte* buffer, const std::byte* const buffer_end)
+[[nodiscard]] deserialization_result replay_file::deserialize(const std::byte* buffer, const std::byte* const buffer_end)
 {
     deserialization_result result;
-    const auto read = make_read(result, buffer, buffer_end);
+    const auto             read = make_read(result, buffer, buffer_end);
 
     const auto read_str = [&](std::string& s)
     {
@@ -282,8 +259,8 @@ void replay_player::reset() noexcept
         s.resize(s_size);
 
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
         for (sf::base::U32 i = 0; i < s_size; ++i)
         {
@@ -293,7 +270,7 @@ void replay_player::reset() noexcept
             s[i] = c;
         }
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
+    #pragma GCC diagnostic pop
 #endif
 
         return result;
@@ -303,8 +280,7 @@ void replay_player::reset() noexcept
     SSVOH_TRY(read_str(_player_name));
     SSVOH_TRY(read(_seed));
 
-    const deserialization_result data_result =
-        _data.deserialize(buffer, buffer_end);
+    const deserialization_result data_result = _data.deserialize(buffer, buffer_end);
 
     if (!data_result._success)
     {
@@ -324,7 +300,7 @@ void replay_player::reset() noexcept
     return result;
 }
 
-static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
+static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 
 [[nodiscard]] static std::byte* get_static_buf()
 {
@@ -332,8 +308,7 @@ static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
     return buf;
 }
 
-[[nodiscard]] bool replay_file::serialize_to_file(
-    const std::filesystem::path& p) const
+[[nodiscard]] bool replay_file::serialize_to_file(const std::filesystem::path& p) const
 {
     std::byte* buf = get_static_buf();
 
@@ -350,8 +325,7 @@ static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
     return static_cast<bool>(os);
 }
 
-[[nodiscard]] bool replay_file::deserialize_from_file(
-    const std::filesystem::path& p)
+[[nodiscard]] bool replay_file::deserialize_from_file(const std::filesystem::path& p)
 {
     std::ifstream is(p, std::ios::binary | std::ios::in);
     if (!static_cast<bool>(is))
@@ -422,11 +396,21 @@ static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
 
 [[nodiscard]] std::string replay_file::create_filename() const
 {
-    const Utils::SCTimePoint tp = Utils::toTimepoint(Utils::nowTimestamp());
-    const std::string tp_str = Utils::formatTimepoint(tp, "%Y%m%d_%H%M%S");
+    const Utils::SCTimePoint tp     = Utils::toTimepoint(Utils::nowTimestamp());
+    const std::string        tp_str = Utils::formatTimepoint(tp, "%Y%m%d_%H%M%S");
 
-    return Utils::concat(_version, '_', tp_str, '_', _player_name, '_',
-        _level_id, '_', _difficulty_mult, "x_", played_seconds(), "s.ohr");
+    return Utils::concat(_version,
+                         '_',
+                         tp_str,
+                         '_',
+                         _player_name,
+                         '_',
+                         _level_id,
+                         '_',
+                         _difficulty_mult,
+                         "x_",
+                         played_seconds(),
+                         "s.ohr");
 }
 
 [[nodiscard]] double replay_file::played_seconds() const noexcept
@@ -434,8 +418,7 @@ static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
     return _played_score / 60.0;
 }
 
-[[nodiscard]] bool compressed_replay_file::serialize_to_file(
-    const std::filesystem::path& p) const
+[[nodiscard]] bool compressed_replay_file::serialize_to_file(const std::filesystem::path& p) const
 {
     std::ofstream os(p, std::ios::binary | std::ios::out);
     os.write(_data.data(), _data.size());
@@ -444,8 +427,7 @@ static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
     return static_cast<bool>(os);
 }
 
-[[nodiscard]] bool compressed_replay_file::deserialize_from_file(
-    const std::filesystem::path& p)
+[[nodiscard]] bool compressed_replay_file::deserialize_from_file(const std::filesystem::path& p)
 {
     std::ifstream is(p, std::ios::binary | std::ios::in);
     if (!static_cast<bool>(is))
@@ -464,16 +446,14 @@ static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
     return static_cast<bool>(is);
 }
 
-[[nodiscard]] bool compressed_replay_file::serialize_to_packet(
-    sf::Packet& p) const
+[[nodiscard]] bool compressed_replay_file::serialize_to_packet(sf::Packet& p) const
 {
     p << static_cast<sf::base::U64>(_data.size());
     p.append(static_cast<const void*>(_data.data()), _data.size());
     return true;
 }
 
-[[nodiscard]] bool compressed_replay_file::deserialize_from_packet(
-    sf::Packet& p)
+[[nodiscard]] bool compressed_replay_file::deserialize_from_packet(sf::Packet& p)
 {
     static_assert(sizeof(sf::base::U8) == sizeof(char));
     static_assert(alignof(sf::base::U8) == alignof(char));
@@ -503,8 +483,7 @@ static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
     return buf;
 }
 
-[[nodiscard]] sf::base::Optional<compressed_replay_file> compress_replay_file(
-    const replay_file& rf)
+[[nodiscard]] sf::base::Optional<compressed_replay_file> compress_replay_file(const replay_file& rf)
 {
     std::byte* buf = get_static_buf();
 
@@ -516,15 +495,16 @@ static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
 
     std::byte* compression_buf = get_static_compression_buf();
 
-    uLongf in_out_dest_len = buf_size;
-    const int rc = compress2(reinterpret_cast<Bytef*>(compression_buf),
-        &in_out_dest_len, reinterpret_cast<const Bytef*>(buf),
-        sr.written_bytes(), Z_BEST_COMPRESSION);
+    uLongf    in_out_dest_len = buf_size;
+    const int rc              = compress2(reinterpret_cast<Bytef*>(compression_buf),
+                                          &in_out_dest_len,
+                                          reinterpret_cast<const Bytef*>(buf),
+                                          sr.written_bytes(),
+                                          Z_BEST_COMPRESSION);
 
     if (rc != Z_OK)
     {
-        std::cerr << "Failed compression of replay file, error code: '" << rc
-                  << "'\n";
+        std::cerr << "Failed compression of replay file, error code: '" << rc << "'\n";
 
         return sf::base::nullOpt;
     }
@@ -532,25 +512,24 @@ static constexpr sf::base::SizeT buf_size{2097152}; // 2MB
     compressed_replay_file result;
     result._data.resize(in_out_dest_len);
 
-    std::memcpy(static_cast<void*>(result._data.data()),
-        static_cast<const void*>(compression_buf), result._data.size());
+    std::memcpy(static_cast<void*>(result._data.data()), static_cast<const void*>(compression_buf), result._data.size());
 
     return sf::base::makeOptional(SSVOH_MOVE(result));
 }
 
-[[nodiscard]] sf::base::Optional<replay_file> decompress_replay_file(
-    const compressed_replay_file& crf)
+[[nodiscard]] sf::base::Optional<replay_file> decompress_replay_file(const compressed_replay_file& crf)
 {
     std::byte* buf = get_static_buf();
 
-    uLongf in_out_dest_len = buf_size;
-    const int rc = uncompress(reinterpret_cast<Bytef*>(buf), &in_out_dest_len,
-        reinterpret_cast<const Bytef*>(crf._data.data()), crf._data.size());
+    uLongf    in_out_dest_len = buf_size;
+    const int rc              = uncompress(reinterpret_cast<Bytef*>(buf),
+                                           &in_out_dest_len,
+                                           reinterpret_cast<const Bytef*>(crf._data.data()),
+                                           crf._data.size());
 
     if (rc != Z_OK)
     {
-        std::cerr << "Failed compression of replay file, error code: '" << rc
-                  << "'\n";
+        std::cerr << "Failed compression of replay file, error code: '" << rc << "'\n";
 
         return sf::base::nullOpt;
     }

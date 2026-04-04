@@ -4,7 +4,8 @@
 
 #pragma once
 
-namespace hg {
+namespace hg
+{
 
 // Allow us to represent the game's version in a major.minor.micro format
 struct GameVersion
@@ -13,8 +14,7 @@ struct GameVersion
     int minor;
     int micro;
 
-    [[nodiscard]] constexpr bool operator<(
-        const GameVersion& rhs) const noexcept
+    [[nodiscard]] constexpr bool operator<(const GameVersion& rhs) const noexcept
     {
         if (major != rhs.major)
         {
@@ -29,11 +29,10 @@ struct GameVersion
         return micro < rhs.micro;
     }
 
-    [[nodiscard]] constexpr bool operator==(
-        const GameVersion& other) const noexcept = default;
+    [[nodiscard]] constexpr bool operator==(const GameVersion& other) const noexcept = default;
 };
 
 inline constexpr GameVersion GAME_VERSION{2, 2, 0};
-inline constexpr auto& GAME_VERSION_STR = "2.2.0";
+inline constexpr auto&       GAME_VERSION_STR = "2.2.0";
 
 } // namespace hg

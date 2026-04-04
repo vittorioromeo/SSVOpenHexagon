@@ -37,25 +37,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include <SFML/Base/UniquePtr.hpp>
+#include <SFML/Base/Trait/Decay.hpp>
+#include <SFML/Base/Trait/IsFloatingPoint.hpp>
+#include <SFML/Base/Trait/IsIntegral.hpp>
 #include <SFML/Base/Trait/IsSame.hpp>
 #include <SFML/Base/Trait/IsVoid.hpp>
-#include <SFML/Base/Trait/IsIntegral.hpp>
-#include <SFML/Base/Trait/IsFloatingPoint.hpp>
-#include <SFML/Base/Trait/Decay.hpp>
-
+#include <SFML/Base/UniquePtr.hpp>
 #include <limits>
+#include <lua.hpp>
 #include <map>
 #include <memory>
 #include <stdexcept>
-#include <vector>
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <vector>
 
-#include <lua.hpp>
-
-namespace Lua {
+namespace Lua
+{
 
 template <typename>
 struct RemoveMemberPtr;
@@ -69,7 +68,8 @@ struct RemoveMemberPtr<TReturn (TThis::*)(TArgs...) const>
 
 template <typename FnType>
 struct FnTupleWrapper
-{};
+{
+};
 
 template <typename... TArgs>
 struct FnTupleWrapper<void(TArgs...)>
@@ -82,8 +82,7 @@ struct FnTupleWrapper<void(TArgs...)>
     using ParamsType = std::tuple<TArgs...>;
 
     template <typename T>
-    [[nodiscard, gnu::always_inline]] inline static constexpr std::tuple<> call(
-        T&& fn, ParamsType&& mTpl)
+    [[nodiscard, gnu::always_inline]] static inline constexpr std::tuple<> call(T&& fn, ParamsType&& mTpl)
     {
         std::apply(SSVOH_FWD(fn), SSVOH_MOVE(mTpl));
         return {};
@@ -101,8 +100,7 @@ struct FnTupleWrapper<R(TArgs...)>
     using ParamsType = std::tuple<TArgs...>;
 
     template <typename T>
-    [[nodiscard, gnu::always_inline]] inline static constexpr std::tuple<R>
-    call(T&& fn, ParamsType&& mTpl)
+    [[nodiscard, gnu::always_inline]] static inline constexpr std::tuple<R> call(T&& fn, ParamsType&& mTpl)
     {
         return std::tuple<R>{std::apply(SSVOH_FWD(fn), SSVOH_MOVE(mTpl))};
     }
@@ -129,7 +127,7 @@ class LuaContext
 public:
     explicit LuaContext(bool openDefaultLibs = true);
 
-    LuaContext(const LuaContext&) = delete;
+    LuaContext(const LuaContext&)            = delete;
     LuaContext& operator=(const LuaContext&) = delete;
 
     LuaContext(LuaContext&& s) noexcept;
@@ -196,8 +194,7 @@ public:
     /// \brief Executes lua code from the stream and returns a value \param
     /// code A stream that lua will read its code from
     template <typename T>
-    [[nodiscard, gnu::always_inline]] inline T executeCode(
-        std::string_view code)
+    [[nodiscard, gnu::always_inline]] inline T executeCode(std::string_view code)
     {
         _load(code);
         return _call<T>(std::tuple<>());
@@ -205,35 +202,27 @@ public:
 
     /// \brief Tells that lua will be allowed to access an object's function
     template <typename T, typename R, typename... Args>
-    [[gnu::always_inline]] inline void registerFunction(
-        std::string_view name, R (T::*f)(Args...))
+    [[gnu::always_inline]] inline void registerFunction(std::string_view name, R (T::*f)(Args...))
     {
-        _registerFunction(name, [f](const std::shared_ptr<T>& ptr, Args... args)
-            { return ((*ptr).*f)(args...); });
+        _registerFunction(name, [f](const std::shared_ptr<T>& ptr, Args... args) { return ((*ptr).*f)(args...); });
     }
 
     template <typename T, typename R, typename... Args>
-    [[gnu::always_inline]] inline void registerFunction(
-        std::string_view name, R (T::*f)(Args...) const)
+    [[gnu::always_inline]] inline void registerFunction(std::string_view name, R (T::*f)(Args...) const)
     {
-        _registerFunction(name, [f](const std::shared_ptr<T>& ptr, Args... args)
-            { return ((*ptr).*f)(args...); });
+        _registerFunction(name, [f](const std::shared_ptr<T>& ptr, Args... args) { return ((*ptr).*f)(args...); });
     }
 
     template <typename T, typename R, typename... Args>
-    [[gnu::always_inline]] inline void registerFunction(
-        std::string_view name, R (T::*f)(Args...) volatile)
+    [[gnu::always_inline]] inline void registerFunction(std::string_view name, R (T::*f)(Args...) volatile)
     {
-        _registerFunction(name, [f](const std::shared_ptr<T>& ptr, Args... args)
-            { return ((*ptr).*f)(args...); });
+        _registerFunction(name, [f](const std::shared_ptr<T>& ptr, Args... args) { return ((*ptr).*f)(args...); });
     }
 
     template <typename T, typename R, typename... Args>
-    [[gnu::always_inline]] inline void registerFunction(
-        std::string_view name, R (T::*f)(Args...) const volatile)
+    [[gnu::always_inline]] inline void registerFunction(std::string_view name, R (T::*f)(Args...) const volatile)
     {
-        _registerFunction(name, [f](const std::shared_ptr<T>& ptr, Args... args)
-            { return ((*ptr).*f)(args...); });
+        _registerFunction(name, [f](const std::shared_ptr<T>& ptr, Args... args) { return ((*ptr).*f)(args...); });
     }
 
     /// \brief Adds a custom function to a type determined using the
@@ -241,8 +230,7 @@ public:
     /// \sa allowFunction
     /// \param fn Function which takes as first parameter a std::shared_ptr
     template <typename T>
-    [[gnu::always_inline]] inline void registerFunction(
-        std::string_view name, T&& fn, decltype(&T::operator())* = nullptr)
+    [[gnu::always_inline]] inline void registerFunction(std::string_view name, T&& fn, decltype(&T::operator())* = nullptr)
     {
         _registerFunction(name, SSVOH_FWD(fn));
     }
@@ -260,8 +248,7 @@ public:
     /// \param mVarName Name of the variable containing the function to call
     /// \param ... Parameters to pass to the function
     template <typename R, typename... Args>
-    [[nodiscard, gnu::always_inline]] inline R callLuaFunction(
-        std::string_view mVarName, Args&&... args)
+    [[nodiscard, gnu::always_inline]] inline R callLuaFunction(std::string_view mVarName, Args&&... args)
     {
         _getGlobal(mVarName);
         return _call<R>(std::make_tuple(SSVOH_FWD(args)...));
@@ -269,8 +256,7 @@ public:
 
     /// \brief Returns true if the value of the variable is an array \param
     /// mVarName Name of the variable to check
-    [[nodiscard, gnu::always_inline]] inline bool isVariableArray(
-        std::string_view mVarName) const
+    [[nodiscard, gnu::always_inline]] inline bool isVariableArray(std::string_view mVarName) const
     {
         _getGlobal(mVarName);
 
@@ -283,16 +269,14 @@ public:
     /// something in the array, use writeVariable. Example:
     /// writeArrayIntoVariable("myArr"); writeVariable("myArr.something",
     /// 5);
-    [[gnu::always_inline]] inline void writeArrayIntoVariable(
-        std::string_view mVarName)
+    [[gnu::always_inline]] inline void writeArrayIntoVariable(std::string_view mVarName)
     {
         lua_newtable(_state);
         _setGlobal(mVarName);
     }
 
     /// \brief Returns true if variable exists (ie. not nil)
-    [[nodiscard, gnu::always_inline]] inline bool doesVariableExist(
-        std::string_view mVarName) const
+    [[nodiscard, gnu::always_inline]] inline bool doesVariableExist(std::string_view mVarName) const
     {
         _getGlobal(mVarName);
 
@@ -313,8 +297,7 @@ public:
     /// wrote a ObjectWrapper<T> into a variable, you can only read its
     /// value using a std::shared_ptr<T>
     template <typename T>
-    [[nodiscard, gnu::always_inline]] inline T readVariable(
-        std::string_view mVarName) const
+    [[nodiscard, gnu::always_inline]] inline T readVariable(std::string_view mVarName) const
     {
         _getGlobal(mVarName);
         return _readTopAndPop(1, (T*)nullptr);
@@ -322,8 +305,7 @@ public:
 
     /// \brief
     template <typename T>
-    [[nodiscard, gnu::always_inline]] inline bool readVariableIfExists(
-        std::string_view mVarName, T& out)
+    [[nodiscard, gnu::always_inline]] inline bool readVariableIfExists(std::string_view mVarName, T& out)
     {
         if (!doesVariableExist(mVarName))
         {
@@ -342,15 +324,14 @@ public:
     void writeVariable(std::string_view mVarName, T&& data)
     {
         static_assert(!SFML_BASE_IS_SAME(std::tuple<T>, T),
-            "Error: you can't use LuaContext::writeVariable with a tuple");
+                      "Error: you can't use LuaContext::writeVariable with a tuple");
 
         const int pushedElems = _push(SSVOH_FWD(data));
 
         try
         {
             _setGlobal(mVarName);
-        }
-        catch (...)
+        } catch (...)
         {
             lua_pop(_state, pushedElems - 1);
             throw;
@@ -391,8 +372,7 @@ private:
     // parameter index
     // if _read generates an exception, stack is popped anyway
     template <typename R>
-    [[gnu::always_inline]] inline R _readTopAndPop(
-        int nb, R* ptr = nullptr) const
+    [[gnu::always_inline]] inline R _readTopAndPop(int nb, R* ptr = nullptr) const
         requires(!sf::base::isVoid<R>)
     {
         try
@@ -400,8 +380,7 @@ private:
             R value = _read(-nb, ptr);
             lua_pop(_state, nb);
             return value;
-        }
-        catch (...)
+        } catch (...)
         {
             lua_pop(_state, nb);
             throw;
@@ -413,8 +392,7 @@ private:
         lua_pop(_state, nb);
     }
 
-    void _registerFunctionImpl(
-        const char* nameCStr, const std::type_info& tiObjectType);
+    void _registerFunctionImpl(const char* nameCStr, const std::type_info& tiObjectType);
 
     /**************************************************/
     /*            FUNCTIONS REGISTRATION              */
@@ -428,11 +406,9 @@ private:
     template <typename T>
     void _registerFunction(std::string_view name, T&& function)
     {
-        using FunctionType =
-            typename RemoveMemberPtr<decltype(&T::operator())>::Type;
+        using FunctionType = typename RemoveMemberPtr<decltype(&T::operator())>::Type;
 
-        using ObjectType = typename std::tuple_element_t<0,
-            typename FnTupleWrapper<FunctionType>::ParamsType>::element_type;
+        using ObjectType = typename std::tuple_element_t<0, typename FnTupleWrapper<FunctionType>::ParamsType>::element_type;
 
         _registerFunctionImpl(name.data(), typeid(ObjectType));
 
@@ -479,8 +455,7 @@ private:
     template <typename Out, typename In>
     Out _call(const In& in)
     {
-        static_assert(std::tuple_size_v<In> >= 0,
-            "Error: template parameter 'In' should be a tuple");
+        static_assert(std::tuple_size_v<In> >= 0, "Error: template parameter 'In' should be a tuple");
 
         int outArguments{0};
         int inArguments{0};
@@ -489,25 +464,22 @@ private:
         {
             // we push the parameters on the stack
             outArguments = std::tuple_size_v<std::tuple<Out>>;
-            inArguments = _push(in);
-        }
-        catch (...)
+            inArguments  = _push(in);
+        } catch (...)
         {
             lua_pop(_state, 1);
             throw;
         }
 
         // calling pcall automatically pops the parameters and pushes output
-        const int pcallReturnValue =
-            lua_pcall(_state, inArguments, outArguments, 0);
+        const int pcallReturnValue = lua_pcall(_state, inArguments, outArguments, 0);
 
         // if pcall failed, analyzing the problem and throwing
         if (pcallReturnValue != 0)
         {
             // an error occurred during execution, an error message was
             // pushed on the stack
-            const std::string errorMsg =
-                _readTopAndPop(1, (std::string*)nullptr);
+            const std::string errorMsg = _readTopAndPop(1, (std::string*)nullptr);
 
             if (pcallReturnValue == LUA_ERRMEM)
             {
@@ -527,8 +499,7 @@ private:
         try
         {
             return _readTopAndPop(outArguments, (Out*)nullptr);
-        }
-        catch (...)
+        } catch (...)
         {
             lua_pop(_state, outArguments);
             throw;
@@ -539,12 +510,13 @@ private:
     /**************************************************/
     /*                 TABLE CLASS                    */
     /**************************************************/
+
 public:
     class Table
     {
     public:
-        Table() = default;
-        Table(Table&& t) noexcept = default;
+        Table()                              = default;
+        Table(Table&& t) noexcept            = default;
         Table& operator=(Table&& t) noexcept = default;
 
         template <typename... Args>
@@ -561,29 +533,27 @@ public:
         template <typename Key, typename Value, typename... Args>
         void insert(Key&& k, Value&& v, Args&&... args)
         {
-            using RKey = typename ToPushableType<SFML_BASE_DECAY(Key)>::type;
-            using RValue =
-                typename ToPushableType<SFML_BASE_DECAY(Value)>::type;
+            using RKey   = typename ToPushableType<SFML_BASE_DECAY(Key)>::type;
+            using RValue = typename ToPushableType<SFML_BASE_DECAY(Value)>::type;
 
-            _elements.emplace_back(
-                new Element<RKey, RValue>(SSVOH_FWD(k), SSVOH_FWD(v)));
+            _elements.emplace_back(new Element<RKey, RValue>(SSVOH_FWD(k), SSVOH_FWD(v)));
 
             insert(SSVOH_FWD(args)...);
         }
 
         void insert()
-        {}
+        {
+        }
 
         template <typename Value, typename Key>
         Value read(const Key& key)
         {
-            using Key2 = typename ToPushableType<Key>::type;
+            using Key2   = typename ToPushableType<Key>::type;
             using Value2 = typename ToPushableType<Value>::type;
 
             for (int k = static_cast<int>(_elements.size()) - 1; k >= 0; --k)
             {
-                auto element =
-                    dynamic_cast<Element<Key2, Value2>*>(_elements[k].get());
+                auto element = dynamic_cast<Element<Key2, Value2>*>(_elements[k].get());
 
                 if (element != nullptr && element->key == key)
                 {
@@ -604,7 +574,8 @@ public:
         struct ElementBase
         {
             virtual ~ElementBase()
-            {}
+            {
+            }
 
             virtual void push(LuaContext&) const = 0;
         };
@@ -613,11 +584,12 @@ public:
         template <typename Key, typename Value>
         struct Element : public ElementBase
         {
-            Key key;
+            Key   key;
             Value value;
 
             Element(Key&& k, Value&& v) : key(SSVOH_FWD(k)), value(SSVOH_FWD(v))
-            {}
+            {
+            }
 
             void push(LuaContext& ctxt) const override
             {
@@ -642,8 +614,7 @@ public:
                 {
                     i->push(ctxt);
                 }
-            }
-            catch (...)
+            } catch (...)
             {
                 lua_pop(ctxt._state, 1);
                 throw;
@@ -716,8 +687,7 @@ private:
         try
         {
             ((p += _push(SSVOH_FWD(xs))), ...);
-        }
-        catch (...)
+        } catch (...)
         {
             lua_pop(_state, p);
             throw;
@@ -776,7 +746,7 @@ private:
     struct FunctionToPush
     {
         LuaContext* _ctx;
-        F _fn;
+        F           _fn;
 
         auto operator()(lua_State* state) const
         {
@@ -790,7 +760,7 @@ private:
             //   and "call" is a static function which will call a
             //   function
             //   of this type using parameters passed as a tuple
-            using FnType = typename RemoveMemberPtr<Op>::Type;
+            using FnType         = typename RemoveMemberPtr<Op>::Type;
             using TupledFunction = FnTupleWrapper<FnType>;
 
             // checking if number of parameters is correct
@@ -813,22 +783,19 @@ private:
                 // calling the function, result should be a tuple
                 TupledFunction::call(_fn,
 
-                    // reading parameters from the stack
-                    _ctx->_read(-TupledFunction::count,
-                        static_cast<typename TupledFunction::ParamsType*>(
-                            nullptr))));
+                                     // reading parameters from the stack
+                                     _ctx->_read(-TupledFunction::count,
+                                                 static_cast<typename TupledFunction::ParamsType*>(nullptr))));
         }
     };
 
-    void _pushFnImpl(int (*xCallbackCall)(lua_State*),
-        int (*callbackGarbage)(lua_State*), const std::type_info& tiObject);
+    void _pushFnImpl(int (*xCallbackCall)(lua_State*), int (*callbackGarbage)(lua_State*), const std::type_info& tiObject);
 
     // when you call _push with a functor, this definition should be used
     // (thanks to SFINAE)
     // it will determine the function category using its () operator, then
     //   generate a callable user data and push it
-    template <typename T, typename DecayT = sf::base::Decay<T>,
-        typename Op = decltype(&DecayT::operator())>
+    template <typename T, typename DecayT = sf::base::Decay<T>, typename Op = decltype(&DecayT::operator())>
     int _push(T&& fn, Op = nullptr)
     {
         // when the lua script calls the thing we will push on the stack, we
@@ -844,14 +811,11 @@ private:
         // lua_newuserdata allocates memory in the internals of the lua
         // library and returns it so we can fill it
         //   and that's what we do with placement-new
-        auto* const functionLocation = (FunctionPushType*)lua_newuserdata(
-            _state, sizeof(FunctionPushType));
+        auto* const functionLocation = (FunctionPushType*)lua_newuserdata(_state, sizeof(FunctionPushType));
 
-        new (functionLocation)
-            FunctionPushType{._ctx = this, ._fn = SSVOH_FWD(fn)};
+        new (functionLocation) FunctionPushType{._ctx = this, ._fn = SSVOH_FWD(fn)};
 
-        _pushFnImpl(&callbackCall<FunctionPushType>,
-            &callbackGarbage<FunctionPushType>, typeid(T));
+        _pushFnImpl(&callbackCall<FunctionPushType>, &callbackGarbage<FunctionPushType>, typeid(T));
 
         return 1;
     }
@@ -866,8 +830,7 @@ private:
         return _push(std::shared_ptr<T>(SSVOH_MOVE(mObj)));
     }
 
-    void _pushSPtrImpl(int (*garbageCallback)(lua_State*),
-        const std::type_info& tiSharedPtr, const std::type_info& tiObject);
+    void _pushSPtrImpl(int (*garbageCallback)(lua_State*), const std::type_info& tiSharedPtr, const std::type_info& tiObject);
 
     // when pushing a shared_ptr, we create a custom type
     // we store a copy of the shared_ptr inside lua's internals
@@ -901,12 +864,10 @@ private:
         // lua_newuserdata allocates memory in the internals of the lua
         // library and returns it so we can fill it
         //   and that's what we do with placement-new
-        const auto pointerLocation = static_cast<std::shared_ptr<T>*>(
-            lua_newuserdata(_state, sizeof(std::shared_ptr<T>)));
+        const auto pointerLocation = static_cast<std::shared_ptr<T>*>(lua_newuserdata(_state, sizeof(std::shared_ptr<T>)));
 
         new (pointerLocation) std::shared_ptr<T>(SSVOH_MOVE(mObj));
-        _pushSPtrImpl(
-            &Callback::garbage, typeid(std::shared_ptr<T>), typeid(T));
+        _pushSPtrImpl(&Callback::garbage, typeid(std::shared_ptr<T>), typeid(T));
 
         return 1;
     }
@@ -916,8 +877,7 @@ private:
     [[gnu::always_inline]] inline int _push(const std::tuple<Args...>& t)
     {
         return [this, &t]<int... Is>(std::integer_sequence<int, Is...>)
-        { return (this->_push(std::get<Is>(t)) + ... + 0); }(
-            std::make_integer_sequence<int, sizeof...(Args)>{});
+        { return (this->_push(std::get<Is>(t)) + ... + 0); }(std::make_integer_sequence<int, sizeof...(Args)>{});
     }
 
     /**************************************************/
@@ -929,13 +889,13 @@ private:
     // parameter
 
     // reading void
-    [[gnu::always_inline]] inline void _read(int, void const* = nullptr) const
-    {}
+    [[gnu::always_inline]] inline void _read(int, const void* = nullptr) const
+    {
+    }
 
     // first the integer types
     template <typename T>
-    [[gnu::always_inline]] inline T _read(
-        const int index, T const* = nullptr) const
+    [[gnu::always_inline]] inline T _read(const int index, const T* = nullptr) const
         requires(std::numeric_limits<T>::is_integer)
     {
         if (lua_isuserdata(_state, index))
@@ -948,10 +908,8 @@ private:
 
     // then the floating types
     template <typename T>
-    [[gnu::always_inline]] inline T _read(
-        const int index, T const* = nullptr) const
-        requires(std::numeric_limits<T>::is_specialized &&
-                 !std::numeric_limits<T>::is_integer)
+    [[gnu::always_inline]] inline T _read(const int index, const T* = nullptr) const
+        requires(std::numeric_limits<T>::is_specialized && !std::numeric_limits<T>::is_integer)
     {
         if (lua_isuserdata(_state, index))
         {
@@ -962,8 +920,7 @@ private:
     }
 
     // boolean
-    [[gnu::always_inline]] inline bool _read(
-        const int index, bool const* = nullptr) const
+    [[gnu::always_inline]] inline bool _read(const int index, const bool* = nullptr) const
     {
         if (lua_isuserdata(_state, index))
         {
@@ -980,8 +937,7 @@ private:
     // lua_tostring returns a temporary pointer, but that's not a problem
     // since we copy
     //   the data in a std::string
-    [[gnu::always_inline]] inline std::string _read(
-        const int index, std::string const* = nullptr) const
+    [[gnu::always_inline]] inline std::string _read(const int index, const std::string* = nullptr) const
     {
         if (lua_isuserdata(_state, index))
         {
@@ -993,8 +949,7 @@ private:
 
     // maps
     template <typename Key, typename Value>
-    std::map<Key, Value> _read(
-        const int index, std::map<Key, Value> const* = nullptr) const
+    std::map<Key, Value> _read(const int index, const std::map<Key, Value>* = nullptr) const
     {
         if (!lua_istable(_state, index))
         {
@@ -1008,8 +963,7 @@ private:
         while (lua_next(_state, index - 1) != 0)
         {
             // now a key and its value are pushed on the stack
-            retValue.emplace(_read(-2, static_cast<Key*>(nullptr)),
-                _read(-2, static_cast<Value*>(nullptr)));
+            retValue.emplace(_read(-2, static_cast<Key*>(nullptr)), _read(-2, static_cast<Value*>(nullptr)));
             lua_pop(_state, 1); // we remove the value but keep the key for
                                 // the next iteration
         }
@@ -1018,7 +972,7 @@ private:
     }
 
     // reading array
-    Table _read(int index, Table const* = nullptr) const
+    Table _read(int index, const Table* = nullptr) const
     {
         if (!lua_istable(_state, index))
         {
@@ -1057,8 +1011,7 @@ return table;*/
     // reading a shared_ptr
     // we check that type is correct by reading the metatable
     template <typename T>
-    std::shared_ptr<T> _read(
-        int mIdx, std::shared_ptr<T> const* = nullptr) const
+    std::shared_ptr<T> _read(int mIdx, const std::shared_ptr<T>* = nullptr) const
     {
         if (!lua_isuserdata(_state, mIdx) || !lua_getmetatable(_state, mIdx))
         {
@@ -1071,8 +1024,7 @@ return table;*/
         lua_gettable(_state, -2);
 
         // if wrong typeid, we throw
-        if (lua_touserdata(_state, -1) !=
-            const_cast<std::type_info*>(&typeid(std::shared_ptr<T>)))
+        if (lua_touserdata(_state, -1) != const_cast<std::type_info*>(&typeid(std::shared_ptr<T>)))
         {
             lua_pop(_state, 2);
             throw WrongTypeException{};
@@ -1081,26 +1033,22 @@ return table;*/
         lua_pop(_state, 2);
 
         // now we know that the type is correct, we retrieve the pointer
-        const auto ptr =
-            static_cast<std::shared_ptr<T>*>(lua_touserdata(_state, mIdx));
+        const auto ptr = static_cast<std::shared_ptr<T>*>(lua_touserdata(_state, mIdx));
 
         SSVOH_ASSERT(ptr && *ptr);
         return *ptr; // returning a copy of the shared_ptr
     }
 
     template <typename... Ts>
-    [[gnu::always_inline]] inline auto _read(
-        const int index, std::tuple<Ts...> const* = nullptr)
+    [[gnu::always_inline]] inline auto _read(const int index, const std::tuple<Ts...>* = nullptr)
     {
         return [this, index]<int... Is>(std::integer_sequence<int, Is...>)
         {
-            return std::make_tuple(this->_read(
-                index + Is, static_cast<sf::base::Decay<Ts>*>(nullptr))...);
+            return std::make_tuple(this->_read(index + Is, static_cast<sf::base::Decay<Ts>*>(nullptr))...);
         }(std::make_integer_sequence<int, sizeof...(Ts)>{});
     }
 
-    [[gnu::always_inline]] inline constexpr std::tuple<> _read(
-        int, std::tuple<> const* = nullptr) const noexcept
+    [[gnu::always_inline]] inline constexpr std::tuple<> _read(int, const std::tuple<>* = nullptr) const noexcept
     {
         return {};
     }

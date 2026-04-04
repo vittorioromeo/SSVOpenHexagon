@@ -4,14 +4,15 @@
 
 #pragma once
 
-namespace sf::base {
+namespace sf::base
+{
 class String;
 class StringView;
 } // namespace sf::base
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
-[[nodiscard]] sf::base::String getLevelValidator(
-    const sf::base::StringView levelId, const float diffMult);
+[[nodiscard]] sf::base::String getLevelValidator(const sf::base::StringView levelId, const float diffMult);
 
 } // namespace hg::Utils

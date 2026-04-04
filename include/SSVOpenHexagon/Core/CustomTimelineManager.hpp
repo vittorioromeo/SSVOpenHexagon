@@ -5,12 +5,12 @@
 #pragma once
 
 #include "SSVOpenHexagon/Core/CustomTimelineHandle.hpp"
-
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
 #include <vector>
 
-namespace hg {
+namespace hg
+{
 
 struct CustomTimeline;
 
@@ -23,8 +23,7 @@ public:
     CustomTimelineManager();
     ~CustomTimelineManager();
 
-    [[nodiscard]] bool isHandleValid(
-        const CustomTimelineHandle h) const noexcept;
+    [[nodiscard]] bool isHandleValid(const CustomTimelineHandle h) const noexcept;
 
     void clear() noexcept;
 
@@ -34,8 +33,7 @@ public:
 
     [[nodiscard]] CustomTimeline& get(const CustomTimelineHandle h) noexcept;
 
-    [[nodiscard]] const CustomTimeline& get(
-        const CustomTimelineHandle h) const noexcept;
+    [[nodiscard]] const CustomTimeline& get(const CustomTimelineHandle h) const noexcept;
 };
 
 } // namespace hg

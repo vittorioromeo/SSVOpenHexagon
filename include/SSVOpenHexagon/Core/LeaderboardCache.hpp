@@ -5,45 +5,40 @@
 #pragma once
 
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
-
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <SFML/Base/Optional.hpp>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-namespace hg {
+namespace hg
+{
 
 class LeaderboardCache
 {
 private:
     struct CachedScores
     {
-        std::vector<Database::ProcessedScore> _scores;
+        std::vector<Database::ProcessedScore>        _scores;
         sf::base::Optional<Database::ProcessedScore> _ownScore;
-        HRTimePoint _cacheTime;
+        HRTimePoint                                  _cacheTime;
     };
 
     std::unordered_map<std::string, CachedScores> _levelValidatorToScores;
 
 public:
-    void receivedScores(const std::string& levelValidator,
-        const std::vector<Database::ProcessedScore>& scores);
+    void receivedScores(const std::string& levelValidator, const std::vector<Database::ProcessedScore>& scores);
 
-    void receivedOwnScore(const std::string& levelValidator,
-        const Database::ProcessedScore& score);
+    void receivedOwnScore(const std::string& levelValidator, const Database::ProcessedScore& score);
 
     void requestedScores(const std::string& levelValidator);
 
-    [[nodiscard]] bool shouldRequestScores(
-        const std::string& levelValidator) const;
+    [[nodiscard]] bool shouldRequestScores(const std::string& levelValidator) const;
 
-    [[nodiscard]] const std::vector<Database::ProcessedScore>& getScores(
-        const std::string& levelValidator) const;
+    [[nodiscard]] const std::vector<Database::ProcessedScore>& getScores(const std::string& levelValidator) const;
 
-    [[nodiscard]] const Database::ProcessedScore* getOwnScore(
-        const std::string& levelValidator) const;
+    [[nodiscard]] const Database::ProcessedScore* getOwnScore(const std::string& levelValidator) const;
 
     [[nodiscard]] bool getSupported(const std::string& levelValidator) const;
     [[nodiscard]] bool hasInformation(const std::string& levelValidator) const;

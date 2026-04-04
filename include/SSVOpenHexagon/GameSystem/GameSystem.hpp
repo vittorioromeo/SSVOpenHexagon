@@ -5,5 +5,5 @@
 #pragma once
 
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
-#include "SSVOpenHexagon/GameSystem/Timers/TimerStatic.hpp"
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
+#include "SSVOpenHexagon/GameSystem/Timers/TimerStatic.hpp"

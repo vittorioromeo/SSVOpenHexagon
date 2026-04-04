@@ -4,15 +4,18 @@
 
 #pragma once
 
-namespace Json {
+namespace Json
+{
 class Value;
 }
 
-namespace ssvuj {
+namespace ssvuj
+{
 using Obj = Json::Value;
 }
 
-namespace hg {
+namespace hg
+{
 
 class MusicData;
 struct GameVersion;
@@ -20,9 +23,10 @@ class ProfileData;
 
 } // namespace hg
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
-[[nodiscard]] MusicData loadMusicFromJson(const ssvuj::Obj& mRoot);
+[[nodiscard]] MusicData   loadMusicFromJson(const ssvuj::Obj& mRoot);
 [[nodiscard]] GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot);
 [[nodiscard]] ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot);
 

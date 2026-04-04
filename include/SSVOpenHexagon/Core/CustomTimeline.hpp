@@ -6,11 +6,12 @@
 
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 
-namespace hg {
+namespace hg
+{
 
 struct CustomTimeline
 {
-    Utils::timeline2 _timeline;
+    Utils::timeline2        _timeline;
     Utils::timeline2_runner _runner;
 };
 

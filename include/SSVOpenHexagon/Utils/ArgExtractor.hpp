@@ -6,7 +6,8 @@
 
 #include <SFML/Base/TypePackElement.hpp>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 template <typename>
 struct ArgExtractor;
@@ -14,7 +15,7 @@ struct ArgExtractor;
 template <typename R, typename F, typename... Args>
 struct ArgExtractor<R (F::*)(Args...)>
 {
-    using Return = R;
+    using Return   = R;
     using Function = F;
 
     enum

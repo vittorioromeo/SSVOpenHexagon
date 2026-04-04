@@ -3,25 +3,26 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 
 #include <SSVUtils/Core/String/Utils.hpp>
-
-#include <unordered_set>
 #include <string>
+#include <unordered_set>
 
-namespace hg {
+namespace hg
+{
 
-ProfileData::ProfileData(const GameVersion mVersion, const std::string& mName,
-    const std::unordered_map<std::string, float>& mScores,
-    const std::vector<std::string>& mFavorites)
-    : version{mVersion},
-      name{mName},
-      scores{mScores},
-      favoriteLevelsDataIDs{Utils::toUnorderedSet(mFavorites)}
-{}
+ProfileData::ProfileData(const GameVersion                             mVersion,
+                         const std::string&                            mName,
+                         const std::unordered_map<std::string, float>& mScores,
+                         const std::vector<std::string>&               mFavorites) :
+    version{mVersion},
+    name{mName},
+    scores{mScores},
+    favoriteLevelsDataIDs{Utils::toUnorderedSet(mFavorites)}
+{
+}
 
 [[nodiscard]] GameVersion ProfileData::getVersion() const noexcept
 {
@@ -33,20 +34,17 @@ ProfileData::ProfileData(const GameVersion mVersion, const std::string& mName,
     return name;
 }
 
-[[nodiscard]] const std::unordered_map<std::string, float>&
-ProfileData::getScores() const noexcept
+[[nodiscard]] const std::unordered_map<std::string, float>& ProfileData::getScores() const noexcept
 {
     return scores;
 }
 
-[[nodiscard]] std::unordered_set<std::string>&
-ProfileData::getFavoriteLevelIds() noexcept
+[[nodiscard]] std::unordered_set<std::string>& ProfileData::getFavoriteLevelIds() noexcept
 {
     return favoriteLevelsDataIDs;
 }
 
-[[nodiscard]] const std::unordered_set<std::string>&
-ProfileData::getFavoriteLevelIds() const noexcept
+[[nodiscard]] const std::unordered_set<std::string>& ProfileData::getFavoriteLevelIds() const noexcept
 {
     return favoriteLevelsDataIDs;
 }
@@ -78,8 +76,7 @@ void ProfileData::removeFavoriteLevel(const std::string& mLevelID)
     favoriteLevelsDataIDs.erase(mLevelID);
 }
 
-[[nodiscard]] bool ProfileData::isLevelFavorite(
-    const std::string& mLevelID) const noexcept
+[[nodiscard]] bool ProfileData::isLevelFavorite(const std::string& mLevelID) const noexcept
 {
     return favoriteLevelsDataIDs.find(mLevelID) != favoriteLevelsDataIDs.end();
 }

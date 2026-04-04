@@ -3,13 +3,13 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
-
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
 #include <SFML/Base/StdChrono.hpp>
 
 
-namespace hg {
+namespace hg
+{
 
 void HexagonGameStatus::start() noexcept
 {
@@ -33,14 +33,12 @@ void HexagonGameStatus::start() noexcept
 
 [[nodiscard]] HRTimePoint HexagonGameStatus::getCurrentTP() const noexcept
 {
-    return HRTimePoint{std::chrono::milliseconds{
-        (int64_t)(getTotalAccumulatedFrametimeInSeconds() * 1000.0)}};
+    return HRTimePoint{std::chrono::milliseconds{(int64_t)(getTotalAccumulatedFrametimeInSeconds() * 1000.0)}};
 }
 
 [[nodiscard]] HRTimePoint HexagonGameStatus::getTimeTP() const noexcept
 {
-    return HRTimePoint{std::chrono::milliseconds{
-        (int64_t)(getPlayedAccumulatedFrametimeInSeconds() * 1000.0)}};
+    return HRTimePoint{std::chrono::milliseconds{(int64_t)(getPlayedAccumulatedFrametimeInSeconds() * 1000.0)}};
 }
 
 [[nodiscard]] HRTimePoint HexagonGameStatus::getLevelStartTP() const noexcept
@@ -65,11 +63,11 @@ void HexagonGameStatus::resetIncrementTime() noexcept
 
 void HexagonGameStatus::resetTime()
 {
-    totalFrametimeAccumulator = 0.0;
+    totalFrametimeAccumulator  = 0.0;
     playedFrametimeAccumulator = 0.0;
     pausedFrametimeAccumulator = 0.0;
-    currentPause = 0.1 * 60;
-    currentIncrementTime = 0.0;
+    currentPause               = 0.1 * 60;
+    currentIncrementTime       = 0.0;
 }
 
 void HexagonGameStatus::accumulateFrametime(const double ft) noexcept
@@ -102,38 +100,32 @@ void HexagonGameStatus::updateCustomScore(const float score) noexcept
     customScore = score;
 }
 
-[[nodiscard]] double
-HexagonGameStatus::getTotalAccumulatedFrametime() const noexcept
+[[nodiscard]] double HexagonGameStatus::getTotalAccumulatedFrametime() const noexcept
 {
     return totalFrametimeAccumulator;
 }
 
-[[nodiscard]] double
-HexagonGameStatus::getTotalAccumulatedFrametimeInSeconds() const noexcept
+[[nodiscard]] double HexagonGameStatus::getTotalAccumulatedFrametimeInSeconds() const noexcept
 {
     return getTotalAccumulatedFrametime() / 60.0;
 }
 
-[[nodiscard]] double
-HexagonGameStatus::getPlayedAccumulatedFrametime() const noexcept
+[[nodiscard]] double HexagonGameStatus::getPlayedAccumulatedFrametime() const noexcept
 {
     return playedFrametimeAccumulator;
 }
 
-[[nodiscard]] double
-HexagonGameStatus::getPlayedAccumulatedFrametimeInSeconds() const noexcept
+[[nodiscard]] double HexagonGameStatus::getPlayedAccumulatedFrametimeInSeconds() const noexcept
 {
     return getPlayedAccumulatedFrametime() / 60.0;
 }
 
-[[nodiscard]] double
-HexagonGameStatus::getPausedAccumulatedFrametime() const noexcept
+[[nodiscard]] double HexagonGameStatus::getPausedAccumulatedFrametime() const noexcept
 {
     return pausedFrametimeAccumulator;
 }
 
-[[nodiscard]] double
-HexagonGameStatus::getPausedAccumulatedFrametimeInSeconds() const noexcept
+[[nodiscard]] double HexagonGameStatus::getPausedAccumulatedFrametimeInSeconds() const noexcept
 {
     return getPausedAccumulatedFrametime() / 60.0;
 }

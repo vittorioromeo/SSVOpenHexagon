@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <SFML/Base/StringView.hpp>
 #include <SFML/Base/InPlacePImpl.hpp>
+#include <SFML/Base/StringView.hpp>
 
-namespace hg {
+namespace hg
+{
 
 inline constexpr struct LogEndl
 {
@@ -37,7 +38,6 @@ struct LogStream
 
 [[nodiscard]] LogStream& lo();
 [[nodiscard]] LogStream& lo(sf::base::StringView title);
-
 
 
 } // namespace hg

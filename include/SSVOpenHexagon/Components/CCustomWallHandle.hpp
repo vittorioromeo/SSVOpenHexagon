@@ -4,7 +4,8 @@
 
 #pragma once
 
-namespace hg {
+namespace hg
+{
 
 using CCustomWallHandle = int;
 

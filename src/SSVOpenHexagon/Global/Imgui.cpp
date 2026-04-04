@@ -5,17 +5,18 @@
 #include "SSVOpenHexagon/Global/Imgui.hpp"
 
 #ifndef SSVOH_ANDROID
-#include <imgui.h>
-#include <misc/cpp/imgui_stdlib.h>
-#include <SFML/ImGui/ImGuiContext.hpp>
+    #include <imgui.h>
+
+    #include <SFML/ImGui/ImGuiContext.hpp>
+    #include <misc/cpp/imgui_stdlib.h>
 #endif
 
 #include <SFML/Graphics/RenderWindow.hpp>
-
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
 
-namespace hg::Imgui {
+namespace hg::Imgui
+{
 
 [[nodiscard]] bool wantCaptureKeyboard()
 {

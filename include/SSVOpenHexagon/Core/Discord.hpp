@@ -6,26 +6,28 @@
 
 #include <SFML/Base/StringView.hpp>
 
-namespace discord {
+namespace discord
+{
 class Core;
 }
 
-namespace hg::Discord {
+namespace hg::Discord
+{
 
 class discord_manager
 {
 private:
     discord::Core* _core;
-    bool _initialized;
+    bool           _initialized;
 
 public:
     explicit discord_manager();
     ~discord_manager();
 
-    discord_manager(const discord_manager&) = delete;
+    discord_manager(const discord_manager&)            = delete;
     discord_manager& operator=(const discord_manager&) = delete;
 
-    discord_manager(discord_manager&&) = delete;
+    discord_manager(discord_manager&&)            = delete;
     discord_manager& operator=(discord_manager&&) = delete;
 
     bool run_callbacks();
@@ -33,7 +35,8 @@ public:
     bool set_rich_presence_in_menu();
     bool set_rich_presence_on_replay();
     bool set_rich_presence_in_game(const sf::base::StringView level_info,
-        const sf::base::StringView second_info, bool dead = false);
+                                   const sf::base::StringView second_info,
+                                   bool                       dead = false);
 };
 
 } // namespace hg::Discord

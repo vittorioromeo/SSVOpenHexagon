@@ -8,11 +8,13 @@
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 
 #include <algorithm>
-#include <cstddef>
 #include <functional>
 #include <utility>
 
-namespace ssvs::Input {
+#include <cstddef>
+
+namespace ssvs::Input
+{
 
 class InputState;
 class Manager;
@@ -22,16 +24,16 @@ class Bind
 private:
     using InputFunc = std::function<void(float)>;
 
-    Manager& manager;
-    Trigger trigger;
-    InputFunc on;
-    InputFunc off;
+    Manager&    manager;
+    Trigger     trigger;
+    InputFunc   on;
+    InputFunc   off;
     std::size_t priorityCombo{0u};
     std::size_t priorityUser{0u};
-    Type type{Type::Always};
-    Mode mode{Mode::Overlap};
-    bool released{true};
-    int triggerID{-1};
+    Type        type{Type::Always};
+    Mode        mode{Mode::Overlap};
+    bool        released{true};
+    int         triggerID{-1};
 
     [[nodiscard]] bool isDown(InputState& inputState) const
     {
@@ -52,25 +54,27 @@ private:
 
         for (const auto& combo : trigger.getCombos())
         {
-            maxPriority = std::max(
-                combo.getKeys().count() + combo.getBtns().count(), maxPriority);
+            maxPriority = std::max(combo.getKeys().count() + combo.getBtns().count(), maxPriority);
         }
 
         priorityCombo = maxPriority;
     }
 
 public:
-    Bind(
-        Manager& manager, Trigger trigger, const Type type, const Mode mode,
-        const int triggerID, const InputFunc& on = [](float) {},
-        const InputFunc& off = [](float) {})
-        : manager{manager},
-          trigger{std::move(trigger)},
-          on{on},
-          off{off},
-          type{type},
-          mode{mode},
-          triggerID{triggerID}
+    Bind(Manager&         manager,
+         Trigger          trigger,
+         const Type       type,
+         const Mode       mode,
+         const int        triggerID,
+         const InputFunc& on  = [](float) {},
+         const InputFunc& off = [](float) {}) :
+        manager{manager},
+        trigger{std::move(trigger)},
+        on{on},
+        off{off},
+        type{type},
+        mode{mode},
+        triggerID{triggerID}
     {
         recalculatePriorityCombo();
     }

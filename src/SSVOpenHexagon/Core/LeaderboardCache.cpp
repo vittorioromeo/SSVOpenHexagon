@@ -3,28 +3,25 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
-
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include <SFML/Base/StdChrono.hpp>
-
 #include <SFML/Base/Optional.hpp>
+#include <SFML/Base/StdChrono.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-namespace hg {
+namespace hg
+{
 
-void LeaderboardCache::receivedScores(const std::string& levelValidator,
-    const std::vector<Database::ProcessedScore>& scores)
+void LeaderboardCache::receivedScores(const std::string& levelValidator, const std::vector<Database::ProcessedScore>& scores)
 {
     CachedScores& cs = _levelValidatorToScores[levelValidator];
-    cs._scores = scores;
-    cs._cacheTime = HRClock::now();
+    cs._scores       = scores;
+    cs._cacheTime    = HRClock::now();
 }
 
-void LeaderboardCache::receivedOwnScore(
-    const std::string& levelValidator, const Database::ProcessedScore& score)
+void LeaderboardCache::receivedOwnScore(const std::string& levelValidator, const Database::ProcessedScore& score)
 {
     CachedScores& cs = _levelValidatorToScores[levelValidator];
     cs._ownScore.emplace(score);
@@ -36,8 +33,7 @@ void LeaderboardCache::requestedScores(const std::string& levelValidator)
     _levelValidatorToScores[levelValidator]._cacheTime = HRClock::now();
 }
 
-[[nodiscard]] bool LeaderboardCache::shouldRequestScores(
-    const std::string& levelValidator) const
+[[nodiscard]] bool LeaderboardCache::shouldRequestScores(const std::string& levelValidator) const
 {
     const auto it = _levelValidatorToScores.find(levelValidator);
     if (it == _levelValidatorToScores.end())
@@ -50,15 +46,13 @@ void LeaderboardCache::requestedScores(const std::string& levelValidator)
     return (HRClock::now() - cs._cacheTime) > std::chrono::seconds(6);
 }
 
-[[nodiscard]] const std::vector<Database::ProcessedScore>&
-LeaderboardCache::getScores(const std::string& levelValidator) const
+[[nodiscard]] const std::vector<Database::ProcessedScore>& LeaderboardCache::getScores(const std::string& levelValidator) const
 {
     SSVOH_ASSERT(hasInformation(levelValidator));
     return _levelValidatorToScores.at(levelValidator)._scores;
 }
 
-[[nodiscard]] const Database::ProcessedScore* LeaderboardCache::getOwnScore(
-    const std::string& levelValidator) const
+[[nodiscard]] const Database::ProcessedScore* LeaderboardCache::getOwnScore(const std::string& levelValidator) const
 {
     SSVOH_ASSERT(hasInformation(levelValidator));
 
@@ -66,11 +60,9 @@ LeaderboardCache::getScores(const std::string& levelValidator) const
     return os.hasValue() ? &*os : nullptr;
 }
 
-[[nodiscard]] bool LeaderboardCache::hasInformation(
-    const std::string& levelValidator) const
+[[nodiscard]] bool LeaderboardCache::hasInformation(const std::string& levelValidator) const
 {
-    return _levelValidatorToScores.find(levelValidator) !=
-           _levelValidatorToScores.end();
+    return _levelValidatorToScores.find(levelValidator) != _levelValidatorToScores.end();
 }
 
 } // namespace hg

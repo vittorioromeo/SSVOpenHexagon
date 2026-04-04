@@ -6,16 +6,17 @@
 
 #include <SFML/Base/SizeT.hpp>
 
-namespace hg {
+namespace hg
+{
 
 class Ticker
 {
 private:
-    float target;
-    float current{0.f};
-    float total{0.f};
-    bool running{true};
-    bool loop{true};
+    float           target;
+    float           current{0.f};
+    float           total{0.f};
+    bool            running{true};
+    bool            loop{true};
     sf::base::SizeT ticks{0};
 
 public:
@@ -37,11 +38,11 @@ public:
 
     void setLoop(bool mX) noexcept;
 
-    [[nodiscard]] bool getLoop() const noexcept;
-    [[nodiscard]] bool isRunning() const noexcept;
-    [[nodiscard]] float getTarget() const noexcept;
-    [[nodiscard]] float getCurrent() const noexcept;
-    [[nodiscard]] float getTotal() const noexcept;
+    [[nodiscard]] bool            getLoop() const noexcept;
+    [[nodiscard]] bool            isRunning() const noexcept;
+    [[nodiscard]] float           getTarget() const noexcept;
+    [[nodiscard]] float           getCurrent() const noexcept;
+    [[nodiscard]] float           getTotal() const noexcept;
     [[nodiscard]] sf::base::SizeT getTicks() const noexcept;
 
     template <typename T = float>

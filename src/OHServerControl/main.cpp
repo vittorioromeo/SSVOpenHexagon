@@ -2,11 +2,11 @@
 #include <SFML/Network/Packet.hpp>
 #include <SFML/Network/Socket.hpp>
 #include <SFML/Network/UdpSocket.hpp>
-
-#include <string>
 #include <iostream>
+#include <string>
 
-namespace {
+namespace
+{
 
 [[nodiscard]] bool cin_getline_string(std::string& result) noexcept
 {
@@ -29,8 +29,8 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    std::string stringBuf;
-    sf::Packet packet;
+    std::string   stringBuf;
+    sf::Packet    packet;
     sf::UdpSocket controlSocket(true /* isBlocking */);
 
     const auto sendToServer = [&]
@@ -38,8 +38,7 @@ int main(int argc, char* argv[])
         packet.clear();
         packet << stringBuf;
 
-        if (controlSocket.send(packet, sf::IpAddress::LocalHost, 50506) !=
-            sf::Socket::Status::Done)
+        if (controlSocket.send(packet, sf::IpAddress::LocalHost, 50'506) != sf::Socket::Status::Done)
         {
             std::cerr << "Error sending control packet\n";
             return false;

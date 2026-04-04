@@ -7,21 +7,20 @@
 #include "SSVOpenHexagon/Utils/FixedFunction.hpp"
 
 #include <SFML/Base/Optional.hpp>
-#include <SFML/Base/Variant.hpp>
 #include <SFML/Base/SizeT.hpp>
-
 #include <SFML/Base/StdChrono.hpp>
-
+#include <SFML/Base/Variant.hpp>
 #include <vector>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 class timeline2
 {
 public:
-    using clock = std::chrono::high_resolution_clock;
+    using clock      = std::chrono::high_resolution_clock;
     using time_point = clock::time_point;
-    using duration = clock::duration;
+    using duration   = clock::duration;
 
     struct action_do
     {
@@ -43,8 +42,7 @@ public:
         Utils::FixedFunction<time_point(), 32> _time_point_fn;
     };
 
-    using action = sf::base::Variant<action_do, action_wait_for,
-        action_wait_until, action_wait_until_fn>;
+    using action = sf::base::Variant<action_do, action_wait_for, action_wait_until, action_wait_until_fn>;
 
 private:
     std::vector<action> _actions;
@@ -55,8 +53,7 @@ public:
     template <typename F>
     void append_do(F&& func)
     {
-        _actions.emplace_back(
-            sf::base::inPlaceType<action_do>, SSVOH_FWD(func));
+        _actions.emplace_back(sf::base::inPlaceType<action_do>, SSVOH_FWD(func));
     }
 
     void append_wait_for(const duration d);
@@ -67,19 +64,18 @@ public:
     template <typename F>
     void append_wait_until_fn(F&& tp_fn)
     {
-        _actions.emplace_back(
-            sf::base::inPlaceType<action_wait_until_fn>, SSVOH_FWD(tp_fn));
+        _actions.emplace_back(sf::base::inPlaceType<action_wait_until_fn>, SSVOH_FWD(tp_fn));
     }
 
     [[nodiscard]] sf::base::SizeT size() const noexcept;
-    [[nodiscard]] action& action_at(const sf::base::SizeT i) noexcept;
+    [[nodiscard]] action&         action_at(const sf::base::SizeT i) noexcept;
 };
 
 class timeline2_runner
 {
 public:
     using time_point = timeline2::time_point;
-    using duration = timeline2::duration;
+    using duration   = timeline2::duration;
 
     enum class outcome
     {
@@ -89,7 +85,7 @@ public:
     };
 
 private:
-    sf::base::SizeT _current_idx{0};
+    sf::base::SizeT                _current_idx{0};
     sf::base::Optional<time_point> _wait_start_tp;
 
 public:

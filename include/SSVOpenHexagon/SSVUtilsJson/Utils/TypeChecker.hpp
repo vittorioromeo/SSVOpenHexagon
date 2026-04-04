@@ -6,7 +6,8 @@
 
 #include <string>
 
-namespace ssvuj::Impl {
+namespace ssvuj::Impl
+{
 
 template <typename>
 [[nodiscard]] bool isObjType(const Obj& mObj) noexcept;

@@ -8,12 +8,12 @@
 #include "SSVOpenHexagon/Input/InputState.hpp"
 
 #include <SFML/Base/UniquePtr.hpp>
-
 #include <algorithm>
 #include <utility>
 #include <vector>
 
-namespace ssvs::Input {
+namespace ssvs::Input
+{
 
 class Combo;
 class Bind;
@@ -24,11 +24,11 @@ class Manager
     friend Bind;
 
 private:
-    InputState processedInput;
+    InputState                             processedInput;
     std::vector<sf::base::UniquePtr<Bind>> binds;
-    bool isIgnoringNext{false};
-    bool isIgnoringAll{false};
-    bool mustSort{false};
+    bool                                   isIgnoringNext{false};
+    bool                                   isIgnoringAll{false};
+    bool                                   mustSort{false};
 
 public:
     void update(InputState& inputState, const float ft)
@@ -53,8 +53,7 @@ public:
     {
         if (mustSort)
         {
-            std::sort(std::begin(binds), std::end(binds),
-                [](const auto& a, const auto& b) { return *a < *b; });
+            std::sort(std::begin(binds), std::end(binds), [](const auto& a, const auto& b) { return *a < *b; });
             mustSort = false;
         }
 
@@ -70,9 +69,8 @@ public:
     template <typename... TArgs>
     Bind& emplace(TArgs&&... args)
     {
-        auto& result = binds.emplace_back(
-            sf::base::makeUnique<Bind>(*this, std::forward<TArgs>(args)...));
-        mustSort = true;
+        auto& result = binds.emplace_back(sf::base::makeUnique<Bind>(*this, std::forward<TArgs>(args)...));
+        mustSort     = true;
         return *result;
     }
 
@@ -98,8 +96,7 @@ public:
     }
 };
 
-inline bool Combo::isDown(
-    Manager& manager, InputState& inputState, const Mode mode) const
+inline bool Combo::isDown(Manager& manager, InputState& inputState, const Mode mode) const
 {
     if (isUnbound())
     {
@@ -137,7 +134,7 @@ inline bool Combo::isDown(
 
 inline void Bind::setPriorityUser(const std::size_t value) noexcept
 {
-    priorityUser = value;
+    priorityUser     = value;
     manager.mustSort = true;
 }
 

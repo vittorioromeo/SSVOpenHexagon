@@ -7,13 +7,12 @@
 #include <iomanip>
 #include <sstream>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 [[nodiscard]] sf::base::U64 timestamp(const SCTimePoint tp)
 {
-    return std::chrono::duration_cast<std::chrono::seconds>(
-        tp.time_since_epoch())
-        .count();
+    return std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count();
 }
 
 [[nodiscard]] sf::base::U64 nowTimestamp()
@@ -26,11 +25,10 @@ namespace hg::Utils {
     return SCTimePoint{} + std::chrono::seconds(timestamp);
 }
 
-[[nodiscard]] std::string formatTimepoint(
-    const SCTimePoint time, const std::string& format)
+[[nodiscard]] std::string formatTimepoint(const SCTimePoint time, const std::string& format)
 {
     const std::time_t tt = std::chrono::system_clock::to_time_t(time);
-    const std::tm tm = *std::gmtime(&tt); // GMT (UTC)
+    const std::tm     tm = *std::gmtime(&tt); // GMT (UTC)
 
     std::stringstream ss;
     ss << std::put_time(&tm, format.c_str());

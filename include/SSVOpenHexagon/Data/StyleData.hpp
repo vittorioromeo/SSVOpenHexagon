@@ -4,70 +4,76 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Data/CapColor.hpp"
+#include "SSVOpenHexagon/Data/ColorData.hpp"
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vec2.hpp>
-
-#include <vector>
 #include <string>
+#include <vector>
 
-namespace Json {
+namespace Json
+{
 
 class Value;
 
 }
 
-namespace ssvuj {
+namespace ssvuj
+{
 
 using Obj = Json::Value;
 
 }
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 class FastVertexVectorTris;
 class FastVertexVectorTris;
 
 } // namespace hg::Utils
 
-namespace hg {
+namespace hg
+{
 
 class StyleData
 {
 private:
-    float currentHue{0};
-    float currentSwapTime{0};
-    float pulseFactor{0};
-    sf::Color currentMainColor{sf::Color::Black};
-    sf::Color currentPlayerColor{sf::Color::Black};
-    sf::Color currentTextColor{sf::Color::Black};
-    sf::Color currentWallColor{sf::Color::White};
-    sf::Color current3DOverrideColor{sf::Color::Black};
+    float                  currentHue{0};
+    float                  currentSwapTime{0};
+    float                  pulseFactor{0};
+    sf::Color              currentMainColor{sf::Color::Black};
+    sf::Color              currentPlayerColor{sf::Color::Black};
+    sf::Color              currentTextColor{sf::Color::Black};
+    sf::Color              currentWallColor{sf::Color::White};
+    sf::Color              current3DOverrideColor{sf::Color::Black};
     std::vector<sf::Color> currentColors;
 
-    [[nodiscard]] static sf::Color calculateColor(const float mCurrentHue,
-        const float mPulseFactor, const ColorData& mColorData);
+    [[nodiscard]] static sf::Color calculateColor(const float mCurrentHue, const float mPulseFactor, const ColorData& mColorData);
 
-    [[nodiscard]] static ColorData colorDataFromObjOrDefault(
-        const ssvuj::Obj& mRoot, const std::string& mKey,
-        const ColorData& mDefault);
+    [[nodiscard]] static ColorData colorDataFromObjOrDefault(const ssvuj::Obj&  mRoot,
+                                                             const std::string& mKey,
+                                                             const ColorData&   mDefault);
 
     void drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
-        const sf::Vec2f mCenterPos, const unsigned int sides,
-        const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const;
+                            const sf::Vec2f              mCenterPos,
+                            const unsigned int           sides,
+                            const bool                   darkenUnevenBackgroundChunk,
+                            const bool                   blackAndWhite) const;
 
     void drawBackgroundMenuHexagonImpl(Utils::FastVertexVectorTris& vertices,
-        const sf::Vec2f mCenterPos, const unsigned int sides,
-        const bool fourByThree, const bool blackAndWhite) const;
+                                       const sf::Vec2f              mCenterPos,
+                                       const unsigned int           sides,
+                                       const bool                   fourByThree,
+                                       const bool                   blackAndWhite) const;
 
 public:
     std::string id{};
-    float hueMin{};
-    float hueMax{};
-    float hueIncrement{};
-    bool huePingPong{};
+    float       hueMin{};
+    float       hueMax{};
+    float       hueIncrement{};
+    bool        huePingPong{};
 
     float pulseMin{};
     float pulseMax{};
@@ -85,9 +91,9 @@ public:
     float _3dPulseSpeed{};
     float _3dPerspectiveMult{};
 
-    float bgTileRadius{10000.f};
+    float        bgTileRadius{10000.f};
     unsigned int BGColorOffset{0};
-    float BGRotOff{0}; // In degrees
+    float        BGRotOff{0}; // In degrees
 
 private:
     sf::Color _3dOverrideColor;
@@ -109,27 +115,30 @@ public:
     void computeColors();
 
     void drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
-        const sf::Vec2f mCenterPos, const unsigned int sides,
-        const bool darkenUnevenBackgroundChunk, const bool blackAndWhite,
-        const bool fourByThree) const;
+                            const sf::Vec2f              mCenterPos,
+                            const unsigned int           sides,
+                            const bool                   darkenUnevenBackgroundChunk,
+                            const bool                   blackAndWhite,
+                            const bool                   fourByThree) const;
 
     void drawBackground(Utils::FastVertexVectorTris& mTris,
-        const sf::Vec2f mCenterPos, const unsigned int sides,
-        const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const;
+                        const sf::Vec2f              mCenterPos,
+                        const unsigned int           sides,
+                        const bool                   darkenUnevenBackgroundChunk,
+                        const bool                   blackAndWhite) const;
 
     void setCapColor(const CapColor& mCapColor);
 
-    [[nodiscard]] const sf::Color& getMainColor() const noexcept;
-    [[nodiscard]] const sf::Color& getPlayerColor() const noexcept;
-    [[nodiscard]] const sf::Color& getTextColor() const noexcept;
-    [[nodiscard]] const sf::Color& getWallColor() const noexcept;
+    [[nodiscard]] const sf::Color&              getMainColor() const noexcept;
+    [[nodiscard]] const sf::Color&              getPlayerColor() const noexcept;
+    [[nodiscard]] const sf::Color&              getTextColor() const noexcept;
+    [[nodiscard]] const sf::Color&              getWallColor() const noexcept;
     [[nodiscard]] const std::vector<sf::Color>& getColors() const noexcept;
-    [[nodiscard]] const sf::Color& getColor(
-        const sf::base::SizeT mIdx) const noexcept;
-    [[nodiscard]] float getCurrentHue() const noexcept;
-    [[nodiscard]] float getCurrentSwapTime() const noexcept;
-    [[nodiscard]] const sf::Color& get3DOverrideColor() const noexcept;
-    [[nodiscard]] sf::Color getCapColorResult() const noexcept;
+    [[nodiscard]] const sf::Color&              getColor(const sf::base::SizeT mIdx) const noexcept;
+    [[nodiscard]] float                         getCurrentHue() const noexcept;
+    [[nodiscard]] float                         getCurrentSwapTime() const noexcept;
+    [[nodiscard]] const sf::Color&              get3DOverrideColor() const noexcept;
+    [[nodiscard]] sf::Color                     getCapColorResult() const noexcept;
 };
 
 } // namespace hg

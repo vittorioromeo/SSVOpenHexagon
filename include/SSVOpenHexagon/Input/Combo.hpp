@@ -4,14 +4,15 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/BitsetUtils.hpp"
+#include "SSVOpenHexagon/Input/Enums.hpp"
 
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <initializer_list>
 
-namespace ssvs::Input {
+namespace ssvs::Input
+{
 
 class InputState;
 class Manager;
@@ -26,7 +27,7 @@ public:
     Combo() = default;
 
     Combo(const std::initializer_list<sf::Keyboard::Key>& initKeys,
-        const std::initializer_list<sf::Mouse::Button>& initButtons = {})
+          const std::initializer_list<sf::Mouse::Button>& initButtons = {})
     {
         for (const sf::Keyboard::Key key : initKeys)
         {
@@ -39,9 +40,9 @@ public:
         }
     }
 
-    Combo(const std::initializer_list<sf::Mouse::Button>& initButtons)
-        : Combo{{}, initButtons}
-    {}
+    Combo(const std::initializer_list<sf::Mouse::Button>& initButtons) : Combo{{}, initButtons}
+    {
+    }
 
     [[nodiscard]] bool operator==(const Combo& rhs) const noexcept
     {
@@ -53,8 +54,7 @@ public:
         return !(*this == rhs);
     }
 
-    [[nodiscard]] bool isDown(
-        Manager& manager, InputState& inputState, Mode mode) const;
+    [[nodiscard]] bool isDown(Manager& manager, InputState& inputState, Mode mode) const;
 
     void addKey(const sf::Keyboard::Key key) noexcept
     {
@@ -68,7 +68,7 @@ public:
 
     void addBtn(const sf::Mouse::Button button) noexcept
     {
-        getBtnBit(btns, button) = true;
+        getBtnBit(btns, button)                     = true;
         getKeyBit(keys, sf::Keyboard::Key::Unknown) = false;
     }
 

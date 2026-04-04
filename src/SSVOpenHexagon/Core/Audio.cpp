@@ -2,48 +2,42 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/Audio.hpp"
-
 #include "SSVOpenHexagon/Global/Assert.hpp"
-
+#include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
-
-#include <SFML/System/Time.hpp>
-
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/Audio/AudioSettings.hpp>
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/MusicReader.hpp>
-#include <SFML/Audio/AudioSettings.hpp>
 #include <SFML/Audio/PlaybackDevice.hpp>
 #include <SFML/Audio/Sound.hpp>
-
-#include <SFML/System/Path.hpp>
-
-#include <SFML/Base/Optional.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Base/InPlaceVector.hpp>
-
+#include <SFML/Base/Optional.hpp>
+#include <SFML/System/Path.hpp>
+#include <SFML/System/Time.hpp>
 #include <string>
 
-namespace hg {
+namespace hg
+{
 
 class Audio::AudioImpl
 {
 private:
     // TODO (P2): cleaner way of doing this
     sf::PlaybackDevice& _playbackDevice;
-    SoundBufferGetter _soundBufferGetter;
-    MusicPathGetter _musicPathGetter;
+    SoundBufferGetter   _soundBufferGetter;
+    MusicPathGetter     _musicPathGetter;
 
     // TODO (P2): remove these, roll own system
     sf::base::InPlaceVector<sf::Sound, 32> _sounds;
-    float _soundVolume{1.f};
+    float                                  _soundVolume{1.f};
 
     sf::base::Optional<sf::MusicReader> _musicReader;
-    sf::base::Optional<sf::Music> _music;
-    float _musicVolume;
-    std::string _lastLoadedMusicPath;
+    sf::base::Optional<sf::Music>       _music;
+    float                               _musicVolume;
+    std::string                         _lastLoadedMusicPath;
 
     void playSoundImpl(const std::string& assetId, const bool modeOverride)
     {
@@ -77,22 +71,19 @@ private:
                 }
         }
 
-        _sounds
-            .emplaceBack(_playbackDevice, *soundBuffer,
-                sf::AudioSettings{.volume = _soundVolume})
-            .play();
+        _sounds.emplaceBack(_playbackDevice, *soundBuffer, sf::AudioSettings{.volume = _soundVolume}).play();
     }
 
 public:
-    explicit AudioImpl(sf::PlaybackDevice& playbackDevice,
-        const SoundBufferGetter& soundBufferGetter,
-        const MusicPathGetter& musicPathGetter)
-        : _playbackDevice{playbackDevice},
-          _soundBufferGetter{soundBufferGetter},
-          _musicPathGetter{musicPathGetter},
-          _music{},
-          _musicVolume{100.f},
-          _lastLoadedMusicPath{}
+    explicit AudioImpl(sf::PlaybackDevice&      playbackDevice,
+                       const SoundBufferGetter& soundBufferGetter,
+                       const MusicPathGetter&   musicPathGetter) :
+        _playbackDevice{playbackDevice},
+        _soundBufferGetter{soundBufferGetter},
+        _musicPathGetter{musicPathGetter},
+        _music{},
+        _musicVolume{100.f},
+        _lastLoadedMusicPath{}
     {
         SSVOH_ASSERT(static_cast<bool>(_soundBufferGetter));
     }
@@ -102,7 +93,8 @@ public:
         SSVOH_ASSERT(volume >= 0.f && volume <= 100.f);
         _soundVolume = volume / 100.f;
 
-        for (auto& sound : _sounds) sound.setVolume(_soundVolume);
+        for (auto& sound : _sounds)
+            sound.setVolume(_soundVolume);
     }
 
     void setMusicVolume(const float volume)
@@ -179,7 +171,8 @@ public:
 
     void stopSounds()
     {
-        for (auto& sound : _sounds) sound.stop();
+        for (auto& sound : _sounds)
+            sound.stop();
     }
 
     void playSoundOverride(const std::string& id)
@@ -202,16 +195,14 @@ public:
         playSoundImpl(Utils::concat(packId, '_', id), /* modeOverride */ false);
     }
 
-    [[nodiscard]] bool loadAndPlayMusic(const std::string& packId,
-        const std::string& id, const float playingOffsetSeconds)
+    [[nodiscard]] bool loadAndPlayMusic(const std::string& packId, const std::string& id, const float playingOffsetSeconds)
     {
-        const std::string assetId = Utils::concat(packId, '_', id);
-        const std::string* path = _musicPathGetter(assetId);
+        const std::string  assetId = Utils::concat(packId, '_', id);
+        const std::string* path    = _musicPathGetter(assetId);
 
         if (path == nullptr)
         {
-            hg::lo("hg::AudioImpl::loadAndPlayMusic")
-                << "No path for music id '" << assetId << "'\n";
+            hg::lo("hg::AudioImpl::loadAndPlayMusic") << "No path for music id '" << assetId << "'\n";
 
             return false;
         }
@@ -220,15 +211,13 @@ public:
         {
             if (!(_musicReader = sf::MusicReader::openFromFile(*path)))
             {
-                hg::lo("hg::AudioImpl::loadAndPlayMusic")
-                    << "Failed loading music file '" << *path << "'\n";
+                hg::lo("hg::AudioImpl::loadAndPlayMusic") << "Failed loading music file '" << *path << "'\n";
 
                 _music.reset();
                 return false;
             }
 
-            _music.emplace(_playbackDevice, *_musicReader,
-                sf::AudioSettings{.volume = _musicVolume / 100.f});
+            _music.emplace(_playbackDevice, *_musicReader, sf::AudioSettings{.volume = _musicVolume / 100.f});
 
             _lastLoadedMusicPath = *path;
         }
@@ -263,12 +252,12 @@ public:
     return *_impl;
 }
 
-Audio::Audio(sf::PlaybackDevice& playbackDevice,
-    const SoundBufferGetter& soundBufferGetter,
-    const MusicPathGetter& musicPathGetter)
-    : _impl{sf::base::makeUnique<AudioImpl>(
-          playbackDevice, soundBufferGetter, musicPathGetter)}
-{}
+Audio::Audio(sf::PlaybackDevice&      playbackDevice,
+             const SoundBufferGetter& soundBufferGetter,
+             const MusicPathGetter&   musicPathGetter) :
+    _impl{sf::base::makeUnique<AudioImpl>(playbackDevice, soundBufferGetter, musicPathGetter)}
+{
+}
 
 Audio::~Audio() = default;
 
@@ -327,8 +316,7 @@ void Audio::playSoundOverride(const std::string& id)
     impl().playSoundOverride(id);
 }
 
-void Audio::playPackSoundOverride(
-    const std::string& packId, const std::string& id)
+void Audio::playPackSoundOverride(const std::string& packId, const std::string& id)
 {
     impl().playPackSoundOverride(packId, id);
 }
@@ -343,8 +331,7 @@ void Audio::playPackSoundAbort(const std::string& packId, const std::string& id)
     impl().playPackSoundAbort(packId, id);
 }
 
-[[nodiscard]] bool Audio::loadAndPlayMusic(const std::string& packId,
-    const std::string& id, const float playingOffsetSeconds)
+[[nodiscard]] bool Audio::loadAndPlayMusic(const std::string& packId, const std::string& id, const float playingOffsetSeconds)
 {
     return impl().loadAndPlayMusic(packId, id, playingOffsetSeconds);
 }

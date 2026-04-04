@@ -3,12 +3,10 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/Joystick.hpp"
-
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 
-#include <SFML/Window/Joystick.hpp>
 #include <SFML/Base/Array.hpp>
-
+#include <SFML/Window/Joystick.hpp>
 #include <utility>
 
 /*
@@ -51,7 +49,8 @@ XBOX 360 Controller Mapping
 
 */
 
-namespace hg::Joystick {
+namespace hg::Joystick
+{
 
 struct JoystickState
 {
@@ -59,8 +58,8 @@ struct JoystickState
 
     sf::base::Array<bool, SSVOH_TO_SIZET(Jdir::JoystickDirectionsCount)> dirWasPressed;
     sf::base::Array<bool, SSVOH_TO_SIZET(Jdir::JoystickDirectionsCount)> dirPressed;
-    sf::base::Array<bool, SSVOH_TO_SIZET(Jid::JoystickBindsCount)> wasPressed;
-    sf::base::Array<bool, SSVOH_TO_SIZET(Jid::JoystickBindsCount)> pressed;
+    sf::base::Array<bool, SSVOH_TO_SIZET(Jid::JoystickBindsCount)>       wasPressed;
+    sf::base::Array<bool, SSVOH_TO_SIZET(Jid::JoystickBindsCount)>       pressed;
 
     unsigned int joystickInputs[SSVOH_TO_SIZET(hg::Joystick::Jid::JoystickBindsCount)];
 };
@@ -98,8 +97,8 @@ void setJoystickBind(const unsigned int button, const int buttonID)
 
 enum class AxisDir : int
 {
-    Left = -1,
-    Dead = 0,
+    Left  = -1,
+    Dead  = 0,
     Right = 1
 };
 
@@ -108,8 +107,7 @@ enum class AxisDir : int
     return static_cast<AxisDir>(-static_cast<int>(dir));
 }
 
-[[nodiscard]] static AxisDir axisPressed(sf::Joystick::Query& query,
-    const float deadzone, const sf::Joystick::Axis axis)
+[[nodiscard]] static AxisDir axisPressed(sf::Joystick::Query& query, const float deadzone, const sf::Joystick::Axis axis)
 {
     const auto pos = query.getAxisPosition(axis);
 
@@ -129,7 +127,7 @@ enum class AxisDir : int
 void update(const float deadzone)
 {
     constexpr unsigned int joyId = 0;
-    auto& s = getJoystickState();
+    auto&                  s     = getJoystickState();
 
     // all presses are being ignored, try again later
     if (s.ignoreAllPresses)
@@ -144,16 +142,10 @@ void update(const float deadzone)
     }
 
     const auto dpadXIs = [&](const AxisDir axisDir)
-    {
-        return axisPressed(*query, deadzone, sf::Joystick::Axis::PovX) ==
-               axisDir;
-    };
+    { return axisPressed(*query, deadzone, sf::Joystick::Axis::PovX) == axisDir; };
 
     const auto dpadYIs = [&](const AxisDir axisDir)
-    {
-        return axisPressed(*query, deadzone, sf::Joystick::Axis::PovY) ==
-               axisDir;
-    };
+    { return axisPressed(*query, deadzone, sf::Joystick::Axis::PovY) == axisDir; };
 
     const auto leftStickXIs = [&](const AxisDir axisDir)
     { return axisPressed(*query, deadzone, sf::Joystick::Axis::X) == axisDir; };
@@ -161,17 +153,12 @@ void update(const float deadzone)
     const auto leftStickYIs = [&](const AxisDir axisDir)
     { return axisPressed(*query, deadzone, sf::Joystick::Axis::Y) == axisDir; };
 
-    const auto xIs = [&](const AxisDir axisDir)
-    { return dpadXIs(axisDir) || leftStickXIs(axisDir); };
+    const auto xIs = [&](const AxisDir axisDir) { return dpadXIs(axisDir) || leftStickXIs(axisDir); };
 
-    const auto yIs = [&](const AxisDir axisDir)
-    { return dpadYIs(axisDir) || leftStickYIs(-axisDir); };
+    const auto yIs = [&](const AxisDir axisDir) { return dpadYIs(axisDir) || leftStickYIs(-axisDir); };
 
     const auto doDir = [&](const Jdir jdir, const bool check)
-    {
-        s.dirWasPressed[SSVOH_TO_SIZET(jdir)] =
-            std::exchange(s.dirPressed[SSVOH_TO_SIZET(jdir)], check);
-    };
+    { s.dirWasPressed[SSVOH_TO_SIZET(jdir)] = std::exchange(s.dirPressed[SSVOH_TO_SIZET(jdir)], check); };
 
     doDir(Jdir::Left, xIs(AxisDir::Left));
     doDir(Jdir::Right, xIs(AxisDir::Right));
@@ -181,7 +168,7 @@ void update(const float deadzone)
     const auto doButton = [&](const Jid jid)
     {
         s.wasPressed[SSVOH_TO_SIZET(jid)] = std::exchange(s.pressed[SSVOH_TO_SIZET(jid)],
-            query->isButtonPressed(s.joystickInputs[SSVOH_TO_SIZET(jid)]));
+                                                          query->isButtonPressed(s.joystickInputs[SSVOH_TO_SIZET(jid)]));
     };
 
     doButton(Jid::Select);
@@ -205,8 +192,7 @@ void update(const float deadzone)
 
 [[nodiscard]] bool risingEdge(const Jdir jdir)
 {
-    return getJoystickState().dirPressed[SSVOH_TO_SIZET(jdir)] &&
-           !getJoystickState().dirWasPressed[SSVOH_TO_SIZET(jdir)];
+    return getJoystickState().dirPressed[SSVOH_TO_SIZET(jdir)] && !getJoystickState().dirWasPressed[SSVOH_TO_SIZET(jdir)];
 }
 
 [[nodiscard]] bool pressed(const Jid jid)
@@ -216,8 +202,7 @@ void update(const float deadzone)
 
 [[nodiscard]] bool risingEdge(const Jid jid)
 {
-    return getJoystickState().pressed[SSVOH_TO_SIZET(jid)] &&
-           !getJoystickState().wasPressed[SSVOH_TO_SIZET(jid)];
+    return getJoystickState().pressed[SSVOH_TO_SIZET(jid)] && !getJoystickState().wasPressed[SSVOH_TO_SIZET(jid)];
 }
 
 } // namespace hg::Joystick

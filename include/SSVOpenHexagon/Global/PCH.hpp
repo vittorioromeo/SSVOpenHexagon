@@ -15,15 +15,15 @@
 
 #ifdef _WIN32
 
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
 
-#include <windows.h>
+    #include <windows.h>
 
 #endif
 
@@ -33,11 +33,10 @@
 // C++ Standard Library
 // ----------------------------------------------------------------------------
 
+#include <SFML/Base/StdChrono.hpp>
 #include <array>
 #include <atomic>
 #include <bitset>
-#include <SFML/Base/StdChrono.hpp>
-
 #include <deque>
 #include <exception>
 #include <filesystem>
@@ -50,8 +49,8 @@
 #include <random>
 #include <sstream>
 #include <stdexcept>
-#include <string_view>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <tuple>
 #include <type_traits>
@@ -79,7 +78,7 @@
 // ----------------------------------------------------------------------------
 
 #ifndef SSVOH_ANDROID
-#include "discord/discord.h"
+    #include "discord/discord.h"
 #endif
 
 //
@@ -105,8 +104,9 @@
 // ----------------------------------------------------------------------------
 
 #ifndef SSVOH_ANDROID
-#include <imgui.h>
-#include <misc/cpp/imgui_stdlib.h>
+    #include <imgui.h>
+
+    #include <misc/cpp/imgui_stdlib.h>
 #endif
 
 //
@@ -127,11 +127,9 @@
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/PlaybackDevice.hpp>
 #include <SFML/Audio/SoundBuffer.hpp>
-
-#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/SizeT.hpp>
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Glsl.hpp>
@@ -143,21 +141,13 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
-
-#include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/Packet.hpp>
-#include <SFML/Network/Packet.hpp>
-#include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
-#include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/UdpSocket.hpp>
-#include <SFML/Network/UdpSocket.hpp>
-
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Vec2.hpp>
-
 #include <SFML/Window/Joystick.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
@@ -170,8 +160,9 @@
 // SSVUtils
 // ----------------------------------------------------------------------------
 
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include "SSVOpenHexagon/Utils/Log.hpp"
+
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <SSVUtils/Core/Utils/Rnd.hpp>
 #include <SSVUtils/Internal/PCG/PCG.hpp>
 
@@ -201,10 +192,9 @@
 // ----------------------------------------------------------------------------
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Utils/Concat.hpp"
-
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 
 //
 //

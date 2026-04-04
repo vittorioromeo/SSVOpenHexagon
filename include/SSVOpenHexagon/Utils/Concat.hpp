@@ -4,60 +4,62 @@
 
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <string_view>
-
 #include <SFML/Base/SizeT.hpp>
 #include <SFML/Base/Trait/IsConvertible.hpp>
 #include <SFML/Base/Trait/IsSame.hpp>
+#include <sstream>
+#include <string>
+#include <string_view>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
-namespace Impl {
+namespace Impl
+{
 
 template <typename T>
 struct IsCharArray : std::false_type
-{};
+{
+};
 
 template <sf::base::SizeT N>
 struct IsCharArray<char[N]> : std::true_type
-{};
+{
+};
 
 template <sf::base::SizeT N>
 struct IsCharArray<const char[N]> : std::true_type
-{};
+{
+};
 
 template <sf::base::SizeT N>
 struct IsCharArray<char (&)[N]> : std::true_type
-{};
+{
+};
 
 template <sf::base::SizeT N>
 struct IsCharArray<const char (&)[N]> : std::true_type
-{};
+{
+};
 
 template <typename... Ts>
-inline constexpr bool AllConvertibleToStringView =
-    ((SFML_BASE_IS_CONVERTIBLE(Ts, std::string_view) ||
-         IsCharArray<Ts>::value || SFML_BASE_IS_SAME(Ts, char)) &&
-        ...);
+inline constexpr bool AllConvertibleToStringView = ((SFML_BASE_IS_CONVERTIBLE(Ts, std::string_view) ||
+                                                     IsCharArray<Ts>::value || SFML_BASE_IS_SAME(Ts, char)) &&
+                                                    ...);
 
 template <sf::base::SizeT N>
-[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
-    char (&)[N]) noexcept
+[[nodiscard, gnu::always_inline]] inline constexpr sf::base::SizeT getSize(char (&)[N]) noexcept
 {
     return N;
 }
 
 template <sf::base::SizeT N>
-[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
-    const char (&)[N]) noexcept
+[[nodiscard, gnu::always_inline]] inline constexpr sf::base::SizeT getSize(const char (&)[N]) noexcept
 {
     return N;
 }
 
-[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
-    const char* s) noexcept
+[[nodiscard, gnu::always_inline]] inline constexpr sf::base::SizeT getSize(const char* s) noexcept
 {
     const char* end = s;
     while (*end++ != 0)
@@ -66,20 +68,17 @@ template <sf::base::SizeT N>
     return end - s - 1;
 }
 
-[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
-    const char&) noexcept
+[[nodiscard, gnu::always_inline]] inline constexpr sf::base::SizeT getSize(const char&) noexcept
 {
     return 1;
 }
 
-[[nodiscard, gnu::always_inline]] inline sf::base::SizeT getSize(
-    const std::string& s) noexcept
+[[nodiscard, gnu::always_inline]] inline sf::base::SizeT getSize(const std::string& s) noexcept
 {
     return s.size();
 }
 
-[[nodiscard, gnu::always_inline]] constexpr inline sf::base::SizeT getSize(
-    const std::string_view& s) noexcept
+[[nodiscard, gnu::always_inline]] inline constexpr sf::base::SizeT getSize(const std::string_view& s) noexcept
 {
     return s.size();
 }

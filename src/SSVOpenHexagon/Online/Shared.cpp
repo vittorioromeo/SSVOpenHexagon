@@ -2,37 +2,35 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Online/Shared.hpp"
-
-#include "SSVOpenHexagon/Online/Sodium.hpp"
-
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
-
-#include <SFML/Network/Packet.hpp>
-
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Variant.hpp>
-#include <SFML/Base/TypePackIndex.hpp>
-#include <SFML/Base/Trait/IsSame.hpp>
-
-#include <sodium.h>
+#include "SSVOpenHexagon/Online/Shared.hpp"
+#include "SSVOpenHexagon/Online/Sodium.hpp"
 
 #include <boost/pfr.hpp>
 
-#include <sstream>
+#include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
+#include <SFML/Base/Trait/IsSame.hpp>
+#include <SFML/Base/TypePackIndex.hpp>
+#include <SFML/Base/Variant.hpp>
+#include <SFML/Network/Packet.hpp>
 #include <iostream>
+#include <sodium.h>
+#include <sstream>
 
-namespace hg {
+namespace hg
+{
 
-namespace {
+namespace
+{
 
 template <typename...>
 struct TypeList
-{};
+{
+};
 
 template <typename T, typename... Ts>
 [[nodiscard]] consteval bool variantContains(TypeList<sf::base::Variant<Ts...>>)
@@ -41,8 +39,7 @@ template <typename T, typename... Ts>
 }
 
 template <typename T, typename... Ts>
-[[nodiscard]] consteval sf::base::SizeT indexOfVariantType(
-    TypeList<sf::base::Variant<Ts...>>)
+[[nodiscard]] consteval sf::base::SizeT indexOfVariantType(TypeList<sf::base::Variant<Ts...>>)
 {
     return sf::base::getTypePackIndex<T, Ts...>();
 }
@@ -71,8 +68,7 @@ static constexpr sf::base::U8 preamble2ndByte{'h'};
 
 void encodePreamble(sf::Packet& p)
 {
-    p << static_cast<sf::base::U8>(preamble1stByte)
-      << static_cast<sf::base::U8>(preamble2ndByte);
+    p << static_cast<sf::base::U8>(preamble1stByte) << static_cast<sf::base::U8>(preamble2ndByte);
 }
 
 void encodeProtocolVersion(sf::Packet& p)
@@ -82,8 +78,7 @@ void encodeProtocolVersion(sf::Packet& p)
 
 void encodeVersion(sf::Packet& p)
 {
-    p << static_cast<sf::base::U8>(GAME_VERSION.major)
-      << static_cast<sf::base::U8>(GAME_VERSION.minor)
+    p << static_cast<sf::base::U8>(GAME_VERSION.major) << static_cast<sf::base::U8>(GAME_VERSION.minor)
       << static_cast<sf::base::U8>(GAME_VERSION.micro);
 }
 
@@ -103,15 +98,13 @@ void encodePacketType(sf::Packet& p, const T&)
 }
 
 template <typename T>
-[[nodiscard]] bool extractInto(
-    T& target, std::ostringstream& errorOss, sf::Packet& p);
+[[nodiscard]] bool extractInto(T& target, std::ostringstream& errorOss, sf::Packet& p);
 
 template <typename T, typename = void>
 struct Extractor
 {
     template <typename U = T>
-    [[nodiscard]] static auto doExtractIntoImpl(
-        U& target, std::ostringstream& errorOss, sf::Packet& p, int)
+    [[nodiscard]] static auto doExtractIntoImpl(U& target, std::ostringstream& errorOss, sf::Packet& p, int)
         -> decltype((p >> target), bool())
     {
         if (!(p >> target))
@@ -124,28 +117,26 @@ struct Extractor
     }
 
     template <typename U = T>
-    [[nodiscard]] static bool doExtractIntoImpl(
-        U& target, std::ostringstream& errorOss, sf::Packet& p, long)
+    [[nodiscard]] static bool doExtractIntoImpl(U& target, std::ostringstream& errorOss, sf::Packet& p, long)
     {
         bool result = true;
 
         if constexpr ((boost::pfr::tuple_size_v<T>) > 0)
         {
             boost::pfr::for_each_field(target,
-                [&](auto& nestedField)
+                                       [&](auto& nestedField)
+            {
+                if (!extractInto(nestedField, errorOss, p))
                 {
-                    if (!extractInto(nestedField, errorOss, p))
-                    {
-                        result = false;
-                    }
-                });
+                    result = false;
+                }
+            });
         }
 
         return result;
     }
 
-    [[nodiscard]] static bool doExtractInto(
-        T& target, std::ostringstream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(T& target, std::ostringstream& errorOss, sf::Packet& p)
     {
         return doExtractIntoImpl(target, errorOss, p, 0);
     }
@@ -156,8 +147,7 @@ struct Extractor<sf::base::Array<T, N>>
 {
     using Type = sf::base::Array<T, N>;
 
-    [[nodiscard]] static bool doExtractInto(
-        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         for (sf::base::SizeT i = 0; i < N; ++i)
         {
@@ -166,8 +156,7 @@ struct Extractor<sf::base::Array<T, N>>
                 continue;
             }
 
-            errorOss << "Error extracting array element at index '" << i
-                     << "'\n";
+            errorOss << "Error extracting array element at index '" << i << "'\n";
 
             return false;
         }
@@ -182,8 +171,7 @@ struct Extractor<std::vector<T>>
 {
     using Type = std::vector<T>;
 
-    [[nodiscard]] static bool doExtractInto(
-        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         sf::base::U64 size;
         if (!(p >> size))
@@ -201,8 +189,7 @@ struct Extractor<std::vector<T>>
                 continue;
             }
 
-            errorOss << "Error extracting vector element at index '" << i
-                     << "'\n";
+            errorOss << "Error extracting vector element at index '" << i << "'\n";
 
             return false;
         }
@@ -216,8 +203,7 @@ struct Extractor<sf::base::Optional<T>>
 {
     using Type = sf::base::Optional<T>;
 
-    [[nodiscard]] static bool doExtractInto(
-        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         bool set;
         if (!(p >> set))
@@ -249,8 +235,7 @@ struct Extractor<hg::replay_file>
 {
     using Type = hg::replay_file;
 
-    [[nodiscard]] static bool doExtractInto(
-        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         if (!result.deserialize_from_packet(p))
         {
@@ -267,8 +252,7 @@ struct Extractor<hg::compressed_replay_file>
 {
     using Type = hg::compressed_replay_file;
 
-    [[nodiscard]] static bool doExtractInto(
-        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         if (!result.deserialize_from_packet(p))
         {
@@ -285,8 +269,7 @@ struct Extractor<hg::GameVersion>
 {
     using Type = hg::GameVersion;
 
-    [[nodiscard]] static bool doExtractInto(
-        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         sf::base::I32 major;
         if (!(p >> major))
@@ -318,15 +301,13 @@ struct Extractor<hg::GameVersion>
 };
 
 template <typename T>
-[[nodiscard]] bool extractInto(
-    T& target, std::ostringstream& errorOss, sf::Packet& p)
+[[nodiscard]] bool extractInto(T& target, std::ostringstream& errorOss, sf::Packet& p)
 {
     return Extractor<T>::doExtractInto(target, errorOss, p);
 }
 
 template <typename T>
-[[nodiscard]] sf::base::Optional<T> extract(
-    std::ostringstream& errorOss, sf::Packet& p)
+[[nodiscard]] sf::base::Optional<T> extract(std::ostringstream& errorOss, sf::Packet& p)
 {
     T temp;
 
@@ -339,8 +320,7 @@ template <typename T>
 }
 
 template <typename T>
-[[nodiscard]] auto makeAlwaysTrueMatcher(
-    std::ostringstream& errorOss, sf::Packet& p)
+[[nodiscard]] auto makeAlwaysTrueMatcher(std::ostringstream& errorOss, sf::Packet& p)
 {
     return [&](const char* name) -> bool
     {
@@ -360,13 +340,12 @@ class AdvancedMatcher
 {
 private:
     std::ostringstream& _errorOss;
-    sf::Packet& _p;
+    sf::Packet&         _p;
 
 public:
-    [[nodiscard]] explicit AdvancedMatcher(
-        std::ostringstream& errorOss, sf::Packet& p)
-        : _errorOss{errorOss}, _p{p}
-    {}
+    [[nodiscard]] explicit AdvancedMatcher(std::ostringstream& errorOss, sf::Packet& p) : _errorOss{errorOss}, _p{p}
+    {
+    }
 
     template <typename T>
     [[nodiscard]] bool extractIntoOrPrintError(const char* name, T& target)
@@ -381,8 +360,7 @@ public:
     }
 
     template <typename T>
-    [[nodiscard]] bool extractAndMatchOrPrintError(
-        const char* name, T& target, const T& expected)
+    [[nodiscard]] bool extractAndMatchOrPrintError(const char* name, T& target, const T& expected)
     {
         if (!extractIntoOrPrintError(name, target))
         {
@@ -391,9 +369,8 @@ public:
 
         if (target != expected)
         {
-            _errorOss << "Error, " << name << " has value '" << target
-                      << ", which doesn't match expected value '" << expected
-                      << "'\n";
+            _errorOss << "Error, " << name << " has value '" << target << ", which doesn't match expected value '"
+                      << expected << "'\n";
 
             return false;
         }
@@ -433,10 +410,7 @@ template <typename T>
 [[nodiscard]] auto makeMatcher(std::ostringstream& errorOss, sf::Packet& p)
 {
     return [&](const char* name, const T& expected) -> bool
-    {
-        return AdvancedMatcher{errorOss, p}.matchOrPrintError<T>(
-            name, expected);
-    };
+    { return AdvancedMatcher{errorOss, p}.matchOrPrintError<T>(name, expected); };
 }
 
 template <typename T>
@@ -446,31 +420,24 @@ template <typename T>
     { return AdvancedMatcher{errorOss, p}.extractOrPrintError<T>(name); };
 }
 
-[[nodiscard]] bool verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
-    std::ostringstream& errorOss, sf::Packet& p)
+[[nodiscard]] bool verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(std::ostringstream& errorOss, sf::Packet& p)
 {
     AdvancedMatcher m{errorOss, p};
 
     return
         // Preamble bytes and protocol version must match.
-        m.matchOrPrintError<sf::base::U8>(
-            "preamble 1st byte", preamble1stByte) &&
-        m.matchOrPrintError<sf::base::U8>(
-            "preamble 2st byte", preamble2ndByte) &&
-        m.matchOrPrintError<sf::base::U8>(
-            "protocol version", PROTOCOL_VERSION) &&
+        m.matchOrPrintError<sf::base::U8>("preamble 1st byte", preamble1stByte) &&
+        m.matchOrPrintError<sf::base::U8>("preamble 2st byte", preamble2ndByte) &&
+        m.matchOrPrintError<sf::base::U8>("protocol version", PROTOCOL_VERSION) &&
 
         // Game version is currently ignored.
-        m.skipOrPrintError<sf::base::U8>("major version") &&
-        m.skipOrPrintError<sf::base::U8>("minor version") &&
+        m.skipOrPrintError<sf::base::U8>("major version") && m.skipOrPrintError<sf::base::U8>("minor version") &&
         m.skipOrPrintError<sf::base::U8>("micro version");
 }
 
-[[nodiscard]] sf::base::Optional<PacketType> extractPacketType(
-    std::ostringstream& errorOss, sf::Packet& p)
+[[nodiscard]] sf::base::Optional<PacketType> extractPacketType(std::ostringstream& errorOss, sf::Packet& p)
 {
-    const sf::base::Optional<sf::base::U8> extracted =
-        makeExtractor<sf::base::U8>(errorOss, p)("packet type");
+    const sf::base::Optional<sf::base::U8> extracted = makeExtractor<sf::base::U8>(errorOss, p)("packet type");
 
     if (!extracted.hasValue())
     {
@@ -481,8 +448,7 @@ template <typename T>
 }
 
 template <typename T>
-void encodeFirstNVectorElements(
-    sf::Packet& p, const std::vector<T>& data, const sf::base::SizeT len)
+void encodeFirstNVectorElements(sf::Packet& p, const std::vector<T>& data, const sf::base::SizeT len)
 {
     SSVOH_ASSERT(data.size() >= len);
 
@@ -514,19 +480,16 @@ template <typename TData, typename TField>
 auto encodeField(sf::Packet& p, const TData& data, const TField& field);
 
 template <typename TData, typename TField>
-void encodeFieldImpl(
-    sf::Packet& p, const TData& data, const TField& field, long)
+void encodeFieldImpl(sf::Packet& p, const TData& data, const TField& field, long)
 {
     if constexpr (boost::pfr::tuple_size_v < TField >> 0)
     {
-        boost::pfr::for_each_field(field, [&](const auto& nestedField)
-            { encodeField(p, data, nestedField); });
+        boost::pfr::for_each_field(field, [&](const auto& nestedField) { encodeField(p, data, nestedField); });
     }
 }
 
 template <typename TData, typename TField>
-auto encodeFieldImpl(sf::Packet& p, const TData&, const TField& field, int)
-    -> decltype((p << field), void())
+auto encodeFieldImpl(sf::Packet& p, const TData&, const TField& field, int) -> decltype((p << field), void())
 {
     p << field;
 }
@@ -538,8 +501,7 @@ auto encodeField(sf::Packet& p, const TData& data, const TField& field)
 }
 
 template <typename TData, typename T, sf::base::SizeT N>
-void encodeField(
-    sf::Packet& p, const TData& data, const sf::base::Array<T, N>& arr)
+void encodeField(sf::Packet& p, const TData& data, const sf::base::Array<T, N>& arr)
 {
     for (sf::base::SizeT i = 0; i < arr.size(); ++i)
     {
@@ -559,8 +521,7 @@ void encodeField(sf::Packet& p, const TData& data, const std::vector<T>& vec)
 }
 
 template <typename TData, typename T>
-void encodeField(
-    sf::Packet& p, const TData& data, const sf::base::Optional<T>& opt)
+void encodeField(sf::Packet& p, const TData& data, const sf::base::Optional<T>& opt)
 {
     encodeField(p, data, opt.hasValue());
 
@@ -578,8 +539,7 @@ void encodeField(sf::Packet& p, const TData& data, const hg::replay_file& rf)
 }
 
 template <typename TData>
-void encodeField(
-    sf::Packet& p, const TData& data, const hg::compressed_replay_file& crf)
+void encodeField(sf::Packet& p, const TData& data, const hg::compressed_replay_file& crf)
 {
     (void)data;
     (void)crf.serialize_to_packet(p);
@@ -589,14 +549,12 @@ template <typename TData>
 void encodeField(sf::Packet& p, const TData& data, const hg::GameVersion& gv)
 {
     (void)data;
-    p << static_cast<sf::base::I32>(gv.major)
-      << static_cast<sf::base::I32>(gv.minor)
+    p << static_cast<sf::base::I32>(gv.major) << static_cast<sf::base::I32>(gv.minor)
       << static_cast<sf::base::I32>(gv.micro);
 }
 
 template <typename TData>
-void encodeField(
-    sf::Packet& p, const TData& data, const Impl::CiphertextVectorPtr& field)
+void encodeField(sf::Packet& p, const TData& data, const Impl::CiphertextVectorPtr& field)
 {
     encodeFirstNVectorElements(p, *field.ptr, data.ciphertextLength);
 }
@@ -608,13 +566,14 @@ void encodeOHPacket(sf::Packet& p, const T& data)
 
     if constexpr (boost::pfr::tuple_size_v < T >> 0)
     {
-        boost::pfr::for_each_field(
-            data, [&](const auto& field) { encodeField(p, data, field); });
+        boost::pfr::for_each_field(data, [&](const auto& field) { encodeField(p, data, field); });
     }
 }
 
-[[nodiscard]] bool decryptPacket(std::ostringstream& errorOss, sf::Packet& p,
-    const SodiumReceiveKeyArray& keyReceive, sf::Packet& decryptedPacket)
+[[nodiscard]] bool decryptPacket(std::ostringstream&          errorOss,
+                                 sf::Packet&                  p,
+                                 const SodiumReceiveKeyArray& keyReceive,
+                                 sf::Packet&                  decryptedPacket)
 {
     SodiumNonceArray nonce;
     if (!extractInto(nonce, errorOss, p))
@@ -655,8 +614,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
     std::vector<sf::base::U8>& message = getStaticMessageBuffer();
     message.resize(messageLength);
 
-    if (crypto_secretbox_open_easy(message.data(), ciphertext.data(),
-            ciphertextLength, nonce.data(), keyReceive.data()) != 0)
+    if (crypto_secretbox_open_easy(message.data(), ciphertext.data(), ciphertextLength, nonce.data(), keyReceive.data()) != 0)
     {
         errorOss << "Failure decrypting encrypted client message\n";
         return false;
@@ -669,8 +627,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
 }
 
 template <typename F, typename T>
-[[nodiscard]] bool makeEncryptedPacketImpl(F&& f,
-    const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
+[[nodiscard]] bool makeEncryptedPacketImpl(F&& f, const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
     sf::Packet& packetToEncrypt = getStaticPacketBuffer();
     packetToEncrypt.clear();
@@ -678,8 +635,8 @@ template <typename F, typename T>
     encodeOHPacket(packetToEncrypt, data);
 
     PEncryptedMsg encryptedMsg{
-        .nonce = generateNonce(),
-        .messageLength = packetToEncrypt.getDataSize(),
+        .nonce            = generateNonce(),
+        .messageLength    = packetToEncrypt.getDataSize(),
         .ciphertextLength = getCiphertextLength(packetToEncrypt.getDataSize())
         //
     };
@@ -688,9 +645,10 @@ template <typename F, typename T>
     encryptedMsg.ciphertext.ptr->resize(encryptedMsg.ciphertextLength);
 
     if (crypto_secretbox_easy(encryptedMsg.ciphertext.ptr->data(),
-            static_cast<const sf::base::U8*>(packetToEncrypt.getData()),
-            encryptedMsg.messageLength, encryptedMsg.nonce.data(),
-            keyTransmit.data()) != 0)
+                              static_cast<const sf::base::U8*>(packetToEncrypt.getData()),
+                              encryptedMsg.messageLength,
+                              encryptedMsg.nonce.data(),
+                              keyTransmit.data()) != 0)
     {
         return false;
     }
@@ -712,8 +670,7 @@ void makeClientToServerPacket(sf::Packet& p, const T& data)
 
 template void makeClientToServerPacket(sf::Packet&, const PEncryptedMsg&);
 
-#define INSTANTIATE_MAKE_CTS(mArg) \
-    template void makeClientToServerPacket(sf::Packet&, const mArg&);
+#define INSTANTIATE_MAKE_CTS(mArg) template void makeClientToServerPacket(sf::Packet&, const mArg&);
 
 #define NOTHING()
 
@@ -722,16 +679,13 @@ SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS, NOTHING)
 // ----------------------------------------------------------------------------
 
 template <typename T>
-[[nodiscard]] bool makeClientToServerEncryptedPacket(
-    const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
+[[nodiscard]] bool makeClientToServerEncryptedPacket(const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
-    return makeEncryptedPacketImpl([](auto&&... xs)
-        { makeClientToServerPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
+    return makeEncryptedPacketImpl([](auto&&... xs) { makeClientToServerPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
 }
 
-#define INSTANTIATE_MAKE_CTS_ENCRYPTED(mArg)         \
-    template bool makeClientToServerEncryptedPacket( \
-        const SodiumTransmitKeyArray&, sf::Packet&, const mArg&);
+#define INSTANTIATE_MAKE_CTS_ENCRYPTED(mArg) \
+    template bool makeClientToServerEncryptedPacket(const SodiumTransmitKeyArray&, sf::Packet&, const mArg&);
 
 SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS_ENCRYPTED, NOTHING)
 
@@ -752,8 +706,7 @@ SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS_ENCRYPTED, NOTHING)
                                                                        \
             return VariantType{result};                                \
         }                                                              \
-    }                                                                  \
-    while (false)
+    } while (false)
 
 #define INJECT_COMMON_PACKET_HANDLING_CODE(function)                          \
     const sf::base::Optional<PacketType> pt = extractPacketType(errorOss, p); \
@@ -789,23 +742,23 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
         if constexpr ((boost::pfr::tuple_size_v<T>) > 0)
         {
             boost::pfr::for_each_field(target,
-                [&](auto& field, sf::base::SizeT i)
+                                       [&](auto& field, sf::base::SizeT i)
+            {
+                if (!extractInto(field, errorOss, p))
                 {
-                    if (!extractInto(field, errorOss, p))
-                    {
-                        errorOss << "Error decoding field #" << i << " \n";
-                        success = false;
-                    }
-                });
+                    errorOss << "Error decoding field #" << i << " \n";
+                    success = false;
+                }
+            });
         }
 
         return success;
     };
 }
 
-[[nodiscard]] static bool decodeEncryptedPacket(
-    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
-    sf::Packet& p)
+[[nodiscard]] static bool decodeEncryptedPacket(const SodiumReceiveKeyArray* keyReceive,
+                                                std::ostringstream&          errorOss,
+                                                sf::Packet&                  p)
 {
     if (keyReceive == nullptr)
     {
@@ -824,8 +777,7 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
 // ----------------------------------------------------------------------------
 
 template <typename VariantType, typename... Ts>
-VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive,
-    std::ostringstream& errorOss, sf::Packet& p, auto&& func)
+VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss, sf::Packet& p, auto&& func)
 {
     const sf::base::Optional<PacketType> pt = extractPacketType(errorOss, p);
 
@@ -847,26 +799,25 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive,
     const auto extractAllMembers = makeExtractAllMembers(errorOss, p);
 
     VariantType variantResult;
-    bool found = false;
+    bool        found = false;
 
     (...,
-        [&]
+     [&]
+    {
+        if (*pt == getPacketType<Ts>())
         {
-            if (*pt == getPacketType<Ts>())
+            found = true;
+
+            Ts result;
+
+            if (!extractAllMembers(result))
             {
-                found = true;
-
-                Ts result;
-
-                if (!extractAllMembers(result))
-                {
-                    variantResult =
-                        VariantType{PInvalid{.error = errorOss.str()}};
-                }
-
-                variantResult = VariantType{result};
+                variantResult = VariantType{PInvalid{.error = errorOss.str()}};
             }
-        }());
+
+            variantResult = VariantType{result};
+        }
+    }());
 
     if (!found)
     {
@@ -879,20 +830,18 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive,
 
 // ----------------------------------------------------------------------------
 
-[[nodiscard]] static PVClientToServer decodeClientToServerPacketInner(
-    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
-    sf::Packet& p)
+[[nodiscard]] static PVClientToServer decodeClientToServerPacketInner(const SodiumReceiveKeyArray* keyReceive,
+                                                                      std::ostringstream&          errorOss,
+                                                                      sf::Packet&                  p)
 {
-    return packetHandlerImpl<PVClientToServer, SSVOH_CTS_PACKETS>(
-        keyReceive, errorOss, p, decodeClientToServerPacketInner);
+    return packetHandlerImpl<PVClientToServer, SSVOH_CTS_PACKETS>(keyReceive, errorOss, p, decodeClientToServerPacketInner);
 }
 
-[[nodiscard]] PVClientToServer decodeClientToServerPacket(
-    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
-    sf::Packet& p)
+[[nodiscard]] PVClientToServer decodeClientToServerPacket(const SodiumReceiveKeyArray* keyReceive,
+                                                          std::ostringstream&          errorOss,
+                                                          sf::Packet&                  p)
 {
-    if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
-            errorOss, p))
+    if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(errorOss, p))
     {
         return PVClientToServer{PInvalid{.error = errorOss.str()}};
     }
@@ -911,43 +860,37 @@ void makeServerToClientPacket(sf::Packet& p, const T& data)
 
 template void makeServerToClientPacket(sf::Packet&, const PEncryptedMsg&);
 
-#define INSTANTIATE_MAKE_STC(mArg) \
-    template void makeServerToClientPacket(sf::Packet&, const mArg&);
+#define INSTANTIATE_MAKE_STC(mArg) template void makeServerToClientPacket(sf::Packet&, const mArg&);
 
 SSVOH_STC_PACKETS_X(INSTANTIATE_MAKE_STC, NOTHING)
 
 // ----------------------------------------------------------------------------
 
 template <typename T>
-[[nodiscard]] bool makeServerToClientEncryptedPacket(
-    const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
+[[nodiscard]] bool makeServerToClientEncryptedPacket(const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
-    return makeEncryptedPacketImpl([](auto&&... xs)
-        { makeServerToClientPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
+    return makeEncryptedPacketImpl([](auto&&... xs) { makeServerToClientPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
 }
 
-#define INSTANTIATE_MAKE_STC_ENCRYPTED(mArg)         \
-    template bool makeServerToClientEncryptedPacket( \
-        const SodiumTransmitKeyArray&, sf::Packet&, const mArg&);
+#define INSTANTIATE_MAKE_STC_ENCRYPTED(mArg) \
+    template bool makeServerToClientEncryptedPacket(const SodiumTransmitKeyArray&, sf::Packet&, const mArg&);
 
 SSVOH_STC_PACKETS_X(INSTANTIATE_MAKE_STC_ENCRYPTED, NOTHING)
 
 // ----------------------------------------------------------------------------
 
-[[nodiscard]] static PVServerToClient decodeServerToClientPacketInner(
-    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
-    sf::Packet& p)
+[[nodiscard]] static PVServerToClient decodeServerToClientPacketInner(const SodiumReceiveKeyArray* keyReceive,
+                                                                      std::ostringstream&          errorOss,
+                                                                      sf::Packet&                  p)
 {
-    return packetHandlerImpl<PVServerToClient, SSVOH_STC_PACKETS>(
-        keyReceive, errorOss, p, decodeServerToClientPacketInner);
+    return packetHandlerImpl<PVServerToClient, SSVOH_STC_PACKETS>(keyReceive, errorOss, p, decodeServerToClientPacketInner);
 }
 
-[[nodiscard]] PVServerToClient decodeServerToClientPacket(
-    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
-    sf::Packet& p)
+[[nodiscard]] PVServerToClient decodeServerToClientPacket(const SodiumReceiveKeyArray* keyReceive,
+                                                          std::ostringstream&          errorOss,
+                                                          sf::Packet&                  p)
 {
-    if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
-            errorOss, p))
+    if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(errorOss, p))
     {
         return PVServerToClient{PInvalid{.error = errorOss.str()}};
     }

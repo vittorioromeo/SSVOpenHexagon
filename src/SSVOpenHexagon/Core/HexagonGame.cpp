@@ -2,68 +2,58 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
-
 #include "SSVOpenHexagon/Components/CWall.hpp"
-
+#include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
-#include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-
+#include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Imgui.hpp"
-
-#include "SSVOpenHexagon/Core/HexagonClient.hpp"
-#include "SSVOpenHexagon/Core/Joystick.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
-#include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Core/Discord.hpp"
-
+#include "SSVOpenHexagon/Input/Trigger.hpp"
+#include "SSVOpenHexagon/Input/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
+#include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SFML/Base/Optional.hpp>
-#include <SFML/ImGui/ImGuiContext.hpp>
-#include "SSVOpenHexagon/Input/Utils.hpp"
-#include "SSVOpenHexagon/Input/Trigger.hpp"
-
-#include "SSVOpenHexagon/Utils/Log.hpp"
-
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Text.hpp>
-
-#include <SFML/System/Rect2.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Vec2.hpp>
-
 #include <SFML/Base/String.hpp>
 #include <SFML/Base/StringView.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/ImGui/ImGuiContext.hpp>
+#include <SFML/System/Angle.hpp>
+#include <SFML/System/Rect2.hpp>
+#include <SFML/System/Vec2.hpp>
 
 #include <cmath>
 
-namespace hg {
+namespace hg
+{
 
-namespace {
+namespace
+{
 
 static void setVisualCharacterSize(sf::Text& text, const float characterSize)
 {
     const float baseSize = static_cast<float>(text.getCharacterSize());
-    const float scale = characterSize / baseSize;
-    text.scale = {scale, scale};
+    const float scale    = characterSize / baseSize;
+    text.scale           = {scale, scale};
 }
 
 [[nodiscard]] double getReplayScore(const HexagonGameStatus& status)
 {
-    return status.getCustomScore() != 0.f
-               ? status.getCustomScore()
-               : status.getPlayedAccumulatedFrametime();
+    return status.getCustomScore() != 0.f ? status.getCustomScore() : status.getPlayedAccumulatedFrametime();
 }
 
 [[nodiscard]] random_number_generator initializeRng()
@@ -79,16 +69,26 @@ static void setVisualCharacterSize(sf::Text& text, const float characterSize)
 
 } // namespace
 
-HexagonGame::ActiveReplay::ActiveReplay(const replay_file& mReplayFile)
-    : replayFile{mReplayFile}, replayPlayer{replayFile._data}
-{}
-
-void HexagonGame::createWall(int mSide, float mThickness,
-    const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
+HexagonGame::ActiveReplay::ActiveReplay(const replay_file& mReplayFile) :
+    replayFile{mReplayFile},
+    replayPlayer{replayFile._data}
 {
-    walls.emplace_back(getSides(), getWallAngleLeft(), getWallAngleRight(),
-        getWallSkewLeft(), getWallSkewRight(), centerPos, mSide, mThickness,
-        levelStatus.wallSpawnDistance, mSpeed, mCurve, mHueMod);
+}
+
+void HexagonGame::createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
+{
+    walls.emplace_back(getSides(),
+                       getWallAngleLeft(),
+                       getWallAngleRight(),
+                       getWallSkewLeft(),
+                       getWallSkewRight(),
+                       centerPos,
+                       mSide,
+                       mThickness,
+                       levelStatus.wallSpawnDistance,
+                       mSpeed,
+                       mCurve,
+                       mHueMod);
 }
 
 void HexagonGame::setMustStart(const bool x)
@@ -96,8 +96,7 @@ void HexagonGame::setMustStart(const bool x)
     mustStart = x;
 }
 
-static sf::Texture& getTextureOrNullTexture(HGAssets& assets,
-    sf::base::Optional<sf::Texture>& nullTexture, const std::string& mId)
+static sf::Texture& getTextureOrNullTexture(HGAssets& assets, sf::base::Optional<sf::Texture>& nullTexture, const std::string& mId)
 {
     if (!assets.hasTexture(mId))
     {
@@ -115,8 +114,7 @@ void HexagonGame::initKeyIcons()
         return;
     }
 
-    for (const auto& t :
-        {"keyArrow.png", "keyFocus.png", "keySwap.png", "replayIcon.png"})
+    for (const auto& t : {"keyArrow.png", "keyFocus.png", "keySwap.png", "replayIcon.png"})
     {
         getTextureOrNullTexture(assets, nullTexture, t).setSmooth(true);
     }
@@ -132,30 +130,30 @@ void HexagonGame::updateKeyIcons()
     }
 
     constexpr float halfSize = 32.f;
-    constexpr float size = halfSize * 2.f;
+    constexpr float size     = halfSize * 2.f;
 
-    keyIconLeft.origin = {halfSize, halfSize};
+    keyIconLeft.origin  = {halfSize, halfSize};
     keyIconRight.origin = {halfSize, halfSize};
     keyIconFocus.origin = {halfSize, halfSize};
-    keyIconSwap.origin = {halfSize, halfSize};
+    keyIconSwap.origin  = {halfSize, halfSize};
 
     keyIconLeft.rotation = sf::degrees(180);
 
     const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
 
-    keyIconLeft.scale = {scaling, scaling};
+    keyIconLeft.scale  = {scaling, scaling};
     keyIconRight.scale = {scaling, scaling};
     keyIconFocus.scale = {scaling, scaling};
-    keyIconSwap.scale = {scaling, scaling};
+    keyIconSwap.scale  = {scaling, scaling};
 
-    const float scaledHalfSize = halfSize * scaling;
-    const float scaledSize = size * scaling;
-    const float padding = 8.f * scaling;
-    const float finalPadding = scaledSize + padding;
+    const float     scaledHalfSize = halfSize * scaling;
+    const float     scaledSize     = size * scaling;
+    const float     padding        = 8.f * scaling;
+    const float     finalPadding   = scaledSize + padding;
     const sf::Vec2f finalPaddingX{finalPadding, 0.f};
 
     const sf::Vec2f bottomRight{Config::getWidth() - padding - scaledHalfSize,
-        Config::getHeight() - padding - scaledHalfSize};
+                                Config::getHeight() - padding - scaledHalfSize};
 
     keyIconSwap.position = bottomRight;
     keyIconFocus.position -= finalPaddingX;
@@ -165,10 +163,9 @@ void HexagonGame::updateKeyIcons()
     // ------------------------------------------------------------------------
 
     replayIcon.origin = {size, size};
-    replayIcon.scale = {scaling / 2.f, scaling / 2.f};
+    replayIcon.scale  = {scaling / 2.f, scaling / 2.f};
 
-    const sf::Vec2f topRight{Config::getWidth() - padding - scaledHalfSize,
-        padding + scaledHalfSize};
+    const sf::Vec2f topRight{Config::getWidth() - padding - scaledHalfSize, padding + scaledHalfSize};
 
     replayIcon.position = topRight;
 }
@@ -181,8 +178,8 @@ void HexagonGame::updateLevelInfo()
     }
 
     const float levelInfoScaling = 1.f;
-    const float scaling = levelInfoScaling / Config::getZoomFactor();
-    const float padding = 8.f * scaling;
+    const float scaling          = levelInfoScaling / Config::getZoomFactor();
+    const float padding          = 8.f * scaling;
 
     const sf::Vec2f size{325.f, 75.f};
     const sf::Vec2f halfSize{size / 2.f};
@@ -192,17 +189,14 @@ void HexagonGame::updateLevelInfo()
     levelInfoRectangle.scale = {scaling, scaling};
 
     const sf::Color offsetColor{
-        Config::getBlackAndWhite() || styleData.getColors().empty()
-            ? sf::Color::Black
-            : styleData.getColor(0)};
+        Config::getBlackAndWhite() || styleData.getColors().empty() ? sf::Color::Black : styleData.getColor(0)};
 
     levelInfoRectangle.setFillColor(offsetColor);
     levelInfoRectangle.setOutlineColor(styleData.getMainColor());
     levelInfoRectangle.origin = halfSize;
     levelInfoRectangle.setOutlineThickness(3.f);
 
-    const sf::Vec2f bottomLeft{padding + scaledHalfSize.x,
-        Config::getHeight() - padding - scaledHalfSize.y};
+    const sf::Vec2f bottomLeft{padding + scaledHalfSize.x, Config::getHeight() - padding - scaledHalfSize.y};
 
     levelInfoRectangle.position = bottomLeft;
 
@@ -221,59 +215,37 @@ void HexagonGame::updateLevelInfo()
     if (textUI.hasValue())
     {
         textUI->levelInfoTextLevel.setFillColor(getColorText());
-        setVisualCharacterSize(
-            textUI->levelInfoTextLevel, 20.f / Config::getZoomFactor());
-        textUI->levelInfoTextLevel.setString(
-            trim(Utils::toUppercase(levelData->name)));
-        textUI->levelInfoTextLevel.origin =
-            textUI->levelInfoTextLevel.getLocalTopLeft();
-        textUI->levelInfoTextLevel.position =
-            levelInfoRectangle.getGlobalTopLeft() +
-            sf::Vec2f{tPadding, tPadding};
+        setVisualCharacterSize(textUI->levelInfoTextLevel, 20.f / Config::getZoomFactor());
+        textUI->levelInfoTextLevel.setString(trim(Utils::toUppercase(levelData->name)));
+        textUI->levelInfoTextLevel.origin   = textUI->levelInfoTextLevel.getLocalTopLeft();
+        textUI->levelInfoTextLevel.position = levelInfoRectangle.getGlobalTopLeft() + sf::Vec2f{tPadding, tPadding};
 
-        const auto prepareText = [&](sf::Text& text, const float characterSize,
-                                     const std::string& string)
+        const auto prepareText = [&](sf::Text& text, const float characterSize, const std::string& string)
         {
             text.setFillColor(getColorText());
-            setVisualCharacterSize(
-                text, characterSize / Config::getZoomFactor());
+            setVisualCharacterSize(text, characterSize / Config::getZoomFactor());
             text.setString(string);
         };
 
-        prepareText(textUI->levelInfoTextPack, 14.f,
-            trim(Utils::toUppercase(getPackName())));
-        textUI->levelInfoTextPack.origin =
-            textUI->levelInfoTextPack.getLocalTopLeft();
-        textUI->levelInfoTextPack.position =
-            textUI->levelInfoTextLevel.getGlobalBottomLeft() +
-            sf::Vec2f{0.f, tPadding};
+        prepareText(textUI->levelInfoTextPack, 14.f, trim(Utils::toUppercase(getPackName())));
+        textUI->levelInfoTextPack.origin = textUI->levelInfoTextPack.getLocalTopLeft();
+        textUI->levelInfoTextPack.position = textUI->levelInfoTextLevel.getGlobalBottomLeft() + sf::Vec2f{0.f, tPadding};
 
         SSVOH_ASSERT(levelData != nullptr);
 
-        prepareText(textUI->levelInfoTextAuthor, 20.f,
-            trim(Utils::toUppercase(levelData->author)));
-        textUI->levelInfoTextAuthor.origin =
-            textUI->levelInfoTextAuthor.getLocalBottomRight();
-        textUI->levelInfoTextAuthor.position =
-            levelInfoRectangle.getGlobalBottomRight() -
-            sf::Vec2f{tPadding, tPadding};
+        prepareText(textUI->levelInfoTextAuthor, 20.f, trim(Utils::toUppercase(levelData->author)));
+        textUI->levelInfoTextAuthor.origin = textUI->levelInfoTextAuthor.getLocalBottomRight();
+        textUI->levelInfoTextAuthor.position = levelInfoRectangle.getGlobalBottomRight() - sf::Vec2f{tPadding, tPadding};
 
         prepareText(textUI->levelInfoTextBy, 12.f, "BY");
-        textUI->levelInfoTextBy.origin =
-            textUI->levelInfoTextBy.getLocalBottomRight();
-        textUI->levelInfoTextBy.position =
-            textUI->levelInfoTextAuthor.getGlobalBottomLeft() -
-            sf::Vec2f{tPadding, 0.f};
+        textUI->levelInfoTextBy.origin   = textUI->levelInfoTextBy.getLocalBottomRight();
+        textUI->levelInfoTextBy.position = textUI->levelInfoTextAuthor.getGlobalBottomLeft() - sf::Vec2f{tPadding, 0.f};
 
         if (levelData->difficultyMults.size() > 1)
         {
-            prepareText(textUI->levelInfoTextDM, 14.f,
-                diffFormat(difficultyMult) + "x");
-            textUI->levelInfoTextDM.origin =
-                textUI->levelInfoTextDM.getLocalBottomLeft();
-            textUI->levelInfoTextDM.position =
-                levelInfoRectangle.getGlobalBottomLeft() +
-                sf::Vec2f{tPadding, -tPadding};
+            prepareText(textUI->levelInfoTextDM, 14.f, diffFormat(difficultyMult) + "x");
+            textUI->levelInfoTextDM.origin = textUI->levelInfoTextDM.getLocalBottomLeft();
+            textUI->levelInfoTextDM.position = levelInfoRectangle.getGlobalBottomLeft() + sf::Vec2f{tPadding, -tPadding};
         }
         else
         {
@@ -303,62 +275,65 @@ void HexagonGame::nameFormat(std::string& name)
 
 [[nodiscard]] bool HexagonGame::imguiLuaConsoleHasInput()
 {
-    return ilcShowConsole &&
-           (Imgui::wantCaptureKeyboard() || Imgui::wantCaptureMouse());
+    return ilcShowConsole && (Imgui::wantCaptureKeyboard() || Imgui::wantCaptureMouse());
 }
 
-[[nodiscard]] static sf::Text initText(
-    const sf::Font& font, const char* text, const float characterSize)
+[[nodiscard]] static sf::Text initText(const sf::Font& font, const char* text, const float characterSize)
 {
-    return sf::Text{font, {.string = text,
-                              .characterSize = static_cast<unsigned int>(
-                                  characterSize / Config::getZoomFactor())}};
+    return sf::Text{font,
+                    {.string = text, .characterSize = static_cast<unsigned int>(characterSize / Config::getZoomFactor())}};
 }
 
-HexagonGame::TextUI::TextUI(HGAssets& mAssets)
-    : font{mAssets.getFont("OpenSquare-Regular.ttf")},
-      fontBold{mAssets.getFont("OpenSquare-Bold.ttf")},
-      messageText{initText(font, "", 38.f)},
-      pbText{initText(fontBold, "", 65.f)},
-      levelInfoTextLevel{initText(font, "", 20.f)},
-      levelInfoTextPack{initText(font, "", 14.f)},
-      levelInfoTextAuthor{initText(font, "", 20.f)},
-      levelInfoTextBy{initText(font, "", 12.f)},
-      levelInfoTextDM{initText(font, "", 14.f)},
-      fpsText{initText(font, "0", 25.f)},
-      timeText{initText(fontBold, "0", 70.f)},
-      text{initText(font, "", 25.f)},
-      replayText{initText(font, "", 20.f)}
-{}
+HexagonGame::TextUI::TextUI(HGAssets& mAssets) :
+    font{mAssets.getFont("OpenSquare-Regular.ttf")},
+    fontBold{mAssets.getFont("OpenSquare-Bold.ttf")},
+    messageText{initText(font, "", 38.f)},
+    pbText{initText(fontBold, "", 65.f)},
+    levelInfoTextLevel{initText(font, "", 20.f)},
+    levelInfoTextPack{initText(font, "", 14.f)},
+    levelInfoTextAuthor{initText(font, "", 20.f)},
+    levelInfoTextBy{initText(font, "", 12.f)},
+    levelInfoTextDM{initText(font, "", 14.f)},
+    fpsText{initText(font, "0", 25.f)},
+    timeText{initText(fontBold, "0", 70.f)},
+    text{initText(font, "", 25.f)},
+    replayText{initText(font, "", 20.f)}
+{
+}
 
-HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
-    Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio* mAudio,
-    ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
-    : nullTexture(mGameWindow != nullptr ? sf::Texture::create({1u, 1u})
-                                         : sf::base::nullOpt),
-      steamManager(mSteamManager),
-      discordManager(mDiscordManager),
-      assets(mAssets),
-      audio(mAudio),
-      window(mGameWindow),
-      hexagonClient{mHexagonClient},
-      player{sf::Vec2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
-          Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
-      levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
-      txStarParticle{nullptr},
-      txSmallCircle{nullptr},
-      txKeyIconLeft{nullptr},
-      txKeyIconRight{nullptr},
-      txKeyIconFocus{nullptr},
-      txKeyIconSwap{nullptr},
-      txReplayIcon{nullptr},
-      keyIconLeft{},
-      keyIconRight{},
-      keyIconFocus{},
-      keyIconSwap{},
-      replayIcon{},
-      levelInfoRectangle{{}},
-      rng{initializeRng()}
+HexagonGame::HexagonGame(Steam::steam_manager*     mSteamManager,
+                         Discord::discord_manager* mDiscordManager,
+                         HGAssets&                 mAssets,
+                         Audio*                    mAudio,
+                         ssvs::GameWindow*         mGameWindow,
+                         HexagonClient*            mHexagonClient) :
+    nullTexture(mGameWindow != nullptr ? sf::Texture::create({1u, 1u}) : sf::base::nullOpt),
+    steamManager(mSteamManager),
+    discordManager(mDiscordManager),
+    assets(mAssets),
+    audio(mAudio),
+    window(mGameWindow),
+    hexagonClient{mHexagonClient},
+    player{sf::Vec2f{0.f, 0.f},
+           getSwapCooldown(),
+           Config::getPlayerSize(),
+           Config::getPlayerSpeed(),
+           Config::getPlayerFocusSpeed()},
+    levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
+    txStarParticle{nullptr},
+    txSmallCircle{nullptr},
+    txKeyIconLeft{nullptr},
+    txKeyIconRight{nullptr},
+    txKeyIconFocus{nullptr},
+    txKeyIconSwap{nullptr},
+    txReplayIcon{nullptr},
+    keyIconLeft{},
+    keyIconRight{},
+    keyIconFocus{},
+    keyIconSwap{},
+    replayIcon{},
+    levelInfoRectangle{{}},
+    rng{initializeRng()}
 {
     if (!assets.isHeadless())
     {
@@ -369,37 +344,28 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     {
         imguiCtx.emplace();
 
-        const float width = Config::getWidth();
-        const float height = Config::getHeight();
+        const float width      = Config::getWidth();
+        const float height     = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
 
-        backgroundCamera.emplace(sf::View{sf::Vec2f{0.f, 0.f},
-            sf::Vec2f{width * zoomFactor, height * zoomFactor}});
+        backgroundCamera.emplace(sf::View{sf::Vec2f{0.f, 0.f}, sf::Vec2f{width * zoomFactor, height * zoomFactor}});
 
-        overlayCamera.emplace(sf::View{
-            sf::Vec2f{width / 2.f, height / 2.f}, sf::Vec2f{width, height}});
+        overlayCamera.emplace(sf::View{sf::Vec2f{width / 2.f, height / 2.f}, sf::Vec2f{width, height}});
 
-        txStarParticle =
-            &getTextureOrNullTexture(assets, nullTexture, "starParticle.png");
-        txSmallCircle =
-            &getTextureOrNullTexture(assets, nullTexture, "smallCircle.png");
+        txStarParticle = &getTextureOrNullTexture(assets, nullTexture, "starParticle.png");
+        txSmallCircle  = &getTextureOrNullTexture(assets, nullTexture, "smallCircle.png");
 
-        txKeyIconLeft =
-            &getTextureOrNullTexture(assets, nullTexture, "keyArrow.png");
-        txKeyIconRight =
-            &getTextureOrNullTexture(assets, nullTexture, "keyArrow.png");
-        txKeyIconFocus =
-            &getTextureOrNullTexture(assets, nullTexture, "keyFocus.png");
-        txKeyIconSwap =
-            &getTextureOrNullTexture(assets, nullTexture, "keySwap.png");
-        txReplayIcon =
-            &getTextureOrNullTexture(assets, nullTexture, "replayIcon.png");
+        txKeyIconLeft  = &getTextureOrNullTexture(assets, nullTexture, "keyArrow.png");
+        txKeyIconRight = &getTextureOrNullTexture(assets, nullTexture, "keyArrow.png");
+        txKeyIconFocus = &getTextureOrNullTexture(assets, nullTexture, "keyFocus.png");
+        txKeyIconSwap  = &getTextureOrNullTexture(assets, nullTexture, "keySwap.png");
+        txReplayIcon   = &getTextureOrNullTexture(assets, nullTexture, "replayIcon.png");
 
-        keyIconLeft.textureRect = txKeyIconLeft->getRect();
+        keyIconLeft.textureRect  = txKeyIconLeft->getRect();
         keyIconRight.textureRect = txKeyIconRight->getRect();
         keyIconFocus.textureRect = txKeyIconFocus->getRect();
-        keyIconSwap.textureRect = txKeyIconSwap->getRect();
-        replayIcon.textureRect = txReplayIcon->getRect();
+        keyIconSwap.textureRect  = txKeyIconSwap->getRect();
+        replayIcon.textureRect   = txReplayIcon->getRect();
     }
 
     game.onUpdate += [this](float mFT) { update(mFT, Config::getTimescale()); };
@@ -426,18 +392,11 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     using Tid = Config::Tid;
 
-    const auto addTidInput =
-        [&](const Tid tid, const ssvs::Input::Type type, auto action)
-    {
-        game.addInput(
-            Config::getTrigger(tid), action, type, static_cast<int>(tid));
-    };
+    const auto addTidInput = [&](const Tid tid, const ssvs::Input::Type type, auto action)
+    { game.addInput(Config::getTrigger(tid), action, type, static_cast<int>(tid)); };
 
     const auto addTid2StateInput = [&](const Tid tid, bool& value)
-    {
-        add2StateInput(
-            game, Config::getTrigger(tid), value, static_cast<int>(tid));
-    };
+    { add2StateInput(game, Config::getTrigger(tid), value, static_cast<int>(tid)); };
 
     addTid2StateInput(Tid::RotateCCW, inputImplCCW);
     addTid2StateInput(Tid::RotateCW, inputImplCW);
@@ -456,71 +415,71 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     };
 
     game.addInput({{sf::Keyboard::Key::Escape}},
-        notInConsole([this] { goToMenu(); }), // hardcoded
-        ssvs::Input::Type::Always);
+                  notInConsole([this] { goToMenu(); }), // hardcoded
+                  ssvs::Input::Type::Always);
 
-    addTidInput(Tid::Exit, ssvs::Input::Type::Always,
-        notInConsole([this] { goToMenu(); }));
+    addTidInput(Tid::Exit, ssvs::Input::Type::Always, notInConsole([this] { goToMenu(); }));
 
-    addTidInput(Tid::ForceRestart, ssvs::Input::Type::Once,
-        notInConsole(
-            [this] { status.mustStateChange = StateChange::MustRestart; }));
+    addTidInput(Tid::ForceRestart, ssvs::Input::Type::Once, notInConsole([this] {
+        status.mustStateChange = StateChange::MustRestart;
+    }));
 
-    addTidInput(Tid::Restart, ssvs::Input::Type::Once,
-        notInConsole(
-            [this]
-            {
-                if (deathInputIgnore <= 0.f && status.hasDied)
-                {
-                    status.mustStateChange = StateChange::MustRestart;
-                }
-            }));
-
-    addTidInput(Tid::Replay, ssvs::Input::Type::Once,
-        notInConsole(
-            [this]
-            {
-                if ((deathInputIgnore <= 0.f && status.hasDied) || inReplay())
-                {
-                    status.mustStateChange = StateChange::MustReplay;
-                }
-            }));
-
-    addTidInput(Tid::Screenshot, ssvs::Input::Type::Once,
-        notInConsole([this] { mustTakeScreenshot = true; }));
-
-    addTidInput(Tid::LuaConsole, ssvs::Input::Type::Once,
-        [this](float /*unused*/)
+    addTidInput(Tid::Restart,
+                ssvs::Input::Type::Once,
+                notInConsole([this]
+    {
+        if (deathInputIgnore <= 0.f && status.hasDied)
         {
-            if (Config::getDebug())
-            {
-                ilcShowConsoleNext = true;
-            }
-        });
+            status.mustStateChange = StateChange::MustRestart;
+        }
+    }));
 
-    addTidInput(Tid::Pause, ssvs::Input::Type::Once,
-        [this](float /*unused*/)
+    addTidInput(Tid::Replay,
+                ssvs::Input::Type::Once,
+                notInConsole([this]
+    {
+        if ((deathInputIgnore <= 0.f && status.hasDied) || inReplay())
         {
-            if (Config::getDebug())
-            {
-                debugPause = !debugPause;
+            status.mustStateChange = StateChange::MustReplay;
+        }
+    }));
 
-                if (debugPause)
+    addTidInput(Tid::Screenshot, ssvs::Input::Type::Once, notInConsole([this] { mustTakeScreenshot = true; }));
+
+    addTidInput(Tid::LuaConsole,
+                ssvs::Input::Type::Once,
+                [this](float /*unused*/)
+    {
+        if (Config::getDebug())
+        {
+            ilcShowConsoleNext = true;
+        }
+    });
+
+    addTidInput(Tid::Pause,
+                ssvs::Input::Type::Once,
+                [this](float /*unused*/)
+    {
+        if (Config::getDebug())
+        {
+            debugPause = !debugPause;
+
+            if (debugPause)
+            {
+                if (shouldPlayMusic())
                 {
-                    if (shouldPlayMusic())
-                    {
-                        audio->pauseMusic();
-                    }
-                }
-                else if (!status.hasDied)
-                {
-                    if (shouldPlayMusic())
-                    {
-                        audio->resumeMusic();
-                    }
+                    audio->pauseMusic();
                 }
             }
-        });
+            else if (!status.hasDied)
+            {
+                if (shouldPlayMusic())
+                {
+                    audio->resumeMusic();
+                }
+            }
+        }
+    });
 
     // ------------------------------------------------------------------------
     // Joystick binds
@@ -538,17 +497,16 @@ HexagonGame::~HexagonGame()
     hg::lo("HexagonGame::~HexagonGame") << "Cleaning up game resources...\n";
 }
 
-void HexagonGame::refreshTrigger(
-    const ssvs::Input::Trigger& trigger, const int bindID)
+void HexagonGame::refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
 {
     game.refreshTrigger(trigger, bindID);
 }
 
 void HexagonGame::setLastReplay(const replay_file& mReplayFile)
 {
-    lastSeed = mReplayFile._seed;
-    lastReplayData = mReplayFile._data;
-    lastFirstPlay = mReplayFile._first_play;
+    lastSeed        = mReplayFile._seed;
+    lastReplayData  = mReplayFile._data;
+    lastFirstPlay   = mReplayFile._first_play;
     lastPlayedScore = mReplayFile._played_score;
 
     activeReplay.emplace(mReplayFile);
@@ -566,7 +524,7 @@ void HexagonGame::updateRichPresenceCallbacks()
             {
                 steamHung = true;
                 hg::lo("Steam") << "Too many failed callbacks. Stopping "
-                                     "Steam callbacks.\n";
+                                   "Steam callbacks.\n";
             }
         }
     }
@@ -581,7 +539,7 @@ void HexagonGame::updateRichPresenceCallbacks()
             {
                 discordHung = true;
                 hg::lo("Discord") << "Too many failed callbacks. Stopping "
-                                       "Discord callbacks.\n";
+                                     "Discord callbacks.\n";
             }
         }
     }
@@ -613,8 +571,7 @@ void HexagonGame::playSoundAbort(const std::string& mId)
     }
 }
 
-void HexagonGame::playPackSoundOverride(
-    const std::string& mPackId, const std::string& mId)
+void HexagonGame::playPackSoundOverride(const std::string& mPackId, const std::string& mId)
 {
     if (shouldPlaySounds())
     {
@@ -635,8 +592,7 @@ void HexagonGame::saveReplay()
     }
 }
 
-void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
-    bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
+void HexagonGame::newGame(const std::string& mPackId, const std::string& mId, bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
     // Save replay when restarting without having died
     if (!mFirstPlay)
@@ -647,7 +603,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     SSVOH_ASSERT(assets.isValidPackId(mPackId));
     SSVOH_ASSERT(assets.isValidLevelId(mId));
 
-    packId = mPackId;
+    packId  = mPackId;
     levelId = mId;
 
     if (executeLastReplay && activeReplay.hasValue())
@@ -665,16 +621,16 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     difficultyMult = mDifficultyMult;
 
     const double tempReplayScore = getReplayScore(status);
-    status = HexagonGameStatus{};
+    status                       = HexagonGameStatus{};
 
     if (!executeLastReplay)
     {
         rng = initializeRng();
 
         // Save data for immediate replay.
-        lastSeed = rng.seed();
+        lastSeed       = rng.seed();
         lastReplayData = replay_data{};
-        lastFirstPlay = mFirstPlay;
+        lastFirstPlay  = mFirstPlay;
 
         // Clear any existing active replay.
         activeReplay.reset();
@@ -705,12 +661,11 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
         SSVOH_ASSERT(assets.isValidPackId(mPackId));
 
-        activeReplay->replayPackName =
-            Utils::toUppercase(assets.getPackData(mPackId).name);
+        activeReplay->replayPackName = Utils::toUppercase(assets.getPackData(mPackId).name);
 
         activeReplay->replayLevelName = Utils::toUppercase(levelData->name);
 
-        rng = random_number_generator{activeReplay->replayFile._seed};
+        rng       = random_number_generator{activeReplay->replayFile._seed};
         firstPlay = activeReplay->replayFile._first_play;
     }
 
@@ -755,19 +710,21 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Manager cleanup
     walls.clear();
     cwManager.clear();
-    player =
-        CPlayer{sf::Vec2f{0.f, 0.f}, getSwapCooldown(), Config::getPlayerSize(),
-            Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()};
+    player = CPlayer{sf::Vec2f{0.f, 0.f},
+                     getSwapCooldown(),
+                     Config::getPlayerSize(),
+                     Config::getPlayerSpeed(),
+                     Config::getPlayerFocusSpeed()};
 
     // Timeline cleanup
     timeline.clear();
     timelineRunner = {};
 
     mustChangeSides = false;
-    mustStart = false;
+    mustStart       = false;
 
     // Particles cleanup
-    pbTextGrowth = 0.f;
+    pbTextGrowth         = 0.f;
     mustSpawnPBParticles = false;
     swapParticlesSpawnInfo.reset();
     nextPBParticleSpawn = 0.f;
@@ -784,26 +741,26 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         SSVOH_ASSERT(backgroundCamera.hasValue());
 
         // Reset zoom
-        *overlayCamera = sf::View{{Config::getWidth() / 2.f,
-            Config::getHeight() / 2.f},
-            sf::Vec2f(Config::getWidth(), Config::getHeight())};
+        *overlayCamera = sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                                  sf::Vec2f(Config::getWidth(), Config::getHeight())};
 
         *backgroundCamera = sf::View{sf::Vec2f{0.f, 0.f},
-            {Config::getWidth() * Config::getZoomFactor(),
-                Config::getHeight() * Config::getZoomFactor()}};
+                                     {Config::getWidth() * Config::getZoomFactor(),
+                                      Config::getHeight() * Config::getZoomFactor()}};
 
         backgroundCamera->rotation = sf::degrees(0.f);
 
         // Reset skew
-        overlayCameraTransform.skew = sf::Vec2f{1.f, 1.f};
+        overlayCameraTransform.skew    = sf::Vec2f{1.f, 1.f};
         backgroundCameraTransform.skew = sf::Vec2f{1.f, 1.f};
     }
 
     // Lua context and game status cleanup
     inputImplCCW = inputImplCW = false;
-    playerNowReadyToSwap = false;
+    playerNowReadyToSwap       = false;
 
-    if (!firstPlay) runVoidLuaFunctionIfExists("onPreUnload");
+    if (!firstPlay)
+        runVoidLuaFunctionIfExists("onPreUnload");
     lua = Lua::LuaContext{};
     calledDeprecatedFunctions.clear();
     initLua();
@@ -821,7 +778,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     runVoidLuaFunctionIfExists("onInit");
 
-    restartId = mId;
+    restartId        = mId;
     restartFirstTime = false;
     setSides(levelStatus.sides);
 
@@ -835,9 +792,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     {
         // Store the keys/buttons to be pressed to replay and restart after you
         // die.
-        using Tid = Config::Tid;
+        using Tid           = Config::Tid;
         status.restartInput = Config::getKeyboardBindNames(Tid::Restart);
-        status.replayInput = Config::getKeyboardBindNames(Tid::Replay);
+        status.replayInput  = Config::getKeyboardBindNames(Tid::Replay);
 
         // Format strings to only show the first key to avoid extremely long
         // messages
@@ -853,21 +810,18 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         }
 
         // Add joystick buttons if any and finalize message
-        std::string joystickButton =
-            Config::getJoystickBindName(Joystick::Jid::Restart);
+        std::string joystickButton = Config::getJoystickBindName(Joystick::Jid::Restart);
         if (!status.restartInput.empty())
         {
             if (!joystickButton.empty())
             {
                 status.restartInput += " OR JOYSTICK " + joystickButton;
             }
-            status.restartInput =
-                "PRESS " + status.restartInput + " TO RESTART\n";
+            status.restartInput = "PRESS " + status.restartInput + " TO RESTART\n";
         }
         else if (!joystickButton.empty())
         {
-            status.restartInput =
-                "PRESS JOYSTICK " + joystickButton + " TO RESTART\n";
+            status.restartInput = "PRESS JOYSTICK " + joystickButton + " TO RESTART\n";
         }
         else
         {
@@ -885,8 +839,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         }
         else if (!joystickButton.empty())
         {
-            status.replayInput =
-                "PRESS JOYSTICK " + joystickButton + " TO REPLAY\n";
+            status.replayInput = "PRESS JOYSTICK " + joystickButton + " TO REPLAY\n";
         }
         else
         {
@@ -905,9 +858,8 @@ void HexagonGame::death_shakeCamera()
     SSVOH_ASSERT(overlayCamera.hasValue());
     SSVOH_ASSERT(backgroundCamera.hasValue());
 
-    *overlayCamera = sf::View{{Config::getWidth() / 2.f,
-        Config::getHeight() / 2.f},
-        sf::Vec2f(Config::getWidth(), Config::getHeight())};
+    *overlayCamera = sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                              sf::Vec2f(Config::getWidth(), Config::getHeight())};
 
     backgroundCamera->center = sf::Vec2f{0.f, 0.f};
 
@@ -957,13 +909,11 @@ void HexagonGame::death_updateRichPresence()
 
     if (discordManager != nullptr)
     {
-        discordManager->set_rich_presence_in_game(
-            nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
+        discordManager->set_rich_presence_in_game(nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
     }
 }
 
-[[nodiscard]] HexagonGame::SaveScoreIfNeededResult
-HexagonGame::death_saveScoreIfNeeded()
+[[nodiscard]] HexagonGame::SaveScoreIfNeededResult HexagonGame::death_saveScoreIfNeeded()
 {
     if (window == nullptr)
     {
@@ -975,13 +925,11 @@ HexagonGame::death_saveScoreIfNeeded()
         return SaveScoreIfNeededResult::ShouldNotSave;
     }
 
-    const std::string validatorWithoutPackid =
-        levelData->getValidatorWithoutPackId(difficultyMult);
+    const std::string validatorWithoutPackid = levelData->getValidatorWithoutPackId(difficultyMult);
 
     const double score = status.getTimeSeconds();
 
-    const bool isPersonalBest =
-        score > assets.getLocalScore(validatorWithoutPackid);
+    const bool isPersonalBest = score > assets.getLocalScore(validatorWithoutPackid);
 
     if (!isPersonalBest)
     {
@@ -1001,8 +949,7 @@ void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
         return;
     }
 
-    if (r == SaveScoreIfNeededResult::ShouldNotSave ||
-        r == SaveScoreIfNeededResult::NotPersonalBest)
+    if (r == SaveScoreIfNeededResult::ShouldNotSave || r == SaveScoreIfNeededResult::NotPersonalBest)
     {
         playSoundAbort("gameOver.ogg");
         return;
@@ -1072,9 +1019,7 @@ void HexagonGame::death(bool mForce)
 [[nodiscard]] replay_file HexagonGame::death_createReplayFile()
 {
     // TODO (P2): for testing
-    const std::string rfName = assets.anyLocalProfileActive()
-                                   ? assets.getCurrentLocalProfile().getName()
-                                   : "no_profile";
+    const std::string rfName = assets.anyLocalProfileActive() ? assets.getCurrentLocalProfile().getName() : "no_profile";
 
     return replay_file{
         ._version{0},
@@ -1091,13 +1036,12 @@ void HexagonGame::death(bool mForce)
 
 void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 {
-    const sf::base::Optional<compressed_replay_file> crfOpt =
-        compress_replay_file(rf);
+    const sf::base::Optional<compressed_replay_file> crfOpt = compress_replay_file(rf);
 
     if (!crfOpt.hasValue())
     {
         hg::lo("Replay") << "Failed to compress replay, will not save to "
-                              "file or send to server\n";
+                            "file or send to server\n";
 
         return;
     }
@@ -1106,28 +1050,23 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     // ------------------------------------------------------------------------
     // Send compressed replay to server.
-    const auto lv =
-        Utils::getLevelValidator(rf._level_id, rf._difficulty_mult); // TODO
-    if (const std::string levelValidator{lv.data(), lv.size()};
-        !death_sendReplay(levelValidator, crf))
+    const auto lv = Utils::getLevelValidator(rf._level_id, rf._difficulty_mult); // TODO
+    if (const std::string levelValidator{lv.data(), lv.size()}; !death_sendReplay(levelValidator, crf))
     {
         hg::lo("Replay") << "Failure sending replay\n";
     }
 
     // ------------------------------------------------------------------------
     // Save compressed replay locally.
-    if (const std::string filename = Utils::concat(rf.create_filename(), ".z");
-        !death_saveReplay(filename, crf))
+    if (const std::string filename = Utils::concat(rf.create_filename(), ".z"); !death_saveReplay(filename, crf))
     {
         hg::lo("Replay") << "Failure saving replay\n";
     }
 }
 
-[[nodiscard]] bool HexagonGame::death_sendReplay(
-    const std::string& levelValidator, const compressed_replay_file& crf)
+[[nodiscard]] bool HexagonGame::death_sendReplay(const std::string& levelValidator, const compressed_replay_file& crf)
 {
-    if (hexagonClient == nullptr ||
-        hexagonClient->getState() != HexagonClient::State::LoggedIn_Ready ||
+    if (hexagonClient == nullptr || hexagonClient->getState() != HexagonClient::State::LoggedIn_Ready ||
         !Config::getOfficial())
     {
         return false;
@@ -1145,11 +1084,9 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     return true;
 }
 
-[[nodiscard]] bool HexagonGame::death_saveReplay(
-    std::string filename, const compressed_replay_file& crf)
+[[nodiscard]] bool HexagonGame::death_saveReplay(std::string filename, const compressed_replay_file& crf)
 {
-    std::string dirPath =
-        "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
+    std::string dirPath = "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
 
     // Replace invalid characters for Windows file paths.
     for (const char c : {':', '*', '?', '"', '<', '>', '|'})
@@ -1165,26 +1102,23 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     if (!crf.serialize_to_file(p))
     {
-        hg::lo("Replay") << "Failed to save new compressed replay file '" << p
-                           << "'\n";
+        hg::lo("Replay") << "Failed to save new compressed replay file '" << p << "'\n";
 
         return false;
     }
 
-    hg::lo("Replay") << "Successfully saved new compressed replay file '" << p
-                       << "'\n";
+    hg::lo("Replay") << "Successfully saved new compressed replay file '" << p << "'\n";
 
     return true;
 }
 
-[[nodiscard]] sf::base::Optional<HexagonGame::GameExecutionResult>
-HexagonGame::executeGameUntilDeath(
-    const int maxProcessingSeconds, const float timescale)
+[[nodiscard]] sf::base::Optional<HexagonGame::GameExecutionResult> HexagonGame::executeGameUntilDeath(
+    const int   maxProcessingSeconds,
+    const float timescale)
 {
     const HRTimePoint tpBegin = HRClock::now();
 
-    const auto exceededProcessingTime = [&]
-    { return hrSecondsSince(tpBegin) > maxProcessingSeconds; };
+    const auto exceededProcessingTime = [&] { return hrSecondsSince(tpBegin) > maxProcessingSeconds; };
 
     while (!status.hasDied)
     {
@@ -1200,23 +1134,26 @@ HexagonGame::executeGameUntilDeath(
     return sf::base::makeOptional(GameExecutionResult{
         .playedTimeSeconds = status.getPlayedAccumulatedFrametimeInSeconds(), //
         .pausedTimeSeconds = status.getPausedAccumulatedFrametimeInSeconds(), //
-        .totalTimeSeconds = status.getTotalAccumulatedFrametimeInSeconds(),   //
-        .customScore = status.getCustomScore()                                //
+        .totalTimeSeconds  = status.getTotalAccumulatedFrametimeInSeconds(),  //
+        .customScore       = status.getCustomScore()                          //
     });
 }
 
-[[nodiscard]] sf::base::Optional<HexagonGame::GameExecutionResult>
-HexagonGame::runReplayUntilDeathAndGetScore(const replay_file& mReplayFile,
-    const int maxProcessingSeconds, const float timescale)
+[[nodiscard]] sf::base::Optional<HexagonGame::GameExecutionResult> HexagonGame::runReplayUntilDeathAndGetScore(
+    const replay_file& mReplayFile,
+    const int          maxProcessingSeconds,
+    const float        timescale)
 {
     SSVOH_ASSERT(assets.isValidPackId(mReplayFile._pack_id));
     SSVOH_ASSERT(assets.isValidLevelId(mReplayFile._level_id));
 
     setLastReplay(mReplayFile);
 
-    newGame(mReplayFile._pack_id, mReplayFile._level_id,
-        mReplayFile._first_play, mReplayFile._difficulty_mult,
-        /* mExecuteLastReplay */ true);
+    newGame(mReplayFile._pack_id,
+            mReplayFile._level_id,
+            mReplayFile._first_play,
+            mReplayFile._difficulty_mult,
+            /* mExecuteLastReplay */ true);
 
     return executeGameUntilDeath(maxProcessingSeconds, timescale);
 }
@@ -1259,8 +1196,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 {
     if (!assets.anyLocalProfileActive())
     {
-        hg::lo("hg::HexagonGame::shouldSaveScore()")
-            << "No local profile active, rejecting\n";
+        hg::lo("hg::HexagonGame::shouldSaveScore()") << "No local profile active, rejecting\n";
 
         return false;
     }
@@ -1268,40 +1204,35 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
     if (!Config::isEligibleForScore())
     {
         hg::lo("hg::HexagonGame::shouldSaveScore()")
-            << "Not saving score - not eligible - "
-            << Config::getUneligibilityReason() << '\n';
+            << "Not saving score - not eligible - " << Config::getUneligibilityReason() << '\n';
 
         return false;
     }
 
     if (status.scoreInvalid)
     {
-        hg::lo("hg::HexagonGame::shouldSaveScore()")
-            << "Not saving score - score invalidated\n";
+        hg::lo("hg::HexagonGame::shouldSaveScore()") << "Not saving score - score invalidated\n";
 
         return false;
     }
 
     if (levelStatus.tutorialMode)
     {
-        hg::lo("hg::HexagonGame::shouldSaveScore()")
-            << "Not saving score - in tutorial mode\n";
+        hg::lo("hg::HexagonGame::shouldSaveScore()") << "Not saving score - in tutorial mode\n";
 
         return false;
     }
 
     if (levelData->unscored)
     {
-        hg::lo("hg::HexagonGame::shouldSaveScore()")
-            << "Not saving score - unscored level\n";
+        hg::lo("hg::HexagonGame::shouldSaveScore()") << "Not saving score - unscored level\n";
 
         return false;
     }
 
     if (inReplay())
     {
-        hg::lo("hg::HexagonGame::shouldSaveScore()")
-            << "Not saving score - currently in replay\n";
+        hg::lo("hg::HexagonGame::shouldSaveScore()") << "Not saving score - currently in replay\n";
 
         return false;
     }
@@ -1321,8 +1252,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
     if (window == nullptr)
     {
-        hg::lo("hg::HexagonGame::goToMenu")
-            << "Attempted to go back to menu without a game window\n";
+        hg::lo("hg::HexagonGame::goToMenu") << "Attempted to go back to menu without a game window\n";
 
         return;
     }
@@ -1361,8 +1291,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     }
 }
 
-void HexagonGame::raiseWarning(
-    const std::string& mFunctionName, const std::string& mAdditionalInfo)
+void HexagonGame::raiseWarning(const std::string& mFunctionName, const std::string& mAdditionalInfo)
 {
     // Only raise the warning once to avoid redundancy
     if (calledDeprecatedFunctions.contains(mFunctionName))
@@ -1374,15 +1303,17 @@ void HexagonGame::raiseWarning(
 
     // Raise warning to the console
     const std::string errorMsg = Utils::concat("[Lua] WARNING: The function \"",
-        mFunctionName, "\" (used in level \"", levelData->name,
-        "\") is deprecated. ", mAdditionalInfo);
+                                               mFunctionName,
+                                               "\" (used in level \"",
+                                               levelData->name,
+                                               "\") is deprecated. ",
+                                               mAdditionalInfo);
 
     std::cout << errorMsg << std::endl;
     ilcCmdLog.emplace_back(Utils::concat("[warning]: ", errorMsg, '\n'));
 }
 
-void HexagonGame::addMessage(
-    std::string mMessage, double mDuration, bool mSoundToggle)
+void HexagonGame::addMessage(std::string mMessage, double mDuration, bool mSoundToggle)
 {
     if (!Config::getShowMessages())
     {
@@ -1391,29 +1322,27 @@ void HexagonGame::addMessage(
 
     Utils::uppercasify(mMessage);
 
-    messageTimeline.append_do(
-        [this, mSoundToggle, mMessage]
+    messageTimeline.append_do([this, mSoundToggle, mMessage]
+    {
+        if (mSoundToggle)
         {
-            if (mSoundToggle)
-            {
-                playSoundOverride(levelStatus.beepSound);
-            }
+            playSoundOverride(levelStatus.beepSound);
+        }
 
-            if (textUI.hasValue())
-            {
-                textUI->messageText.setString(mMessage);
-            }
-        });
+        if (textUI.hasValue())
+        {
+            textUI->messageText.setString(mMessage);
+        }
+    });
 
     messageTimeline.append_wait_for_sixths(mDuration);
-    messageTimeline.append_do(
-        [this]
+    messageTimeline.append_do([this]
+    {
+        if (textUI.hasValue())
         {
-            if (textUI.hasValue())
-            {
-                textUI->messageText.setString("");
-            }
-        });
+            textUI->messageText.setString("");
+        }
+    });
 }
 
 void HexagonGame::clearMessages()
@@ -1421,18 +1350,16 @@ void HexagonGame::clearMessages()
     messageTimeline.clear();
 }
 
-void HexagonGame::setLevelData(
-    const LevelData& mLevelData, bool mMusicFirstPlay)
+void HexagonGame::setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay)
 {
     levelData = &mLevelData;
 
-    levelStatus =
-        LevelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()};
+    levelStatus = LevelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()};
 
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
     styleData.computeColors();
 
-    musicData = assets.getMusicData(levelData->packId, levelData->musicId);
+    musicData           = assets.getMusicData(levelData->packId, levelData->musicId);
     musicData.firstPlay = mMusicFirstPlay;
 }
 
@@ -1446,8 +1373,7 @@ void HexagonGame::setLevelData(
     return assets.getPackData(getPackId());
 }
 
-[[nodiscard]] const std::string&
-HexagonGame::getPackDisambiguator() const noexcept
+[[nodiscard]] const std::string& HexagonGame::getPackDisambiguator() const noexcept
 {
     return getPackData().disambiguator;
 }
@@ -1471,8 +1397,7 @@ void HexagonGame::playLevelMusic()
 {
     if (shouldPlayMusic())
     {
-        const MusicData::Segment segment =
-            musicData.playRandomSegment(getPackId(), *audio);
+        const MusicData::Segment segment = musicData.playRandomSegment(getPackId(), *audio);
 
         // TODO (P0): can this actually de-sync replays? beatpulse affects
         // gameplay
@@ -1504,11 +1429,10 @@ void HexagonGame::invalidateScore(const std::string& mReason)
         return;
     }
 
-    status.scoreInvalid = true;
+    status.scoreInvalid  = true;
     status.invalidReason = mReason;
 
-    hg::lo("HexagonGame::invalidateScore")
-        << "Invalidating official game (" << mReason << ")\n";
+    hg::lo("HexagonGame::invalidateScore") << "Invalidating official game (" << mReason << ")\n";
 }
 
 auto HexagonGame::getColorMain() const -> sf::Color
@@ -1548,9 +1472,7 @@ auto HexagonGame::getColorPlayerAdjustedForSwap() const -> sf::Color
 
 auto HexagonGame::getColorPlayerTrail() const -> sf::Color
 {
-    return Config::getPlayerTrailHasSwapColor()
-               ? getColorPlayerAdjustedForSwap()
-               : getColorPlayer();
+    return Config::getPlayerTrailHasSwapColor() ? getColorPlayerAdjustedForSwap() : getColorPlayer();
 }
 
 auto HexagonGame::getColorText() const -> sf::Color
@@ -1597,9 +1519,7 @@ void HexagonGame::refreshMusicPitch()
 {
     if (audio != nullptr)
     {
-        audio->setCurrentMusicPitch(getOptionalMusicDMSyncFactor() *
-                                    Config::getMusicSpeedMult() *
-                                    levelStatus.musicPitch);
+        audio->setCurrentMusicPitch(getOptionalMusicDMSyncFactor() * Config::getMusicSpeedMult() * levelStatus.musicPitch);
     }
 }
 
@@ -1757,8 +1677,7 @@ void HexagonGame::performPlayerSwap(const bool mPlaySound)
 
 void HexagonGame::performPlayerKill()
 {
-    const bool fatal =
-        !Config::getInvincible() && !getLevelStatus().tutorialMode;
+    const bool fatal = !Config::getInvincible() && !getLevelStatus().tutorialMode;
 
     player.kill(fatal);
     death();

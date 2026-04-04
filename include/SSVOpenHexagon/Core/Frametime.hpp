@@ -1,6 +1,7 @@
 #pragma once
 
-namespace hg{
+namespace hg
+{
 
 /// @brief Default constexpr ratio between seconds and frametime.
 constexpr float secondsFTRatio{60.f};
@@ -26,4 +27,4 @@ constexpr T getFTToFPS(T mFT) noexcept
     return secondsFTRatio / mFT;
 }
 
-}
+} // namespace hg

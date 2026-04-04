@@ -2,26 +2,25 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 #include "SSVOpenHexagon/Core/Discord.hpp"
-
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <math.h> // Needed by `discord.h`...
 #include <SFML/Base/IntTypes.hpp>
 #include <SFML/Base/StdChrono.hpp>
+#include <math.h> // Needed by `discord.h`...
 
 
 #ifndef SSVOH_ANDROID
-#include "discord/discord.h"
+    #include "discord/discord.h"
 #endif
 
 #ifndef SSVOH_ANDROID
 
-namespace hg::Discord {
+namespace hg::Discord
+{
 
 [[nodiscard]] static bool initialize_discord(discord::Core** core)
 {
-    const auto result = discord::Core::Create(
-        725763266110029964, DiscordCreateFlags_NoRequireDiscord, core);
+    const auto result = discord::Core::Create(725'763'266'110'029'964, DiscordCreateFlags_NoRequireDiscord, core);
 
     if (result != discord::Result::Ok)
     {
@@ -40,15 +39,11 @@ discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
         return;
     }
 
-    _core->SetLogHook(discord::LogLevel::Debug,
-        [](discord::LogLevel level, const char* message)
-        {
-            hg::lo("Discord")
-                << static_cast<uint32_t>(level) << ": " << message << '\n';
-        });
+    _core->SetLogHook(discord::LogLevel::Debug, [](discord::LogLevel level, const char* message) {
+        hg::lo("Discord") << static_cast<uint32_t>(level) << ": " << message << '\n';
+    });
 
-    if (_core->ActivityManager().RegisterCommand("SSVOpenHexagon.exe") !=
-        discord::Result::Ok)
+    if (_core->ActivityManager().RegisterCommand("SSVOpenHexagon.exe") != discord::Result::Ok)
     {
         hg::lo("Discord") << "Failed to register command\n";
     }
@@ -57,7 +52,7 @@ discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
         hg::lo("Discord") << "Successfully registered command\n";
     }
 
-    if (_core->ActivityManager().RegisterSteam(1358090) != discord::Result::Ok)
+    if (_core->ActivityManager().RegisterSteam(1'358'090) != discord::Result::Ok)
     {
         hg::lo("Discord") << "Failed to register Steam app\n";
     }
@@ -68,7 +63,8 @@ discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
 }
 
 discord_manager::~discord_manager()
-{}
+{
+}
 
 bool discord_manager::run_callbacks()
 {
@@ -97,17 +93,16 @@ bool discord_manager::set_rich_presence_in_menu()
     activity.SetState("Selecting Level");
     activity.SetDetails("");
     discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
-    currentTimestamp.SetStart(static_cast<sf::base::I64>(
-        std::chrono::high_resolution_clock::now().time_since_epoch().count() /
-        1'000'000'000));
+    currentTimestamp.SetStart(
+        static_cast<sf::base::I64>(std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1'000'000'000));
     _core->ActivityManager().UpdateActivity(activity,
-        [](discord::Result r)
+                                            [](discord::Result r)
+    {
+        if (r != discord::Result::Ok)
         {
-            if (r != discord::Result::Ok)
-            {
-                hg::lo("Discord") << "Fail\n";
-            }
-        });
+            hg::lo("Discord") << "Fail\n";
+        }
+    });
 
     return true;
 }
@@ -127,19 +122,20 @@ bool discord_manager::set_rich_presence_on_replay()
     // Remove any existing timestamp
     currentTimestamp.SetStart(0);
     _core->ActivityManager().UpdateActivity(activity,
-        [](discord::Result r)
+                                            [](discord::Result r)
+    {
+        if (r != discord::Result::Ok)
         {
-            if (r != discord::Result::Ok)
-            {
-                hg::lo("Discord") << "Fail\n";
-            }
-        });
+            hg::lo("Discord") << "Fail\n";
+        }
+    });
 
     return true;
 }
 
-bool discord_manager::set_rich_presence_in_game(
-    const sf::base::StringView level_info, const sf::base::StringView second_info, bool dead)
+bool discord_manager::set_rich_presence_in_game(const sf::base::StringView level_info,
+                                                const sf::base::StringView second_info,
+                                                bool                       dead)
 {
     if (!_initialized)
     {
@@ -159,11 +155,8 @@ bool discord_manager::set_rich_presence_in_game(
     {
         // Update the timestamp to show how long the current attempt is. This is
         // shown by "MM:SS elapsed".
-        currentTimestamp.SetStart(
-            static_cast<sf::base::I64>(std::chrono::high_resolution_clock::now()
-                                           .time_since_epoch()
-                                           .count() /
-                                       1'000'000'000));
+        currentTimestamp.SetStart(static_cast<sf::base::I64>(
+            std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1'000'000'000));
     }
     else
     {
@@ -172,13 +165,13 @@ bool discord_manager::set_rich_presence_in_game(
         currentTimestamp.SetStart(0);
     }
     _core->ActivityManager().UpdateActivity(activity,
-        [](discord::Result r)
+                                            [](discord::Result r)
+    {
+        if (r != discord::Result::Ok)
         {
-            if (r != discord::Result::Ok)
-            {
-                hg::lo("Discord") << "Fail\n";
-            }
-        });
+            hg::lo("Discord") << "Fail\n";
+        }
+    });
 
     return true;
 }
@@ -187,13 +180,16 @@ bool discord_manager::set_rich_presence_in_game(
 
 #else
 
-namespace hg::Discord {
+namespace hg::Discord
+{
 
 discord_manager::discord_manager() : _core{nullptr}, _initialized{false}
-{}
+{
+}
 
 discord_manager::~discord_manager()
-{}
+{
+}
 
 bool discord_manager::run_callbacks()
 {
@@ -210,9 +206,9 @@ bool discord_manager::set_rich_presence_on_replay()
     return false;
 }
 
-bool discord_manager::set_rich_presence_in_game(
-    [[maybe_unused]] const sf::base::StringView level_info,
-    [[maybe_unused]] const sf::base::StringView second_info, [[maybe_unused]] bool dead)
+bool discord_manager::set_rich_presence_in_game([[maybe_unused]] const sf::base::StringView level_info,
+                                                [[maybe_unused]] const sf::base::StringView second_info,
+                                                [[maybe_unused]] bool                       dead)
 {
     return false;
 }

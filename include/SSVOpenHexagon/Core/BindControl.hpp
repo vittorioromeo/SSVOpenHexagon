@@ -4,86 +4,85 @@
 
 #pragma once
 
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
-#include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
-#include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
-
 #include "SSVOpenHexagon/Input/Combo.hpp"
 #include "SSVOpenHexagon/Input/Manager.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 
 #include <SFML/Base/FixedFunction.hpp>
-
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
+#include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
+#include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 #include <functional>
 #include <string>
 #include <vector>
 
-namespace hg {
+namespace hg
+{
 
 class BindControlBase : public ssvms::ItemBase
 {
 protected:
     bool waitingForBind{false};
-    int ID;
+    int  ID;
 
 public:
-    explicit BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
-        const std::string& mName, const int mID)
-        : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
-    {}
+    explicit BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory, const std::string& mName, const int mID) :
+        ssvms::ItemBase(mMenu, mCategory, mName),
+        ID{mID}
+    {
+    }
 
-    [[nodiscard]] virtual bool erase() = 0;
+    [[nodiscard]] virtual bool erase()                  = 0;
     [[nodiscard]] virtual bool isWaitingForBind() const = 0;
 };
 
 class KeyboardBindControl final : public BindControlBase
 {
 private:
-    using Trigger = ssvs::Input::Trigger;
+    using Trigger       = ssvs::Input::Trigger;
     using TriggerGetter = std::function<ssvs::Input::Trigger()>;
-    using SizeGetter = std::function<int()>;
-    using AddBind =
-        std::function<void(const sf::Keyboard::Key, const sf::Mouse::Button)>;
-    using Callback =
-        std::function<void(const ssvs::Input::Trigger&, const int)>;
+    using SizeGetter    = std::function<int()>;
+    using AddBind       = std::function<void(const sf::Keyboard::Key, const sf::Mouse::Button)>;
+    using Callback      = std::function<void(const ssvs::Input::Trigger&, const int)>;
 
-    TriggerGetter triggerGetter;
-    SizeGetter sizeGetter;
-    AddBind addBind;
+    TriggerGetter                       triggerGetter;
+    SizeGetter                          sizeGetter;
+    AddBind                             addBind;
     sf::base::FixedFunction<void(), 64> clearBind;
-    Callback callback;
+    Callback                            callback;
     // A few actions have hardcoded keys, user should not be allowed to
     // bind the hardcoded key a second time.
     sf::Keyboard::Key hardcodedKey;
 
-    [[nodiscard]] int getRealSize(
-        const std::vector<ssvs::Input::Combo>& combos) const;
-    void applyBind(const sf::Keyboard::Key key, const sf::Mouse::Button);
+    [[nodiscard]] int getRealSize(const std::vector<ssvs::Input::Combo>& combos) const;
+    void              applyBind(const sf::Keyboard::Key key, const sf::Mouse::Button);
 
 public:
-    template <typename TFuncGet, typename TFuncSet, typename TFuncClear,
-        typename TFuncCallback>
-    explicit KeyboardBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
-        const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
-        TFuncClear mFuncClear, TFuncCallback mCallback, const int mTriggerID,
-        const sf::Keyboard::Key mHardcodedKey = sf::Keyboard::Key::Unknown)
-        : BindControlBase{mMenu, mCategory, mName, mTriggerID},
-          triggerGetter{mFuncGet},
-          sizeGetter{
-              [this] { return getRealSize(triggerGetter().getCombos()); }},
-          addBind{[this, mFuncSet](const sf::Keyboard::Key setKey,
-                      const sf::Mouse::Button setBtn)
-              { mFuncSet(setKey, setBtn, sizeGetter()); }},
-          clearBind{[this, mFuncClear] { mFuncClear(sizeGetter() - 1); }},
-          callback{mCallback},
-          hardcodedKey{mHardcodedKey}
+    template <typename TFuncGet, typename TFuncSet, typename TFuncClear, typename TFuncCallback>
+    explicit KeyboardBindControl(
+        ssvms::Menu&            mMenu,
+        ssvms::Category&        mCategory,
+        const std::string&      mName,
+        TFuncGet                mFuncGet,
+        TFuncSet                mFuncSet,
+        TFuncClear              mFuncClear,
+        TFuncCallback           mCallback,
+        const int               mTriggerID,
+        const sf::Keyboard::Key mHardcodedKey = sf::Keyboard::Key::Unknown) :
+        BindControlBase{mMenu, mCategory, mName, mTriggerID},
+        triggerGetter{mFuncGet},
+        sizeGetter{[this] { return getRealSize(triggerGetter().getCombos()); }},
+        addBind{[this, mFuncSet](const sf::Keyboard::Key setKey, const sf::Mouse::Button setBtn)
+    { mFuncSet(setKey, setBtn, sizeGetter()); }},
+        clearBind{[this, mFuncClear] { mFuncClear(sizeGetter() - 1); }},
+        callback{mCallback},
+        hardcodedKey{mHardcodedKey}
     {
         // If user manually added a hardcoded key to the config file
         // sanitize the bind. Cannot use a reference here because
         // `triggerGetter()` returns by value.
-        const std::vector<ssvs::Input::Combo> combos{
-            triggerGetter().getCombos()};
+        const std::vector<ssvs::Input::Combo> combos{triggerGetter().getCombos()};
 
         for (int i = 0; i < static_cast<int>(combos.size()); ++i)
         {
@@ -110,22 +109,27 @@ class JoystickBindControl final : public BindControlBase
 private:
     using ValueGetter = std::function<unsigned int()>;
     using ValueSetter = std::function<void(const unsigned int)>;
-    using Callback = std::function<void(const unsigned int, const int)>;
+    using Callback    = std::function<void(const unsigned int, const int)>;
 
     ValueGetter valueGetter;
     ValueSetter setButton;
-    Callback callback;
+    Callback    callback;
 
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncCallback>
-    explicit JoystickBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
-        const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
-        TFuncCallback mCallback, const int mButtonID)
-        : BindControlBase{mMenu, mCategory, mName, mButtonID},
-          valueGetter{mFuncGet},
-          setButton{mFuncSet},
-          callback{mCallback}
-    {}
+    explicit JoystickBindControl(ssvms::Menu&       mMenu,
+                                 ssvms::Category&   mCategory,
+                                 const std::string& mName,
+                                 TFuncGet           mFuncGet,
+                                 TFuncSet           mFuncSet,
+                                 TFuncCallback      mCallback,
+                                 const int          mButtonID) :
+        BindControlBase{mMenu, mCategory, mName, mButtonID},
+        valueGetter{mFuncGet},
+        setButton{mFuncSet},
+        callback{mCallback}
+    {
+    }
 
     void exec() override;
 

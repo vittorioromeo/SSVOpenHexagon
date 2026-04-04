@@ -2,35 +2,36 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Core/MenuGame.hpp"
-
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
-
 #include "SSVOpenHexagon/Core/BindControl.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
+#include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
-
-#include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/LoadInfo.hpp"
-#include "SSVOpenHexagon/Data/PackInfo.hpp"
+#include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
+#include "SSVOpenHexagon/Data/PackInfo.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
-
+#include "SSVOpenHexagon/Input/Bind.hpp"
+#include "SSVOpenHexagon/Input/Enums.hpp"
+#include "SSVOpenHexagon/Input/InputState.hpp"
+#include "SSVOpenHexagon/Input/Manager.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
+#include "SSVOpenHexagon/Input/Utils.hpp"
 #include "SSVOpenHexagon/MenuSystem/Items/GoBack.hpp"
 #include "SSVOpenHexagon/MenuSystem/Items/Goto.hpp"
 #include "SSVOpenHexagon/MenuSystem/Items/Single.hpp"
@@ -39,62 +40,47 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/Category.hpp"
 #include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
 #include "SSVOpenHexagon/MenuSystem/Menu/Menu.hpp"
-
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-
 #include "SSVOpenHexagon/Utils/Casts.hpp"
-#include "SSVOpenHexagon/Input/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
+#include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVOpenHexagon/Utils/Log.hpp"
-
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/UniquePtr.hpp>
-#include <SFML/Base/StdChrono.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Vec2Base.hpp>
-#include <SFML/Window/Event.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
-#include "SSVOpenHexagon/Input/Bind.hpp"
-#include "SSVOpenHexagon/Input/Enums.hpp"
-#include "SSVOpenHexagon/Input/InputState.hpp"
-#include "SSVOpenHexagon/Input/Manager.hpp"
-#include "SSVOpenHexagon/Input/Trigger.hpp"
 #include "SSVUtils/Core/Common/Casts.hpp"
 #include "SSVUtils/Core/String/Utils.hpp"
 #include "SSVUtils/Core/Utils/Math.hpp"
 #include "SSVUtils/Core/Utils/Rnd.hpp"
 
-#include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
-
-#include <SSVUtils/Core/String/ToStr.hpp>
-
-#include <SFML/Window/VideoMode.hpp>
-#include <SFML/Window/VideoModeUtils.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <SFML/System/Rect2.hpp>
-
 #include <SFML/Base/Algorithm/Sort.hpp>
 #include <SFML/Base/Array.hpp>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/ScopeGuard.hpp>
-
+#include <SFML/Base/SizeT.hpp>
+#include <SFML/Base/StdChrono.hpp>
+#include <SFML/Base/UniquePtr.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/System/Angle.hpp>
+#include <SFML/System/Rect2.hpp>
+#include <SFML/System/Vec2Base.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/VideoModeUtils.hpp>
+#include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
+#include <SSVUtils/Core/String/ToStr.hpp>
 #include <algorithm>
-#include <cstdio>
-#include <cstdlib>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -102,13 +88,17 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <utility>
-#include <tuple>
 #include <string_view>
+#include <tuple>
+#include <utility>
 #include <vector>
 
+#include <cstdio>
+#include <cstdlib>
 
-namespace hg {
+
+namespace hg
+{
 
 [[nodiscard]] static bool anyItemEnabled(const ssvms::Menu& menu)
 {
@@ -146,18 +136,15 @@ namespace hg {
     return true;
 }
 
-[[nodiscard]] static float getTextScaleForCharacterSize(
-    const sf::Text& text, const unsigned int characterSize)
+[[nodiscard]] static float getTextScaleForCharacterSize(const sf::Text& text, const unsigned int characterSize)
 {
-    return static_cast<float>(characterSize) /
-           static_cast<float>(text.getCharacterSize());
+    return static_cast<float>(characterSize) / static_cast<float>(text.getCharacterSize());
 }
 
-static void setVisualCharacterSize(
-    sf::Text& text, const unsigned int characterSize)
+static void setVisualCharacterSize(sf::Text& text, const unsigned int characterSize)
 {
     const float scale = getTextScaleForCharacterSize(text, characterSize);
-    text.scale = {scale, scale};
+    text.scale        = {scale, scale};
 }
 
 void MenuGame::MenuFont::updateHeight()
@@ -175,15 +162,20 @@ void MenuGame::MenuFont::updateHeight()
 {
     switch (state)
     {
-        case States::SMain: return &mainMenu;
-        case States::MOpts: return &optionsMenu;
-        case States::MOnline: return &onlineMenu;
+        case States::SMain:
+            return &mainMenu;
+        case States::MOpts:
+            return &optionsMenu;
+        case States::MOnline:
+            return &onlineMenu;
         case States::SLPSelectBoot:
-        case States::SLPSelect: return &profileSelectionMenu;
+        case States::SLPSelect:
+            return &profileSelectionMenu;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnull-dereference"
-        default: return nullptr;
+        default:
+            return nullptr;
 #pragma GCC diagnostic pop
     }
 }
@@ -207,101 +199,101 @@ void MenuGame::initOnlineIcons()
 
 inline constexpr float maxOffset{100.f};
 
-MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
-    Discord::discord_manager& mDiscordManager, HGAssets& mAssets, Audio& mAudio,
-    ssvs::GameWindow& mGameWindow, HexagonClient& mHexagonClient)
-    : steamManager(mSteamManager),
-      discordManager(mDiscordManager),
-      assets(mAssets),
-      openSquare(mAssets.getFont("OpenSquare-Regular.ttf")),
-      openSquareBold(mAssets.getFont("OpenSquare-Bold.ttf")),
-      audio(mAudio),
-      window(mGameWindow),
-      hexagonClient{mHexagonClient},
-      dialogBox(openSquare, mGameWindow),
-      leaderboardCache{sf::base::makeUnique<LeaderboardCache>()},
-      lua{},
-      execScriptPackPathContext{},
-      currentPack{nullptr},
-      txTitleBar{assets.getTexture("titleBar.png")},
-      txCreditsBar1{assets.getTexture("creditsBar1.png")},
-      txCreditsBar2{&assets.getTexture("creditsBar2.png")},
-      txEpilepsyWarning{assets.getTexture("epilepsyWarning.png")},
-      titleBar{.textureRect = txTitleBar.getRect()},
-      creditsBar1{.textureRect = txCreditsBar1.getRect()},
-      creditsBar2{.textureRect = txCreditsBar2->getRect()},
-      epilepsyWarning{.textureRect = txEpilepsyWarning.getRect()},
-      txSOnline{&assets.getTexture("onlineIconFail.png")},
-      sOnline{.textureRect = txSOnline->getRect()},
-      rsOnlineStatus{{.size = {128.f, 32.f}}},
-      txtOnlineStatus{openSquare, {.string = "", .characterSize = 24}},
-      enteredChars{},
-      backgroundCamera{sf::View{sf::Vec2f{0.f, 0.f},
-          {Config::getSizeX() * Config::getZoomFactor(),
-              Config::getSizeY() * Config::getZoomFactor()}}},
-      overlayCamera{
-          sf::View{{Config::getWidth() / 2.f,
-                       Config::getHeight() * Config::getZoomFactor() / 2.f},
-              {Config::getWidth() * Config::getZoomFactor(),
-                  Config::getHeight() * Config::getZoomFactor()}}},
-      mustRefresh{false},
-      wasFocusHeld{false},
-      focusHeld{false},
-      wheelProgress{0.f},
-      touchDelay{0.f},
-      state{States::LoadingScreen},
-      packChangeDirection{0},
-      levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
-      ignoreInputs{0},
-      w{0.f},
-      h{0.f},
-      scrollbarOffset{0},
-      fourByThree{false},
-      welcomeMenu{},
-      mainMenu{},
-      optionsMenu{},
-      onlineMenu{},
-      profileSelectionMenu{},
-      levelData{},
-      styleData{},
-      txtVersion{{openSquare, {.string = "", .characterSize = 40}}},
-      txtProf{{openSquare, {.string = "", .characterSize = 18}}},
-      // For the loading screen
-      txtLoadBig{{openSquare, {.string = "", .characterSize = 70}}},
-      txtLoadSmall{{openSquareBold, {.string = "", .characterSize = 24}}},
-      txtRandomTip{{openSquare, {.string = "", .characterSize = 32}}},
-      // For the Main Menu
-      txtMenuBig{{openSquare, {.string = "", .characterSize = 36}}},
-      txtMenuSmall{{openSquare, {.string = "", .characterSize = 24}}},
-      txtMenuTiny{{openSquare, {.string = "", .characterSize = 14}}},
-      txtProfile{{openSquare, {.string = "", .characterSize = 32}}},
-      txtInstructionsBig{{openSquare, {.string = "", .characterSize = 46}}},
-      txtInstructionsMedium{{openSquare, {.string = ""}}},
-      txtInstructionsSmall{{openSquare, {.string = "", .characterSize = 20}}},
-      // Manual Input
-      txtEnteringText{{openSquare, {.string = "", .characterSize = 54}}},
-      // For the Level Selection Screen
-      txtSelectionBig{{openSquareBold, {.string = "", .characterSize = 28}}},
-      txtSelectionMedium{{openSquareBold, {.string = "", .characterSize = 19}}},
-      txtSelectionSmall{{openSquare, {.string = "", .characterSize = 14}}},
-      txtSelectionScore{{openSquare, {.string = "", .characterSize = 28}}},
-      txtSelectionRanked{{openSquareBold, {.string = "", .characterSize = 10}}},
-      menuTextColor{},
-      menuQuadColor{},
-      menuSelectionColor{},
-      dialogBoxTextColor{},
-      menuBackgroundTris{},
-      menuQuads{},
-      loadInfo(mAssets.getLoadResults()),
-      randomTip{},
-      hexagonRotation{0.f},
-      menuHalfHeight{0.f},
-      enteringTextOffset{0.f},
-      isLevelFavorite{false},
-      favoriteLevelDataIds{},
-      lvlSlct{},
-      favSlct{.levelDataIds = &favoriteLevelDataIds, .isFavorites = true},
-      lvlDrawer{&lvlSlct}
+MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
+                   Discord::discord_manager& mDiscordManager,
+                   HGAssets&                 mAssets,
+                   Audio&                    mAudio,
+                   ssvs::GameWindow&         mGameWindow,
+                   HexagonClient&            mHexagonClient) :
+    steamManager(mSteamManager),
+    discordManager(mDiscordManager),
+    assets(mAssets),
+    openSquare(mAssets.getFont("OpenSquare-Regular.ttf")),
+    openSquareBold(mAssets.getFont("OpenSquare-Bold.ttf")),
+    audio(mAudio),
+    window(mGameWindow),
+    hexagonClient{mHexagonClient},
+    dialogBox(openSquare, mGameWindow),
+    leaderboardCache{sf::base::makeUnique<LeaderboardCache>()},
+    lua{},
+    execScriptPackPathContext{},
+    currentPack{nullptr},
+    txTitleBar{assets.getTexture("titleBar.png")},
+    txCreditsBar1{assets.getTexture("creditsBar1.png")},
+    txCreditsBar2{&assets.getTexture("creditsBar2.png")},
+    txEpilepsyWarning{assets.getTexture("epilepsyWarning.png")},
+    titleBar{.textureRect = txTitleBar.getRect()},
+    creditsBar1{.textureRect = txCreditsBar1.getRect()},
+    creditsBar2{.textureRect = txCreditsBar2->getRect()},
+    epilepsyWarning{.textureRect = txEpilepsyWarning.getRect()},
+    txSOnline{&assets.getTexture("onlineIconFail.png")},
+    sOnline{.textureRect = txSOnline->getRect()},
+    rsOnlineStatus{{.size = {128.f, 32.f}}},
+    txtOnlineStatus{openSquare, {.string = "", .characterSize = 24}},
+    enteredChars{},
+    backgroundCamera{
+        sf::View{sf::Vec2f{0.f, 0.f},
+                 {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}},
+    overlayCamera{sf::View{{Config::getWidth() / 2.f, Config::getHeight() * Config::getZoomFactor() / 2.f},
+                           {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}},
+    mustRefresh{false},
+    wasFocusHeld{false},
+    focusHeld{false},
+    wheelProgress{0.f},
+    touchDelay{0.f},
+    state{States::LoadingScreen},
+    packChangeDirection{0},
+    levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
+    ignoreInputs{0},
+    w{0.f},
+    h{0.f},
+    scrollbarOffset{0},
+    fourByThree{false},
+    welcomeMenu{},
+    mainMenu{},
+    optionsMenu{},
+    onlineMenu{},
+    profileSelectionMenu{},
+    levelData{},
+    styleData{},
+    txtVersion{{openSquare, {.string = "", .characterSize = 40}}},
+    txtProf{{openSquare, {.string = "", .characterSize = 18}}},
+    // For the loading screen
+    txtLoadBig{{openSquare, {.string = "", .characterSize = 70}}},
+    txtLoadSmall{{openSquareBold, {.string = "", .characterSize = 24}}},
+    txtRandomTip{{openSquare, {.string = "", .characterSize = 32}}},
+    // For the Main Menu
+    txtMenuBig{{openSquare, {.string = "", .characterSize = 36}}},
+    txtMenuSmall{{openSquare, {.string = "", .characterSize = 24}}},
+    txtMenuTiny{{openSquare, {.string = "", .characterSize = 14}}},
+    txtProfile{{openSquare, {.string = "", .characterSize = 32}}},
+    txtInstructionsBig{{openSquare, {.string = "", .characterSize = 46}}},
+    txtInstructionsMedium{{openSquare, {.string = ""}}},
+    txtInstructionsSmall{{openSquare, {.string = "", .characterSize = 20}}},
+    // Manual Input
+    txtEnteringText{{openSquare, {.string = "", .characterSize = 54}}},
+    // For the Level Selection Screen
+    txtSelectionBig{{openSquareBold, {.string = "", .characterSize = 28}}},
+    txtSelectionMedium{{openSquareBold, {.string = "", .characterSize = 19}}},
+    txtSelectionSmall{{openSquare, {.string = "", .characterSize = 14}}},
+    txtSelectionScore{{openSquare, {.string = "", .characterSize = 28}}},
+    txtSelectionRanked{{openSquareBold, {.string = "", .characterSize = 10}}},
+    menuTextColor{},
+    menuQuadColor{},
+    menuSelectionColor{},
+    dialogBoxTextColor{},
+    menuBackgroundTris{},
+    menuQuads{},
+    loadInfo(mAssets.getLoadResults()),
+    randomTip{},
+    hexagonRotation{0.f},
+    menuHalfHeight{0.f},
+    enteringTextOffset{0.f},
+    isLevelFavorite{false},
+    favoriteLevelDataIds{},
+    lvlSlct{},
+    favSlct{.levelDataIds = &favoriteLevelDataIds, .isFavorites = true},
+    lvlDrawer{&lvlSlct}
 {
     // Set cursor visible by default, will be disabled when using keyboard and
     // re-enabled when moving the mouse.
@@ -334,8 +326,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             else
             {
                 mainMenu.getItems()[0]->getOffset() = maxOffset;
-                mainMenu.getCategory().getOffset() =
-                    fourByThree ? 280.f : 400.f;
+                mainMenu.getCategory().getOffset()  = fourByThree ? 280.f : 400.f;
 
                 playLocally();
                 setIgnoreAllInputs(0);
@@ -354,8 +345,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             setIgnoreAllInputs(0);
         };
 
-        const auto transitionInputSequence =
-            [this, closeBox](const DialogInputState newState)
+        const auto transitionInputSequence = [this, closeBox](const DialogInputState newState)
         {
             dialogInputState = newState;
             SFML_BASE_SCOPE_GUARD({ closeBox(); });
@@ -382,8 +372,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
         if (dialogInputState == DialogInputState::Registration_EnteringUsername)
         {
-            registrationUsername = transitionInputSequence(
-                DialogInputState::Registration_EnteringPassword);
+            registrationUsername = transitionInputSequence(DialogInputState::Registration_EnteringPassword);
 
             showInputDialogBoxNice("REGISTRATION", "PASSWORD");
             dialogBox.setInputBoxPassword(true);
@@ -393,8 +382,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
         if (dialogInputState == DialogInputState::Registration_EnteringPassword)
         {
-            registrationPassword = transitionInputSequence(
-                DialogInputState::Registration_EnteringPasswordConfirm);
+            registrationPassword = transitionInputSequence(DialogInputState::Registration_EnteringPasswordConfirm);
 
             showInputDialogBoxNice("REGISTRATION", "CONFIRM PASSWORD");
             dialogBox.setInputBoxPassword(true);
@@ -402,15 +390,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        if (dialogInputState ==
-            DialogInputState::Registration_EnteringPasswordConfirm)
+        if (dialogInputState == DialogInputState::Registration_EnteringPasswordConfirm)
         {
             registrationPasswordConfirm = endInputSequence();
 
             if (registrationPassword == registrationPasswordConfirm)
             {
-                hexagonClient.tryRegister(
-                    registrationUsername, registrationPassword);
+                hexagonClient.tryRegister(registrationUsername, registrationPassword);
             }
             else
             {
@@ -428,8 +414,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
         if (dialogInputState == DialogInputState::Login_EnteringUsername)
         {
-            loginUsername = transitionInputSequence(
-                DialogInputState::Login_EnteringPassword);
+            loginUsername = transitionInputSequence(DialogInputState::Login_EnteringPassword);
 
             showInputDialogBoxNice("LOGIN", "PASSWORD");
             dialogBox.setInputBoxPassword(true);
@@ -444,8 +429,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        if (dialogInputState ==
-            DialogInputState::DeleteAccount_EnteringPassword)
+        if (dialogInputState == DialogInputState::DeleteAccount_EnteringPassword)
         {
             deleteAccountPassword = endInputSequence();
             hexagonClient.tryDeleteAccount(deleteAccountPassword);
@@ -453,8 +437,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
-    game.onAnyEvent += [this, checkCloseBootScreens, checkCloseDialogBox](
-                           const sf::Event& event)
+    game.onAnyEvent += [this, checkCloseBootScreens, checkCloseDialogBox](const sf::Event& event)
     {
         if (const auto* e = event.getIf<sf::Event::Resized>())
         {
@@ -504,14 +487,12 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
         else if (const auto* e = event.getIf<sf::Event::MouseMoved>())
         {
-            const sf::Vec2i mouseMoveVec = {e->position.x, e->position.y};
-            const sf::Vec2i mouseMoveDelta =
-                lastMouseMovedPosition - mouseMoveVec;
+            const sf::Vec2i mouseMoveVec   = {e->position.x, e->position.y};
+            const sf::Vec2i mouseMoveDelta = lastMouseMovedPosition - mouseMoveVec;
 
             lastMouseMovedPosition = mouseMoveVec;
 
-            const bool actuallyMoved =
-                (mouseMoveDelta.x != 0) || (mouseMoveDelta.y != 0);
+            const bool actuallyMoved = (mouseMoveDelta.x != 0) || (mouseMoveDelta.y != 0);
 
             if (window.hasFocus() && actuallyMoved)
             {
@@ -528,8 +509,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             // Disable scroll while assigning a bind
             if (state == States::MOpts)
             {
-                const auto* const bc{dynamic_cast<BindControlBase*>(
-                    &getCurrentMenu()->getItem())};
+                const auto* const bc{dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
                 if (bc != nullptr && bc->isWaitingForBind())
                 {
                     return;
@@ -584,8 +564,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             // Scenario one: epilepsy warning is being drawn and user
             // must close it with any key press
-            if (state == States::EpilepsyWarning ||
-                state == States::LoadingScreen)
+            if (state == States::EpilepsyWarning || state == States::LoadingScreen)
             {
                 checkCloseBootScreens();
                 return;
@@ -600,8 +579,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             const sf::Keyboard::Key key{e->code};
             if (!dialogBox.empty())
             {
-                if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown ||
-                    key == dialogBox.getKeyToClose())
+                if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown || key == dialogBox.getKeyToClose())
                 {
                     --ignoreInputs;
                 }
@@ -639,8 +617,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                auto* const bc{dynamic_cast<KeyboardBindControl*>(
-                    &getCurrentMenu()->getItem())};
+                auto* const bc{dynamic_cast<KeyboardBindControl*>(&getCurrentMenu()->getItem())};
 
                 // don't try assigning a keyboard key to a controller bind
                 if (bc == nullptr)
@@ -676,8 +653,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            if (state == States::EpilepsyWarning ||
-                state == States::LoadingScreen)
+            if (state == States::EpilepsyWarning || state == States::LoadingScreen)
             {
                 checkCloseBootScreens();
                 return;
@@ -707,8 +683,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                auto* const bc{dynamic_cast<KeyboardBindControl*>(
-                    &getCurrentMenu()->getItem())};
+                auto* const bc{dynamic_cast<KeyboardBindControl*>(&getCurrentMenu()->getItem())};
 
                 // don't try assigning a keyboard key to a controller bind
                 if (bc == nullptr)
@@ -724,16 +699,14 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 touchDelay = 10.f;
             }
         }
-        else if (const auto* e =
-                     event.getIf<sf::Event::JoystickButtonReleased>())
+        else if (const auto* e = event.getIf<sf::Event::JoystickButtonReleased>())
         {
             if (ignoreInputs == 0)
             {
                 return;
             }
 
-            if (state == States::EpilepsyWarning ||
-                state == States::LoadingScreen)
+            if (state == States::EpilepsyWarning || state == States::LoadingScreen)
             {
                 checkCloseBootScreens();
                 return;
@@ -763,8 +736,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                auto* const bc{dynamic_cast<JoystickBindControl*>(
-                    &getCurrentMenu()->getItem())};
+                auto* const bc{dynamic_cast<JoystickBindControl*>(&getCurrentMenu()->getItem())};
 
                 // don't try assigning a controller button to a keyboard bind
                 if (bc == nullptr)
@@ -802,24 +774,20 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     // Main menu background
 
     {
-        const auto [randomPack, randomLevel] =
-            pickRandomMainMenuBackgroundStyle();
+        const auto [randomPack, randomLevel] = pickRandomMainMenuBackgroundStyle();
 
-        const std::string& randomPackId =
-            getNthSelectablePackInfo(randomPack).id;
+        const std::string& randomPackId = getNthSelectablePackInfo(randomPack).id;
 
         lvlSlct.levelDataIds = &assets.getLevelIdsByPack(randomPackId);
         setIndex(randomLevel);
     }
 
     // Setup for the loading menu
-    static constexpr sf::base::Array<sf::base::Array<std::string_view, 2>, 4>
-        tips{{{"HOLDING FOCUS WHILE CHANGING PACK",
-                  "SKIPS THE SWITCH ANIMATION"},
-            {"REMEMBER TO TAKE BREAKS", "OPEN HEXAGON IS AN INTENSE GAME"},
-            {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
-            {"IF A LEVEL IS TOO CHALLENGING",
-                "PRACTICE IT AT A LOWER DIFFICULTY"}}};
+    static constexpr sf::base::Array<sf::base::Array<std::string_view, 2>, 4> tips{
+        {{"HOLDING FOCUS WHILE CHANGING PACK", "SKIPS THE SWITCH ANIMATION"},
+         {"REMEMBER TO TAKE BREAKS", "OPEN HEXAGON IS AN INTENSE GAME"},
+         {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
+         {"IF A LEVEL IS TOO CHALLENGING", "PRACTICE IT AT A LOWER DIFFICULTY"}}};
     randomTip = tips[ssvu::getRndI(0, tips.size())];
 
     // Set size of the level offsets vector to the minimum required
@@ -869,8 +837,7 @@ void MenuGame::init(bool error)
     // Online::setForceLeaderboardRefresh(true);
 }
 
-void MenuGame::init(
-    bool error, const std::string& pack, const std::string& level)
+void MenuGame::init(bool error, const std::string& pack, const std::string& level)
 {
     init(error);
     loadCommandLineLevel(pack, level);
@@ -878,9 +845,15 @@ void MenuGame::init(
 
 void MenuGame::initAssets()
 {
-    for (const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png",
-             "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png",
-             "bottomBar.png", "epilepsyWarning.png"})
+    for (const auto& t :
+         {"titleBar.png",
+          "creditsBar1.png",
+          "creditsBar2.png",
+          "creditsBar2b.png",
+          "creditsBar2c.png",
+          "creditsBar2d.png",
+          "bottomBar.png",
+          "epilepsyWarning.png"})
     {
         assets.getTexture(t).setSmooth(true);
     }
@@ -889,7 +862,7 @@ void MenuGame::initAssets()
 void MenuGame::changeStateTo(const States mState)
 {
     const States prevState = state;
-    state = mState;
+    state                  = mState;
 
     if (prevState == state)
     {
@@ -899,8 +872,7 @@ void MenuGame::changeStateTo(const States mState)
 
     if (state == States::SMain)
     {
-        if (std::exchange(mustShowLoginAtStartup, false) &&
-            Config::getShowLoginAtStartup())
+        if (std::exchange(mustShowLoginAtStartup, false) && Config::getShowLoginAtStartup())
         {
             openLoginDialogBoxAndStartLoginProcess();
             setIgnoreAllInputs(2);
@@ -918,8 +890,7 @@ void MenuGame::changeStateTo(const States mState)
         return;
     }
 
-    const auto mustShowTip = [&](const States s, bool& flag)
-    { return state == s && std::exchange(flag, false); };
+    const auto mustShowTip = [&](const States s, bool& flag) { return state == s && std::exchange(flag, false); };
 
     const auto showTip = [&](const char* str)
     {
@@ -968,108 +939,121 @@ void MenuGame::changeStateTo(const States mState)
 
 void MenuGame::initInput()
 {
-    using k = sf::Keyboard::Key;
-    using t = ssvs::Input::Type;
+    using k   = sf::Keyboard::Key;
+    using t   = ssvs::Input::Type;
     using Tid = Config::Tid;
 
     const auto addTidInput = [&](const Tid tid, const t type, auto action)
+    { game.addInput(Config::getTrigger(tid), action, type, static_cast<int>(tid)); };
+
+    addTidInput(Tid::RotateCCW,
+                t::Once,
+                [this](float)
     {
-        game.addInput(
-            Config::getTrigger(tid), action, type, static_cast<int>(tid));
-    };
-
-    addTidInput(Tid::RotateCCW, t::Once,
-        [this](float)
+        if (!mouseHovering)
         {
-            if (!mouseHovering)
-            {
-                leftAction();
-            }
-        });
+            leftAction();
+        }
+    });
 
-    addTidInput(Tid::RotateCW, t::Once,
-        [this](float)
+    addTidInput(Tid::RotateCW,
+                t::Once,
+                [this](float)
+    {
+        if (!mouseHovering)
         {
-            if (!mouseHovering)
-            {
-                rightAction();
-            }
-        });
+            rightAction();
+        }
+    });
 
     game.addInput( // hardcoded
-        {{k::Up}}, [this](float) { upAction(); }, t::Once);
+        {{k::Up}},
+        [this](float) { upAction(); },
+        t::Once);
 
     addTidInput(Tid::Up, t::Once, [this](float) { upAction(); });
 
     game.addInput( // hardcoded
-        {{k::Down}}, [this](float) { downAction(); }, t::Once);
+        {{k::Down}},
+        [this](float) { downAction(); },
+        t::Once);
 
     addTidInput(Tid::Down, t::Once, [this](float) { downAction(); });
 
     addTidInput(Tid::NextPack, t::Once, [this](float) { changePackAction(1); });
 
-    addTidInput(
-        Tid::PreviousPack, t::Once, [this](float) { changePackAction(-1); });
+    addTidInput(Tid::PreviousPack, t::Once, [this](float) { changePackAction(-1); });
 
-    add2StateInput(game, Config::getTrigger(Tid::Focus), focusHeld,
-        static_cast<int>(Tid::Focus));
+    add2StateInput(game, Config::getTrigger(Tid::Focus), focusHeld, static_cast<int>(Tid::Focus));
 
     game.addInput( // hardcoded
-        {{k::Enter}}, [this](float /*unused*/) { okAction(); }, t::Once);
+        {{k::Enter}},
+        [this](float /*unused*/) { okAction(); },
+        t::Once);
 
     game.addInput( // hardcoded
         {{k::Escape}},
         [this](float mFT)
+    {
+        if (state != States::MOpts)
         {
-            if (state != States::MOpts)
-            {
-                exitTimer += mFT;
-            }
-        },
-        [this](float /*unused*/) { exitTimer = 0; }, t::Always);
+            exitTimer += mFT;
+        }
+    },
+        [this](float /*unused*/) { exitTimer = 0; },
+        t::Always);
 
     game.addInput( // hardcoded
-        {{k::Escape}}, [this](float /*unused*/) { exitAction(); }, t::Once);
+        {{k::Escape}},
+        [this](float /*unused*/) { exitAction(); },
+        t::Once);
 
-    addTidInput(Tid::Exit, t::Once,
-        [this](float /*unused*/)
+    addTidInput(Tid::Exit,
+                t::Once,
+                [this](float /*unused*/)
+    {
+        if (isEnteringText())
         {
-            if (isEnteringText())
-            {
-                return;
-            }
-            exitAction();
-        }); // editable
+            return;
+        }
+        exitAction();
+    }); // editable
 
-    addTidInput(Tid::Screenshot, t::Once,
-        [this](float /*unused*/) { mustTakeScreenshot = true; });
+    addTidInput(Tid::Screenshot, t::Once, [this](float /*unused*/) { mustTakeScreenshot = true; });
 
-    game.addInput(
-            {{k::LAlt, k::Enter}},
-            [this](float /*unused*/)
-            {
-                Config::setFullscreen(window, !window.getFullscreen());
-                game.ignoreNextInputs();
-            },
-            t::Once)
+    game.addInput({{k::LAlt, k::Enter}},
+                  [this](float /*unused*/)
+    {
+        Config::setFullscreen(window, !window.getFullscreen());
+        game.ignoreNextInputs();
+    },
+                  t::Once)
         .setPriorityUser(-1000);
 
     game.addInput( // hardcoded
-        {{k::Backspace}}, [this](float /*unused*/) { eraseAction(); }, t::Once);
-
-    game.addInput( // hardcoded
-        {{k::F1}}, [this](float /*unused*/) { addRemoveFavoriteLevel(); },
+        {{k::Backspace}},
+        [this](float /*unused*/) { eraseAction(); },
         t::Once);
 
     game.addInput( // hardcoded
-        {{k::F2}}, [this](float /*unused*/) { switchToFromFavoriteLevels(); },
+        {{k::F1}},
+        [this](float /*unused*/) { addRemoveFavoriteLevel(); },
         t::Once);
 
     game.addInput( // hardcoded
-        {{k::F3}}, [this](float /*unused*/) { reloadAssets(false); }, t::Once);
+        {{k::F2}},
+        [this](float /*unused*/) { switchToFromFavoriteLevels(); },
+        t::Once);
 
     game.addInput( // hardcoded
-        {{k::F4}}, [this](float /*unused*/) { reloadAssets(true); }, t::Once);
+        {{k::F3}},
+        [this](float /*unused*/) { reloadAssets(false); },
+        t::Once);
+
+    game.addInput( // hardcoded
+        {{k::F4}},
+        [this](float /*unused*/) { reloadAssets(true); },
+        t::Once);
 }
 
 void MenuGame::runLuaFile(const std::string& mFileName)
@@ -1083,12 +1067,10 @@ try
     {
         Utils::runLuaFile(lua, mFileName);
     }
-}
-catch (...)
+} catch (...)
 {
     playSoundOverride("error.ogg");
-    hg::lo("hg::MenuGame::initLua")
-        << "Fatal error in menu for Lua file '" << mFileName << '\'' << logEndl;
+    hg::lo("hg::MenuGame::initLua") << "Fatal error in menu for Lua file '" << mFileName << '\'' << logEndl;
 }
 
 void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
@@ -1117,20 +1099,25 @@ void MenuGame::playSoundOverride(const std::string& assetId)
 
 void MenuGame::initLua()
 {
-    static CCustomWallManager cwManager;
+    static CCustomWallManager      cwManager;
     static random_number_generator rng{0};
-    static HexagonGameStatus hexagonGameStatus;
+    static HexagonGameStatus       hexagonGameStatus;
 
-    LuaScripting::init(
-        lua, rng, true /* inMenu */, cwManager, levelStatus, hexagonGameStatus,
-        styleData, assets, [this](const std::string& filename)
-        { runLuaFile(filename); }, execScriptPackPathContext,
-        [this]() -> const std::string& { return levelData->packPath; },
-        [this]() -> const PackData& { return *currentPack; },
-        false /* headless */);
+    LuaScripting::init(lua,
+                       rng,
+                       true /* inMenu */,
+                       cwManager,
+                       levelStatus,
+                       hexagonGameStatus,
+                       styleData,
+                       assets,
+                       [this](const std::string& filename) { runLuaFile(filename); },
+                       execScriptPackPathContext,
+                       [this]() -> const std::string& { return levelData->packPath; },
+                       [this]() -> const PackData& { return *currentPack; },
+                       false /* headless */);
 
-    lua.writeVariable("u_log",
-        [](const std::string& mLog) { hg::lo("lua-menu") << mLog << '\n'; });
+    lua.writeVariable("u_log", [](const std::string& mLog) { hg::lo("lua-menu") << mLog << '\n'; });
 
     lua.writeVariable("u_getDifficultyMult", [] { return 1; });
 
@@ -1141,42 +1128,88 @@ void MenuGame::initLua()
     lua.writeVariable("u_getPlayerAngle", [] { return 0; });
 
     // Unused functions
-    for (const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
-             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
-             "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setFlashEffect",
+    for (const auto& un :
+         {"u_isKeyPressed",
+          "u_isMouseButtonPressed",
+          "u_isFastSpinning",
+          "u_setPlayerAngle",
+          "u_forceIncrement",
+          "u_haltTime",
+          "u_timelineWait",
+          "u_clearWalls",
+          "u_setFlashEffect",
 
-             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
-             "a_playSound", "a_playPackSound", "a_syncMusicToDM",
-             "a_setMusicPitch", "a_overrideBeepSound",
-             "a_overrideIncrementSound", "a_overrideSwapSound",
-             "a_overrideDeathSound",
+          "a_setMusic",
+          "a_setMusicSegment",
+          "a_setMusicSeconds",
+          "a_playSound",
+          "a_playPackSound",
+          "a_syncMusicToDM",
+          "a_setMusicPitch",
+          "a_overrideBeepSound",
+          "a_overrideIncrementSound",
+          "a_overrideSwapSound",
+          "a_overrideDeathSound",
 
-             "t_eval", "t_kill", "t_clear", "t_wait", "t_waitS", "t_waitUntilS",
+          "t_eval",
+          "t_kill",
+          "t_clear",
+          "t_wait",
+          "t_waitS",
+          "t_waitUntilS",
 
-             "e_eval", "e_kill", "e_stopTime", "e_stopTimeS", "e_wait",
-             "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
-             "e_messageAddImportantSilent", "e_clearMessages",
+          "e_eval",
+          "e_kill",
+          "e_stopTime",
+          "e_stopTimeS",
+          "e_wait",
+          "e_waitS",
+          "e_waitUntilS",
+          "e_messageAdd",
+          "e_messageAddImportant",
+          "e_messageAddImportantSilent",
+          "e_clearMessages",
 
-             "ct_create", "ct_eval", "ct_kill", "ct_stopTime", "ct_stopTimeS",
-             "ct_wait", "ct_waitS", "ct_waitUntilS",
+          "ct_create",
+          "ct_eval",
+          "ct_kill",
+          "ct_stopTime",
+          "ct_stopTimeS",
+          "ct_wait",
+          "ct_waitS",
+          "ct_waitUntilS",
 
-             "l_overrideScore", "l_setRotation", "l_getRotation",
-             "l_getOfficial",
+          "l_overrideScore",
+          "l_setRotation",
+          "l_getRotation",
+          "l_getOfficial",
 
-             "s_setStyle",
+          "s_setStyle",
 
-             "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
-             "w_wallHModCurveData",
+          "w_wall",
+          "w_wallAdj",
+          "w_wallAcc",
+          "w_wallHModSpeedData",
+          "w_wallHModCurveData",
 
-             "steam_unlockAchievement",
+          "steam_unlockAchievement",
 
-             "u_kill", "u_eventKill", "u_playSound", "u_playPackSound",
-             "u_setFlashEffect", "u_setFlashColor",
+          "u_kill",
+          "u_eventKill",
+          "u_playSound",
+          "u_playPackSound",
+          "u_setFlashEffect",
+          "u_setFlashColor",
 
-             "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-             "e_eventWaitS", "e_eventWaitUntilS", "m_messageAdd",
-             "m_messageAddImportant", "m_messageAddImportantSilent",
-             "m_clearMessages"})
+          "e_eventStopTime",
+          "e_eventStopTimeS",
+          "e_eventWait",
+          "e_eventWaitS",
+          "e_eventWaitUntilS",
+          "m_messageAdd",
+          "m_messageAddImportant",
+          "m_messageAddImportantSilent",
+          "m_clearMessages"})
     {
         lua.writeVariable(un, [] {});
     }
@@ -1223,33 +1256,23 @@ void MenuGame::initMenus()
     options.create<i::Goto>("AUDIO", sfx);
     options.create<i::Goto>("ADVANCED", advanced);
     options.create<i::Single>("RESET CONFIG",
-        [this]
-        {
-            Config::resetConfigToDefaults();
-            refreshBinds();
-        });
+                              [this]
+    {
+        Config::resetConfigToDefaults();
+        refreshBinds();
+    });
 
     //--------------------------------
     // Gameplay
 
-    play.create<i::Toggle>(
-        "autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
-    play.create<i::Toggle>("rotate to start", &Config::getRotateToStart,
-        &Config::setRotateToStart);
-    play.create<i::Toggle>(
-        "OFFICIAL MODE", &Config::getOfficial, &Config::setOfficial);
-    play.create<i::Toggle>("debug mode", &Config::getDebug, &Config::setDebug) |
-        whenNotOfficial;
-    play.create<i::Toggle>(
-        "invincible", &Config::getInvincible, &Config::setInvincible) |
-        whenNotOfficial;
-    play.create<i::Slider>("timescale", &Config::getTimescale,
-        &Config::setTimescale, 0.1f, 2.f, 0.05f) |
-        whenNotOfficial;
-    play.create<i::Toggle>("save last username",
-        &Config::getSaveLastLoginUsername, &Config::setSaveLastLoginUsername);
-    play.create<i::Toggle>("show login at startup",
-        &Config::getShowLoginAtStartup, &Config::setShowLoginAtStartup);
+    play.create<i::Toggle>("autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
+    play.create<i::Toggle>("rotate to start", &Config::getRotateToStart, &Config::setRotateToStart);
+    play.create<i::Toggle>("OFFICIAL MODE", &Config::getOfficial, &Config::setOfficial);
+    play.create<i::Toggle>("debug mode", &Config::getDebug, &Config::setDebug) | whenNotOfficial;
+    play.create<i::Toggle>("invincible", &Config::getInvincible, &Config::setInvincible) | whenNotOfficial;
+    play.create<i::Slider>("timescale", &Config::getTimescale, &Config::setTimescale, 0.1f, 2.f, 0.05f) | whenNotOfficial;
+    play.create<i::Toggle>("save last username", &Config::getSaveLastLoginUsername, &Config::setSaveLastLoginUsername);
+    play.create<i::Toggle>("show login at startup", &Config::getShowLoginAtStartup, &Config::setShowLoginAtStartup);
     play.create<i::GoBack>("back");
 
     //--------------------------------
@@ -1257,35 +1280,32 @@ void MenuGame::initMenus()
 
     controls.create<i::Goto>("keyboard", keyboard);
     controls.create<i::Goto>("joystick", joystick);
-    controls.create<i::Slider>("joystick deadzone",
-        &Config::getJoystickDeadzone, &Config::setJoystickDeadzone, 0.f, 100.f,
-        1.f);
+    controls.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone, &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
     controls.create<i::Single>("reset binds",
-        [this]
-        {
-            Config::resetBindsToDefaults();
-            refreshBinds();
-        });
+                               [this]
+    {
+        Config::resetBindsToDefaults();
+        refreshBinds();
+    });
     controls.create<i::Single>("hardcoded keys reference",
-        [this]
-        {
-            showDialogBox(
-                "UP ARROW - UP\n"
-                "DOWN ARROW - DOWN\n"
-                "RETURN - ENTER\n"
-                "BACKSPACE - REMOVE BIND\n"
-                "F1 - ADD LEVEL TO FAVORITES\n"
-                "F2 - SWITCH TO/FROM FAVORITE LEVELS\n"
-                "F3 - RELOAD LEVEL ASSETS (DEBUG MODE ONLY)\n"
-                "F4 - RELOAD PACK ASSETS (DEBUG MODE ONLY)\n\n"
-                "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
-            ignoreInputsAfterMenuExec();
-        });
+                               [this]
+    {
+        showDialogBox(
+            "UP ARROW - UP\n"
+            "DOWN ARROW - DOWN\n"
+            "RETURN - ENTER\n"
+            "BACKSPACE - REMOVE BIND\n"
+            "F1 - ADD LEVEL TO FAVORITES\n"
+            "F2 - SWITCH TO/FROM FAVORITE LEVELS\n"
+            "F3 - RELOAD LEVEL ASSETS (DEBUG MODE ONLY)\n"
+            "F4 - RELOAD PACK ASSETS (DEBUG MODE ONLY)\n\n"
+            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
+        ignoreInputsAfterMenuExec();
+    });
     controls.create<i::GoBack>("back");
 
     // Keyboard binds
-    const auto callBack =
-        [this](const ssvs::Input::Trigger& trig, const int bindID)
+    const auto callBack = [this](const ssvs::Input::Trigger& trig, const int bindID)
     {
         game.refreshTrigger(trig, bindID);
 
@@ -1299,28 +1319,27 @@ void MenuGame::initMenus()
 
     const auto mkAddBindFn = [](ssvs::Input::Trigger& trig)
     {
-        return [&trig](const sf::Keyboard::Key key, const sf::Mouse::Button btn,
-                   const int index)
+        return [&trig](const sf::Keyboard::Key key, const sf::Mouse::Button btn, const int index)
         { Config::rebindTrigger(trig, key, btn, index); };
     };
 
     const auto mkClearBindFn = [](ssvs::Input::Trigger& trig)
-    {
-        return [&trig](const int index)
-        { Config::clearTriggerBind(trig, index); };
-    };
+    { return [&trig](const int index) { Config::clearTriggerBind(trig, index); }; };
 
     const auto createKeyboardBindControl =
-        [&](const char* name, const Tid tid,
-            const sf::Keyboard::Key hardcodedKey = sf::Keyboard::Key::Unknown)
+        [&](const char* name, const Tid tid, const sf::Keyboard::Key hardcodedKey = sf::Keyboard::Key::Unknown)
     {
         const auto trigGetter = Config::triggerGetters[SSVOH_TO_SIZET(tid)];
 
         ssvs::Input::Trigger& trig = trigGetter();
 
-        keyboard.create<KeyboardBindControl>(name, trigGetter,
-            mkAddBindFn(trig), mkClearBindFn(trig), callBack,
-            static_cast<int>(tid), hardcodedKey);
+        keyboard.create<KeyboardBindControl>(name,
+                                             trigGetter,
+                                             mkAddBindFn(trig),
+                                             mkClearBindFn(trig),
+                                             callBack,
+                                             static_cast<int>(tid),
+                                             hardcodedKey);
     };
 
     createKeyboardBindControl("rotate ccw", Tid::RotateCCW);
@@ -1343,20 +1362,16 @@ void MenuGame::initMenus()
     // Joystick binds
     using Jid = Joystick::Jid;
 
-    const auto joystickCallBack =
-        [](const unsigned int button, const int buttonID)
+    const auto joystickCallBack = [](const unsigned int button, const int buttonID)
     { Joystick::setJoystickBind(button, buttonID); };
 
     const auto createJoystickBindControl = [&](const char* name, const Jid jid)
     {
-        const auto btnGetter =
-            Config::joystickTriggerGetters[SSVOH_TO_SIZET(jid)];
+        const auto btnGetter = Config::joystickTriggerGetters[SSVOH_TO_SIZET(jid)];
 
-        const auto btnSetter =
-            Config::joystickTriggerSetters[SSVOH_TO_SIZET(jid)];
+        const auto btnSetter = Config::joystickTriggerSetters[SSVOH_TO_SIZET(jid)];
 
-        joystick.create<JoystickBindControl>(name, btnGetter, btnSetter,
-            joystickCallBack, static_cast<int>(jid));
+        joystick.create<JoystickBindControl>(name, btnGetter, btnSetter, joystickCallBack, static_cast<int>(jid));
     };
 
     createJoystickBindControl("select", Jid::Select);
@@ -1376,8 +1391,7 @@ void MenuGame::initMenus()
     //--------------------------------
     // Resolution
 
-    resolution.create<i::Single>("automatically set resolution",
-        [this] { Config::setCurrentResolutionAuto(window); });
+    resolution.create<i::Single>("automatically set resolution", [this] { Config::setCurrentResolutionAuto(window); });
 
     auto& sixByNine(optionsMenu.createCategory("16x9 resolutions"));
     auto& fourByThree(optionsMenu.createCategory("4x3 resolutions"));
@@ -1398,24 +1412,21 @@ void MenuGame::initMenus()
             switch (ratio)
             {
                 case 17: // 16:9
-                    sixByNine.create<i::Single>(
-                        ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y),
-                        [this, &vm]
-                        { changeResolutionTo(vm.size.x, vm.size.y); });
+                    sixByNine.create<i::Single>(ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y), [this, &vm] {
+                        changeResolutionTo(vm.size.x, vm.size.y);
+                    });
                     break;
 
                 case 13: // 4:3
-                    fourByThree.create<i::Single>(
-                        ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y),
-                        [this, &vm]
-                        { changeResolutionTo(vm.size.x, vm.size.y); });
+                    fourByThree.create<i::Single>(ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y), [this, &vm] {
+                        changeResolutionTo(vm.size.x, vm.size.y);
+                    });
                     break;
 
                 default: // 16:10 and uncommon
-                    sixByTen.create<i::Single>(
-                        ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y),
-                        [this, &vm]
-                        { changeResolutionTo(vm.size.x, vm.size.y); });
+                    sixByTen.create<i::Single>(ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y), [this, &vm] {
+                        changeResolutionTo(vm.size.x, vm.size.y);
+                    });
                     break;
             }
         }
@@ -1425,10 +1436,8 @@ void MenuGame::initMenus()
     fourByThree.create<i::GoBack>("back");
     sixByTen.create<i::GoBack>("back");
 
-    resolution.create<i::Single>(
-        "go windowed", [this] { Config::setFullscreen(window, false); });
-    resolution.create<i::Single>(
-        "go fullscreen", [this] { Config::setFullscreen(window, true); });
+    resolution.create<i::Single>("go windowed", [this] { Config::setFullscreen(window, false); });
+    resolution.create<i::Single>("go fullscreen", [this] { Config::setFullscreen(window, true); });
     resolution.create<i::GoBack>("back");
 
     //--------------------------------
@@ -1437,106 +1446,72 @@ void MenuGame::initMenus()
     auto& visfx(optionsMenu.createCategory("visual fxs"));
     gfx.create<i::Goto>("visual fxs", visfx);
     visfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
-    visfx.create<i::Toggle>(
-        "shader effects", &Config::getShaders, &Config::setShaders);
-    visfx.create<i::Toggle>(
-        "no pulse", &Config::getNoPulse, &Config::setNoPulse) |
-        whenNotOfficial;
-    visfx.create<i::Toggle>(
-        "no rotation", &Config::getNoRotation, &Config::setNoRotation) |
-        whenNotOfficial;
-    visfx.create<i::Toggle>(
-        "no background", &Config::getNoBackground, &Config::setNoBackground) |
-        whenNotOfficial;
-    visfx.create<i::Toggle>(
-        "b&w colors", &Config::getBlackAndWhite, &Config::setBlackAndWhite) |
-        whenNotOfficial;
+    visfx.create<i::Toggle>("shader effects", &Config::getShaders, &Config::setShaders);
+    visfx.create<i::Toggle>("no pulse", &Config::getNoPulse, &Config::setNoPulse) | whenNotOfficial;
+    visfx.create<i::Toggle>("no rotation", &Config::getNoRotation, &Config::setNoRotation) | whenNotOfficial;
+    visfx.create<i::Toggle>("no background", &Config::getNoBackground, &Config::setNoBackground) | whenNotOfficial;
+    visfx.create<i::Toggle>("b&w colors", &Config::getBlackAndWhite, &Config::setBlackAndWhite) | whenNotOfficial;
 
     visfx.create<i::Toggle>("flash", &Config::getFlash, &Config::setFlash);
-    visfx.create<i::Slider>("shake mult.", &Config::getCameraShakeMultiplier,
-        &Config::setCameraShakeMultiplier, 0.f, 5.f, 0.1f);
+    visfx.create<i::Slider>("shake mult.", &Config::getCameraShakeMultiplier, &Config::setCameraShakeMultiplier, 0.f, 5.f, 0.1f);
 
     auto& playervisfx(optionsMenu.createCategory("player visual fxs"));
     gfx.create<i::Goto>("player visual fxs", playervisfx);
-    playervisfx.create<i::Slider>("angle tilt mult.",
-        &Config::getAngleTiltIntensity, &Config::setAngleTiltIntensity, 0.f,
-        5.f, 0.1f);
-    playervisfx.create<i::Toggle>(
-        "show trail", &Config::getShowPlayerTrail, &Config::setShowPlayerTrail);
-    playervisfx.create<i::Slider>("trail alpha", &Config::getPlayerTrailAlpha,
-        &Config::setPlayerTrailAlpha, 0, 255, 5);
-    playervisfx.create<i::Slider>("trail scale", &Config::getPlayerTrailScale,
-        &Config::setPlayerTrailScale, 0.05f, 1.f, 0.05f);
-    playervisfx.create<i::Slider>("trail decay", &Config::getPlayerTrailDecay,
-        &Config::setPlayerTrailDecay, 0.5f, 50.f, 2.5f);
+    playervisfx.create<i::Slider>("angle tilt mult.", &Config::getAngleTiltIntensity, &Config::setAngleTiltIntensity, 0.f, 5.f, 0.1f);
+    playervisfx.create<i::Toggle>("show trail", &Config::getShowPlayerTrail, &Config::setShowPlayerTrail);
+    playervisfx.create<i::Slider>("trail alpha", &Config::getPlayerTrailAlpha, &Config::setPlayerTrailAlpha, 0, 255, 5);
+    playervisfx.create<i::Slider>("trail scale", &Config::getPlayerTrailScale, &Config::setPlayerTrailScale, 0.05f, 1.f, 0.05f);
+    playervisfx.create<i::Slider>("trail decay", &Config::getPlayerTrailDecay, &Config::setPlayerTrailDecay, 0.5f, 50.f, 2.5f);
     playervisfx.create<i::Toggle>("trail has swap color",
-        &Config::getPlayerTrailHasSwapColor,
-        &Config::setPlayerTrailHasSwapColor);
-    playervisfx.create<i::Toggle>("show swap particles",
-        &Config::getShowSwapParticles, &Config::setShowSwapParticles);
-    playervisfx.create<i::Toggle>("swap blinking effect",
-        &Config::getShowSwapBlinkingEffect, &Config::setShowSwapBlinkingEffect);
+                                  &Config::getPlayerTrailHasSwapColor,
+                                  &Config::setPlayerTrailHasSwapColor);
+    playervisfx.create<i::Toggle>("show swap particles", &Config::getShowSwapParticles, &Config::setShowSwapParticles);
+    playervisfx.create<i::Toggle>("swap blinking effect", &Config::getShowSwapBlinkingEffect, &Config::setShowSwapBlinkingEffect);
     playervisfx.create<i::GoBack>("back");
 
     auto& fps(optionsMenu.createCategory("fps settings"));
     gfx.create<i::Goto>("fps settings", fps);
-    fps.create<i::Toggle>("vsync", &Config::getVsync,
-        [this](bool mValue) { Config::setVsync(window, mValue); });
-    fps.create<i::Toggle>("limit fps", &Config::getLimitFPS,
-        [this](bool mValue) { Config::setLimitFPS(window, mValue); });
-    fps.create<i::Slider>(
-        "max fps", &Config::getMaxFPS, [this](unsigned int mValue)
-        { Config::setMaxFPS(window, mValue); }, 30u, 1000u, 5u);
+    fps.create<i::Toggle>("vsync", &Config::getVsync, [this](bool mValue) { Config::setVsync(window, mValue); });
+    fps.create<i::Toggle>("limit fps", &Config::getLimitFPS, [this](bool mValue) { Config::setLimitFPS(window, mValue); });
+    fps.create<i::Slider>("max fps", &Config::getMaxFPS, [this](unsigned int mValue) {
+        Config::setMaxFPS(window, mValue);
+    }, 30u, 1000u, 5u);
     fps.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
     fps.create<i::GoBack>("back");
 
-    gfx.create<i::Toggle>("text outlines", &Config::getDrawTextOutlines,
-        &Config::setDrawTextOutlines);
-    gfx.create<i::Slider>(
-        "text padding", &Config::getTextPadding,
-        [](float mValue) { Config::setTextPadding(mValue); }, 0.f, 64.f, 1.f);
-    gfx.create<i::Slider>(
-        "text scaling", &Config::getTextScaling,
-        [](float mValue) { Config::setTextScaling(mValue); }, 0.1f, 4.f, 0.05f);
+    gfx.create<i::Toggle>("text outlines", &Config::getDrawTextOutlines, &Config::setDrawTextOutlines);
+    gfx.create<i::Slider>("text padding", &Config::getTextPadding, [](float mValue) {
+        Config::setTextPadding(mValue);
+    }, 0.f, 64.f, 1.f);
+    gfx.create<i::Slider>("text scaling", &Config::getTextScaling, [](float mValue) {
+        Config::setTextScaling(mValue);
+    }, 0.1f, 4.f, 0.05f);
 
-    gfx.create<i::Slider>(
-        "antialiasing",
-        [] { return Utils::concat(Config::getAntialiasingLevel(), 'x'); },
-        [this]
+    gfx.create<i::Slider>("antialiasing",
+                          [] { return Utils::concat(Config::getAntialiasingLevel(), 'x'); },
+                          [this]
+    {
+        if (Config::getAntialiasingLevel() == 0)
         {
-            if (Config::getAntialiasingLevel() == 0)
-            {
-                Config::setAntialiasingLevel(window, 1);
-                return;
-            }
+            Config::setAntialiasingLevel(window, 1);
+            return;
+        }
 
-            Config::setAntialiasingLevel(
-                window, ssvu::getClamped(
-                            Config::getAntialiasingLevel() << 1u, 0u, 16u));
-        },
-        [this]
-        {
-            Config::setAntialiasingLevel(
-                window, ssvu::getClamped(
-                            Config::getAntialiasingLevel() >> 1u, 0u, 16u));
-        });
+        Config::setAntialiasingLevel(window, ssvu::getClamped(Config::getAntialiasingLevel() << 1u, 0u, 16u));
+    },
+                          [this]
+    { Config::setAntialiasingLevel(window, ssvu::getClamped(Config::getAntialiasingLevel() >> 1u, 0u, 16u)); });
 
     gfx.create<i::Toggle>("darken background chunk",
-        &Config::getDarkenUnevenBackgroundChunk,
-        &Config::setDarkenUnevenBackgroundChunk);
-    gfx.create<i::Toggle>(
-        "show key icons", &Config::getShowKeyIcons, &Config::setShowKeyIcons);
-    gfx.create<i::Slider>(
-        "key icons scaling", &Config::getKeyIconsScale, [](float mValue)
-        { Config::setKeyIconsScale(mValue); }, 0.1f, 4.f, 0.05f);
-    gfx.create<i::Toggle>("show level info", &Config::getShowLevelInfo,
-        &Config::setShowLevelInfo);
-    gfx.create<i::Toggle>(
-        "show timer", &Config::getShowTimer, &Config::setShowTimer) |
-        whenNotOfficial;
-    gfx.create<i::Toggle>("show status text", &Config::getShowStatusText,
-        &Config::setShowStatusText) |
-        whenNotOfficial;
+                          &Config::getDarkenUnevenBackgroundChunk,
+                          &Config::setDarkenUnevenBackgroundChunk);
+    gfx.create<i::Toggle>("show key icons", &Config::getShowKeyIcons, &Config::setShowKeyIcons);
+    gfx.create<i::Slider>("key icons scaling", &Config::getKeyIconsScale, [](float mValue) {
+        Config::setKeyIconsScale(mValue);
+    }, 0.1f, 4.f, 0.05f);
+    gfx.create<i::Toggle>("show level info", &Config::getShowLevelInfo, &Config::setShowLevelInfo);
+    gfx.create<i::Toggle>("show timer", &Config::getShowTimer, &Config::setShowTimer) | whenNotOfficial;
+    gfx.create<i::Toggle>("show status text", &Config::getShowStatusText, &Config::setShowStatusText) | whenNotOfficial;
 
     gfx.create<i::GoBack>("back");
 
@@ -1545,42 +1520,41 @@ void MenuGame::initMenus()
 
     sfx.create<i::Toggle>("no sound", &Config::getNoSound, &Config::setNoSound);
     sfx.create<i::Toggle>("no music", &Config::getNoMusic, &Config::setNoMusic);
-    sfx.create<i::Slider>(
-        "sound volume", &Config::getSoundVolume,
-        [this](unsigned int mValue)
-        {
-            Config::setSoundVolume(mValue);
-            audio.setSoundVolume(mValue);
-        },
-        0u, 100u, 5u);
-    sfx.create<i::Slider>(
-        "music volume", &Config::getMusicVolume,
-        [this](unsigned int mValue)
-        {
-            Config::setMusicVolume(mValue);
-            audio.setMusicVolume(mValue);
-        },
-        0u, 100u, 5u);
-    sfx.create<i::Toggle>("sync music with difficulty",
-        &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync);
-    sfx.create<i::Slider>(
-        "music speed multiplier", &Config::getMusicSpeedMult, [](float mValue)
-        { Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f, 0.05f);
-    sfx.create<i::Toggle>("play swap ready blip sound",
-        &Config::getPlaySwapReadySound, &Config::setPlaySwapReadySound);
+    sfx.create<i::Slider>("sound volume",
+                          &Config::getSoundVolume,
+                          [this](unsigned int mValue)
+    {
+        Config::setSoundVolume(mValue);
+        audio.setSoundVolume(mValue);
+    },
+                          0u,
+                          100u,
+                          5u);
+    sfx.create<i::Slider>("music volume",
+                          &Config::getMusicVolume,
+                          [this](unsigned int mValue)
+    {
+        Config::setMusicVolume(mValue);
+        audio.setMusicVolume(mValue);
+    },
+                          0u,
+                          100u,
+                          5u);
+    sfx.create<i::Toggle>("sync music with difficulty", &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync);
+    sfx.create<i::Slider>("music speed multiplier", &Config::getMusicSpeedMult, [](float mValue) {
+        Config::setMusicSpeedMult(mValue);
+    }, 0.7f, 1.3f, 0.05f);
+    sfx.create<i::Toggle>("play swap ready blip sound", &Config::getPlaySwapReadySound, &Config::setPlaySwapReadySound);
     sfx.create<i::GoBack>("back");
 
     //--------------------------------
     // Advanced
 
-    advanced.create<i::Toggle>("cache lua files", &Config::getUseLuaFileCache,
-        &Config::setUseLuaFileCache);
+    advanced.create<i::Toggle>("cache lua files", &Config::getUseLuaFileCache, &Config::setUseLuaFileCache);
 
-    advanced.create<i::Single>(
-        "clear lua file cache", [this] { assets.getLuaFileCache().clear(); });
+    advanced.create<i::Single>("clear lua file cache", [this] { assets.getLuaFileCache().clear(); });
 
-    advanced.create<i::Toggle>("disable game rendering",
-        &Config::getDisableGameRendering, &Config::setDisableGameRendering);
+    advanced.create<i::Toggle>("disable game rendering", &Config::getDisableGameRendering, &Config::setDisableGameRendering);
 
     //--------------------------------
     // MAIN MENU
@@ -1589,21 +1563,19 @@ void MenuGame::initMenus()
     auto& main{mainMenu.createCategory("main")};
     auto& localProfiles{mainMenu.createCategory("local profiles")};
     main.create<i::Single>("LEVEL SELECT",
-        [this]
+                           [this]
+    {
+        if (firstLevelSelection)
         {
-            if (firstLevelSelection)
-            {
-                lvlSlct.packIdx = diffMultIdx = 0;
-                lvlSlct.levelDataIds =
-                    &assets.getLevelIdsByPack(getNthSelectablePackInfo(0).id);
-                setIndex(0);
-            }
-            changeStateTo(States::LevelSelection);
-            playSoundOverride("select.ogg");
-        });
+            lvlSlct.packIdx = diffMultIdx = 0;
+            lvlSlct.levelDataIds          = &assets.getLevelIdsByPack(getNthSelectablePackInfo(0).id);
+            setIndex(0);
+        }
+        changeStateTo(States::LevelSelection);
+        playSoundOverride("select.ogg");
+    });
     main.create<i::Goto>("LOCAL PROFILES", localProfiles);
-    main.create<i::Single>(
-        "ONLINE", [this] { changeStateTo(States::MOnline); });
+    main.create<i::Single>("ONLINE", [this] { changeStateTo(States::MOnline); });
     main.create<i::Single>("OPTIONS", [this] { changeStateTo(States::MOpts); });
     main.create<i::Single>("EXIT", [this] { window.stop(); });
 
@@ -1614,134 +1586,110 @@ void MenuGame::initMenus()
     auto whenMustConnect = [this]
     {
         return hexagonClient.getState() == HexagonClient::State::Disconnected ||
-               hexagonClient.getState() ==
-                   HexagonClient::State::ConnectionError;
+               hexagonClient.getState() == HexagonClient::State::ConnectionError;
     };
 
     auto whenMustLogin = [this]
-    {
-        return hexagonClient.getState() == HexagonClient::State::Connected &&
-               hexagonClient.hasRTKeys();
-    };
+    { return hexagonClient.getState() == HexagonClient::State::Connected && hexagonClient.hasRTKeys(); };
 
     auto whenMustRegister = [this]
-    {
-        return hexagonClient.getState() == HexagonClient::State::Connected &&
-               hexagonClient.hasRTKeys();
-    };
+    { return hexagonClient.getState() == HexagonClient::State::Connected && hexagonClient.hasRTKeys(); };
 
-    auto whenConnected = [this]
-    { return hexagonClient.getState() == HexagonClient::State::Connected; };
+    auto whenConnected = [this] { return hexagonClient.getState() == HexagonClient::State::Connected; };
 
     auto whenLoggedIn = [this]
     {
         return (hexagonClient.getState() == HexagonClient::State::LoggedIn ||
-                   hexagonClient.getState() ==
-                       HexagonClient::State::LoggedIn_Ready) &&
+                hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready) &&
                hexagonClient.hasRTKeys();
     };
 
     auto whenMustDeleteAccount = [this]
-    {
-        return hexagonClient.getState() == HexagonClient::State::Connected &&
-               hexagonClient.hasRTKeys();
-    };
+    { return hexagonClient.getState() == HexagonClient::State::Connected && hexagonClient.hasRTKeys(); };
 
 
     auto& online(onlineMenu.createCategory("options"));
 
-    online.create<i::Single>("CONNECT", [this] { hexagonClient.connect(); }) |
-        whenMustConnect;
+    online.create<i::Single>("CONNECT", [this] { hexagonClient.connect(); }) | whenMustConnect;
 
     online.create<i::Single>("LOGIN",
-        [this]
+                             [this]
+    {
+        if (dialogInputState != DialogInputState::Nothing)
         {
-            if (dialogInputState != DialogInputState::Nothing)
-            {
-                return;
-            }
+            return;
+        }
 
-            openLoginDialogBoxAndStartLoginProcess();
-            ignoreInputsAfterMenuExec();
-        }) |
-        whenMustLogin;
+        openLoginDialogBoxAndStartLoginProcess();
+        ignoreInputsAfterMenuExec();
+    }) | whenMustLogin;
 
     online.create<i::Single>("REGISTER",
-        [this]
+                             [this]
+    {
+        if (dialogInputState != DialogInputState::Nothing)
         {
-            if (dialogInputState != DialogInputState::Nothing)
-            {
-                return;
-            }
+            return;
+        }
 
-            dialogInputState = DialogInputState::Registration_EnteringUsername;
+        dialogInputState = DialogInputState::Registration_EnteringUsername;
 
-            showInputDialogBoxNice("REGISTRATION", "USERNAME");
-            ignoreInputsAfterMenuExec();
-        }) |
-        whenMustRegister;
+        showInputDialogBoxNice("REGISTRATION", "USERNAME");
+        ignoreInputsAfterMenuExec();
+    }) | whenMustRegister;
 
-    online.create<i::Single>(
-        "LOGOUT", [this] { hexagonClient.tryLogoutFromServer(); }) |
-        whenLoggedIn;
+    online.create<i::Single>("LOGOUT", [this] { hexagonClient.tryLogoutFromServer(); }) | whenLoggedIn;
 
-    online.create<i::Single>(
-        "DISCONNECT", [this] { hexagonClient.disconnect(); }) |
-        whenConnected;
+    online.create<i::Single>("DISCONNECT", [this] { hexagonClient.disconnect(); }) | whenConnected;
 
     online.create<i::Single>("DELETE ACCOUNT",
-        [this]
+                             [this]
+    {
+        if (dialogInputState != DialogInputState::Nothing)
         {
-            if (dialogInputState != DialogInputState::Nothing)
-            {
-                return;
-            }
+            return;
+        }
 
-            dialogInputState = DialogInputState::DeleteAccount_EnteringPassword;
+        dialogInputState = DialogInputState::DeleteAccount_EnteringPassword;
 
-            showInputDialogBoxNice("DELETE ACCOUNT", "PASSWORD",
-                "WARNING: THIS WILL DELETE ALL YOUR SCORES");
-            dialogBox.setInputBoxPassword(true);
-            ignoreInputsAfterMenuExec();
-        }) |
-        whenMustDeleteAccount;
+        showInputDialogBoxNice("DELETE ACCOUNT", "PASSWORD", "WARNING: THIS WILL DELETE ALL YOUR SCORES");
+        dialogBox.setInputBoxPassword(true);
+        ignoreInputsAfterMenuExec();
+    }) | whenMustDeleteAccount;
 
     //--------------------------------
     // PROFILES MENU
     //--------------------------------
 
-    localProfiles.create<i::Single>(
-        "CHOOSE PROFILE", [this] { changeStateTo(States::SLPSelect); });
+    localProfiles.create<i::Single>("CHOOSE PROFILE", [this] { changeStateTo(States::SLPSelect); });
     localProfiles.create<i::Single>("NEW PROFILE",
-        [this]
-        {
-            changeStateTo(States::ETLPNew);
-            enteredStr = "";
-            playSoundOverride("select.ogg");
-        });
+                                    [this]
+    {
+        changeStateTo(States::ETLPNew);
+        enteredStr = "";
+        playSoundOverride("select.ogg");
+    });
     localProfiles.create<i::GoBack>("BACK");
 
     //--------------------------------
     // Profiles selection
 
-    auto& profileSelection{
-        profileSelectionMenu.createCategory("profile selection")};
+    auto& profileSelection{profileSelectionMenu.createCategory("profile selection")};
 
     for (auto& p : assets.getLocalProfileNames())
     {
         profileSelection.create<i::Single>(p,
-            [this, p]
-            {
-                assets.pSetCurrent(p);
-                changeFavoriteLevelsToProfile();
-            });
+                                           [this, p]
+        {
+            assets.pSetCurrent(p);
+            changeFavoriteLevelsToProfile();
+        });
     }
 
     profileSelection.sortByName();
 }
 
-bool MenuGame::loadCommandLineLevel(
-    const std::string& pack, const std::string& level)
+bool MenuGame::loadCommandLineLevel(const std::string& pack, const std::string& level)
 {
     // First find the ID of the pack with name matching the one typed by the
     // user. `packDatas` is the only vector in assets with a data type
@@ -1759,17 +1707,14 @@ bool MenuGame::loadCommandLineLevel(
     if (packID.empty())
     {
         hg::lo("hg::Menugame::MenuGame()")
-            << "Invalid pack name '" << pack
-            << "' command line parameter, aborting boot level load\n";
+            << "Invalid pack name '" << pack << "' command line parameter, aborting boot level load\n";
 
         return false;
     }
 
     if (!assets.packHasLevels(packID))
     {
-        hg::lo("hg::Menugame::MenuGame()")
-            << "Pack '" << pack
-            << "' has no levels, aborting boot level load\n";
+        hg::lo("hg::Menugame::MenuGame()") << "Pack '" << pack << "' has no levels, aborting boot level load\n";
 
         return false;
     }
@@ -1777,8 +1722,8 @@ bool MenuGame::loadCommandLineLevel(
     // Iterate through packInfos to find the menu pack index and the index
     // of the level.
     const std::string levelID{packID + "_" + level};
-    const auto& p{assets.getSelectablePackInfos()};
-    const auto& levelsList{assets.getLevelIdsByPack(packID)};
+    const auto&       p{assets.getSelectablePackInfos()};
+    const auto&       levelsList{assets.getLevelIdsByPack(packID)};
 
     for (int i{0}; i < static_cast<int>(p.size()); ++i)
     {
@@ -1793,14 +1738,13 @@ bool MenuGame::loadCommandLineLevel(
         {
 
             hg::lo("hg::Menugame::MenuGame()")
-                << "Invalid level name '" << level
-                << "' command line parameter, aborting boot level load\n";
+                << "Invalid level name '" << level << "' command line parameter, aborting boot level load\n";
 
             return false;
         }
 
         // Level found, initialize parameters
-        lvlSlct.packIdx = i;
+        lvlSlct.packIdx      = i;
         lvlSlct.levelDataIds = &levelsList;
         setIndex(it - levelsList.begin());
 
@@ -1814,8 +1758,7 @@ bool MenuGame::loadCommandLineLevel(
 
     if (state == States::ETLPNew)
     {
-        hg::lo("hg::Menugame::MenuGame()")
-            << "No player profiles exist, aborting boot level load\n";
+        hg::lo("hg::Menugame::MenuGame()") << "No player profiles exist, aborting boot level load\n";
 
         return false;
     }
@@ -1839,26 +1782,22 @@ void MenuGame::playLocally()
 {
     assets.pSaveCurrent();
     enteredStr = "";
-    state = assets.getLocalProfilesSize() == 0 ? States::ETLPNewBoot
-                                               : States::SLPSelectBoot;
+    state      = assets.getLocalProfilesSize() == 0 ? States::ETLPNewBoot : States::SLPSelectBoot;
 }
 
-[[nodiscard]] std::pair<const unsigned int, const unsigned int>
-MenuGame::pickRandomMainMenuBackgroundStyle()
+[[nodiscard]] std::pair<const unsigned int, const unsigned int> MenuGame::pickRandomMainMenuBackgroundStyle()
 {
     // If there is no `menubackgrounds.json` abort
     if (!ssvufs::Path{"Assets/menubackgrounds.json"}.isFile())
     {
-        hg::lo("MenuGame::$")
-            << "File 'Assets/menubackgrounds.json' does not exist" << logEndl;
+        hg::lo("MenuGame::$") << "File 'Assets/menubackgrounds.json' does not exist" << logEndl;
 
         return {0, 0};
     }
 
     std::vector<std::string> levelIDs;
-    ssvuj::Obj object = ssvuj::getFromFile("Assets/menubackgrounds.json");
-    for (const auto& f :
-        ssvuj::getExtr<std::vector<std::string>>(object, "ids"))
+    ssvuj::Obj               object = ssvuj::getFromFile("Assets/menubackgrounds.json");
+    for (const auto& f : ssvuj::getExtr<std::vector<std::string>>(object, "ids"))
     {
         levelIDs.emplace_back(f);
     }
@@ -1867,7 +1806,7 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
     const std::string pickedLevel{levelIDs[ssvu::getRndI(0, levelIDs.size())]};
 
     // retrieve the level index location
-    const auto& p(assets.getSelectablePackInfos());
+    const auto&                     p(assets.getSelectablePackInfos());
     const std::vector<std::string>* levelsIDs;
 
     // store info main menu requires to set the color theme
@@ -1881,7 +1820,7 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
         }
 
         levelsIDs = &assets.getLevelIdsByPack(packId);
-        auto it = std::find(levelsIDs->begin(), levelsIDs->end(), pickedLevel);
+        auto it   = std::find(levelsIDs->begin(), levelsIDs->end(), pickedLevel);
         if (it != levelsIDs->end())
         {
             return {i, it - levelsIDs->begin()};
@@ -1920,7 +1859,7 @@ void MenuGame::leftRightActionImpl(bool left)
         }
 
         difficultyBumpEffect = difficultyBumpEffectMax;
-        touchDelay = 50.f;
+        touchDelay           = 50.f;
         return;
     }
 
@@ -1930,10 +1869,8 @@ void MenuGame::leftRightActionImpl(bool left)
         return;
     }
 
-    const bool modifier =
-        (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) ||
-            sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift) ||
-            focusHeld || wasFocusHeld);
+    const bool modifier = (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) ||
+                           sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RShift) || focusHeld || wasFocusHeld);
 
     for (int i{0}; i < (modifier ? 2 : 1); ++i)
     {
@@ -1992,10 +1929,7 @@ void MenuGame::upAction()
                 setIndex(lvlDrawer->levelDataIds->size() - 1);
                 calcScrollSpeed();
 
-                const float scroll{
-                    packLabelHeight +
-                    levelLabelHeight * (lvlDrawer->currentIndex + 1) +
-                    2.f * slctFrameSize};
+                const float scroll{packLabelHeight + levelLabelHeight * (lvlDrawer->currentIndex + 1) + 2.f * slctFrameSize};
                 if (scroll > h - lvlDrawer->YOffset)
                 {
                     lvlDrawer->YScrollTo = h - scroll;
@@ -2045,11 +1979,11 @@ void MenuGame::upAction()
     }
 
     // Scroll the profiles drawn on screen
-    if ((state == States::SLPSelect || state == States::SLPSelectBoot) &&
-        getCurrentMenu()->getIdx() - 1 < scrollbarOffset)
+    if ((state == States::SLPSelect || state == States::SLPSelectBoot) && getCurrentMenu()->getIdx() - 1 < scrollbarOffset)
     {
-        const int index = ssvu::getMod(getCurrentMenu()->getIdx() - 1, 0,
-            static_cast<int>(getCurrentMenu()->getItems().size()));
+        const int index = ssvu::getMod(getCurrentMenu()->getIdx() - 1,
+                                       0,
+                                       static_cast<int>(getCurrentMenu()->getItems().size()));
         scrollbarOffset = std::max(index - (maxProfilesOnScreen - 1), 0);
     }
 
@@ -2062,8 +1996,7 @@ void MenuGame::upAction()
     do
     {
         getCurrentMenu()->previous();
-    }
-    while (!getCurrentMenu()->getItem().isEnabled());
+    } while (!getCurrentMenu()->getItem().isEnabled());
 
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
@@ -2102,8 +2035,7 @@ void MenuGame::downAction()
                 calcLevelChangeScroll(2);
             }
         }
-        else if (nextIdx >
-                 static_cast<int>(lvlDrawer->levelDataIds->size() - 1))
+        else if (nextIdx > static_cast<int>(lvlDrawer->levelDataIds->size() - 1))
         {
             // Go to the next pack.
             changePackAction(1);
@@ -2122,8 +2054,7 @@ void MenuGame::downAction()
 
     if (state == States::LoadingScreen)
     {
-        if (scrollbarOffset <
-            static_cast<int>(loadInfo.errorMessages.size()) - maxErrorsOnScreen)
+        if (scrollbarOffset < static_cast<int>(loadInfo.errorMessages.size()) - maxErrorsOnScreen)
         {
             ++scrollbarOffset;
             playSoundOverride("beep.ogg");
@@ -2138,11 +2069,11 @@ void MenuGame::downAction()
     }
 
     if ((state == States::SLPSelect || state == States::SLPSelectBoot) &&
-        getCurrentMenu()->getIdx() + 1 >
-            maxProfilesOnScreen - 1 + scrollbarOffset)
+        getCurrentMenu()->getIdx() + 1 > maxProfilesOnScreen - 1 + scrollbarOffset)
     {
-        const int index = ssvu::getMod(getCurrentMenu()->getIdx() + 1, 0,
-            static_cast<int>(getCurrentMenu()->getItems().size()));
+        const int index = ssvu::getMod(getCurrentMenu()->getIdx() + 1,
+                                       0,
+                                       static_cast<int>(getCurrentMenu()->getItems().size()));
         scrollbarOffset = std::max(index - (maxProfilesOnScreen - 1), 0);
     }
 
@@ -2154,8 +2085,7 @@ void MenuGame::downAction()
     do
     {
         getCurrentMenu()->next();
-    }
-    while (!getCurrentMenu()->getItem().isEnabled());
+    } while (!getCurrentMenu()->getItem().isEnabled());
 
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
@@ -2169,8 +2099,7 @@ void MenuGame::changePackTo(const int idx)
     lvlSlct.packIdx = ssvu::getMod(idx, 0, static_cast<int>(p.size()));
 
     // Load level ids relative to the new pack
-    lvlSlct.levelDataIds =
-        &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
+    lvlSlct.levelDataIds = &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
 
     // Set the correct level index.
     setIndex(0);
@@ -2184,13 +2113,10 @@ void MenuGame::changePack()
     const auto& p{assets.getSelectablePackInfos()};
 
     // Deduce the new packIdx.
-    lvlSlct.packIdx =
-        ssvu::getMod(lvlDrawer->packIdx + (packChangeDirection > 0 ? 1 : -1), 0,
-            static_cast<int>(p.size()));
+    lvlSlct.packIdx = ssvu::getMod(lvlDrawer->packIdx + (packChangeDirection > 0 ? 1 : -1), 0, static_cast<int>(p.size()));
 
     // Load level ids relative to the new pack
-    lvlSlct.levelDataIds =
-        &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
+    lvlSlct.levelDataIds = &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
 
     // Set the correct level index.
     setIndex(packChangeDirection == -2 ? lvlSlct.levelDataIds->size() - 1 : 0);
@@ -2219,7 +2145,7 @@ void MenuGame::changePackQuick(const int direction)
     float scroll{packLabelHeight * (lvlDrawer->packIdx - 1)};
 
     std::function<void(const float)> action{[this](const float target)
-        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }};
+    { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }};
 
     // If the height is lower than the offset of the level selection
     // the level list must be scrolled to show the labels before the current
@@ -2228,9 +2154,7 @@ void MenuGame::changePackQuick(const int direction)
     {
         // Height of the bottom of the pack label that is one index after the
         // current one.
-        scroll = packLabelHeight *
-                     std::min(lvlDrawer->packIdx + 2,
-                         static_cast<int>(getSelectablePackInfosSize())) +
+        scroll = packLabelHeight * std::min(lvlDrawer->packIdx + 2, static_cast<int>(getSelectablePackInfosSize())) +
                  levelLabelHeight + 3.f * slctFrameSize;
 
         // If the bottom is outside the boundaries of the screen adjust offset
@@ -2241,15 +2165,14 @@ void MenuGame::changePackQuick(const int direction)
 
 void MenuGame::changePackAction(const int direction)
 {
-    if (state != States::LevelSelection || getSelectablePackInfosSize() == 1 ||
-        packChangeState != PackChange::Rest)
+    if (state != States::LevelSelection || getSelectablePackInfosSize() == 1 || packChangeState != PackChange::Rest)
     {
         return;
     }
 
     lvlDrawer->YScrollTo = lvlDrawer->YOffset; // stop scrolling for safety
     // Initiate the pack change animation.
-    packChangeState = PackChange::Folding;
+    packChangeState     = PackChange::Folding;
     packChangeDirection = direction;
     calcScrollSpeed();
 
@@ -2263,14 +2186,13 @@ void MenuGame::okAction()
 
     switch (state)
     {
-        case States::ETLPNewBoot: [[fallthrough]];
+        case States::ETLPNewBoot:
+            [[fallthrough]];
         case States::ETLPNew:
         {
             if (!enteredStr.empty())
             {
-                ssvms::Category& profiles(
-                    profileSelectionMenu.getCategoryByName(
-                        "profile selection"));
+                ssvms::Category& profiles(profileSelectionMenu.getCategoryByName("profile selection"));
 
                 // Abort if user is trying to create a profile
                 // with a name already in use
@@ -2296,11 +2218,11 @@ void MenuGame::okAction()
 
                 // Create new menu item
                 profiles.create<ssvms::Items::Single>(enteredStr,
-                    [this, name = enteredStr]
-                    {
-                        assets.pSetCurrent(name);
-                        changeFavoriteLevelsToProfile();
-                    });
+                                                      [this, name = enteredStr]
+                {
+                    assets.pSetCurrent(name);
+                    changeFavoriteLevelsToProfile();
+                });
 
                 profiles.sortByName();
 
@@ -2327,8 +2249,7 @@ void MenuGame::okAction()
 
         case States::SMain:
         {
-            const std::string& category{
-                getCurrentMenu()->getCategory().getName()};
+            const std::string& category{getCurrentMenu()->getCategory().getName()};
             getCurrentMenu()->exec();
 
             // Going into the level selection set the selected level
@@ -2368,8 +2289,7 @@ void MenuGame::okAction()
             // There are two Bind controllers: KeyboardBindControl and
             // JoystickBindControl. So we cast to the common base class to not
             // check for one and the other.
-            const auto* const bc{
-                dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
+            const auto* const bc{dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
             if (bc != nullptr && bc->isWaitingForBind())
             {
                 setIgnoreAllInputs(2);
@@ -2449,8 +2369,7 @@ void MenuGame::eraseAction()
     }
     else if (state == States::SLPSelect)
     {
-        const std::string name{
-            profileSelectionMenu.getCategory().getItem().getName()};
+        const std::string name{profileSelectionMenu.getCategory().getItem().getName()};
 
         // There must be at least one profile, don't erase profile
         // currently in use.
@@ -2474,11 +2393,9 @@ void MenuGame::eraseAction()
         }
 
         // Remove the profile .json
-        if (const std::string fileName{"Profiles/" + name + ".json"};
-            std::remove(fileName.c_str()) != 0)
+        if (const std::string fileName{"Profiles/" + name + ".json"}; std::remove(fileName.c_str()) != 0)
         {
-            hg::lo("eraseAction()")
-                << "Error: file " << fileName << " does not exist\n";
+            hg::lo("eraseAction()") << "Error: file " << fileName << " does not exist\n";
 
             return;
         }
@@ -2495,8 +2412,7 @@ void MenuGame::eraseAction()
     else if (state == States::MOpts && isInMenu())
     {
         // Do not do anything if it's not a bind setter menu item.
-        auto* const bc{
-            dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
+        auto* const bc{dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
 
         if (bc == nullptr)
         {
@@ -2569,18 +2485,15 @@ void MenuGame::update(float mFT)
 {
     hexagonClient.update();
 
-    const auto showHCEventDialogBox = [this](const bool error,
-                                          const std::string& msg,
-                                          const std::string& err = "")
+    const auto showHCEventDialogBox = [this](const bool error, const std::string& msg, const std::string& err = "")
     {
         if (!dialogBox.empty())
         {
             return;
         }
 
-        if (state != States::SMain && state != States::MOnline &&
-            state != States::MOpts && state != States::SLPSelect &&
-            state != States::LevelSelection)
+        if (state != States::SMain && state != States::MOnline && state != States::MOpts &&
+            state != States::SLPSelect && state != States::LevelSelection)
         {
             return;
         }
@@ -2621,79 +2534,53 @@ void MenuGame::update(float mFT)
         hcEvent->linearMatch( //
 
             [&](const HexagonClient::EConnectionSuccess&)
-            { showHCEventDialogBox(false /* error */, "CONNECTION SUCCESS"); },
+        { showHCEventDialogBox(false /* error */, "CONNECTION SUCCESS"); },
 
             [&](const HexagonClient::EConnectionFailure& e)
-            {
-                showHCEventDialogBox(
-                    true /* error */, "CONNECTION FAILURE", e.error);
-            },
+        { showHCEventDialogBox(true /* error */, "CONNECTION FAILURE", e.error); },
 
-            [&](const HexagonClient::EKicked&)
-            {
-                showHCEventDialogBox(
-                    true /* error */, "DISCONNECTED FROM SERVER");
-            },
+            [&](const HexagonClient::EKicked&) { showHCEventDialogBox(true /* error */, "DISCONNECTED FROM SERVER"); },
 
             [&](const HexagonClient::ERegistrationSuccess&)
-            {
-                showHCEventDialogBox(false /* error */, "REGISTRATION SUCCESS");
-            },
+        { showHCEventDialogBox(false /* error */, "REGISTRATION SUCCESS"); },
 
             [&](const HexagonClient::ERegistrationFailure& e)
-            {
-                showHCEventDialogBox(
-                    true /* error */, "REGISTRATION FAILURE", e.error);
-            },
+        { showHCEventDialogBox(true /* error */, "REGISTRATION FAILURE", e.error); },
 
             [&](const HexagonClient::ELoginSuccess&)
-            {
-                showHCEventDialogBox(false /* error */, "LOGIN SUCCESS");
-                steamManager.unlock_achievement("a23_login");
-            },
+        {
+            showHCEventDialogBox(false /* error */, "LOGIN SUCCESS");
+            steamManager.unlock_achievement("a23_login");
+        },
 
             [&](const HexagonClient::ELoginFailure& e)
-            {
-                showHCEventDialogBox(
-                    true /* error */, "LOGIN FAILURE", e.error);
-            },
+        { showHCEventDialogBox(true /* error */, "LOGIN FAILURE", e.error); },
 
-            [&](const HexagonClient::ELogoutSuccess&)
-            { showHCEventDialogBox(false /* error */, "LOGOUT SUCCESS"); },
+            [&](const HexagonClient::ELogoutSuccess&) { showHCEventDialogBox(false /* error */, "LOGOUT SUCCESS"); },
 
-            [&](const HexagonClient::ELogoutFailure&)
-            { showHCEventDialogBox(true /* error */, "LOGOUT FAILURE"); },
+            [&](const HexagonClient::ELogoutFailure&) { showHCEventDialogBox(true /* error */, "LOGOUT FAILURE"); },
 
             [&](const HexagonClient::EDeleteAccountSuccess&)
-            {
-                showHCEventDialogBox(
-                    false /* error */, "DELETE ACCOUNT SUCCESS");
-            },
+        { showHCEventDialogBox(false /* error */, "DELETE ACCOUNT SUCCESS"); },
 
             [&](const HexagonClient::EDeleteAccountFailure& e)
-            {
-                showHCEventDialogBox(
-                    true /* error */, "DELETE ACCOUNT FAILURE", e.error);
-            },
+        { showHCEventDialogBox(true /* error */, "DELETE ACCOUNT FAILURE", e.error); },
 
             [&](const HexagonClient::EReceivedTopScores& e)
-            { leaderboardCache->receivedScores(e.levelValidator, e.scores); },
+        { leaderboardCache->receivedScores(e.levelValidator, e.scores); },
 
             [&](const HexagonClient::EReceivedOwnScore& e)
-            { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); },
+        { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); },
 
             [&](const HexagonClient::EGameVersionMismatch&)
-            {
-                hg::lo("hg::MenuGame::update")
-                    << "Client/server game version mismatch, likely not a "
-                       "problem\n";
-            },
+        {
+            hg::lo("hg::MenuGame::update")
+                << "Client/server game version mismatch, likely not a "
+                   "problem\n";
+        },
 
             [&](const HexagonClient::EProtocolVersionMismatch&)
-            {
-                showHCEventDialogBox(true /* error */,
-                    "CLIENT/SERVER PROTOCOL VERSION MISMATCH");
-            }
+        { showHCEventDialogBox(true /* error */, "CLIENT/SERVER PROTOCOL VERSION MISMATCH"); }
 
             //
         );
@@ -2708,8 +2595,7 @@ void MenuGame::update(float mFT)
 
     // Focus should have no effect if we are in the favorites menu
     // or a pack change animation is in progress.
-    if (state == States::LevelSelection && !isFavoriteLevels() &&
-        packChangeState == PackChange::Rest)
+    if (state == States::LevelSelection && !isFavoriteLevels() && packChangeState == PackChange::Rest)
     {
         if (!focusHeld)
         {
@@ -2740,8 +2626,7 @@ void MenuGame::update(float mFT)
     }
 
     // TODO (P2): cleanup mouse control
-    if ((state == States::SMain || state == States::MOpts ||
-            state == States::MOnline || state == States::SLPSelect) &&
+    if ((state == States::SMain || state == States::MOpts || state == States::MOnline || state == States::SLPSelect) &&
         mustUseMenuItem.hasValue())
     {
         if (getCurrentMenu() != nullptr)
@@ -2777,8 +2662,7 @@ void MenuGame::update(float mFT)
         }
         else if (mustChangeIndexTo.hasValue())
         {
-            if (lvlDrawer != nullptr &&
-                lvlDrawer->currentIndex != *mustChangeIndexTo)
+            if (lvlDrawer != nullptr && lvlDrawer->currentIndex != *mustChangeIndexTo)
             {
                 playSoundOverride("beep.ogg");
                 setIndex(*mustChangeIndexTo);
@@ -2907,9 +2791,7 @@ void MenuGame::update(float mFT)
     }
 
     currentCreditsId += mFT;
-    txCreditsBar2 =
-        &assets.getTexture(creditsIds[static_cast<int>(currentCreditsId / 100) %
-                                      creditsIds.size()]);
+    txCreditsBar2 = &assets.getTexture(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]);
     creditsBar2.textureRect = txCreditsBar2->getRect();
 
     if (exitTimer > 20)
@@ -2918,16 +2800,14 @@ void MenuGame::update(float mFT)
     }
 
     styleData.update(mFT);
-    backgroundCamera.rotation +=
-        sf::degrees(levelStatus.rotationSpeed * 10.f * mFT);
+    backgroundCamera.rotation += sf::degrees(levelStatus.rotationSpeed * 10.f * mFT);
 
     if (isEnteringText())
     {
         constexpr unsigned int limit{18u};
         for (auto& c : enteredChars)
         {
-            if (enteredStr.size() < limit &&
-                (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
+            if (enteredStr.size() < limit && (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
             {
                 playSoundOverride("beep.ogg");
                 enteredStr.append(ssvu::toStr(c));
@@ -2938,22 +2818,25 @@ void MenuGame::update(float mFT)
 
     switch (state)
     {
-        case States::LoadingScreen: hexagonRotation += mFT / 100.f; break;
+        case States::LoadingScreen:
+            hexagonRotation += mFT / 100.f;
+            break;
 
         case States::LevelSelection:
         {
             // Folding animation of the level list when we change pack.
             switch (packChangeState)
             {
-                case PackChange::Rest: scrollLevelListToTargetY(mFT); break;
+                case PackChange::Rest:
+                    scrollLevelListToTargetY(mFT);
+                    break;
 
                 case PackChange::Folding:
                 {
                     const float listHeight{getLevelListHeight()};
                     // Change the offset of the level list of the current pack
                     // to fold.
-                    packChangeOffset = std::min(
-                        packChangeOffset + mFT * scrollSpeed, listHeight);
+                    packChangeOffset = std::min(packChangeOffset + mFT * scrollSpeed, listHeight);
                     // If needed scroll the level list offset to show the
                     // current level.
                     calcPackChangeScrollFold(listHeight);
@@ -2975,8 +2858,7 @@ void MenuGame::update(float mFT)
                 case PackChange::Stretching:
                     // Change the offset of the level list of the current pack
                     // to stretch.
-                    packChangeOffset =
-                        std::max(packChangeOffset - mFT * scrollSpeed, 0.f);
+                    packChangeOffset = std::max(packChangeOffset - mFT * scrollSpeed, 0.f);
                     // If needed scroll the level list offset to show the
                     // current level.
                     calcPackChangeScrollStretch(getLevelListHeight());
@@ -2997,7 +2879,8 @@ void MenuGame::update(float mFT)
         }
         break;
 
-        default: break;
+        default:
+            break;
     }
 }
 
@@ -3005,10 +2888,9 @@ void MenuGame::setIndex(const int mIdx)
 {
     lvlDrawer->currentIndex = mIdx;
 
-    const std::string levelID{
-        lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex)};
+    const std::string levelID{lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex)};
 
-    levelData = &assets.getLevelData(levelID);
+    levelData   = &assets.getLevelData(levelID);
     currentPack = &assets.getPackData(levelData->packId);
 
     formatLevelDescription();
@@ -3039,14 +2921,12 @@ void MenuGame::setIndex(const int mIdx)
         // of the assets loading process where this call
         // causes a crash, so it can only safely occur when
         // the level selection menu is opened.
-        isLevelFavorite =
-            assets.getCurrentLocalProfile().isLevelFavorite(levelID);
+        isLevelFavorite = assets.getCurrentLocalProfile().isLevelFavorite(levelID);
     }
 
     // Set the colors of the menus
     auto& colors{styleData.getColors()};
-    menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255)
-                                               : styleData.getTextColor();
+    menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255) : styleData.getTextColor();
     if (static_cast<int>(menuQuadColor.a) == 0 && !Config::getBlackAndWhite())
     {
         for (auto& c : colors)
@@ -3060,27 +2940,25 @@ void MenuGame::setIndex(const int mIdx)
     }
     menuTextColor = Config::getBlackAndWhite() ? sf::Color::White : colors[0];
 
-    dialogBoxTextColor = menuQuadColor;
+    dialogBoxTextColor   = menuQuadColor;
     dialogBoxTextColor.a = 255;
 
     // If there is only one color set the remaining colors
     // to be alpha variants of the ones we have already set.
     if (colors.size() == 1)
     {
-        menuTextColor.a = 255;
-        menuSelectionColor = menuQuadColor;
+        menuTextColor.a      = 255;
+        menuSelectionColor   = menuQuadColor;
         menuSelectionColor.a = 75;
     }
     else
     {
         // If the alpha is 0 or the color is the same find another one.
-        if (static_cast<int>(menuTextColor.a) == 0 ||
-            menuTextColor == menuQuadColor)
+        if (static_cast<int>(menuTextColor.a) == 0 || menuTextColor == menuQuadColor)
         {
             for (auto& c : colors)
             {
-                if (static_cast<int>(c.a) != 0 && c != menuQuadColor &&
-                    !Config::getBlackAndWhite())
+                if (static_cast<int>(c.a) != 0 && c != menuQuadColor && !Config::getBlackAndWhite())
                 {
                     menuTextColor = c;
                     break;
@@ -3089,16 +2967,13 @@ void MenuGame::setIndex(const int mIdx)
         }
 
         // Same as above.
-        menuSelectionColor =
-            Config::getBlackAndWhite() ? sf::Color::White : colors[1];
-        if (static_cast<int>(menuSelectionColor.a) == 0 ||
-            menuSelectionColor == menuQuadColor ||
+        menuSelectionColor = Config::getBlackAndWhite() ? sf::Color::White : colors[1];
+        if (static_cast<int>(menuSelectionColor.a) == 0 || menuSelectionColor == menuQuadColor ||
             menuSelectionColor == menuTextColor)
         {
             for (auto& c : colors)
             {
-                if (static_cast<int>(c.a) != 0 && c != menuQuadColor &&
-                    c != menuTextColor && !Config::getBlackAndWhite())
+                if (static_cast<int>(c.a) != 0 && c != menuQuadColor && c != menuTextColor && !Config::getBlackAndWhite())
                 {
                     menuSelectionColor = c;
                     break;
@@ -3126,8 +3001,7 @@ void MenuGame::setIndex(const int mIdx)
         runLuaFile(levelData->luaScriptPath);
         Utils::runVoidLuaFunctionIfExists(lua, "onInit");
         Utils::runVoidLuaFunctionIfExists(lua, "onLoad");
-    }
-    catch (std::runtime_error& mError)
+    } catch (std::runtime_error& mError)
     {
         std::cout << "[MenuGame::init] Runtime Lua error on menu "
                      "(loadFile/onInit/onLoad) with level \""
@@ -3139,8 +3013,7 @@ void MenuGame::setIndex(const int mIdx)
         {
             playSoundOverride("error.ogg");
         }
-    }
-    catch (...)
+    } catch (...)
     {
         std::cout << "[MenuGame::init] Unknown runtime Lua error on menu "
                      "(loadFile/onInit/onLoad) with level \""
@@ -3156,8 +3029,7 @@ void MenuGame::setIndex(const int mIdx)
 
 void MenuGame::reloadAssets(const bool reloadEntirePack)
 {
-    if (state != States::LevelSelection || !dialogBox.empty() ||
-        !Config::getDebug())
+    if (state != States::LevelSelection || !dialogBox.empty() || !Config::getDebug())
     {
         return;
     }
@@ -3169,13 +3041,11 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
     std::string reloadOutput;
     if (reloadEntirePack)
     {
-        reloadOutput =
-            assets.reloadPack(levelData->packId, levelData->packPath);
+        reloadOutput = assets.reloadPack(levelData->packId, levelData->packPath);
     }
     else
     {
-        reloadOutput = assets.reloadLevel(
-            levelData->packId, levelData->packPath, levelData->id);
+        reloadOutput = assets.reloadLevel(levelData->packId, levelData->packPath, levelData->id);
     }
 
     setIndex(lvlDrawer->currentIndex); // loads the new levelData
@@ -3200,33 +3070,31 @@ void MenuGame::refreshCamera()
     w = getWindowWidth() * fmax;
     h = getWindowHeight() * fmax;
 
-    backgroundCamera = {
-        sf::Vec2f{0.f, 0.f}, {Config::getSizeX() * Config::getZoomFactor(),
-                                 Config::getSizeY() * Config::getZoomFactor()}};
+    backgroundCamera = {sf::Vec2f{0.f, 0.f},
+                        {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}};
 
     overlayCamera = sf::View{{w / 2.f, h / 2.f}, {w, h}};
 
-    titleBar.origin = sf::Vec2f{0.f, 0.f};
-    titleBar.scale = {0.5f, 0.5f};
+    titleBar.origin   = sf::Vec2f{0.f, 0.f};
+    titleBar.scale    = {0.5f, 0.5f};
     titleBar.position = {20.f, 20.f};
 
     txtVersion.font.setString(GAME_VERSION_STR);
-    txtVersion.font.origin = {txtVersion.font.getLocalRight(), 0.f};
-    txtVersion.font.position = {
-        titleBar.getGlobalRight() - 15.f, titleBar.getGlobalTop() + 15.f};
+    txtVersion.font.origin   = {txtVersion.font.getLocalRight(), 0.f};
+    txtVersion.font.position = {titleBar.getGlobalRight() - 15.f, titleBar.getGlobalTop() + 15.f};
 
-    creditsBar1.origin = {creditsBar1.getLocalBounds().size.x, 0.f};
-    creditsBar1.scale = {0.373f, 0.373f};
+    creditsBar1.origin   = {creditsBar1.getLocalBounds().size.x, 0.f};
+    creditsBar1.scale    = {0.373f, 0.373f};
     creditsBar1.position = {w - 20.f, 20.f};
 
-    creditsBar2.origin = {creditsBar2.getLocalBounds().size.x, 0};
-    creditsBar2.scale = {0.373f, 0.373f};
+    creditsBar2.origin   = {creditsBar2.getLocalBounds().size.x, 0};
+    creditsBar2.scale    = {0.373f, 0.373f};
     creditsBar2.position = {w - 20.f, 17.f + creditsBar1.getGlobalBottom()};
 
     const float scaleFactor{w / 1024.f};
-    epilepsyWarning.origin = epilepsyWarning.getLocalCenter();
+    epilepsyWarning.origin   = epilepsyWarning.getLocalCenter();
     epilepsyWarning.position = {1024 / (2.f / scaleFactor), 768 / 2.f - 50};
-    epilepsyWarning.scale = {0.36f, 0.36f};
+    epilepsyWarning.scale    = {0.36f, 0.36f};
 
     // Readjust the menu background skew and the indents
     fourByThree = 10.f * getWindowWidth() / getWindowHeight() < 16;
@@ -3266,8 +3134,7 @@ void MenuGame::refreshCamera()
     }
 
     // Update the height infos of the fonts.
-    const auto setMenuFontVisualSize =
-        [](MenuFont& menuFont, const unsigned int characterSize)
+    const auto setMenuFontVisualSize = [](MenuFont& menuFont, const unsigned int characterSize)
     { setVisualCharacterSize(menuFont.font, characterSize); };
 
     if (fourByThree)
@@ -3302,11 +3169,23 @@ void MenuGame::refreshCamera()
     }
 
     // txtVersion and txtProfile are not in here cause they do not need it.
-    for (auto f : {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig,
-             &txtMenuTiny, &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
-             &txtInstructionsMedium, &txtInstructionsSmall, &txtEnteringText,
-             &txtSelectionBig, &txtSelectionMedium, &txtSelectionSmall,
-             &txtSelectionScore, &txtSelectionRanked})
+    for (auto f :
+         {&txtProf,
+          &txtLoadBig,
+          &txtLoadSmall,
+          &txtMenuBig,
+          &txtMenuTiny,
+          &txtMenuSmall,
+          &txtInstructionsBig,
+          &txtRandomTip,
+          &txtInstructionsMedium,
+          &txtInstructionsSmall,
+          &txtEnteringText,
+          &txtSelectionBig,
+          &txtSelectionMedium,
+          &txtSelectionSmall,
+          &txtSelectionScore,
+          &txtSelectionRanked})
     {
         f->updateHeight();
     }
@@ -3321,16 +3200,14 @@ void MenuGame::refreshCamera()
         formatLevelDescription();
     }
 }
-void MenuGame::renderText(
-    const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
+void MenuGame::renderText(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
 {
     mText.setString(mStr);
     mText.position = mPos;
     drawOverlay(mText);
 }
 
-void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
-    const sf::Vec2f mPos, const sf::Color& mColor)
+void MenuGame::renderText(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3338,8 +3215,7 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
     mText.setFillColor(prevColor);
 }
 
-void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vec2f mPos)
+void MenuGame::renderText(const std::string& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos)
 {
     const sf::Vec2f prevScale = mText.scale;
     setVisualCharacterSize(mText, mSize);
@@ -3347,8 +3223,11 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
     mText.scale = prevScale;
 }
 
-void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vec2f mPos, const sf::Color& mColor)
+void MenuGame::renderText(const std::string& mStr,
+                          sf::Text&          mText,
+                          const unsigned int mSize,
+                          const sf::Vec2f    mPos,
+                          const sf::Color&   mColor)
 {
     const sf::Vec2f prevScale = mText.scale;
     setVisualCharacterSize(mText, mSize);
@@ -3360,16 +3239,14 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
 }
 
 // Text rendering centered
-void MenuGame::renderTextCentered(
-    const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
+void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
 {
     mText.setString(mStr);
     mText.position = {mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
     drawOverlay(mText);
 }
 
-void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
-    const sf::Vec2f mPos, const sf::Color& mColor)
+void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3377,8 +3254,7 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
     mText.setFillColor(prevColor);
 }
 
-void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vec2f mPos)
+void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos)
 {
     const sf::Vec2f prevScale = mText.scale;
     setVisualCharacterSize(mText, mSize);
@@ -3386,8 +3262,11 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
     mText.scale = prevScale;
 }
 
-void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
-    const unsigned int mSize, const sf::Vec2f mPos, const sf::Color& mColor)
+void MenuGame::renderTextCentered(const std::string& mStr,
+                                  sf::Text&          mText,
+                                  const unsigned int mSize,
+                                  const sf::Vec2f    mPos,
+                                  const sf::Color&   mColor)
 {
     const sf::Vec2f prevScale = mText.scale;
     setVisualCharacterSize(mText, mSize);
@@ -3399,8 +3278,7 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
 }
 
 // Text rendering centered with an offset
-void MenuGame::renderTextCenteredOffset(const std::string& mStr,
-    sf::Text& mText, const sf::Vec2f mPos, const float xOffset)
+void MenuGame::renderTextCenteredOffset(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos, const float xOffset)
 {
     mText.setString(mStr);
     mText.position = {xOffset + mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
@@ -3408,8 +3286,10 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
 }
 
 void MenuGame::renderTextCenteredOffset(const std::string& mStr,
-    sf::Text& mText, const sf::Vec2f mPos, const float xOffset,
-    const sf::Color& mColor)
+                                        sf::Text&          mText,
+                                        const sf::Vec2f    mPos,
+                                        const float        xOffset,
+                                        const sf::Color&   mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3529,8 +3409,7 @@ void MenuGame::adjustLevelsOffset()
 inline constexpr float offsetSpeed{4.f};
 inline constexpr float offsetSnap{0.25f};
 
-[[nodiscard]] float MenuGame::calcMenuOffset(float& offset,
-    const float maxOffset, const bool revertOffset, const bool speedUp)
+[[nodiscard]] float MenuGame::calcMenuOffset(float& offset, const float maxOffset, const bool revertOffset, const bool speedUp)
 {
     // Adjust the offset of the menu depending on whether it
     // is being opened or closed.
@@ -3587,22 +3466,25 @@ void MenuGame::calcMenuItemOffset(float& offset, bool selected)
     }
 }
 
-void MenuGame::createQuad(const sf::Color& color, const float x1,
-    const float x2, const float y1, const float y2)
+void MenuGame::createQuad(const sf::Color& color, const float x1, const float x2, const float y1, const float y2)
 {
     sf::Vec2f nw{x1, y1}, ne{x2, y1}, se{x2, y2}, sw{x1, y2};
     menuQuads.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
 }
 
-void MenuGame::createQuad(
-    const sf::Color& color, const sf::Vec2f mins, const sf::Vec2f maxs)
+void MenuGame::createQuad(const sf::Color& color, const sf::Vec2f mins, const sf::Vec2f maxs)
 {
     createQuad(color, mins.x, maxs.x, mins.y, maxs.y);
 }
 
-void MenuGame::createQuadTrapezoid(const sf::Color& color, const float x1,
-    const float x2, const float x3, const float y1, const float y2,
-    const bool left)
+void MenuGame::createQuadTrapezoid(
+    const sf::Color& color,
+    const float      x1,
+    const float      x2,
+    const float      x3,
+    const float      y1,
+    const float      y2,
+    const bool       left)
 {
     sf::Vec2f nw, ne, se, sw;
 
@@ -3624,8 +3506,7 @@ void MenuGame::createQuadTrapezoid(const sf::Color& color, const float x1,
     menuQuads.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
 }
 
-[[nodiscard]] std::pair<int, int> MenuGame::getScrollbarNotches(
-    const int size, const int maxSize) const
+[[nodiscard]] std::pair<int, int> MenuGame::getScrollbarNotches(const int size, const int maxSize) const
 {
     if (size > maxSize)
     {
@@ -3635,33 +3516,33 @@ void MenuGame::createQuadTrapezoid(const sf::Color& color, const float x1,
     return {0, size};
 }
 
-void MenuGame::drawScrollbar(const float totalHeight, const int size,
-    const int notches, const float x, const float y, const sf::Color& color)
+void MenuGame::drawScrollbar(const float      totalHeight,
+                             const int        size,
+                             const int        notches,
+                             const float      x,
+                             const float      y,
+                             const sf::Color& color)
 {
     // Draw a scrollbar depending on the total amount of elements
     // and the total height of the portion of screen where the scrollbar
     // is drawn.
 
-    const float notchHeight{totalHeight / size},
-        barHeight{totalHeight - notches * notchHeight},
+    const float notchHeight{totalHeight / size}, barHeight{totalHeight - notches * notchHeight},
         startHeight{y + notchHeight * scrollbarOffset};
 
     menuQuads.clear();
     menuQuads.reserve_quad(1);
-    createQuad(
-        color, x, x + textToQuadBorder, startHeight, startHeight + barHeight);
+    createQuad(color, x, x + textToQuadBorder, startHeight, startHeight + barHeight);
     drawOverlay(menuQuads);
 }
 
-void MenuGame::drawMainSubmenus(
-    const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus,
-    const float indent)
+void MenuGame::drawMainSubmenus(const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent)
 {
     bool currentlySelected, hasOffset;
     for (auto& c : subMenus)
     {
         currentlySelected = mainMenu.getCategory().getName() == c->getName();
-        hasOffset = c->getOffset() != 0.f;
+        hasOffset         = c->getOffset() != 0.f;
 
         // this submenu has been fully folded so there is no need to draw it.
         if (!currentlySelected && !hasOffset)
@@ -3673,9 +3554,7 @@ void MenuGame::drawMainSubmenus(
     }
 }
 
-void MenuGame::drawSubmenusSmall(
-    const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus,
-    const float indent)
+void MenuGame::drawSubmenusSmall(const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent)
 {
     bool currentlySelected, hasOffset;
     for (auto& c : subMenus)
@@ -3687,7 +3566,7 @@ void MenuGame::drawSubmenusSmall(
         }
 
         currentlySelected = optionsMenu.getCategory().getName() == c->getName();
-        hasOffset = c->getOffset() != 0.f;
+        hasOffset         = c->getOffset() != 0.f;
 
         // this submenu has been fully folded
         if (!currentlySelected && !hasOffset)
@@ -3719,8 +3598,7 @@ void MenuGame::setMouseCursorVisible(const bool x)
     return mouseCursorVisible;
 }
 
-[[nodiscard]] bool MenuGame::overlayMouseOverlap(
-    const sf::Vec2f mins, const sf::Vec2f maxs) const
+[[nodiscard]] bool MenuGame::overlayMouseOverlap(const sf::Vec2f mins, const sf::Vec2f maxs) const
 {
     constexpr float tolerance = 1.f;
 
@@ -3729,16 +3607,13 @@ void MenuGame::setMouseCursorVisible(const bool x)
         return false;
     }
 
-    const sf::Vec2f mp = overlayCamera.screenToWorld(
-        sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>(),
-        window.getRenderWindow().getSize().to<sf::Vec2f>());
+    const sf::Vec2f mp = overlayCamera.screenToWorld(sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>(),
+                                                     window.getRenderWindow().getSize().to<sf::Vec2f>());
 
-    return mp.x > mins.x - tolerance && mp.x < maxs.x + tolerance &&
-           mp.y > mins.y - tolerance && mp.y < maxs.y + tolerance;
+    return mp.x > mins.x - tolerance && mp.x < maxs.x + tolerance && mp.y > mins.y - tolerance && mp.y < maxs.y + tolerance;
 }
 
-[[nodiscard]] bool MenuGame::overlayMouseOverlapAndUpdateHover(
-    const sf::Vec2f mins, const sf::Vec2f maxs)
+[[nodiscard]] bool MenuGame::overlayMouseOverlapAndUpdateHover(const sf::Vec2f mins, const sf::Vec2f maxs)
 {
     if (overlayMouseOverlap(mins, maxs))
     {
@@ -3749,8 +3624,7 @@ void MenuGame::setMouseCursorVisible(const bool x)
     return false;
 }
 
-[[nodiscard]] sf::Color MenuGame::mouseOverlapColor(
-    const bool mouseOverlap, const sf::Color& c) const
+[[nodiscard]] sf::Color MenuGame::mouseOverlapColor(const bool mouseOverlap, const sf::Color& c) const
 {
     if (!mouseOverlap)
     {
@@ -3769,27 +3643,21 @@ void MenuGame::setMouseCursorVisible(const bool x)
     return !mouseWasPressed && mousePressed;
 }
 
-void MenuGame::drawMainMenu(
-    ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset)
+void MenuGame::drawMainMenu(ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset)
 {
     const auto& items(mSubMenu.getItems());
-    const int size = items.size();
+    const int   size = items.size();
 
     // Global menu offset
-    const float panelOffset{
-        calcMenuOffset(mSubMenu.getOffset(), -(baseIndent - w), revertOffset)};
+    const float panelOffset{calcMenuOffset(mSubMenu.getOffset(), -(baseIndent - w), revertOffset)};
     baseIndent += panelOffset;
 
     // Calculate quads coordinates.
     // We use font height as our reference parameter.
-    const float interline{3.f * txtMenuBig.height},
-        quadBorder{txtMenuBig.height * frameSizeMulti},
-        doubleBorder{2.f * quadBorder},
-        totalHeight{interline * (size - 1) + doubleBorder + txtMenuBig.height};
+    const float interline{3.f * txtMenuBig.height}, quadBorder{txtMenuBig.height * frameSizeMulti},
+        doubleBorder{2.f * quadBorder}, totalHeight{interline * (size - 1) + doubleBorder + txtMenuBig.height};
     float quadHeight{(h - totalHeight) / 2.f + interline - quadBorder},
-        txtHeight{
-            quadHeight - txtMenuBig.height * fontHeightOffset + quadBorder},
-        indent;
+        txtHeight{quadHeight - txtMenuBig.height * fontHeightOffset + quadBorder}, indent;
 
     // Store info needed to draw the submenus
     menuHalfHeight = quadHeight + totalHeight / 2.f;
@@ -3808,25 +3676,24 @@ void MenuGame::drawMainMenu(
 
         const sf::Vec2f bodyMins{indent - txtMenuBig.height * 2.5f, quadHeight};
 
-        const sf::Vec2f bodyMaxs{
-            w, quadHeight + doubleBorder + txtMenuBig.height};
+        const sf::Vec2f bodyMaxs{w, quadHeight + doubleBorder + txtMenuBig.height};
 
-        const bool mouseOverlap =
-            overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
+        const bool mouseOverlap = overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
 
         mouseOverlaps[i] = mouseOverlap;
 
-        sf::Color c = !items[i]->isEnabled() ? sf::Color{110, 110, 110, 255}
-                                             : menuQuadColor;
+        sf::Color c = !items[i]->isEnabled() ? sf::Color{110, 110, 110, 255} : menuQuadColor;
 
         createQuadTrapezoid(mouseOverlapColor(mouseOverlap, c),
-            indent - txtMenuBig.height * 2.5f, w,
-            indent - txtMenuBig.height / 2.f, quadHeight,
-            quadHeight + doubleBorder + txtMenuBig.height, false);
+                            indent - txtMenuBig.height * 2.5f,
+                            w,
+                            indent - txtMenuBig.height / 2.f,
+                            quadHeight,
+                            quadHeight + doubleBorder + txtMenuBig.height,
+                            false);
 
         // TODO (P2): cleanup mouse control
-        if (mouseOverlap && !mustUseMenuItem.hasValue() &&
-            mouseLeftRisingEdge() && items[i]->isEnabled())
+        if (mouseOverlap && !mustUseMenuItem.hasValue() && mouseLeftRisingEdge() && items[i]->isEnabled())
         {
             mustUseMenuItem.emplace(i);
         }
@@ -3842,51 +3709,42 @@ void MenuGame::drawMainMenu(
         indent = baseIndent - items[i]->getOffset();
 
         const sf::Color c = mouseOverlapColor(mouseOverlaps.at(i),
-            !items[i]->isEnabled() ? sf::Color{150, 150, 150, 255}
-                                   : menuTextColor);
+                                              !items[i]->isEnabled() ? sf::Color{150, 150, 150, 255} : menuTextColor);
 
-        renderText(
-            items[i]->getName(), txtMenuBig.font, {indent, txtHeight}, c);
+        renderText(items[i]->getName(), txtMenuBig.font, {indent, txtHeight}, c);
 
         txtHeight += interline;
     }
 }
 
-void MenuGame::drawOptionsSubmenus(
-    ssvms::Category& mSubMenu, const float baseIndent, const bool revertOffset)
+void MenuGame::drawOptionsSubmenus(ssvms::Category& mSubMenu, const float baseIndent, const bool revertOffset)
 {
     const auto& items{mSubMenu.getItems()};
-    const int size(items.size());
+    const int   size(items.size());
 
     // Calculate quads coordinates
-    float quadBorder{txtMenuSmall.height * frameSizeMulti};
+    float       quadBorder{txtMenuSmall.height * frameSizeMulti};
     const float doubleBorder{quadBorder * 2.f};
     const float interline{2.1f * txtMenuSmall.height};
-    const float totalHeight{
-        interline * (size - 1) + 2.f * doubleBorder + txtMenuSmall.height};
-    const float quadHeight{std::max(menuHalfHeight - totalHeight / 2.f,
-        creditsBar2.getGlobalBottom() + 10.f)};
+    const float totalHeight{interline * (size - 1) + 2.f * doubleBorder + txtMenuSmall.height};
+    const float quadHeight{std::max(menuHalfHeight - totalHeight / 2.f, creditsBar2.getGlobalBottom() + 10.f)};
 
     // Offset
-    const float panelOffset{
-        calcMenuOffset(mSubMenu.getOffset(), baseIndent, revertOffset, true)};
+    const float panelOffset{calcMenuOffset(mSubMenu.getOffset(), baseIndent, revertOffset, true)};
     const float indent{baseIndent - quadBorder - panelOffset};
 
     // Draw the quads that surround the text
     menuQuads.clear();
     menuQuads.reserve_quad(2);
 
-    createQuad(menuTextColor, 0, indent + doubleBorder, quadHeight,
-        quadHeight + totalHeight);
-    createQuad(menuQuadColor, 0, indent + quadBorder, quadHeight + quadBorder,
-        quadHeight + totalHeight - quadBorder);
+    createQuad(menuTextColor, 0, indent + doubleBorder, quadHeight, quadHeight + totalHeight);
+    createQuad(menuQuadColor, 0, indent + quadBorder, quadHeight + quadBorder, quadHeight + totalHeight - quadBorder);
     drawOverlay(menuQuads);
 
     // Draw the text on top of the quads
     quadBorder = quadBorder * 1.5f - panelOffset;
     std::string itemName;
-    float txtHeight{
-        quadHeight - txtMenuSmall.height * fontHeightOffset + doubleBorder};
+    float       txtHeight{quadHeight - txtMenuSmall.height * fontHeightOffset + doubleBorder};
     for (int i{0}; i < size; ++i)
     {
         SSVOH_ASSERT(i < static_cast<int>(items.size()));
@@ -3898,16 +3756,17 @@ void MenuGame::drawOptionsSubmenus(
             itemName = "> " + itemName;
         }
 
-        renderText(itemName, txtMenuSmall.font, {quadBorder, txtHeight},
-            !items[i]->isEnabled() ? sf::Color{150, 150, 150, 255}
-                                   : menuTextColor);
+        renderText(itemName,
+                   txtMenuSmall.font,
+                   {quadBorder, txtHeight},
+                   !items[i]->isEnabled() ? sf::Color{150, 150, 150, 255} : menuTextColor);
 
         if (!items[i]->isEnabled())
         {
-            renderText("[OFFICIAL MODE ENABLED]", txtMenuTiny.font,
-                {txtMenuSmall.font.getGlobalRight() + 6.f,
-                    txtMenuSmall.font.getGlobalTop() - 2.f},
-                sf::Color{150, 150, 150, 255});
+            renderText("[OFFICIAL MODE ENABLED]",
+                       txtMenuTiny.font,
+                       {txtMenuSmall.font.getGlobalRight() + 6.f, txtMenuSmall.font.getGlobalTop() - 2.f},
+                       sf::Color{150, 150, 150, 255});
         }
 
         txtHeight += interline;
@@ -3930,43 +3789,38 @@ std::string MenuGame::formatSurvivalTime(ProfileData* data)
     }
     else if (time < 3600)
     {
-        stream << std::setfill('0') << std::setw(2) << time / 60 << ":"
-               << std::setfill('0') << std::setw(2) << time % 60;
+        stream << std::setfill('0') << std::setw(2) << time / 60 << ":" << std::setfill('0') << std::setw(2) << time % 60;
     }
     else
     {
         stream << time / 3600 << ":";
         time %= 3600;
-        stream << std::setfill('0') << std::setw(2) << time / 60 << ":"
-               << std::setfill('0') << std::setw(2) << time % 60;
+        stream << std::setfill('0') << std::setw(2) << time / 60 << ":" << std::setfill('0') << std::setw(2) << time % 60;
     }
 
     return stream.str();
 }
 
-inline constexpr float profFrameSize{10.f};
+inline constexpr float        profFrameSize{10.f};
 inline constexpr unsigned int profCharSize{30};
 inline constexpr unsigned int profSelectedCharSize{30 + 12};
 
-void MenuGame::drawProfileSelection(
-    const float xOffset, const bool revertOffset)
+void MenuGame::drawProfileSelection(const float xOffset, const bool revertOffset)
 {
     ssvms::Category& mSubmenu{profileSelectionMenu.getCategory()};
-    const auto& items{mSubmenu.getItems()};
+    const auto&      items{mSubmenu.getItems()};
 
     const int realSize(items.size());
-    auto [scrollbarNotches, drawnSize] =
-        getScrollbarNotches(realSize, maxProfilesOnScreen);
+    auto [scrollbarNotches, drawnSize] = getScrollbarNotches(realSize, maxProfilesOnScreen);
 
     // Calculate the height
     const float fontHeight{Utils::getFontHeight(txtProfile.font, profCharSize)},
-        selectedFontHeight{
-            Utils::getFontHeight(txtProfile.font, profSelectedCharSize)};
+        selectedFontHeight{Utils::getFontHeight(txtProfile.font, profSelectedCharSize)};
 
     // check if the width of the menu should be increased
     constexpr float profMinWidth{400.f};
-    float textWidth{profMinWidth};
-    std::string itemName;
+    float           textWidth{profMinWidth};
+    std::string     itemName;
     for (auto& p : items)
     {
         itemName = p->getName();
@@ -3977,10 +3831,8 @@ void MenuGame::drawProfileSelection(
 
     // Calculate horizontal coordinates
     constexpr float profMinHeight{360.f};
-    const float interline{4.f * fontHeight}, doubleBorder{profFrameSize * 2.f},
-        totalHeight{std::max(
-            interline * (drawnSize - 1) + doubleBorder * 2.f + fontHeight * 3.f,
-            profMinHeight)};
+    const float     interline{4.f * fontHeight}, doubleBorder{profFrameSize * 2.f},
+        totalHeight{std::max(interline * (drawnSize - 1) + doubleBorder * 2.f + fontHeight * 3.f, profMinHeight)};
 
     // always account for the scrollbar space
     constexpr float scrollbarInterspace{3.f};
@@ -4002,14 +3854,11 @@ void MenuGame::drawProfileSelection(
     }
 
     // Calculate vertical coordinates
-    float quadHeight{
-        std::max((h - totalHeight) / 2.f, titleBar.getGlobalBottom() + 60.f)},
-        txtHeight{quadHeight - fontHeight * fontHeightOffset + doubleBorder +
-                  profFrameSize * 0.5f};
+    float quadHeight{std::max((h - totalHeight) / 2.f, titleBar.getGlobalBottom() + 60.f)},
+        txtHeight{quadHeight - fontHeight * fontHeightOffset + doubleBorder + profFrameSize * 0.5f};
 
     // Submenu global offset
-    const float panelOffset{
-        calcMenuOffset(mSubmenu.getOffset(), h - quadHeight, revertOffset)};
+    const float panelOffset{calcMenuOffset(mSubmenu.getOffset(), h - quadHeight, revertOffset)};
     txtHeight += panelOffset;
     quadHeight += panelOffset;
 
@@ -4017,27 +3866,29 @@ void MenuGame::drawProfileSelection(
     menuQuads.clear();
     menuQuads.reserve_quad(2);
 
-    createQuad(menuTextColor, indent - doubleBorder,
-        indent + doubleBorder + textWidth, quadHeight,
-        quadHeight + totalHeight);
+    createQuad(menuTextColor, indent - doubleBorder, indent + doubleBorder + textWidth, quadHeight, quadHeight + totalHeight);
 
-    createQuad(menuQuadColor, indent - profFrameSize,
-        indent + profFrameSize + textWidth, quadHeight + profFrameSize,
-        quadHeight + totalHeight - profFrameSize);
+    createQuad(menuQuadColor,
+               indent - profFrameSize,
+               indent + profFrameSize + textWidth,
+               quadHeight + profFrameSize,
+               quadHeight + totalHeight - profFrameSize);
 
     drawOverlay(menuQuads);
 
     if (scrollbarNotches != 0)
     {
         drawScrollbar(totalHeight - 2.f * (profFrameSize + scrollbarInterspace),
-            realSize, scrollbarNotches,
-            indent + textWidth - scrollbarInterspace,
-            quadHeight + profFrameSize + scrollbarInterspace, menuTextColor);
+                      realSize,
+                      scrollbarNotches,
+                      indent + textWidth - scrollbarInterspace,
+                      quadHeight + profFrameSize + scrollbarInterspace,
+                      menuTextColor);
     }
 
     // Draw the text on top of the quads
-    float yPos;
-    bool selected;
+    float        yPos;
+    bool         selected;
     ProfileData* data;
     txtHeight += profFrameSize / 2.f;
     for (int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
@@ -4049,55 +3900,52 @@ void MenuGame::drawProfileSelection(
         itemName = items[i]->getName();
 
         yPos = txtHeight - (selected ? fontHeight * 0.75f : 0.f);
-        renderTextCentered(Utils::toUppercase(itemName), txtProfile.font,
-            selected ? profSelectedCharSize : profCharSize,
-            {indent + textWidth / 2.f, yPos}, menuTextColor);
+        renderTextCentered(Utils::toUppercase(itemName),
+                           txtProfile.font,
+                           selected ? profSelectedCharSize : profCharSize,
+                           {indent + textWidth / 2.f, yPos},
+                           menuTextColor);
 
         // Add total survival time for extra flavor
         data = assets.getLocalProfileByName(itemName);
         if (data != nullptr)
         {
             yPos += (selected ? selectedFontHeight : fontHeight) * 1.75f;
-            renderTextCentered(formatSurvivalTime(data), txtProfile.font,
-                (selected ? profSelectedCharSize : profCharSize) - 15u,
-                {indent + textWidth / 2.f, yPos});
+            renderTextCentered(formatSurvivalTime(data),
+                               txtProfile.font,
+                               (selected ? profSelectedCharSize : profCharSize) - 15u,
+                               {indent + textWidth / 2.f, yPos});
         }
 
         txtHeight += interline;
     }
 
     // Add message about profile deletion
-    txtInstructionsSmall.font.position = {
-        indent + (textWidth - instructionsWidth) / 2.f,
-        quadHeight + totalHeight};
+    txtInstructionsSmall.font.position = {indent + (textWidth - instructionsWidth) / 2.f, quadHeight + totalHeight};
     drawOverlay(txtInstructionsSmall.font);
 }
 
 void MenuGame::drawProfileSelectionBoot()
 {
     ssvms::Category& mSubmenu{profileSelectionMenu.getCategory()};
-    const auto& items(mSubmenu.getItems());
+    const auto&      items(mSubmenu.getItems());
 
     const int realSize(items.size());
-    auto [scrollbarNotches, drawnSize] =
-        getScrollbarNotches(realSize, maxProfilesOnScreen);
+    auto [scrollbarNotches, drawnSize] = getScrollbarNotches(realSize, maxProfilesOnScreen);
 
     const float fontHeight{Utils::getFontHeight(txtProfile.font, profCharSize)},
-        selectedFontHeight{
-            Utils::getFontHeight(txtProfile.font, profSelectedCharSize)};
+        selectedFontHeight{Utils::getFontHeight(txtProfile.font, profSelectedCharSize)};
 
     // Calculate coordinates
     const float interline{4.f * fontHeight}, totalHeight{interline * drawnSize};
-    float height{(h - totalHeight) / 2.f - selectedFontHeight * 1.5f};
+    float       height{(h - totalHeight) / 2.f - selectedFontHeight * 1.5f};
 
     // Draw instructions
     const float instructionsHeight{1.5f * txtInstructionsBig.height};
     // Make sure the instructions do not overlap the title bar or the credits
-    height = std::max(
-        height - 2.f * instructionsHeight, titleBar.getGlobalBottom() + 40.f);
+    height = std::max(height - 2.f * instructionsHeight, titleBar.getGlobalBottom() + 40.f);
 
-    const std::string instructions[] = {
-        "SELECT LOCAL PROFILE", "PRESS ESC TO CREATE A NEW PROFILE"};
+    const std::string instructions[] = {"SELECT LOCAL PROFILE", "PRESS ESC TO CREATE A NEW PROFILE"};
     for (auto& s : instructions)
     {
         renderTextCentered(s, txtInstructionsBig.font, {w / 2.f, height});
@@ -4122,13 +3970,12 @@ void MenuGame::drawProfileSelectionBoot()
         width = std::max(width, txtProfile.font.getGlobalWidth());
         width += 10.f;
 
-        drawScrollbar(totalHeight, realSize, scrollbarNotches,
-            (w + width) / 2.f, height, sf::Color::White);
+        drawScrollbar(totalHeight, realSize, scrollbarNotches, (w + width) / 2.f, height, sf::Color::White);
     }
 
     // Draw profile names and score
-    bool selected;
-    float yPos;
+    bool         selected;
+    float        yPos;
     ProfileData* data;
     for (int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
     {
@@ -4139,17 +3986,20 @@ void MenuGame::drawProfileSelectionBoot()
         itemName = items[i]->getName();
 
         yPos = height - (selected ? fontHeight * 0.75f : 0.f);
-        renderTextCentered(Utils::toUppercase(itemName), txtProfile.font,
-            selected ? profSelectedCharSize : profCharSize, {w / 2.f, yPos});
+        renderTextCentered(Utils::toUppercase(itemName),
+                           txtProfile.font,
+                           selected ? profSelectedCharSize : profCharSize,
+                           {w / 2.f, yPos});
 
         // Add total survival time for extra flavor
         data = assets.getLocalProfileByName(itemName);
         if (data != nullptr)
         {
             yPos += (selected ? selectedFontHeight : fontHeight) * 1.75f;
-            renderTextCentered(formatSurvivalTime(data), txtProfile.font,
-                (selected ? profSelectedCharSize : profCharSize) - 15u,
-                {w / 2.f, yPos});
+            renderTextCentered(formatSurvivalTime(data),
+                               txtProfile.font,
+                               (selected ? profSelectedCharSize : profCharSize) - 15u,
+                               {w / 2.f, yPos});
         }
 
         height += interline;
@@ -4162,21 +4012,16 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
     Utils::uppercasify(enteredStr);
     txtEnteringText.font.setString(enteredStr);
     constexpr float enteringTextMinWidth{200.f};
-    const float textWidth{
-        std::max(enteringTextMinWidth, txtEnteringText.font.getGlobalWidth())};
+    const float     textWidth{std::max(enteringTextMinWidth, txtEnteringText.font.getGlobalWidth())};
 
     // Calculate coordinates
-    const float doubleFrame{profFrameSize * 2.f},
-        indent{((w + xOffset) * 0.5f - textWidth) / 2.f + profFrameSize},
-        txtBottom{txtEnteringText.height * 0.45f},
-        totalHeight{txtEnteringText.height + txtBottom + doubleFrame * 2.f};
+    const float doubleFrame{profFrameSize * 2.f}, indent{((w + xOffset) * 0.5f - textWidth) / 2.f + profFrameSize},
+        txtBottom{txtEnteringText.height * 0.45f}, totalHeight{txtEnteringText.height + txtBottom + doubleFrame * 2.f};
     float quadHeight{menuHalfHeight - totalHeight / 2.f},
-        txtHeight{quadHeight - txtEnteringText.height * fontHeightOffset +
-                  doubleFrame};
+        txtHeight{quadHeight - txtEnteringText.height * fontHeightOffset + doubleFrame};
 
     // Offset
-    const float panelOffset{
-        calcMenuOffset(enteringTextOffset, h - quadHeight, revertOffset)};
+    const float panelOffset{calcMenuOffset(enteringTextOffset, h - quadHeight, revertOffset)};
     txtHeight += panelOffset;
     quadHeight += panelOffset;
 
@@ -4184,30 +4029,27 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
     menuQuads.clear();
     menuQuads.reserve_quad(2);
 
-    createQuad(menuTextColor, indent - doubleFrame,
-        indent + doubleFrame + textWidth, quadHeight, quadHeight + totalHeight);
+    createQuad(menuTextColor, indent - doubleFrame, indent + doubleFrame + textWidth, quadHeight, quadHeight + totalHeight);
 
-    createQuad(menuQuadColor, indent - profFrameSize,
-        indent + profFrameSize + textWidth, quadHeight + profFrameSize,
-        quadHeight + totalHeight - profFrameSize);
+    createQuad(menuQuadColor,
+               indent - profFrameSize,
+               indent + profFrameSize + textWidth,
+               quadHeight + profFrameSize,
+               quadHeight + totalHeight - profFrameSize);
 
     drawOverlay(menuQuads);
 
     // Draw the text on top of the quads
-    renderTextCenteredOffset(enteredStr, txtEnteringText.font,
-        {textWidth / 2.f, txtHeight + profFrameSize / 2.f}, indent,
-        menuTextColor);
+    renderTextCenteredOffset(enteredStr, txtEnteringText.font, {textWidth / 2.f, txtHeight + profFrameSize / 2.f}, indent, menuTextColor);
 
     // Draw instructions text above the quads
-    const std::string instructions[] = {
-        "INSERT TEXT", "PRESS ENTER WHEN DONE", "PRESS ESC TO ABORT"};
-    const float instructionsHeight{txtInstructionsMedium.height * 1.5f};
+    const std::string instructions[] = {"INSERT TEXT", "PRESS ENTER WHEN DONE", "PRESS ESC TO ABORT"};
+    const float       instructionsHeight{txtInstructionsMedium.height * 1.5f};
     txtHeight -= profFrameSize + instructionsHeight * 3.f;
     txtInstructionsMedium.font.setFillColor(menuQuadColor);
     for (auto& s : instructions)
     {
-        renderTextCenteredOffset(s, txtInstructionsMedium.font,
-            {textWidth / 2.f, txtHeight}, indent);
+        renderTextCenteredOffset(s, txtInstructionsMedium.font, {textWidth / 2.f, txtHeight}, indent);
         txtHeight += instructionsHeight;
     }
 }
@@ -4220,8 +4062,7 @@ void MenuGame::drawEnteringTextBoot()
     // Draw instructions text
     const float instructionsHeight{txtInstructionsBig.height * 1.5f};
     height -= instructionsHeight * 2.f;
-    const std::string instructions[] = {
-        "PROFILE CREATION", "PLEASE TYPE A NAME AND PRESS ENTER"};
+    const std::string instructions[] = {"PROFILE CREATION", "PLEASE TYPE A NAME AND PRESS ENTER"};
     for (auto& s : instructions)
     {
         renderTextCentered(s, txtInstructionsBig.font, {w / 2.f, height});
@@ -4231,15 +4072,14 @@ void MenuGame::drawEnteringTextBoot()
     // Draw the entered name text
     height += instructionsHeight / 2.f;
     Utils::uppercasify(enteredStr);
-    renderTextCentered(
-        enteredStr, txtEnteringText.font, {w / 2.f, height}, sf::Color::White);
+    renderTextCentered(enteredStr, txtEnteringText.font, {w / 2.f, height}, sf::Color::White);
 }
 
 void MenuGame::drawLoadResults()
 {
     //--------------------------------------
     // Hexagon
-    const float div{Utils::tau / 6 * 0.5f}, hexagonRadius{100.f};
+    const float     div{Utils::tau / 6 * 0.5f}, hexagonRadius{100.f};
     const sf::Vec2f centerPos = {w / 2.f, h / 5.f};
 
     menuQuads.clear();
@@ -4249,17 +4089,12 @@ void MenuGame::drawLoadResults()
     {
         const float sAngle{div * 2.f * (i + hexagonRotation)};
 
-        const sf::Vec2f nw{
-            centerPos.movedTowards(hexagonRadius, sf::radians(sAngle - div))};
-        const sf::Vec2f ne{
-            centerPos.movedTowards(hexagonRadius, sf::radians(sAngle + div))};
-        const sf::Vec2f se{centerPos.movedTowards(
-            hexagonRadius + 10.f, sf::radians(sAngle + div))};
-        const sf::Vec2f sw{centerPos.movedTowards(
-            hexagonRadius + 10.f, sf::radians(sAngle - div))};
+        const sf::Vec2f nw{centerPos.movedTowards(hexagonRadius, sf::radians(sAngle - div))};
+        const sf::Vec2f ne{centerPos.movedTowards(hexagonRadius, sf::radians(sAngle + div))};
+        const sf::Vec2f se{centerPos.movedTowards(hexagonRadius + 10.f, sf::radians(sAngle + div))};
+        const sf::Vec2f sw{centerPos.movedTowards(hexagonRadius + 10.f, sf::radians(sAngle - div))};
 
-        menuQuads.batch_unsafe_emplace_back_quad(
-            sf::Color::White, nw, sw, se, ne);
+        menuQuads.batch_unsafe_emplace_back_quad(sf::Color::White, nw, sw, se, ne);
     }
 
     //--------------------------------------
@@ -4267,12 +4102,11 @@ void MenuGame::drawLoadResults()
 
     menuQuads.reserve_more_quad(3);
     const float xOffset{w / 4.f};
-    float topHeight{h / 2.f - h / 15.f}, bottomHeight{h / 2.f + h / 15.f};
+    float       topHeight{h / 2.f - h / 15.f}, bottomHeight{h / 2.f + h / 15.f};
 
     for (int i{-1}; i < 2; ++i)
     {
-        createQuad(sf::Color::White, w / 2.f + i * xOffset - 5.f,
-            w / 2.f + i * xOffset + 5.f, topHeight, bottomHeight);
+        createQuad(sf::Color::White, w / 2.f + i * xOffset - 5.f, w / 2.f + i * xOffset + 5.f, topHeight, bottomHeight);
     }
 
     drawOverlay(menuQuads);
@@ -4288,34 +4122,27 @@ void MenuGame::drawLoadResults()
 
     // 1
     float textOffset{w - 3.f * xOffset};
-    renderTextCentered(
-        "PACKS LOADED", txtLoadSmall.font, {textOffset / 2.f, topHeight});
-    renderTextCentered(ssvu::toStr(loadInfo.packs), txtLoadBig.font,
-        {textOffset / 2.f, numbersHeight});
+    renderTextCentered("PACKS LOADED", txtLoadSmall.font, {textOffset / 2.f, topHeight});
+    renderTextCentered(ssvu::toStr(loadInfo.packs), txtLoadBig.font, {textOffset / 2.f, numbersHeight});
 
     // 2
     textOffset = w - xOffset;
-    renderTextCentered(
-        "LEVELS LOADED", txtLoadSmall.font, {textOffset / 2.f, topHeight});
-    renderTextCentered(ssvu::toStr(loadInfo.levels), txtLoadBig.font,
-        {textOffset / 2.f, numbersHeight});
+    renderTextCentered("LEVELS LOADED", txtLoadSmall.font, {textOffset / 2.f, topHeight});
+    renderTextCentered(ssvu::toStr(loadInfo.levels), txtLoadBig.font, {textOffset / 2.f, numbersHeight});
 
     // 3
     textOffset = w + xOffset;
-    renderTextCentered(
-        "ASSETS LOADED", txtLoadSmall.font, {textOffset / 2.f, topHeight});
-    renderTextCentered(ssvu::toStr(loadInfo.assets), txtLoadBig.font,
-        {textOffset / 2.f, numbersHeight});
+    renderTextCentered("ASSETS LOADED", txtLoadSmall.font, {textOffset / 2.f, topHeight});
+    renderTextCentered(ssvu::toStr(loadInfo.assets), txtLoadBig.font, {textOffset / 2.f, numbersHeight});
 
     //--------------------------------------
     // Random tip
 
     const float tipInterline{txtRandomTip.height * 1.5f};
-    float height{h - tipInterline * 2.f};
+    float       height{h - tipInterline * 2.f};
     for (int i{1}; i >= 0; --i) // all tips are on two lines
     {
-        renderTextCentered(std::string(randomTip[i]), txtRandomTip.font,
-            {w / 2.f, height - tipInterline});
+        renderTextCentered(std::string(randomTip[i]), txtRandomTip.font, {w / 2.f, height - tipInterline});
         height -= tipInterline;
     }
 
@@ -4325,17 +4152,14 @@ void MenuGame::drawLoadResults()
     int size = loadInfo.errorMessages.size();
 
     textOffset = w + 3.f * xOffset;
-    renderTextCentered("ERRORS", txtLoadSmall.font,
-        {textOffset / 2.f, topHeight}, sf::Color::Red);
-    renderTextCentered(ssvu::toStr(size), txtLoadBig.font,
-        {textOffset / 2.f, numbersHeight}, sf::Color::Red);
+    renderTextCentered("ERRORS", txtLoadSmall.font, {textOffset / 2.f, topHeight}, sf::Color::Red);
+    renderTextCentered(ssvu::toStr(size), txtLoadBig.font, {textOffset / 2.f, numbersHeight}, sf::Color::Red);
 
     // No error messages
     if (!size)
     {
         bottomHeight += txtLoadSmall.height * 1.75f;
-        renderTextCentered("NO LOAD ERRORS", txtLoadSmall.font,
-            {w / 2.f, bottomHeight}, sf::Color::White);
+        renderTextCentered("NO LOAD ERRORS", txtLoadSmall.font, {w / 2.f, bottomHeight}, sf::Color::White);
         return;
     }
 
@@ -4344,19 +4168,20 @@ void MenuGame::drawLoadResults()
     const float txtSpacing{txtLoadSmall.height * 2.f};
 
     // But first handle the scrollbar
-    auto [scrollbarNotches, drawnSize] =
-        getScrollbarNotches(size, maxErrorsOnScreen);
+    auto [scrollbarNotches, drawnSize] = getScrollbarNotches(size, maxErrorsOnScreen);
     if (scrollbarNotches != 0)
     {
-        drawScrollbar(txtSpacing * drawnSize, size, scrollbarNotches,
-            w - 4.f - textToQuadBorder, bottomHeight + txtSpacing / 4.f,
-            sf::Color::Red);
+        drawScrollbar(txtSpacing * drawnSize,
+                      size,
+                      scrollbarNotches,
+                      w - 4.f - textToQuadBorder,
+                      bottomHeight + txtSpacing / 4.f,
+                      sf::Color::Red);
     }
 
     for (int i{drawnSize - 1 + scrollbarOffset}; i > -1 + scrollbarOffset; --i)
     {
-        renderTextCentered(loadInfo.errorMessages[i], txtLoadSmall.font,
-            {w / 2.f, bottomHeight});
+        renderTextCentered(loadInfo.errorMessages[i], txtLoadSmall.font, {w / 2.f, bottomHeight});
         bottomHeight += txtSpacing;
     }
 }
@@ -4364,14 +4189,13 @@ void MenuGame::drawLoadResults()
 void MenuGame::updateLevelSelectionDrawingParameters()
 {
     levelDetailsOffset = 0.f;
-    lvlSlct.XOffset = 0.f;
-    favSlct.XOffset = 0.f;
+    lvlSlct.XOffset    = 0.f;
+    favSlct.XOffset    = 0.f;
 
     textToQuadBorder = txtSelectionMedium.height * frameSizeMulti;
-    slctFrameSize = textToQuadBorder * 0.3f;
+    slctFrameSize    = textToQuadBorder * 0.3f;
 
-    packLabelHeight =
-        txtSelectionMedium.height + 2.f * textToQuadBorder + slctFrameSize;
+    packLabelHeight = txtSelectionMedium.height + 2.f * textToQuadBorder + slctFrameSize;
 
     levelLabelHeight = txtSelectionBig.height +   // level name
                        txtSelectionSmall.height + // level author
@@ -4382,13 +4206,8 @@ void MenuGame::updateLevelSelectionDrawingParameters()
 
 float MenuGame::getLevelSelectionHeight() const
 {
-    return packLabelHeight * getSelectablePackInfosSize() +
-           getLevelListHeight() - packChangeOffset +
-           (lvlDrawer->packIdx !=
-                       static_cast<int>(getSelectablePackInfosSize()) - 1
-                   ? 2.f
-                   : 1.f) *
-               slctFrameSize;
+    return packLabelHeight * getSelectablePackInfosSize() + getLevelListHeight() - packChangeOffset +
+           (lvlDrawer->packIdx != static_cast<int>(getSelectablePackInfosSize()) - 1 ? 2.f : 1.f) * slctFrameSize;
 }
 
 void MenuGame::scrollName(std::string& text, float& scroller)
@@ -4397,16 +4216,14 @@ void MenuGame::scrollName(std::string& text, float& scroller)
     scroller += getFPSMult();
     text += "  ";
 
-    auto it{std::next(text.begin(),
-        ssvu::getMod(static_cast<int>(scroller / 100.f), text.length()))};
+    auto        it{std::next(text.begin(), ssvu::getMod(static_cast<int>(scroller / 100.f), text.length()))};
     std::string charsToMove;
     std::move(text.begin(), it, std::back_inserter(charsToMove));
     text.erase(text.begin(), it);
     text += charsToMove;
 }
 
-void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
-    sf::Text& font, float& scroller, float border)
+void MenuGame::scrollNameRightBorder(std::string& text, const std::string key, sf::Text& font, float& scroller, float border)
 {
     // Store length of the key
     font.setString(key);
@@ -4434,8 +4251,7 @@ void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
     text = key + text;
 }
 
-void MenuGame::scrollNameRightBorder(
-    std::string& text, sf::Text& font, float& scroller, const float border)
+void MenuGame::scrollNameRightBorder(std::string& text, sf::Text& font, float& scroller, const float border)
 {
     Utils::uppercasify(text);
     font.setString(text);
@@ -4457,16 +4273,13 @@ void MenuGame::scrollNameRightBorder(
 
 [[nodiscard]] float MenuGame::getLevelListHeight() const
 {
-    return levelLabelHeight *
-               (focusHeld ? 1 : lvlDrawer->levelDataIds->size()) +
-           slctFrameSize;
+    return levelLabelHeight * (focusHeld ? 1 : lvlDrawer->levelDataIds->size()) + slctFrameSize;
 }
 
 void MenuGame::calcScrollSpeed()
 {
     // Only speed up the animation if there are more than 16 levels.
-    scrollSpeed =
-        baseScrollSpeed * std::max(lvlDrawer->levelDataIds->size() / 16.f, 1.f);
+    scrollSpeed = baseScrollSpeed * std::max(lvlDrawer->levelDataIds->size() / 16.f, 1.f);
 }
 
 void MenuGame::calcLevelChangeScroll(const int dir)
@@ -4479,7 +4292,7 @@ void MenuGame::calcLevelChangeScroll(const int dir)
     // so for the purposes of this function the pack index of the
     // favorites menu is always 0.
     const int actualPackIdx{isFavoriteLevels() ? 0 : lvlDrawer->packIdx};
-    float scroll;
+    float     scroll;
 
     if (dir < 0)
     {
@@ -4487,45 +4300,37 @@ void MenuGame::calcLevelChangeScroll(const int dir)
         // level label and the next pack label or two previous pack labels.
         if (lvlDrawer->currentIndex < 2)
         {
-            scroll = packLabelHeight *
-                     (actualPackIdx + 1 - (2 - lvlDrawer->currentIndex));
+            scroll = packLabelHeight * (actualPackIdx + 1 - (2 - lvlDrawer->currentIndex));
         }
         else
         {
             //...otherwise just show the two previous level labels.
-            scroll = packLabelHeight * (actualPackIdx + 1) +
-                     levelLabelHeight * (lvlDrawer->currentIndex + dir) +
+            scroll = packLabelHeight * (actualPackIdx + 1) + levelLabelHeight * (lvlDrawer->currentIndex + dir) +
                      slctFrameSize;
         }
 
-        checkWindowTopScroll(scroll,
-            [this](const float target) { lvlDrawer->YScrollTo = target; });
+        checkWindowTopScroll(scroll, [this](const float target) { lvlDrawer->YScrollTo = target; });
         return;
     }
 
     const int size{static_cast<int>(lvlDrawer->levelDataIds->size())};
     // If we are approaching the bottom of the pack show either the
     // last level label and the next pack label or two next pack labels...
-    if (lvlDrawer->currentIndex >= size - 2 &&
-        actualPackIdx != static_cast<int>(getSelectablePackInfosSize()) - 1)
+    if (lvlDrawer->currentIndex >= size - 2 && actualPackIdx != static_cast<int>(getSelectablePackInfosSize()) - 1)
     {
-        scroll =
-            packLabelHeight * (actualPackIdx + 1 +
-                                  (2 - (size - 1 - lvlDrawer->currentIndex))) +
-            levelLabelHeight * size + 3.f * slctFrameSize;
+        scroll = packLabelHeight * (actualPackIdx + 1 + (2 - (size - 1 - lvlDrawer->currentIndex))) +
+                 levelLabelHeight * size + 3.f * slctFrameSize;
     }
     else
     {
         //...otherwise just show the two next level labels.
         scroll = packLabelHeight * (actualPackIdx + 1) +
                  levelLabelHeight *
-                     std::min(lvlDrawer->currentIndex + dir + 1,
-                         static_cast<int>(lvlDrawer->levelDataIds->size())) +
+                     std::min(lvlDrawer->currentIndex + dir + 1, static_cast<int>(lvlDrawer->levelDataIds->size())) +
                  2.f * slctFrameSize;
     }
 
-    checkWindowBottomScroll(
-        scroll, [this](const float target) { lvlDrawer->YScrollTo = target; });
+    checkWindowBottomScroll(scroll, [this](const float target) { lvlDrawer->YScrollTo = target; });
 }
 
 void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
@@ -4537,32 +4342,30 @@ void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
 
     // Make sure the last level and the two before it fit on screen.
     const float scroll{packLabelHeight * lvlDrawer->packIdx + slctFrameSize +
-                       std::max(0.f, packLabelHeight + slctFrameSize +
-                                         mLevelListHeight - packChangeOffset)};
+                       std::max(0.f, packLabelHeight + slctFrameSize + mLevelListHeight - packChangeOffset)};
 
     // As soon as the bottom of the level list goes out of the screen
     // switch pack by setting the packChangeOffset to the height of the
     // level list.
     checkWindowTopScroll(scroll,
-        [this, mLevelListHeight](const float target)
-        {
-            lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
-            packChangeOffset = mLevelListHeight;
-        });
+                         [this, mLevelListHeight](const float target)
+    {
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
+        packChangeOffset                          = mLevelListHeight;
+    });
 }
 
 void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
 {
-    float scrollTop, scrollBottom;
+    float                            scrollTop, scrollBottom;
     std::function<void(const float)> action{[this](const float target)
-        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }};
+    { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }};
 
     if (packChangeDirection == -2)
     {
         // The last pack does not have a "next pack", therefore it gets a
         // special treatement, which comes after this if statement.
-        if (lvlDrawer->packIdx !=
-            static_cast<int>(getSelectablePackInfosSize()) - 1)
+        if (lvlDrawer->packIdx != static_cast<int>(getSelectablePackInfosSize()) - 1)
         {
             // Height of the top of the pack label of the current pack.
             scrollTop = packLabelHeight * lvlDrawer->packIdx;
@@ -4577,19 +4380,16 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
             // have a point of reference and the list is programmed to keep
             // scrollBottom inside the window. If this occurs cut the
             // animation short.
-            std::function<void(const float)> specialAction{
-                [this, action, scrollTop, mLevelListHeight](const float target)
+            std::function<void(const float)> specialAction{[this, action, scrollTop, mLevelListHeight](const float target)
+            {
+                if (scrollTop < -lvlDrawer->YOffset)
                 {
-                    if (scrollTop < -lvlDrawer->YOffset)
-                    {
-                        packChangeOffset = 0.f;
-                        action(h - (scrollTop +
-                                       2.f * (packLabelHeight + slctFrameSize) +
-                                       std::max(0.f, mLevelListHeight)));
-                        return;
-                    }
-                    action(target);
-                }};
+                    packChangeOffset = 0.f;
+                    action(h - (scrollTop + 2.f * (packLabelHeight + slctFrameSize) + std::max(0.f, mLevelListHeight)));
+                    return;
+                }
+                action(target);
+            }};
 
             // The bottom must prevail.
             if (!checkWindowBottomScrollWithResult(scrollBottom, specialAction))
@@ -4601,11 +4401,9 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
         }
 
         // Top of the pack label.
-        scrollTop =
-            packLabelHeight * getSelectablePackInfosSize() + slctFrameSize;
+        scrollTop = packLabelHeight * getSelectablePackInfosSize() + slctFrameSize;
         // Bottom of the level list.
-        scrollBottom =
-            scrollTop + std::max(0.f, mLevelListHeight - packChangeOffset);
+        scrollBottom = scrollTop + std::max(0.f, mLevelListHeight - packChangeOffset);
 
         // The bottom must prevail.
         if (!checkWindowBottomScrollWithResult(scrollBottom, action))
@@ -4618,11 +4416,9 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
     // The list is shifted to try fit all levels in the pack.
     // If that is not possible just include the pack label
     // + whatever amount of levels it's possible to fit on screen.
-    scrollTop = packLabelHeight * (lvlDrawer->packIdx - 1);
+    scrollTop    = packLabelHeight * (lvlDrawer->packIdx - 1);
     scrollBottom = scrollTop + packLabelHeight +
-                   std::min(packLabelHeight + slctFrameSize + mLevelListHeight -
-                                packChangeOffset,
-                       h);
+                   std::min(packLabelHeight + slctFrameSize + mLevelListHeight - packChangeOffset, h);
 
     checkWindowBottomScroll(scrollBottom, action);
     checkWindowTopScroll(scrollTop, action);
@@ -4633,13 +4429,12 @@ void MenuGame::quickPackFoldStretch()
     // Top of the pack label of the previous pack.
     const float scrollTop{packLabelHeight * (lvlDrawer->packIdx - 1)};
     // Bottom of the pack label of the next pack.
-    const float scrollBottom{scrollTop + 2.f * packLabelHeight + slctFrameSize +
-                             getLevelListHeight()};
+    const float scrollBottom{scrollTop + 2.f * packLabelHeight + slctFrameSize + getLevelListHeight()};
 
-    checkWindowBottomScroll(scrollBottom, [this](const float target)
-        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
-    checkWindowTopScroll(scrollTop, [this](const float target)
-        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
+    checkWindowBottomScroll(scrollBottom, [this](const float target) {
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
+    });
+    checkWindowTopScroll(scrollTop, [this](const float target) { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
     adjustLevelsOffset();
 }
 
@@ -4669,8 +4464,7 @@ void MenuGame::scrollLevelListToTargetY(float mFT)
 
 inline constexpr int descLines{5};
 
-void MenuGame::checkWindowTopScroll(
-    const float scroll, std::function<void(const float)> action)
+void MenuGame::checkWindowTopScroll(const float scroll, std::function<void(const float)> action)
 {
     const float target{-scroll};
     if (target <= lvlDrawer->YOffset)
@@ -4681,8 +4475,7 @@ void MenuGame::checkWindowTopScroll(
     action(target);
 }
 
-bool MenuGame::checkWindowTopScrollWithResult(
-    const float scroll, std::function<void(const float)> action)
+bool MenuGame::checkWindowTopScrollWithResult(const float scroll, std::function<void(const float)> action)
 {
     const float target{-scroll};
     if (target <= lvlDrawer->YOffset)
@@ -4694,8 +4487,7 @@ bool MenuGame::checkWindowTopScrollWithResult(
     return true;
 }
 
-void MenuGame::checkWindowBottomScroll(
-    const float scroll, std::function<void(const float)> action)
+void MenuGame::checkWindowBottomScroll(const float scroll, std::function<void(const float)> action)
 {
     const float target{h - scroll};
     if (target >= lvlDrawer->YOffset)
@@ -4706,8 +4498,7 @@ void MenuGame::checkWindowBottomScroll(
     action(target);
 }
 
-bool MenuGame::checkWindowBottomScrollWithResult(
-    const float scroll, std::function<void(const float)> action)
+bool MenuGame::checkWindowBottomScrollWithResult(const float scroll, std::function<void(const float)> action)
 {
     const float target{h - scroll};
     if (target >= lvlDrawer->YOffset)
@@ -4731,8 +4522,7 @@ void MenuGame::resetLevelNamesScrolls()
 {
     // Reset all scrolls except the ones relative to the pack.
     namesScroll[static_cast<int>(Label::LevelName)] = 0.f;
-    for (int i = static_cast<int>(Label::MusicName);
-        i < static_cast<int>(Label::ScrollsSize); ++i)
+    for (int i = static_cast<int>(Label::MusicName); i < static_cast<int>(Label::ScrollsSize); ++i)
     {
         namesScroll[i] = 0.f;
     }
@@ -4753,10 +4543,7 @@ void MenuGame::formatLevelDescription()
         strBuf.clear();
         std::string& desc = strBuf;
 
-        desc += assets
-                    .getLevelData(
-                        lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))
-                    .description;
+        desc += assets.getLevelData(lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex)).description;
 
         if (desc.empty())
         {
@@ -4772,8 +4559,7 @@ void MenuGame::formatLevelDescription()
         {
             if (desc[i] == '\n')
             {
-                words.emplace_back(
-                    desc.substr(j, i - j + 1)); // include newline.
+                words.emplace_back(desc.substr(j, i - j + 1)); // include newline.
                 j = i + 1;
             }
             else if (desc[i] == ' ')
@@ -4789,8 +4575,7 @@ void MenuGame::formatLevelDescription()
     const float maxWidth{getMaximumTextWidth()};
     std::string candidate;
     std::string temp;
-    for (sf::base::SizeT i{0};
-        i < words.size() && levelDescription.size() < descLines; ++i)
+    for (sf::base::SizeT i{0}; i < words.size() && levelDescription.size() < descLines; ++i)
     {
         if (!candidate.empty())
         {
@@ -4853,19 +4638,15 @@ void MenuGame::changeFavoriteLevelsToProfile()
 
     favoriteLevelDataIds.clear();
 
-    for (const std::string& id :
-        assets.getCurrentLocalProfile().getFavoriteLevelIds())
+    for (const std::string& id : assets.getCurrentLocalProfile().getFavoriteLevelIds())
     {
         favoriteLevelDataIds.push_back(id);
     }
 
     sf::base::quickSort(favoriteLevelDataIds.begin(),
-        favoriteLevelDataIds.end(),
-        [this](const std::string& a, const std::string& b) -> bool
-        {
-            return ssvu::toLower(assets.getLevelData(a).name) <
-                   ssvu::toLower(assets.getLevelData(b).name);
-        });
+                        favoriteLevelDataIds.end(),
+                        [this](const std::string& a, const std::string& b) -> bool
+    { return ssvu::toLower(assets.getLevelData(a).name) < ssvu::toLower(assets.getLevelData(b).name); });
 
     const int sz{static_cast<int>(favoriteLevelDataIds.size())};
 
@@ -4895,16 +4676,14 @@ void MenuGame::changeFavoriteLevelsToProfile()
     return isFavoriteLevels() ? 1 : assets.getSelectablePackInfos().size();
 }
 
-[[nodiscard]] const PackInfo& MenuGame::getNthSelectablePackInfo(
-    const sf::base::SizeT i)
+[[nodiscard]] const PackInfo& MenuGame::getNthSelectablePackInfo(const sf::base::SizeT i)
 {
     return assets.getSelectablePackInfos().at(i);
 }
 
 void MenuGame::addRemoveFavoriteLevel()
 {
-    const LevelData& data{assets.getLevelData(
-        lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))};
+    const LevelData& data{assets.getLevelData(lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))};
 
     const std::string levelID{data.packId + "_" + data.id};
 
@@ -4912,15 +4691,13 @@ void MenuGame::addRemoveFavoriteLevel()
     if (isLevelFavorite)
     {
         assets.getCurrentLocalProfile().removeFavoriteLevel(levelID);
-        favoriteLevelDataIds.erase(std::find(
-            favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(), levelID));
+        favoriteLevelDataIds.erase(std::find(favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(), levelID));
         favSlct.lvlOffsets.pop_back();
 
         // Make sure the index is within bounds.
         if (!favSlct.levelDataIds->empty())
         {
-            ssvu::clamp(favSlct.currentIndex, 0,
-                static_cast<int>(favSlct.levelDataIds->size()) - 1);
+            ssvu::clamp(favSlct.currentIndex, 0, static_cast<int>(favSlct.levelDataIds->size()) - 1);
         }
         else
         {
@@ -4938,7 +4715,7 @@ void MenuGame::addRemoveFavoriteLevel()
         if (favSlct.levelDataIds->empty())
         {
             favSlct.XOffset = 0.f; // this way the menu is not drawn anymore.
-            lvlDrawer = &lvlSlct;
+            lvlDrawer       = &lvlSlct;
         }
         else
         {
@@ -4946,8 +4723,7 @@ void MenuGame::addRemoveFavoriteLevel()
             // and the bottom of the window. Needed to ensure the selected
             // level is always on screen.
             const float scroll{
-                h - (packLabelHeight + 2.f * slctFrameSize +
-                        levelLabelHeight * favSlct.levelDataIds->size())};
+                h - (packLabelHeight + 2.f * slctFrameSize + levelLabelHeight * favSlct.levelDataIds->size())};
             if (scroll > lvlDrawer->YOffset)
             {
                 favSlct.YOffset = favSlct.YScrollTo = scroll;
@@ -4965,10 +4741,9 @@ void MenuGame::addRemoveFavoriteLevel()
 
         // Add the level to the favorites vector
         // keeping it sorted in alphabetical order.
-        auto it{favoriteLevelDataIds.begin()};
-        const auto end{favoriteLevelDataIds.end()};
-        const std::string tweakedFavName{
-            ssvu::toLower(assets.getLevelData(levelID).name)};
+        auto              it{favoriteLevelDataIds.begin()};
+        const auto        end{favoriteLevelDataIds.end()};
+        const std::string tweakedFavName{ssvu::toLower(assets.getLevelData(levelID).name)};
 
         std::string tweakedLevelName;
         while (it != end)
@@ -4992,8 +4767,7 @@ void MenuGame::addRemoveFavoriteLevel()
         }
 
         // Just in case.
-        ssvu::clamp(favSlct.currentIndex, 0,
-            static_cast<int>(favSlct.levelDataIds->size()) - 1);
+        ssvu::clamp(favSlct.currentIndex, 0, static_cast<int>(favSlct.levelDataIds->size()) - 1);
     }
 
     playSoundOverride("select.ogg");
@@ -5012,9 +4786,9 @@ void MenuGame::switchToFromFavoriteLevels()
         changePack();
     }
 
-    packChangeState = PackChange::Rest;
+    packChangeState      = PackChange::Rest;
     lvlDrawer->YScrollTo = lvlDrawer->YOffset;
-    packChangeOffset = 0.f;
+    packChangeOffset     = 0.f;
 
     lvlDrawer = isFavoriteLevels() ? &lvlSlct : &favSlct;
     setIndex(lvlDrawer->currentIndex); // update the looks
@@ -5023,8 +4797,7 @@ void MenuGame::switchToFromFavoriteLevels()
     playSoundOverride("select.ogg");
 }
 
-void MenuGame::drawLevelSelectionRightSide(
-    LevelDrawer& drawer, const bool revertOffset)
+void MenuGame::drawLevelSelectionRightSide(LevelDrawer& drawer, const bool revertOffset)
 {
     // total distance from the top of the text
     // to the outer border of the label.
@@ -5033,25 +4806,24 @@ void MenuGame::drawLevelSelectionRightSide(
     const float quadsIndent{w - packLabelOffset};
     const float txtIndent{w - packLabelOffset / 2.f};
     const float levelIndent{quadsIndent + outerFrame};
-    const float panelOffset{
-        calcMenuOffset(drawer.XOffset, w - quadsIndent, revertOffset)};
+    const float panelOffset{calcMenuOffset(drawer.XOffset, w - quadsIndent, revertOffset)};
 
     const auto& infos{assets.getSelectablePackInfos()};
-    int packsSize, levelsSize;
+    int         packsSize, levelsSize;
     if (drawer.isFavorites)
     {
         levelsSize = drawer.levelDataIds->size();
-        packsSize = 1;
+        packsSize  = 1;
     }
     else
     {
-        packsSize = infos.size();
+        packsSize  = infos.size();
         levelsSize = focusHeld ? 1 : drawer.levelDataIds->size();
     }
 
     static std::string tempString;
-    float prevLevelIndent{0.f}, height{0.f};
-    sf::Vec2f topLeft, topRight, bottomRight, bottomLeft;
+    float              prevLevelIndent{0.f}, height{0.f};
+    sf::Vec2f          topLeft, topRight, bottomRight, bottomLeft;
 
     // The drawing order is: levels list then pack labels.
     // The reason for it is that when a pack is deselected the
@@ -5059,9 +4831,8 @@ void MenuGame::drawLevelSelectionRightSide(
     // Therefore pack labels must be drawn above everything else (aka must
     // be drawn last).
 
-    topLeft = {w / 2.f, 2.f};
-    tempString = isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS"
-                                    : "PRESS F2 TO SHOW FAVORITE LEVELS";
+    topLeft    = {w / 2.f, 2.f};
+    tempString = isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS" : "PRESS F2 TO SHOW FAVORITE LEVELS";
     renderTextCentered(tempString, txtSelectionSmall.font, topLeft);
     tempString = "\nHOLD FOCUS TO JUMP BETWEEN PACKS";
     renderTextCentered(tempString, txtSelectionSmall.font, topLeft);
@@ -5069,12 +4840,11 @@ void MenuGame::drawLevelSelectionRightSide(
     //----------------------------------------
     // LEVELS LIST
 
-    int i;
-    sf::Color alphaTextColor{
-        menuTextColor.r, menuTextColor.g, menuTextColor.b, 150};
+    int       i;
+    sf::Color alphaTextColor{menuTextColor.r, menuTextColor.g, menuTextColor.b, 150};
     txtSelectionMedium.font.setFillColor(menuTextColor);
-    height = packLabelHeight * (isFavoriteLevels() ? 1 : drawer.packIdx + 1) +
-             slctFrameSize - packChangeOffset + drawer.YOffset;
+    height = packLabelHeight * (isFavoriteLevels() ? 1 : drawer.packIdx + 1) + slctFrameSize - packChangeOffset +
+             drawer.YOffset;
 
     for (i = 0; i < levelsSize; ++i)
     {
@@ -5102,38 +4872,31 @@ void MenuGame::drawLevelSelectionRightSide(
         // Top frame
         if (i > 0 && drawer.lvlOffsets[i - 1] > drawer.lvlOffsets[i])
         {
-            createQuad(menuQuadColor, prevLevelIndent, w, height,
-                height + slctFrameSize);
+            createQuad(menuQuadColor, prevLevelIndent, w, height, height + slctFrameSize);
         }
         else
         {
-            createQuad(
-                menuQuadColor, indent, w, height, height + slctFrameSize);
+            createQuad(menuQuadColor, indent, w, height, height + slctFrameSize);
         }
 
         // Side frame
-        createQuad(menuQuadColor, indent, indent + slctFrameSize,
-            height + slctFrameSize, height + levelLabelHeight);
+        createQuad(menuQuadColor, indent, indent + slctFrameSize, height + slctFrameSize, height + levelLabelHeight);
 
         // Body
-        const sf::Vec2f bodyMins{
-            indent + slctFrameSize, height + slctFrameSize};
+        const sf::Vec2f bodyMins{indent + slctFrameSize, height + slctFrameSize};
 
         const sf::Vec2f bodyMaxs{w, height + levelLabelHeight};
 
-        const bool mouseOverlap =
-            overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
+        const bool mouseOverlap = overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
 
-        const sf::Color c =
-            i == drawer.currentIndex ? menuSelectionColor : alphaTextColor;
+        const sf::Color c = i == drawer.currentIndex ? menuSelectionColor : alphaTextColor;
 
         createQuad(mouseOverlapColor(mouseOverlap, c), bodyMins, bodyMaxs);
 
         // TODO (P2): cleanup mouse control
         if (mouseOverlap && mouseLeftRisingEdge())
         {
-            if (!mustPlay && HRClock::now() - lastMouseClick <
-                                 std::chrono::milliseconds(160))
+            if (!mustPlay && HRClock::now() - lastMouseClick < std::chrono::milliseconds(160))
             {
                 mustPlay = true;
             }
@@ -5148,8 +4911,7 @@ void MenuGame::drawLevelSelectionRightSide(
 
         //-------------------------------------
         // Level data
-        const LevelData* const levelData{
-            &assets.getLevelData(drawer.levelDataIds->at(i))};
+        const LevelData* const levelData{&assets.getLevelData(drawer.levelDataIds->at(i))};
         if (levelData == nullptr)
         {
             continue;
@@ -5170,34 +4932,31 @@ void MenuGame::drawLevelSelectionRightSide(
 
         const sf::Color c0 = mouseOverlapColor(mouseOverlap, menuQuadColor);
 
-        const auto currentDiffMult = levelData->getNthDiffMult(diffMultIdx);
-        const std::string& levelValidator =
-            levelData->getValidator(currentDiffMult);
+        const auto         currentDiffMult = levelData->getNthDiffMult(diffMultIdx);
+        const std::string& levelValidator  = levelData->getValidator(currentDiffMult);
 
-        renderText(tempString, txtSelectionBig.font,
-            {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
+        renderText(tempString, txtSelectionBig.font, {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
 
-        if (!levelData->unscored &&
-            hexagonClient.isLevelSupportedByServer(levelValidator))
+        if (!levelData->unscored && hexagonClient.isLevelSupportedByServer(levelValidator))
         {
             const float padding = 5.f;
-            const float width = 50.f;
+            const float width   = 50.f;
 
             menuQuads.clear();
             menuQuads.reserve_quad(1);
 
-            createQuad(menuQuadColor, w - width - padding, w,
-                height - textToQuadBorder,
-                height - textToQuadBorder + txtSelectionRanked.height +
-                    padding + 1.f);
+            createQuad(menuQuadColor,
+                       w - width - padding,
+                       w,
+                       height - textToQuadBorder,
+                       height - textToQuadBorder + txtSelectionRanked.height + padding + 1.f);
 
             drawOverlay(menuQuads);
 
-            renderText("RANKED", txtSelectionRanked.font,
-                {w - width, height -
-                                txtSelectionRanked.height * fontHeightOffset -
-                                3.f},
-                mouseOverlapColor(mouseOverlap, c));
+            renderText("RANKED",
+                       txtSelectionRanked.font,
+                       {w - width, height - txtSelectionRanked.height * fontHeightOffset - 3.f},
+                       mouseOverlapColor(mouseOverlap, c));
         }
 
         //-------------------------------------
@@ -5209,8 +4968,7 @@ void MenuGame::drawLevelSelectionRightSide(
 
         const sf::Color c1 = mouseOverlapColor(mouseOverlap, menuQuadColor);
 
-        renderText(tempString, txtSelectionSmall.font,
-            {indent, height - txtSelectionSmall.height * fontHeightOffset}, c1);
+        renderText(tempString, txtSelectionSmall.font, {indent, height - txtSelectionSmall.height * fontHeightOffset}, c1);
 
         height += txtSelectionSmall.height + textToQuadBorder - slctFrameSize;
     }
@@ -5218,8 +4976,7 @@ void MenuGame::drawLevelSelectionRightSide(
     // Bottom frame for the last element
     menuQuads.clear();
     menuQuads.reserve_quad(1);
-    createQuad(
-        menuQuadColor, prevLevelIndent, w, height, height + slctFrameSize);
+    createQuad(menuQuadColor, prevLevelIndent, w, height, height + slctFrameSize);
     drawOverlay(menuQuads);
 
     height += slctFrameSize;
@@ -5242,21 +4999,17 @@ void MenuGame::drawLevelSelectionRightSide(
 
         float temp = quadsIndent - outerFrame + panelOffset;
 
-        createQuad(menuTextColor, temp - slctFrameSize, w, height,
-            height + packLabelHeight + slctFrameSize);
+        createQuad(menuTextColor, temp - slctFrameSize, w, height, height + packLabelHeight + slctFrameSize);
 
         const sf::Vec2f bodyMins{temp, height + slctFrameSize};
         const sf::Vec2f bodyMaxs{w, height + packLabelHeight};
 
-        const bool mouseOverlap =
-            overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
+        const bool mouseOverlap = overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
 
-        createQuad(
-            mouseOverlapColor(mouseOverlap, menuQuadColor), bodyMins, bodyMaxs);
+        createQuad(mouseOverlapColor(mouseOverlap, menuQuadColor), bodyMins, bodyMaxs);
 
         // TODO (P2): cleanup mouse control
-        if (mouseOverlap && !mustChangePackIndexTo.hasValue() &&
-            mouseLeftRisingEdge())
+        if (mouseOverlap && !mustChangePackIndexTo.hasValue() && mouseLeftRisingEdge())
         {
             mustChangePackIndexTo.emplace(i);
         }
@@ -5275,17 +5028,14 @@ void MenuGame::drawLevelSelectionRightSide(
         }
 
         txtSelectionMedium.font.setString(tempString);
-        temp =
-            std::max(txtIndent - txtSelectionMedium.font.getGlobalWidth() / 2.f,
-                quadsIndent + arrowWidth + 2.f * slctFrameSize + outerFrame) +
-            panelOffset;
+        temp = std::max(txtIndent - txtSelectionMedium.font.getGlobalWidth() / 2.f,
+                        quadsIndent + arrowWidth + 2.f * slctFrameSize + outerFrame) +
+               panelOffset;
 
-        txtSelectionMedium.font.position = {temp,
-            height + outerFrame - txtSelectionMedium.height * fontHeightOffset};
+        txtSelectionMedium.font.position = {temp, height + outerFrame - txtSelectionMedium.height * fontHeightOffset};
 
         const sf::Color oldC = txtSelectionMedium.font.getFillColor();
-        txtSelectionMedium.font.setFillColor(
-            mouseOverlapColor(mouseOverlap, menuTextColor));
+        txtSelectionMedium.font.setFillColor(mouseOverlapColor(mouseOverlap, menuTextColor));
         drawOverlay(txtSelectionMedium.font);
         txtSelectionMedium.font.setFillColor(oldC);
 
@@ -5298,32 +5048,29 @@ void MenuGame::drawLevelSelectionRightSide(
             // cause it's aligned with the middle point of the regular > arrows
             // The arrow is (packLabelHeight / 2.f - textToQuadBorder + 2.f *
             // slctFrameSize) wide
-            height +=
-                (packLabelHeight - textToQuadBorder - slctFrameSize) / 2.f;
+            height += (packLabelHeight - textToQuadBorder - slctFrameSize) / 2.f;
             temp = quadsIndent + arrowWidth / 2.f + slctFrameSize + panelOffset;
 
-            topLeft = {temp - arrowWidth, height};
+            topLeft    = {temp - arrowWidth, height};
             bottomLeft = {temp - arrowWidth, height + 2.f * slctFrameSize};
 
             height += arrowWidth;
 
-            topRight = {temp, height};
+            topRight    = {temp, height};
             bottomRight = {temp, height + 2.f * slctFrameSize};
 
-            menuQuads.batch_unsafe_emplace_back_quad(
-                menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
+            menuQuads.batch_unsafe_emplace_back_quad(menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
-            topLeft = {temp, height};
+            topLeft    = {temp, height};
             bottomLeft = {temp, height + 2.f * slctFrameSize};
 
             height -= arrowWidth;
             temp += arrowWidth;
 
-            topRight = {temp, height};
+            topRight    = {temp, height};
             bottomRight = {temp, height + 2.f * slctFrameSize};
 
-            menuQuads.batch_unsafe_emplace_back_quad(
-                menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
+            menuQuads.batch_unsafe_emplace_back_quad(menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
             drawOverlay(menuQuads);
         }
@@ -5332,30 +5079,27 @@ void MenuGame::drawLevelSelectionRightSide(
             height += slctFrameSize / 2.f;
             temp = quadsIndent + panelOffset;
 
-            topLeft = {temp, height + textToQuadBorder};
+            topLeft  = {temp, height + textToQuadBorder};
             topRight = {temp + 2.f * slctFrameSize, height + textToQuadBorder};
 
             height += packLabelHeight / 2.f;
             temp += packLabelHeight / 2.f - textToQuadBorder;
 
-            bottomLeft = {temp, height};
+            bottomLeft  = {temp, height};
             bottomRight = {temp + 2.f * slctFrameSize, height};
 
-            menuQuads.batch_unsafe_emplace_back_quad(
-                menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
+            menuQuads.batch_unsafe_emplace_back_quad(menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
-            topLeft = {temp, height};
+            topLeft  = {temp, height};
             topRight = {temp + 2.f * slctFrameSize, height};
 
             height += packLabelHeight / 2.f;
             temp = quadsIndent + panelOffset;
 
-            bottomLeft = {temp, height - textToQuadBorder};
-            bottomRight = {
-                temp + 2.f * slctFrameSize, height - textToQuadBorder};
+            bottomLeft  = {temp, height - textToQuadBorder};
+            bottomRight = {temp + 2.f * slctFrameSize, height - textToQuadBorder};
 
-            menuQuads.batch_unsafe_emplace_back_quad(
-                menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
+            menuQuads.batch_unsafe_emplace_back_quad(menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
             drawOverlay(menuQuads);
             height -= slctFrameSize / 2.f;
@@ -5366,12 +5110,10 @@ void MenuGame::drawLevelSelectionRightSide(
         {
             height = drawer.YOffset;
         }
-    }
-    while (i != ssvu::getMod(drawer.packIdx + 1, packsSize));
+    } while (i != ssvu::getMod(drawer.packIdx + 1, packsSize));
 }
 
-void MenuGame::drawLevelSelectionLeftSide(
-    LevelDrawer& drawer, const bool revertOffset)
+void MenuGame::drawLevelSelectionLeftSide(LevelDrawer& drawer, const bool revertOffset)
 {
     if (currentPack == nullptr)
     {
@@ -5380,27 +5122,24 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     constexpr float lineThickness{2.f};
 
-    const LevelData& levelData{
-        assets.getLevelData(drawer.levelDataIds->at(drawer.currentIndex))};
+    const LevelData& levelData{assets.getLevelData(drawer.levelDataIds->at(drawer.currentIndex))};
 
     const float maxPanelOffset{w * 0.33f};
-    const float panelOffset{
-        calcMenuOffset(levelDetailsOffset, maxPanelOffset, revertOffset)};
+    const float panelOffset{calcMenuOffset(levelDetailsOffset, maxPanelOffset, revertOffset)};
     const float smallInterline{txtSelectionSmall.height * 1.5f};
     const float mediumInterline{txtSelectionSmall.height / 2.f};
     const float textXPos{textToQuadBorder - panelOffset};
     const float textRightBorder{getMaximumTextWidth()};
 
     const float width{maxPanelOffset - panelOffset};
-    float height{textToQuadBorder};
+    float       height{textToQuadBorder};
 
     //-------------------------------------
     // Backdrop - Right border
 
     menuQuads.clear();
     menuQuads.reserve_quad(2);
-    createQuad({menuTextColor.r, menuTextColor.g, menuTextColor.b, 150}, 0,
-        width, 0, h);
+    createQuad({menuTextColor.r, menuTextColor.g, menuTextColor.b, 150}, 0, width, 0, h);
     createQuad(menuQuadColor, width, width + lineThickness, 0, h);
     drawOverlay(menuQuads);
     menuQuads.clear();
@@ -5409,29 +5148,23 @@ void MenuGame::drawLevelSelectionLeftSide(
     // Level name
 
     std::string tempString{levelData.name};
-    scrollNameRightBorder(tempString, txtSelectionBig.font,
-        namesScroll[static_cast<int>(Label::LevelName)], textRightBorder);
-    renderText(tempString, txtSelectionBig.font,
-        {textXPos, height - txtSelectionBig.height * fontHeightOffset});
+    scrollNameRightBorder(tempString, txtSelectionBig.font, namesScroll[static_cast<int>(Label::LevelName)], textRightBorder);
+    renderText(tempString, txtSelectionBig.font, {textXPos, height - txtSelectionBig.height * fontHeightOffset});
 
     //-------------------------------------
     // Level description
 
-    height += txtSelectionBig.height + textToQuadBorder -
-              txtSelectionSmall.height * 0.7f;
+    height += txtSelectionBig.height + textToQuadBorder - txtSelectionSmall.height * 0.7f;
 
     int i;
     for (i = 0; i < static_cast<int>(levelDescription.size()); ++i)
     {
-        renderText(
-            levelDescription[i], txtSelectionSmall.font, {textXPos, height});
-        height +=
-            i == descLines - 1 ? txtSelectionSmall.height : smallInterline;
+        renderText(levelDescription[i], txtSelectionSmall.font, {textXPos, height});
+        height += i == descLines - 1 ? txtSelectionSmall.height : smallInterline;
     }
     if (i != descLines)
     {
-        height += smallInterline * std::max(0, descLines - 1 - i) +
-                  txtSelectionSmall.height;
+        height += smallInterline * std::max(0, descLines - 1 - i) + txtSelectionSmall.height;
     }
 
     height += textToQuadBorder + txtSelectionSmall.height * 0.7f;
@@ -5451,25 +5184,19 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     // Text
     height += textToQuadBorder;
-    const float difficultyHeight{
-        height - txtSelectionMedium.height * fontHeightOffset};
+    const float difficultyHeight{height - txtSelectionMedium.height * fontHeightOffset};
 
-    renderText("DIFFICULTY: ", txtSelectionMedium.font,
-        {textXPos, difficultyHeight}, menuQuadColor);
+    renderText("DIFFICULTY: ", txtSelectionMedium.font, {textXPos, difficultyHeight}, menuQuadColor);
 
-    tempString =
-        levelData.difficultyMults.size() > 1
-            ? "< " + ssvu::toStr(levelData.getNthDiffMult(diffMultIdx)) + " >"
-            : "NONE";
+    tempString = levelData.difficultyMults.size() > 1 ? "< " + ssvu::toStr(levelData.getNthDiffMult(diffMultIdx)) + " >"
+                                                      : "NONE";
 
-    const float difficultyBumpFactor =
-        1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
-    txtSelectionMedium.font.scale = {
-        difficultyBumpFactor, difficultyBumpFactor};
+    const float difficultyBumpFactor = 1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
+    txtSelectionMedium.font.scale    = {difficultyBumpFactor, difficultyBumpFactor};
 
-    renderText(tempString, txtSelectionMedium.font,
-        {textXPos + txtSelectionMedium.font.getGlobalBounds().size.y,
-            difficultyHeight});
+    renderText(tempString,
+               txtSelectionMedium.font,
+               {textXPos + txtSelectionMedium.font.getGlobalBounds().size.y, difficultyHeight});
 
     txtSelectionMedium.font.scale = {1.f, 1.f};
 
@@ -5484,41 +5211,39 @@ void MenuGame::drawLevelSelectionLeftSide(
     // "PACK"
     height += textToQuadBorder;
 
-    renderText("PACK", txtSelectionMedium.font,
-        {textToQuadBorder - panelOffset,
-            height - txtSelectionMedium.height * fontHeightOffset});
+    renderText("PACK",
+               txtSelectionMedium.font,
+               {textToQuadBorder - panelOffset, height - txtSelectionMedium.height * fontHeightOffset});
 
     // Pack name
     height += txtSelectionMedium.height + mediumInterline;
     tempString = currentPack->name;
 
 
-    scrollNameRightBorder(tempString, "NAME: ", txtSelectionSmall.font,
-        namesScroll[static_cast<int>(Label::PackName)], textRightBorder);
-    renderText(tempString, txtSelectionSmall.font,
-        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
+    scrollNameRightBorder(tempString, "NAME: ", txtSelectionSmall.font, namesScroll[static_cast<int>(Label::PackName)], textRightBorder);
+    renderText(tempString, txtSelectionSmall.font, {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Pack author
     height += txtSelectionSmall.height + mediumInterline;
 
     tempString = currentPack->author;
-    scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionSmall.font,
-        namesScroll[static_cast<int>(Label::PackAuthor)], textRightBorder);
-    renderText(tempString, txtSelectionSmall.font,
-        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
+    scrollNameRightBorder(tempString,
+                          "AUTHOR: ",
+                          txtSelectionSmall.font,
+                          namesScroll[static_cast<int>(Label::PackAuthor)],
+                          textRightBorder);
+    renderText(tempString, txtSelectionSmall.font, {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Version
     height += txtSelectionSmall.height + mediumInterline;
 
     tempString = "VERSION: " + ssvu::toStr(currentPack->version);
     Utils::uppercasify(tempString);
-    renderText(tempString, txtSelectionSmall.font,
-        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
+    renderText(tempString, txtSelectionSmall.font, {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Bottom line
     menuQuads.reserve_more_quad(1);
-    height += txtSelectionSmall.height + txtSelectionMedium.height / 2.f +
-              lineThickness;
+    height += txtSelectionSmall.height + txtSelectionMedium.height / 2.f + lineThickness;
 
     createQuad(menuQuadColor, 0, width, height, height - lineThickness);
 
@@ -5528,38 +5253,35 @@ void MenuGame::drawLevelSelectionLeftSide(
     // "MUSIC"
     height += textToQuadBorder;
 
-    renderText("MUSIC", txtSelectionMedium.font,
-        {textToQuadBorder - panelOffset,
-            height - txtSelectionMedium.height * fontHeightOffset});
+    renderText("MUSIC",
+               txtSelectionMedium.font,
+               {textToQuadBorder - panelOffset, height - txtSelectionMedium.height * fontHeightOffset});
 
     // Track name
-    const MusicData& musicDataTemp =
-        assets.getMusicData(levelData.packId, levelData.musicId);
+    const MusicData& musicDataTemp = assets.getMusicData(levelData.packId, levelData.musicId);
     height += txtSelectionMedium.height + mediumInterline;
     tempString = musicDataTemp.name;
 
-    scrollNameRightBorder(tempString, "NAME: ", txtSelectionSmall.font,
-        namesScroll[static_cast<int>(Label::MusicName)], textRightBorder);
-    renderText(tempString, txtSelectionSmall.font,
-        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
+    scrollNameRightBorder(tempString, "NAME: ", txtSelectionSmall.font, namesScroll[static_cast<int>(Label::MusicName)], textRightBorder);
+    renderText(tempString, txtSelectionSmall.font, {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Track author
     height += txtSelectionSmall.height + mediumInterline;
     tempString = musicDataTemp.author;
 
-    scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionSmall.font,
-        namesScroll[static_cast<int>(Label::MusicAuthor)], textRightBorder);
-    renderText(tempString, txtSelectionSmall.font,
-        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
+    scrollNameRightBorder(tempString,
+                          "AUTHOR: ",
+                          txtSelectionSmall.font,
+                          namesScroll[static_cast<int>(Label::MusicAuthor)],
+                          textRightBorder);
+    renderText(tempString, txtSelectionSmall.font, {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Album name
     height += txtSelectionSmall.height + mediumInterline;
     tempString = !musicDataTemp.album.empty() ? musicDataTemp.album : "NONE";
 
-    scrollNameRightBorder(tempString, "ALBUM: ", txtSelectionSmall.font,
-        namesScroll[static_cast<int>(Label::MusicAlbum)], textRightBorder);
-    renderText(tempString, txtSelectionSmall.font,
-        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
+    scrollNameRightBorder(tempString, "ALBUM: ", txtSelectionSmall.font, namesScroll[static_cast<int>(Label::MusicAlbum)], textRightBorder);
+    renderText(tempString, txtSelectionSmall.font, {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     height += txtSelectionSmall.height + textToQuadBorder;
 
@@ -5570,25 +5292,19 @@ void MenuGame::drawLevelSelectionLeftSide(
     const float favoriteButtonBottom{height + 3.f * txtSelectionMedium.height};
 
     // Frame
-    createQuad(menuQuadColor, lineThickness - panelOffset, width, height,
-        height + lineThickness);
-    createQuad(menuQuadColor, -panelOffset, lineThickness - panelOffset, height,
-        favoriteButtonBottom);
+    createQuad(menuQuadColor, lineThickness - panelOffset, width, height, height + lineThickness);
+    createQuad(menuQuadColor, -panelOffset, lineThickness - panelOffset, height, favoriteButtonBottom);
     createQuad(menuQuadColor, width, width, height, favoriteButtonBottom);
-    createQuad(menuQuadColor, lineThickness - panelOffset, width,
-        favoriteButtonBottom - lineThickness, favoriteButtonBottom);
+    createQuad(menuQuadColor, lineThickness - panelOffset, width, favoriteButtonBottom - lineThickness, favoriteButtonBottom);
 
     // Backdrop
-    const sf::Vec2f bodyMins{
-        lineThickness - panelOffset, height + lineThickness};
+    const sf::Vec2f bodyMins{lineThickness - panelOffset, height + lineThickness};
 
     const sf::Vec2f bodyMaxs{width, favoriteButtonBottom - lineThickness};
 
-    const bool mouseOverlap =
-        overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
+    const bool mouseOverlap = overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
 
-    createQuad(mouseOverlapColor(mouseOverlap, menuSelectionColor), bodyMins,
-        bodyMaxs);
+    createQuad(mouseOverlapColor(mouseOverlap, menuSelectionColor), bodyMins, bodyMaxs);
 
     // TODO (P2): cleanup mouse control
     if (mouseOverlap && !mustFavorite && mouseLeftRisingEdge())
@@ -5600,12 +5316,11 @@ void MenuGame::drawLevelSelectionLeftSide(
     drawOverlay(menuQuads);
     menuQuads.clear();
 
-    renderTextCenteredOffset(
-        isLevelFavorite ? "[F1] UNFAVORITE" : "[F1]    FAVORITE",
-        txtSelectionMedium.font,
-        {maxPanelOffset / 2.f,
-            height + txtSelectionMedium.height * (1.f - fontHeightOffset)},
-        -panelOffset, mouseOverlapColor(mouseOverlap, menuQuadColor));
+    renderTextCenteredOffset(isLevelFavorite ? "[F1] UNFAVORITE" : "[F1]    FAVORITE",
+                             txtSelectionMedium.font,
+                             {maxPanelOffset / 2.f, height + txtSelectionMedium.height * (1.f - fontHeightOffset)},
+                             -panelOffset,
+                             mouseOverlapColor(mouseOverlap, menuQuadColor));
 
     height = favoriteButtonBottom + textToQuadBorder;
 
@@ -5613,9 +5328,9 @@ void MenuGame::drawLevelSelectionLeftSide(
     // Leaderboard
 
     // Personal best
-    renderText("LOCAL PERSONAL BEST", txtSelectionMedium.font,
-        {textToQuadBorder - panelOffset,
-            height - txtSelectionMedium.height * fontHeightOffset});
+    renderText("LOCAL PERSONAL BEST",
+               txtSelectionMedium.font,
+               {textToQuadBorder - panelOffset, height - txtSelectionMedium.height * fontHeightOffset});
 
     height += txtSelectionMedium.height + textToQuadBorder;
 
@@ -5623,22 +5338,18 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     if (levelData.unscored)
     {
-        renderText("N/A", txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
+        renderText("N/A",
+                   txtSelectionSmall.font,
+                   {textToQuadBorder - panelOffset, height - txtSelectionSmall.height * fontHeightOffset});
     }
     else
     {
-        const std::string& localLevelValidator =
-            levelData.getValidatorWithoutPackId(currentDiffMult);
+        const std::string& localLevelValidator = levelData.getValidatorWithoutPackId(currentDiffMult);
 
         tempString = localLevelValidator;
-        renderText(
-            ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) +
-                "s",
-            txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
+        renderText(ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) + "s",
+                   txtSelectionSmall.font,
+                   {textToQuadBorder - panelOffset, height - txtSelectionSmall.height * fontHeightOffset});
     }
 
     // Line
@@ -5648,10 +5359,10 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     // "LEADERBOARD"
     height += textToQuadBorder;
-    renderTextCenteredOffset("ONLINE LEADERBOARD", txtSelectionBig.font,
-        {maxPanelOffset / 2.f,
-            height - txtSelectionBig.height * fontHeightOffset * .8f},
-        -panelOffset);
+    renderTextCenteredOffset("ONLINE LEADERBOARD",
+                             txtSelectionBig.font,
+                             {maxPanelOffset / 2.f, height - txtSelectionBig.height * fontHeightOffset * .8f},
+                             -panelOffset);
 
     // Line
     height += txtSelectionScore.height + txtSelectionBig.height / 2.f + 3.f;
@@ -5663,10 +5374,8 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     const std::string& levelValidator = levelData.getValidator(currentDiffMult);
 
-    if (!levelData.unscored &&
-        hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready &&
-        hexagonClient.isLevelSupportedByServer(levelValidator) &&
-        leaderboardCache->shouldRequestScores(levelValidator))
+    if (!levelData.unscored && hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready &&
+        hexagonClient.isLevelSupportedByServer(levelValidator) && leaderboardCache->shouldRequestScores(levelValidator))
     {
         hexagonClient.tryRequestTopScoresAndOwnScore(levelValidator);
         leaderboardCache->requestedScores(levelValidator);
@@ -5677,52 +5386,46 @@ void MenuGame::drawLevelSelectionLeftSide(
     if (levelData.unscored)
     {
         renderText("LEADERBOARD DISABLED FOR THIS LEVEL",
-            txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
+                   txtSelectionSmall.font,
+                   {textToQuadBorder - panelOffset, height - txtSelectionSmall.height * fontHeightOffset});
     }
     else if (hexagonClient.getState() != HexagonClient::State::LoggedIn_Ready)
     {
-        renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
+        renderText("PLEASE LOG IN TO LOAD LEADERBOARD",
+                   txtSelectionSmall.font,
+                   {textToQuadBorder - panelOffset, height - txtSelectionSmall.height * fontHeightOffset});
     }
     else if (!hexagonClient.isLevelSupportedByServer(levelValidator))
     {
         renderText("THIS LEVEL IS NOT SUPPORTED BY THE SERVER",
-            txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
+                   txtSelectionSmall.font,
+                   {textToQuadBorder - panelOffset, height - txtSelectionSmall.height * fontHeightOffset});
     }
     else if (!gotScoreInfo)
     {
-        renderText("...", txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
+        renderText("...",
+                   txtSelectionSmall.font,
+                   {textToQuadBorder - panelOffset, height - txtSelectionSmall.height * fontHeightOffset});
     }
     else
     {
         SSVOH_ASSERT(!levelData.unscored);
         SSVOH_ASSERT(gotScoreInfo);
         SSVOH_ASSERT(hexagonClient.isLevelSupportedByServer(levelValidator));
-        SSVOH_ASSERT(
-            hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready);
+        SSVOH_ASSERT(hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready);
 
 
-
-        const auto drawEntry = [&](const int i, const std::string& userName,
-                                   const sf::base::U64 scoreTimestamp,
-                                   const double scoreValue)
+        const auto drawEntry =
+            [&](const int i, const std::string& userName, const sf::base::U64 scoreTimestamp, const double scoreValue)
         {
             const float score = scoreValue;
 
             const auto tp = Utils::toTimepoint(scoreTimestamp);
 
-            const std::string timestampStr =
-                Utils::formatTimepoint(tp, "%Y-%m-%d %H:%M:%S");
+            const std::string timestampStr = Utils::formatTimepoint(tp, "%Y-%m-%d %H:%M:%S");
 
-            const std::string posStr = Utils::concat('#', i + 1);
-            std::string scoreStr = ssvu::toStr(score) + 's';
+            const std::string posStr   = Utils::concat('#', i + 1);
+            std::string       scoreStr = ssvu::toStr(score) + 's';
 
             std::string playerStr = userName;
             if (playerStr.size() > 19)
@@ -5732,21 +5435,16 @@ void MenuGame::drawLevelSelectionLeftSide(
             }
 
             const float tx = textToQuadBorder - panelOffset;
-            const float ty = height -
-                             txtSelectionMedium.height * fontHeightOffset +
-                             txtSelectionSmall.height - 9.f;
+            const float ty = height - txtSelectionMedium.height * fontHeightOffset + txtSelectionSmall.height - 9.f;
 
             constexpr float ySpacing = 11.f;
 
             renderText(timestampStr, txtSelectionSmall.font, {tx, ty});
             renderText(posStr, txtSelectionMedium.font, {tx, ty + ySpacing});
-            renderText(
-                scoreStr, txtSelectionMedium.font, {tx + 58.f, ty + ySpacing});
-            renderText(playerStr, txtSelectionMedium.font,
-                {tx + 185.f, ty + ySpacing});
+            renderText(scoreStr, txtSelectionMedium.font, {tx + 58.f, ty + ySpacing});
+            renderText(playerStr, txtSelectionMedium.font, {tx + 185.f, ty + ySpacing});
 
-            height += txtSelectionMedium.height + txtSelectionSmall.height +
-                      txtSelectionSmall.height + 10.f;
+            height += txtSelectionMedium.height + txtSelectionSmall.height + txtSelectionSmall.height + 10.f;
         };
 
         if (gotScoreInfo)
@@ -5758,8 +5456,7 @@ void MenuGame::drawLevelSelectionLeftSide(
                 int index = 0;
                 for (const Database::ProcessedScore& ps : scores)
                 {
-                    drawEntry(
-                        index, ps.userName, ps.scoreTimestamp, ps.scoreValue);
+                    drawEntry(index, ps.userName, ps.scoreTimestamp, ps.scoreValue);
                     ++index;
                 }
 
@@ -5768,11 +5465,9 @@ void MenuGame::drawLevelSelectionLeftSide(
             else
             {
                 const float tx = textToQuadBorder - panelOffset;
-                const float ty =
-                    height - txtSelectionMedium.height * fontHeightOffset;
+                const float ty = height - txtSelectionMedium.height * fontHeightOffset;
 
-                renderText(
-                    "NO SCORES FOUND", txtSelectionMedium.font, {tx, ty});
+                renderText("NO SCORES FOUND", txtSelectionMedium.font, {tx, ty});
             }
         }
 
@@ -5784,30 +5479,26 @@ void MenuGame::drawLevelSelectionLeftSide(
 
         height += txtSelectionSmall.height;
 
-        renderText("YOUR POSITION", txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
+        renderText("YOUR POSITION",
+                   txtSelectionSmall.font,
+                   {textToQuadBorder - panelOffset, height - txtSelectionSmall.height * fontHeightOffset});
 
         height += txtSelectionSmall.height * 2.f + 5.f;
 
         if (gotScoreInfo)
         {
-            const auto* ownScore =
-                leaderboardCache->getOwnScore(levelValidator);
+            const auto* ownScore = leaderboardCache->getOwnScore(levelValidator);
 
             if (ownScore == nullptr)
             {
                 const float tx = textToQuadBorder - panelOffset;
-                const float ty =
-                    height - txtSelectionMedium.height * fontHeightOffset;
+                const float ty = height - txtSelectionMedium.height * fontHeightOffset;
 
-                renderText(
-                    "NO OWN SCORE SET", txtSelectionMedium.font, {tx, ty});
+                renderText("NO OWN SCORE SET", txtSelectionMedium.font, {tx, ty});
             }
             else
             {
-                drawEntry(ownScore->position, ownScore->userName,
-                    ownScore->scoreTimestamp, ownScore->scoreValue);
+                drawEntry(ownScore->position, ownScore->userName, ownScore->scoreTimestamp, ownScore->scoreValue);
             }
         }
     }
@@ -5817,10 +5508,9 @@ void MenuGame::drawLevelSelectionLeftSide(
 
 void MenuGame::draw()
 {
-    mouseHovering = false;
+    mouseHovering   = false;
     mouseWasPressed = mousePressed;
-    mousePressed = (ignoreInputs == 0) &&
-                   sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    mousePressed    = (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
     if (mustRefresh)
     {
@@ -5842,11 +5532,12 @@ void MenuGame::draw()
     {
         menuBackgroundTris.clear();
 
-        styleData.drawBackgroundMenu(menuBackgroundTris, sf::Vec2f{0.f, 0.f},
-            levelStatus.sides,
-            Config::getDarkenUnevenBackgroundChunk() &&
-                levelStatus.darkenUnevenBackgroundChunk,
-            Config::getBlackAndWhite(), fourByThree);
+        styleData.drawBackgroundMenu(menuBackgroundTris,
+                                     sf::Vec2f{0.f, 0.f},
+                                     levelStatus.sides,
+                                     Config::getDarkenUnevenBackgroundChunk() && levelStatus.darkenUnevenBackgroundChunk,
+                                     Config::getBlackAndWhite(),
+                                     fourByThree);
 
         drawBackground(menuBackgroundTris);
     }
@@ -5873,16 +5564,15 @@ void MenuGame::draw()
             strBuf += "\nFORGOT TO DOWNLOAD THEM FROM THE STEAM WORKSHOP?";
         }
 
-        renderText(strBuf, txtSelectionSmall.font,
-            sf::Vec2f{20.f, titleBar.getGlobalBottom() + 8});
+        renderText(strBuf, txtSelectionSmall.font, sf::Vec2f{20.f, titleBar.getGlobalBottom() + 8});
     }
 
     float indentBig{400.f}, indentSmall{540.f}, profileIndent{-100.f};
     // We need different values to fit menus in 4:3
     if (fourByThree)
     {
-        indentBig = 280.f;
-        indentSmall = 410.f;
+        indentBig     = 280.f;
+        indentSmall   = 410.f;
         profileIndent = -75.f;
     }
 
@@ -5890,15 +5580,12 @@ void MenuGame::draw()
     {
         case States::LoadingScreen:
             drawLoadResults();
-            renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
-                {txtProf.height, h - txtProf.height * 2.7f + 5.f});
+            renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font, {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
 
         case States::EpilepsyWarning:
-            drawOverlay(epilepsyWarning,
-                sf::RenderStates{.texture = &txEpilepsyWarning});
-            renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
-                {txtProf.height, h - txtProf.height * 2.7f + 5.f});
+            drawOverlay(epilepsyWarning, sf::RenderStates{.texture = &txEpilepsyWarning});
+            renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font, {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
 
         case States::ETLPNewBoot:
@@ -5915,8 +5602,7 @@ void MenuGame::draw()
             // Fold previous menus
             if (optionsMenu.getCategory().getOffset() != 0.f)
             {
-                drawMainMenu(optionsMenu.getCategoryByName("options"),
-                    w - indentBig, true);
+                drawMainMenu(optionsMenu.getCategoryByName("options"), w - indentBig, true);
             }
 
             if (profileSelectionMenu.getCategory().getOffset() != 0.f)
@@ -5945,13 +5631,11 @@ void MenuGame::draw()
             // fold the main menu
             if (mainMenu.getCategory().getOffset() != 0.f)
             {
-                drawMainMenu(
-                    mainMenu.getCategoryByName("main"), w - indentBig, true);
+                drawMainMenu(mainMenu.getCategoryByName("main"), w - indentBig, true);
             }
 
             // Option Menu (right)
-            drawMainMenu(
-                optionsMenu.getCategoryByName("options"), w - indentBig, false);
+            drawMainMenu(optionsMenu.getCategoryByName("options"), w - indentBig, false);
 
             // Draw options submenus (left)
             drawSubmenusSmall(optionsMenu.getCategories(), indentSmall);
@@ -5963,13 +5647,11 @@ void MenuGame::draw()
             // fold the main menu
             if (mainMenu.getCategory().getOffset() != 0.f)
             {
-                drawMainMenu(
-                    mainMenu.getCategoryByName("main"), w - indentBig, true);
+                drawMainMenu(mainMenu.getCategoryByName("main"), w - indentBig, true);
             }
 
             // Online Menu (right)
-            drawMainMenu(
-                onlineMenu.getCategoryByName("options"), w - indentBig, false);
+            drawMainMenu(onlineMenu.getCategoryByName("options"), w - indentBig, false);
 
             // Draw online submenus (left)
             drawSubmenusSmall(onlineMenu.getCategories(), indentSmall);
@@ -5978,15 +5660,13 @@ void MenuGame::draw()
             break;
 
         case States::ETLPNew:
-            drawMainMenu(mainMenu.getCategoryByName("local profiles"),
-                w - indentBig, false);
+            drawMainMenu(mainMenu.getCategoryByName("local profiles"), w - indentBig, false);
             drawEnteringText(profileIndent, false);
             drawGraphics();
             break;
 
         case States::SLPSelect:
-            drawMainMenu(mainMenu.getCategoryByName("local profiles"),
-                w - indentBig, false);
+            drawMainMenu(mainMenu.getCategoryByName("local profiles"), w - indentBig, false);
             drawProfileSelection(profileIndent, false);
             drawGraphics();
             break;
@@ -5995,8 +5675,7 @@ void MenuGame::draw()
             // fold the main menu
             if (mainMenu.getCategory().getOffset() != 0.f)
             {
-                drawMainMenu(
-                    mainMenu.getCategoryByName("main"), w - indentBig, true);
+                drawMainMenu(mainMenu.getCategoryByName("main"), w - indentBig, true);
             }
 
             if (isFavoriteLevels())
@@ -6020,7 +5699,8 @@ void MenuGame::draw()
             drawOnlineStatus();
             break;
 
-        default: break;
+        default:
+            break;
     }
 
     if (mustTakeScreenshot)
@@ -6031,8 +5711,7 @@ void MenuGame::draw()
 
     if (!dialogBox.empty())
     {
-        dialogBox.draw(
-            getOverlayView(), dialogBoxTextColor, styleData.getColor(0));
+        dialogBox.draw(getOverlayView(), dialogBoxTextColor, styleData.getColor(0));
     }
 
     if (!mouseWasPressed && mousePressed)
@@ -6058,14 +5737,11 @@ void MenuGame::drawGraphics()
 void MenuGame::drawOnlineStatus()
 {
     const float onlineStatusScaling = 1.5f;
-    const float scaling = onlineStatusScaling / Config::getZoomFactor();
-    const float padding = 3.f * onlineStatusScaling;
+    const float scaling             = onlineStatusScaling / Config::getZoomFactor();
+    const float padding             = 3.f * onlineStatusScaling;
 
-    txtOnlineStatus.scale = {
-        (10.f * scaling) /
-            static_cast<float>(txtOnlineStatus.getCharacterSize()),
-        (10.f * scaling) /
-            static_cast<float>(txtOnlineStatus.getCharacterSize())};
+    txtOnlineStatus.scale = {(10.f * scaling) / static_cast<float>(txtOnlineStatus.getCharacterSize()),
+                             (10.f * scaling) / static_cast<float>(txtOnlineStatus.getCharacterSize())};
     txtOnlineStatus.setFillColor(sf::Color::White);
 
     const HexagonClient::State state = hexagonClient.getState();
@@ -6106,21 +5782,18 @@ void MenuGame::drawOnlineStatus()
                 }
             }
 
-            case HexagonClient::State::LoggedIn: [[fallthrough]];
+            case HexagonClient::State::LoggedIn:
+                [[fallthrough]];
             case HexagonClient::State::LoggedIn_Ready:
             {
-                if (Config::getSaveLastLoginUsername() &&
-                    hexagonClient.getLoginName().hasValue())
+                if (Config::getSaveLastLoginUsername() && hexagonClient.getLoginName().hasValue())
                 {
                     // Save last login username for quicker login next time.
 
-                    Config::setLastLoginUsername(
-                        hexagonClient.getLoginName().value());
+                    Config::setLastLoginUsername(hexagonClient.getLoginName().value());
                 }
 
-                return {
-                    true, "LOGGED IN AS " +
-                              hexagonClient.getLoginName().valueOr("UNKNOWN")};
+                return {true, "LOGGED IN AS " + hexagonClient.getLoginName().valueOr("UNKNOWN")};
             }
         }
 
@@ -6128,7 +5801,7 @@ void MenuGame::drawOnlineStatus()
     }();
 
     txtOnlineStatus.setString("ABC,:ç@'");
-    const auto txtHeight = txtOnlineStatus.getGlobalHeight();
+    const auto  txtHeight   = txtOnlineStatus.getGlobalHeight();
     const float spriteScale = (txtHeight + padding * 2.f) / 64.f;
 
     txtOnlineStatus.setString(stateString);
@@ -6143,20 +5816,17 @@ void MenuGame::drawOnlineStatus()
     }
 
     sOnline.textureRect = txSOnline->getRect();
-    sOnline.scale = {spriteScale, spriteScale};
-    sOnline.origin = sOnline.getLocalBottomLeft();
-    sOnline.position = {0.f + padding, getWindowHeight() - padding};
+    sOnline.scale       = {spriteScale, spriteScale};
+    sOnline.origin      = sOnline.getLocalBottomLeft();
+    sOnline.position    = {0.f + padding, getWindowHeight() - padding};
 
-    rsOnlineStatus.setSize({txtOnlineStatus.getGlobalWidth() + padding * 4.f,
-        txtHeight + padding * 2.f});
+    rsOnlineStatus.setSize({txtOnlineStatus.getGlobalWidth() + padding * 4.f, txtHeight + padding * 2.f});
     rsOnlineStatus.setFillColor(sf::Color::Black);
-    rsOnlineStatus.origin = rsOnlineStatus.getLocalBottomLeft();
-    rsOnlineStatus.position = {
-        sOnline.getGlobalRight() + padding, sOnline.position.y};
+    rsOnlineStatus.origin   = rsOnlineStatus.getLocalBottomLeft();
+    rsOnlineStatus.position = {sOnline.getGlobalRight() + padding, sOnline.position.y};
 
-    txtOnlineStatus.origin = txtOnlineStatus.getLocalCenterLeft();
-    txtOnlineStatus.position = {rsOnlineStatus.getGlobalLeft() + padding * 2.f,
-        rsOnlineStatus.getGlobalCenter().y};
+    txtOnlineStatus.origin   = txtOnlineStatus.getLocalCenterLeft();
+    txtOnlineStatus.position = {rsOnlineStatus.getGlobalLeft() + padding * 2.f, rsOnlineStatus.getGlobalCenter().y};
 
     drawScreen(sOnline, sf::RenderStates{.texture = txSOnline});
     drawScreen(rsOnlineStatus);
@@ -6165,38 +5835,41 @@ void MenuGame::drawOnlineStatus()
 
 void MenuGame::showDialogBox(const std::string& msg)
 {
-    dialogBox.create(
-        msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
+    dialogBox.create(msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
 }
 
 void MenuGame::showInputDialogBox(const std::string& msg)
 {
-    dialogBox.createInput(
-        msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
+    dialogBox.createInput(msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
 }
 
-void MenuGame::showInputDialogBoxNice(const std::string& title,
-    const std::string& inputType, const std::string& extra)
+void MenuGame::showInputDialogBoxNice(const std::string& title, const std::string& inputType, const std::string& extra)
 {
-    showInputDialogBoxNiceWithDefault(
-        title, inputType, "" /* default */, extra);
+    showInputDialogBoxNiceWithDefault(title, inputType, "" /* default */, extra);
 }
 
 void MenuGame::showInputDialogBoxNiceWithDefault(const std::string& title,
-    const std::string& inputType, const std::string& def,
-    const std::string& extra)
+                                                 const std::string& inputType,
+                                                 const std::string& def,
+                                                 const std::string& extra)
 {
     strBuf.clear();
 
     if (extra.empty())
     {
-        strBuf += Utils::concat(title, "\n\nPLEASE INSERT ", inputType,
-            "\n\nCONFIRM WITH [ENTER]\nCANCEL WITH [ESCAPE]\n");
+        strBuf += Utils::concat(title,
+                                "\n\nPLEASE INSERT ",
+                                inputType,
+                                "\n\nCONFIRM WITH [ENTER]\nCANCEL WITH [ESCAPE]\n");
     }
     else
     {
-        strBuf += Utils::concat(title, "\n\nPLEASE INSERT ", inputType, "\n\n",
-            extra, "\n\nCONFIRM WITH [ENTER]\nCANCEL WITH [ESCAPE]\n");
+        strBuf += Utils::concat(title,
+                                "\n\nPLEASE INSERT ",
+                                inputType,
+                                "\n\n",
+                                extra,
+                                "\n\nCONFIRM WITH [ENTER]\nCANCEL WITH [ESCAPE]\n");
     }
 
     showInputDialogBox(strBuf);
@@ -6209,12 +5882,9 @@ void MenuGame::openLoginDialogBoxAndStartLoginProcess()
 
     dialogInputState = DialogInputState::Login_EnteringUsername;
 
-    const std::string defaultLoginUsername =
-        Config::getSaveLastLoginUsername() ? Config::getLastLoginUsername()
-                                           : "";
+    const std::string defaultLoginUsername = Config::getSaveLastLoginUsername() ? Config::getLastLoginUsername() : "";
 
-    showInputDialogBoxNiceWithDefault(
-        "LOGIN", "USERNAME", defaultLoginUsername);
+    showInputDialogBoxNiceWithDefault("LOGIN", "USERNAME", defaultLoginUsername);
 }
 
 } // namespace hg

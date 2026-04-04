@@ -3,15 +3,14 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/CapColor.hpp"
-
 #include "SSVOpenHexagon/Data/ColorData.hpp"
-
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <string>
 
-namespace hg {
+namespace hg
+{
 
 [[nodiscard]] CapColor parseCapColor(const ssvuj::Obj& obj) noexcept
 {
@@ -41,13 +40,14 @@ namespace hg {
         else
         {
             return CapColor{
-                ColorData{false, ssvuj::getExtr<bool>(obj, "dynamic", false),
-                    ssvuj::getExtr<bool>(obj, "dynamic_offset", false),
-                    ssvuj::getExtr<float>(obj, "dynamic_darkness", 1.f),
-                    ssvuj::getExtr<float>(obj, "hue_shift", 0.f),
-                    ssvuj::getExtr<float>(obj, "offset", 0.f),
-                    ssvuj::getExtr<sf::Color>(obj, "value", sf::Color::White),
-                    hg::pulse_from_json(obj)}};
+                ColorData{false,
+                          ssvuj::getExtr<bool>(obj, "dynamic", false),
+                          ssvuj::getExtr<bool>(obj, "dynamic_offset", false),
+                          ssvuj::getExtr<float>(obj, "dynamic_darkness", 1.f),
+                          ssvuj::getExtr<float>(obj, "hue_shift", 0.f),
+                          ssvuj::getExtr<float>(obj, "offset", 0.f),
+                          ssvuj::getExtr<sf::Color>(obj, "value", sf::Color::White),
+                          hg::pulse_from_json(obj)}};
         }
     }
 

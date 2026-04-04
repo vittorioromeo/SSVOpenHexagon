@@ -2,17 +2,19 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
-
 #include "SSVOpenHexagon/Components/CWall.hpp"
-
+#include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/Frametime.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/LuaScripting.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
-
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
@@ -21,44 +23,37 @@
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
-#include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Core/Frametime.hpp"
-#include "SSVOpenHexagon/Core/HexagonClient.hpp"
-#include "SSVOpenHexagon/Core/Joystick.hpp"
-#include "SSVOpenHexagon/Core/LuaScripting.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
-
 #include <SSVUtils/Core/Utils/Rnd.hpp>
 
 #ifndef SSVOH_ANDROID
-#include <imgui.h>
-#include <misc/cpp/imgui_stdlib.h>
-#include <SFML/ImGui/ImGuiContext.hpp>
+    #include <imgui.h>
+
+    #include <SFML/ImGui/ImGuiContext.hpp>
+    #include <misc/cpp/imgui_stdlib.h>
 #endif
 
+#include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vec2.hpp>
-
-#include <SFML/Base/Optional.hpp>
 #include <algorithm>
 #include <stdexcept>
 
 #include <cstring>
-#include <SFML/Base/IntTypes.hpp>
 
-namespace {
+namespace
+{
 
 template <typename TC, typename TP>
 [[gnu::always_inline]] inline void eraseRemoveIf(TC& mContainer, TP mPredicate)
 {
-    mContainer.erase(
-        std::remove_if(mContainer.begin(), mContainer.end(), mPredicate),
-        std::end(mContainer));
+    mContainer.erase(std::remove_if(mContainer.begin(), mContainer.end(), mPredicate), std::end(mContainer));
 }
 
 } // namespace
 
-namespace hg {
+namespace hg
+{
 
 void HexagonGame::fastForwardTo(const double target)
 {
@@ -70,8 +65,7 @@ void HexagonGame::fastForwardTo(const double target)
         return hrSecondsSince(tpBegin) > maxProcessingSeconds;
     };
 
-    while (!status.hasDied && status.getTimeSeconds() < target &&
-           !exceededProcessingTime())
+    while (!status.hasDied && status.getTimeSeconds() < target && !exceededProcessingTime())
     {
         update(Config::TIME_STEP, 1.0f /* timescale */);
         postUpdate();
@@ -100,9 +94,7 @@ void HexagonGame::update(float mFT, const float timescale)
 
         if (audio != nullptr)
         {
-            audio->setMusicPlayingOffsetSeconds(
-                audio->getMusicPlayingOffsetSeconds() +
-                status.getTimeSeconds());
+            audio->setMusicPlayingOffsetSeconds(audio->getMusicPlayingOffsetSeconds() + status.getTimeSeconds());
         }
 
         return;
@@ -154,8 +146,7 @@ void HexagonGame::update(float mFT, const float timescale)
         {
             if (steamManager != nullptr)
             {
-                steamManager->set_rich_presence_in_game(
-                    nameStr, diffStr, timeStr);
+                steamManager->set_rich_presence_in_game(nameStr, diffStr, timeStr);
             }
 
             timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
@@ -196,8 +187,7 @@ void HexagonGame::update(float mFT, const float timescale)
             }
             else
             {
-                const input_bitset ib =
-                    activeReplay->replayPlayer.get_current_and_move_forward();
+                const input_bitset ib = activeReplay->replayPlayer.get_current_and_move_forward();
 
                 if (ib[static_cast<unsigned int>(input_bit::left)])
                 {
@@ -212,7 +202,7 @@ void HexagonGame::update(float mFT, const float timescale)
                     inputMovement = 0;
                 }
 
-                inputSwap = ib[static_cast<unsigned int>(input_bit::swap)];
+                inputSwap    = ib[static_cast<unsigned int>(input_bit::swap)];
                 inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
             }
         }
@@ -248,15 +238,16 @@ void HexagonGame::update(float mFT, const float timescale)
 
             if (!status.hasDied)
             {
-                const sf::base::Optional<bool> preventPlayerInput =
-                    runLuaFunctionIfExists<bool, float, int, bool, bool>(
-                        "onInput", mFT, getInputMovement(), getInputFocused(),
-                        getInputSwap());
+                const sf::base::Optional<bool>
+                    preventPlayerInput = runLuaFunctionIfExists<bool, float, int, bool, bool>("onInput",
+                                                                                              mFT,
+                                                                                              getInputMovement(),
+                                                                                              getInputFocused(),
+                                                                                              getInputSwap());
 
                 if (!preventPlayerInput.hasValue() || !(*preventPlayerInput))
                 {
-                    player.updateInputMovement(getInputMovement(),
-                        getPlayerSpeedMult(), getInputFocused(), mFT);
+                    player.updateInputMovement(getInputMovement(), getPlayerSpeedMult(), getInputFocused(), mFT);
 
                     // Play "swap ready blip" sound and create particles
                     if (!playerNowReadyToSwap && player.isReadyToSwap())
@@ -268,20 +259,17 @@ void HexagonGame::update(float mFT, const float timescale)
                             playSoundOverride("swapBlip.ogg");
                         }
 
-                        swapParticlesSpawnInfo.emplace(
-                            SwapParticleSpawnInfo{.ready{true},
-                                .position{player.getPosition()},
-                                .angle{player.getPlayerAngle()}});
+                        swapParticlesSpawnInfo.emplace(SwapParticleSpawnInfo{.ready{true},
+                                                                             .position{player.getPosition()},
+                                                                             .angle{player.getPlayerAngle()}});
                     }
 
                     // Create particles after swap
-                    if (getLevelStatus().swapEnabled && getInputSwap() &&
-                        player.isReadyToSwap())
+                    if (getLevelStatus().swapEnabled && getInputSwap() && player.isReadyToSwap())
                     {
-                        swapParticlesSpawnInfo.emplace(
-                            SwapParticleSpawnInfo{.ready{false},
-                                .position{player.getPosition()},
-                                .angle{player.getPlayerAngle()}});
+                        swapParticlesSpawnInfo.emplace(SwapParticleSpawnInfo{.ready{false},
+                                                                             .position{player.getPosition()},
+                                                                             .angle{player.getPlayerAngle()}});
 
                         performPlayerSwap(true /* mPlaySound */);
                         player.resetSwap(getSwapCooldown());
@@ -297,8 +285,7 @@ void HexagonGame::update(float mFT, const float timescale)
                 status.accumulateFrametime(mFT);
                 if (levelStatus.scoreOverridden)
                 {
-                    status.updateCustomScore(
-                        lua.readVariable<float>(levelStatus.scoreOverride));
+                    status.updateCustomScore(lua.readVariable<float>(levelStatus.scoreOverride));
                 }
 
                 updateEvents(mFT);
@@ -306,8 +293,7 @@ void HexagonGame::update(float mFT, const float timescale)
 
                 if (mustChangeSides && walls.empty())
                 {
-                    sideChange(rng.get_int(
-                        levelStatus.sidesMin, levelStatus.sidesMax));
+                    sideChange(rng.get_int(levelStatus.sidesMin, levelStatus.sidesMax));
                 }
 
                 updateLevel(mFT);
@@ -350,8 +336,7 @@ void HexagonGame::update(float mFT, const float timescale)
 
             if (!status.hasDied)
             {
-                const auto fixup =
-                    [](const float x) -> random_number_generator::state_type
+                const auto fixup = [](const float x) -> random_number_generator::state_type
                 {
                     // Avoid UB when converting to unsigned type:
                     return x < 0.f ? -x : x;
@@ -382,7 +367,6 @@ void HexagonGame::update(float mFT, const float timescale)
             {
                 updateSwapParticles(mFT);
             }
-
         }
     }
 
@@ -392,8 +376,7 @@ void HexagonGame::update(float mFT, const float timescale)
     {
         if (status.mustStateChange != StateChange::None)
         {
-            const bool executeLastReplay =
-                status.mustStateChange == StateChange::MustReplay;
+            const bool executeLastReplay = status.mustStateChange == StateChange::MustReplay;
 
             if (!executeLastReplay && !assets.anyLocalProfileActive())
             {
@@ -405,8 +388,7 @@ void HexagonGame::update(float mFT, const float timescale)
                 return;
             }
 
-            newGame(getPackId(), restartId, restartFirstTime, difficultyMult,
-                executeLastReplay);
+            newGame(getPackId(), restartId, restartFirstTime, difficultyMult, executeLastReplay);
         }
 
 // TODO (P2): score invalidation due to performance
@@ -431,8 +413,8 @@ void HexagonGame::update(float mFT, const float timescale)
 
 void HexagonGame::updateWalls(float mFT)
 {
-    bool collided{false};
-    const float radiusSquared{status.radius * status.radius + 8.f};
+    bool            collided{false};
+    const float     radiusSquared{status.radius * status.radius + 8.f};
     const sf::Vec2f pPos{player.getPosition()};
 
     for (CWall& w : walls)
@@ -455,8 +437,7 @@ void HexagonGame::updateWalls(float mFT)
                 steamManager->unlock_achievement("a22_swapdeath");
             }
         }
-        else if (player.push(getInputMovement(), getRadius(), w, centerPos,
-                     radiusSquared, mFT))
+        else if (player.push(getInputMovement(), getRadius(), w, centerPos, radiusSquared, mFT))
         {
             performPlayerKill();
         }
@@ -529,16 +510,13 @@ void HexagonGame::start()
 
         if (discordManager != nullptr)
         {
-            discordManager->set_rich_presence_in_game(
-                nameStr + " [x" + diffStr + "]", packStr);
+            discordManager->set_rich_presence_in_game(nameStr + " [x" + diffStr + "]", packStr);
         }
 
         const std::string& validator = levelData->getValidator(difficultyMult);
 
-        if (hexagonClient != nullptr &&
-            hexagonClient->getState() == HexagonClient::State::LoggedIn_Ready &&
-            Config::getOfficial() && !levelData->unscored &&
-            hexagonClient->isLevelSupportedByServer(validator))
+        if (hexagonClient != nullptr && hexagonClient->getState() == HexagonClient::State::LoggedIn_Ready &&
+            Config::getOfficial() && !levelData->unscored && hexagonClient->isLevelSupportedByServer(validator))
         {
             hexagonClient->trySendStartedGame(validator);
         }
@@ -646,9 +624,9 @@ void HexagonGame::updateInput_RecordCurrentInputToLastReplayData()
         return;
     }
 
-    const bool left = getInputMovement() == -1;
+    const bool left  = getInputMovement() == -1;
     const bool right = getInputMovement() == 1;
-    const bool swap = getInputSwap();
+    const bool swap  = getInputSwap();
     const bool focus = getInputFocused();
 
     lastReplayData.record_input(left, right, swap, focus);
@@ -661,8 +639,7 @@ void HexagonGame::updateInput()
         return;
     }
 
-    if (!status.started &&
-        (!Config::getRotateToStart() || inputImplCCW || inputImplCW))
+    if (!status.started && (!Config::getRotateToStart() || inputImplCCW || inputImplCW))
     {
         mustStart = true;
     }
@@ -670,18 +647,18 @@ void HexagonGame::updateInput()
     if (alwaysSpinRight)
     {
         inputImplCCW = false;
-        inputImplCW = true;
-        inputSwap = false;
+        inputImplCW  = true;
+        inputSwap    = false;
         inputFocused = false;
     }
     else if (executeRandomInputs) // TODO (P2): For testing
     {
         static std::random_device rd;
-        static std::mt19937 en(rd());
+        static std::mt19937       en(rd());
 
         inputImplCCW = std::uniform_int_distribution<int>{0, 1}(en);
-        inputImplCW = std::uniform_int_distribution<int>{0, 1}(en);
-        inputSwap = std::uniform_int_distribution<int>{0, 1}(en);
+        inputImplCW  = std::uniform_int_distribution<int>{0, 1}(en);
+        inputSwap    = std::uniform_int_distribution<int>{0, 1}(en);
         inputFocused = std::uniform_int_distribution<int>{0, 1}(en);
     }
     else
@@ -698,16 +675,14 @@ void HexagonGame::updateInput()
 
 void HexagonGame::updateEvents(float)
 {
-    if (const auto o =
-            eventTimelineRunner.update(eventTimeline, status.getTimeTP());
+    if (const auto o = eventTimelineRunner.update(eventTimeline, status.getTimeTP());
         o == Utils::timeline2_runner::outcome::finished)
     {
         eventTimeline.clear();
         eventTimelineRunner = {};
     }
 
-    if (const auto o = messageTimelineRunner.update(
-            messageTimeline, status.getCurrentTP());
+    if (const auto o = messageTimelineRunner.update(messageTimeline, status.getCurrentTP());
         o == Utils::timeline2_runner::outcome::finished)
     {
         messageTimeline.clear();
@@ -763,13 +738,9 @@ void HexagonGame::updatePulse(float mFT)
     {
         if (status.pulseDelay <= 0)
         {
-            const float pulseAdd{status.pulseDirection > 0
-                                     ? levelStatus.pulseSpeed
-                                     : -levelStatus.pulseSpeedR};
+            const float pulseAdd{status.pulseDirection > 0 ? levelStatus.pulseSpeed : -levelStatus.pulseSpeedR};
 
-            const float pulseLimit{status.pulseDirection > 0
-                                       ? levelStatus.pulseMax
-                                       : levelStatus.pulseMin};
+            const float pulseLimit{status.pulseDirection > 0 ? levelStatus.pulseMax : levelStatus.pulseMin};
 
             status.pulse += pulseAdd * mFT * getMusicDMSyncFactor();
 
@@ -797,13 +768,12 @@ void HexagonGame::refreshPulse()
     {
         SSVOH_ASSERT(backgroundCamera.hasValue());
 
-        const float p{
-            Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
+        const float p{Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
         const float rotation{backgroundCamera->rotation.asDegrees()};
 
         *backgroundCamera = sf::View{sf::Vec2f{0.f, 0.f},
-            {(Config::getWidth() * Config::getZoomFactor()) * p,
-                (Config::getHeight() * Config::getZoomFactor()) * p}};
+                                     {(Config::getWidth() * Config::getZoomFactor()) * p,
+                                      (Config::getHeight() * Config::getZoomFactor()) * p}};
 
         backgroundCamera->rotation = sf::degrees(rotation);
     }
@@ -815,7 +785,7 @@ void HexagonGame::updateBeatPulse(float mFT)
     {
         if (status.beatPulseDelay <= 0)
         {
-            status.beatPulse = levelStatus.beatPulseMax;
+            status.beatPulse      = levelStatus.beatPulseMax;
             status.beatPulseDelay = levelStatus.beatPulseDelayMax;
         }
         else
@@ -825,8 +795,7 @@ void HexagonGame::updateBeatPulse(float mFT)
 
         if (status.beatPulse > 0)
         {
-            status.beatPulse -= (2.f * mFT * getMusicDMSyncFactor()) *
-                                levelStatus.beatPulseSpeedMult;
+            status.beatPulse -= (2.f * mFT * getMusicDMSyncFactor()) * levelStatus.beatPulseSpeedMult;
         }
     }
     refreshBeatPulse();
@@ -835,8 +804,7 @@ void HexagonGame::updateBeatPulse(float mFT)
 void HexagonGame::refreshBeatPulse()
 {
     const float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
-    status.radius =
-        radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
+    status.radius = radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
 }
 
 void HexagonGame::updateRotation(float mFT)
@@ -844,10 +812,7 @@ void HexagonGame::updateRotation(float mFT)
     auto nextRotation(getRotationSpeed() * 10.f);
     if (status.fastSpin > 0)
     {
-        nextRotation += std::abs((Utils::getSmootherStep(0,
-                                      levelStatus.fastSpin, status.fastSpin) /
-                                     3.5f) *
-                                 17.f) *
+        nextRotation += std::abs((Utils::getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) / 3.5f) * 17.f) *
                         Utils::getSign(nextRotation);
 
         status.fastSpin -= mFT;
@@ -872,7 +837,7 @@ void HexagonGame::updateCameraShake(float mFT)
         if (preShakeCenters.hasValue())
         {
             backgroundCamera->center = preShakeCenters->background;
-            overlayCamera->center = preShakeCenters->overlay;
+            overlayCamera->center    = preShakeCenters->overlay;
 
             preShakeCenters.reset();
         }
@@ -884,8 +849,7 @@ void HexagonGame::updateCameraShake(float mFT)
 
     if (!preShakeCenters.hasValue())
     {
-        preShakeCenters.emplace(
-            backgroundCamera->center, overlayCamera->center);
+        preShakeCenters.emplace(backgroundCamera->center, overlayCamera->center);
     }
 
     SSVOH_ASSERT(backgroundCamera.hasValue());
@@ -899,7 +863,7 @@ void HexagonGame::updateCameraShake(float mFT)
     };
 
     backgroundCamera->center = preShakeCenters->background + makeShakeVec();
-    overlayCamera->center = preShakeCenters->overlay + makeShakeVec();
+    overlayCamera->center    = preShakeCenters->overlay + makeShakeVec();
 }
 
 void HexagonGame::updateFlash(float mFT)
@@ -936,12 +900,12 @@ void HexagonGame::updateParticles(float mFT)
 
     const auto isOutOfBounds = [](const Particle& p)
     {
-        const sf::Sprite& sp = p.sprite;
-        const sf::Vec2f pos = sp.position;
-        constexpr float padding = 256.f;
+        const sf::Sprite& sp      = p.sprite;
+        const sf::Vec2f   pos     = sp.position;
+        constexpr float   padding = 256.f;
 
-        return (pos.x < 0 - padding || pos.x > Config::getWidth() + padding ||
-                pos.y < 0 - padding || pos.y > Config::getHeight() + padding);
+        return (pos.x < 0 - padding || pos.x > Config::getWidth() + padding || pos.y < 0 - padding ||
+                pos.y > Config::getHeight() + padding);
     };
 
     const auto makePBParticle = [this]
@@ -949,18 +913,17 @@ void HexagonGame::updateParticles(float mFT)
         SSVOH_ASSERT(txStarParticle != nullptr);
         Particle p{sf::Sprite{.textureRect = txStarParticle->getRect()}};
 
-        p.sprite.position = {
-            ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f};
+        p.sprite.position = {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f};
         p.sprite.rotation = sf::degrees(ssvu::getRndR(0.f, 360.f));
 
         const float scale = ssvu::getRndR(0.75f, 1.35f);
-        p.sprite.scale = {scale, scale};
+        p.sprite.scale    = {scale, scale};
 
-        sf::Color c = getColorMain();
-        c.a = ssvu::getRndI(90, 145);
+        sf::Color c    = getColorMain();
+        c.a            = ssvu::getRndI(90, 145);
         p.sprite.color = c;
 
-        p.velocity = {ssvu::getRndR(-12.f, 12.f), ssvu::getRndR(4.f, 18.f)};
+        p.velocity        = {ssvu::getRndR(-12.f, 12.f), ssvu::getRndR(4.f, 18.f)};
         p.angularVelocity = ssvu::getRndR(-6.f, 6.f);
 
         return p;
@@ -990,8 +953,7 @@ void HexagonGame::updateTrailParticles(float mFT)
 {
     SSVOH_ASSERT(window != nullptr);
 
-    const auto isDead = [&](const TrailParticle& p)
-    { return p.sprite.color.a <= 3; };
+    const auto isDead = [&](const TrailParticle& p) { return p.sprite.color.a <= 3; };
 
     const auto makeTrailParticle = [this]
     {
@@ -999,14 +961,14 @@ void HexagonGame::updateTrailParticles(float mFT)
         TrailParticle p{sf::Sprite{.textureRect = txSmallCircle->getRect()}};
 
         p.sprite.position = player.getPosition();
-        p.sprite.origin = txSmallCircle->getSize().to<sf::Vec2f>() / 2.f;
+        p.sprite.origin   = txSmallCircle->getSize().to<sf::Vec2f>() / 2.f;
 
         const float scale = Config::getPlayerTrailScale();
-        p.sprite.scale = {scale, scale};
+        p.sprite.scale    = {scale, scale};
 
         sf::Color c = getColorPlayerTrail();
 
-        c.a = Config::getPlayerTrailAlpha();
+        c.a            = Config::getPlayerTrailAlpha();
         p.sprite.color = c;
 
         p.angle = player.getPlayerAngle();
@@ -1020,16 +982,14 @@ void HexagonGame::updateTrailParticles(float mFT)
     {
         sf::Color color = p.sprite.color;
 
-        const float newAlpha = Utils::getMoveTowardsZero(
-            static_cast<float>(color.a), Config::getPlayerTrailDecay() * mFT);
+        const float newAlpha = Utils::getMoveTowardsZero(static_cast<float>(color.a), Config::getPlayerTrailDecay() * mFT);
 
-        color.a = static_cast<sf::base::U8>(newAlpha);
+        color.a        = static_cast<sf::base::U8>(newAlpha);
         p.sprite.color = color;
 
         p.sprite.scale *= 0.98f;
 
-        p.sprite.position =
-            sf::Vec2f::fromAngle(status.radius + 2.4f, sf::radians(p.angle));
+        p.sprite.position = sf::Vec2f::fromAngle(status.radius + 2.4f, sf::radians(p.angle));
     }
 
     if (player.hasChangedAngle())
@@ -1042,29 +1002,27 @@ void HexagonGame::updateSwapParticles(float mFT)
 {
     SSVOH_ASSERT(window != nullptr);
 
-    const auto isDead = [&](const SwapParticle& p)
-    { return p.sprite.color.a <= 3; };
+    const auto isDead = [&](const SwapParticle& p) { return p.sprite.color.a <= 3; };
 
-    const auto makeSwapParticle = [this](const SwapParticleSpawnInfo& si,
-                                      const float expand, const float speedMult,
-                                      const float scaleMult, const float alpha)
+    const auto makeSwapParticle =
+        [this](const SwapParticleSpawnInfo& si, const float expand, const float speedMult, const float scaleMult, const float alpha)
     {
         SSVOH_ASSERT(txSmallCircle != nullptr);
         SwapParticle p{sf::Sprite{.textureRect = txSmallCircle->getRect()}};
 
         p.sprite.position = si.position;
-        p.sprite.origin = txSmallCircle->getSize().to<sf::Vec2f>() / 2.f;
+        p.sprite.origin   = txSmallCircle->getSize().to<sf::Vec2f>() / 2.f;
 
         const float scale = ssvu::getRndR(0.65f, 1.35f) * scaleMult;
-        p.sprite.scale = {scale, scale};
+        p.sprite.scale    = {scale, scale};
 
         sf::Color c = getColorPlayerTrail();
 
-        c.a = alpha;
+        c.a            = alpha;
         p.sprite.color = c;
 
         p.velocity = sf::Vec2f::fromAngle(ssvu::getRndR(0.1f, 10.f) * speedMult,
-            sf::radians(si.angle + ssvu::getRndR(-expand, expand)));
+                                          sf::radians(si.angle + ssvu::getRndR(-expand, expand)));
 
         return p;
     };
@@ -1075,10 +1033,9 @@ void HexagonGame::updateSwapParticles(float mFT)
     {
         sf::Color color = p.sprite.color;
 
-        const float newAlpha =
-            Utils::getMoveTowardsZero(static_cast<float>(color.a), 3.5f * mFT);
+        const float newAlpha = Utils::getMoveTowardsZero(static_cast<float>(color.a), 3.5f * mFT);
 
-        color.a = static_cast<sf::base::U8>(newAlpha);
+        color.a        = static_cast<sf::base::U8>(newAlpha);
         p.sprite.color = color;
 
         p.sprite.scale *= 0.98f;
@@ -1093,16 +1050,20 @@ void HexagonGame::updateSwapParticles(float mFT)
             {
                 swapParticles.emplace_back(
                     makeSwapParticle(*swapParticlesSpawnInfo,
-                        0.45f /* expand */, 1.f /* speedMult */,
-                        1.f /* scaleMult */, 45.f /* alpha */));
+                                     0.45f /* expand */,
+                                     1.f /* speedMult */,
+                                     1.f /* scaleMult */,
+                                     45.f /* alpha */));
             }
 
             for (int i = 0; i < 10; ++i)
             {
                 swapParticles.emplace_back(
                     makeSwapParticle(*swapParticlesSpawnInfo,
-                        3.14f /* expand */, 0.45f /* speedMult */,
-                        0.75f /* scaleMult */, 35.f /* alpha */));
+                                     3.14f /* expand */,
+                                     0.45f /* speedMult */,
+                                     0.75f /* scaleMult */,
+                                     35.f /* alpha */));
             }
         }
         else
@@ -1111,8 +1072,10 @@ void HexagonGame::updateSwapParticles(float mFT)
             {
                 swapParticles.emplace_back(
                     makeSwapParticle(*swapParticlesSpawnInfo,
-                        3.14f /* expand */, 1.3f /* speedMult */,
-                        0.4f /* scaleMult */, 140.f /* alpha */));
+                                     3.14f /* expand */,
+                                     1.3f /* speedMult */,
+                                     0.4f /* scaleMult */,
+                                     140.f /* alpha */));
             }
         }
 
@@ -1151,8 +1114,7 @@ static int Strnicmp(const char* s1, const char* s2, int n)
 }
 #endif
 
-int HexagonGame::ilcTextEditCallback(
-    [[maybe_unused]] ImGuiInputTextCallbackData* data)
+int HexagonGame::ilcTextEditCallback([[maybe_unused]] ImGuiInputTextCallbackData* data)
 {
 #ifndef SSVOH_ANDROID
     switch (data->EventFlag)
@@ -1160,7 +1122,7 @@ int HexagonGame::ilcTextEditCallback(
         case ImGuiInputTextFlags_CallbackCompletion:
         {
             // Locate beginning of current word
-            const char* word_end = data->Buf + data->CursorPos;
+            const char* word_end   = data->Buf + data->CursorPos;
             const char* word_start = word_end;
             while (word_start > data->Buf)
             {
@@ -1181,11 +1143,9 @@ int HexagonGame::ilcTextEditCallback(
 
             // Build a list of candidates
             ImVector<const char*> candidates;
-            for (const std::string& fnName :
-                LuaScripting::getAllFunctionNames())
+            for (const std::string& fnName : LuaScripting::getAllFunctionNames())
             {
-                if (Strnicmp(fnName.c_str(), word_start,
-                        (int)(word_end - word_start)) == 0)
+                if (Strnicmp(fnName.c_str(), word_start, (int)(word_end - word_start)) == 0)
                 {
                     candidates.push_back(fnName.c_str());
                 }
@@ -1194,8 +1154,7 @@ int HexagonGame::ilcTextEditCallback(
             if (candidates.Size == 0)
             {
                 char buf[255];
-                std::snprintf(buf, sizeof(buf), "No match for \"%.*s\"!\n",
-                    (int)(word_end - word_start), word_start);
+                std::snprintf(buf, sizeof(buf), "No match for \"%.*s\"!\n", (int)(word_end - word_start), word_start);
 
                 // No match
                 ilcCmdLog.emplace_back(buf);
@@ -1204,8 +1163,7 @@ int HexagonGame::ilcTextEditCallback(
             {
                 // Single match. Delete the beginning of the word and
                 // replace it entirely so we've got nice casing.
-                data->DeleteChars((int)(word_start - data->Buf),
-                    (int)(word_end - word_start));
+                data->DeleteChars((int)(word_start - data->Buf), (int)(word_end - word_start));
                 data->InsertChars(data->CursorPos, candidates[0]);
                 data->InsertChars(data->CursorPos, " ");
             }
@@ -1217,34 +1175,30 @@ int HexagonGame::ilcTextEditCallback(
                 int match_len = (int)(word_end - word_start);
                 for (;;)
                 {
-                    int c = 0;
+                    int  c                      = 0;
                     bool all_candidates_matches = true;
-                    for (int i = 0;
-                        i < candidates.Size && all_candidates_matches; i++)
+                    for (int i = 0; i < candidates.Size && all_candidates_matches; i++)
                         if (i == 0)
                             c = std::toupper(candidates[i][match_len]);
-                        else if (c == 0 ||
-                                 c != std::toupper(candidates[i][match_len]))
+                        else if (c == 0 || c != std::toupper(candidates[i][match_len]))
                             all_candidates_matches = false;
-                    if (!all_candidates_matches) break;
+                    if (!all_candidates_matches)
+                        break;
                     match_len++;
                 }
 
                 if (match_len > 0)
                 {
-                    data->DeleteChars((int)(word_start - data->Buf),
-                        (int)(word_end - word_start));
+                    data->DeleteChars((int)(word_start - data->Buf), (int)(word_end - word_start));
 
-                    data->InsertChars(data->CursorPos, candidates[0],
-                        candidates[0] + match_len);
+                    data->InsertChars(data->CursorPos, candidates[0], candidates[0] + match_len);
                 }
 
                 // List matches
                 ilcCmdLog.emplace_back("Possible matches:\n");
                 for (int i = 0; i < candidates.Size; i++)
                 {
-                    ilcCmdLog.emplace_back(
-                        Utils::concat("- ", candidates[i], '\n'));
+                    ilcCmdLog.emplace_back(Utils::concat("- ", candidates[i], '\n'));
                 }
             }
 
@@ -1277,9 +1231,7 @@ int HexagonGame::ilcTextEditCallback(
 
             if (prev_history_pos != ilcHistoryPos)
             {
-                const char* history_str =
-                    (ilcHistoryPos >= 0) ? ilcHistory[ilcHistoryPos].c_str()
-                                         : "";
+                const char* history_str = (ilcHistoryPos >= 0) ? ilcHistory[ilcHistoryPos].c_str() : "";
 
                 data->DeleteChars(0, data->BufTextLen);
                 data->InsertChars(0, history_str);
@@ -1309,11 +1261,10 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 
     if (ilcShowConsoleNext)
     {
-        ilcShowConsole = !ilcShowConsole;
+        ilcShowConsole     = !ilcShowConsole;
         ilcShowConsoleNext = false;
 
-        imguiCtx->processEvent(
-            window->getRenderWindow(), sf::Event::FocusGained{});
+        imguiCtx->processEvent(window->getRenderWindow(), sf::Event::FocusGained{});
     }
 
     if (!ilcShowConsole)
@@ -1329,15 +1280,11 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     ImGui::Text("Enter `!help` to show help.");
     ImGui::Separator();
 
-    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y +
-                                           ImGui::GetFrameHeightWithSpacing() +
-                                           150;
+    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() + 150;
 
-    ImGui::PushStyleVar(
-        ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
 
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve),
-        false, ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar);
 
     for (const std::string& sItem : ilcCmdLog)
     {
@@ -1379,7 +1326,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         }
 
         std::vector<std::string> split;
-        sf::base::SizeT last = 0;
+        sf::base::SizeT          last = 0;
 
         for (sf::base::SizeT j = 0; j < sItem.size(); ++j)
         {
@@ -1406,12 +1353,11 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
             else
             {
                 constexpr sf::base::SizeT charsPerSubstr = lineLimit;
-                const sf::base::SizeT nSubstrs = s.size() / charsPerSubstr;
+                const sf::base::SizeT     nSubstrs       = s.size() / charsPerSubstr;
 
                 for (sf::base::SizeT j = 0; j < nSubstrs + 1; ++j)
                 {
-                    ImGui::TextUnformatted(
-                        s.substr(j * charsPerSubstr, charsPerSubstr).c_str());
+                    ImGui::TextUnformatted(s.substr(j * charsPerSubstr, charsPerSubstr).c_str());
                 }
             }
         }
@@ -1427,13 +1373,10 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     ImGui::EndChild();
     ImGui::Separator();
 
-    ImGuiInputTextFlags input_text_flags =
-        ImGuiInputTextFlags_EnterReturnsTrue |
-        ImGuiInputTextFlags_CallbackCompletion |
-        ImGuiInputTextFlags_CallbackHistory;
+    ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue |
+                                           ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
 
-    if (ImGui::InputText("Command", &ilcCmdBuffer, input_text_flags,
-            &ilcTextEditCallbackStub, (void*)this))
+    if (ImGui::InputText("Command", &ilcCmdBuffer, input_text_flags, &ilcTextEditCallbackStub, (void*)this))
     {
         const std::string cmdString = ilcCmdBuffer;
         ilcCmdBuffer.clear();
@@ -1452,8 +1395,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 
         ilcHistory.emplace_back(cmdString);
 
-        const std::vector<std::string> cmdSplit =
-            Utils::split<std::string>(cmdString);
+        const std::vector<std::string> cmdSplit = Utils::split<std::string>(cmdString);
 
         if (Stricmp(cmdString.c_str(), "!CLEAR") == 0)
         {
@@ -1474,19 +1416,15 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
             try
             {
                 const std::string& secondsStr = cmdSplit.at(1);
-                const double seconds = std::stod(secondsStr);
+                const double       seconds    = std::stod(secondsStr);
 
-                ilcCmdLog.emplace_back(
-                    Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
+                ilcCmdLog.emplace_back(Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
 
                 fastForwardTarget.emplace(seconds);
-            }
-            catch (const std::invalid_argument&)
+            } catch (const std::invalid_argument&)
             {
-                ilcCmdLog.emplace_back(
-                    "[error]: invalid argument for <seconds>\n");
-            }
-            catch (const std::out_of_range&)
+                ilcCmdLog.emplace_back("[error]: invalid argument for <seconds>\n");
+            } catch (const std::out_of_range&)
             {
                 ilcCmdLog.emplace_back("[error]: out of range for <seconds>\n");
             }
@@ -1496,19 +1434,15 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
             try
             {
                 const std::string& ticksStr = cmdSplit.at(1);
-                const int ticks = std::stoi(ticksStr);
+                const int          ticks    = std::stoi(ticksStr);
 
-                ilcCmdLog.emplace_back(Utils::concat(
-                    "[advt]: advancing simulation by ", ticks, " ticks\n"));
+                ilcCmdLog.emplace_back(Utils::concat("[advt]: advancing simulation by ", ticks, " ticks\n"));
 
                 advanceTickCount.emplace(ticks >= 0 ? ticks : 0);
-            }
-            catch (const std::invalid_argument&)
+            } catch (const std::invalid_argument&)
             {
-                ilcCmdLog.emplace_back(
-                    "[error]: invalid argument for <seconds>\n");
-            }
-            catch (const std::out_of_range&)
+                ilcCmdLog.emplace_back("[error]: invalid argument for <seconds>\n");
+            } catch (const std::out_of_range&)
             {
                 ilcCmdLog.emplace_back("[error]: out of range for <seconds>\n");
             }
@@ -1526,21 +1460,18 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
                 try
                 {
                     lua.executeCode(Utils::concat("u_log(", cmdString, ")\n"));
-                }
-                catch (std::runtime_error& mError)
+                } catch (std::runtime_error& mError)
                 {
                     lua.executeCode(cmdString + "\n");
                 }
-            }
-            catch (std::runtime_error& mError)
+            } catch (std::runtime_error& mError)
             {
                 std::string temp = "[error]: ";
                 temp += mError.what();
                 temp += '\n';
 
                 ilcCmdLog.emplace_back(temp);
-            }
-            catch (...)
+            } catch (...)
             {
                 ilcCmdLog.emplace_back("[error]: unknown\n");
             }
@@ -1569,12 +1500,10 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     ImGui::Separator();
 
     {
-        if (ImGui::InputText(
-                "Track", &ilcTrackBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
+        if (ImGui::InputText("Track", &ilcTrackBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
         {
             const std::string codeToTrack = Utils::getLRTrim(ilcTrackBuffer);
-            ilcLuaTracked.emplace_back(
-                Utils::concat("u_impl_addTrackedResult(", codeToTrack, ")\n"));
+            ilcLuaTracked.emplace_back(Utils::concat("u_impl_addTrackedResult(", codeToTrack, ")\n"));
             ilcLuaTrackedNames.emplace_back(codeToTrack);
 
             ilcTrackBuffer.clear();
@@ -1603,22 +1532,18 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
             try
             {
                 lua.executeCode(code);
-            }
-            catch (std::runtime_error& e)
+            } catch (std::runtime_error& e)
             {
-                ilcCmdLog.emplace_back(Utils::concat("[error]: error '",
-                    e.what(), "' while tracking ", code, '\n'));
+                ilcCmdLog.emplace_back(Utils::concat("[error]: error '", e.what(), "' while tracking ", code, '\n'));
 
                 ilcLuaTracked.erase(ilcLuaTracked.begin() + i);
                 ilcLuaTrackedNames.erase(ilcLuaTrackedNames.begin() + i);
                 problem = true;
                 break;
-            }
-            catch (...)
+            } catch (...)
             {
 
-                ilcCmdLog.emplace_back(Utils::concat(
-                    "[error]: unknown error while tracking ", code, '\n'));
+                ilcCmdLog.emplace_back(Utils::concat("[error]: unknown error while tracking ", code, '\n'));
 
                 ilcLuaTracked.erase(ilcLuaTracked.begin() + i);
                 ilcLuaTrackedNames.erase(ilcLuaTrackedNames.begin() + i);

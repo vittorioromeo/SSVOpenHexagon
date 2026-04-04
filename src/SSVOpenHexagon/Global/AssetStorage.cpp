@@ -2,26 +2,21 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/AssetStorage.hpp"
-
 #include "SSVOpenHexagon/Global/Assert.hpp"
-
+#include "SSVOpenHexagon/Global/AssetStorage.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
-
-#include <SFML/Audio/SoundBuffer.hpp>
-
 #include <SFML/System/Path.hpp>
-
-#include <SFML/Base/Optional.hpp>
-
 #include <string>
 #include <unordered_map>
 
-namespace hg {
+namespace hg
+{
 
 template <typename Map, typename Key>
 [[nodiscard]] static auto* getAsPtr(Map& map, const Key& key) noexcept
@@ -33,13 +28,12 @@ template <typename Map, typename Key>
 class AssetStorage::AssetStorageImpl
 {
 private:
-    std::unordered_map<std::string, sf::Texture> _textures;
-    std::unordered_map<std::string, sf::Font> _fonts;
+    std::unordered_map<std::string, sf::Texture>     _textures;
+    std::unordered_map<std::string, sf::Font>        _fonts;
     std::unordered_map<std::string, sf::SoundBuffer> _soundBuffers;
 
 public:
-    [[nodiscard]] bool loadTexture(
-        const std::string& id, const std::string& path)
+    [[nodiscard]] bool loadTexture(const std::string& id, const std::string& path)
     {
         sf::base::Optional texture = sf::Texture::loadFromFile(path);
 
@@ -65,8 +59,7 @@ public:
         return inserted;
     }
 
-    [[nodiscard]] bool loadSoundBuffer(
-        const std::string& id, const std::string& path)
+    [[nodiscard]] bool loadSoundBuffer(const std::string& id, const std::string& path)
     {
         sf::base::Optional soundBuffer = sf::SoundBuffer::loadFromFile(path);
 
@@ -75,8 +68,7 @@ public:
             return false;
         }
 
-        auto [it, inserted] =
-            _soundBuffers.emplace(id, *SSVOH_MOVE(soundBuffer));
+        auto [it, inserted] = _soundBuffers.emplace(id, *SSVOH_MOVE(soundBuffer));
         return inserted;
     }
 
@@ -90,8 +82,7 @@ public:
         return getAsPtr(_fonts, id);
     }
 
-    [[nodiscard]] sf::SoundBuffer* getSoundBuffer(
-        const std::string& id) noexcept
+    [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const std::string& id) noexcept
     {
         return getAsPtr(_soundBuffers, id);
     }
@@ -112,8 +103,7 @@ public:
     }
 };
 
-[[nodiscard]] const AssetStorage::AssetStorageImpl&
-AssetStorage::impl() const noexcept
+[[nodiscard]] const AssetStorage::AssetStorageImpl& AssetStorage::impl() const noexcept
 {
     SSVOH_ASSERT(_impl != nullptr);
     return *_impl;
@@ -126,30 +116,27 @@ AssetStorage::impl() const noexcept
 }
 
 AssetStorage::AssetStorage() : _impl{sf::base::makeUnique<AssetStorageImpl>()}
-{}
+{
+}
 
 AssetStorage::~AssetStorage() = default;
 
-[[nodiscard]] bool AssetStorage::loadTexture(
-    const std::string& id, const std::string& path)
+[[nodiscard]] bool AssetStorage::loadTexture(const std::string& id, const std::string& path)
 {
     return impl().loadTexture(id, path);
 }
 
-[[nodiscard]] bool AssetStorage::loadFont(
-    const std::string& id, const std::string& path)
+[[nodiscard]] bool AssetStorage::loadFont(const std::string& id, const std::string& path)
 {
     return impl().loadFont(id, path);
 }
 
-[[nodiscard]] bool AssetStorage::loadSoundBuffer(
-    const std::string& id, const std::string& path)
+[[nodiscard]] bool AssetStorage::loadSoundBuffer(const std::string& id, const std::string& path)
 {
     return impl().loadSoundBuffer(id, path);
 }
 
-[[nodiscard]] sf::Texture* AssetStorage::getTexture(
-    const std::string& id) noexcept
+[[nodiscard]] sf::Texture* AssetStorage::getTexture(const std::string& id) noexcept
 {
     return impl().getTexture(id);
 }
@@ -159,8 +146,7 @@ AssetStorage::~AssetStorage() = default;
     return impl().getFont(id);
 }
 
-[[nodiscard]] sf::SoundBuffer* AssetStorage::getSoundBuffer(
-    const std::string& id) noexcept
+[[nodiscard]] sf::SoundBuffer* AssetStorage::getSoundBuffer(const std::string& id) noexcept
 {
     return impl().getSoundBuffer(id);
 }

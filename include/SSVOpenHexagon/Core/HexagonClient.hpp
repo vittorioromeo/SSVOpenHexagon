@@ -4,29 +4,28 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
-
+#include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
+#include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
+#include <SFML/Base/Variant.hpp>
 #include <SFML/Network/IpAddress.hpp>
-#include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/Packet.hpp>
-
+#include <SFML/Network/TcpSocket.hpp>
 #include <deque>
 #include <sstream>
 #include <unordered_set>
 #include <vector>
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/Variant.hpp>
-
-namespace hg::Steam {
+namespace hg::Steam
+{
 class steam_manager;
 }
 
-namespace hg {
+namespace hg
+{
 
 struct replay_file;
 struct compressed_replay_file;
@@ -36,13 +35,13 @@ class HexagonClient
 public:
     enum class State : sf::base::U8
     {
-        Disconnected = 0,
-        InitError = 1,
-        Connecting = 2,
+        Disconnected    = 0,
+        InitError       = 1,
+        Connecting      = 2,
         ConnectionError = 3,
-        Connected = 4,
-        LoggedIn = 5,
-        LoggedIn_Ready = 6,
+        Connected       = 4,
+        LoggedIn        = 5,
+        LoggedIn_Ready  = 6,
     };
 
     // clang-format off
@@ -86,27 +85,27 @@ private:
 
     sf::base::Optional<sf::base::U64> _ticketSteamID;
 
-    const sf::IpAddress _serverIp;
+    const sf::IpAddress  _serverIp;
     const unsigned short _serverPort;
 
     sf::TcpSocket _socket;
-    bool _socketConnected;
+    bool          _socketConnected;
 
-    sf::Packet _packetBuffer;
+    sf::Packet         _packetBuffer;
     std::ostringstream _errorOss;
 
     HRTimePoint _lastHeartbeatTime;
 
     bool _verbose;
 
-    const SodiumPSKeys _clientPSKeys;
+    const SodiumPSKeys                       _clientPSKeys;
     sf::base::Optional<SodiumPublicKeyArray> _serverPublicKey;
-    sf::base::Optional<SodiumRTKeys> _clientRTKeys;
+    sf::base::Optional<SodiumRTKeys>         _clientRTKeys;
 
     State _state;
 
     sf::base::Optional<sf::base::U64> _loginToken;
-    sf::base::Optional<std::string> _loginName;
+    sf::base::Optional<std::string>   _loginName;
 
     std::deque<Event> _events;
 
@@ -124,24 +123,17 @@ private:
     [[nodiscard]] bool sendHeartbeat();
     [[nodiscard]] bool sendDisconnect();
     [[nodiscard]] bool sendPublicKey();
-    [[nodiscard]] bool sendRegister(const sf::base::U64 steamId,
-        const std::string& name, const std::string& passwordHash);
-    [[nodiscard]] bool sendLogin(const sf::base::U64 steamId,
-        const std::string& name, const std::string& passwordHash);
+    [[nodiscard]] bool sendRegister(const sf::base::U64 steamId, const std::string& name, const std::string& passwordHash);
+    [[nodiscard]] bool sendLogin(const sf::base::U64 steamId, const std::string& name, const std::string& passwordHash);
     [[nodiscard]] bool sendLogout(const sf::base::U64 steamId);
-    [[nodiscard]] bool sendDeleteAccount(
-        const sf::base::U64 steamId, const std::string& passwordHash);
-    [[nodiscard]] bool sendRequestTopScores(
-        const sf::base::U64 loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendRequestOwnScore(
-        const sf::base::U64 loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendRequestTopScoresAndOwnScore(
-        const sf::base::U64 loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendStartedGame(
-        const sf::base::U64 loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendCompressedReplay(const sf::base::U64 loginToken,
-        const std::string& levelValidator,
-        const compressed_replay_file& compressedReplayFile);
+    [[nodiscard]] bool sendDeleteAccount(const sf::base::U64 steamId, const std::string& passwordHash);
+    [[nodiscard]] bool sendRequestTopScores(const sf::base::U64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendRequestOwnScore(const sf::base::U64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendRequestTopScoresAndOwnScore(const sf::base::U64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendStartedGame(const sf::base::U64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendCompressedReplay(const sf::base::U64           loginToken,
+                                            const std::string&            levelValidator,
+                                            const compressed_replay_file& compressedReplayFile);
     [[nodiscard]] bool sendRequestServerStatus(const sf::base::U64 loginToken);
     [[nodiscard]] bool sendReady(const sf::base::U64 loginToken);
 
@@ -161,17 +153,15 @@ private:
     [[nodiscard]] bool fail(const Ts&...);
 
     [[nodiscard]] bool connectedAndInState(const State s) const noexcept;
-    [[nodiscard]] bool connectedAndInAnyState(
-        const State s0, const State s1) const noexcept;
+    [[nodiscard]] bool connectedAndInAnyState(const State s0, const State s1) const noexcept;
 
 public:
-    explicit HexagonClient(Steam::steam_manager& steamManager,
-        const sf::IpAddress& serverIp, const unsigned short serverPort);
+    explicit HexagonClient(Steam::steam_manager& steamManager, const sf::IpAddress& serverIp, const unsigned short serverPort);
 
     ~HexagonClient();
 
     HexagonClient(const HexagonClient&) = delete;
-    HexagonClient(HexagonClient&&) = delete;
+    HexagonClient(HexagonClient&&)      = delete;
 
     bool connect();
     void disconnect();
@@ -186,19 +176,16 @@ public:
     bool tryRequestOwnScore(const std::string& levelValidator);
     bool tryRequestTopScoresAndOwnScore(const std::string& levelValidator);
     bool trySendStartedGame(const std::string& levelValidator);
-    bool trySendCompressedReplay(const std::string& levelValidator,
-        const compressed_replay_file& compressedReplayFile);
+    bool trySendCompressedReplay(const std::string& levelValidator, const compressed_replay_file& compressedReplayFile);
 
     [[nodiscard]] State getState() const noexcept;
-    [[nodiscard]] bool hasRTKeys() const noexcept;
+    [[nodiscard]] bool  hasRTKeys() const noexcept;
 
-    [[nodiscard]] const sf::base::Optional<std::string>&
-    getLoginName() const noexcept;
+    [[nodiscard]] const sf::base::Optional<std::string>& getLoginName() const noexcept;
 
     [[nodiscard]] sf::base::Optional<Event> pollEvent();
 
-    [[nodiscard]] bool isLevelSupportedByServer(
-        const std::string& levelValidator) const noexcept;
+    [[nodiscard]] bool isLevelSupportedByServer(const std::string& levelValidator) const noexcept;
 };
 
 } // namespace hg

@@ -5,23 +5,21 @@
 #include "SSVOpenHexagon/Core/BindControl.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Input/Combo.hpp"
+#include "SSVOpenHexagon/Input/Manager.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
 
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
-
-#include "SSVOpenHexagon/Input/Combo.hpp"
-#include "SSVOpenHexagon/Input/Manager.hpp"
-#include "SSVOpenHexagon/Input/Trigger.hpp"
-
 #include <string>
 #include <vector>
 
-namespace hg {
+namespace hg
+{
 
-[[nodiscard]] int KeyboardBindControl::getRealSize(
-    const std::vector<ssvs::Input::Combo>& combos) const
+[[nodiscard]] int KeyboardBindControl::getRealSize(const std::vector<ssvs::Input::Combo>& combos) const
 {
     decltype(combos.size()) i = 0;
     for (; i < combos.size(); ++i)
@@ -100,8 +98,7 @@ bool KeyboardBindControl::newKeyboardBind(const sf::Mouse::Button btn)
     return true;
 }
 
-void KeyboardBindControl::applyBind(
-    const sf::Keyboard::Key key, const sf::Mouse::Button btn)
+void KeyboardBindControl::applyBind(const sf::Keyboard::Key key, const sf::Mouse::Button btn)
 {
     // assign the pressed key to the config value
     addBind(key, btn);
@@ -115,8 +112,7 @@ void KeyboardBindControl::applyBind(
 
 [[nodiscard]] std::string KeyboardBindControl::getName() const
 {
-    std::string bindNames =
-        Config::getKeyboardBindNames(static_cast<Config::Tid>(ID));
+    std::string bindNames = Config::getKeyboardBindNames(static_cast<Config::Tid>(ID));
 
     if (waitingForBind)
     {
@@ -170,8 +166,7 @@ void JoystickBindControl::newJoystickBind(const unsigned int joy)
 
 [[nodiscard]] std::string JoystickBindControl::getName() const
 {
-    std::string bindName =
-        Config::getJoystickBindName(static_cast<Joystick::Jid>(ID));
+    std::string bindName = Config::getJoystickBindName(static_cast<Joystick::Jid>(ID));
 
     if (waitingForBind)
     {

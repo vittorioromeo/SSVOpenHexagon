@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <SFML/Base/StdChrono.hpp>
-
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/StdChrono.hpp>
 #include <string>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
-using SCClock = std::chrono::system_clock;
+using SCClock     = std::chrono::system_clock;
 using SCTimePoint = std::chrono::time_point<SCClock>;
 
 [[nodiscard]] sf::base::U64 timestamp(const SCTimePoint tp);
@@ -20,7 +20,6 @@ using SCTimePoint = std::chrono::time_point<SCClock>;
 
 [[nodiscard]] SCTimePoint toTimepoint(const sf::base::U64 timestamp);
 
-[[nodiscard]] std::string formatTimepoint(
-    const SCTimePoint time, const std::string& format);
+[[nodiscard]] std::string formatTimepoint(const SCTimePoint time, const std::string& format);
 
 } // namespace hg::Utils

@@ -4,14 +4,13 @@
 
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 
+#include <SFML/Base/StringView.hpp>
 #include <string>
 
-#include <SFML/Base/StringView.hpp>
+namespace hg::Utils
+{
 
-namespace hg::Utils {
-
-[[nodiscard]] sf::base::SizeT LuaMetadata::getCategoryIndexFromName(
-    const sf::base::StringView fnName)
+[[nodiscard]] sf::base::SizeT LuaMetadata::getCategoryIndexFromName(const sf::base::StringView fnName)
 {
     const sf::base::SizeT underscoreIndex = fnName.find("_");
     if (underscoreIndex == std::string::npos)
@@ -20,8 +19,7 @@ namespace hg::Utils {
         return NUM_CATEGORIES - 1;
     }
 
-    const sf::base::StringView prefix =
-        fnName.substrByPosLen(0, underscoreIndex + 1);
+    const sf::base::StringView prefix = fnName.substrByPosLen(0, underscoreIndex + 1);
 
     // Find the category it should be placed in, otherwise it'll be
     // considered Miscellaneous
@@ -37,8 +35,9 @@ namespace hg::Utils {
 }
 
 void LuaMetadata::addFnEntry(const sf::base::String& fnRet,
-    const sf::base::String& fnName, const sf::base::String& fnArgs,
-    const sf::base::String& fnDocs)
+                             const sf::base::String& fnName,
+                             const sf::base::String& fnArgs,
+                             const sf::base::String& fnDocs)
 {
     const sf::base::SizeT categoryIndex = getCategoryIndexFromName(fnName);
 

@@ -7,13 +7,14 @@
 #include <string>
 #include <vector>
 
-namespace hg {
+namespace hg
+{
 
 struct LoadInfo
 {
-    unsigned int packs{0};
-    unsigned int levels{0};
-    unsigned int assets{0};
+    unsigned int             packs{0};
+    unsigned int             levels{0};
+    unsigned int             assets{0};
     std::vector<std::string> errorMessages;
 
     void addFormattedError(std::string& error);

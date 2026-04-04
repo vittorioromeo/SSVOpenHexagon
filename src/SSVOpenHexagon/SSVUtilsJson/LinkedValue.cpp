@@ -2,25 +2,26 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/SSVUtilsJson/LinkedValue/LinkedValue.hpp"
-
-#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
-
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp" // IWYU pragma: keep
 #include "SSVOpenHexagon/Input/Trigger.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/LinkedValue/LinkedValue.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp" // IWYU pragma: keep
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
 #include <string>
 #include <vector>
 
-namespace ssvuj {
+namespace ssvuj
+{
 
 template <typename T>
-LinkedValue<T>::LinkedValue(const char* mLinkedName, const T& mDefault)
-    : name{mLinkedName}, value{mDefault}, defValue{mDefault}
-{}
+LinkedValue<T>::LinkedValue(const char* mLinkedName, const T& mDefault) :
+    name{mLinkedName},
+    value{mDefault},
+    defValue{mDefault}
+{
+}
 
 template <typename T>
 [[nodiscard]] LinkedValue<T>::operator T&() noexcept

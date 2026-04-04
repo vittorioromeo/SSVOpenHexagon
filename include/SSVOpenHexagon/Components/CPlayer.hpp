@@ -4,13 +4,14 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/Ticker.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
+#include "SSVOpenHexagon/Utils/Ticker.hpp"
 
-#include <SFML/System/Vec2.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vec2.hpp>
 
-namespace hg {
+namespace hg
+{
 
 class CWall;
 class CCustomWall;
@@ -54,7 +55,7 @@ private:
 
     float _currentSpeed; // Cached player speed in the current frame.
 
-    float _triangleWidth; // Visual width of the triangle, varies when focusing.
+    float _triangleWidth;               // Visual width of the triangle, varies when focusing.
     float _triangleWidthTransitionTime; // From 0 to 1, when transitioning
 
     Ticker _swapTimer;
@@ -63,24 +64,27 @@ private:
 
     float _currTiltedAngle;
 
-    void drawPivot(const unsigned int sides, const sf::Color& colorMain,
-        Utils::FastVertexVectorTris& wallQuads,
-        Utils::FastVertexVectorTris& capTris, const sf::Color& capColor);
+    void drawPivot(const unsigned int           sides,
+                   const sf::Color&             colorMain,
+                   Utils::FastVertexVectorTris& wallQuads,
+                   Utils::FastVertexVectorTris& capTris,
+                   const sf::Color&             capColor);
 
     void drawDeathEffect(Utils::FastVertexVectorTris& wallQuads);
 
     template <typename Wall>
-    [[nodiscard]] bool checkWallCollisionEscape(
-        const Wall& wall, sf::Vec2f& pos, const float radiusSquared);
+    [[nodiscard]] bool checkWallCollisionEscape(const Wall& wall, sf::Vec2f& pos, const float radiusSquared);
 
     void updateTriangleWidthTransition(const bool focused, const float ft);
 
 public:
-    explicit CPlayer(const sf::Vec2f pos, const float swapCooldown,
-        const float size, const float speed, const float focusSpeed) noexcept;
+    explicit CPlayer(const sf::Vec2f pos,
+                     const float     swapCooldown,
+                     const float     size,
+                     const float     speed,
+                     const float     focusSpeed) noexcept;
 
-    [[nodiscard, gnu::always_inline]] const sf::Vec2f
-    getPosition() const noexcept
+    [[nodiscard, gnu::always_inline]] const sf::Vec2f getPosition() const noexcept
     {
         return _pos;
     }
@@ -92,7 +96,7 @@ public:
 
     void setPlayerAngle(const float newAng) noexcept
     {
-        _angle = newAng;
+        _angle      = newAng;
         _forcedMove = true;
     }
 
@@ -102,8 +106,7 @@ public:
 
     void update(const bool focused, const bool swapEnabled, const float ft);
 
-    void updateInputMovement(const float movementDir,
-        const float playerSpeedMult, const bool focused, const float ft);
+    void updateInputMovement(const float movementDir, const float playerSpeedMult, const bool focused, const float ft);
 
     void resetSwap(const float swapCooldown);
 
@@ -113,21 +116,30 @@ public:
 
     [[nodiscard]] sf::Color getColor(const sf::Color& colorPlayer) const;
 
-    [[nodiscard]] sf::Color getColorAdjustedForSwap(
-        const sf::Color& colorPlayer) const;
+    [[nodiscard]] sf::Color getColorAdjustedForSwap(const sf::Color& colorPlayer) const;
 
-    void draw(const unsigned int sides, const sf::Color& colorMain,
-        const sf::Color& colorPlayer, Utils::FastVertexVectorTris& wallQuads,
-        Utils::FastVertexVectorTris& capTris,
-        Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor,
-        const float angleTiltIntensity, const bool swapBlinkingEffect);
+    void draw(const unsigned int           sides,
+              const sf::Color&             colorMain,
+              const sf::Color&             colorPlayer,
+              Utils::FastVertexVectorTris& wallQuads,
+              Utils::FastVertexVectorTris& capTris,
+              Utils::FastVertexVectorTris& playerTris,
+              const sf::Color&             capColor,
+              const float                  angleTiltIntensity,
+              const bool                   swapBlinkingEffect);
 
-    [[nodiscard]] bool push(const int movementDir, const float radius,
-        const CWall& wall, const sf::Vec2f mCenterPos,
-        const float radiusSquared, float ft);
+    [[nodiscard]] bool push(const int       movementDir,
+                            const float     radius,
+                            const CWall&    wall,
+                            const sf::Vec2f mCenterPos,
+                            const float     radiusSquared,
+                            float           ft);
 
-    [[nodiscard]] bool push(const int movementDir, const float radius,
-        const hg::CCustomWall& wall, const float radiusSquared, float ft);
+    [[nodiscard]] bool push(const int              movementDir,
+                            const float            radius,
+                            const hg::CCustomWall& wall,
+                            const float            radiusSquared,
+                            float                  ft);
 
     [[nodiscard]] bool getJustSwapped() const noexcept;
 

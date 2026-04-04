@@ -2,15 +2,14 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 
-#include "SSVOpenHexagon/Global/Assert.hpp"
-
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/StdChrono.hpp>
 
-#include <SFML/Base/Optional.hpp>
-
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 void timeline2::clear()
 {
@@ -43,15 +42,13 @@ void timeline2::append_wait_until(const time_point tp)
     return _actions.size();
 }
 
-[[nodiscard]] timeline2::action& timeline2::action_at(
-    const sf::base::SizeT i) noexcept
+[[nodiscard]] timeline2::action& timeline2::action_at(const sf::base::SizeT i) noexcept
 {
     SSVOH_ASSERT(i < size());
     return _actions[i];
 }
 
-timeline2_runner::outcome timeline2_runner::update(
-    timeline2& timeline, const time_point tp)
+timeline2_runner::outcome timeline2_runner::update(timeline2& timeline, const time_point tp)
 {
     if (_current_idx >= timeline.size())
     {
@@ -65,51 +62,51 @@ timeline2_runner::outcome timeline2_runner::update(
 
         const outcome o = a.linearMatch(
             [&](timeline2::action_do& x)
-            {
-                x._func();
-                return outcome::proceed;
-            },
+        {
+            x._func();
+            return outcome::proceed;
+        },
             [&](timeline2::action_wait_for& x)
+        {
+            if (!_wait_start_tp.hasValue())
             {
-                if (!_wait_start_tp.hasValue())
-                {
-                    // Just started waiting.
-                    _wait_start_tp.emplace(tp);
-                }
+                // Just started waiting.
+                _wait_start_tp.emplace(tp);
+            }
 
-                const auto elapsed = tp - _wait_start_tp.value();
-                if (elapsed < x._duration)
-                {
-                    // Still waiting.
-                    return outcome::waiting;
-                }
+            const auto elapsed = tp - _wait_start_tp.value();
+            if (elapsed < x._duration)
+            {
+                // Still waiting.
+                return outcome::waiting;
+            }
 
-                // Finished waiting.
-                _wait_start_tp.reset();
-                return outcome::proceed;
-            },
+            // Finished waiting.
+            _wait_start_tp.reset();
+            return outcome::proceed;
+        },
             [&](timeline2::action_wait_until& x)
+        {
+            if (tp < x._time_point)
             {
-                if (tp < x._time_point)
-                {
-                    // Still waiting.
-                    return outcome::waiting;
-                }
+                // Still waiting.
+                return outcome::waiting;
+            }
 
-                // Finished waiting.
-                return outcome::proceed;
-            }, //
+            // Finished waiting.
+            return outcome::proceed;
+        }, //
             [&](timeline2::action_wait_until_fn& x)
+        {
+            if (tp < x._time_point_fn())
             {
-                if (tp < x._time_point_fn())
-                {
-                    // Still waiting.
-                    return outcome::waiting;
-                }
+                // Still waiting.
+                return outcome::waiting;
+            }
 
-                // Finished waiting.
-                return outcome::proceed;
-            } //
+            // Finished waiting.
+            return outcome::proceed;
+        } //
         );
 
         if (o == outcome::proceed)

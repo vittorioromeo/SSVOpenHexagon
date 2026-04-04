@@ -2,30 +2,28 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Utils/Log.hpp"
+#include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
 
-#include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
-
-#include "SSVOpenHexagon/Utils/Log.hpp"
-
-#include <SFML/Base/Trait/IsSame.hpp>
 #include <SFML/Base/SizeT.hpp>
-
+#include <SFML/Base/Trait/IsSame.hpp>
 #include <string>
 #include <tuple>
 
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 template <typename T>
 [[nodiscard]] const char* LuaMetadataProxy::typeToStr(TypeWrapper<T>) noexcept
 {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
-#define RETURN_T_STR(type)       \
-    (SFML_BASE_IS_SAME(T, type)) \
-    {                            \
-        return #type;            \
-    }
+    #define RETURN_T_STR(type)       \
+        (SFML_BASE_IS_SAME(T, type)) \
+        {                            \
+            return #type;            \
+        }
 
     // clang-format off
          if constexpr RETURN_T_STR(void)
@@ -60,16 +58,14 @@ template const char* LuaMetadataProxy::typeToStr(TypeWrapper<unsigned int>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<long>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<unsigned long>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<long long>);
-template const char* LuaMetadataProxy::typeToStr(
-    TypeWrapper<unsigned long long>);
+template const char* LuaMetadataProxy::typeToStr(TypeWrapper<unsigned long long>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<std::string>);
 #endif
 
 // ----------------------------------------------------------------------------
 
 template <typename... Ts>
-[[nodiscard]] std::string LuaMetadataProxy::typeToStr(
-    TypeWrapper<std::tuple<Ts...>>)
+[[nodiscard]] std::string LuaMetadataProxy::typeToStr(TypeWrapper<std::tuple<Ts...>>)
 {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
     std::string result;
@@ -90,20 +86,17 @@ template <typename... Ts>
 }
 
 #ifdef SSVOH_PRODUCE_LUA_METADATA
-template std::string LuaMetadataProxy::typeToStr(
-    TypeWrapper<std::tuple<int, int, int, int>>);
+template std::string LuaMetadataProxy::typeToStr(TypeWrapper<std::tuple<int, int, int, int>>);
+
+template std::string LuaMetadataProxy::typeToStr(TypeWrapper<std::tuple<float, float>>);
 
 template std::string LuaMetadataProxy::typeToStr(
-    TypeWrapper<std::tuple<float, float>>);
-
-template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
-    std::tuple<float, float, float, float, float, float, float, float>>);
+    TypeWrapper<std::tuple<float, float, float, float, float, float, float, float>>);
 #endif
 
 // ----------------------------------------------------------------------------
 
-[[nodiscard]] std::string LuaMetadataProxy::resolveArgNames(
-    [[maybe_unused]] const std::string& docs)
+[[nodiscard]] std::string LuaMetadataProxy::resolveArgNames([[maybe_unused]] const std::string& docs)
 {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
     sf::base::SizeT argNameSize = 0;
@@ -139,7 +132,7 @@ template std::string LuaMetadataProxy::typeToStr(TypeWrapper<
         // Parse into integer.
 
         sf::base::SizeT indexAcc = 0;
-        sf::base::SizeT tens = 1;
+        sf::base::SizeT tens     = 1;
 
         for (sf::base::SizeT k = j - 1; k >= i; --k)
         {
@@ -161,15 +154,11 @@ LuaMetadataProxy::~LuaMetadataProxy()
 #ifdef SSVOH_PRODUCE_LUA_METADATA
 try
 {
-    luaMetadata.addFnEntry(
-        (*erasedRet)(this), name, (*erasedArgs)(this), resolveArgNames(docs));
-}
-catch (const std::exception& e)
+    luaMetadata.addFnEntry((*erasedRet)(this), name, (*erasedArgs)(this), resolveArgNames(docs));
+} catch (const std::exception& e)
 {
-    hg::lo("LuaMetadataProxy")
-        << "Failed to generate documentation: " << e.what() << '\n';
-}
-catch (...)
+    hg::lo("LuaMetadataProxy") << "Failed to generate documentation: " << e.what() << '\n';
+} catch (...)
 {
     hg::lo("LuaMetadataProxy") << "Failed to generate documentation\n";
 }
@@ -178,8 +167,7 @@ catch (...)
 }
 #endif
 
-LuaMetadataProxy& LuaMetadataProxy::arg(
-    [[maybe_unused]] const std::string& mArgName)
+LuaMetadataProxy& LuaMetadataProxy::arg([[maybe_unused]] const std::string& mArgName)
 {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
     argNames.emplace_back(mArgName);
@@ -188,8 +176,7 @@ LuaMetadataProxy& LuaMetadataProxy::arg(
     return *this;
 }
 
-LuaMetadataProxy& LuaMetadataProxy::doc(
-    [[maybe_unused]] const std::string& mDocs)
+LuaMetadataProxy& LuaMetadataProxy::doc([[maybe_unused]] const std::string& mDocs)
 {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
     docs = mDocs;

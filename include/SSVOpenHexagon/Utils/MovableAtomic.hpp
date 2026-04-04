@@ -6,7 +6,8 @@
 
 #include <atomic>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 /// @brief Wrapper around `std::atomic<T>` that allows move operations.
 /// @details Moves are handled by using `store(rhs.load())`.
@@ -21,11 +22,12 @@ public:
 
     movable_atomic() = default;
 
-    movable_atomic(const movable_atomic&) = delete;
+    movable_atomic(const movable_atomic&)            = delete;
     movable_atomic& operator=(const movable_atomic&) = delete;
 
     movable_atomic(movable_atomic&& rhs) noexcept : base_type{rhs.load()}
-    {}
+    {
+    }
 
     movable_atomic& operator=(movable_atomic&& rhs) noexcept
     {

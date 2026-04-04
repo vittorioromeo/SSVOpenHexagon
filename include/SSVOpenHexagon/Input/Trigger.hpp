@@ -9,7 +9,8 @@
 #include <initializer_list>
 #include <vector>
 
-namespace ssvs::Input {
+namespace ssvs::Input
+{
 
 class Trigger
 {
@@ -19,9 +20,9 @@ private:
 public:
     Trigger() = default;
 
-    Trigger(const std::initializer_list<Combo>& initCombos) noexcept
-        : combos{initCombos}
-    {}
+    Trigger(const std::initializer_list<Combo>& initCombos) noexcept : combos{initCombos}
+    {
+    }
 
     [[nodiscard]] bool operator==(const Trigger& rhs) const noexcept
     {

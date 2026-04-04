@@ -8,17 +8,18 @@
 
 #include <string>
 
-namespace ssvuj {
+namespace ssvuj
+{
 
 template <typename T>
 struct Converter;
 
-using Obj = Json::Value;
-using Key = std::string;
-using Idx = unsigned int;
-using Writer = Json::StyledStreamWriter;
-using Reader = Json::Reader;
-using Iterator = typename Json::Value::iterator;
+using Obj           = Json::Value;
+using Key           = std::string;
+using Idx           = unsigned int;
+using Writer        = Json::StyledStreamWriter;
+using Reader        = Json::Reader;
+using Iterator      = typename Json::Value::iterator;
 using ConstIterator = typename Json::Value::const_iterator;
 
 } // namespace ssvuj

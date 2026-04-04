@@ -7,10 +7,10 @@
 #include <cstdio>
 #include <cstdlib>
 
-namespace hg::Impl {
+namespace hg::Impl
+{
 
-[[gnu::cold]] void assertionFailure(
-    const char* code, const char* file, const int line)
+[[gnu::cold]] void assertionFailure(const char* code, const char* file, const int line)
 {
     std::printf("ASSERTION FAILED\n    %s:%d\n    %s\n", file, line, code);
     std::abort();

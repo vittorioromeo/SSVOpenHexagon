@@ -5,17 +5,17 @@
 #pragma once
 
 #include "SSVOpenHexagon/Components/SpeedData.hpp"
-#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
-
-#include <SFML/System/Vec2.hpp>
-#include <SFML/Base/Math/Cos.hpp>
-#include <SFML/Base/Math/Sin.hpp>
+#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 
 #include <SFML/Base/Array.hpp>
 #include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Math/Cos.hpp>
+#include <SFML/Base/Math/Sin.hpp>
+#include <SFML/System/Vec2.hpp>
 
-namespace hg {
+namespace hg
+{
 
 class CWall
 {
@@ -26,31 +26,37 @@ private:
     SpeedData _curve;
 
     float _hueMod;
-    bool _killed;
+    bool  _killed;
 
-    void moveTowardsCenter(const float wallSpawnDist, const float radius,
-        const sf::Vec2f centerPos, const float ft);
+    void moveTowardsCenter(const float wallSpawnDist, const float radius, const sf::Vec2f centerPos, const float ft);
 
     void moveCurve(const sf::Vec2f centerPos, const float ft);
 
 public:
-    explicit CWall(const unsigned int sides, const float wallAngleLeft,
-        const float wallAngleRight, const float wallSkewLeft,
-        const float wallSkewRight, const sf::Vec2f centerPos, const int side,
-        const float thickness, const float distance, const SpeedData& speed,
-        const SpeedData& curve, const float hueMod);
+    explicit CWall(const unsigned int sides,
+                   const float        wallAngleLeft,
+                   const float        wallAngleRight,
+                   const float        wallSkewLeft,
+                   const float        wallSkewRight,
+                   const sf::Vec2f    centerPos,
+                   const int          side,
+                   const float        thickness,
+                   const float        distance,
+                   const SpeedData&   speed,
+                   const SpeedData&   curve,
+                   const float        hueMod);
 
-    void update(const float wallSpawnDist, const float radius,
-        const sf::Vec2f centerPos, const float ft);
+    void update(const float wallSpawnDist, const float radius, const sf::Vec2f centerPos, const float ft);
 
-    [[gnu::always_inline]] void moveVertexAlongCurveImpl(sf::Vec2f& vertex,
-        const sf::Vec2f centerPos, const float xSin,
-        const float xCos) const noexcept
+    [[gnu::always_inline]] void moveVertexAlongCurveImpl(sf::Vec2f&      vertex,
+                                                         const sf::Vec2f centerPos,
+                                                         const float     xSin,
+                                                         const float     xCos) const noexcept
     {
         const float tempX = vertex.x - centerPos.x;
         const float tempY = vertex.y - centerPos.y;
-        vertex.x = tempX * xCos - tempY * xSin + centerPos.x;
-        vertex.y = tempX * xSin + tempY * xCos + centerPos.y;
+        vertex.x          = tempX * xCos - tempY * xSin + centerPos.x;
+        vertex.y          = tempX * xSin + tempY * xCos + centerPos.y;
     }
 
     [[gnu::always_inline]] float getCurveRadians(const float ft) const noexcept
@@ -59,21 +65,18 @@ public:
         return _curve._speed * divBy60 * ft;
     }
 
-    [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vec2f& vertex,
-        const sf::Vec2f centerPos, const float ft) const noexcept
+    [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vec2f& vertex, const sf::Vec2f centerPos, const float ft) const noexcept
     {
         const float rad = getCurveRadians(ft);
 
-        moveVertexAlongCurveImpl(
-            vertex, centerPos, sf::base::sin(rad), sf::base::cos(rad));
+        moveVertexAlongCurveImpl(vertex, centerPos, sf::base::sin(rad), sf::base::cos(rad));
     }
 
     void draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads);
 
     void setHueMod(float hueMod) noexcept;
 
-    [[nodiscard, gnu::always_inline]] const sf::base::Array<sf::Vec2f, 4>&
-    getVertexPositions() const noexcept
+    [[nodiscard, gnu::always_inline]] const sf::base::Array<sf::Vec2f, 4>& getVertexPositions() const noexcept
     {
         return _vertexPositions;
     }
@@ -88,22 +91,21 @@ public:
         return _curve;
     }
 
-    [[nodiscard, gnu::always_inline]] bool isOverlapping(
-        const sf::Vec2f point) const noexcept
+    [[nodiscard, gnu::always_inline]] bool isOverlapping(const sf::Vec2f point) const noexcept
     {
         return Utils::pointInFourVertexPolygon(_vertexPositions[0],
-            _vertexPositions[1], _vertexPositions[2], _vertexPositions[3],
-            point);
+                                               _vertexPositions[1],
+                                               _vertexPositions[2],
+                                               _vertexPositions[3],
+                                               point);
     }
 
-    [[nodiscard, gnu::always_inline]] constexpr bool
-    isCustomWall() const noexcept
+    [[nodiscard, gnu::always_inline]] constexpr bool isCustomWall() const noexcept
     {
         return false;
     }
 
-    [[nodiscard, gnu::always_inline]] sf::base::U8
-    getKillingSide() const noexcept
+    [[nodiscard, gnu::always_inline]] sf::base::U8 getKillingSide() const noexcept
     {
         return 0u;
     }

@@ -6,7 +6,8 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 template <typename T>
 class UniquePtrArray
@@ -17,25 +18,23 @@ private:
     T* _ptr;
 
 public:
-    [[nodiscard, gnu::always_inline]] explicit UniquePtrArray() noexcept
-        : _ptr{nullptr}
-    {}
+    [[nodiscard, gnu::always_inline]] explicit UniquePtrArray() noexcept : _ptr{nullptr}
+    {
+    }
 
-    [[nodiscard, gnu::always_inline]] explicit UniquePtrArray(T* ptr) noexcept
-        : _ptr{ptr}
-    {}
+    [[nodiscard, gnu::always_inline]] explicit UniquePtrArray(T* ptr) noexcept : _ptr{ptr}
+    {
+    }
 
     [[gnu::always_inline]] ~UniquePtrArray() noexcept
     {
         delete[] _ptr;
     }
 
-    UniquePtrArray(const UniquePtrArray&) = delete;
+    UniquePtrArray(const UniquePtrArray&)            = delete;
     UniquePtrArray& operator=(const UniquePtrArray&) = delete;
 
-    [[nodiscard, gnu::always_inline]] UniquePtrArray(
-        UniquePtrArray&& rhs) noexcept
-        : _ptr{rhs._ptr}
+    [[nodiscard, gnu::always_inline]] UniquePtrArray(UniquePtrArray&& rhs) noexcept : _ptr{rhs._ptr}
     {
         rhs._ptr = nullptr;
     }
@@ -44,7 +43,7 @@ public:
     {
         delete[] _ptr;
 
-        _ptr = rhs._ptr;
+        _ptr     = rhs._ptr;
         rhs._ptr = nullptr;
 
         return *this;
@@ -66,41 +65,35 @@ public:
         return _ptr[i];
     }
 
-    [[nodiscard, gnu::always_inline]] const T& operator[](
-        const SizeT i) const noexcept
+    [[nodiscard, gnu::always_inline]] const T& operator[](const SizeT i) const noexcept
     {
         SSVOH_ASSERT(_ptr != nullptr);
         return _ptr[i];
     }
 
-    [[nodiscard, gnu::always_inline]] bool operator==(
-        const T* ptr) const noexcept
+    [[nodiscard, gnu::always_inline]] bool operator==(const T* ptr) const noexcept
     {
         return _ptr == ptr;
     }
 
-    [[nodiscard, gnu::always_inline]] bool operator!=(
-        const T* ptr) const noexcept
+    [[nodiscard, gnu::always_inline]] bool operator!=(const T* ptr) const noexcept
     {
         return _ptr != ptr;
     }
 
-    [[nodiscard, gnu::always_inline]] bool operator==(
-        decltype(nullptr)) const noexcept
+    [[nodiscard, gnu::always_inline]] bool operator==(decltype(nullptr)) const noexcept
     {
         return _ptr == nullptr;
     }
 
-    [[nodiscard, gnu::always_inline]] bool operator!=(
-        decltype(nullptr)) const noexcept
+    [[nodiscard, gnu::always_inline]] bool operator!=(decltype(nullptr)) const noexcept
     {
         return _ptr != nullptr;
     }
 };
 
 template <typename T>
-[[nodiscard, gnu::always_inline]] inline UniquePtrArray<T> makeUniqueArray(
-    decltype(sizeof(int)) capacity)
+[[nodiscard, gnu::always_inline]] inline UniquePtrArray<T> makeUniqueArray(decltype(sizeof(int)) capacity)
 {
     return UniquePtrArray<T>{new T[capacity]};
 }

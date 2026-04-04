@@ -7,7 +7,8 @@
 #include <string>
 #include <vector>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 [[nodiscard]] inline std::vector<char> stringToCharVec(const std::string& s)
 {

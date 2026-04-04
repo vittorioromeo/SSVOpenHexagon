@@ -2,18 +2,17 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
-#include "SSVOpenHexagon/Global/Assert.hpp"
-
-#include <SFML/Base/SizeT.hpp>
 #include <SFML/Base/Algorithm/Find.hpp>
-
+#include <SFML/Base/SizeT.hpp>
+#include <istream>
 #include <stdexcept>
 #include <string>
-#include <istream>
 
-namespace Lua {
+namespace Lua
+{
 
 LuaContext::LuaContext(bool openDefaultLibs)
 {
@@ -21,8 +20,7 @@ LuaContext::LuaContext(bool openDefaultLibs)
     // allocator instead of luaL_newstate, to trace memory usage
     struct Allocator
     {
-        static void* allocator(
-            void*, void* ptr, sf::base::SizeT, sf::base::SizeT nsize)
+        static void* allocator(void*, void* ptr, sf::base::SizeT, sf::base::SizeT nsize)
         {
             if (nsize == 0)
             {
@@ -69,25 +67,23 @@ LuaContext::~LuaContext()
 }
 
 
-LuaContext::ExecutionErrorException::ExecutionErrorException(
-    const std::string& msg)
-    : std::runtime_error(msg.c_str())
-{}
+LuaContext::ExecutionErrorException::ExecutionErrorException(const std::string& msg) : std::runtime_error(msg.c_str())
+{
+}
 
-LuaContext::VariableDoesntExistException::VariableDoesntExistException(
-    const std::string& variable)
-    : std::runtime_error((std::string("Variable \"") + variable +
-                          std::string("\" doesn't exist in lua context"))
-              .c_str())
-{}
+LuaContext::VariableDoesntExistException::VariableDoesntExistException(const std::string& variable) :
+    std::runtime_error((std::string("Variable \"") + variable + std::string("\" doesn't exist in lua context")).c_str())
+{
+}
 
-LuaContext::SyntaxErrorException::SyntaxErrorException(const std::string& msg)
-    : std::runtime_error(msg.c_str())
-{}
+LuaContext::SyntaxErrorException::SyntaxErrorException(const std::string& msg) : std::runtime_error(msg.c_str())
+{
+}
 
-LuaContext::WrongTypeException::WrongTypeException()
-    : std::runtime_error("Trying to cast a lua variable to an invalid type")
-{}
+LuaContext::WrongTypeException::WrongTypeException() :
+    std::runtime_error("Trying to cast a lua variable to an invalid type")
+{
+}
 
 void LuaContext::_getGlobal(std::string_view mVarName) const
 {
@@ -115,7 +111,8 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
         std::string buffer(currentVar, nextVar);
         // since nextVar is pointing to a dot, we have to increase it
         // first in order to find the next variable
-        if (nextVar != mVarName.end()) ++nextVar;
+        if (nextVar != mVarName.end())
+            ++nextVar;
 
         // ask lua to find the part stored in buffer
         // if currentVar == begin, this is a global variable and push it
@@ -156,8 +153,7 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
         }
 
         currentVar = nextVar; // updating currentVar
-    }
-    while (nextVar != mVarName.end());
+    } while (nextVar != mVarName.end());
 }
 
 void LuaContext::_setGlobal(std::string_view mVarName)
@@ -180,7 +176,7 @@ try
     }
 
     std::string varNameAsStr{mVarName}; // needed for null-terminated substrs
-    const auto tableName = varNameAsStr.substr(0, lastDot);
+    const auto  tableName = varNameAsStr.substr(0, lastDot);
 
     // in the second case, we call _getGlobal on the table name
     _getGlobal(tableName);
@@ -195,21 +191,19 @@ try
         // now we have our value at -2 (was pushed before
         // _setGlobal is called) and our table at -1
         lua_pushstring(_state,
-            varNameAsStr.substr(lastDot + 1).c_str()); // value at -3,
-                                                       // table at -2,
-                                                       // key at -1
-        lua_pushvalue(_state, -3); // value at -4, table at -3,
-                                   // key at -2, value at -1
-        lua_settable(_state, -3);  // value at -2, table at -1
-        lua_pop(_state, 2);        // stack empty \o/
-    }
-    catch (...)
+                       varNameAsStr.substr(lastDot + 1).c_str()); // value at -3,
+                                                                  // table at -2,
+                                                                  // key at -1
+        lua_pushvalue(_state, -3);                                // value at -4, table at -3,
+                                                                  // key at -2, value at -1
+        lua_settable(_state, -3);                                 // value at -2, table at -1
+        lua_pop(_state, 2);                                       // stack empty \o/
+    } catch (...)
     {
         lua_pop(_state, 2);
         throw;
     }
-}
-catch (...)
+} catch (...)
 {
     lua_pop(_state, 1);
     throw;
@@ -240,10 +234,11 @@ void LuaContext::_load(std::istream& code)
     struct Reader
     {
         std::istream& stream;
-        char buffer[512];
+        char          buffer[512];
 
         Reader(std::istream& str) : stream(str)
-        {}
+        {
+        }
 
         // read function; "data" must be an instance of Reader
         static const char* read(lua_State*, void* data, sf::base::SizeT* size)
@@ -259,11 +254,10 @@ void LuaContext::_load(std::istream& code)
             }
 
             me.stream.read(me.buffer, sizeof(me.buffer));
-            *size = sf::base::SizeT(
-                me.stream.gcount()); // gcount could return a value
-                                     // larger than a sf::base::SizeT, but
-                                     // its maximum is sizeof(me.buffer)
-                                     // so there's no problem
+            *size = sf::base::SizeT(me.stream.gcount()); // gcount could return a value
+                                                         // larger than a sf::base::SizeT, but
+                                                         // its maximum is sizeof(me.buffer)
+                                                         // so there's no problem
             return me.buffer;
         }
     };
@@ -271,8 +265,7 @@ void LuaContext::_load(std::istream& code)
     // we create an instance of Reader, and we call lua_load
     Reader reader(code);
 
-    const int loadReturnValue =
-        lua_load(_state, &Reader::read, &reader, "chunk");
+    const int loadReturnValue = lua_load(_state, &Reader::read, &reader, "chunk");
 
     // now we have to check return value
     if (loadReturnValue != 0)
@@ -294,8 +287,7 @@ void LuaContext::_load(std::istream& code)
 
 void LuaContext::_load(std::string_view code)
 {
-    const int loadReturnValue =
-        luaL_loadbuffer(_state, code.data(), code.size(), "chunk");
+    const int loadReturnValue = luaL_loadbuffer(_state, code.data(), code.size(), "chunk");
 
     // now we have to check return value
     if (loadReturnValue != 0)
@@ -315,8 +307,7 @@ void LuaContext::_load(std::string_view code)
     }
 }
 
-void LuaContext::_pushSPtrImpl(int (*garbageCallback)(lua_State*),
-    const std::type_info& tiSharedPtr, const std::type_info& tiObject)
+void LuaContext::_pushSPtrImpl(int (*garbageCallback)(lua_State*), const std::type_info& tiSharedPtr, const std::type_info& tiObject)
 try
 {
     // creating the metatable (over the object on the stack)
@@ -335,8 +326,7 @@ try
 
         // settings typeid of shared_ptr this time
         lua_pushstring(_state, "_typeid");
-        lua_pushlightuserdata(
-            _state, const_cast<std::type_info*>(&tiSharedPtr));
+        lua_pushlightuserdata(_state, const_cast<std::type_info*>(&tiSharedPtr));
         lua_settable(_state, -3);
 
         // as __index we set the table located in registry at type
@@ -351,8 +341,7 @@ try
             SSVOH_ASSERT(lua_isnil(_state, -1));
             lua_pop(_state, 1);
             lua_newtable(_state);
-            lua_pushlightuserdata(
-                _state, const_cast<std::type_info*>(&tiObject));
+            lua_pushlightuserdata(_state, const_cast<std::type_info*>(&tiObject));
             lua_pushvalue(_state, -2);
             lua_settable(_state, LUA_REGISTRYINDEX);
         }
@@ -366,21 +355,18 @@ try
         // our custom type remains on the stack (and that's what we
         // want since this is a push function)
         lua_setmetatable(_state, -2);
-    }
-    catch (...)
+    } catch (...)
     {
         lua_pop(_state, 1);
         throw;
     }
-}
-catch (...)
+} catch (...)
 {
     lua_pop(_state, 1);
     throw;
 }
 
-void LuaContext::_pushFnImpl(int (*xCallbackCall)(lua_State*),
-    int (*callbackGarbage)(lua_State*), const std::type_info& tiObject)
+void LuaContext::_pushFnImpl(int (*xCallbackCall)(lua_State*), int (*callbackGarbage)(lua_State*), const std::type_info& tiObject)
 {
     // creating the metatable (over the object on the stack)
     // lua_settable pops the key and value we just pushed, so stack
@@ -409,8 +395,7 @@ void LuaContext::_pushFnImpl(int (*xCallbackCall)(lua_State*),
     lua_setmetatable(_state, -2);
 }
 
-void LuaContext::_registerFunctionImpl(
-    const char* nameCStr, const std::type_info& tiObjectType)
+void LuaContext::_registerFunctionImpl(const char* nameCStr, const std::type_info& tiObjectType)
 {
     // trying to get the existing functions list
     lua_pushlightuserdata(_state, const_cast<std::type_info*>(&tiObjectType));
@@ -425,8 +410,7 @@ void LuaContext::_registerFunctionImpl(
 
         lua_pop(_state, 1);
         lua_newtable(_state);
-        lua_pushlightuserdata(
-            _state, const_cast<std::type_info*>(&tiObjectType));
+        lua_pushlightuserdata(_state, const_cast<std::type_info*>(&tiObjectType));
         lua_pushvalue(_state, -2);
         lua_settable(_state, LUA_REGISTRYINDEX);
     }

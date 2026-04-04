@@ -8,16 +8,15 @@
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
+#include <SFML/Base/SizeT.hpp>
 #include <SFML/Base/Trait/IsEnum.hpp>
 #include <SFML/Base/Trait/UnderlyingType.hpp>
-
-#include <SFML/Base/SizeT.hpp>
-
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-namespace ssvuj {
+namespace ssvuj
+{
 // Convert enums
 
 template <typename T>
@@ -32,12 +31,12 @@ struct Converter
     static void toObj(Obj& mObj, const T& mValue)
         requires sf::base::isEnum<T>
     {
-        arch<SFML_BASE_UNDERLYING_TYPE(T)>(
-            mObj, static_cast<SFML_BASE_UNDERLYING_TYPE(T)>(mValue));
+        arch<SFML_BASE_UNDERLYING_TYPE(T)>(mObj, static_cast<SFML_BASE_UNDERLYING_TYPE(T)>(mValue));
     }
 };
 
-namespace Impl {
+namespace Impl
+{
 
 template <typename T>
 struct ConverterBaseImpl
@@ -137,16 +136,17 @@ struct Converter<std::vector<TItem, TAlloc>>
     {
         const auto& size(getObjSize(mObj));
         mValue.resize(size);
-        for (auto i(0u); i < size; ++i) extr(mObj, i, mValue[i]);
+        for (auto i(0u); i < size; ++i)
+            extr(mObj, i, mValue[i]);
     }
     static void toObj(Obj& mObj, const T& mValue)
     {
-        for (auto i(0u); i < mValue.size(); ++i) arch(mObj, i, mValue[i]);
+        for (auto i(0u); i < mValue.size(); ++i)
+            arch(mObj, i, mValue[i]);
     }
 };
 
-template <typename TKey, typename TValue, typename THash, typename TKeyEqual,
-    typename TAlloc>
+template <typename TKey, typename TValue, typename THash, typename TKeyEqual, typename TAlloc>
 struct Converter<std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>>
 {
     using T = std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>;
@@ -173,11 +173,13 @@ struct Converter<TItem[TN]>
     using T = TItem[TN];
     static void fromObj(const Obj& mObj, T& mValue)
     {
-        for (auto i(0u); i < TN; ++i) extr(mObj, i, mValue[i]);
+        for (auto i(0u); i < TN; ++i)
+            extr(mObj, i, mValue[i]);
     }
     static void toObj(Obj& mObj, const T& mValue)
     {
-        for (auto i(0u); i < TN; ++i) arch(mObj, i, mValue[i]);
+        for (auto i(0u); i < TN; ++i)
+            arch(mObj, i, mValue[i]);
     }
 };
 

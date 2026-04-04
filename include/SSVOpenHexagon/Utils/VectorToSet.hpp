@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 template <typename T>
 [[nodiscard]] std::unordered_set<T> toUnorderedSet(const std::vector<T>& v)

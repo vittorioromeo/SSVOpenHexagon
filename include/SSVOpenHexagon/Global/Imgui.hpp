@@ -4,14 +4,16 @@
 
 #pragma once
 
-namespace sf {
+namespace sf
+{
 class Event;
 class RenderTarget;
 class RenderWindow;
 class Window;
 } // namespace sf
 
-namespace hg::Imgui {
+namespace hg::Imgui
+{
 
 [[nodiscard]] bool wantCaptureKeyboard();
 [[nodiscard]] bool wantCaptureMouse();

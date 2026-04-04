@@ -6,21 +6,20 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
-
 #include "SSVOpenHexagon/Utils/UniquePtrArray.hpp"
 
+#include <SFML/Base/PlacementNew.hpp>
+#include <SFML/Base/SizeT.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/PlacementNew.hpp>
 
 #include <cstring>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 template <sf::PrimitiveType TPrimitive>
 struct FastVertexVector
@@ -33,19 +32,19 @@ private:
         sf::Vertex _v;
 
         VertexUnion()
-        {}
+        {
+        }
     };
 
     static_assert(sizeof(VertexUnion) == sizeof(sf::Vertex));
     static_assert(alignof(VertexUnion) == alignof(sf::Vertex));
 
     Utils::UniquePtrArray<VertexUnion> _data{nullptr};
-    sf::base::SizeT _size{};
-    sf::base::SizeT _capacity{};
+    sf::base::SizeT                    _size{};
+    sf::base::SizeT                    _capacity{};
 
 public:
-    [[gnu::always_inline, gnu::flatten]] void reserve_more(
-        const sf::base::SizeT n)
+    [[gnu::always_inline, gnu::flatten]] void reserve_more(const sf::base::SizeT n)
     {
         reserve(_size * 2 + n);
     }
@@ -61,8 +60,7 @@ public:
 
         if (_data != nullptr) [[unlikely]]
         {
-            std::memcpy(
-                new_data.get(), _data.get(), sizeof(sf::Vertex) * _size);
+            std::memcpy(new_data.get(), _data.get(), sizeof(sf::Vertex) * _size);
         }
         else
         {
@@ -70,12 +68,11 @@ public:
             SSVOH_ASSERT(_capacity == 0);
         }
 
-        _data = SSVOH_MOVE(new_data);
+        _data     = SSVOH_MOVE(new_data);
         _capacity = n;
     }
 
-    [[gnu::always_inline, gnu::flatten]] void unsafe_emplace_other(
-        const FastVertexVector& rhs) noexcept
+    [[gnu::always_inline, gnu::flatten]] void unsafe_emplace_other(const FastVertexVector& rhs) noexcept
     {
         SSVOH_ASSERT(_size + rhs._size <= _capacity);
 
@@ -86,8 +83,7 @@ public:
 
         SSVOH_ASSERT(_data != nullptr);
 
-        std::memcpy(_data.get() + _size, rhs._data.get(),
-            sizeof(sf::Vertex) * rhs._size);
+        std::memcpy(_data.get() + _size, rhs._data.get(), sizeof(sf::Vertex) * rhs._size);
 
         _size += rhs._size;
     }
@@ -113,19 +109,15 @@ public:
     }
 
     template <typename... Ts>
-    [[gnu::always_inline, gnu::flatten]] void batch_unsafe_emplace_back(
-        const sf::Color& color, Ts&&... positions)
+    [[gnu::always_inline, gnu::flatten]] void batch_unsafe_emplace_back(const sf::Color& color, Ts&&... positions)
     {
         SSVOH_ASSERT(_size + sizeof...(positions) <= _capacity);
         SSVOH_ASSERT(_data != nullptr);
 
-        ((SFML_BASE_PLACEMENT_NEW(&_data[_size++]._v)
-                 sf::Vertex{positions, color}),
-            ...);
+        ((SFML_BASE_PLACEMENT_NEW(&_data[_size++]._v) sf::Vertex{positions, color}), ...);
     }
 
-    void draw(
-        sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const
+    void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const
     {
         if (_data == nullptr) [[unlikely]]
         {
@@ -136,16 +128,14 @@ public:
 
         mRenderTarget.drawVertices(
             {
-                .vertexData =
-                    reinterpret_cast<const sf::Vertex*>(_data.get()),
-                .vertexCount = _size,
+                .vertexData    = reinterpret_cast<const sf::Vertex*>(_data.get()),
+                .vertexCount   = _size,
                 .primitiveType = TPrimitive,
             },
             mRenderStates);
     }
 
-    [[nodiscard, gnu::always_inline]] sf::Vertex& operator[](
-        const sf::base::SizeT i) noexcept
+    [[nodiscard, gnu::always_inline]] sf::Vertex& operator[](const sf::base::SizeT i) noexcept
     {
         SSVOH_ASSERT(i < _size);
         SSVOH_ASSERT(_data != nullptr);
@@ -153,8 +143,7 @@ public:
         return _data[i]._v;
     }
 
-    [[nodiscard, gnu::always_inline]] const sf::Vertex& operator[](
-        const sf::base::SizeT i) const noexcept
+    [[nodiscard, gnu::always_inline]] const sf::Vertex& operator[](const sf::base::SizeT i) const noexcept
     {
         SSVOH_ASSERT(i < _size);
         SSVOH_ASSERT(_data != nullptr);
@@ -185,24 +174,34 @@ public:
     }
 };
 
-class FastVertexVectorTris
-    : public FastVertexVector<sf::PrimitiveType::Triangles>
+class FastVertexVectorTris : public FastVertexVector<sf::PrimitiveType::Triangles>
 {
 public:
     [[gnu::always_inline, gnu::flatten]] void batch_unsafe_emplace_back_quad(
-        const sf::Color& color, const sf::Vec2f nw, const sf::Vec2f sw,
-        const sf::Vec2f se, const sf::Vec2f ne)
+        const sf::Color& color,
+        const sf::Vec2f  nw,
+        const sf::Vec2f  sw,
+        const sf::Vec2f  se,
+        const sf::Vec2f  ne)
     {
         batch_unsafe_emplace_back(color, //
-            nw, sw, se,                  //
-            nw, se, ne);
+                                  nw,
+                                  sw,
+                                  se, //
+                                  nw,
+                                  se,
+                                  ne);
     }
 
     [[gnu::always_inline, gnu::flatten]] void unsafe_emplace_back_quad( //
-        const sf::Vec2f nw, const sf::Color& colorNW,                   //
-        const sf::Vec2f sw, const sf::Color& colorSW,                   //
-        const sf::Vec2f se, const sf::Color& colorSE,                   //
-        const sf::Vec2f ne, const sf::Color& colorNE)
+        const sf::Vec2f  nw,
+        const sf::Color& colorNW, //
+        const sf::Vec2f  sw,
+        const sf::Color& colorSW, //
+        const sf::Vec2f  se,
+        const sf::Color& colorSE, //
+        const sf::Vec2f  ne,
+        const sf::Color& colorNE)
     {
         unsafe_emplace_back(nw, colorNW);
         unsafe_emplace_back(sw, colorSW);
@@ -212,8 +211,7 @@ public:
         unsafe_emplace_back(ne, colorNE);
     }
 
-    [[gnu::always_inline, gnu::flatten]] void reserve_more_quad(
-        const sf::base::SizeT n)
+    [[gnu::always_inline, gnu::flatten]] void reserve_more_quad(const sf::base::SizeT n)
     {
         reserve_more(n * 6);
     }

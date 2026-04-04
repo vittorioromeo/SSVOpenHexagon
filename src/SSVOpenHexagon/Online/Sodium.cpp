@@ -4,16 +4,15 @@
 
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
-#include <sodium.h>
-
 #include <SFML/Base/Array.hpp>
-#include <SFML/Base/Optional.hpp>
 #include <SFML/Base/IntTypes.hpp>
-
+#include <SFML/Base/Optional.hpp>
+#include <sodium.h>
 #include <string>
 
 
-namespace hg {
+namespace hg
+{
 
 [[nodiscard]] SodiumNonceArray generateNonce()
 {
@@ -29,15 +28,16 @@ namespace hg {
     return result;
 }
 
-[[nodiscard]] sf::base::Optional<SodiumRTKeys>
-calculateServerSessionSodiumRTKeys(const SodiumPSKeys& serverPSKeys,
-    const SodiumPublicKeyArray& clientPublicKey)
+[[nodiscard]] sf::base::Optional<SodiumRTKeys> calculateServerSessionSodiumRTKeys(const SodiumPSKeys& serverPSKeys,
+                                                                                  const SodiumPublicKeyArray& clientPublicKey)
 {
     SodiumRTKeys result;
 
     if (crypto_kx_server_session_keys(result.keyReceive.data(),
-            result.keyTransmit.data(), serverPSKeys.keyPublic.data(),
-            serverPSKeys.keySecret.data(), clientPublicKey.data()) != 0)
+                                      result.keyTransmit.data(),
+                                      serverPSKeys.keyPublic.data(),
+                                      serverPSKeys.keySecret.data(),
+                                      clientPublicKey.data()) != 0)
     {
         return sf::base::nullOpt;
     }
@@ -45,15 +45,16 @@ calculateServerSessionSodiumRTKeys(const SodiumPSKeys& serverPSKeys,
     return sf::base::makeOptional(result);
 }
 
-[[nodiscard]] sf::base::Optional<SodiumRTKeys>
-calculateClientSessionSodiumRTKeys(const SodiumPSKeys& clientPSKeys,
-    const SodiumPublicKeyArray& serverPublicKey)
+[[nodiscard]] sf::base::Optional<SodiumRTKeys> calculateClientSessionSodiumRTKeys(const SodiumPSKeys& clientPSKeys,
+                                                                                  const SodiumPublicKeyArray& serverPublicKey)
 {
     SodiumRTKeys result;
 
     if (crypto_kx_client_session_keys(result.keyReceive.data(),
-            result.keyTransmit.data(), clientPSKeys.keyPublic.data(),
-            clientPSKeys.keySecret.data(), serverPublicKey.data()) != 0)
+                                      result.keyTransmit.data(),
+                                      clientPSKeys.keyPublic.data(),
+                                      clientPSKeys.keySecret.data(),
+                                      serverPublicKey.data()) != 0)
     {
         return sf::base::nullOpt;
     }
@@ -70,9 +71,12 @@ calculateClientSessionSodiumRTKeys(const SodiumPSKeys& clientPSKeys,
     std::string out;
     out.resize(crypto_generichash_BYTES);
 
-    crypto_generichash(reinterpret_cast<unsigned char*>(out.data()), out.size(),
-        reinterpret_cast<const unsigned char*>(in.data()), in.size(),
-        key.data(), key.size());
+    crypto_generichash(reinterpret_cast<unsigned char*>(out.data()),
+                       out.size(),
+                       reinterpret_cast<const unsigned char*>(in.data()),
+                       in.size(),
+                       key.data(),
+                       key.size());
 
     return out;
 }

@@ -8,23 +8,26 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Window/Keyboard.hpp>
-
 #include <string>
 #include <vector>
 
-namespace sf {
+namespace sf
+{
 class Font;
 }
 
-namespace ssvs {
+namespace ssvs
+{
 class GameWindow;
 }
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 class FastVertexVectorTris;
 } // namespace hg::Utils
 
-namespace hg {
+namespace hg
+{
 
 enum class DBoxDraw
 {
@@ -43,7 +46,7 @@ private:
     DBoxDraw drawMode;
 
     std::vector<std::string> dialogText;
-    sf::Text txtDialog;
+    sf::Text                 txtDialog;
 
     float dialogWidth{0.f};
     float frameSize{0.f};
@@ -56,50 +59,53 @@ private:
 
     KKey keyToClose{KKey::Unknown};
 
-    bool inputBox{false};
-    bool inputBoxPassword{false};
+    bool        inputBox{false};
+    bool        inputBoxPassword{false};
     std::string input;
 
-    void drawText(const sf::View& view, const sf::Color& txtColor,
-        const float xOffset, const float yOffset);
+    void drawText(const sf::View& view, const sf::Color& txtColor, const float xOffset, const float yOffset);
     void drawBox(Utils::FastVertexVectorTris& quads,
-        const sf::Color& frameColor, const float x1, const float x2,
-        const float y1, const float y2);
-    void drawCenter(
-        const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
-    void drawCenterUpperHalf(
-        const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
-    void drawTopLeft(
-        const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
+                 const sf::Color&             frameColor,
+                 const float                  x1,
+                 const float                  x2,
+                 const float                  y1,
+                 const float                  y2);
+    void drawCenter(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
+    void drawCenterUpperHalf(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
+    void drawTopLeft(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
 
 public:
     explicit HexagonDialogBox(sf::Font& font, ssvs::GameWindow& window);
 
-    void create(const std::string& output, const int charSize,
-        const float mFrameSize, const DBoxDraw mDrawMode,
-        const float xPos = 0.f, const float yPos = 0.f,
-        const bool mInputBox = false);
+    void create(const std::string& output,
+                const int          charSize,
+                const float        mFrameSize,
+                const DBoxDraw     mDrawMode,
+                const float        xPos      = 0.f,
+                const float        yPos      = 0.f,
+                const bool         mInputBox = false);
 
-    void create(const std::string& output, const int charSize,
-        const float mFrameSize, const DBoxDraw mDrawMode,
-        const KKey mKeyToClose, const float mXPos = 0.f,
-        const float mYPos = 0.f);
+    void create(const std::string& output,
+                const int          charSize,
+                const float        mFrameSize,
+                const DBoxDraw     mDrawMode,
+                const KKey         mKeyToClose,
+                const float        mXPos = 0.f,
+                const float        mYPos = 0.f);
 
-    void createInput(const std::string& output, const int charSize,
-        const float mFrameSize, const DBoxDraw mDrawMode);
+    void createInput(const std::string& output, const int charSize, const float mFrameSize, const DBoxDraw mDrawMode);
 
-    void draw(const sf::View& view, const sf::Color& txtColor,
-        const sf::Color& backdropColor);
+    void draw(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
 
     void clearDialogBox();
 
-    [[nodiscard]] KKey getKeyToClose() const noexcept;
-    [[nodiscard]] bool empty() const noexcept;
-    [[nodiscard]] bool isInputBox() const noexcept;
-    [[nodiscard]] std::string& getInput() noexcept;
+    [[nodiscard]] KKey               getKeyToClose() const noexcept;
+    [[nodiscard]] bool               empty() const noexcept;
+    [[nodiscard]] bool               isInputBox() const noexcept;
+    [[nodiscard]] std::string&       getInput() noexcept;
     [[nodiscard]] const std::string& getInput() const noexcept;
-    void setInputBoxPassword(const bool x) noexcept;
-    [[nodiscard]] bool getInputBoxPassword() noexcept;
+    void                             setInputBoxPassword(const bool x) noexcept;
+    [[nodiscard]] bool               getInputBoxPassword() noexcept;
 };
 
 } // namespace hg

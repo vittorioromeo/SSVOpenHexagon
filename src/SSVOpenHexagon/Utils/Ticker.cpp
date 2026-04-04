@@ -4,11 +4,12 @@
 
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 
-namespace hg {
+namespace hg
+{
 
-Ticker::Ticker(float mTarget, bool mRunning) noexcept
-    : target{mTarget}, running{mRunning}
-{}
+Ticker::Ticker(float mTarget, bool mRunning) noexcept : target{mTarget}, running{mRunning}
+{
+}
 
 bool Ticker::update(float mFT) noexcept
 {

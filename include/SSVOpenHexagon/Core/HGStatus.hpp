@@ -4,15 +4,14 @@
 
 #pragma once
 
-#include <SFML/Graphics/Color.hpp>
-
 #include <SFML/Base/Array.hpp>
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Base/SizeT.hpp>
-
+#include <SFML/Graphics/Color.hpp>
 #include <string>
 
-namespace hg {
+namespace hg
+{
 
 struct HRClock;
 struct HRTimePoint;
@@ -27,14 +26,14 @@ enum class StateChange
 enum class RenderStage : sf::base::SizeT
 {
     BackgroundTris = 0,
-    WallQuads3D = 1,
-    PivotQuads3D = 2,
-    PlayerTris3D = 3,
-    WallQuads = 4,
-    CapTris = 5,
-    PivotQuads = 6,
-    PlayerTris = 7,
-    Text = 8,
+    WallQuads3D    = 1,
+    PivotQuads3D   = 2,
+    PlayerTris3D   = 3,
+    WallQuads      = 4,
+    CapTris        = 5,
+    PivotQuads     = 6,
+    PlayerTris     = 7,
+    Text           = 8,
 
     Count = 9
 };
@@ -55,33 +54,31 @@ private:
     double pausedFrametimeAccumulator{}; // Paused time (only pauses)
     double currentPause{0.1 * 60};       // Current pause time
     double currentIncrementTime{};       // Time since last increment
-    float customScore{};                 // Value for alternative scoring
+    float  customScore{};                // Value for alternative scoring
 
 public:
-    float pulse{75};
-    float pulseDirection{1};
-    float pulseDelay{0};
-    float beatPulse{0};
-    float beatPulseDelay{0};
-    float pulse3D{1.f};
-    float pulse3DDirection{1};
-    float flashEffect{0};
-    float radius{75};
-    float fastSpin{0};
-    float cameraShake{0};
-    bool hasDied{false};
+    float       pulse{75};
+    float       pulseDirection{1};
+    float       pulseDelay{0};
+    float       beatPulse{0};
+    float       beatPulseDelay{0};
+    float       pulse3D{1.f};
+    float       pulse3DDirection{1};
+    float       flashEffect{0};
+    float       radius{75};
+    float       fastSpin{0};
+    float       cameraShake{0};
+    bool        hasDied{false};
     StateChange mustStateChange{StateChange::None};
-    bool scoreInvalid{false};
+    bool        scoreInvalid{false};
     std::string invalidReason{""};
-    bool started{false};
+    bool        started{false};
     std::string restartInput;
     std::string replayInput;
-    bool showPlayerTrail{true};
+    bool        showPlayerTrail{true};
 
     // Shaders
-    sf::base::Array<sf::base::Optional<sf::base::SizeT>,
-        static_cast<sf::base::SizeT>(RenderStage::Count)>
-        fragmentShaderIds;
+    sf::base::Array<sf::base::Optional<sf::base::SizeT>, static_cast<sf::base::SizeT>(RenderStage::Count)> fragmentShaderIds;
 
     // Reset all the time points and signal that we started
     void start() noexcept;
@@ -129,15 +126,13 @@ public:
     [[nodiscard]] double getPlayedAccumulatedFrametime() const noexcept;
 
     // Get played accumulated frametime, in seconds
-    [[nodiscard]] double
-    getPlayedAccumulatedFrametimeInSeconds() const noexcept;
+    [[nodiscard]] double getPlayedAccumulatedFrametimeInSeconds() const noexcept;
 
     // Get paused accumulated frametime
     [[nodiscard]] double getPausedAccumulatedFrametime() const noexcept;
 
     // Get paused accumulated frametime, in seconds
-    [[nodiscard]] double
-    getPausedAccumulatedFrametimeInSeconds() const noexcept;
+    [[nodiscard]] double getPausedAccumulatedFrametimeInSeconds() const noexcept;
 
     // Get custom score
     [[nodiscard]] float getCustomScore() const noexcept;

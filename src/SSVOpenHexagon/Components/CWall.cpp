@@ -3,25 +3,34 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
-
-#include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
+#include "SSVOpenHexagon/Utils/Math.hpp"
 
-#include <SFML/System/Vec2.hpp>
-
+#include <SFML/Base/Math/Cos.hpp>
 #include <SFML/Base/Math/Fabs.hpp>
 #include <SFML/Base/Math/Sin.hpp>
-#include <SFML/Base/Math/Cos.hpp>
+#include <SFML/System/Vec2.hpp>
 
 
-namespace hg {
+namespace hg
+{
 
-CWall::CWall(const unsigned int sides, const float wallAngleLeft,
-    const float wallAngleRight, const float wallSkewLeft,
-    const float wallSkewRight, const sf::Vec2f centerPos, const int side,
-    const float thickness, const float distance, const SpeedData& speed,
-    const SpeedData& curve, const float hueMod)
-    : _speed{speed}, _curve{curve}, _hueMod{hueMod}, _killed{false}
+CWall::CWall(const unsigned int sides,
+             const float        wallAngleLeft,
+             const float        wallAngleRight,
+             const float        wallSkewLeft,
+             const float        wallSkewRight,
+             const sf::Vec2f    centerPos,
+             const int          side,
+             const float        thickness,
+             const float        distance,
+             const SpeedData&   speed,
+             const SpeedData&   curve,
+             const float        hueMod) :
+    _speed{speed},
+    _curve{curve},
+    _hueMod{hueMod},
+    _killed{false}
 {
     const float div{Utils::tau / static_cast<float>(sides) * 0.5f};
     const float angle{div * 2.f * static_cast<float>(side)};
@@ -33,13 +42,9 @@ CWall::CWall(const unsigned int sides, const float wallAngleLeft,
 
     _vertexPositions[1] = centerPos.movedTowards(distance, sf::radians(angleP));
 
-    _vertexPositions[2] =
-        centerPos.movedTowards(distance + thickness + wallSkewLeft,
-            sf::radians(angleP + wallAngleLeft));
+    _vertexPositions[2] = centerPos.movedTowards(distance + thickness + wallSkewLeft, sf::radians(angleP + wallAngleLeft));
 
-    _vertexPositions[3] =
-        centerPos.movedTowards(distance + thickness + wallSkewRight,
-            sf::radians(angleN + wallAngleRight));
+    _vertexPositions[3] = centerPos.movedTowards(distance + thickness + wallSkewRight, sf::radians(angleN + wallAngleRight));
 }
 
 void CWall::draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads)
@@ -49,12 +54,14 @@ void CWall::draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads)
         color = Utils::transformHue(color, _hueMod);
     }
 
-    wallQuads.batch_unsafe_emplace_back_quad(color, _vertexPositions[0],
-        _vertexPositions[1], _vertexPositions[2], _vertexPositions[3]);
+    wallQuads.batch_unsafe_emplace_back_quad(color,
+                                             _vertexPositions[0],
+                                             _vertexPositions[1],
+                                             _vertexPositions[2],
+                                             _vertexPositions[3]);
 }
 
-void CWall::update(const float wallSpawnDist, const float radius,
-    const sf::Vec2f centerPos, const float ft)
+void CWall::update(const float wallSpawnDist, const float radius, const sf::Vec2f centerPos, const float ft)
 {
     _speed.update(ft);
     _curve.update(ft);
@@ -66,8 +73,7 @@ void CWall::update(const float wallSpawnDist, const float radius,
     }
 }
 
-void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
-    const sf::Vec2f centerPos, const float ft)
+void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius, const sf::Vec2f centerPos, const float ft)
 {
     const float halfRadius{radius * 0.5f};
     const float outerBounds{wallSpawnDist * 1.1f};
@@ -102,7 +108,7 @@ void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
 
 void CWall::moveCurve(const sf::Vec2f centerPos, const float ft)
 {
-    const float rad = getCurveRadians(ft);
+    const float rad    = getCurveRadians(ft);
     const float radSin = SFML_BASE_MATH_SINF(rad);
     const float radCos = SFML_BASE_MATH_COSF(rad);
 

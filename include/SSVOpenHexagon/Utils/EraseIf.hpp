@@ -6,14 +6,15 @@
 
 #include <unordered_set>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 // From:
 // https://en.cppreference.com/w/cpp/container/unordered_set/erase_if
 
 template <class Key, class Hash, class KeyEqual, class Alloc, class Pred>
-typename std::unordered_set<Key, Hash, KeyEqual, Alloc>::size_type erase_if(
-    std::unordered_set<Key, Hash, KeyEqual, Alloc>& c, Pred pred)
+typename std::unordered_set<Key, Hash, KeyEqual, Alloc>::size_type erase_if(std::unordered_set<Key, Hash, KeyEqual, Alloc>& c,
+                                                                            Pred pred)
 {
     auto old_size = c.size();
     for (auto i = c.begin(), last = c.end(); i != last;)

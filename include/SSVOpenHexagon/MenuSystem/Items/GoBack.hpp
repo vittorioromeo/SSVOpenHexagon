@@ -13,11 +13,14 @@ namespace Items
 {
 struct GoBack final : public ItemBase
 {
-    GoBack(Menu& mMenu, Category& mCategory, const std::string& mName)
-        : ItemBase{mMenu, mCategory, mName}
-    {}
+    GoBack(Menu& mMenu, Category& mCategory, const std::string& mName) : ItemBase{mMenu, mCategory, mName}
+    {
+    }
 
-    void exec() override { menu.goBack(); }
+    void exec() override
+    {
+        menu.goBack();
+    }
 };
 } // namespace Items
 } // namespace ssvms

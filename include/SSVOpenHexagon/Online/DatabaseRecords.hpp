@@ -4,18 +4,18 @@
 
 #pragma once
 
+#include <SFML/Base/IntTypes.hpp>
 #include <string>
 #include <vector>
 
-#include <SFML/Base/IntTypes.hpp>
-
-namespace hg::Database {
+namespace hg::Database
+{
 
 struct User
 {
-    sf::base::U32 id;
-    sf::base::U64 steamId;
-    std::string name;
+    sf::base::U32     id;
+    sf::base::U64     steamId;
+    std::string       name;
     std::vector<char> passwordHash;
 };
 
@@ -30,18 +30,18 @@ struct LoginToken
 struct Score
 {
     sf::base::U32 id;
-    std::string levelValidator;
+    std::string   levelValidator;
     sf::base::U64 timestamp;
     sf::base::U64 userSteamId;
-    double value;
+    double        value;
 };
 
 struct ProcessedScore // not stored in database
 {
     sf::base::U32 position;
-    std::string userName;
+    std::string   userName;
     sf::base::U64 scoreTimestamp;
-    double scoreValue;
+    double        scoreValue;
 };
 
 } // namespace hg::Database

@@ -7,19 +7,20 @@
 #include <string>
 #include <unordered_map>
 
-namespace hg {
+namespace hg
+{
 
 struct LevelStatus
 {
     std::unordered_map<std::string, std::string> trackedVariables;
 
     // Allows alternative scoring to be possible
-    bool scoreOverridden{false};
+    bool        scoreOverridden{false};
     std::string scoreOverride;
 
     // Music and sound related attributes
-    bool syncMusicToDM{true};
-    float musicPitch{1.f};
+    bool        syncMusicToDM{true};
+    float       musicPitch{1.f};
     std::string beepSound{"beep.ogg"};
     std::string levelUpSound{"increment.ogg"};
     std::string swapSound{"swap.ogg"};
@@ -80,8 +81,7 @@ struct LevelStatus
 
     unsigned long currentIncrements{0u};
 
-    explicit LevelStatus(
-        const bool mSyncMusicToDM, const float mWallSpawnDistance);
+    explicit LevelStatus(const bool mSyncMusicToDM, const float mWallSpawnDistance);
 
     [[nodiscard]] bool hasSpeedMaxLimit() const noexcept;
 

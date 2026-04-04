@@ -7,9 +7,10 @@
 #include <SFML/Base/StdChrono.hpp>
 
 
-namespace hg {
+namespace hg
+{
 
-using HRClockImpl = std::chrono::high_resolution_clock;
+using HRClockImpl     = std::chrono::high_resolution_clock;
 using HRTimePointImpl = std::chrono::time_point<HRClockImpl>;
 
 struct HRClock : HRClockImpl
@@ -22,14 +23,13 @@ struct HRTimePoint : HRTimePointImpl
     using HRTimePointImpl::time_point;
 
     HRTimePoint(HRTimePointImpl x) : HRTimePointImpl(x)
-    {}
+    {
+    }
 };
 
 [[nodiscard]] inline auto hrSecondsSince(const HRTimePoint tp) noexcept
 {
-    return std::chrono::duration_cast<std::chrono::seconds>(
-        std::chrono::high_resolution_clock::now() - tp)
-        .count();
+    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - tp).count();
 }
 
 } // namespace hg

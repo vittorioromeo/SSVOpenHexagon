@@ -4,34 +4,37 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Core/Frametime.hpp"
+
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 
-#include "SSVOpenHexagon/Core/Frametime.hpp"
-
-namespace ssvs {
+namespace ssvs
+{
 
 class TimerStatic
 {
 private:
     sf::Clock clock;
-    float frameTime{0.f};
-    float fps{0.f};
-    float step;
-    float timeSlice;
-    float time{0.f};
-    float maxLoops;
-    float loops{0.f};
+    float     frameTime{0.f};
+    float     fps{0.f};
+    float     step;
+    float     timeSlice;
+    float     time{0.f};
+    float     maxLoops;
+    float     loops{0.f};
 
 public:
-    TimerStatic(const float step = 1.f, const float timeSlice = 1.f,
-        const float maxLoops = 50.f) noexcept
-        : step{step}, timeSlice{timeSlice}, maxLoops{maxLoops}
-    {}
+    TimerStatic(const float step = 1.f, const float timeSlice = 1.f, const float maxLoops = 50.f) noexcept :
+        step{step},
+        timeSlice{timeSlice},
+        maxLoops{maxLoops}
+    {
+    }
 
     void reset()
     {
-        time = 0.f;
+        time  = 0.f;
         loops = 0.f;
     }
 

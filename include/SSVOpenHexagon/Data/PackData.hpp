@@ -7,26 +7,27 @@
 #include <string>
 #include <vector>
 
-namespace hg {
+namespace hg
+{
 
 struct PackDependency
 {
     std::string disambiguator;
     std::string name;
     std::string author;
-    int minVersion;
+    int         minVersion;
 };
 
 struct PackData
 {
-    std::string folderPath;
-    std::string id;
-    std::string disambiguator;
-    std::string name;
-    std::string author;
-    std::string description;
-    int version;
-    float priority;
+    std::string                 folderPath;
+    std::string                 id;
+    std::string                 disambiguator;
+    std::string                 name;
+    std::string                 author;
+    std::string                 description;
+    int                         version;
+    float                       priority;
     std::vector<PackDependency> dependencies;
 };
 

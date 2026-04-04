@@ -8,17 +8,21 @@
 
 #include <SFML/Base/Variant.hpp>
 
-namespace Json {
+namespace Json
+{
 class Value;
 }
 
-namespace ssvuj {
+namespace ssvuj
+{
 using Obj = Json::Value;
 }
 
-namespace hg {
+namespace hg
+{
 
-namespace CapColorMode {
+namespace CapColorMode
+{
 
 // clang-format off
 struct Main         { };

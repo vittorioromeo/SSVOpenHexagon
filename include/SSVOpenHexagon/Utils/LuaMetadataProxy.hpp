@@ -5,18 +5,18 @@
 #pragma once
 
 #ifdef SSVOH_PRODUCE_LUA_METADATA
-#include "SSVOpenHexagon/Utils/ArgExtractor.hpp"
+    #include "SSVOpenHexagon/Utils/ArgExtractor.hpp"
 #endif
 
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
 #include <SFML/Base/Trait/Decay.hpp>
-
 #include <string>
-#include <vector>
 #include <tuple>
+#include <vector>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 class LuaMetadata;
 
@@ -26,12 +26,12 @@ private:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wattributes"
     [[maybe_unused]] LuaMetadata& luaMetadata;
-    [[maybe_unused]] std::string name;
+    [[maybe_unused]] std::string  name;
     [[maybe_unused]] std::string (*erasedRet)(LuaMetadataProxy*);
     [[maybe_unused]] std::string (*erasedArgs)(LuaMetadataProxy*);
 #pragma GCC diagnostic pop
 
-    std::string docs;
+    std::string              docs;
     std::vector<std::string> argNames;
 
     template <typename T>
@@ -41,8 +41,7 @@ private:
     [[nodiscard]] static std::string typeToStr(TypeWrapper<std::tuple<Ts...>>);
 
     template <typename FOp>
-    [[nodiscard]] static std::string makeArgsString(
-        [[maybe_unused]] LuaMetadataProxy* self)
+    [[nodiscard]] static std::string makeArgsString([[maybe_unused]] LuaMetadataProxy* self)
     {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
         using AE = Utils::ArgExtractor<FOp>;
@@ -55,8 +54,7 @@ private:
         {
             std::string res;
 
-            res += typeToStr(
-                TypeWrapper<SFML_BASE_DECAY(typename AE::template NthArg<0>>){});
+            res += typeToStr(TypeWrapper < SFML_BASE_DECAY(typename AE::template NthArg < 0 >>){});
 
             res += ' ';
             res += self->argNames.at(0);
@@ -69,13 +67,12 @@ private:
 
             [&]<sf::base::SizeT... Is>(std::index_sequence<Is...>)
             {
-                (( //
-                     res += typeToStr(TypeWrapper<
-                         SFML_BASE_DECAY(typename AE::template NthArg<Is>>>){}), //
-                     res += ' ',                                             //
-                     res += self->argNames.at(Is),                           //
+                ((                                                                                             //
+                     res += typeToStr(TypeWrapper < SFML_BASE_DECAY(typename AE::template NthArg < Is >>>){}), //
+                     res += ' ',                                                                               //
+                     res += self->argNames.at(Is),                                                             //
                      res += ", "),
-                    ...);
+                 ...);
             }(std::make_index_sequence<AE::numArgs>{});
 
             res.pop_back();
@@ -103,22 +100,22 @@ private:
 public:
 #ifdef SSVOH_PRODUCE_LUA_METADATA
     template <typename F, typename FOp = decltype(&SFML_BASE_DECAY(F)::operator())>
-    explicit LuaMetadataProxy(
-        TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName)
-        : luaMetadata{mLuaMetadata},
-          name{mName},
-          erasedRet{&makeErasedRet<typename Utils::ArgExtractor<FOp>::Return>},
-          erasedArgs{&makeArgsString<FOp>}
-    {}
+    explicit LuaMetadataProxy(TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName) :
+        luaMetadata{mLuaMetadata},
+        name{mName},
+        erasedRet{&makeErasedRet<typename Utils::ArgExtractor<FOp>::Return>},
+        erasedArgs{&makeArgsString<FOp>}
+    {
+    }
 #else
     template <typename F>
-    explicit LuaMetadataProxy(TypeWrapper<F>, LuaMetadata& mLuaMetadata,
-        [[maybe_unused]] const std::string& mName)
-        : luaMetadata{mLuaMetadata},
-          name{""},
-          erasedRet{nullptr},
-          erasedArgs{nullptr}
-    {}
+    explicit LuaMetadataProxy(TypeWrapper<F>, LuaMetadata& mLuaMetadata, [[maybe_unused]] const std::string& mName) :
+        luaMetadata{mLuaMetadata},
+        name{""},
+        erasedRet{nullptr},
+        erasedArgs{nullptr}
+    {
+    }
 #endif
 
     ~LuaMetadataProxy();

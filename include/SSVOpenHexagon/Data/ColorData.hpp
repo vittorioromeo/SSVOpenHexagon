@@ -6,19 +6,22 @@
 
 #include <SFML/Graphics/Color.hpp>
 
-namespace Json {
+namespace Json
+{
 
 class Value;
 
 }
 
-namespace ssvuj {
+namespace ssvuj
+{
 
 using Obj = Json::Value;
 
 }
 
-namespace hg {
+namespace hg
+{
 
 struct PulseColor
 {
@@ -32,24 +35,28 @@ struct PulseColor
 
 struct ColorData
 {
-    bool main{};
-    bool dynamic{};
-    bool dynamicOffset{};
+    bool  main{};
+    bool  dynamic{};
+    bool  dynamicOffset{};
     float dynamicDarkness{};
     float hueShift{};
     float offset{};
 
-    sf::Color color{};
+    sf::Color  color{};
     PulseColor pulse{};
 
     explicit ColorData();
 
     explicit ColorData(const ssvuj::Obj& mRoot);
 
-    explicit ColorData(const bool mMain, const bool mDynamic,
-        const bool mDynamicOffset, const float mDynamicDarkness,
-        const float mHueShift, const float mOffset, sf::Color mColor,
-        const PulseColor& mPulse);
+    explicit ColorData(const bool        mMain,
+                       const bool        mDynamic,
+                       const bool        mDynamicOffset,
+                       const float       mDynamicDarkness,
+                       const float       mHueShift,
+                       const float       mOffset,
+                       sf::Color         mColor,
+                       const PulseColor& mPulse);
 };
 
 } // namespace hg

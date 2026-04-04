@@ -6,10 +6,12 @@
 
 #include "SSVOpenHexagon/Input/BitsetUtils.hpp"
 
-namespace ssvs {
+namespace ssvs
+{
 class GameWindow;
 
-namespace Input {
+namespace Input
+{
 
 class InputState
 {
@@ -17,8 +19,8 @@ class InputState
 
 private:
     FingerBitset fingers;
-    KeyBitset keys;
-    BtnBitset btns;
+    KeyBitset    keys;
+    BtnBitset    btns;
 
 public:
     [[nodiscard]] auto getFinger(const FingerID finger) noexcept

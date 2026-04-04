@@ -1,7 +1,8 @@
 // ----------------------------------------------------------------------------
 // Steam includes.
-#include <inttypes.h> // Steam libs need this.
 #include "steam/steam_api.h"
+
+#include <inttypes.h> // Steam libs need this.
 
 // ----------------------------------------------------------------------------
 // C++ Standard includes.
@@ -12,8 +13,8 @@
 #include <iostream>
 #include <limits>
 #include <optional>
-#include <string_view>
 #include <string>
+#include <string_view>
 #include <utility>
 
 // ----------------------------------------------------------------------------
@@ -32,7 +33,8 @@ template <typename F>
 struct scope_guard : F
 {
     explicit scope_guard(F&& f) noexcept : F{std::move(f)}
-    {}
+    {
+    }
 
     ~scope_guard() noexcept
     {
@@ -81,10 +83,9 @@ template <typename T>
 [[nodiscard]] std::filesystem::path read_directory_path() noexcept
 {
     std::filesystem::path result;
-    std::error_code ec;
+    std::error_code       ec;
 
-    while (!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
-           !std::filesystem::is_directory(result, ec))
+    while (!cin_getline_path(result) || !std::filesystem::exists(result, ec) || !std::filesystem::is_directory(result, ec))
     {
         std::cout << "Please insert a valid path to an existing directory. "
                      "Error code: '"
@@ -97,14 +98,12 @@ template <typename T>
 [[nodiscard]] std::filesystem::path read_file_path() noexcept
 {
     std::filesystem::path result;
-    std::error_code ec;
+    std::error_code       ec;
 
     while (!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
            !std::filesystem::is_regular_file(result, ec))
     {
-        std::cout
-            << "Please insert a valid path to an existing file. Error code: '"
-            << ec << "'\n";
+        std::cout << "Please insert a valid path to an existing file. Error code: '" << ec << "'\n";
     }
 
     return result;
@@ -128,7 +127,7 @@ class steam_helper
 private:
     // ------------------------------------------------------------------------
     // Constants.
-    inline static constexpr AppId_t oh_app_id = 1358090;
+    static inline constexpr AppId_t oh_app_id = 1'358'090;
 
     // ------------------------------------------------------------------------
     // Type aliases.
@@ -137,14 +136,14 @@ private:
 
     // ------------------------------------------------------------------------
     // Data members.
-    bool _initialized;
+    bool             _initialized;
     std::atomic<int> _pending_operations;
 
     CCallResult<steam_helper, CreateItemResult_t> _create_item_result;
-    create_item_continuation _create_item_continuation;
+    create_item_continuation                      _create_item_continuation;
 
     CCallResult<steam_helper, SubmitItemUpdateResult_t> _submit_item_result;
-    submit_item_continuation _submit_item_continuation;
+    submit_item_continuation                            _submit_item_continuation;
 
     // ------------------------------------------------------------------------
     // Initialization utils.
@@ -164,8 +163,7 @@ private:
 
     // ------------------------------------------------------------------------
     // Other utils.
-    [[nodiscard]] static constexpr std::string_view result_to_string(
-        const EResult rc) noexcept
+    [[nodiscard]] static constexpr std::string_view result_to_string(const EResult rc) noexcept
     {
 #define RETURN_IF_EQUALS(e) \
     do                      \
@@ -174,8 +172,7 @@ private:
         {                   \
             return #e;      \
         }                   \
-    }                       \
-    while (false)
+    } while (false)
 
         RETURN_IF_EQUALS(EResult::k_EResultNone);
         RETURN_IF_EQUALS(EResult::k_EResultOK);
@@ -250,8 +247,7 @@ private:
         RETURN_IF_EQUALS(EResult::k_EResultExpiredLoginAuthCode);
         RETURN_IF_EQUALS(EResult::k_EResultIPLoginRestrictionFailed);
         RETURN_IF_EQUALS(EResult::k_EResultAccountLockedDown);
-        RETURN_IF_EQUALS(
-            EResult::k_EResultAccountLogonDeniedVerifiedEmailRequired);
+        RETURN_IF_EQUALS(EResult::k_EResultAccountLogonDeniedVerifiedEmailRequired);
         RETURN_IF_EQUALS(EResult::k_EResultNoMatchingURL);
         RETURN_IF_EQUALS(EResult::k_EResultBadResponse);
         RETURN_IF_EQUALS(EResult::k_EResultRequirePasswordReEntry);
@@ -314,16 +310,14 @@ private:
 
         if (const EResult rc = result->m_eResult; rc != EResult::k_EResultOK)
         {
-            log("Steam") << "Error creating item. Error code '"
-                         << static_cast<int>(rc) << "' ("
-                         << result_to_string(rc) << ")\n";
+            log("Steam") << "Error creating item. Error code '" << static_cast<int>(rc) << "' (" << result_to_string(rc)
+                         << ")\n";
 
             return;
         }
 
         const PublishedFileId_t fileId = result->m_nPublishedFileId;
-        log("Steam") << "Successfully created workshop item with id '" << fileId
-                     << "'\n";
+        log("Steam") << "Successfully created workshop item with id '" << fileId << "'\n";
 
         assert(_create_item_continuation);
         _create_item_continuation(fileId);
@@ -343,9 +337,8 @@ private:
 
         if (const EResult rc = result->m_eResult; rc != EResult::k_EResultOK)
         {
-            log("Steam") << "Error updating item. Error code '"
-                         << static_cast<int>(rc) << "' ("
-                         << result_to_string(rc) << ")\n";
+            log("Steam") << "Error updating item. Error code '" << static_cast<int>(rc) << "' (" << result_to_string(rc)
+                         << ")\n";
 
             return;
         }
@@ -356,9 +349,9 @@ private:
     }
 
 public:
-    steam_helper() noexcept
-        : _initialized{initialize_steamworks()}, _pending_operations{0}
-    {}
+    steam_helper() noexcept : _initialized{initialize_steamworks()}, _pending_operations{0}
+    {
+    }
 
     ~steam_helper() noexcept
     {
@@ -380,23 +373,19 @@ public:
         log("Steam") << "Creating workshop item...\n";
         add_pending_operation();
 
-        const SteamAPICall_t api_call = SteamUGC()->CreateItem(
-            oh_app_id, EWorkshopFileType::k_EWorkshopFileTypeCommunity);
+        const SteamAPICall_t api_call = SteamUGC()->CreateItem(oh_app_id, EWorkshopFileType::k_EWorkshopFileTypeCommunity);
 
         _create_item_result.Set(api_call, this, &steam_helper::on_create_item);
         _create_item_continuation = std::move(continuation);
     }
 
-    [[nodiscard]] std::optional<UGCUpdateHandle_t> start_workshop_item_update(
-        const PublishedFileId_t item_id) noexcept
+    [[nodiscard]] std::optional<UGCUpdateHandle_t> start_workshop_item_update(const PublishedFileId_t item_id) noexcept
     {
-        const UGCUpdateHandle_t handle =
-            SteamUGC()->StartItemUpdate(oh_app_id, item_id);
+        const UGCUpdateHandle_t handle = SteamUGC()->StartItemUpdate(oh_app_id, item_id);
 
         if (handle == k_UGCUpdateHandleInvalid)
         {
-            log("Steam") << "Invalid update handle for file id '" << item_id
-                         << "'\n";
+            log("Steam") << "Invalid update handle for file id '" << item_id << "'\n";
 
             return std::nullopt;
         }
@@ -404,20 +393,17 @@ public:
         return {handle};
     }
 
-    [[nodiscard]] bool set_workshop_item_content(
-        const UGCUpdateHandle_t update_handle,
-        const std::filesystem::path& directory_path) noexcept
+    [[nodiscard]] bool set_workshop_item_content(const UGCUpdateHandle_t      update_handle,
+                                                 const std::filesystem::path& directory_path) noexcept
     {
         [[maybe_unused]] std::error_code ec;
 
         assert(std::filesystem::exists(directory_path, ec));
         assert(std::filesystem::is_directory(directory_path, ec));
 
-        if (!SteamUGC()->SetItemContent(
-                update_handle, directory_path.string().data()))
+        if (!SteamUGC()->SetItemContent(update_handle, directory_path.string().data()))
         {
-            log("Steam") << "Failed to set workshop item contents from path '"
-                         << directory_path << "'\n";
+            log("Steam") << "Failed to set workshop item contents from path '" << directory_path << "'\n";
 
             return false;
         }
@@ -425,21 +411,17 @@ public:
         return true;
     }
 
-    [[nodiscard]] bool set_workshop_item_preview_image(
-        const UGCUpdateHandle_t update_handle,
-        const std::filesystem::path& file_path) noexcept
+    [[nodiscard]] bool set_workshop_item_preview_image(const UGCUpdateHandle_t      update_handle,
+                                                       const std::filesystem::path& file_path) noexcept
     {
         [[maybe_unused]] std::error_code ec;
 
         assert(std::filesystem::exists(file_path, ec));
         assert(std::filesystem::is_regular_file(file_path, ec));
 
-        if (!SteamUGC()->SetItemPreview(
-                update_handle, file_path.string().data()))
+        if (!SteamUGC()->SetItemPreview(update_handle, file_path.string().data()))
         {
-            log("Steam")
-                << "Failed to set workshop item preview image from path '"
-                << file_path << "'\n";
+            log("Steam") << "Failed to set workshop item preview image from path '" << file_path << "'\n";
 
             return false;
         }
@@ -447,15 +429,12 @@ public:
         return true;
     }
 
-    void submit_item_update(const UGCUpdateHandle_t handle,
-        const char* change_note,
-        submit_item_continuation&& continuation) noexcept
+    void submit_item_update(const UGCUpdateHandle_t handle, const char* change_note, submit_item_continuation&& continuation) noexcept
     {
         log("Steam") << "Submitting workshop item update...\n";
         add_pending_operation();
 
-        const SteamAPICall_t api_call =
-            SteamUGC()->SubmitItemUpdate(handle, change_note);
+        const SteamAPICall_t api_call = SteamUGC()->SubmitItemUpdate(handle, change_note);
 
         _submit_item_result.Set(api_call, this, &steam_helper::on_submit_item);
         _submit_item_continuation = std::move(continuation);
@@ -511,16 +490,13 @@ private:
     steam_helper& _steam_helper;
 
     explicit cli(steam_helper& sh) noexcept : _steam_helper{sh}
-    {}
+    {
+    }
 
     void create_new_workshop_item()
     {
-        _steam_helper.create_workshop_item(
-            [](const PublishedFileId_t item_id)
-            {
-                std::cout << "Successfully created new workshop item: "
-                          << item_id << ".\n";
-            });
+        _steam_helper.create_workshop_item([](const PublishedFileId_t item_id)
+        { std::cout << "Successfully created new workshop item: " << item_id << ".\n"; });
     }
 
     void upload_contents_to_existing_workshop_item()
@@ -528,8 +504,7 @@ private:
         std::cout << "Enter the workshop item id to upload contents to:\n";
         const auto item_id = read_integer<PublishedFileId_t>();
 
-        const std::optional<UGCUpdateHandle_t> update_handle =
-            _steam_helper.start_workshop_item_update(item_id);
+        const std::optional<UGCUpdateHandle_t> update_handle = _steam_helper.start_workshop_item_update(item_id);
 
         if (!update_handle.has_value())
         {
@@ -540,8 +515,7 @@ private:
         std::cout << "Enter the path to the folder containing the contents:\n";
         const std::filesystem::path directory_path = read_directory_path();
 
-        if (!_steam_helper.set_workshop_item_content(
-                update_handle.value(), directory_path))
+        if (!_steam_helper.set_workshop_item_content(update_handle.value(), directory_path))
         {
             log("CLI") << "Failure setting workshop item content\n";
             return;
@@ -557,13 +531,9 @@ private:
 
         log("CLI") << "Uploading contents to Steam servers...\n";
 
-        _steam_helper.submit_item_update(update_handle.value(),
-            changelog_note.c_str(),
-            [item_id]
-            {
-                std::cout << "Successfully updated workshop item: " << item_id
-                          << ".\n";
-            });
+        _steam_helper.submit_item_update(update_handle.value(), changelog_note.c_str(), [item_id] {
+            std::cout << "Successfully updated workshop item: " << item_id << ".\n";
+        });
     }
 
     void set_preview_image_of_existing_workshop_item()
@@ -573,8 +543,7 @@ private:
 
         const auto item_id = read_integer<PublishedFileId_t>();
 
-        const std::optional<UGCUpdateHandle_t> update_handle =
-            _steam_helper.start_workshop_item_update(item_id);
+        const std::optional<UGCUpdateHandle_t> update_handle = _steam_helper.start_workshop_item_update(item_id);
 
         if (!update_handle.has_value())
         {
@@ -585,8 +554,7 @@ private:
         std::cout << "Enter the path of the new preview image file:\n";
         const std::filesystem::path file_path = read_file_path();
 
-        if (!_steam_helper.set_workshop_item_preview_image(
-                update_handle.value(), file_path))
+        if (!_steam_helper.set_workshop_item_preview_image(update_handle.value(), file_path))
         {
             log("CLI") << "Failure setting workshop item preview image\n";
             return;
@@ -602,19 +570,14 @@ private:
 
         log("CLI") << "Uploading preview image to Steam servers...\n";
 
-        _steam_helper.submit_item_update(update_handle.value(),
-            changelog_note.c_str(),
-            [item_id]
-            {
-                std::cout << "Successfully updated workshop item: " << item_id
-                          << ".\n";
-            });
+        _steam_helper.submit_item_update(update_handle.value(), changelog_note.c_str(), [item_id] {
+            std::cout << "Successfully updated workshop item: " << item_id << ".\n";
+        });
     }
 
     [[nodiscard]] bool main_menu() noexcept
     {
-        std::cout
-            << R"(Welcome! Please visit the following webpage for more information:
+        std::cout << R"(Welcome! Please visit the following webpage for more information:
 https://openhexagon.org/workshop
 
 Enter one of the following options:
@@ -655,7 +618,8 @@ Enter one of the following options:
 
 public:
     ~cli() noexcept
-    {}
+    {
+    }
 
     [[nodiscard]] static std::optional<cli> make(steam_helper& sh)
     {
@@ -684,7 +648,7 @@ public:
 
     [[nodiscard]] bool poll_steam_callbacks() noexcept
     {
-        using clock = std::chrono::high_resolution_clock;
+        using clock      = std::chrono::high_resolution_clock;
         using time_point = clock::time_point;
 
         const time_point loop_begin_time = clock::now();

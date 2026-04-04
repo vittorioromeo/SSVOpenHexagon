@@ -4,11 +4,13 @@
 
 #pragma once
 
-namespace sf {
+namespace sf
+{
 class Text;
 }
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 [[nodiscard]] float getFontHeight(sf::Text& font);
 [[nodiscard]] float getFontHeight(sf::Text& font, const unsigned int charSize);

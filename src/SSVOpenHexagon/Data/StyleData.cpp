@@ -3,21 +3,22 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/StyleData.hpp"
-
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/UtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
-#include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-#include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
-#include <SSVUtils/Core/Utils/Math.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
+#include <SSVUtils/Core/Utils/Math.hpp>
 
-namespace hg {
+namespace hg
+{
 
-[[nodiscard]] ColorData StyleData::colorDataFromObjOrDefault(
-    const ssvuj::Obj& mRoot, const std::string& mKey, const ColorData& mDefault)
+[[nodiscard]] ColorData StyleData::colorDataFromObjOrDefault(const ssvuj::Obj&  mRoot,
+                                                             const std::string& mKey,
+                                                             const ColorData&   mDefault)
 {
     if (ssvuj::hasObj(mRoot, mKey))
     {
@@ -29,38 +30,34 @@ namespace hg {
 
 StyleData::StyleData() = default;
 
-StyleData::StyleData(const ssvuj::Obj& mRoot)
-    : id{ssvuj::getExtr<std::string>(mRoot, "id", "nullId")},
-      hueMin{ssvuj::getExtr<float>(mRoot, "hue_min", 0.f)},
-      hueMax{ssvuj::getExtr<float>(mRoot, "hue_max", 360.f)},
-      hueIncrement{ssvuj::getExtr<float>(mRoot, "hue_increment", 0.f)},
-      huePingPong{ssvuj::getExtr<bool>(mRoot, "hue_ping_pong", false)},
+StyleData::StyleData(const ssvuj::Obj& mRoot) :
+    id{ssvuj::getExtr<std::string>(mRoot, "id", "nullId")},
+    hueMin{ssvuj::getExtr<float>(mRoot, "hue_min", 0.f)},
+    hueMax{ssvuj::getExtr<float>(mRoot, "hue_max", 360.f)},
+    hueIncrement{ssvuj::getExtr<float>(mRoot, "hue_increment", 0.f)},
+    huePingPong{ssvuj::getExtr<bool>(mRoot, "hue_ping_pong", false)},
 
-      pulseMin{ssvuj::getExtr<float>(mRoot, "pulse_min", 0.f)},
-      pulseMax{ssvuj::getExtr<float>(mRoot, "pulse_max", 0.f)},
-      pulseIncrement{ssvuj::getExtr<float>(mRoot, "pulse_increment", 0.f)},
-      maxSwapTime{ssvuj::getExtr<float>(mRoot, "max_swap_time", 100.f)},
+    pulseMin{ssvuj::getExtr<float>(mRoot, "pulse_min", 0.f)},
+    pulseMax{ssvuj::getExtr<float>(mRoot, "pulse_max", 0.f)},
+    pulseIncrement{ssvuj::getExtr<float>(mRoot, "pulse_increment", 0.f)},
+    maxSwapTime{ssvuj::getExtr<float>(mRoot, "max_swap_time", 100.f)},
 
-      _3dDepth{ssvuj::getExtr<float>(mRoot, "3D_depth", 15.f)},
-      _3dSkew{ssvuj::getExtr<float>(mRoot, "3D_skew", 0.18f)},
-      _3dSpacing{ssvuj::getExtr<float>(mRoot, "3D_spacing", 1.f)},
-      _3dDarkenMult{ssvuj::getExtr<float>(mRoot, "3D_darken_multiplier", 1.5f)},
-      _3dAlphaMult{ssvuj::getExtr<float>(mRoot, "3D_alpha_multiplier", 0.5f)},
-      _3dAlphaFalloff{ssvuj::getExtr<float>(mRoot, "3D_alpha_falloff", 3.f)},
-      _3dPulseMax{ssvuj::getExtr<float>(mRoot, "3D_pulse_max", 3.2f)},
-      _3dPulseMin{ssvuj::getExtr<float>(mRoot, "3D_pulse_min", 0.f)},
-      _3dPulseSpeed{ssvuj::getExtr<float>(mRoot, "3D_pulse_speed", 0.01f)},
-      _3dPerspectiveMult{
-          ssvuj::getExtr<float>(mRoot, "3D_perspective_multiplier", 1.f)},
-      _3dOverrideColor{ssvuj::getExtr<sf::Color>(
-          mRoot, "3D_override_color", sf::Color::Transparent)},
-      mainColorData{ssvuj::getObj(mRoot, "main")}, //
-      playerColor{
-          colorDataFromObjOrDefault(mRoot, "player_color", mainColorData)}, //
-      textColor{
-          colorDataFromObjOrDefault(mRoot, "text_color", mainColorData)}, //
-      wallColor{colorDataFromObjOrDefault(mRoot, "wall_color", mainColorData)},
-      capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))}
+    _3dDepth{ssvuj::getExtr<float>(mRoot, "3D_depth", 15.f)},
+    _3dSkew{ssvuj::getExtr<float>(mRoot, "3D_skew", 0.18f)},
+    _3dSpacing{ssvuj::getExtr<float>(mRoot, "3D_spacing", 1.f)},
+    _3dDarkenMult{ssvuj::getExtr<float>(mRoot, "3D_darken_multiplier", 1.5f)},
+    _3dAlphaMult{ssvuj::getExtr<float>(mRoot, "3D_alpha_multiplier", 0.5f)},
+    _3dAlphaFalloff{ssvuj::getExtr<float>(mRoot, "3D_alpha_falloff", 3.f)},
+    _3dPulseMax{ssvuj::getExtr<float>(mRoot, "3D_pulse_max", 3.2f)},
+    _3dPulseMin{ssvuj::getExtr<float>(mRoot, "3D_pulse_min", 0.f)},
+    _3dPulseSpeed{ssvuj::getExtr<float>(mRoot, "3D_pulse_speed", 0.01f)},
+    _3dPerspectiveMult{ssvuj::getExtr<float>(mRoot, "3D_perspective_multiplier", 1.f)},
+    _3dOverrideColor{ssvuj::getExtr<sf::Color>(mRoot, "3D_override_color", sf::Color::Transparent)},
+    mainColorData{ssvuj::getObj(mRoot, "main")},                                  //
+    playerColor{colorDataFromObjOrDefault(mRoot, "player_color", mainColorData)}, //
+    textColor{colorDataFromObjOrDefault(mRoot, "text_color", mainColorData)},     //
+    wallColor{colorDataFromObjOrDefault(mRoot, "wall_color", mainColorData)},
+    capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))}
 {
     currentHue = hueMin;
 
@@ -74,15 +71,13 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
     }
 }
 
-sf::Color StyleData::calculateColor(const float mCurrentHue,
-    const float mPulseFactor, const ColorData& mColorData)
+sf::Color StyleData::calculateColor(const float mCurrentHue, const float mPulseFactor, const ColorData& mColorData)
 {
     sf::Color color{mColorData.color};
 
     if (mColorData.dynamic)
     {
-        const float hue =
-            std::fmod(mCurrentHue + mColorData.hueShift, 360.f) / 360.f;
+        const float hue = std::fmod(mCurrentHue + mColorData.hueShift, 360.f) / 360.f;
 
         const sf::Color dynamicColor = Utils::getColorFromHue(hue);
 
@@ -101,8 +96,7 @@ sf::Color StyleData::calculateColor(const float mCurrentHue,
             }
             else
             {
-                color = Utils::getColorDarkened(
-                    dynamicColor, mColorData.dynamicDarkness);
+                color = Utils::getColorDarkened(dynamicColor, mColorData.dynamicDarkness);
             }
         }
         else
@@ -169,13 +163,12 @@ void StyleData::update(float mFT, float mMult)
 
 void StyleData::computeColors()
 {
-    currentMainColor = calculateColor(currentHue, pulseFactor, mainColorData);
+    currentMainColor   = calculateColor(currentHue, pulseFactor, mainColorData);
     currentPlayerColor = calculateColor(currentHue, pulseFactor, playerColor);
-    currentTextColor = calculateColor(currentHue, pulseFactor, textColor);
-    currentWallColor = calculateColor(currentHue, pulseFactor, wallColor);
+    currentTextColor   = calculateColor(currentHue, pulseFactor, textColor);
+    currentWallColor   = calculateColor(currentHue, pulseFactor, wallColor);
 
-    current3DOverrideColor =
-        _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
+    current3DOverrideColor = _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
 
     currentColors.clear();
 
@@ -189,15 +182,16 @@ void StyleData::computeColors()
         const unsigned int rotation = currentSwapTime / (maxSwapTime / 2.f);
 
         std::rotate(currentColors.begin(),
-            currentColors.begin() +
-                ssvu::getMod(rotation + BGColorOffset, currentColors.size()),
-            currentColors.end());
+                    currentColors.begin() + ssvu::getMod(rotation + BGColorOffset, currentColors.size()),
+                    currentColors.end());
     }
 }
 
 void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
-    const sf::Vec2f mCenterPos, const unsigned int sides,
-    const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const
+                                   const sf::Vec2f              mCenterPos,
+                                   const unsigned int           sides,
+                                   const bool                   darkenUnevenBackgroundChunk,
+                                   const bool                   blackAndWhite) const
 {
     const float div{Utils::tau / sides * 1.0001f};
     const float halfDiv{div / 2.f};
@@ -212,10 +206,9 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
     for (auto i(0u); i < sides; ++i)
     {
         const float angle{Utils::toRad(BGRotOff) + div * i};
-        sf::Color currentColor{ssvu::getByModIdx(colors, i)};
+        sf::Color   currentColor{ssvu::getByModIdx(colors, i)};
 
-        const bool mustDarkenUnevenBackgroundChunk =
-            (i % 2 == 0 && i == sides - 1) && darkenUnevenBackgroundChunk;
+        const bool mustDarkenUnevenBackgroundChunk = (i % 2 == 0 && i == sides - 1) && darkenUnevenBackgroundChunk;
 
         if (blackAndWhite)
         {
@@ -226,65 +219,65 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
             currentColor = Utils::getColorDarkened(currentColor, 1.4f);
         }
 
-        vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
-            mCenterPos.movedTowards(distance, sf::radians(angle + halfDiv)),
-            mCenterPos.movedTowards(distance, sf::radians(angle - halfDiv)));
+        vertices.batch_unsafe_emplace_back(currentColor,
+                                           mCenterPos,
+                                           mCenterPos.movedTowards(distance, sf::radians(angle + halfDiv)),
+                                           mCenterPos.movedTowards(distance, sf::radians(angle - halfDiv)));
     }
 }
 
 void StyleData::drawBackgroundMenuHexagonImpl(
-    Utils::FastVertexVectorTris& vertices, const sf::Vec2f mCenterPos,
-    const unsigned int sides, const bool fourByThree,
-    const bool blackAndWhite) const
+    Utils::FastVertexVectorTris& vertices,
+    const sf::Vec2f              mCenterPos,
+    const unsigned int           sides,
+    const bool                   fourByThree,
+    const bool                   blackAndWhite) const
 {
     const float div{Utils::tau / sides * 1.0001f};
     const float halfDiv{div / 2.f};
     const float hexagonRadius{fourByThree ? 75.f : 100.f};
 
-    const sf::Color& colorMain{
-        blackAndWhite ? sf::Color::White : getMainColor()};
-    const sf::Color colorCap{
-        blackAndWhite ? sf::Color::Black : getCapColorResult()};
+    const sf::Color& colorMain{blackAndWhite ? sf::Color::White : getMainColor()};
+    const sf::Color  colorCap{blackAndWhite ? sf::Color::Black : getCapColorResult()};
 
     for (auto i(0u); i < sides; ++i)
     {
         const float angle{Utils::toRad(BGRotOff) + div * i};
 
-        vertices.batch_unsafe_emplace_back(colorMain, mCenterPos,
-            mCenterPos.movedTowards(
-                hexagonRadius + 10.f, sf::radians(angle + halfDiv)),
-            mCenterPos.movedTowards(
-                hexagonRadius + 10.f, sf::radians(angle - halfDiv)));
+        vertices.batch_unsafe_emplace_back(colorMain,
+                                           mCenterPos,
+                                           mCenterPos.movedTowards(hexagonRadius + 10.f, sf::radians(angle + halfDiv)),
+                                           mCenterPos.movedTowards(hexagonRadius + 10.f, sf::radians(angle - halfDiv)));
 
-        vertices.batch_unsafe_emplace_back(colorCap, mCenterPos,
-            mCenterPos.movedTowards(
-                hexagonRadius, sf::radians(angle + halfDiv)),
-            mCenterPos.movedTowards(
-                hexagonRadius, sf::radians(angle - halfDiv)));
+        vertices.batch_unsafe_emplace_back(colorCap,
+                                           mCenterPos,
+                                           mCenterPos.movedTowards(hexagonRadius, sf::radians(angle + halfDiv)),
+                                           mCenterPos.movedTowards(hexagonRadius, sf::radians(angle - halfDiv)));
     }
 }
 
 void StyleData::drawBackground(Utils::FastVertexVectorTris& mTris,
-    const sf::Vec2f mCenterPos, const unsigned int sides,
-    const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const
+                               const sf::Vec2f              mCenterPos,
+                               const unsigned int           sides,
+                               const bool                   darkenUnevenBackgroundChunk,
+                               const bool                   blackAndWhite) const
 {
     mTris.reserve_more(sides * 3);
 
-    drawBackgroundImpl(
-        mTris, mCenterPos, sides, darkenUnevenBackgroundChunk, blackAndWhite);
+    drawBackgroundImpl(mTris, mCenterPos, sides, darkenUnevenBackgroundChunk, blackAndWhite);
 }
 
 void StyleData::drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
-    const sf::Vec2f mCenterPos, const unsigned int sides,
-    const bool darkenUnevenBackgroundChunk, const bool blackAndWhite,
-    const bool fourByThree) const
+                                   const sf::Vec2f              mCenterPos,
+                                   const unsigned int           sides,
+                                   const bool                   darkenUnevenBackgroundChunk,
+                                   const bool                   blackAndWhite,
+                                   const bool                   fourByThree) const
 {
     mTris.reserve_more(sides * 3 + sides * 6);
 
-    drawBackgroundImpl(
-        mTris, mCenterPos, sides, darkenUnevenBackgroundChunk, blackAndWhite);
-    drawBackgroundMenuHexagonImpl(
-        mTris, mCenterPos, sides, fourByThree, blackAndWhite);
+    drawBackgroundImpl(mTris, mCenterPos, sides, darkenUnevenBackgroundChunk, blackAndWhite);
+    drawBackgroundMenuHexagonImpl(mTris, mCenterPos, sides, fourByThree, blackAndWhite);
 }
 
 void StyleData::setCapColor(const CapColor& mCapColor)
@@ -312,14 +305,12 @@ void StyleData::setCapColor(const CapColor& mCapColor)
     return currentWallColor;
 }
 
-[[nodiscard]] const std::vector<sf::Color>&
-StyleData::getColors() const noexcept
+[[nodiscard]] const std::vector<sf::Color>& StyleData::getColors() const noexcept
 {
     return currentColors;
 }
 
-[[nodiscard]] const sf::Color& StyleData::getColor(
-    const sf::base::SizeT mIdx) const noexcept
+[[nodiscard]] const sf::Color& StyleData::getColor(const sf::base::SizeT mIdx) const noexcept
 {
     SSVOH_ASSERT(!currentColors.empty());
     return ssvu::getByModIdx(currentColors, mIdx);
@@ -342,13 +333,11 @@ StyleData::getColors() const noexcept
 
 sf::Color StyleData::getCapColorResult() const noexcept
 {
-    return capColor.linearMatch(                               //
-        [this](CapColorMode::Main) { return getMainColor(); }, //
-        [this](CapColorMode::MainDarkened)
-        { return Utils::getColorDarkened(getMainColor(), 1.4f); },      //
-        [this](CapColorMode::ByIndex x) { return getColor(x._index); }, //
-        [this](const ColorData& data)
-        { return calculateColor(currentHue, pulseFactor, data); });
+    return capColor.linearMatch(                                                                      //
+        [this](CapColorMode::Main) { return getMainColor(); },                                        //
+        [this](CapColorMode::MainDarkened) { return Utils::getColorDarkened(getMainColor(), 1.4f); }, //
+        [this](CapColorMode::ByIndex x) { return getColor(x._index); },                               //
+        [this](const ColorData& data) { return calculateColor(currentHue, pulseFactor, data); });
 }
 
 } // namespace hg

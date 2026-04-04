@@ -6,10 +6,13 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
-[[nodiscard, gnu::always_inline, gnu::const]] inline constexpr float
-getMoveTowards(float value, const float target, const float step) noexcept
+[[nodiscard, gnu::always_inline, gnu::const]] inline constexpr float getMoveTowards(
+    float       value,
+    const float target,
+    const float step) noexcept
 {
     SSVOH_ASSERT(step >= 0);
 
@@ -33,20 +36,17 @@ getMoveTowards(float value, const float target, const float step) noexcept
     return value;
 }
 
-[[nodiscard, gnu::always_inline, gnu::const]] inline constexpr float
-getMoveTowardsZero(const float value, const float step) noexcept
+[[nodiscard, gnu::always_inline, gnu::const]] inline constexpr float getMoveTowardsZero(const float value, const float step) noexcept
 {
     return getMoveTowards(value, 0.f, step);
 }
 
-[[gnu::always_inline]] inline constexpr void moveTowards(
-    float& value, const float target, const float step) noexcept
+[[gnu::always_inline]] inline constexpr void moveTowards(float& value, const float target, const float step) noexcept
 {
     value = getMoveTowards(value, target, step);
 }
 
-[[gnu::always_inline]] inline constexpr void moveTowardsZero(
-    float& value, const float step) noexcept
+[[gnu::always_inline]] inline constexpr void moveTowardsZero(float& value, const float step) noexcept
 {
     value = getMoveTowardsZero(value, step);
 }

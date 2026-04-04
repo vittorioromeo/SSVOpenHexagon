@@ -4,23 +4,22 @@
 
 #pragma once
 
-#include <string>
 #include <SFML/Base/Algorithm/Find.hpp>
+#include <string>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 inline void lTrim(std::string& str)
 {
-    const auto it = sf::base::findIf(
-        str.begin(), str.end(), [](char ch) { return !std::isspace(ch); });
+    const auto it = sf::base::findIf(str.begin(), str.end(), [](char ch) { return !std::isspace(ch); });
 
     str.erase(str.begin(), it);
 }
 
 inline void rTrim(std::string& str)
 {
-    const auto it = sf::base::findIf(
-        str.rbegin(), str.rend(), [](char ch) { return !std::isspace(ch); });
+    const auto it = sf::base::findIf(str.rbegin(), str.rend(), [](char ch) { return !std::isspace(ch); });
 
     str.erase(it.base(), str.end());
 }

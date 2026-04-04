@@ -4,69 +4,64 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
+#include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Core/CustomTimelineManager.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
-
 #include "SSVOpenHexagon/Data/CapColor.hpp"
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
-
-#include "SSVOpenHexagon/Components/CPlayer.hpp"
-
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
-
-
-#include <SFML/ImGui/ImGuiContext.hpp>
-
+#include <SFML/Base/IntTypes.hpp>
+#include <SFML/Base/Optional.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/View.hpp>
-
-#include <SFML/System/Vec2.hpp>
+#include <SFML/ImGui/ImGuiContext.hpp>
 #include <SFML/System/Clock.hpp>
-
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-
-#include <sstream>
-#include <unordered_set>
+#include <SFML/System/Vec2.hpp>
 #include <functional>
-#include <vector>
+#include <sstream>
 #include <string>
 #include <string_view>
+#include <unordered_set>
+#include <vector>
 
 struct ImGuiInputTextCallbackData;
 
-namespace Json {
+namespace Json
+{
 class Value;
 }
 
-namespace ssvuj {
+namespace ssvuj
+{
 using Obj = Json::Value;
 }
 
-namespace ssvs::Input {
+namespace ssvs::Input
+{
 class Trigger;
 }
 
-namespace hg {
+namespace hg
+{
 
 class Audio;
 class HGAssets;
@@ -75,11 +70,13 @@ struct LevelData;
 struct SpeedData;
 struct PackData;
 
-namespace Steam {
+namespace Steam
+{
 class steam_manager;
 }
 
-namespace Discord {
+namespace Discord
+{
 class discord_manager;
 }
 
@@ -110,21 +107,21 @@ private:
 
     sf::base::Optional<sf::Texture> nullTexture;
 
-    Steam::steam_manager* steamManager;
+    Steam::steam_manager*     steamManager;
     Discord::discord_manager* discordManager;
-    bool discordHung{false};
-    bool steamHung{false};
-    sf::base::I8 discordAttempt{1};
-    sf::base::I8 steamAttempt{1};
+    bool                      discordHung{false};
+    bool                      steamHung{false};
+    sf::base::I8              discordAttempt{1};
+    sf::base::I8              steamAttempt{1};
 
-    HGAssets& assets;
+    HGAssets&                  assets;
     sf::base::Optional<TextUI> textUI;
 
     Audio* audio;
 
     const LevelData* levelData;
 
-    ssvs::GameState game;
+    ssvs::GameState   game;
     ssvs::GameWindow* window;
 
     HexagonClient* hexagonClient;
@@ -132,18 +129,18 @@ private:
     sf::base::Optional<sf::ImGuiContext> imguiCtx;
 
     // IMGUI Lua Console
-    sf::Clock ilcDeltaClock;
+    sf::Clock                ilcDeltaClock;
     std::vector<std::string> ilcCmdLog;
     std::vector<std::string> ilcHistory;
-    int ilcHistoryPos{-1};
-    std::string ilcCmdBuffer;
-    std::string ilcTrackBuffer;
-    bool ilcShowConsole{false};
-    bool ilcShowConsoleNext{false};
+    int                      ilcHistoryPos{-1};
+    std::string              ilcCmdBuffer;
+    std::string              ilcTrackBuffer;
+    bool                     ilcShowConsole{false};
+    bool                     ilcShowConsoleNext{false};
     std::vector<std::string> ilcLuaTracked;
     std::vector<std::string> ilcLuaTrackedNames;
     std::vector<std::string> ilcLuaTrackedResults;
-    bool debugPause{false};
+    bool                     debugPause{false};
 
     std::vector<std::string> execScriptPackPathContext;
 
@@ -151,16 +148,16 @@ public:
     int ilcTextEditCallback(ImGuiInputTextCallbackData* data);
 
 public:
-    CPlayer player;
+    CPlayer            player;
     std::vector<CWall> walls;
     CCustomWallManager cwManager;
-    float timeUntilRichPresenceUpdate = 0.f;
+    float              timeUntilRichPresenceUpdate = 0.f;
 
 private:
     sf::base::Optional<sf::View> backgroundCamera;
     sf::base::Optional<sf::View> overlayCamera;
-    Utils::ViewTransform backgroundCameraTransform;
-    Utils::ViewTransform overlayCameraTransform;
+    Utils::ViewTransform         backgroundCameraTransform;
+    Utils::ViewTransform         overlayCameraTransform;
 
     struct PreShakeCenters
     {
@@ -172,20 +169,20 @@ private:
 
     const sf::Vec2f centerPos{0.f, 0.f};
 
-    Lua::LuaContext lua;
+    Lua::LuaContext                 lua;
     std::unordered_set<std::string> calledDeprecatedFunctions;
 
     LevelStatus levelStatus;
-    MusicData musicData;
-    StyleData styleData;
+    MusicData   musicData;
+    StyleData   styleData;
 
-    Utils::timeline2 timeline;
+    Utils::timeline2        timeline;
     Utils::timeline2_runner timelineRunner;
 
-    Utils::timeline2 eventTimeline;
+    Utils::timeline2        eventTimeline;
     Utils::timeline2_runner eventTimelineRunner;
 
-    Utils::timeline2 messageTimeline;
+    Utils::timeline2        messageTimeline;
     Utils::timeline2_runner messageTimelineRunner;
 
     CustomTimelineManager _customTimelineManager;
@@ -196,40 +193,40 @@ private:
     struct Particle
     {
         sf::Sprite sprite;
-        sf::Vec2f velocity;
-        float angularVelocity;
+        sf::Vec2f  velocity;
+        float      angularVelocity;
     };
 
     struct TrailParticle
     {
         sf::Sprite sprite;
-        float angle;
+        float      angle;
     };
 
     struct SwapParticle
     {
         sf::Sprite sprite;
-        sf::Vec2f velocity;
+        sf::Vec2f  velocity;
     };
 
     sf::Texture* txStarParticle;
     sf::Texture* txSmallCircle;
 
-    std::vector<Particle> particles;
+    std::vector<Particle>      particles;
     std::vector<TrailParticle> trailParticles;
-    std::vector<SwapParticle> swapParticles;
-    bool mustSpawnPBParticles{false};
+    std::vector<SwapParticle>  swapParticles;
+    bool                       mustSpawnPBParticles{false};
 
     struct SwapParticleSpawnInfo
     {
-        bool ready;
+        bool      ready;
         sf::Vec2f position;
-        float angle;
+        float     angle;
     };
 
     sf::base::Optional<SwapParticleSpawnInfo> swapParticlesSpawnInfo;
-    float nextPBParticleSpawn{0.f};
-    float pbTextGrowth{0.f};
+    float                                     nextPBParticleSpawn{0.f};
+    float                                     pbTextGrowth{0.f};
 
     sf::Texture* txKeyIconLeft;
     sf::Texture* txKeyIconRight;
@@ -255,16 +252,16 @@ private:
     bool mustStart{false};
 
     random_number_generator rng;
-    HexagonGameStatus status;
+    HexagonGameStatus       status;
 
     float deathInputIgnore{0.f};
 
     struct ActiveReplay
     {
-        replay_file replayFile;
+        replay_file   replayFile;
         replay_player replayPlayer;
-        std::string replayPackName;
-        std::string replayLevelName;
+        std::string   replayPackName;
+        std::string   replayLevelName;
 
         explicit ActiveReplay(const replay_file& mReplayFile);
     };
@@ -272,17 +269,17 @@ private:
     sf::base::Optional<ActiveReplay> activeReplay;
 
     random_number_generator::seed_type lastSeed{};
-    replay_data lastReplayData{};
-    bool lastFirstPlay{};
-    double lastPlayedScore{};
+    replay_data                        lastReplayData{};
+    bool                               lastFirstPlay{};
+    double                             lastPlayedScore{};
 
     std::string restartId;
-    float difficultyMult{1};
-    int inputImplLastMovement{0};
-    int inputMovement{0};
-    bool inputImplCW{false};
-    bool inputImplCCW{false};
-    bool playerNowReadyToSwap{false};
+    float       difficultyMult{1};
+    int         inputImplLastMovement{0};
+    int         inputMovement{0};
+    bool        inputImplCW{false};
+    bool        inputImplCCW{false};
+    bool        playerNowReadyToSwap{false};
 
     std::ostringstream os;
 
@@ -310,8 +307,7 @@ private:
     void runLuaFile(const std::string& mFileName);
 
     // Wall creation
-    void createWall(int mSide, float mThickness, const SpeedData& mSpeed,
-        const SpeedData& mCurve, float mHueMod);
+    void createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod);
 
 public:
     // ------------------------------------------------------------------------
@@ -335,23 +331,19 @@ public:
     try
     {
         return Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
-    }
-    catch (...)
+    } catch (...)
     {
         luaExceptionLippincottHandler(mName);
-        return decltype(Utils::runLuaFunctionIfExists<T, TArgs...>(
-            lua, mName, mArgs...)){};
+        return decltype(Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...)){};
     }
 
     template <typename... TArgs>
-    void runVoidLuaFunctionIfExists(
-        std::string_view mName, const TArgs&... mArgs)
+    void runVoidLuaFunctionIfExists(std::string_view mName, const TArgs&... mArgs)
     {
         (void)runLuaFunctionIfExists<void>(mName, mArgs...);
     }
 
-    void raiseWarning(
-        const std::string& mFunctionName, const std::string& mAdditionalInfo);
+    void raiseWarning(const std::string& mFunctionName, const std::string& mAdditionalInfo);
 
     void setLastReplay(const replay_file& mReplayFile);
 
@@ -363,11 +355,11 @@ private:
 
     // Fast-forward
     sf::base::Optional<double> fastForwardTarget;
-    void fastForwardTo(const double target);
+    void                       fastForwardTo(const double target);
 
     // Advance by ticks
     sf::base::Optional<int> advanceTickCount;
-    void advanceByTicks(const int nTicks);
+    void                    advanceByTicks(const int nTicks);
 
     // Update methods
     void update(float mFT, const float timescale);
@@ -409,12 +401,9 @@ private:
     void sideChange(unsigned int mSideNumber);
 
     // Draw methods
-    void drawText_TimeAndStatus(
-        const sf::Color& offsetColor, const sf::RenderStates& mStates);
-    void drawText_Message(
-        const sf::Color& offsetColor, const sf::RenderStates& mStates);
-    void drawText_PersonalBest(
-        const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates);
     void drawText(const sf::RenderStates& mStates);
     void drawKeyIcons();
     void drawLevelInfo(const sf::RenderStates& mStates);
@@ -443,7 +432,7 @@ private:
 
     // Level/menu loading/unloading/changing
     [[nodiscard]] bool shouldSaveScore();
-    void goToMenu(bool mSendScores = true, bool mError = false);
+    void               goToMenu(bool mSendScores = true, bool mError = false);
 
     void invalidateScore(const std::string& mReason);
 
@@ -452,7 +441,7 @@ private:
     template <typename T>
     auto makeLuaAccessor(T& obj, const std::string& prefix);
 
-    static void nameFormat(std::string& name);
+    static void                      nameFormat(std::string& name);
     [[nodiscard]] static std::string diffFormat(float diff);
     [[nodiscard]] static std::string timeFormat(float time);
 
@@ -473,54 +462,54 @@ private:
 public:
     std::function<void(const bool)> fnGoToMenu;
 
-    HexagonGame(Steam::steam_manager* mSteamManager,
-        Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
-        Audio* mAudio, ssvs::GameWindow* mGameWindow,
-        HexagonClient* mHexagonClient);
+    HexagonGame(Steam::steam_manager*     mSteamManager,
+                Discord::discord_manager* mDiscordManager,
+                HGAssets&                 mAssets,
+                Audio*                    mAudio,
+                ssvs::GameWindow*         mGameWindow,
+                HexagonClient*            mHexagonClient);
 
     ~HexagonGame();
 
     void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID);
 
     // Gameplay methods
-    void newGame(const std::string& mPackId, const std::string& mId,
-        bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
+    void newGame(const std::string& mPackId, const std::string& mId, bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
 
     enum class SaveScoreIfNeededResult
     {
-        NoWindow = 0,
-        ShouldNotSave = 1,
+        NoWindow        = 0,
+        ShouldNotSave   = 1,
         NotPersonalBest = 2,
-        PersonalBest = 3,
+        PersonalBest    = 3,
     };
 
-    void death(bool mForce = false);
-    void death_shakeCamera();
-    void death_flashEffect();
-    [[nodiscard]] replay_file death_createReplayFile();
-    void death_updateRichPresence();
+    void                                  death(bool mForce = false);
+    void                                  death_shakeCamera();
+    void                                  death_flashEffect();
+    [[nodiscard]] replay_file             death_createReplayFile();
+    void                                  death_updateRichPresence();
     [[nodiscard]] SaveScoreIfNeededResult death_saveScoreIfNeeded();
-    void death_saveScoreIfNeededAndShowPBEffects();
-    void death_sendAndSaveReplay(const replay_file& rf);
-    [[nodiscard]] bool death_sendReplay(
-        const std::string& levelValidator, const compressed_replay_file& crf);
-    [[nodiscard]] bool death_saveReplay(
-        std::string filename, const compressed_replay_file& crf);
+    void                                  death_saveScoreIfNeededAndShowPBEffects();
+    void                                  death_sendAndSaveReplay(const replay_file& rf);
+    [[nodiscard]] bool death_sendReplay(const std::string& levelValidator, const compressed_replay_file& crf);
+    [[nodiscard]] bool death_saveReplay(std::string filename, const compressed_replay_file& crf);
 
     struct GameExecutionResult
     {
         double playedTimeSeconds;
         double pausedTimeSeconds;
         double totalTimeSeconds;
-        float customScore;
+        float  customScore;
     };
 
-    [[nodiscard]] sf::base::Optional<GameExecutionResult> executeGameUntilDeath(
-        const int maxProcessingSeconds, const float timescale);
+    [[nodiscard]] sf::base::Optional<GameExecutionResult> executeGameUntilDeath(const int   maxProcessingSeconds,
+                                                                                const float timescale);
 
-    [[nodiscard]] sf::base::Optional<GameExecutionResult>
-    runReplayUntilDeathAndGetScore(const replay_file& mReplayFile,
-        const int maxProcessingSeconds, const float timescale);
+    [[nodiscard]] sf::base::Optional<GameExecutionResult> runReplayUntilDeathAndGetScore(
+        const replay_file& mReplayFile,
+        const int          maxProcessingSeconds,
+        const float        timescale);
 
     // Other methods
     void executeEvents(ssvuj::Obj& mRoot, float mTime);
@@ -528,63 +517,61 @@ public:
 
     [[nodiscard]] bool shouldPlaySounds() const;
     [[nodiscard]] bool shouldPlayMusic() const;
-    void playSoundOverride(const std::string& mId);
-    void playSoundAbort(const std::string& mId);
-    void playPackSoundOverride(
-        const std::string& mPackId, const std::string& mId);
+    void               playSoundOverride(const std::string& mId);
+    void               playSoundAbort(const std::string& mId);
+    void               playPackSoundOverride(const std::string& mPackId, const std::string& mId);
 
     // Graphics-related methods
     template <typename TDrawable>
     void renderWithView(const sf::View& view, TDrawable&& drawable);
 
     template <typename TDrawable>
-    void renderWithView(
-        const sf::View& view, TDrawable&& drawable, sf::RenderStates states);
+    void renderWithView(const sf::View& view, TDrawable&& drawable, sf::RenderStates states);
 
     // Setters
     void setSides(unsigned int mSides);
 
     // Getters
-    [[nodiscard]] ssvs::GameState& getGame() noexcept;
-    [[nodiscard]] float getRadius() const noexcept;
-    [[nodiscard]] const sf::Color& getColor(int mIdx) const noexcept;
-    [[nodiscard]] float getSpeedMultDM() const noexcept;
-    [[nodiscard]] float getDelayMultDM() const noexcept;
-    [[nodiscard]] float getRotationSpeed() const noexcept;
-    [[nodiscard]] unsigned int getSides() const noexcept;
-    [[nodiscard]] float getWallSkewLeft() const noexcept;
-    [[nodiscard]] float getWallSkewRight() const noexcept;
-    [[nodiscard]] float getWallAngleLeft() const noexcept;
-    [[nodiscard]] float getWallAngleRight() const noexcept;
-    [[nodiscard]] HexagonGameStatus& getStatus() noexcept;
+    [[nodiscard]] ssvs::GameState&         getGame() noexcept;
+    [[nodiscard]] float                    getRadius() const noexcept;
+    [[nodiscard]] const sf::Color&         getColor(int mIdx) const noexcept;
+    [[nodiscard]] float                    getSpeedMultDM() const noexcept;
+    [[nodiscard]] float                    getDelayMultDM() const noexcept;
+    [[nodiscard]] float                    getRotationSpeed() const noexcept;
+    [[nodiscard]] unsigned int             getSides() const noexcept;
+    [[nodiscard]] float                    getWallSkewLeft() const noexcept;
+    [[nodiscard]] float                    getWallSkewRight() const noexcept;
+    [[nodiscard]] float                    getWallAngleLeft() const noexcept;
+    [[nodiscard]] float                    getWallAngleRight() const noexcept;
+    [[nodiscard]] HexagonGameStatus&       getStatus() noexcept;
     [[nodiscard]] const HexagonGameStatus& getStatus() const noexcept;
-    [[nodiscard]] LevelStatus& getLevelStatus();
-    [[nodiscard]] HGAssets& getAssets();
-    [[nodiscard]] sf::Color getColorMain() const;
-    [[nodiscard]] sf::Color getColorPlayer() const;
-    [[nodiscard]] sf::Color getColorPlayerAdjustedForSwap() const;
-    [[nodiscard]] sf::Color getColorPlayerTrail() const;
-    [[nodiscard]] sf::Color getColorText() const;
-    [[nodiscard]] sf::Color getColorCap() const;
-    [[nodiscard]] sf::Color getColorWall() const;
-    [[nodiscard]] float getMusicDMSyncFactor() const;
-    [[nodiscard]] float getOptionalMusicDMSyncFactor() const;
+    [[nodiscard]] LevelStatus&             getLevelStatus();
+    [[nodiscard]] HGAssets&                getAssets();
+    [[nodiscard]] sf::Color                getColorMain() const;
+    [[nodiscard]] sf::Color                getColorPlayer() const;
+    [[nodiscard]] sf::Color                getColorPlayerAdjustedForSwap() const;
+    [[nodiscard]] sf::Color                getColorPlayerTrail() const;
+    [[nodiscard]] sf::Color                getColorText() const;
+    [[nodiscard]] sf::Color                getColorCap() const;
+    [[nodiscard]] sf::Color                getColorWall() const;
+    [[nodiscard]] float                    getMusicDMSyncFactor() const;
+    [[nodiscard]] float                    getOptionalMusicDMSyncFactor() const;
 
     void refreshMusicPitch();
 
     // Input
-    [[nodiscard]] bool getInputFocused() const;
+    [[nodiscard]] bool  getInputFocused() const;
     [[nodiscard]] float getPlayerSpeedMult() const;
-    [[nodiscard]] bool getInputSwap() const;
-    [[nodiscard]] int getInputMovement() const;
+    [[nodiscard]] bool  getInputSwap() const;
+    [[nodiscard]] int   getInputMovement() const;
 
     // Pack information
-    [[nodiscard]] const PackData& getPackData() const noexcept;
+    [[nodiscard]] const PackData&    getPackData() const noexcept;
     [[nodiscard]] const std::string& getPackId() const noexcept;
     [[nodiscard]] const std::string& getPackDisambiguator() const noexcept;
     [[nodiscard]] const std::string& getPackAuthor() const noexcept;
     [[nodiscard]] const std::string& getPackName() const noexcept;
-    [[nodiscard]] int getPackVersion() const noexcept;
+    [[nodiscard]] int                getPackVersion() const noexcept;
 
     [[nodiscard]] bool inReplay() const noexcept;
     [[nodiscard]] bool mustReplayInput() const noexcept;

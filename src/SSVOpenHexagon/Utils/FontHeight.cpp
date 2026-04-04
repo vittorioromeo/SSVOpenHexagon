@@ -6,7 +6,8 @@
 
 #include <SFML/Graphics/Text.hpp>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 [[nodiscard]] float getFontHeight(sf::Text& font)
 {
@@ -17,12 +18,12 @@ namespace hg::Utils {
 [[nodiscard]] float getFontHeight(sf::Text& font, const unsigned int charSize)
 {
     const sf::Vec2f previousScale = font.scale;
-    const float baseSize = static_cast<float>(font.getCharacterSize());
-    const float scale = static_cast<float>(charSize) / baseSize;
+    const float     baseSize      = static_cast<float>(font.getCharacterSize());
+    const float     scale         = static_cast<float>(charSize) / baseSize;
 
-    font.scale = {scale, scale};
+    font.scale         = {scale, scale};
     const float result = getFontHeight(font);
-    font.scale = previousScale;
+    font.scale         = previousScale;
 
     return result;
 }

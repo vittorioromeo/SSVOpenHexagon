@@ -4,15 +4,17 @@
 
 #pragma once
 
-#include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 
-namespace ssvs::Input {
+namespace ssvs::Input
+{
 class Trigger;
 class Combo;
 } // namespace ssvs::Input
 
-namespace sf {
+namespace sf
+{
 template <typename T>
 class Vec2;
 
@@ -22,18 +24,21 @@ class Color;
 } // namespace sf
 
 
-namespace Json {
+namespace Json
+{
 class Value;
 }
 
-namespace ssvuj {
+namespace ssvuj
+{
 using Obj = Json::Value;
 
 template <typename>
 struct Converter;
 } // namespace ssvuj
 
-namespace ssvuj {
+namespace ssvuj
+{
 
 
 template <>

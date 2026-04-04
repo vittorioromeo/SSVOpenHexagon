@@ -5,28 +5,31 @@
 #pragma once
 
 #include <SFML/Base/Optional.hpp>
-#include <SFML/Base/UniquePtr.hpp>
 #include <SFML/Base/SizeT.hpp>
-
+#include <SFML/Base/UniquePtr.hpp>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
-namespace sf {
+namespace sf
+{
 class Font;
 class Shader;
 class SoundBuffer;
 class Texture;
 } // namespace sf
 
-namespace ssvu::FileSystem {
+namespace ssvu::FileSystem
+{
 class Path;
 }
 
-namespace hg {
+namespace hg
+{
 
-namespace Steam {
+namespace Steam
+{
 class steam_manager;
 }
 
@@ -46,8 +49,7 @@ private:
     sf::base::UniquePtr<HGAssetsImpl> _impl;
 
 public:
-    HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless,
-        bool mLevelsOnly = false);
+    HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly = false);
 
     ~HGAssets();
 
@@ -55,72 +57,59 @@ public:
 
     [[nodiscard]] LoadInfo& getLoadResults();
 
-    [[nodiscard]] bool hasTexture(const std::string& mId);
+    [[nodiscard]] bool         hasTexture(const std::string& mId);
     [[nodiscard]] sf::Texture& getTexture(const std::string& mId);
 
     [[nodiscard]] sf::Font& getFont(const std::string& mId);
 
-    [[nodiscard]] bool isValidLevelId(
-        const std::string& mLevelId) const noexcept;
+    [[nodiscard]] bool isValidLevelId(const std::string& mLevelId) const noexcept;
 
-    [[nodiscard]] const LevelData& getLevelData(
-        const std::string& mAssetId) const;
+    [[nodiscard]] const LevelData& getLevelData(const std::string& mAssetId) const;
 
     [[nodiscard]] bool packHasLevels(const std::string& mPackId);
 
-    [[nodiscard]] const std::vector<std::string>& getLevelIdsByPack(
-        const std::string& mPackId);
+    [[nodiscard]] const std::vector<std::string>& getLevelIdsByPack(const std::string& mPackId);
 
-    [[nodiscard]] const std::unordered_map<std::string, PackData>&
-    getPackDatas();
+    [[nodiscard]] const std::unordered_map<std::string, PackData>& getPackDatas();
 
     [[nodiscard]] bool isValidPackId(const std::string& mPackId) const noexcept;
 
     [[nodiscard]] const PackData& getPackData(const std::string& mPackId);
 
-    [[nodiscard]] const std::vector<PackInfo>&
-    getSelectablePackInfos() const noexcept;
+    [[nodiscard]] const std::vector<PackInfo>& getSelectablePackInfos() const noexcept;
 
-    [[nodiscard]] const PackData* findPackData(
-        const std::string& mPackDisambiguator, const std::string& mPackName,
-        const std::string& mPackAuthor) const noexcept;
+    [[nodiscard]] const PackData* findPackData(const std::string& mPackDisambiguator,
+                                               const std::string& mPackName,
+                                               const std::string& mPackAuthor) const noexcept;
 
-    [[nodiscard]] const MusicData& getMusicData(
-        const std::string& mPackId, const std::string& mId);
-    [[nodiscard]] const StyleData& getStyleData(
-        const std::string& mPackId, const std::string& mId);
-    [[nodiscard]] sf::Shader* getShader(
-        const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] const MusicData& getMusicData(const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] const StyleData& getStyleData(const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] sf::Shader*      getShader(const std::string& mPackId, const std::string& mId);
 
-    [[nodiscard]] sf::base::Optional<sf::base::SizeT> getShaderId(
-        const std::string& mPackId, const std::string& mId);
-    [[nodiscard]] sf::base::Optional<sf::base::SizeT> getShaderIdByPath(
-        const std::string& mShaderPath);
-    [[nodiscard]] sf::Shader* getShaderByShaderId(const sf::base::SizeT mShaderId);
-    [[nodiscard]] bool isValidShaderId(const sf::base::SizeT mShaderId) const;
+    [[nodiscard]] sf::base::Optional<sf::base::SizeT> getShaderId(const std::string& mPackId, const std::string& mId);
+    [[nodiscard]] sf::base::Optional<sf::base::SizeT> getShaderIdByPath(const std::string& mShaderPath);
+    [[nodiscard]] sf::Shader*                         getShaderByShaderId(const sf::base::SizeT mShaderId);
+    [[nodiscard]] bool                                isValidShaderId(const sf::base::SizeT mShaderId) const;
 
-    void reloadAllShaders();
-    [[nodiscard]] std::string reloadPack(
-        const std::string& mPackId, const std::string& mPath);
-    [[nodiscard]] std::string reloadLevel(const std::string& mPackId,
-        const std::string& mPath, const std::string& mId);
+    void                      reloadAllShaders();
+    [[nodiscard]] std::string reloadPack(const std::string& mPackId, const std::string& mPath);
+    [[nodiscard]] std::string reloadLevel(const std::string& mPackId, const std::string& mPath, const std::string& mId);
 
     [[nodiscard]] float getLocalScore(const std::string& mId);
-    void setLocalScore(const std::string& mId, float mScore);
+    void                setLocalScore(const std::string& mId, float mScore);
 
     void saveCurrentLocalProfile();
     void saveAllProfiles();
 
-    [[nodiscard]] bool anyLocalProfileActive() const;
-    [[nodiscard]] ProfileData& getCurrentLocalProfile();
-    [[nodiscard]] const ProfileData& getCurrentLocalProfile() const;
-    [[nodiscard]] ProfileData* getLocalProfileByName(const std::string& mName);
-    [[nodiscard]] const ProfileData* getLocalProfileByName(
-        const std::string& mName) const;
-    [[nodiscard]] sf::base::SizeT getLocalProfilesSize();
+    [[nodiscard]] bool                     anyLocalProfileActive() const;
+    [[nodiscard]] ProfileData&             getCurrentLocalProfile();
+    [[nodiscard]] const ProfileData&       getCurrentLocalProfile() const;
+    [[nodiscard]] ProfileData*             getLocalProfileByName(const std::string& mName);
+    [[nodiscard]] const ProfileData*       getLocalProfileByName(const std::string& mName) const;
+    [[nodiscard]] sf::base::SizeT          getLocalProfilesSize();
     [[nodiscard]] std::vector<std::string> getLocalProfileNames();
 
-    [[nodiscard]] bool pIsValidLocalProfile() const;
+    [[nodiscard]] bool               pIsValidLocalProfile() const;
     [[nodiscard]] const std::string& pGetName() const;
 
     void pSaveCurrent();
@@ -131,22 +120,17 @@ public:
 
     [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const std::string& assetId);
 
-    [[nodiscard]] const std::string* getMusicPath(
-        const std::string& assetId) const;
+    [[nodiscard]] const std::string* getMusicPath(const std::string& assetId) const;
 
-    [[nodiscard]] const std::unordered_map<std::string, LevelData>&
-    getLevelDatas() const noexcept;
+    [[nodiscard]] const std::unordered_map<std::string, LevelData>& getLevelDatas() const noexcept;
 
-    [[nodiscard]] const std::unordered_set<std::string>&
-    getPackIdsWithMissingDependencies() const noexcept;
+    [[nodiscard]] const std::unordered_set<std::string>& getPackIdsWithMissingDependencies() const noexcept;
 
     void addLocalProfile(ProfileData&& profileData);
 
-    [[nodiscard]] std::unordered_map<std::string, std::string>&
-    getLuaFileCache();
+    [[nodiscard]] std::unordered_map<std::string, std::string>& getLuaFileCache();
 
-    [[nodiscard]] const std::unordered_map<std::string, std::string>&
-    getLuaFileCache() const;
+    [[nodiscard]] const std::unordered_map<std::string, std::string>& getLuaFileCache() const;
 };
 
 } // namespace hg

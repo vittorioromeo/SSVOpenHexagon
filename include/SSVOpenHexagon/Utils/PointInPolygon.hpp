@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <SFML/System/Vec2.hpp>
 #include <SFML/Base/SizeT.hpp>
+#include <SFML/System/Vec2.hpp>
 
-namespace hg::Utils {
+namespace hg::Utils
+{
 
 template <sf::base::SizeT N, typename TC, typename T>
-[[gnu::always_inline, gnu::pure, nodiscard]] inline bool pointInPolygon(
-    const TC& mVertices, const T x, const T y) noexcept
+[[gnu::always_inline, gnu::pure, nodiscard]] inline bool pointInPolygon(const TC& mVertices, const T x, const T y) noexcept
 {
     bool result{false};
 
@@ -20,8 +20,7 @@ template <sf::base::SizeT N, typename TC, typename T>
         const auto& vI{mVertices[i]};
         const auto& vJ{mVertices[j]};
 
-        if (((vI.y > y) != (vJ.y > y)) &&
-            (x < (vJ.x - vI.x) * (y - vI.y) / (vJ.y - vI.y) + vI.x))
+        if (((vI.y > y) != (vJ.y > y)) && (x < (vJ.x - vI.x) * (y - vI.y) / (vJ.y - vI.y) + vI.x))
         {
             result = !result;
         }
@@ -31,9 +30,12 @@ template <sf::base::SizeT N, typename TC, typename T>
 }
 
 
-[[gnu::always_inline, gnu::pure, nodiscard]] inline bool
-pointInFourVertexPolygon(const sf::Vec2f a, const sf::Vec2f b,
-    const sf::Vec2f c, const sf::Vec2f d, const sf::Vec2f point) noexcept
+[[gnu::always_inline, gnu::pure, nodiscard]] inline bool pointInFourVertexPolygon(
+    const sf::Vec2f a,
+    const sf::Vec2f b,
+    const sf::Vec2f c,
+    const sf::Vec2f d,
+    const sf::Vec2f point) noexcept
 {
     const sf::Vec2f ab = b - a;
     const sf::Vec2f bc = c - b;
@@ -50,10 +52,8 @@ pointInFourVertexPolygon(const sf::Vec2f a, const sf::Vec2f b,
     const float cd_x_cp = cd.cross(cp_cd);
     const float da_x_dp = da.cross(dp_da);
 
-    return (ab_x_ap <= 0.f && bc_x_bp <= 0.f && cd_x_cp <= 0.f &&
-               da_x_dp <= 0.f) ||
-           (ab_x_ap >= 0.f && bc_x_bp >= 0.f && cd_x_cp >= 0.f &&
-               da_x_dp >= 0.f);
+    return (ab_x_ap <= 0.f && bc_x_bp <= 0.f && cd_x_cp <= 0.f && da_x_dp <= 0.f) ||
+           (ab_x_ap >= 0.f && bc_x_bp >= 0.f && cd_x_cp >= 0.f && da_x_dp >= 0.f);
 }
 
 } // namespace hg::Utils
