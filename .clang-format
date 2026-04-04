@@ -1,60 +1,212 @@
+---
+# Project
+Standard: c++20
+ColumnLimit: 120
+
+# Indentation
 AccessModifierOffset: -4
-AlignAfterOpenBracket: false
-AlignEscapedNewlinesLeft: true
-AlignOperands: true
+BitFieldColonSpacing: Both
+ContinuationIndentWidth: 4
+IndentCaseLabels: true
+IndentCaseBlocks: false
+IndentExternBlock: Indent
+IndentPPDirectives: BeforeHash
+IndentRequires: true
+IndentWidth: 4
+IndentWrappedFunctionNames: true
+TabWidth: 4
+UseTab: Never
+
+# Alignment
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveBitFields: Consecutive
+AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveMacros: Consecutive
+AlignEscapedNewlines: Left
+AlignOperands: Align
 AlignTrailingComments: true
-AllowAllConstructorInitializersOnNextLine: true
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortCaseLabelsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: false
-AllowShortIfStatementsOnASingleLine: true
-AllowShortLoopsOnASingleLine: true
+
+# Allow
+AllowAllArgumentsOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: All
+
+# Break
+AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
-AlwaysBreakTemplateDeclarations: true
-BasedOnStyle: LLVM
-BreakConstructorInitializers: "BeforeColon"
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeConceptDeclarations: true
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: AfterColon
+BreakBeforeBinaryOperators: None
+BreakInheritanceList: AfterColon
+BreakStringLiterals: true
 
+# Initializers & arguments
+BinPackArguments: false
+BinPackParameters: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ConstructorInitializerIndentWidth: 4
+Cpp11BracedListStyle: true
+
+# Braces
 BreakBeforeBraces: Custom
-
 BraceWrapping:
     AfterCaseLabel: true
     AfterClass: true
-    AfterControlStatement: "Always"
+    AfterControlStatement: Always
     AfterEnum: true
     AfterFunction: true
-    AfterNamespace: false
+    AfterNamespace: true
     AfterStruct: true
     AfterUnion: true
-    AfterExternBlock: false
-    BeforeCatch: true
+    AfterExternBlock: true
+    BeforeCatch: false
     BeforeElse: true
     BeforeLambdaBody: true
-    BeforeWhile: true
+    BeforeWhile: false
     IndentBraces: false
-    SplitEmptyFunction: false
-    SplitEmptyRecord: false
-    SplitEmptyNamespace: false
+    SplitEmptyFunction: true
+    SplitEmptyRecord: true
+    SplitEmptyNamespace: true
 
-ColumnLimit: 80
-ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
-Cpp11BracedListStyle: true
-IndentCaseLabels: true
-IndentWidth: 4
-IndentWrappedFunctionNames: false
-MaxEmptyLinesToKeep: 3
+# Namespaces
+CompactNamespaces: false
+FixNamespaceComments: true
 NamespaceIndentation: None
-PenaltyBreakBeforeFirstCallParameter: 1000000000
-PointerAlignment: "Left"
-PointerBindsToType: true
-SortIncludes: false
+
+# Derive
+DeriveLineEnding: false
+DerivePointerAlignment: false
+
+# Empty lines
+EmptyLineBeforeAccessModifier: Always
+KeepEmptyLinesAtTheStartOfBlocks: true
+MaxEmptyLinesToKeep: 2
+
+# Sorting
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Priority: 1
+    Regex: '^\"ExampleUtils\/(.*)\"$'
+  - Priority: 2
+    Regex: '^\"SFML\/Config.hpp\"$'
+  - Priority: 3
+    Regex: '^\"SFML\/(.+)\/Export.hpp\"$'
+  - Priority: 4
+    Regex: '^\"SFML\/ImGui'
+  - Priority: 5
+    Regex: '^\"SFML\/Graphics'
+  - Priority: 6
+    Regex: '^\"SFML\/Audio'
+  - Priority: 7
+    Regex: '^\"SFML\/Network'
+  - Priority: 8
+    Regex: '^\"SFML\/Window'
+  - Priority: 9
+    Regex: '^\"SFML\/GLUtils'
+  - Priority: 10
+    Regex: '^\"SFML\/System'
+  - Priority: 11
+    Regex: '^\"SFML\/Base'
+  - Priority: 12
+    Regex: '^\"ExampleUtils'
+  - Priority: -100
+    Regex: '^\"(.+)\"$'
+  - Priority: 22
+    Regex: '^<(imgui|glad|gl|X11|jni|android|stb_|GLES2|vorbis|miniaudio|doctest|Doctest|blockingconcurrentqueue|concurrentqueue|SDL3|boost)'
+  - Priority: 23
+    Regex: '^<(CommonTraits|AudioUtil|SystemUtil|GraphicsUtil|WindowUtil|StringifyVectorUtil|StringifyOptionalUtil|StringifyPathUtil|StringifyStdStringUtil|StringifyStringViewUtil|StringifyArrayUtil|StringifyIpAddressUtil|StringifySfBaseStringUtil|LoadIntoMemoryUtil)'
+  - Priority: 24
+    Regex: '^<([^c](.+)|coroutine|charconv|chrono|complex|concepts|condition_variable)>$'
+  - Priority: 25
+    Regex: '^<c(.+)>$'
+SortIncludes: true
+SortUsingDeclarations: true
+
+# Penalties
+PenaltyBreakAssignment: 1000
+PenaltyBreakBeforeFirstCallParameter: 1000
+PenaltyBreakComment: 200
+PenaltyBreakFirstLessLess: 100
+PenaltyBreakString: 1
+PenaltyBreakTemplateDeclaration: 0
+PenaltyExcessCharacter: 5
+PenaltyIndentedWhitespace: 1
+PenaltyReturnTypeOnItsOwnLine: 500
+
+# Pointer alignment
+PointerAlignment: Left
+
+# Comments
+ReflowComments: true
+
+# Spaces
 SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+SpaceAroundPointerQualifiers: Default
 SpaceBeforeAssignmentOperators: true
-SpaceBeforeParens: "ControlStatementsExceptControlMacros"
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
 SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInConditionalStatement: false
+SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-TabWidth: 4
-UseTab: "Never"
+
+# Line endings
+UseCRLF: false
+
+# Qualifiers (const, volatile, static, etc)
+QualifierAlignment: Custom
+QualifierOrder: ['friend', 'static', 'inline', 'constexpr', 'const', 'volatile', 'type']
+
+# Lambdas
+LambdaBodyIndentation: OuterScope
+
+# Digit separators
+IntegerLiteralSeparator:
+  Binary: 0
+  Decimal: 3
+  Hex: 2
+  DecimalMinDigits: 5
+
+# Other
+InsertNewlineAtEOF: true
+LineEnding: LF
+# RemoveEmptyLinesInUnwrappedLines: true
+RemoveSemicolon: true
+# SeparateDefinitionBlocks: Always
+
+---
+Language: ObjC
+IndentWidth: 4
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterObjCDeclaration: true
+
+ObjCBinPackProtocolList: Never
+ObjCBlockIndentWidth: 4
+ObjCBreakBeforeNestedBlockParam: true
+ObjCSpaceAfterProperty: true
+ObjCSpaceBeforeProtocolList: false
+
+...

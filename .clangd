@@ -1,3 +1,5 @@
 Diagnostics:
   UnusedIncludes: Strict
   MissingIncludes: Strict
+CompileFlags:
+  Add: [-D__CLANGD__]

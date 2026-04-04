@@ -58,6 +58,7 @@
 #include <SFML/Base/Optional.hpp>
 #include <SFML/Base/SizeT.hpp>
 #include <SFML/Base/UniquePtr.hpp>
+#include <SFML/Base/StdChrono.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/View.hpp>
@@ -92,7 +93,6 @@
 #include <SFML/Base/ScopeGuard.hpp>
 
 #include <algorithm>
-#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <functional>

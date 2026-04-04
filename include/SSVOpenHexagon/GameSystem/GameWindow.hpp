@@ -32,7 +32,6 @@
 #include <SFML/Window/VideoMode.hpp>
 
 #include <cassert>
-#include <chrono>
 #include <cstddef>
 #include <ratio>
 #include <string>
