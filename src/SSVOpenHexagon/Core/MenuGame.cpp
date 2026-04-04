@@ -57,27 +57,31 @@
 #include "SSVUtils/Core/Utils/Math.hpp"
 #include "SSVUtils/Core/Utils/Rnd.hpp"
 
-#include <SFML/Base/Algorithm/Sort.hpp>
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/ScopeGuard.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/StdChrono.hpp>
-#include <SFML/Base/UniquePtr.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Rect2.hpp>
-#include <SFML/System/Vec2Base.hpp>
-#include <SFML/Window/Event.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
-#include <SFML/Window/VideoMode.hpp>
-#include <SFML/Window/VideoModeUtils.hpp>
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/Text.hpp"
+#include "SFML/Graphics/View.hpp"
+
+#include "SFML/Window/Event.hpp"
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+#include "SFML/Window/VideoMode.hpp"
+#include "SFML/Window/VideoModeUtils.hpp"
+
+#include "SFML/System/Angle.hpp"
+#include "SFML/System/Rect2.hpp"
+#include "SFML/System/Vec2Base.hpp"
+
+#include "SFML/Base/Algorithm/Sort.hpp"
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/ScopeGuard.hpp"
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/UniquePtr.hpp"
+
 #include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 #include <SSVUtils/Core/String/ToStr.hpp>
 #include <algorithm>

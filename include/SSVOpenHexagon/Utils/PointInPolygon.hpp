@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/SizeT.hpp"
 
 namespace hg::Utils
 {

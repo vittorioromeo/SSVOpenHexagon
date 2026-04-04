@@ -10,10 +10,12 @@
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vec2.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+
+#include "SFML/System/Vec2.hpp"
 
 namespace ssvuj
 {

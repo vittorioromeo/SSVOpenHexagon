@@ -7,8 +7,9 @@
 #include "SSVOpenHexagon/Core/CustomTimelineManager.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/StdChrono.hpp>
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/StdChrono.hpp"
+
 #include <vector>
 
 namespace hg

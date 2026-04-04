@@ -13,11 +13,13 @@
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 
-#include <SFML/Base/Math/Fabs.hpp>
-#include <SFML/Base/Math/Fmod.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/System/Angle.hpp"
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Math/Fabs.hpp"
+#include "SFML/Base/Math/Fmod.hpp"
 
 namespace hg
 {

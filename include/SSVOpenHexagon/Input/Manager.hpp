@@ -7,7 +7,8 @@
 #include "SSVOpenHexagon/Input/Bind.hpp"
 #include "SSVOpenHexagon/Input/InputState.hpp"
 
-#include <SFML/Base/UniquePtr.hpp>
+#include "SFML/Base/UniquePtr.hpp"
+
 #include <algorithm>
 #include <utility>
 #include <vector>

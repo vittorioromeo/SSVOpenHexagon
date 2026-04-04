@@ -6,7 +6,8 @@
 
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include <SFML/Base/StringView.hpp>
+#include "SFML/Base/StringView.hpp"
+
 #include <algorithm>
 #include <vector>
 

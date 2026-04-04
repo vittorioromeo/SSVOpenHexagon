@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <SFML/System/Vec2.hpp>
+#include "SFML/System/Vec2.hpp"
 
 namespace hg::Utils
 {

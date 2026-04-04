@@ -20,14 +20,18 @@
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 
-#include <SFML/Audio/AudioContext.hpp>
-#include <SFML/Audio/PlaybackDevice.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/ScopeGuard.hpp>
-#include <SFML/Graphics/GraphicsContext.hpp>
-#include <SFML/Graphics/Image.hpp>
-#include <SFML/Network/IpAddress.hpp>
-#include <SFML/Network/IpAddressUtils.hpp>
+#include "SFML/Graphics/GraphicsContext.hpp"
+#include "SFML/Graphics/Image.hpp"
+
+#include "SFML/Audio/AudioContext.hpp"
+#include "SFML/Audio/PlaybackDevice.hpp"
+
+#include "SFML/Network/IpAddress.hpp"
+#include "SFML/Network/IpAddressUtils.hpp"
+
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/ScopeGuard.hpp"
+
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <filesystem>
 #include <sodium.h>

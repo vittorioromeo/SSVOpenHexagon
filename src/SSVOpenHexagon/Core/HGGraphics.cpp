@@ -13,10 +13,12 @@
 #include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/RenderTexture.hpp>
-#include <SFML/Graphics/Shader.hpp>
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/RenderTexture.hpp"
+#include "SFML/Graphics/Shader.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+
 #include <SSVUtils/Core/String/ToStr.hpp>
 #include <SSVUtils/Core/Utils/Rnd.hpp>
 

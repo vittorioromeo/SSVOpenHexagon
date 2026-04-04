@@ -4,7 +4,8 @@
 
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 
-#include <SFML/Base/StringView.hpp>
+#include "SFML/Base/StringView.hpp"
+
 #include <string>
 
 namespace hg::Utils

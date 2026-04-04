@@ -5,8 +5,9 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
-#include <SFML/Base/Algorithm/Find.hpp>
-#include <SFML/Base/SizeT.hpp>
+#include "SFML/Base/Algorithm/Find.hpp"
+#include "SFML/Base/SizeT.hpp"
+
 #include <istream>
 #include <stdexcept>
 #include <string>

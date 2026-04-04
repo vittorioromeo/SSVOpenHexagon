@@ -12,8 +12,8 @@
 
 #include "TestUtils.hpp"
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/Optional.hpp>
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/Optional.hpp"
 
 #include <stdexcept>
 

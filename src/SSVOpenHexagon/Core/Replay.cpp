@@ -8,8 +8,10 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Network/Packet.hpp>
+#include "SFML/Network/Packet.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <utility>

@@ -7,8 +7,9 @@
 #include "SSVOpenHexagon/Input/BitsetUtils.hpp"
 #include "SSVOpenHexagon/Input/Enums.hpp"
 
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+
 #include <initializer_list>
 
 namespace ssvs::Input

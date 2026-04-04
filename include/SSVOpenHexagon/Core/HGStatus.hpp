@@ -4,10 +4,12 @@
 
 #pragma once
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Graphics/Color.hpp>
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
+
 #include <string>
 
 namespace hg

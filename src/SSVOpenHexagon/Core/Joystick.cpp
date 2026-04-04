@@ -5,8 +5,10 @@
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Window/Joystick.hpp>
+#include "SFML/Window/Joystick.hpp"
+
+#include "SFML/Base/Array.hpp"
+
 #include <utility>
 
 /*

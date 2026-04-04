@@ -7,9 +7,10 @@
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVUtils/Core/FileSystem/Path.hpp"
 
-#include <SFML/Base/String.hpp>
-#include <SFML/Base/StringView.hpp>
-#include <SFML/Base/StringViewStreamOp.hpp>
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
+#include "SFML/Base/StringViewStreamOp.hpp"
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>

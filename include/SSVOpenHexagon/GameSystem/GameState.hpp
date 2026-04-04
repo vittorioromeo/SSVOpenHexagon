@@ -11,7 +11,8 @@
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 #include "SSVUtils/Delegate/Inc/Delegate.hpp"
 
-#include <SFML/Window/Event.hpp>
+#include "SFML/Window/Event.hpp"
+
 #include <SSVUtils/Delegate/Delegate.hpp>
 #include <functional>
 #include <utility>

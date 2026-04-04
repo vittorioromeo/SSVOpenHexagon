@@ -5,7 +5,7 @@
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
-#include <SFML/Base/StdChrono.hpp>
+#include "SFML/Base/StdChrono.hpp"
 
 
 namespace hg

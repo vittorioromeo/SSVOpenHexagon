@@ -6,9 +6,10 @@
 
 #include "SSVOpenHexagon/Core/RandomNumberGeneratorTypes.hpp"
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/SizeT.hpp>
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
+
 #include <bitset>
 #include <filesystem>
 #include <string>

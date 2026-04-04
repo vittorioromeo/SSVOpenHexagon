@@ -6,7 +6,7 @@
 
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 
-#include <SFML/Base/Variant.hpp>
+#include "SFML/Base/Variant.hpp"
 
 namespace Json
 {

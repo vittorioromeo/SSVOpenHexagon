@@ -9,9 +9,11 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include <SFML/Base/Algorithm/Find.hpp>
-#include <SFML/Base/ScopeGuard.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Algorithm/Find.hpp"
+#include "SFML/Base/ScopeGuard.hpp"
+
 #include <fstream>
 #include <stdexcept>
 #include <string>

@@ -8,13 +8,14 @@
 #include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtrArray.hpp"
 
-#include <SFML/Base/PlacementNew.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/PrimitiveType.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Graphics/Vertex.hpp>
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/PrimitiveType.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/RenderTarget.hpp"
+#include "SFML/Graphics/Vertex.hpp"
+
+#include "SFML/Base/PlacementNew.hpp"
+#include "SFML/Base/SizeT.hpp"
 
 #include <cstring>
 

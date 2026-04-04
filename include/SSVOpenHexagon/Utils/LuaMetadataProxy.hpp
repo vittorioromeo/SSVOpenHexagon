@@ -10,7 +10,8 @@
 
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
-#include <SFML/Base/Trait/Decay.hpp>
+#include "SFML/Base/Trait/Decay.hpp"
+
 #include <string>
 #include <tuple>
 #include <vector>

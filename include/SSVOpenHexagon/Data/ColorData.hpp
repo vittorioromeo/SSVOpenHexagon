@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <SFML/Graphics/Color.hpp>
+#include "SFML/Graphics/Color.hpp"
 
 namespace Json
 {

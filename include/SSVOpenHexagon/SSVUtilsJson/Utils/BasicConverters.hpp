@@ -8,9 +8,10 @@
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/Trait/IsEnum.hpp>
-#include <SFML/Base/Trait/UnderlyingType.hpp>
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Trait/IsEnum.hpp"
+#include "SFML/Base/Trait/UnderlyingType.hpp"
+
 #include <string>
 #include <unordered_map>
 #include <vector>

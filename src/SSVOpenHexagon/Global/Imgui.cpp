@@ -5,15 +5,17 @@
 #include "SSVOpenHexagon/Global/Imgui.hpp"
 
 #ifndef SSVOH_ANDROID
+    #include "SFML/ImGui/ImGuiContext.hpp"
+
     #include <imgui.h>
 
-    #include <SFML/ImGui/ImGuiContext.hpp>
     #include <misc/cpp/imgui_stdlib.h>
 #endif
 
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Window/Event.hpp>
-#include <SFML/Window/Window.hpp>
+#include "SFML/Graphics/RenderWindow.hpp"
+
+#include "SFML/Window/Event.hpp"
+#include "SFML/Window/Window.hpp"
 
 namespace hg::Imgui
 {

@@ -6,8 +6,8 @@
 
 #include "TestUtils.hpp"
 
-#include <SFML/Base/String.hpp>
-#include <SFML/Base/StringStreamOp.hpp>
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
 
 int main()
 {

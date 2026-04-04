@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/StdChrono.hpp>
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/StdChrono.hpp"
+
 #include <string>
 
 namespace hg::Utils

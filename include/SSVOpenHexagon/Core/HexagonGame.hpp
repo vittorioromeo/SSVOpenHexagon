@@ -22,20 +22,24 @@
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/RenderTexture.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/ImGui/ImGuiContext.hpp>
-#include <SFML/System/Clock.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/ImGui/ImGuiContext.hpp"
+
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/RectangleShape.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/RenderTexture.hpp"
+#include "SFML/Graphics/Sprite.hpp"
+#include "SFML/Graphics/Text.hpp"
+#include "SFML/Graphics/Texture.hpp"
+#include "SFML/Graphics/View.hpp"
+
+#include "SFML/System/Clock.hpp"
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+
 #include <functional>
 #include <sstream>
 #include <string>

@@ -8,8 +8,9 @@
 #include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+
 #include <map>
 #include <string>
 

@@ -8,11 +8,14 @@
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/SizeT.hpp"
+
 #include <vector>
 
 namespace hg

@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <SFML/Graphics/View.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/Graphics/View.hpp"
+
+#include "SFML/System/Vec2.hpp"
 
 namespace hg::Utils
 {

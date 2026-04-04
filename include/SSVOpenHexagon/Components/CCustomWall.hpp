@@ -7,10 +7,13 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/IntTypes.hpp"
+
 #include <bitset>
 
 namespace hg

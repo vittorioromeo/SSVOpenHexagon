@@ -508,7 +508,7 @@ namespace sqlite_orm {
 // #include "cxx_core_features.h"
 
 #if SQLITE_ORM_HAS_INCLUDE(<optional>)
-#include <SFML/Base/Optional.hpp>
+#include "SFML/Base/Optional.hpp"
 #endif
 
 #if __cpp_lib_optional >= 201606L

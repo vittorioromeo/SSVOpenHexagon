@@ -21,15 +21,18 @@
 #include "SSVUtils/Core/FileSystem/Scan.hpp"
 #include "SSVUtils/Core/Utils/Containers.hpp"
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/System/Vec2.hpp>
-#include <SFML/Window/Joystick.hpp>
-#include <SFML/Window/JoystickIdentification.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
-#include <SFML/Window/VideoMode.hpp>
-#include <SFML/Window/VideoModeUtils.hpp>
+#include "SFML/Window/Joystick.hpp"
+#include "SFML/Window/JoystickIdentification.hpp"
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+#include "SFML/Window/VideoMode.hpp"
+#include "SFML/Window/VideoModeUtils.hpp"
+
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/SizeT.hpp"
+
 #include <SSVUtils/Core/String/ToStr.hpp>
 #include <algorithm>
 #include <initializer_list>

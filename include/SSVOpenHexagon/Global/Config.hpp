@@ -8,9 +8,11 @@
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+
+#include "SFML/Base/Array.hpp"
+
 #include <string>
 #include <vector>
 

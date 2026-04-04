@@ -37,12 +37,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include <SFML/Base/Trait/Decay.hpp>
-#include <SFML/Base/Trait/IsFloatingPoint.hpp>
-#include <SFML/Base/Trait/IsIntegral.hpp>
-#include <SFML/Base/Trait/IsSame.hpp>
-#include <SFML/Base/Trait/IsVoid.hpp>
-#include <SFML/Base/UniquePtr.hpp>
+#include "SFML/Base/Trait/Decay.hpp"
+#include "SFML/Base/Trait/IsFloatingPoint.hpp"
+#include "SFML/Base/Trait/IsIntegral.hpp"
+#include "SFML/Base/Trait/IsSame.hpp"
+#include "SFML/Base/Trait/IsVoid.hpp"
+#include "SFML/Base/UniquePtr.hpp"
+
 #include <limits>
 #include <lua.hpp>
 #include <map>

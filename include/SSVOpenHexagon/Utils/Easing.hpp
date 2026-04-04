@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <SFML/Base/Clamp.hpp>
+#include "SFML/Base/Clamp.hpp"
 
 namespace hg::Utils
 {

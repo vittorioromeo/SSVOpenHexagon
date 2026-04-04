@@ -7,7 +7,8 @@
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
-#include <SFML/Base/Optional.hpp>
+#include "SFML/Base/Optional.hpp"
+
 #include <string>
 #include <unordered_map>
 #include <vector>

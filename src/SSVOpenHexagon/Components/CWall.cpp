@@ -6,10 +6,11 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
 
-#include <SFML/Base/Math/Cos.hpp>
-#include <SFML/Base/Math/Fabs.hpp>
-#include <SFML/Base/Math/Sin.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Math/Cos.hpp"
+#include "SFML/Base/Math/Fabs.hpp"
+#include "SFML/Base/Math/Sin.hpp"
 
 
 namespace hg

@@ -4,7 +4,7 @@
 
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 
-#include <SFML/Graphics/Text.hpp>
+#include "SFML/Graphics/Text.hpp"
 
 namespace hg::Utils
 {

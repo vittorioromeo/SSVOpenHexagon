@@ -7,8 +7,9 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 
-#include <SFML/Base/Algorithm/Sort.hpp>
-#include <SFML/Base/String.hpp>
+#include "SFML/Base/Algorithm/Sort.hpp"
+#include "SFML/Base/String.hpp"
+
 #include <string>
 #include <vector>
 

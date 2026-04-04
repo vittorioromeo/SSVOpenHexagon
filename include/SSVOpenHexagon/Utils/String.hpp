@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <SFML/Base/Algorithm/Find.hpp>
+#include "SFML/Base/Algorithm/Find.hpp"
+
 #include <string>
 
 namespace hg::Utils

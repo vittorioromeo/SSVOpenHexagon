@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <SFML/Base/Macros.hpp>
+#include "SFML/Base/Macros.hpp"
 
 #define SSVOH_MOVE SFML_BASE_MOVE
 

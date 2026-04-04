@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Math/Cos.hpp>
-#include <SFML/Base/Math/Floor.hpp>
-#include <SFML/Base/Math/Sin.hpp>
-#include <SFML/Graphics/Color.hpp>
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Math/Cos.hpp"
+#include "SFML/Base/Math/Floor.hpp"
+#include "SFML/Base/Math/Sin.hpp"
 
 
 namespace hg::Utils

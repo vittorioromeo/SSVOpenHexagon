@@ -24,16 +24,19 @@
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <SFML/Audio/Music.hpp>
-#include <SFML/Audio/SoundBuffer.hpp>
-#include <SFML/Base/Algorithm/Sort.hpp>
-#include <SFML/Base/StdChrono.hpp>
-#include <SFML/Base/String.hpp>
-#include <SFML/Base/UniquePtr.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Image.hpp>
-#include <SFML/Graphics/Shader.hpp>
-#include <SFML/Graphics/Texture.hpp>
+#include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/Image.hpp"
+#include "SFML/Graphics/Shader.hpp"
+#include "SFML/Graphics/Texture.hpp"
+
+#include "SFML/Audio/Music.hpp"
+#include "SFML/Audio/SoundBuffer.hpp"
+
+#include "SFML/Base/Algorithm/Sort.hpp"
+#include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/UniquePtr.hpp"
+
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <exception>
 #include <iostream>

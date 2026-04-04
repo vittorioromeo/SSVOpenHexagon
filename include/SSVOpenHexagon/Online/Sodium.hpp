@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/SizeT.hpp>
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
+
 #include <sodium.h>
 #include <string>
 

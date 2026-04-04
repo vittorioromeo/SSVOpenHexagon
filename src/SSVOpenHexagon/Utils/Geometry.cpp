@@ -4,8 +4,9 @@
 
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
 
-#include <SFML/Base/Math/Sqrt.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Math/Sqrt.hpp"
 
 namespace hg::Utils
 {

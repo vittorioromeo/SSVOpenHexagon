@@ -8,12 +8,14 @@
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/Variant.hpp>
-#include <SFML/Network/IpAddress.hpp>
-#include <SFML/Network/Packet.hpp>
-#include <SFML/Network/TcpSocket.hpp>
+#include "SFML/Network/IpAddress.hpp"
+#include "SFML/Network/Packet.hpp"
+#include "SFML/Network/TcpSocket.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/Variant.hpp"
+
 #include <deque>
 #include <sstream>
 #include <unordered_set>

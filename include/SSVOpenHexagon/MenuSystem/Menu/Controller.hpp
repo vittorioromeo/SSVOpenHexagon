@@ -1,6 +1,7 @@
 #pragma once
 
-#include <SFML/Base/FixedFunction.hpp>
+#include "SFML/Base/FixedFunction.hpp"
+
 #include <vector>
 
 namespace ssvms

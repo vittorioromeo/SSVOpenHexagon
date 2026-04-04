@@ -8,10 +8,11 @@
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/ScopeGuard.hpp>
-#include <SFML/Base/StdChrono.hpp>
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/ScopeGuard.hpp"
+#include "SFML/Base/StdChrono.hpp"
+
 #include <sqlite3.h>
 #include <sqlite_orm.h>
 #include <string>
@@ -71,7 +72,7 @@ inline auto makeStorage()
                                            make_column("userSteamId", &Score::userSteamId),       //
                                            make_column("value", &Score::value)                    //
                                            )                                                      //
-                                //
+                                                                                                  //
     );
 
     storage.sync_schema(true /* preserve */);

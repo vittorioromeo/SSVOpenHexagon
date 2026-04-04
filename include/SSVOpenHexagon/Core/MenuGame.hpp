@@ -15,18 +15,21 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/UniquePtr.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/RectangleShape.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/Sprite.hpp"
+#include "SFML/Graphics/Text.hpp"
+#include "SFML/Graphics/Texture.hpp"
+#include "SFML/Graphics/View.hpp"
+
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/UniquePtr.hpp"
+
 #include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 #include <functional>
 #include <string>

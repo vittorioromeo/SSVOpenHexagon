@@ -33,7 +33,8 @@
 // C++ Standard Library
 // ----------------------------------------------------------------------------
 
-#include <SFML/Base/StdChrono.hpp>
+#include "SFML/Base/StdChrono.hpp"
+
 #include <array>
 #include <atomic>
 #include <bitset>
@@ -124,35 +125,40 @@
 // SFML
 // ----------------------------------------------------------------------------
 
-#include <SFML/Audio/Music.hpp>
-#include <SFML/Audio/PlaybackDevice.hpp>
-#include <SFML/Audio/SoundBuffer.hpp>
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Glsl.hpp>
-#include <SFML/Graphics/Image.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/RenderStates.hpp>
-#include <SFML/Graphics/RenderTexture.hpp>
-#include <SFML/Graphics/Shader.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/Network/IpAddress.hpp>
-#include <SFML/Network/Packet.hpp>
-#include <SFML/Network/TcpListener.hpp>
-#include <SFML/Network/TcpSocket.hpp>
-#include <SFML/Network/UdpSocket.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Vec2.hpp>
-#include <SFML/Window/Joystick.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
-#include <SFML/Window/VideoMode.hpp>
-#include <SFML/Window/VideoModeUtils.hpp>
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/Glsl.hpp"
+#include "SFML/Graphics/Image.hpp"
+#include "SFML/Graphics/RectangleShape.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/RenderTexture.hpp"
+#include "SFML/Graphics/Shader.hpp"
+#include "SFML/Graphics/Sprite.hpp"
+#include "SFML/Graphics/Text.hpp"
+#include "SFML/Graphics/Texture.hpp"
+
+#include "SFML/Audio/Music.hpp"
+#include "SFML/Audio/PlaybackDevice.hpp"
+#include "SFML/Audio/SoundBuffer.hpp"
+
+#include "SFML/Network/IpAddress.hpp"
+#include "SFML/Network/Packet.hpp"
+#include "SFML/Network/TcpListener.hpp"
+#include "SFML/Network/TcpSocket.hpp"
+#include "SFML/Network/UdpSocket.hpp"
+
+#include "SFML/Window/Joystick.hpp"
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+#include "SFML/Window/VideoMode.hpp"
+#include "SFML/Window/VideoModeUtils.hpp"
+
+#include "SFML/System/Angle.hpp"
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
 
 //
 //

@@ -26,15 +26,18 @@
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/String.hpp>
-#include <SFML/Base/StringView.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <SFML/ImGui/ImGuiContext.hpp>
-#include <SFML/System/Angle.hpp>
-#include <SFML/System/Rect2.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/ImGui/ImGuiContext.hpp"
+
+#include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/Text.hpp"
+
+#include "SFML/System/Angle.hpp"
+#include "SFML/System/Rect2.hpp"
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 
 #include <cmath>
 

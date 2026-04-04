@@ -6,8 +6,9 @@
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
 
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/Trait/IsSame.hpp>
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Trait/IsSame.hpp"
+
 #include <string>
 #include <tuple>
 

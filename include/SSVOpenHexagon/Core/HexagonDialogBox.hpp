@@ -4,10 +4,12 @@
 
 #pragma once
 
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Text.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/Window/Keyboard.hpp>
+#include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/Text.hpp"
+#include "SFML/Graphics/View.hpp"
+
+#include "SFML/Window/Keyboard.hpp"
+
 #include <string>
 #include <vector>
 

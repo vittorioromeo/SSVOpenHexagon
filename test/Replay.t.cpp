@@ -6,7 +6,7 @@
 
 #include "TestUtils.hpp"
 
-#include <SFML/Network/Packet.hpp>
+#include "SFML/Network/Packet.hpp"
 
 #include <random>
 

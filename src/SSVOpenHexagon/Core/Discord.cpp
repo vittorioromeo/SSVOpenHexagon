@@ -4,8 +4,9 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/StdChrono.hpp>
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/StdChrono.hpp"
+
 #include <math.h> // Needed by `discord.h`...
 
 

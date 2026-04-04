@@ -7,8 +7,9 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/System/Vec2.hpp"
 
 namespace hg
 {

@@ -3,8 +3,9 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/Category.hpp"
 #include "SSVOpenHexagon/MenuSystem/Menu/Controller.hpp"
 
-#include <SFML/Base/FixedFunction.hpp>
-#include <SFML/Base/UniquePtr.hpp>
+#include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/UniquePtr.hpp"
+
 #include <stack>
 #include <string>
 #include <vector>

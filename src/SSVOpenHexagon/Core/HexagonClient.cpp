@@ -12,13 +12,15 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/ScopeGuard.hpp>
-#include <SFML/Base/StdChrono.hpp>
-#include <SFML/Base/String.hpp>
-#include <SFML/Base/StringStreamOp.hpp>
-#include <SFML/Network/IpAddressUtils.hpp>
-#include <SFML/Network/Packet.hpp>
+#include "SFML/Network/IpAddressUtils.hpp"
+#include "SFML/Network/Packet.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/ScopeGuard.hpp"
+#include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
+
 #include <thread>
 
 

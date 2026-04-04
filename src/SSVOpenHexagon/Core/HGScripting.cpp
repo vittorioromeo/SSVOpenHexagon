@@ -23,11 +23,13 @@
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include <SFML/Base/ScopeGuard.hpp>
-#include <SFML/Base/StdChrono.hpp>
-#include <SFML/Base/Trait/Decay.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+
+#include "SFML/Base/ScopeGuard.hpp"
+#include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/Trait/Decay.hpp"
+
 #include <iostream>
 #include <string>
 

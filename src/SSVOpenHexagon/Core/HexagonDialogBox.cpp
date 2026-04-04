@@ -6,7 +6,8 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 
-#include <SFML/Graphics/Font.hpp>
+#include "SFML/Graphics/Font.hpp"
+
 #include <string>
 #include <tuple>
 

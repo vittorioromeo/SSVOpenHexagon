@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+
 #include <bitset>
 #include <type_traits>
 

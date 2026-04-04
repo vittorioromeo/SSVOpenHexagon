@@ -5,8 +5,8 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/StdChrono.hpp>
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/StdChrono.hpp"
 
 namespace hg::Utils
 {

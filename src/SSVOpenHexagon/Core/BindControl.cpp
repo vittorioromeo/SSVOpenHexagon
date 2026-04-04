@@ -9,8 +9,9 @@
 #include "SSVOpenHexagon/Input/Manager.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Mouse.hpp>
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+
 #include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 #include <string>

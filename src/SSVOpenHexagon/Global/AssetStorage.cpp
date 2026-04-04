@@ -6,12 +6,16 @@
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
-#include <SFML/Audio/SoundBuffer.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Image.hpp>
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/System/Path.hpp>
+#include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/Image.hpp"
+#include "SFML/Graphics/Texture.hpp"
+
+#include "SFML/Audio/SoundBuffer.hpp"
+
+#include "SFML/System/Path.hpp"
+
+#include "SFML/Base/Optional.hpp"
+
 #include <string>
 #include <unordered_map>
 

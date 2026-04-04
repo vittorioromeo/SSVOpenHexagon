@@ -7,16 +7,19 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <SFML/Audio/AudioSettings.hpp>
-#include <SFML/Audio/Music.hpp>
-#include <SFML/Audio/MusicReader.hpp>
-#include <SFML/Audio/PlaybackDevice.hpp>
-#include <SFML/Audio/Sound.hpp>
-#include <SFML/Audio/SoundBuffer.hpp>
-#include <SFML/Base/InPlaceVector.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/System/Path.hpp>
-#include <SFML/System/Time.hpp>
+#include "SFML/Audio/AudioSettings.hpp"
+#include "SFML/Audio/Music.hpp"
+#include "SFML/Audio/MusicReader.hpp"
+#include "SFML/Audio/PlaybackDevice.hpp"
+#include "SFML/Audio/Sound.hpp"
+#include "SFML/Audio/SoundBuffer.hpp"
+
+#include "SFML/System/Path.hpp"
+#include "SFML/System/Time.hpp"
+
+#include "SFML/Base/InPlaceVector.hpp"
+#include "SFML/Base/Optional.hpp"
+
 #include <string>
 
 namespace hg

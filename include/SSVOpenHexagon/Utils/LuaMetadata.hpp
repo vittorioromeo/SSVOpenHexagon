@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/String.hpp>
-#include <SFML/Base/StringView.hpp>
-#include <SFML/Base/Vector.hpp>
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
+#include "SFML/Base/Vector.hpp"
 
 namespace hg::Utils
 {

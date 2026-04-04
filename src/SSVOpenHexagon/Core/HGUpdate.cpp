@@ -26,16 +26,20 @@
 #include <SSVUtils/Core/Utils/Rnd.hpp>
 
 #ifndef SSVOH_ANDROID
+    #include "SFML/ImGui/ImGuiContext.hpp"
+
     #include <imgui.h>
 
-    #include <SFML/ImGui/ImGuiContext.hpp>
     #include <misc/cpp/imgui_stdlib.h>
 #endif
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+
 #include <algorithm>
 #include <stdexcept>
 

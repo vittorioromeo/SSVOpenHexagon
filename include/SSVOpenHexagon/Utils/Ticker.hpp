@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <SFML/Base/SizeT.hpp>
+#include "SFML/Base/SizeT.hpp"
 
 namespace hg
 {

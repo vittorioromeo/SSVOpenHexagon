@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <SFML/Base/TypePackElement.hpp>
+#include "SFML/Base/TypePackElement.hpp"
 
 namespace hg::Utils
 {

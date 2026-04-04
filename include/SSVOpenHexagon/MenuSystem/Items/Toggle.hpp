@@ -2,7 +2,8 @@
 
 #include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
 
-#include <SFML/Base/FixedFunction.hpp>
+#include "SFML/Base/FixedFunction.hpp"
+
 #include <string>
 #include <utility>
 

@@ -8,11 +8,12 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 
-#include <SFML/Base/Array.hpp>
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Math/Cos.hpp>
-#include <SFML/Base/Math/Sin.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Math/Cos.hpp"
+#include "SFML/Base/Math/Sin.hpp"
 
 namespace hg
 {

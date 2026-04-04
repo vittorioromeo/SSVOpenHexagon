@@ -21,20 +21,22 @@
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 
+#include "SFML/Network/IpAddress.hpp"
+#include "SFML/Network/IpAddressUtils.hpp"
+#include "SFML/Network/Packet.hpp"
+#include "SFML/Network/TcpListener.hpp"
+#include "SFML/Network/TcpSocket.hpp"
+#include "SFML/Network/UdpSocket.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
+#include "SFML/Base/Trait/IsSame.hpp"
+
 #include <boost/pfr.hpp>
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/StdChrono.hpp>
-#include <SFML/Base/String.hpp>
-#include <SFML/Base/StringStreamOp.hpp>
-#include <SFML/Base/Trait/IsSame.hpp>
-#include <SFML/Network/IpAddress.hpp>
-#include <SFML/Network/IpAddressUtils.hpp>
-#include <SFML/Network/Packet.hpp>
-#include <SFML/Network/TcpListener.hpp>
-#include <SFML/Network/TcpSocket.hpp>
-#include <SFML/Network/UdpSocket.hpp>
 #include <sstream>
 #include <stdexcept>
 #include <string>

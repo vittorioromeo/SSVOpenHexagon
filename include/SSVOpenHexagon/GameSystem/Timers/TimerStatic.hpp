@@ -6,8 +6,8 @@
 
 #include "SSVOpenHexagon/Core/Frametime.hpp"
 
-#include <SFML/System/Clock.hpp>
-#include <SFML/System/Time.hpp>
+#include "SFML/System/Clock.hpp"
+#include "SFML/System/Time.hpp"
 
 namespace ssvs
 {

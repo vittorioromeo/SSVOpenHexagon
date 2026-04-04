@@ -4,8 +4,8 @@
 #include <iostream>
 #include <random>
 
-#include <SFML/Base/Trait/IsSame.hpp>
-#include <SFML/Base/Trait/CommonType.hpp>
+#include "SFML/Base/Trait/IsSame.hpp"
+#include "SFML/Base/Trait/CommonType.hpp"
 
 
 #define TEST_MAIN(...) int __attribute__((const)) main(__VA_ARGS__)

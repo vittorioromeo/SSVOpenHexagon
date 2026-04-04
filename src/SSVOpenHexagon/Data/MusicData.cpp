@@ -7,7 +7,8 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <SFML/Base/SizeT.hpp>
+#include "SFML/Base/SizeT.hpp"
+
 #include <SSVUtils/Core/Utils/Rnd.hpp>
 #include <string>
 

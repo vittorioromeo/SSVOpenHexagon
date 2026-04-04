@@ -6,10 +6,11 @@
 
 #include "SSVOpenHexagon/Utils/FixedFunction.hpp"
 
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/StdChrono.hpp>
-#include <SFML/Base/Variant.hpp>
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/Variant.hpp"
+
 #include <vector>
 
 namespace hg::Utils

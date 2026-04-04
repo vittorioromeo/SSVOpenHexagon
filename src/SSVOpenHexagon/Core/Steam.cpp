@@ -16,9 +16,10 @@
     #include "steam/steamencryptedappticket.h"
 #endif
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/SizeT.hpp>
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
+
 #include <functional>
 #include <string>
 #include <string_view>

@@ -8,7 +8,7 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include <SFML/Base/Algorithm/Find.hpp>
+#include "SFML/Base/Algorithm/Find.hpp"
 
 
 namespace

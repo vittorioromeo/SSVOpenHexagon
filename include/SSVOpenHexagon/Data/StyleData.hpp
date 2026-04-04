@@ -7,8 +7,10 @@
 #include "SSVOpenHexagon/Data/CapColor.hpp"
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vec2.hpp>
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/System/Vec2.hpp"
+
 #include <string>
 #include <vector>
 

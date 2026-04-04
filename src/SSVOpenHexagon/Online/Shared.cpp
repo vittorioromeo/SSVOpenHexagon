@@ -9,14 +9,16 @@
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
+#include "SFML/Network/Packet.hpp"
+
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/Trait/IsSame.hpp"
+#include "SFML/Base/TypePackIndex.hpp"
+#include "SFML/Base/Variant.hpp"
+
 #include <boost/pfr.hpp>
 
-#include <SFML/Base/IntTypes.hpp>
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/Trait/IsSame.hpp>
-#include <SFML/Base/TypePackIndex.hpp>
-#include <SFML/Base/Variant.hpp>
-#include <SFML/Network/Packet.hpp>
 #include <iostream>
 #include <sodium.h>
 #include <sstream>

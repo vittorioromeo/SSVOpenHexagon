@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/Trait/IsConvertible.hpp>
-#include <SFML/Base/Trait/IsSame.hpp>
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Trait/IsConvertible.hpp"
+#include "SFML/Base/Trait/IsSame.hpp"
+
 #include <sstream>
 #include <string>
 #include <string_view>
