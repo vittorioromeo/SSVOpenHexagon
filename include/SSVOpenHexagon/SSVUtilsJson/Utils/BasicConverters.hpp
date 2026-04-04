@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
 #include <SFML/Base/Trait/IsEnum.hpp>

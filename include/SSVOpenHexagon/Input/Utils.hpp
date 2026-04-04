@@ -5,7 +5,6 @@
 #pragma once
 
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
-#include "SSVOpenHexagon/Input/Bind.hpp"
 #include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 
@@ -14,7 +13,6 @@
 #include <cassert>
 #include <map>
 #include <string>
-#include <utility>
 
 namespace ssvs {
 
@@ -204,35 +202,6 @@ inline auto& add2StateInput(GameState& gameState, const ITrigger& on,
     return gameState.addInput(
         on, [&value](float) { value = true; },
         [&value](float) { value = false; }, type, triggerID, mode);
-}
-
-inline auto add3StateInput(GameState& gameState, const ITrigger& off,
-    const ITrigger& on, int& value, const int triggerID,
-    const IType type = IType::Always, const IMode mode = IMode::Overlap)
-{
-    auto& b1 = gameState.addInput(
-        off, [&value](float) { value = -1; },
-        [&value](float)
-        {
-            if (value == -1)
-            {
-                value = 0;
-            }
-        },
-        type, triggerID, mode);
-
-    auto& b2 = gameState.addInput(
-        on, [&value](float) { value = 1; },
-        [&value](float)
-        {
-            if (value == 1)
-            {
-                value = 0;
-            }
-        },
-        type, triggerID, mode);
-
-    return std::make_pair<Input::Bind&, Input::Bind&>(b1, b2);
 }
 
 } // namespace ssvs

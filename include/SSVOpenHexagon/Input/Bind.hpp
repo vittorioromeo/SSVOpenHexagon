@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 
 #include <algorithm>
@@ -51,16 +52,16 @@ private:
 
         for (const auto& combo : trigger.getCombos())
         {
-            maxPriority =
-                std::max(combo.getKeys().count() + combo.getBtns().count(),
-                    maxPriority);
+            maxPriority = std::max(
+                combo.getKeys().count() + combo.getBtns().count(), maxPriority);
         }
 
         priorityCombo = maxPriority;
     }
 
 public:
-    Bind(Manager& manager, Trigger trigger, const Type type, const Mode mode,
+    Bind(
+        Manager& manager, Trigger trigger, const Type type, const Mode mode,
         const int triggerID, const InputFunc& on = [](float) {},
         const InputFunc& off = [](float) {})
         : manager{manager},

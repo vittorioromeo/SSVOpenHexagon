@@ -3,15 +3,20 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/BindControl.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 
-#include "SSVOpenHexagon/Input/Input.hpp"
-#include "SSVOpenHexagon/Input/Utils.hpp"
+#include "SSVOpenHexagon/Input/Combo.hpp"
+#include "SSVOpenHexagon/Input/Manager.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
 
 #include <string>
+#include <vector>
 
 namespace hg {
 

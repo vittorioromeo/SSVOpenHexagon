@@ -6,8 +6,15 @@
 
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/GameSystem/Timers/TimerStatic.hpp"
-#include "SSVOpenHexagon/Input/Input.hpp"
+#include "SSVOpenHexagon/Input/Bind.hpp"
+#include "SSVOpenHexagon/Input/BitsetUtils.hpp"
+#include "SSVOpenHexagon/Input/Combo.hpp"
+#include "SSVOpenHexagon/Input/InputState.hpp"
+#include "SSVUtils/Delegate/Inc/Delegate.hpp"
 
+#include <SFML/System/Vec2Base.hpp>
+#include <SFML/Window/ContextSettings.hpp>
+#include <SFML/Window/WindowSettings.hpp>
 #include <SSVUtils/Delegate/Delegate.hpp>
 
 #include <SFML/Base/Array.hpp>
@@ -25,6 +32,9 @@
 #include <SFML/Window/VideoMode.hpp>
 
 #include <cassert>
+#include <chrono>
+#include <cstddef>
+#include <ratio>
 #include <string>
 #include <utility>
 

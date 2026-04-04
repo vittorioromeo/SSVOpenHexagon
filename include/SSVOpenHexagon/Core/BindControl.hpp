@@ -4,14 +4,20 @@
 
 #pragma once
 
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 
-#include "SSVOpenHexagon/Input/Input.hpp"
+#include "SSVOpenHexagon/Input/Combo.hpp"
+#include "SSVOpenHexagon/Input/Manager.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
 
 #include <SFML/Base/FixedFunction.hpp>
 
+#include <functional>
 #include <string>
+#include <vector>
 
 namespace hg {
 

@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
+#include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
@@ -23,17 +24,27 @@
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 
+#include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 
-#include "SSVOpenHexagon/Online/Database.hpp"
+#include "SSVOpenHexagon/MenuSystem/Items/GoBack.hpp"
+#include "SSVOpenHexagon/MenuSystem/Items/Goto.hpp"
+#include "SSVOpenHexagon/MenuSystem/Items/Single.hpp"
+#include "SSVOpenHexagon/MenuSystem/Items/Slider.hpp"
+#include "SSVOpenHexagon/MenuSystem/Items/Toggle.hpp"
+#include "SSVOpenHexagon/MenuSystem/Menu/Category.hpp"
+#include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
+#include "SSVOpenHexagon/MenuSystem/Menu/Menu.hpp"
 
+#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include "SSVOpenHexagon/Utils/Casts.hpp"
+#include "SSVOpenHexagon/Input/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
@@ -44,12 +55,26 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
+#include <SFML/Base/Optional.hpp>
+#include <SFML/Base/SizeT.hpp>
+#include <SFML/Base/UniquePtr.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/System/Angle.hpp>
+#include <SFML/System/Vec2Base.hpp>
+#include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include "SSVOpenHexagon/Input/Input.hpp"
-#include "SSVOpenHexagon/Input/Utils.hpp"
-#include "SSVOpenHexagon/GameSystem/GameSystem.hpp"
+#include "SSVOpenHexagon/Input/Bind.hpp"
+#include "SSVOpenHexagon/Input/Enums.hpp"
+#include "SSVOpenHexagon/Input/InputState.hpp"
+#include "SSVOpenHexagon/Input/Manager.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
+#include "SSVUtils/Core/Common/Casts.hpp"
+#include "SSVUtils/Core/String/Utils.hpp"
+#include "SSVUtils/Core/Utils/Math.hpp"
+#include "SSVUtils/Core/Utils/Rnd.hpp"
 
 #include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 
@@ -66,9 +91,21 @@
 #include <SFML/Base/IntTypes.hpp>
 #include <SFML/Base/ScopeGuard.hpp>
 
+#include <algorithm>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 #include <utility>
 #include <tuple>
 #include <string_view>
+#include <vector>
 
 
 namespace hg {
@@ -202,10 +239,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       backgroundCamera{sf::View{sf::Vec2f{0.f, 0.f},
           {Config::getSizeX() * Config::getZoomFactor(),
               Config::getSizeY() * Config::getZoomFactor()}}},
-      overlayCamera{sf::View{{Config::getWidth() / 2.f,
-                         Config::getHeight() * Config::getZoomFactor() / 2.f},
-          {Config::getWidth() * Config::getZoomFactor(),
-              Config::getHeight() * Config::getZoomFactor()}}},
+      overlayCamera{
+          sf::View{{Config::getWidth() / 2.f,
+                       Config::getHeight() * Config::getZoomFactor() / 2.f},
+              {Config::getWidth() * Config::getZoomFactor(),
+                  Config::getHeight() * Config::getZoomFactor()}}},
       mustRefresh{false},
       wasFocusHeld{false},
       focusHeld{false},
@@ -1049,8 +1087,8 @@ try
 catch (...)
 {
     playSoundOverride("error.ogg");
-    hg::lo("hg::MenuGame::initLua") << "Fatal error in menu for Lua file '"
-                                      << mFileName << '\'' << logEndl;
+    hg::lo("hg::MenuGame::initLua")
+        << "Fatal error in menu for Lua file '" << mFileName << '\'' << logEndl;
 }
 
 void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
@@ -2051,7 +2089,7 @@ void MenuGame::downAction()
         const int nextIdx{lvlDrawer->currentIndex + 1};
         if (getSelectablePackInfosSize() == 1)
         {
-            if (nextIdx > ssvu::toInt(lvlDrawer->levelDataIds->size() - 1))
+            if (nextIdx > static_cast<int>(lvlDrawer->levelDataIds->size() - 1))
             {
                 // Skip to the first level label.
                 setIndex(0);
@@ -2064,7 +2102,8 @@ void MenuGame::downAction()
                 calcLevelChangeScroll(2);
             }
         }
-        else if (nextIdx > ssvu::toInt(lvlDrawer->levelDataIds->size() - 1))
+        else if (nextIdx >
+                 static_cast<int>(lvlDrawer->levelDataIds->size() - 1))
         {
             // Go to the next pack.
             changePackAction(1);
@@ -2868,8 +2907,9 @@ void MenuGame::update(float mFT)
     }
 
     currentCreditsId += mFT;
-    txCreditsBar2 = &assets.getTexture(
-        creditsIds[ssvu::toInt(currentCreditsId / 100) % creditsIds.size()]);
+    txCreditsBar2 =
+        &assets.getTexture(creditsIds[static_cast<int>(currentCreditsId / 100) %
+                                      creditsIds.size()]);
     creditsBar2.textureRect = txCreditsBar2->getRect();
 
     if (exitTimer > 20)
@@ -3007,11 +3047,11 @@ void MenuGame::setIndex(const int mIdx)
     auto& colors{styleData.getColors()};
     menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255)
                                                : styleData.getTextColor();
-    if (ssvu::toInt(menuQuadColor.a) == 0 && !Config::getBlackAndWhite())
+    if (static_cast<int>(menuQuadColor.a) == 0 && !Config::getBlackAndWhite())
     {
         for (auto& c : colors)
         {
-            if (ssvu::toInt(c.a) != 0)
+            if (static_cast<int>(c.a) != 0)
             {
                 menuQuadColor = c;
                 break;
@@ -3034,11 +3074,12 @@ void MenuGame::setIndex(const int mIdx)
     else
     {
         // If the alpha is 0 or the color is the same find another one.
-        if (ssvu::toInt(menuTextColor.a) == 0 || menuTextColor == menuQuadColor)
+        if (static_cast<int>(menuTextColor.a) == 0 ||
+            menuTextColor == menuQuadColor)
         {
             for (auto& c : colors)
             {
-                if (ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
+                if (static_cast<int>(c.a) != 0 && c != menuQuadColor &&
                     !Config::getBlackAndWhite())
                 {
                     menuTextColor = c;
@@ -3050,13 +3091,13 @@ void MenuGame::setIndex(const int mIdx)
         // Same as above.
         menuSelectionColor =
             Config::getBlackAndWhite() ? sf::Color::White : colors[1];
-        if (ssvu::toInt(menuSelectionColor.a) == 0 ||
+        if (static_cast<int>(menuSelectionColor.a) == 0 ||
             menuSelectionColor == menuQuadColor ||
             menuSelectionColor == menuTextColor)
         {
             for (auto& c : colors)
             {
-                if (ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
+                if (static_cast<int>(c.a) != 0 && c != menuQuadColor &&
                     c != menuTextColor && !Config::getBlackAndWhite())
                 {
                     menuSelectionColor = c;
@@ -3159,9 +3200,9 @@ void MenuGame::refreshCamera()
     w = getWindowWidth() * fmax;
     h = getWindowHeight() * fmax;
 
-    backgroundCamera = {sf::Vec2f{0.f, 0.f},
-        {Config::getSizeX() * Config::getZoomFactor(),
-            Config::getSizeY() * Config::getZoomFactor()}};
+    backgroundCamera = {
+        sf::Vec2f{0.f, 0.f}, {Config::getSizeX() * Config::getZoomFactor(),
+                                 Config::getSizeY() * Config::getZoomFactor()}};
 
     overlayCamera = sf::View{{w / 2.f, h / 2.f}, {w, h}};
 
@@ -3227,9 +3268,7 @@ void MenuGame::refreshCamera()
     // Update the height infos of the fonts.
     const auto setMenuFontVisualSize =
         [](MenuFont& menuFont, const unsigned int characterSize)
-    {
-        setVisualCharacterSize(menuFont.font, characterSize);
-    };
+    { setVisualCharacterSize(menuFont.font, characterSize); };
 
     if (fourByThree)
     {
@@ -3281,7 +3320,6 @@ void MenuGame::refreshCamera()
     {
         formatLevelDescription();
     }
-
 }
 void MenuGame::renderText(
     const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
@@ -3365,8 +3403,7 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
     sf::Text& mText, const sf::Vec2f mPos, const float xOffset)
 {
     mText.setString(mStr);
-    mText.position = {
-        xOffset + mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
+    mText.position = {xOffset + mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
     drawOverlay(mText);
 }
 
@@ -3957,8 +3994,7 @@ void MenuGame::drawProfileSelection(
     txtInstructionsSmall.font.setString(
         "Press backspace to delete the selected profile\n"
         "You cannot delete the profile currently in use");
-    const float instructionsWidth{
-        txtInstructionsSmall.font.getGlobalWidth()},
+    const float instructionsWidth{txtInstructionsSmall.font.getGlobalWidth()},
         resultIndent{indent + (textWidth - instructionsWidth) / 2.f};
     if (resultIndent < 0.f)
     {
@@ -4111,8 +4147,7 @@ void MenuGame::drawProfileSelectionBoot()
         if (data != nullptr)
         {
             yPos += (selected ? selectedFontHeight : fontHeight) * 1.75f;
-            renderTextCentered(
-                formatSurvivalTime(data), txtProfile.font,
+            renderTextCentered(formatSurvivalTime(data), txtProfile.font,
                 (selected ? profSelectedCharSize : profCharSize) - 15u,
                 {w / 2.f, yPos});
         }
@@ -4127,8 +4162,8 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
     Utils::uppercasify(enteredStr);
     txtEnteringText.font.setString(enteredStr);
     constexpr float enteringTextMinWidth{200.f};
-    const float textWidth{std::max(
-        enteringTextMinWidth, txtEnteringText.font.getGlobalWidth())};
+    const float textWidth{
+        std::max(enteringTextMinWidth, txtEnteringText.font.getGlobalWidth())};
 
     // Calculate coordinates
     const float doubleFrame{profFrameSize * 2.f},
@@ -4363,7 +4398,7 @@ void MenuGame::scrollName(std::string& text, float& scroller)
     text += "  ";
 
     auto it{std::next(text.begin(),
-        ssvu::getMod(ssvu::toInt(scroller / 100.f), text.length()))};
+        ssvu::getMod(static_cast<int>(scroller / 100.f), text.length()))};
     std::string charsToMove;
     std::move(text.begin(), it, std::back_inserter(charsToMove));
     text.erase(text.begin(), it);
@@ -5241,8 +5276,7 @@ void MenuGame::drawLevelSelectionRightSide(
 
         txtSelectionMedium.font.setString(tempString);
         temp =
-            std::max(
-                txtIndent - txtSelectionMedium.font.getGlobalWidth() / 2.f,
+            std::max(txtIndent - txtSelectionMedium.font.getGlobalWidth() / 2.f,
                 quadsIndent + arrowWidth + 2.f * slctFrameSize + outerFrame) +
             panelOffset;
 
@@ -5861,8 +5895,7 @@ void MenuGame::draw()
             return;
 
         case States::EpilepsyWarning:
-            drawOverlay(
-                epilepsyWarning,
+            drawOverlay(epilepsyWarning,
                 sf::RenderStates{.texture = &txEpilepsyWarning});
             renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
                 {txtProf.height, h - txtProf.height * 2.7f + 5.f});
@@ -6028,10 +6061,11 @@ void MenuGame::drawOnlineStatus()
     const float scaling = onlineStatusScaling / Config::getZoomFactor();
     const float padding = 3.f * onlineStatusScaling;
 
-    txtOnlineStatus.scale =
-        {(10.f * scaling) / static_cast<float>(txtOnlineStatus.getCharacterSize()),
-            (10.f * scaling) /
-                static_cast<float>(txtOnlineStatus.getCharacterSize())};
+    txtOnlineStatus.scale = {
+        (10.f * scaling) /
+            static_cast<float>(txtOnlineStatus.getCharacterSize()),
+        (10.f * scaling) /
+            static_cast<float>(txtOnlineStatus.getCharacterSize())};
     txtOnlineStatus.setFillColor(sf::Color::White);
 
     const HexagonClient::State state = hexagonClient.getState();
@@ -6113,9 +6147,8 @@ void MenuGame::drawOnlineStatus()
     sOnline.origin = sOnline.getLocalBottomLeft();
     sOnline.position = {0.f + padding, getWindowHeight() - padding};
 
-    rsOnlineStatus.setSize(
-        {txtOnlineStatus.getGlobalWidth() + padding * 4.f,
-            txtHeight + padding * 2.f});
+    rsOnlineStatus.setSize({txtOnlineStatus.getGlobalWidth() + padding * 4.f,
+        txtHeight + padding * 2.f});
     rsOnlineStatus.setFillColor(sf::Color::Black);
     rsOnlineStatus.origin = rsOnlineStatus.getLocalBottomLeft();
     rsOnlineStatus.position = {

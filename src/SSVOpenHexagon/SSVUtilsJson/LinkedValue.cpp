@@ -6,11 +6,11 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
 
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
-#include "SSVOpenHexagon/Input/Input.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp" // IWYU pragma: keep
+#include "SSVOpenHexagon/Input/Trigger.hpp"
 
 #include <string>
 #include <vector>

@@ -14,9 +14,20 @@
 #include "SSVOpenHexagon/SSVUtilsJson/LinkedValue/LinkedValue.hpp"
 
 #include "SSVOpenHexagon/Input/Utils.hpp"
-#include "SSVOpenHexagon/Input/Input.hpp"
+#include "SSVOpenHexagon/Input/Combo.hpp"
+#include "SSVOpenHexagon/Input/InputState.hpp"
+#include "SSVOpenHexagon/Input/Manager.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
+#include "SSVUtils/Core/FileSystem/Enums.hpp"
+#include "SSVUtils/Core/FileSystem/Path.hpp"
+#include "SSVUtils/Core/FileSystem/Scan.hpp"
+#include "SSVUtils/Core/Utils/Containers.hpp"
 
+#include <SFML/Base/Array.hpp>
+#include <SFML/Base/SizeT.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 #include <SSVUtils/Core/String/ToStr.hpp>
 
 #include <SFML/Window/VideoMode.hpp>
@@ -24,10 +35,11 @@
 #include <SFML/Window/Joystick.hpp>
 #include <SFML/Window/JoystickIdentification.hpp>
 
+
 #include <SFML/System/Vec2.hpp>
 
-#include <fstream>
-#include <iostream>
+#include <algorithm>
+#include <initializer_list>
 #include <string>
 #include <vector>
 
@@ -506,9 +518,8 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
         {
             if (ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
             {
-                hg::lo("::loadConfig")
-                    << "applying config override '"
-                    << p.getFileNameNoExtensions() << "'\n";
+                hg::lo("::loadConfig") << "applying config override '"
+                                       << p.getFileNameNoExtensions() << "'\n";
 
                 const auto overrideRoot(ssvuj::getFromFile(p));
                 for (auto itr(std::begin(overrideRoot));
@@ -636,8 +647,8 @@ void recalculateSizes()
         return;
     }
 
-    const float factorX(1024.f / ssvu::toFloat(getWidth()));
-    const float factorY(768.f / ssvu::toFloat(getHeight()));
+    const float factorX(1024.f / static_cast<float>(getWidth()));
+    const float factorY(768.f / static_cast<float>(getHeight()));
     zoomFactor() = std::max(factorX, factorY);
 }
 

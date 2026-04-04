@@ -259,15 +259,12 @@ include_directories("./${INC_DIR}")
 
 file(GLOB_RECURSE MAIN_FILE "${SRC_DIR}/SSVOpenHexagon/*/main.cpp")
 
+file(GLOB_RECURSE SRC_LIST
+    "${INC_DIR}/SSVOpenHexagon/*"
+    "${SRC_DIR}/SSVOpenHexagon/*")
+
 if(NOT SSVOH_ANDROID)
-    file(GLOB_RECURSE SRC_LIST
-        "${INC_DIR}/SSVOpenHexagon/*"
-        "${SRC_DIR}/SSVOpenHexagon/*"
-        "public/discord/*")
-else()
-    file(GLOB_RECURSE SRC_LIST
-        "${INC_DIR}/SSVOpenHexagon/*"
-        "${SRC_DIR}/SSVOpenHexagon/*")
+    file(GLOB DISCORD_SRC_LIST "public/discord/*.cpp")
 endif()
 
 file(GLOB_RECURSE C_SRC_LIST
@@ -299,6 +296,14 @@ else()
 endif()
 
 add_library(SSVOpenHexagonLibC STATIC ${C_SRC_LIST})
+
+if(NOT SSVOH_ANDROID)
+    add_library(SSVOpenHexagonLibDiscord STATIC ${DISCORD_SRC_LIST})
+    target_include_directories(SSVOpenHexagonLibDiscord SYSTEM PUBLIC "public")
+    set_target_properties(SSVOpenHexagonLibDiscord PROPERTIES UNITY_BUILD ON)
+    set_target_properties(SSVOpenHexagonLibDiscord PROPERTIES UNITY_BUILD_BATCH_SIZE 512)
+endif()
+
 add_library(SSVOpenHexagonLib STATIC ${SRC_LIST})
 
 if(SSVOH_BUILD_WIN32_CONSOLE)
@@ -373,6 +378,7 @@ target_link_libraries(
                       libluajit
                       zlib
                       ${PUBLIC_LIBRARIES}
+                      $<$<NOT:$<BOOL:${SSVOH_ANDROID}>>:SSVOpenHexagonLibDiscord>
 )
 
 if(NOT SSVOH_ANDROID)
