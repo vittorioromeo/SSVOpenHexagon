@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include <SSVMenuSystem/Global/Typedefs.hpp>
-#include <SSVMenuSystem/Menu/ItemBase.hpp>
-#include <SSVMenuSystem/Menu/Menu.hpp>
+#include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
+#include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 
-#include <SSVStart/Input/Input.hpp>
+#include "SSVOpenHexagon/Input/Input.hpp"
+
+#include <SFML/Base/FixedFunction.hpp>
 
 #include <string>
 
@@ -44,7 +45,7 @@ private:
     TriggerGetter triggerGetter;
     SizeGetter sizeGetter;
     AddBind addBind;
-    ssvms::Action clearBind;
+    sf::base::FixedFunction<void(), 64> clearBind;
     Callback callback;
     // A few actions have hardcoded keys, user should not be allowed to
     // bind the hardcoded key a second time.

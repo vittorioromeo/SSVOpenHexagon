@@ -6,8 +6,7 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
-#include <SSVStart/Utils/SFML.hpp>
-#include <SSVStart/GameSystem/GameWindow.hpp>
+#include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
 
 #include <SFML/Graphics/Font.hpp>
 
@@ -31,7 +30,7 @@ void drawWithView(ssvs::GameWindow& window, const sf::View& view,
 }
 
 HexagonDialogBox::HexagonDialogBox(sf::Font& mFont, ssvs::GameWindow& mWindow)
-    : window{mWindow}, txtDialog{mFont, {.string = "", .characterSize = 0}}
+    : window{mWindow}, txtDialog{mFont, {.string = "", .characterSize = 22}}
 {}
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
@@ -40,7 +39,7 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
 {
     lineHeight = Utils::getFontHeight(txtDialog, charSize);
     txtDialog.setString(output);
-    dialogWidth = ssvs::getGlobalWidth(txtDialog);
+    dialogWidth = txtDialog.getGlobalWidth();
     frameSize = mFrameSize;
     doubleFrameSize = 2.f * frameSize;
     drawMode = mDrawMode;
@@ -141,7 +140,7 @@ void HexagonDialogBox::drawText(const sf::View& view,
         {
             txtDialog.setString(str);
             txtDialog.position = {
-                xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
+                xOffset - txtDialog.getGlobalWidth() / 2.f,
                 yOffset + heightOffset + 5.f};
             drawWithView(window, view, txtDialog);
         }
@@ -162,7 +161,7 @@ void HexagonDialogBox::drawText(const sf::View& view,
             txtDialog.setString(input);
         }
 
-        txtDialog.position = {xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
+        txtDialog.position = {xOffset - txtDialog.getGlobalWidth() / 2.f,
             yOffset + heightOffset + 5.f};
         drawWithView(window, view, txtDialog);
     }

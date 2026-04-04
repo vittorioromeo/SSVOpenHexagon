@@ -119,7 +119,7 @@ try
 
 #ifndef SSVOH_HEADLESS_TESTS
     auto gc = sf::GraphicsContext::create().value();
-    ssvs::GameWindow gw;
+    ssvs::GameWindow gw(hg::Config::TIME_STEP, hg::Config::TIME_SLICE);
     for (int i = 0; i < 25; ++i)
     {
         doTest(i, false, &gw);

@@ -10,15 +10,15 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 
+#include "SSVOpenHexagon/Utils/CameraView.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
-#include <SSVStart/Camera/Camera.hpp>
-#include <SSVStart/GameSystem/GameWindow.hpp>
-#include <SSVStart/GameSystem/GameState.hpp>
+#include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
+#include "SSVOpenHexagon/GameSystem/GameState.hpp"
 
-#include <SSVMenuSystem/SSVMenuSystem.hpp>
+#include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -27,6 +27,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/View.hpp>
 
 #include <SFML/System/Vec2.hpp>
 
@@ -93,6 +94,17 @@ public:
     std::function<void()> fnHGUpdateRichPresenceCallbacks;
 
 private:
+    [[nodiscard]] sf::View getBackgroundView() const
+    {
+        return Utils::computeCameraView(
+            backgroundCamera, backgroundCameraTransform);
+    }
+
+    [[nodiscard]] sf::View getOverlayView() const
+    {
+        return Utils::computeCameraView(overlayCamera, overlayCameraTransform);
+    }
+
     template <typename TDrawable>
     void drawWithView(const sf::View& view, const TDrawable& drawable)
     {
@@ -110,26 +122,26 @@ private:
     template <typename TDrawable>
     void drawBackground(const TDrawable& drawable)
     {
-        drawWithView(backgroundCamera.apply(), drawable);
+        drawWithView(getBackgroundView(), drawable);
     }
 
     template <typename TDrawable>
     void drawBackground(
         const TDrawable& drawable, sf::RenderStates states)
     {
-        drawWithView(backgroundCamera.apply(), drawable, states);
+        drawWithView(getBackgroundView(), drawable, states);
     }
 
     template <typename TDrawable>
     void drawOverlay(const TDrawable& drawable)
     {
-        drawWithView(overlayCamera.apply(), drawable);
+        drawWithView(getOverlayView(), drawable);
     }
 
     template <typename TDrawable>
     void drawOverlay(const TDrawable& drawable, sf::RenderStates states)
     {
-        drawWithView(overlayCamera.apply(), drawable, states);
+        drawWithView(getOverlayView(), drawable, states);
     }
 
     template <typename TDrawable>
@@ -215,8 +227,10 @@ private:
 
     //---------------------------------------
     // Cameras
-    ssvs::Camera backgroundCamera;
-    ssvs::Camera overlayCamera;
+    sf::View backgroundCamera;
+    sf::View overlayCamera;
+    Utils::ViewTransform backgroundCameraTransform;
+    Utils::ViewTransform overlayCameraTransform;
 
     bool mustRefresh;
 
@@ -383,11 +397,11 @@ private:
         const sf::Color& color);
 
     void drawMainSubmenus(
-        const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
+        const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus,
         const float indent);
 
     void drawSubmenusSmall(
-        const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
+        const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus,
         const float indent);
 
     // Load menu

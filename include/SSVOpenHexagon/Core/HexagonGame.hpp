@@ -15,6 +15,7 @@
 
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 
+#include "SSVOpenHexagon/Utils/CameraView.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
@@ -22,8 +23,7 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
-#include <SSVStart/GameSystem/GameSystem.hpp>
-#include <SSVStart/Camera/Camera.hpp>
+#include "SSVOpenHexagon/GameSystem/GameSystem.hpp"
 
 #include <SFML/ImGui/ImGuiContext.hpp>
 
@@ -35,6 +35,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/View.hpp>
 
 #include <SFML/System/Vec2.hpp>
 #include <SFML/System/Clock.hpp>
@@ -154,8 +155,10 @@ public:
     float timeUntilRichPresenceUpdate = 0.f;
 
 private:
-    sf::base::Optional<ssvs::Camera> backgroundCamera;
-    sf::base::Optional<ssvs::Camera> overlayCamera;
+    sf::base::Optional<sf::View> backgroundCamera;
+    sf::base::Optional<sf::View> overlayCamera;
+    Utils::ViewTransform backgroundCameraTransform;
+    Utils::ViewTransform overlayCameraTransform;
 
     struct PreShakeCenters
     {

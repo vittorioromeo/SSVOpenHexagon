@@ -23,7 +23,7 @@
 
 #include <sodium.h>
 
-#include <SSVStart/GameSystem/GameWindow.hpp>
+#include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
@@ -304,7 +304,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 
     if (!headless)
     {
-        window.emplace();
+        window.emplace(hg::Config::TIME_STEP, hg::Config::TIME_SLICE);
 
         window->setTitle(makeWindowTitle());
         window->setSize(hg::Config::getWidth(), hg::Config::getHeight());
@@ -335,10 +335,6 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
             window->onRecreation += resetIcon;
             resetIcon();
         }
-
-        // 240 ticks per second.
-        window->setTimer<ssvs::TimerStatic>(
-            hg::Config::TIME_STEP, hg::Config::TIME_SLICE);
 
         // Signal handling: exit gracefully on CTRL-C
         {

@@ -5,12 +5,11 @@
 #include "SSVOpenHexagon/Core/BindControl.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
-#include <SSVMenuSystem/Global/Typedefs.hpp>
-#include <SSVMenuSystem/Menu/ItemBase.hpp>
-#include <SSVMenuSystem/Menu/Menu.hpp>
+#include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
+#include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 
-#include <SSVStart/Input/Input.hpp>
-#include <SSVStart/Utils/Input.hpp>
+#include "SSVOpenHexagon/Input/Input.hpp"
+#include "SSVOpenHexagon/Input/Utils.hpp"
 
 #include <string>
 

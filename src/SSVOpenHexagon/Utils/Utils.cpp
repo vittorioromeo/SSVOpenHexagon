@@ -9,8 +9,6 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
 
-#include <SSVStart/Camera/Camera.hpp>
-
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <SFML/System/Vec2.hpp>

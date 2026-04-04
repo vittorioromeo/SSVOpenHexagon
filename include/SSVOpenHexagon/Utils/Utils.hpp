@@ -19,12 +19,6 @@ class TimelineManager;
 
 }
 
-namespace ssvs {
-
-class Camera;
-
-}
-
 namespace hg {
 
 class HGAssets;
@@ -33,9 +27,6 @@ struct PackData;
 } // namespace hg
 
 namespace hg::Utils {
-
-void shakeCamera(
-    ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
 
 void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode);
 void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName);

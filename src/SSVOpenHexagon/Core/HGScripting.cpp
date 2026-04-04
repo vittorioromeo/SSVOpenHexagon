@@ -671,7 +671,7 @@ void HexagonGame::initLua_LevelControl()
             // game logic
             if (backgroundCamera.hasValue())
             {
-                backgroundCamera->setRotation(mValue);
+                backgroundCamera->rotation = sf::degrees(mValue);
             }
         })
         .arg("angle")
@@ -682,8 +682,9 @@ void HexagonGame::initLua_LevelControl()
         {
             // TODO (P2): might break replays if someone uses this to control
             // game logic
-            return backgroundCamera.hasValue() ? backgroundCamera->getRotation()
-                                               : 0.f;
+            return backgroundCamera.hasValue()
+                       ? backgroundCamera->rotation.asDegrees()
+                       : 0.f;
         })
         .doc("Return the background camera rotation, in degrees.");
 

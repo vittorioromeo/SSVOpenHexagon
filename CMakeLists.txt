@@ -393,8 +393,6 @@ macro(ssvoh_find_extlib_for_target target extlib)
 endmacro()
 
 ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVUtils)
-ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVMenuSystem)
-ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
 
 target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 

@@ -13,9 +13,9 @@
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/LinkedValue/LinkedValue.hpp"
 
-#include <SSVStart/Utils/Input.hpp>
-#include <SSVStart/Input/Input.hpp>
-#include <SSVStart/GameSystem/GameWindow.hpp>
+#include "SSVOpenHexagon/Input/Utils.hpp"
+#include "SSVOpenHexagon/Input/Input.hpp"
+#include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
 
 #include <SSVUtils/Core/String/ToStr.hpp>
 

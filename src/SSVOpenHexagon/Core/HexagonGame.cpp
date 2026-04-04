@@ -31,9 +31,8 @@
 
 #include <SFML/Base/Optional.hpp>
 #include <SFML/ImGui/ImGuiContext.hpp>
-#include <SSVStart/Utils/Input.hpp>
-#include <SSVStart/Utils/SFML.hpp>
-#include <SSVStart/Input/Trigger.hpp>
+#include "SSVOpenHexagon/Input/Utils.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
 
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
@@ -52,6 +51,13 @@
 namespace hg {
 
 namespace {
+
+static void setVisualCharacterSize(sf::Text& text, const float characterSize)
+{
+    const float baseSize = static_cast<float>(text.getCharacterSize());
+    const float scale = characterSize / baseSize;
+    text.scale = {scale, scale};
+}
 
 [[nodiscard]] double getReplayScore(const HexagonGameStatus& status)
 {
@@ -215,8 +221,8 @@ void HexagonGame::updateLevelInfo()
     if (textUI.hasValue())
     {
         textUI->levelInfoTextLevel.setFillColor(getColorText());
-        textUI->levelInfoTextLevel.setCharacterSize(
-            20.f / Config::getZoomFactor());
+        setVisualCharacterSize(
+            textUI->levelInfoTextLevel, 20.f / Config::getZoomFactor());
         textUI->levelInfoTextLevel.setString(
             trim(Utils::toUppercase(levelData->name)));
         textUI->levelInfoTextLevel.origin =
@@ -229,7 +235,8 @@ void HexagonGame::updateLevelInfo()
                                      const std::string& string)
         {
             text.setFillColor(getColorText());
-            text.setCharacterSize(characterSize / Config::getZoomFactor());
+            setVisualCharacterSize(
+                text, characterSize / Config::getZoomFactor());
             text.setString(string);
         };
 
@@ -304,7 +311,7 @@ void HexagonGame::nameFormat(std::string& name)
     const sf::Font& font, const char* text, const float characterSize)
 {
     return sf::Text{font, {.string = text,
-                              .characterSize = ssvu::toNum<unsigned int>(
+                              .characterSize = static_cast<unsigned int>(
                                   characterSize / Config::getZoomFactor())}};
 }
 
@@ -313,11 +320,11 @@ HexagonGame::TextUI::TextUI(HGAssets& mAssets)
       fontBold{mAssets.getFont("OpenSquare-Bold.ttf")},
       messageText{initText(font, "", 38.f)},
       pbText{initText(fontBold, "", 65.f)},
-      levelInfoTextLevel{font, {.string = ""}},
-      levelInfoTextPack{font, {.string = ""}},
-      levelInfoTextAuthor{font, {.string = ""}},
-      levelInfoTextBy{font, {.string = ""}},
-      levelInfoTextDM{font, {.string = ""}},
+      levelInfoTextLevel{initText(font, "", 20.f)},
+      levelInfoTextPack{initText(font, "", 14.f)},
+      levelInfoTextAuthor{initText(font, "", 20.f)},
+      levelInfoTextBy{initText(font, "", 12.f)},
+      levelInfoTextDM{initText(font, "", 14.f)},
       fpsText{initText(font, "0", 25.f)},
       timeText{initText(fontBold, "0", 70.f)},
       text{initText(font, "", 25.f)},
@@ -662,9 +669,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     if (!executeLastReplay)
     {
-        // TODO (P2): this can be used to restore normal speed
-        // window.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
-
         rng = initializeRng();
 
         // Save data for immediate replay.
@@ -705,9 +709,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
             Utils::toUppercase(assets.getPackData(mPackId).name);
 
         activeReplay->replayLevelName = Utils::toUppercase(levelData->name);
-
-        // TODO (P2): this can be used to speed up the replay
-        // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
 
         rng = random_number_generator{activeReplay->replayFile._seed};
         firstPlay = activeReplay->replayFile._first_play;
@@ -783,19 +784,19 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         SSVOH_ASSERT(backgroundCamera.hasValue());
 
         // Reset zoom
-        overlayCamera->setView(
-            sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                sf::Vec2f(Config::getWidth(), Config::getHeight())});
+        *overlayCamera = sf::View{{Config::getWidth() / 2.f,
+            Config::getHeight() / 2.f},
+            sf::Vec2f(Config::getWidth(), Config::getHeight())};
 
-        backgroundCamera->setView(sf::View{sf::Vec2f{0.f, 0.f},
+        *backgroundCamera = sf::View{sf::Vec2f{0.f, 0.f},
             {Config::getWidth() * Config::getZoomFactor(),
-                Config::getHeight() * Config::getZoomFactor()}});
+                Config::getHeight() * Config::getZoomFactor()}};
 
-        backgroundCamera->setRotation(0);
+        backgroundCamera->rotation = sf::degrees(0.f);
 
         // Reset skew
-        overlayCamera->setSkew(sf::Vec2f{1.f, 1.f});
-        backgroundCamera->setSkew(sf::Vec2f{1.f, 1.f});
+        overlayCameraTransform.skew = sf::Vec2f{1.f, 1.f};
+        backgroundCameraTransform.skew = sf::Vec2f{1.f, 1.f};
     }
 
     // Lua context and game status cleanup
@@ -904,11 +905,11 @@ void HexagonGame::death_shakeCamera()
     SSVOH_ASSERT(overlayCamera.hasValue());
     SSVOH_ASSERT(backgroundCamera.hasValue());
 
-    overlayCamera->setView(
-        sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            sf::Vec2f(Config::getWidth(), Config::getHeight())});
+    *overlayCamera = sf::View{{Config::getWidth() / 2.f,
+        Config::getHeight() / 2.f},
+        sf::Vec2f(Config::getWidth(), Config::getHeight())};
 
-    backgroundCamera->setCenter(sf::Vec2f{0.f, 0.f});
+    backgroundCamera->center = sf::Vec2f{0.f, 0.f};
 
     status.cameraShake = 45.f * Config::getCameraShakeMultiplier();
 }

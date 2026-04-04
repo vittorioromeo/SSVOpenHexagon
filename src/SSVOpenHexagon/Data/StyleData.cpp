@@ -14,8 +14,6 @@
 #include <SSVUtils/Core/Utils/Math.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
 
-#include <SSVStart/Utils/SFML.hpp>
-
 namespace hg {
 
 [[nodiscard]] ColorData StyleData::colorDataFromObjOrDefault(

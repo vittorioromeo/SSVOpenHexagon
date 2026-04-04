@@ -40,6 +40,7 @@
 #include <SFML/System/Vec2.hpp>
 
 #include <SFML/Base/Optional.hpp>
+#include <algorithm>
 #include <stdexcept>
 
 #include <cstring>
@@ -185,10 +186,10 @@ void HexagonGame::update(float mFT, const float timescale)
 
             if (!status.started)
             {
-                if (window != nullptr && window->hasTimer())
+                if (window != nullptr)
                 {
                     // This avoids initial speedup when viewing replays.
-                    window->getTimerBase().reset();
+                    window->resetTimer();
                 }
 
                 mustStart = true;
@@ -382,8 +383,6 @@ void HexagonGame::update(float mFT, const float timescale)
                 updateSwapParticles(mFT);
             }
 
-            overlayCamera->update(mFT);
-            backgroundCamera->update(mFT);
         }
     }
 
@@ -800,13 +799,13 @@ void HexagonGame::refreshPulse()
 
         const float p{
             Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
-        const float rotation{backgroundCamera->getRotation()};
+        const float rotation{backgroundCamera->rotation.asDegrees()};
 
-        backgroundCamera->setView(sf::View{sf::Vec2f{0.f, 0.f},
+        *backgroundCamera = sf::View{sf::Vec2f{0.f, 0.f},
             {(Config::getWidth() * Config::getZoomFactor()) * p,
-                (Config::getHeight() * Config::getZoomFactor()) * p}});
+                (Config::getHeight() * Config::getZoomFactor()) * p}};
 
-        backgroundCamera->setRotation(rotation);
+        backgroundCamera->rotation = sf::degrees(rotation);
     }
 }
 
@@ -857,7 +856,7 @@ void HexagonGame::updateRotation(float mFT)
     if (window != nullptr)
     {
         SSVOH_ASSERT(backgroundCamera.hasValue());
-        backgroundCamera->turn(nextRotation);
+        backgroundCamera->rotation += sf::degrees(nextRotation * mFT);
     }
 }
 
@@ -872,8 +871,8 @@ void HexagonGame::updateCameraShake(float mFT)
     {
         if (preShakeCenters.hasValue())
         {
-            backgroundCamera->setCenter(preShakeCenters->background);
-            overlayCamera->setCenter(preShakeCenters->overlay);
+            backgroundCamera->center = preShakeCenters->background;
+            overlayCamera->center = preShakeCenters->overlay;
 
             preShakeCenters.reset();
         }
@@ -886,7 +885,7 @@ void HexagonGame::updateCameraShake(float mFT)
     if (!preShakeCenters.hasValue())
     {
         preShakeCenters.emplace(
-            backgroundCamera->getCenter(), overlayCamera->getCenter());
+            backgroundCamera->center, overlayCamera->center);
     }
 
     SSVOH_ASSERT(backgroundCamera.hasValue());
@@ -899,8 +898,8 @@ void HexagonGame::updateCameraShake(float mFT)
         return sf::Vec2f(rng.get_real(-i, i), rng.get_real(-i, i));
     };
 
-    backgroundCamera->setCenter(preShakeCenters->background + makeShakeVec());
-    overlayCamera->setCenter(preShakeCenters->overlay + makeShakeVec());
+    backgroundCamera->center = preShakeCenters->background + makeShakeVec();
+    overlayCamera->center = preShakeCenters->overlay + makeShakeVec();
 }
 
 void HexagonGame::updateFlash(float mFT)
@@ -910,7 +909,7 @@ void HexagonGame::updateFlash(float mFT)
         status.flashEffect -= 3 * mFT;
     }
 
-    status.flashEffect = ssvu::getClamped(status.flashEffect, 0.f, 255.f);
+    status.flashEffect = std::clamp(status.flashEffect, 0.f, 255.f);
 
     for (sf::Vertex& vertex : flashPolygon)
     {

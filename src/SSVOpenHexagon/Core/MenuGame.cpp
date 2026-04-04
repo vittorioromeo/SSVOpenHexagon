@@ -46,12 +46,12 @@
 
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Window/Keyboard.hpp>
-#include <SSVStart/Input/Input.hpp>
-#include <SSVStart/Utils/SFML.hpp>
-#include <SSVStart/Utils/Input.hpp>
-#include <SSVStart/GameSystem/GameSystem.hpp>
+#include <SFML/Window/Mouse.hpp>
+#include "SSVOpenHexagon/Input/Input.hpp"
+#include "SSVOpenHexagon/Input/Utils.hpp"
+#include "SSVOpenHexagon/GameSystem/GameSystem.hpp"
 
-#include <SSVMenuSystem/SSVMenuSystem.hpp>
+#include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 
 #include <SSVUtils/Core/String/ToStr.hpp>
 
@@ -107,6 +107,20 @@ namespace hg {
     }
 
     return true;
+}
+
+[[nodiscard]] static float getTextScaleForCharacterSize(
+    const sf::Text& text, const unsigned int characterSize)
+{
+    return static_cast<float>(characterSize) /
+           static_cast<float>(text.getCharacterSize());
+}
+
+static void setVisualCharacterSize(
+    sf::Text& text, const unsigned int characterSize)
+{
+    const float scale = getTextScaleForCharacterSize(text, characterSize);
+    text.scale = {scale, scale};
 }
 
 void MenuGame::MenuFont::updateHeight()
@@ -185,10 +199,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       rsOnlineStatus{{.size = {128.f, 32.f}}},
       txtOnlineStatus{openSquare, {.string = "", .characterSize = 24}},
       enteredChars{},
-      backgroundCamera{{sf::Vec2f{0.f, 0.f},
+      backgroundCamera{sf::View{sf::Vec2f{0.f, 0.f},
           {Config::getSizeX() * Config::getZoomFactor(),
               Config::getSizeY() * Config::getZoomFactor()}}},
-      overlayCamera{{{Config::getWidth() / 2.f,
+      overlayCamera{sf::View{{Config::getWidth() / 2.f,
                          Config::getHeight() * Config::getZoomFactor() / 2.f},
           {Config::getWidth() * Config::getZoomFactor(),
               Config::getHeight() * Config::getZoomFactor()}}},
@@ -215,13 +229,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       txtVersion{{openSquare, {.string = "", .characterSize = 40}}},
       txtProf{{openSquare, {.string = "", .characterSize = 18}}},
       // For the loading screen
-      txtLoadBig{{openSquare, {.string = ""}}},
-      txtLoadSmall{{openSquareBold, {.string = ""}}},
-      txtRandomTip{{openSquare, {.string = ""}}},
+      txtLoadBig{{openSquare, {.string = "", .characterSize = 70}}},
+      txtLoadSmall{{openSquareBold, {.string = "", .characterSize = 24}}},
+      txtRandomTip{{openSquare, {.string = "", .characterSize = 32}}},
       // For the Main Menu
-      txtMenuBig{{openSquare, {.string = ""}}},
-      txtMenuSmall{{openSquare, {.string = ""}}},
-      txtMenuTiny{{openSquare, {.string = ""}}},
+      txtMenuBig{{openSquare, {.string = "", .characterSize = 36}}},
+      txtMenuSmall{{openSquare, {.string = "", .characterSize = 24}}},
+      txtMenuTiny{{openSquare, {.string = "", .characterSize = 14}}},
       txtProfile{{openSquare, {.string = "", .characterSize = 32}}},
       txtInstructionsBig{{openSquare, {.string = "", .characterSize = 46}}},
       txtInstructionsMedium{{openSquare, {.string = ""}}},
@@ -229,11 +243,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       // Manual Input
       txtEnteringText{{openSquare, {.string = "", .characterSize = 54}}},
       // For the Level Selection Screen
-      txtSelectionBig{{openSquareBold, {.string = ""}}},
+      txtSelectionBig{{openSquareBold, {.string = "", .characterSize = 28}}},
       txtSelectionMedium{{openSquareBold, {.string = "", .characterSize = 19}}},
-      txtSelectionSmall{{openSquare, {.string = ""}}},
+      txtSelectionSmall{{openSquare, {.string = "", .characterSize = 14}}},
       txtSelectionScore{{openSquare, {.string = "", .characterSize = 28}}},
-      txtSelectionRanked{{openSquareBold, {.string = ""}}},
+      txtSelectionRanked{{openSquareBold, {.string = "", .characterSize = 10}}},
       menuTextColor{},
       menuQuadColor{},
       menuSelectionColor{},
@@ -2848,9 +2862,6 @@ void MenuGame::update(float mFT)
         }
     }
 
-    overlayCamera.update(mFT);
-    backgroundCamera.update(mFT);
-
     if (getCurrentMenu() != nullptr)
     {
         getCurrentMenu()->update();
@@ -2867,7 +2878,8 @@ void MenuGame::update(float mFT)
     }
 
     styleData.update(mFT);
-    backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
+    backgroundCamera.rotation +=
+        sf::degrees(levelStatus.rotationSpeed * 10.f * mFT);
 
     if (isEnteringText())
     {
@@ -3147,11 +3159,11 @@ void MenuGame::refreshCamera()
     w = getWindowWidth() * fmax;
     h = getWindowHeight() * fmax;
 
-    backgroundCamera.setView({sf::Vec2f{0.f, 0.f},
+    backgroundCamera = {sf::Vec2f{0.f, 0.f},
         {Config::getSizeX() * Config::getZoomFactor(),
-            Config::getSizeY() * Config::getZoomFactor()}});
+            Config::getSizeY() * Config::getZoomFactor()}};
 
-    overlayCamera.setView(sf::View{{w / 2.f, h / 2.f}, {w, h}});
+    overlayCamera = sf::View{{w / 2.f, h / 2.f}, {w, h}};
 
     titleBar.origin = sf::Vec2f{0.f, 0.f};
     titleBar.scale = {0.5f, 0.5f};
@@ -3180,11 +3192,11 @@ void MenuGame::refreshCamera()
 
     if (fourByThree)
     {
-        backgroundCamera.setSkew({1.f, 0.8f});
+        backgroundCameraTransform.skew = {1.f, 0.8f};
     }
     else
     {
-        backgroundCamera.setSkew({1.f, 0.6f});
+        backgroundCameraTransform.skew = {1.f, 0.6f};
     }
 
     for (auto& c : mainMenu.getCategories())
@@ -3213,35 +3225,41 @@ void MenuGame::refreshCamera()
     }
 
     // Update the height infos of the fonts.
+    const auto setMenuFontVisualSize =
+        [](MenuFont& menuFont, const unsigned int characterSize)
+    {
+        setVisualCharacterSize(menuFont.font, characterSize);
+    };
+
     if (fourByThree)
     {
-        txtMenuBig.font.setCharacterSize(26);
-        txtMenuTiny.font.setCharacterSize(9);
-        txtMenuSmall.font.setCharacterSize(16);
+        setMenuFontVisualSize(txtMenuBig, 26);
+        setMenuFontVisualSize(txtMenuTiny, 9);
+        setMenuFontVisualSize(txtMenuSmall, 16);
 
-        txtSelectionBig.font.setCharacterSize(24);
-        txtSelectionSmall.font.setCharacterSize(14);
-        txtSelectionRanked.font.setCharacterSize(10);
+        setMenuFontVisualSize(txtSelectionBig, 24);
+        setMenuFontVisualSize(txtSelectionSmall, 14);
+        setMenuFontVisualSize(txtSelectionRanked, 10);
 
-        txtLoadBig.font.setCharacterSize(56);
-        txtLoadSmall.font.setCharacterSize(16);
+        setMenuFontVisualSize(txtLoadBig, 56);
+        setMenuFontVisualSize(txtLoadSmall, 16);
 
-        txtRandomTip.font.setCharacterSize(24);
+        setMenuFontVisualSize(txtRandomTip, 24);
     }
     else
     {
-        txtMenuBig.font.setCharacterSize(36);
-        txtMenuTiny.font.setCharacterSize(14);
-        txtMenuSmall.font.setCharacterSize(24);
+        setMenuFontVisualSize(txtMenuBig, 36);
+        setMenuFontVisualSize(txtMenuTiny, 14);
+        setMenuFontVisualSize(txtMenuSmall, 24);
 
-        txtSelectionBig.font.setCharacterSize(28);
-        txtSelectionSmall.font.setCharacterSize(14);
-        txtSelectionRanked.font.setCharacterSize(10);
+        setMenuFontVisualSize(txtSelectionBig, 28);
+        setMenuFontVisualSize(txtSelectionSmall, 14);
+        setMenuFontVisualSize(txtSelectionRanked, 10);
 
-        txtLoadBig.font.setCharacterSize(70);
-        txtLoadSmall.font.setCharacterSize(24);
+        setMenuFontVisualSize(txtLoadBig, 70);
+        setMenuFontVisualSize(txtLoadSmall, 24);
 
-        txtRandomTip.font.setCharacterSize(32);
+        setMenuFontVisualSize(txtRandomTip, 32);
     }
 
     // txtVersion and txtProfile are not in here cause they do not need it.
@@ -3264,8 +3282,6 @@ void MenuGame::refreshCamera()
         formatLevelDescription();
     }
 
-    overlayCamera.update(0.5f);
-    backgroundCamera.update(0.5f);
 }
 void MenuGame::renderText(
     const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
@@ -3287,20 +3303,22 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
     const unsigned int mSize, const sf::Vec2f mPos)
 {
-    mText.setCharacterSize(mSize);
+    const sf::Vec2f prevScale = mText.scale;
+    setVisualCharacterSize(mText, mSize);
     renderText(mStr, mText, mPos);
+    mText.scale = prevScale;
 }
 
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
     const unsigned int mSize, const sf::Vec2f mPos, const sf::Color& mColor)
 {
-    const auto prevSize = mText.getCharacterSize();
-    mText.setCharacterSize(mSize);
+    const sf::Vec2f prevScale = mText.scale;
+    setVisualCharacterSize(mText, mSize);
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
     renderText(mStr, mText, mPos);
     mText.setFillColor(prevColor);
-    mText.setCharacterSize(prevSize);
+    mText.scale = prevScale;
 }
 
 // Text rendering centered
@@ -3308,7 +3326,7 @@ void MenuGame::renderTextCentered(
     const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
 {
     mText.setString(mStr);
-    mText.position = {mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y};
+    mText.position = {mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
     drawOverlay(mText);
 }
 
@@ -3324,18 +3342,22 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
     const unsigned int mSize, const sf::Vec2f mPos)
 {
-    mText.setCharacterSize(mSize);
+    const sf::Vec2f prevScale = mText.scale;
+    setVisualCharacterSize(mText, mSize);
     renderTextCentered(mStr, mText, mPos);
+    mText.scale = prevScale;
 }
 
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
     const unsigned int mSize, const sf::Vec2f mPos, const sf::Color& mColor)
 {
-    mText.setCharacterSize(mSize);
+    const sf::Vec2f prevScale = mText.scale;
+    setVisualCharacterSize(mText, mSize);
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
     renderTextCentered(mStr, mText, mPos);
     mText.setFillColor(prevColor);
+    mText.scale = prevScale;
 }
 
 // Text rendering centered with an offset
@@ -3344,7 +3366,7 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
 {
     mText.setString(mStr);
     mText.position = {
-        xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y};
+        xOffset + mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
     drawOverlay(mText);
 }
 
@@ -3595,7 +3617,7 @@ void MenuGame::drawScrollbar(const float totalHeight, const int size,
 }
 
 void MenuGame::drawMainSubmenus(
-    const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
+    const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus,
     const float indent)
 {
     bool currentlySelected, hasOffset;
@@ -3615,7 +3637,7 @@ void MenuGame::drawMainSubmenus(
 }
 
 void MenuGame::drawSubmenusSmall(
-    const std::vector<ssvms::UniquePtr<ssvms::Category>>& subMenus,
+    const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus,
     const float indent)
 {
     bool currentlySelected, hasOffset;
@@ -3670,7 +3692,9 @@ void MenuGame::setMouseCursorVisible(const bool x)
         return false;
     }
 
-    const sf::Vec2f mp = overlayCamera.getMousePosition(window);
+    const sf::Vec2f mp = overlayCamera.screenToWorld(
+        sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>(),
+        window.getRenderWindow().getSize().to<sf::Vec2f>());
 
     return mp.x > mins.x - tolerance && mp.x < maxs.x + tolerance &&
            mp.y > mins.y - tolerance && mp.y < maxs.y + tolerance;
@@ -3911,7 +3935,7 @@ void MenuGame::drawProfileSelection(
         itemName = p->getName();
         Utils::uppercasify(itemName);
         txtProfile.font.setString(itemName);
-        textWidth = std::max(textWidth, ssvs::getGlobalWidth(txtProfile.font));
+        textWidth = std::max(textWidth, txtProfile.font.getGlobalWidth());
     }
 
     // Calculate horizontal coordinates
@@ -3934,7 +3958,7 @@ void MenuGame::drawProfileSelection(
         "Press backspace to delete the selected profile\n"
         "You cannot delete the profile currently in use");
     const float instructionsWidth{
-        ssvs::getGlobalWidth(txtInstructionsSmall.font)},
+        txtInstructionsSmall.font.getGlobalWidth()},
         resultIndent{indent + (textWidth - instructionsWidth) / 2.f};
     if (resultIndent < 0.f)
     {
@@ -3998,9 +4022,8 @@ void MenuGame::drawProfileSelection(
         if (data != nullptr)
         {
             yPos += (selected ? selectedFontHeight : fontHeight) * 1.75f;
-            txtProfile.font.setCharacterSize(
-                txtProfile.font.getCharacterSize() - 15);
             renderTextCentered(formatSurvivalTime(data), txtProfile.font,
+                (selected ? profSelectedCharSize : profCharSize) - 15u,
                 {indent + textWidth / 2.f, yPos});
         }
 
@@ -4056,11 +4079,11 @@ void MenuGame::drawProfileSelectionBoot()
             itemName = p->getName();
             Utils::uppercasify(itemName);
             txtProfile.font.setString(itemName);
-            width = std::max(width, ssvs::getGlobalWidth(txtProfile.font));
+            width = std::max(width, txtProfile.font.getGlobalWidth());
         }
 
         txtProfile.font.setString("Total survival time 0000:00");
-        width = std::max(width, ssvs::getGlobalWidth(txtProfile.font));
+        width = std::max(width, txtProfile.font.getGlobalWidth());
         width += 10.f;
 
         drawScrollbar(totalHeight, realSize, scrollbarNotches,
@@ -4088,10 +4111,10 @@ void MenuGame::drawProfileSelectionBoot()
         if (data != nullptr)
         {
             yPos += (selected ? selectedFontHeight : fontHeight) * 1.75f;
-            txtProfile.font.setCharacterSize(
-                txtProfile.font.getCharacterSize() - 15);
             renderTextCentered(
-                formatSurvivalTime(data), txtProfile.font, {w / 2.f, yPos});
+                formatSurvivalTime(data), txtProfile.font,
+                (selected ? profSelectedCharSize : profCharSize) - 15u,
+                {w / 2.f, yPos});
         }
 
         height += interline;
@@ -4105,7 +4128,7 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
     txtEnteringText.font.setString(enteredStr);
     constexpr float enteringTextMinWidth{200.f};
     const float textWidth{std::max(
-        enteringTextMinWidth, ssvs::getGlobalWidth(txtEnteringText.font))};
+        enteringTextMinWidth, txtEnteringText.font.getGlobalWidth())};
 
     // Calculate coordinates
     const float doubleFrame{profFrameSize * 2.f},
@@ -4352,14 +4375,14 @@ void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
 {
     // Store length of the key
     font.setString(key);
-    const float keyWidth = ssvs::getGlobalWidth(font);
+    const float keyWidth = font.getGlobalWidth();
 
     Utils::uppercasify(text);
     font.setString(text);
 
     // If the text is already within border format and return
     border -= keyWidth;
-    if (ssvs::getGlobalWidth(font) <= border)
+    if (font.getGlobalWidth() <= border)
     {
         text = key + text;
         return;
@@ -4368,7 +4391,7 @@ void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
     // Scroll the name and shrink it to the required length
     scrollName(text, scroller);
     font.setString(text);
-    while (ssvs::getGlobalWidth(font) > border && text.length() > 1)
+    while (font.getGlobalWidth() > border && text.length() > 1)
     {
         text.pop_back();
         font.setString(text);
@@ -4382,14 +4405,14 @@ void MenuGame::scrollNameRightBorder(
     Utils::uppercasify(text);
     font.setString(text);
 
-    if (ssvs::getGlobalWidth(font) <= border)
+    if (font.getGlobalWidth() <= border)
     {
         return;
     }
 
     scrollName(text, scroller);
     font.setString(text);
-    while (ssvs::getGlobalWidth(font) > border && text.length() > 1)
+    while (font.getGlobalWidth() > border && text.length() > 1)
     {
         text.pop_back();
         font.setString(text);
@@ -4749,7 +4772,7 @@ void MenuGame::formatLevelDescription()
         if (!temp.empty() && temp[temp.size() - 1] == '\n')
         {
             // ...if it all fits add to the vector as a single line...
-            if (ssvs::getGlobalWidth(txtSelectionSmall.font) < maxWidth)
+            if (txtSelectionSmall.font.getGlobalWidth() < maxWidth)
             {
                 candidate += temp;
                 levelDescription.push_back(candidate);
@@ -4769,7 +4792,7 @@ void MenuGame::formatLevelDescription()
         }
 
         // If there is no newline check if the line fits...
-        if (ssvs::getGlobalWidth(txtSelectionSmall.font) < maxWidth)
+        if (txtSelectionSmall.font.getGlobalWidth() < maxWidth)
         {
             candidate += temp;
             continue;
@@ -5219,7 +5242,7 @@ void MenuGame::drawLevelSelectionRightSide(
         txtSelectionMedium.font.setString(tempString);
         temp =
             std::max(
-                txtIndent - ssvs::getGlobalWidth(txtSelectionMedium.font) / 2.f,
+                txtIndent - txtSelectionMedium.font.getGlobalWidth() / 2.f,
                 quadsIndent + arrowWidth + 2.f * slctFrameSize + outerFrame) +
             panelOffset;
 
@@ -5976,7 +5999,7 @@ void MenuGame::draw()
     if (!dialogBox.empty())
     {
         dialogBox.draw(
-            overlayCamera.apply(), dialogBoxTextColor, styleData.getColor(0));
+            getOverlayView(), dialogBoxTextColor, styleData.getColor(0));
     }
 
     if (!mouseWasPressed && mousePressed)
@@ -6005,7 +6028,10 @@ void MenuGame::drawOnlineStatus()
     const float scaling = onlineStatusScaling / Config::getZoomFactor();
     const float padding = 3.f * onlineStatusScaling;
 
-    txtOnlineStatus.setCharacterSize(10 * scaling);
+    txtOnlineStatus.scale =
+        {(10.f * scaling) / static_cast<float>(txtOnlineStatus.getCharacterSize()),
+            (10.f * scaling) /
+                static_cast<float>(txtOnlineStatus.getCharacterSize())};
     txtOnlineStatus.setFillColor(sf::Color::White);
 
     const HexagonClient::State state = hexagonClient.getState();
@@ -6068,7 +6094,7 @@ void MenuGame::drawOnlineStatus()
     }();
 
     txtOnlineStatus.setString("ABC,:ç@'");
-    const auto txtHeight = ssvs::getGlobalHeight(txtOnlineStatus);
+    const auto txtHeight = txtOnlineStatus.getGlobalHeight();
     const float spriteScale = (txtHeight + padding * 2.f) / 64.f;
 
     txtOnlineStatus.setString(stateString);
@@ -6088,7 +6114,7 @@ void MenuGame::drawOnlineStatus()
     sOnline.position = {0.f + padding, getWindowHeight() - padding};
 
     rsOnlineStatus.setSize(
-        {ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
+        {txtOnlineStatus.getGlobalWidth() + padding * 4.f,
             txtHeight + padding * 2.f});
     rsOnlineStatus.setFillColor(sf::Color::Black);
     rsOnlineStatus.origin = rsOnlineStatus.getLocalBottomLeft();

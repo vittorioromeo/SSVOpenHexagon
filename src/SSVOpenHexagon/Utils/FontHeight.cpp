@@ -16,8 +16,15 @@ namespace hg::Utils {
 
 [[nodiscard]] float getFontHeight(sf::Text& font, const unsigned int charSize)
 {
-    font.setCharacterSize(charSize);
-    return getFontHeight(font);
+    const sf::Vec2f previousScale = font.scale;
+    const float baseSize = static_cast<float>(font.getCharacterSize());
+    const float scale = static_cast<float>(charSize) / baseSize;
+
+    font.scale = {scale, scale};
+    const float result = getFontHeight(font);
+    font.scale = previousScale;
+
+    return result;
 }
 
 } // namespace hg::Utils

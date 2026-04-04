@@ -6,11 +6,10 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
-#include <SSVStart/Global/Typedefs.hpp>
-#include <SSVStart/Input/Combo.hpp>
-#include <SSVStart/Input/Enums.hpp>
-#include <SSVStart/Input/Trigger.hpp>
-#include <SSVStart/Utils/Input.hpp>
+#include "SSVOpenHexagon/Input/Combo.hpp"
+#include "SSVOpenHexagon/Input/Enums.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
+#include "SSVOpenHexagon/Input/Utils.hpp"
 
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
@@ -126,7 +125,7 @@ void Converter<ssvs::Input::Combo>::toObj(Obj& mObj, const T& mValue)
 {
     if (mValue.isUnbound())
     {
-        arch(mObj, 0, sf::Keyboard::Key(-1));
+        arch(mObj, 0, sf::Keyboard::Key::Unknown);
         return;
     }
 

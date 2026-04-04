@@ -178,23 +178,21 @@
 //
 //
 // ----------------------------------------------------------------------------
-// SSVStart
+// Local game/input system
 // ----------------------------------------------------------------------------
 
-#include <SSVStart/Camera/Camera.hpp>
-#include <SSVStart/GameSystem/GameSystem.hpp>
-#include <SSVStart/GameSystem/GameWindow.hpp>
-#include <SSVStart/Input/Trigger.hpp>
-#include <SSVStart/Utils/Input.hpp>
-#include <SSVStart/Utils/SFML.hpp>
+#include "SSVOpenHexagon/GameSystem/GameSystem.hpp"
+#include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
+#include "SSVOpenHexagon/Input/Utils.hpp"
 
 //
 //
 // ----------------------------------------------------------------------------
-// SSVMenuSystem
+// Local menu system
 // ----------------------------------------------------------------------------
 
-#include <SSVMenuSystem/SSVMenuSystem.hpp>
+#include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 
 //
 //

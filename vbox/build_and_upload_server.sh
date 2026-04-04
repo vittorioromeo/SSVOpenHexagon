@@ -4,8 +4,6 @@ OH_VBOX_ROOT="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon"
 OH_SERVER_ROOT="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon"
 
 (cd /home/vittorioromeo/OHWorkspace/SSVUtils; git pull)
-(cd /home/vittorioromeo/OHWorkspace/SSVStart; git pull)
-(cd /home/vittorioromeo/OHWorkspace/SSVMenuSystem; git pull)
 
 git pull
 
