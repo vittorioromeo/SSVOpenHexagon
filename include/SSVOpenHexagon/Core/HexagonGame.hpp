@@ -9,12 +9,15 @@
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 
+#include "SSVOpenHexagon/Data/CapColor.hpp"
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 
+#include "SSVOpenHexagon/GameSystem/GameState.hpp"
+#include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
@@ -23,7 +26,6 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
-#include "SSVOpenHexagon/GameSystem/GameSystem.hpp"
 
 #include <SFML/ImGui/ImGuiContext.hpp>
 

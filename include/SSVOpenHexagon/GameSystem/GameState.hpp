@@ -4,13 +4,19 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Input/Input.hpp"
+
+#include "SSVOpenHexagon/Input/Enums.hpp"
+#include "SSVOpenHexagon/Input/InputState.hpp"
+#include "SSVOpenHexagon/Input/Manager.hpp"
+#include "SSVOpenHexagon/Input/Trigger.hpp"
+#include "SSVUtils/Delegate/Inc/Delegate.hpp"
 
 #include <SSVUtils/Delegate/Delegate.hpp>
 
 #include <SFML/Window/Event.hpp>
 
 #include <functional>
+#include <utility>
 
 namespace ssvs {
 
@@ -72,9 +78,8 @@ public:
             std::move(trigger), type, mode, triggerID, on, off);
     }
 
-    auto& addInput(ITrigger trigger, IFunc on,
-        const IType type = IType::Always, const int triggerID = -1,
-        const IMode mode = IMode::Overlap)
+    auto& addInput(ITrigger trigger, IFunc on, const IType type = IType::Always,
+        const int triggerID = -1, const IMode mode = IMode::Overlap)
     {
         return addInput(
             std::move(trigger), on, [](float) {}, type, triggerID, mode);
