@@ -7,15 +7,16 @@
 
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace hg
 {
 
-void LeaderboardCache::receivedScores(const std::string& levelValidator, const std::vector<Database::ProcessedScore>& scores)
+void LeaderboardCache::receivedScores(const std::string&                                levelValidator,
+                                      const sf::base::Vector<Database::ProcessedScore>& scores)
 {
     CachedScores& cs = _levelValidatorToScores[levelValidator];
     cs._scores       = scores;
@@ -47,7 +48,7 @@ void LeaderboardCache::requestedScores(const std::string& levelValidator)
     return (HRClock::now() - cs._cacheTime) > std::chrono::seconds(6);
 }
 
-[[nodiscard]] const std::vector<Database::ProcessedScore>& LeaderboardCache::getScores(const std::string& levelValidator) const
+[[nodiscard]] const sf::base::Vector<Database::ProcessedScore>& LeaderboardCache::getScores(const std::string& levelValidator) const
 {
     SSVOH_ASSERT(hasInformation(levelValidator));
     return _levelValidatorToScores.at(levelValidator)._scores;

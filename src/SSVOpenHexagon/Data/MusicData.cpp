@@ -38,7 +38,7 @@ MusicData::MusicData(const std::string& mId,
 
 void MusicData::addSegment(float mSeconds, float mBeatPulseDelayOffset)
 {
-    segments.push_back(Segment{mSeconds, mBeatPulseDelayOffset});
+    segments.pushBack(Segment{mSeconds, mBeatPulseDelayOffset});
 }
 
 [[nodiscard]] MusicData::Segment MusicData::playRandomSegment(const std::string& mPackId, Audio& mAudio)

@@ -34,6 +34,7 @@
 // ----------------------------------------------------------------------------
 
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <array>
 #include <atomic>
@@ -208,7 +209,7 @@
 // Explicit instantiation declarations (defined in `Instantiations.cpp`)
 // ----------------------------------------------------------------------------
 
-extern template class std::vector<std::string>;
+extern template class sf::base::Vector<std::string>;
 
 extern template class sf::base::Optional<int>;
 extern template class sf::base::Optional<sf::base::SizeT>;

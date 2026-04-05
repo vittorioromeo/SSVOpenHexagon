@@ -12,20 +12,21 @@
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 
+#include "SFML/Base/Vector.hpp"
+
 #include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 #include <string>
-#include <vector>
 
 namespace hg
 {
 
-[[nodiscard]] int KeyboardBindControl::getRealSize(const std::vector<ssvs::Input::Combo>& combos) const
+[[nodiscard]] int KeyboardBindControl::getRealSize(const sf::base::Vector<ssvs::Input::Combo>& combos) const
 {
     decltype(combos.size()) i = 0;
     for (; i < combos.size(); ++i)
     {
-        if (combos.at(i).isUnbound())
+        if (combos[i].isUnbound())
         {
             break;
         }
@@ -66,11 +67,11 @@ bool KeyboardBindControl::newKeyboardBind(const sf::Keyboard::Key key)
     }
 
     // stop if the pressed key is already assigned to this bind
-    const std::vector<ssvs::Input::Combo> combos = triggerGetter().getCombos();
+    const sf::base::Vector<ssvs::Input::Combo> combos = triggerGetter().getCombos();
 
     for (int i = 0; i < sizeGetter(); ++i)
     {
-        if (combos.at(i).getKeys()[int(key) + 1])
+        if (combos[i].getKeys()[int(key) + 1])
         {
             waitingForBind = false;
             return true;
@@ -84,11 +85,11 @@ bool KeyboardBindControl::newKeyboardBind(const sf::Keyboard::Key key)
 bool KeyboardBindControl::newKeyboardBind(const sf::Mouse::Button btn)
 {
     // stop if the pressed key is already assigned to this bind
-    const std::vector<ssvs::Input::Combo> combos = triggerGetter().getCombos();
+    const sf::base::Vector<ssvs::Input::Combo> combos = triggerGetter().getCombos();
 
     for (int i = 0; i < sizeGetter(); ++i)
     {
-        if (combos.at(i).getBtns()[int(btn) + 1])
+        if (combos[i].getBtns()[int(btn) + 1])
         {
             waitingForBind = false;
             return true;

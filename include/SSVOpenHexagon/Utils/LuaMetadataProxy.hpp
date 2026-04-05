@@ -11,10 +11,10 @@
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
 #include "SFML/Base/Trait/Decay.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string>
 #include <tuple>
-#include <vector>
 
 namespace hg::Utils
 {
@@ -32,8 +32,8 @@ private:
     [[maybe_unused]] std::string (*erasedArgs)(LuaMetadataProxy*);
 #pragma GCC diagnostic pop
 
-    std::string              docs;
-    std::vector<std::string> argNames;
+    std::string                   docs;
+    sf::base::Vector<std::string> argNames;
 
     template <typename T>
     [[nodiscard]] static const char* typeToStr(TypeWrapper<T>) noexcept;
@@ -76,8 +76,8 @@ private:
                  ...);
             }(std::make_index_sequence<AE::numArgs>{});
 
-            res.pop_back();
-            res.pop_back();
+            res.popBack();
+            res.popBack();
 
             return res;
         }

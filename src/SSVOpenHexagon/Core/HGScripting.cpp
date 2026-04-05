@@ -51,7 +51,7 @@ void HexagonGame::initLua_Utils()
     // ------------------------------------------------------------------------
     // Used internally to track values in the console.
     lua.writeVariable("u_impl_addTrackedResult",
-                      [this](const std::string& result) { ilcLuaTrackedResults.emplace_back(result); });
+                      [this](const std::string& result) { ilcLuaTrackedResults.emplaceBack(result); });
 
     // ------------------------------------------------------------------------
     addLuaFn(lua,
@@ -79,7 +79,7 @@ void HexagonGame::initLua_Utils()
         }
 
         hg::lo("lua") << mLog << '\n';
-        ilcCmdLog.emplace_back("[lua]: " + mLog + '\n');
+        ilcCmdLog.emplaceBack("[lua]: " + mLog + '\n');
     })
         .arg("message")
         .doc("Print out `$0` to the console.");

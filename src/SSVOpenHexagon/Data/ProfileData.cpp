@@ -16,7 +16,7 @@ namespace hg
 ProfileData::ProfileData(const GameVersion                             mVersion,
                          const std::string&                            mName,
                          const std::unordered_map<std::string, float>& mScores,
-                         const std::vector<std::string>&               mFavorites) :
+                         const sf::base::Vector<std::string>&          mFavorites) :
     version{mVersion},
     name{mName},
     scores{mScores},

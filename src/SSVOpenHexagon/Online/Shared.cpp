@@ -169,9 +169,9 @@ struct Extractor<sf::base::Array<T, N>>
 
 
 template <typename T>
-struct Extractor<std::vector<T>>
+struct Extractor<sf::base::Vector<T>>
 {
-    using Type = std::vector<T>;
+    using Type = sf::base::Vector<T>;
 
     [[nodiscard]] static bool doExtractInto(Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
@@ -450,7 +450,7 @@ template <typename T>
 }
 
 template <typename T>
-void encodeFirstNVectorElements(sf::Packet& p, const std::vector<T>& data, const sf::base::SizeT len)
+void encodeFirstNVectorElements(sf::Packet& p, const sf::base::Vector<T>& data, const sf::base::SizeT len)
 {
     SSVOH_ASSERT(data.size() >= len);
 
@@ -460,15 +460,15 @@ void encodeFirstNVectorElements(sf::Packet& p, const std::vector<T>& data, const
     }
 }
 
-std::vector<sf::base::U8>& getStaticMessageBuffer()
+sf::base::Vector<sf::base::U8>& getStaticMessageBuffer()
 {
-    thread_local std::vector<sf::base::U8> result;
+    thread_local sf::base::Vector<sf::base::U8> result;
     return result;
 }
 
-std::vector<sf::base::U8>& getStaticCiphertextBuffer()
+sf::base::Vector<sf::base::U8>& getStaticCiphertextBuffer()
 {
-    thread_local std::vector<sf::base::U8> result;
+    thread_local sf::base::Vector<sf::base::U8> result;
     return result;
 }
 
@@ -512,7 +512,7 @@ void encodeField(sf::Packet& p, const TData& data, const sf::base::Array<T, N>& 
 }
 
 template <typename TData, typename T>
-void encodeField(sf::Packet& p, const TData& data, const std::vector<T>& vec)
+void encodeField(sf::Packet& p, const TData& data, const sf::base::Vector<T>& vec)
 {
     encodeField(p, data, static_cast<sf::base::U64>(vec.size()));
 
@@ -598,7 +598,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
         return false;
     }
 
-    std::vector<sf::base::U8>& ciphertext = getStaticCiphertextBuffer();
+    sf::base::Vector<sf::base::U8>& ciphertext = getStaticCiphertextBuffer();
     ciphertext.resize(ciphertextLength);
 
     for (sf::base::SizeT i = 0; i < ciphertextLength; ++i)
@@ -613,7 +613,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
         return false;
     }
 
-    std::vector<sf::base::U8>& message = getStaticMessageBuffer();
+    sf::base::Vector<sf::base::U8>& message = getStaticMessageBuffer();
     message.resize(messageLength);
 
     if (crypto_secretbox_open_easy(message.data(), ciphertext.data(), ciphertextLength, nonce.data(), keyReceive.data()) != 0)

@@ -11,8 +11,9 @@
 
 #include "SFML/System/Vec2.hpp"
 
+#include "SFML/Base/Vector.hpp"
+
 #include <string>
-#include <vector>
 
 namespace Json
 {
@@ -42,15 +43,15 @@ namespace hg
 class StyleData
 {
 private:
-    float                  currentHue{0};
-    float                  currentSwapTime{0};
-    float                  pulseFactor{0};
-    sf::Color              currentMainColor{sf::Color::Black};
-    sf::Color              currentPlayerColor{sf::Color::Black};
-    sf::Color              currentTextColor{sf::Color::Black};
-    sf::Color              currentWallColor{sf::Color::White};
-    sf::Color              current3DOverrideColor{sf::Color::Black};
-    std::vector<sf::Color> currentColors;
+    float                       currentHue{0};
+    float                       currentSwapTime{0};
+    float                       pulseFactor{0};
+    sf::Color                   currentMainColor{sf::Color::Black};
+    sf::Color                   currentPlayerColor{sf::Color::Black};
+    sf::Color                   currentTextColor{sf::Color::Black};
+    sf::Color                   currentWallColor{sf::Color::White};
+    sf::Color                   current3DOverrideColor{sf::Color::Black};
+    sf::base::Vector<sf::Color> currentColors;
 
     [[nodiscard]] static sf::Color calculateColor(const float mCurrentHue, const float mPulseFactor, const ColorData& mColorData);
 
@@ -106,7 +107,7 @@ private:
 
     CapColor capColor;
 
-    std::vector<ColorData> colorDatas;
+    sf::base::Vector<ColorData> colorDatas;
 
 public:
     explicit StyleData();
@@ -131,16 +132,16 @@ public:
 
     void setCapColor(const CapColor& mCapColor);
 
-    [[nodiscard]] const sf::Color&              getMainColor() const noexcept;
-    [[nodiscard]] const sf::Color&              getPlayerColor() const noexcept;
-    [[nodiscard]] const sf::Color&              getTextColor() const noexcept;
-    [[nodiscard]] const sf::Color&              getWallColor() const noexcept;
-    [[nodiscard]] const std::vector<sf::Color>& getColors() const noexcept;
-    [[nodiscard]] const sf::Color&              getColor(const sf::base::SizeT mIdx) const noexcept;
-    [[nodiscard]] float                         getCurrentHue() const noexcept;
-    [[nodiscard]] float                         getCurrentSwapTime() const noexcept;
-    [[nodiscard]] const sf::Color&              get3DOverrideColor() const noexcept;
-    [[nodiscard]] sf::Color                     getCapColorResult() const noexcept;
+    [[nodiscard]] const sf::Color&                   getMainColor() const noexcept;
+    [[nodiscard]] const sf::Color&                   getPlayerColor() const noexcept;
+    [[nodiscard]] const sf::Color&                   getTextColor() const noexcept;
+    [[nodiscard]] const sf::Color&                   getWallColor() const noexcept;
+    [[nodiscard]] const sf::base::Vector<sf::Color>& getColors() const noexcept;
+    [[nodiscard]] const sf::Color&                   getColor(const sf::base::SizeT mIdx) const noexcept;
+    [[nodiscard]] float                              getCurrentHue() const noexcept;
+    [[nodiscard]] float                              getCurrentSwapTime() const noexcept;
+    [[nodiscard]] const sf::Color&                   get3DOverrideColor() const noexcept;
+    [[nodiscard]] sf::Color                          getCapColorResult() const noexcept;
 };
 
 } // namespace hg

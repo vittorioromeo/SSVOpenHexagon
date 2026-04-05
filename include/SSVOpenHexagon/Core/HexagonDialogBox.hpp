@@ -10,8 +10,9 @@
 
 #include "SFML/Window/Keyboard.hpp"
 
+#include "SFML/Base/Vector.hpp"
+
 #include <string>
-#include <vector>
 
 namespace sf
 {
@@ -47,8 +48,8 @@ private:
 
     DBoxDraw drawMode;
 
-    std::vector<std::string> dialogText;
-    sf::Text                 txtDialog;
+    sf::base::Vector<std::string> dialogText;
+    sf::Text                      txtDialog;
 
     float dialogWidth{0.f};
     float frameSize{0.f};

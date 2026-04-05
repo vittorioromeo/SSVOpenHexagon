@@ -4,18 +4,19 @@
 
 #pragma once
 
+#include "SFML/Base/Vector.hpp"
+
 #include <string>
-#include <vector>
 
 namespace hg
 {
 
 struct LoadInfo
 {
-    unsigned int             packs{0};
-    unsigned int             levels{0};
-    unsigned int             assets{0};
-    std::vector<std::string> errorMessages;
+    unsigned int                  packs{0};
+    unsigned int                  levels{0};
+    unsigned int                  assets{0};
+    sf::base::Vector<std::string> errorMessages;
 
     void addFormattedError(std::string& error);
 };

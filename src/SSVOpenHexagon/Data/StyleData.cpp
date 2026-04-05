@@ -67,7 +67,7 @@ StyleData::StyleData(const ssvuj::Obj& mRoot) :
     colorDatas.reserve(colorCount);
     for (auto i(0u); i < colorCount; i++)
     {
-        colorDatas.emplace_back(ssvuj::getObj(objColors, i));
+        colorDatas.emplaceBack(ssvuj::getObj(objColors, i));
     }
 }
 
@@ -174,7 +174,7 @@ void StyleData::computeColors()
 
     for (const ColorData& cd : colorDatas)
     {
-        currentColors.emplace_back(calculateColor(currentHue, pulseFactor, cd));
+        currentColors.emplaceBack(calculateColor(currentHue, pulseFactor, cd));
     }
 
     if (currentColors.size() > 1)
@@ -197,7 +197,7 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
     const float halfDiv{div / 2.f};
     const float distance{bgTileRadius};
 
-    const std::vector<sf::Color>& colors(getColors());
+    const sf::base::Vector<sf::Color>& colors(getColors());
     if (colors.empty())
     {
         return;
@@ -305,7 +305,7 @@ void StyleData::setCapColor(const CapColor& mCapColor)
     return currentWallColor;
 }
 
-[[nodiscard]] const std::vector<sf::Color>& StyleData::getColors() const noexcept
+[[nodiscard]] const sf::base::Vector<sf::Color>& StyleData::getColors() const noexcept
 {
     return currentColors;
 }

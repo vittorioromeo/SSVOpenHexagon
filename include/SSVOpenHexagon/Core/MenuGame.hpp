@@ -29,13 +29,13 @@
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 #include <functional>
 #include <string>
 #include <string_view>
 #include <utility>
-#include <vector>
 
 namespace ssvs::Input
 {
@@ -166,9 +166,9 @@ private:
     HexagonDialogBox                      dialogBox;
     sf::base::UniquePtr<LeaderboardCache> leaderboardCache;
 
-    Lua::LuaContext          lua;
-    std::vector<std::string> execScriptPackPathContext;
-    const PackData*          currentPack;
+    Lua::LuaContext               lua;
+    sf::base::Vector<std::string> execScriptPackPathContext;
+    const PackData*               currentPack;
 
     //---------------------------------------
     // Initialization
@@ -212,7 +212,7 @@ private:
     //---------------------------------------
     // Text Entering
 
-    std::vector<char> enteredChars;
+    sf::base::Vector<char> enteredChars;
 
     [[nodiscard]] bool isEnteringText() const noexcept;
 
@@ -382,9 +382,9 @@ private:
                        const float      y,
                        const sf::Color& color);
 
-    void drawMainSubmenus(const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent);
+    void drawMainSubmenus(const sf::base::Vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent);
 
-    void drawSubmenusSmall(const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent);
+    void drawSubmenusSmall(const sf::base::Vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent);
 
     // Load menu
     LoadInfo&                            loadInfo;
@@ -436,21 +436,21 @@ private:
         int currentIndex{0};
 
         // Pointer to avoid heavy copy loads.
-        const std::vector<std::string>* levelDataIds;
+        const sf::base::Vector<std::string>* levelDataIds;
 
-        float              XOffset{0.f};   // to make the menu slide in/out
-        float              YOffset{0.f};   // to scroll up and down the menu
-        float              YScrollTo{0.f}; // height list must scroll to show current item
-        std::vector<float> lvlOffsets;     // xOffset of the single level labels
+        float                   XOffset{0.f};   // to make the menu slide in/out
+        float                   YOffset{0.f};   // to scroll up and down the menu
+        float                   YScrollTo{0.f}; // height list must scroll to show current item
+        sf::base::Vector<float> lvlOffsets;     // xOffset of the single level labels
 
         bool isFavorites{false};
     };
 
-    bool                     isLevelFavorite;
-    std::vector<std::string> favoriteLevelDataIds;
-    LevelDrawer              lvlSlct;
-    LevelDrawer              favSlct;
-    LevelDrawer*             lvlDrawer;
+    bool                          isLevelFavorite;
+    sf::base::Vector<std::string> favoriteLevelDataIds;
+    LevelDrawer                   lvlSlct;
+    LevelDrawer                   favSlct;
+    LevelDrawer*                  lvlDrawer;
 
     void                          changeFavoriteLevelsToProfile();
     [[nodiscard]] bool            isFavoriteLevels() const;
@@ -461,7 +461,7 @@ private:
     bool                          firstLevelSelection{true};
     PackChange                    packChangeState{PackChange::Rest};
     float                         namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
-    std::vector<std::string>      levelDescription;
+    sf::base::Vector<std::string> levelDescription;
     float                         textToQuadBorder{0.f};
     float                         slctFrameSize{0.f};
     float                         packLabelHeight{0.f};

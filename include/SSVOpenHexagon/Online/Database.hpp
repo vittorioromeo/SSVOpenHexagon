@@ -8,9 +8,9 @@
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string>
-#include <vector>
 
 // TODO (P2): remove reliance on steam ID for future platforms
 
@@ -33,14 +33,14 @@ void removeAllLoginTokensForUser(const sf::base::U32 userId);
 
 void addLoginToken(const LoginToken& loginToken);
 
-[[nodiscard]] std::vector<User> getAllUsersWithSteamId(const sf::base::U64 steamId);
+[[nodiscard]] sf::base::Vector<User> getAllUsersWithSteamId(const sf::base::U64 steamId);
 
 [[nodiscard]] sf::base::Optional<User> getUserWithSteamId(const sf::base::U64 steamId);
 
-[[nodiscard]] std::vector<LoginToken> getAllStaleLoginTokens();
-void                                  removeAllStaleLoginTokens();
+[[nodiscard]] sf::base::Vector<LoginToken> getAllStaleLoginTokens();
+void                                       removeAllStaleLoginTokens();
 
-[[nodiscard]] std::vector<ProcessedScore> getTopScores(const int topLimit, const std::string& levelValidator);
+[[nodiscard]] sf::base::Vector<ProcessedScore> getTopScores(const int topLimit, const std::string& levelValidator);
 
 [[nodiscard]] bool isLoginTokenValid(sf::base::U64 token);
 

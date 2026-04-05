@@ -29,11 +29,11 @@
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StringViewStreamOp.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <sstream>
 #include <string>
 #include <tuple>
-#include <vector>
 
 namespace hg::LuaScripting
 {
@@ -1288,7 +1288,7 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
 static void initExecScript(Lua::LuaContext&                               lua,
                            HGAssets&                                      assets,
                            const std::function<void(const std::string&)>& fRunLuaFile,
-                           std::vector<std::string>&                      execScriptPackPathContext,
+                           sf::base::Vector<std::string>&                 execScriptPackPathContext,
                            const std::function<const std::string&()>&     fPackPathGetter,
                            const std::function<const PackData&()>&        fGetPackData)
 {
@@ -1327,7 +1327,7 @@ static void initExecScript(Lua::LuaContext&                               lua,
 
 static void initShaders(Lua::LuaContext&                           lua,
                         HGAssets&                                  assets,
-                        std::vector<std::string>&                  execScriptPackPathContext,
+                        sf::base::Vector<std::string>&             execScriptPackPathContext,
                         const std::function<const std::string&()>& fPackPathGetter,
                         const std::function<const PackData&()>&    fGetPackData,
                         HexagonGameStatus&                         hexagonGameStatus,
@@ -1729,7 +1729,7 @@ void init(Lua::LuaContext&                               lua,
           StyleData&                                     styleData,
           HGAssets&                                      assets,
           const std::function<void(const std::string&)>& fRunLuaFile,
-          std::vector<std::string>&                      execScriptPackPathContext,
+          sf::base::Vector<std::string>&                 execScriptPackPathContext,
           const std::function<const std::string&()>&     fPackPathGetter,
           const std::function<const PackData&()>&        fGetPackData,
           const bool                                     headless)
@@ -1765,18 +1765,18 @@ void printDocs()
     }
 }
 
-const std::vector<std::string>& getAllFunctionNames()
+const sf::base::Vector<std::string>& getAllFunctionNames()
 {
     Utils::LuaMetadata& lm = getMetadata();
 
-    static std::vector<std::string> result = [&]
+    static sf::base::Vector<std::string> result = [&]
     {
-        std::vector<std::string> v;
+        sf::base::Vector<std::string> v;
 
         for (sf::base::SizeT i = 0; i < lm.getNumCategories(); ++i)
         {
             lm.forFnEntries([&](const std::string&, const std::string& name, const std::string&, const std::string&) {
-                v.emplace_back(name);
+                v.emplaceBack(name);
             }, i);
         }
 

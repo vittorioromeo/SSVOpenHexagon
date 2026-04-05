@@ -9,9 +9,9 @@
 
 #include "SFML/Base/Algorithm/Sort.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string>
-#include <vector>
 
 namespace hg
 {
@@ -29,10 +29,10 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath, cons
     soundId{ssvuj::getExtr<std::string>(mRoot, "soundId", "nullSoundId")},
     styleId{ssvuj::getExtr<std::string>(mRoot, "styleId", "nullStyleId")},
     luaScriptPath{packPath + ssvuj::getExtr<std::string>(mRoot, "luaFile", "nullLuaPath")},
-    difficultyMults{ssvuj::getExtr<std::vector<float>>(mRoot, "difficultyMults", {})},
+    difficultyMults{ssvuj::getExtr<sf::base::Vector<float>>(mRoot, "difficultyMults", {})},
     unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)}
 {
-    difficultyMults.emplace_back(1.f);
+    difficultyMults.emplaceBack(1.f);
     sf::base::quickSort(difficultyMults.begin(), difficultyMults.end());
 
     for (const float dm : difficultyMults)
@@ -60,7 +60,7 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath, cons
         index -= difficultyMults.size();
     }
 
-    return difficultyMults.at(index);
+    return difficultyMults[index];
 }
 
 [[nodiscard]] const std::string& LevelData::getValidator(const float diffMult) const

@@ -176,10 +176,10 @@ const PackData& findDependencyPackDataOrThrow(
 }
 
 [[nodiscard]] static std::string getDependentAssetFilename(
-    const char*               assetSubfolder,
-    std::vector<std::string>& execScriptPackPathContext,
-    const std::string&        currentPackPath,
-    const std::string&        mAssetName)
+    const char*                    assetSubfolder,
+    sf::base::Vector<std::string>& execScriptPackPathContext,
+    const std::string&             currentPackPath,
+    const std::string&             mAssetName)
 {
     const std::string& context = execScriptPackPathContext.empty() ? currentPackPath : execScriptPackPathContext.back();
 
@@ -189,7 +189,7 @@ const PackData& findDependencyPackDataOrThrow(
 static void withDependencyAssetFilename(
     const char*                                   assetSubfolder,
     const std::function<void(const std::string&)> f,
-    std::vector<std::string>&                     execScriptPackPathContext,
+    sf::base::Vector<std::string>&                execScriptPackPathContext,
     HGAssets&                                     assets,
     const PackData&                               currentPack,
     const std::string&                            mPackDisambiguator,
@@ -200,8 +200,8 @@ try
 {
     const PackData& dependencyData = findDependencyPackDataOrThrow(assets, currentPack, mPackDisambiguator, mPackName, mPackAuthor);
 
-    execScriptPackPathContext.emplace_back(dependencyData.folderPath);
-    SFML_BASE_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
+    execScriptPackPathContext.emplaceBack(dependencyData.folderPath);
+    SFML_BASE_SCOPE_GUARD({ execScriptPackPathContext.popBack(); });
 
     return f(concat(dependencyData.folderPath, assetSubfolder, '/', mAssetName));
 } catch (const std::runtime_error& err)
@@ -219,7 +219,7 @@ try
 
 void withDependencyScriptFilename(
     const std::function<void(const std::string&)> f,
-    std::vector<std::string>&                     execScriptPackPathContext,
+    sf::base::Vector<std::string>&                execScriptPackPathContext,
     HGAssets&                                     assets,
     const PackData&                               currentPack,
     const std::string&                            mPackDisambiguator,
@@ -238,16 +238,16 @@ void withDependencyScriptFilename(
                                 mScriptName);
 }
 
-[[nodiscard]] std::string getDependentScriptFilename(std::vector<std::string>& execScriptPackPathContext,
-                                                     const std::string&        currentPackPath,
-                                                     const std::string&        mScriptName)
+[[nodiscard]] std::string getDependentScriptFilename(sf::base::Vector<std::string>& execScriptPackPathContext,
+                                                     const std::string&             currentPackPath,
+                                                     const std::string&             mScriptName)
 {
     return getDependentAssetFilename("Scripts", execScriptPackPathContext, currentPackPath, mScriptName);
 }
 
 void withDependencyShaderFilename(
     const std::function<void(const std::string&)> f,
-    std::vector<std::string>&                     execScriptPackPathContext,
+    sf::base::Vector<std::string>&                execScriptPackPathContext,
     HGAssets&                                     assets,
     const PackData&                               currentPack,
     const std::string&                            mPackDisambiguator,
@@ -266,9 +266,9 @@ void withDependencyShaderFilename(
                                 mShaderName);
 }
 
-[[nodiscard]] std::string getDependentShaderFilename(std::vector<std::string>& execScriptPackPathContext,
-                                                     const std::string&        currentPackPath,
-                                                     const std::string&        mShaderName)
+[[nodiscard]] std::string getDependentShaderFilename(sf::base::Vector<std::string>& execScriptPackPathContext,
+                                                     const std::string&             currentPackPath,
+                                                     const std::string&             mShaderName)
 {
     return getDependentAssetFilename("Shaders", execScriptPackPathContext, currentPackPath, mShaderName);
 }

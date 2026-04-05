@@ -5,9 +5,9 @@
 #pragma once
 
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string>
-#include <vector>
 
 
 namespace hg
@@ -25,7 +25,7 @@ public:
     };
 
 private:
-    std::vector<Segment> segments;
+    sf::base::Vector<Segment> segments;
 
 public:
     std::string id;

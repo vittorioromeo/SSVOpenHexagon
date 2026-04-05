@@ -5,10 +5,10 @@
 
 #include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <stack>
 #include <string>
-#include <vector>
 
 namespace ssvms
 {
@@ -19,15 +19,15 @@ class Menu
 private:
     using Controller = Impl::Controller;
 
-    std::vector<sf::base::UniquePtr<Category>> categories;
-    Category*                                  category{nullptr};
-    std::stack<Category*>                      lastCategories;
-    Controller                                 controller;
+    sf::base::Vector<sf::base::UniquePtr<Category>> categories;
+    Category*                                       category{nullptr};
+    std::stack<Category*>                           lastCategories;
+    Controller                                      controller;
 
 public:
     [[nodiscard]] auto& createCategory(const std::string& mName)
     {
-        categories.push_back(sf::base::makeUnique<Category>(*this, mName));
+        categories.pushBack(sf::base::makeUnique<Category>(*this, mName));
 
         Category& result{*categories.back()};
         if (category == nullptr)
@@ -87,12 +87,12 @@ public:
         return category->getItem();
     }
 
-    [[nodiscard]] std::vector<sf::base::UniquePtr<ItemBase>>& getItems()
+    [[nodiscard]] sf::base::Vector<sf::base::UniquePtr<ItemBase>>& getItems()
     {
         return category->getItems();
     }
 
-    [[nodiscard]] const std::vector<sf::base::UniquePtr<ItemBase>>& getItems() const
+    [[nodiscard]] const sf::base::Vector<sf::base::UniquePtr<ItemBase>>& getItems() const
     {
         return category->getItems();
     }

@@ -43,6 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SFML/Base/Trait/IsSame.hpp"
 #include "SFML/Base/Trait/IsVoid.hpp"
 #include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <limits>
 #include <lua.hpp>
@@ -52,7 +53,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <string_view>
 #include <tuple>
-#include <vector>
 
 namespace Lua
 {
@@ -537,7 +537,7 @@ public:
             using RKey   = typename ToPushableType<SFML_BASE_DECAY(Key)>::type;
             using RValue = typename ToPushableType<SFML_BASE_DECAY(Value)>::type;
 
-            _elements.emplace_back(new Element<RKey, RValue>(SSVOH_FWD(k), SSVOH_FWD(v)));
+            _elements.emplaceBack(new Element<RKey, RValue>(SSVOH_FWD(k), SSVOH_FWD(v)));
 
             insert(SSVOH_FWD(args)...);
         }
@@ -625,7 +625,7 @@ public:
         }
 
         // elements storage
-        std::vector<sf::base::UniquePtr<ElementBase>> _elements;
+        sf::base::Vector<sf::base::UniquePtr<ElementBase>> _elements;
     };
 
 private:

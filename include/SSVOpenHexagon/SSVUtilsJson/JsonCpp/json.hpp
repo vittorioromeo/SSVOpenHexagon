@@ -9,11 +9,12 @@
 // Include as system header to suppress dependency warnings.
 #pragma GCC system_header
 
+#include "SFML/Base/Vector.hpp"
+
 #include <deque>
 #include <map>
 #include <stack>
 #include <string>
-#include <vector>
 
 #define JSON_FAIL_MESSAGE(message) throw std::runtime_error(message);
 #define JSON_ASSERT_MESSAGE(condition, message) \
@@ -114,7 +115,7 @@ class Value
     friend class ValueIteratorBase;
 
 public:
-    using Members        = std::vector<std::string>;
+    using Members        = sf::base::Vector<std::string>;
     using iterator       = ValueIterator;
     using const_iterator = ValueConstIterator;
 
@@ -317,9 +318,9 @@ public:
 class Path
 {
 private:
-    typedef std::vector<const PathArgument*> InArgs;
-    typedef std::vector<PathArgument>        Args;
-    void                                     makePath(const std::string& path, const InArgs& in);
+    typedef sf::base::Vector<const PathArgument*> InArgs;
+    typedef sf::base::Vector<PathArgument>        Args;
+    void                                          makePath(const std::string& path, const InArgs& in);
     void addPathInArg(const std::string& path, const InArgs& in, InArgs::const_iterator& itInArg, PathArgument::Kind kind);
     void invalidPath(const std::string& path, int location);
     Args args_;
@@ -575,25 +576,25 @@ public:
     virtual std::string write(const Value& root);
 
 private:
-    void                             writeValue(const Value& value);
-    void                             writeArrayValue(const Value& value);
-    bool                             isMultineArray(const Value& value);
-    void                             pushValue(const std::string& value);
-    void                             writeIndent();
-    void                             writeWithIndent(const std::string& value);
-    void                             indent();
-    void                             unindent();
-    void                             writeCommentBeforeValue(const Value& root);
-    void                             writeCommentAfterValueOnSameLine(const Value& root);
-    bool                             hasCommentForValue(const Value& value);
-    static std::string               normalizeEOL(const std::string& text);
-    typedef std::vector<std::string> ChildValues;
-    ChildValues                      childValues_;
-    std::string                      document_;
-    std::string                      indentString_;
-    int                              rightMargin_;
-    int                              indentSize_;
-    bool                             addChildValues_;
+    void                                  writeValue(const Value& value);
+    void                                  writeArrayValue(const Value& value);
+    bool                                  isMultineArray(const Value& value);
+    void                                  pushValue(const std::string& value);
+    void                                  writeIndent();
+    void                                  writeWithIndent(const std::string& value);
+    void                                  indent();
+    void                                  unindent();
+    void                                  writeCommentBeforeValue(const Value& root);
+    void                                  writeCommentAfterValueOnSameLine(const Value& root);
+    bool                                  hasCommentForValue(const Value& value);
+    static std::string                    normalizeEOL(const std::string& text);
+    typedef sf::base::Vector<std::string> ChildValues;
+    ChildValues                           childValues_;
+    std::string                           document_;
+    std::string                           indentString_;
+    int                                   rightMargin_;
+    int                                   indentSize_;
+    bool                                  addChildValues_;
 };
 class StyledStreamWriter
 {
@@ -605,25 +606,25 @@ public:
     void write(std::ostream& out, const Value& root);
 
 private:
-    void                             writeValue(const Value& value);
-    void                             writeArrayValue(const Value& value);
-    bool                             isMultineArray(const Value& value);
-    void                             pushValue(const std::string& value);
-    void                             writeIndent();
-    void                             writeWithIndent(const std::string& value);
-    void                             indent();
-    void                             unindent();
-    void                             writeCommentBeforeValue(const Value& root);
-    void                             writeCommentAfterValueOnSameLine(const Value& root);
-    bool                             hasCommentForValue(const Value& value);
-    static std::string               normalizeEOL(const std::string& text);
-    typedef std::vector<std::string> ChildValues;
-    ChildValues                      childValues_;
-    std::ostream*                    document_;
-    std::string                      indentString_;
-    int                              rightMargin_;
-    std::string                      indentation_;
-    bool                             addChildValues_;
+    void                                  writeValue(const Value& value);
+    void                                  writeArrayValue(const Value& value);
+    bool                                  isMultineArray(const Value& value);
+    void                                  pushValue(const std::string& value);
+    void                                  writeIndent();
+    void                                  writeWithIndent(const std::string& value);
+    void                                  indent();
+    void                                  unindent();
+    void                                  writeCommentBeforeValue(const Value& root);
+    void                                  writeCommentAfterValueOnSameLine(const Value& root);
+    bool                                  hasCommentForValue(const Value& value);
+    static std::string                    normalizeEOL(const std::string& text);
+    typedef sf::base::Vector<std::string> ChildValues;
+    ChildValues                           childValues_;
+    std::ostream*                         document_;
+    std::string                           indentString_;
+    int                                   rightMargin_;
+    std::string                           indentation_;
+    bool                                  addChildValues_;
 };
 static const Value nullJsonValue{};
 #ifdef JSON_HAS_INT64

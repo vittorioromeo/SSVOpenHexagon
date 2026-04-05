@@ -1666,7 +1666,7 @@ inline Value::Members Value::getMemberNames() const
     auto it    = value_.map_->begin();
     auto itEnd = value_.map_->end();
     for (; it != itEnd; ++it)
-        members.emplace_back(std::string((*it).first.c_str()));
+        members.emplaceBack(std::string((*it).first.c_str()));
 
     return members;
 }
@@ -1876,11 +1876,11 @@ inline Path::Path(const std::string&  path,
                   const PathArgument& a5)
 {
     InArgs in;
-    in.emplace_back(&a1);
-    in.emplace_back(&a2);
-    in.emplace_back(&a3);
-    in.emplace_back(&a4);
-    in.emplace_back(&a5);
+    in.emplaceBack(&a1);
+    in.emplaceBack(&a2);
+    in.emplaceBack(&a3);
+    in.emplaceBack(&a4);
+    in.emplaceBack(&a5);
     makePath(path, in);
 }
 inline void Path::makePath(const std::string& path, const InArgs& in)
@@ -1900,7 +1900,7 @@ inline void Path::makePath(const std::string& path, const InArgs& in)
                 ArrayIndex index = 0;
                 for (; current != end && *current >= '0' && *current <= '9'; ++current)
                     index = index * 10 + ArrayIndex(*current - '0');
-                args_.emplace_back(index);
+                args_.emplaceBack(index);
             }
             if (current == end || *current++ != ']')
                 invalidPath(path, int(current - path.c_str()));
@@ -1917,7 +1917,7 @@ inline void Path::makePath(const std::string& path, const InArgs& in)
             const char* beginName = current;
             while (current != end && !strchr("[.", *current))
                 ++current;
-            args_.emplace_back(std::string(beginName, current));
+            args_.emplaceBack(std::string(beginName, current));
         }
     }
 }
@@ -1930,7 +1930,7 @@ inline void Path::addPathInArg(const std::string&, const InArgs& in, InArgs::con
     {
     }
     else
-        args_.emplace_back(**itInArg);
+        args_.emplaceBack(**itInArg);
 }
 inline void Path::invalidPath(const std::string&, int)
 {
@@ -2339,7 +2339,7 @@ inline bool StyledWriter::isMultineArray(const Value& value)
 inline void StyledWriter::pushValue(const std::string& value)
 {
     if (addChildValues_)
-        childValues_.emplace_back(value);
+        childValues_.emplaceBack(value);
     else
         document_ += value;
 }
@@ -2567,7 +2567,7 @@ inline bool StyledStreamWriter::isMultineArray(const Value& value)
 inline void StyledStreamWriter::pushValue(const std::string& value)
 {
     if (addChildValues_)
-        childValues_.emplace_back(value);
+        childValues_.emplaceBack(value);
     else
         *document_ << value;
 }

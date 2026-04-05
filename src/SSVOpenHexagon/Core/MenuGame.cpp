@@ -81,6 +81,7 @@
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 #include <SSVUtils/Core/String/ToStr.hpp>
@@ -95,7 +96,6 @@
 #include <string_view>
 #include <tuple>
 #include <utility>
-#include <vector>
 
 #include <cstdio>
 #include <cstdlib>
@@ -451,7 +451,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
         {
             if (e->unicode < 128)
             {
-                enteredChars.emplace_back(ssvu::toNum<char>(e->unicode));
+                enteredChars.emplaceBack(ssvu::toNum<char>(e->unicode));
             }
 
             if (!dialogBox.empty() && dialogBox.isInputBox())
@@ -1732,7 +1732,7 @@ bool MenuGame::loadCommandLineLevel(const std::string& pack, const std::string& 
     for (int i{0}; i < static_cast<int>(p.size()); ++i)
     {
         // once you find the pack index search if it contains the level
-        if (packID != p.at(i).id)
+        if (packID != p[i].id)
         {
             continue;
         }
@@ -1799,24 +1799,24 @@ void MenuGame::playLocally()
         return {0, 0};
     }
 
-    std::vector<std::string> levelIDs;
-    ssvuj::Obj               object = ssvuj::getFromFile("Assets/menubackgrounds.json");
-    for (const auto& f : ssvuj::getExtr<std::vector<std::string>>(object, "ids"))
+    sf::base::Vector<std::string> levelIDs;
+    ssvuj::Obj                    object = ssvuj::getFromFile("Assets/menubackgrounds.json");
+    for (const auto& f : ssvuj::getExtr<sf::base::Vector<std::string>>(object, "ids"))
     {
-        levelIDs.emplace_back(f);
+        levelIDs.emplaceBack(f);
     }
 
     // pick one of those at random
     const std::string pickedLevel{levelIDs[ssvu::getRndI(0, levelIDs.size())]};
 
     // retrieve the level index location
-    const auto&                     p(assets.getSelectablePackInfos());
-    const std::vector<std::string>* levelsIDs;
+    const auto&                          p(assets.getSelectablePackInfos());
+    const sf::base::Vector<std::string>* levelsIDs;
 
     // store info main menu requires to set the color theme
     for (int i{0}; i < static_cast<int>(p.size()); ++i)
     {
-        const std::string& packId = p.at(i).id;
+        const std::string& packId = p[i].id;
 
         if (!assets.packHasLevels(packId))
         {
@@ -2103,7 +2103,7 @@ void MenuGame::changePackTo(const int idx)
     lvlSlct.packIdx = ssvu::getMod(idx, 0, static_cast<int>(p.size()));
 
     // Load level ids relative to the new pack
-    lvlSlct.levelDataIds = &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
+    lvlSlct.levelDataIds = &assets.getLevelIdsByPack(p[lvlDrawer->packIdx].id);
 
     // Set the correct level index.
     setIndex(0);
@@ -2120,7 +2120,7 @@ void MenuGame::changePack()
     lvlSlct.packIdx = ssvu::getMod(lvlDrawer->packIdx + (packChangeDirection > 0 ? 1 : -1), 0, static_cast<int>(p.size()));
 
     // Load level ids relative to the new pack
-    lvlSlct.levelDataIds = &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
+    lvlSlct.levelDataIds = &assets.getLevelIdsByPack(p[lvlDrawer->packIdx].id);
 
     // Set the correct level index.
     setIndex(packChangeDirection == -2 ? lvlSlct.levelDataIds->size() - 1 : 0);
@@ -2354,12 +2354,12 @@ void MenuGame::playSelectedLevel()
     {
         setMouseCursorVisible(false);
 
-        fnHGNewGame(                                              //
-            getNthSelectablePackInfo(lvlDrawer->packIdx).id,      //
-            lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), //
-            true /* firstPlay */,                                 //
-            levelData->getNthDiffMult(diffMultIdx),               //
-            false /* executeLastReplay */                         //
+        fnHGNewGame(                                             //
+            getNthSelectablePackInfo(lvlDrawer->packIdx).id,     //
+            (*lvlDrawer->levelDataIds)[lvlDrawer->currentIndex], //
+            true /* firstPlay */,                                //
+            levelData->getNthDiffMult(diffMultIdx),              //
+            false /* executeLastReplay */                        //
         );
     }
 }
@@ -2638,7 +2638,7 @@ void MenuGame::update(float mFT)
             auto& items = getCurrentMenu()->getItems();
             if (static_cast<int>(items.size()) > *mustUseMenuItem)
             {
-                ssvms::ItemBase& item = *items.at(*mustUseMenuItem);
+                ssvms::ItemBase& item = *items[*mustUseMenuItem];
 
                 if (item.isEnabled())
                 {
@@ -2892,7 +2892,7 @@ void MenuGame::setIndex(const int mIdx)
 {
     lvlDrawer->currentIndex = mIdx;
 
-    const std::string levelID{lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex)};
+    const std::string levelID{(*lvlDrawer->levelDataIds)[lvlDrawer->currentIndex]};
 
     levelData   = &assets.getLevelData(levelID);
     currentPack = &assets.getPackData(levelData->packId);
@@ -2912,7 +2912,7 @@ void MenuGame::setIndex(const int mIdx)
 
         for (int i{0}; i < static_cast<int>(p.size()); ++i)
         {
-            if (levelData->packId == p.at(i).id)
+            if (levelData->packId == p[i].id)
             {
                 lvlDrawer->packIdx = i;
                 break;
@@ -2996,7 +2996,7 @@ void MenuGame::setIndex(const int mIdx)
 
     // Set gameplay values
     diffMultIdx = 0;
-    for (; levelData->difficultyMults.at(diffMultIdx) != 1.f; ++diffMultIdx)
+    for (; levelData->difficultyMults[diffMultIdx] != 1.f; ++diffMultIdx)
     {
     }
 
@@ -3540,7 +3540,7 @@ void MenuGame::drawScrollbar(const float      totalHeight,
     drawOverlay(menuQuads);
 }
 
-void MenuGame::drawMainSubmenus(const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent)
+void MenuGame::drawMainSubmenus(const sf::base::Vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent)
 {
     bool currentlySelected, hasOffset;
     for (auto& c : subMenus)
@@ -3558,7 +3558,7 @@ void MenuGame::drawMainSubmenus(const std::vector<sf::base::UniquePtr<ssvms::Cat
     }
 }
 
-void MenuGame::drawSubmenusSmall(const std::vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent)
+void MenuGame::drawSubmenusSmall(const sf::base::Vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent)
 {
     bool currentlySelected, hasOffset;
     for (auto& c : subMenus)
@@ -3670,7 +3670,7 @@ void MenuGame::drawMainMenu(ssvms::Category& mSubMenu, float baseIndent, const b
     menuQuads.clear();
     menuQuads.reserve_quad(size);
 
-    static std::vector<bool> mouseOverlaps;
+    static sf::base::Vector<bool> mouseOverlaps;
     mouseOverlaps.resize(size);
 
     for (int i{0}; i < size; ++i)
@@ -3712,7 +3712,7 @@ void MenuGame::drawMainMenu(ssvms::Category& mSubMenu, float baseIndent, const b
     {
         indent = baseIndent - items[i]->getOffset();
 
-        const sf::Color c = mouseOverlapColor(mouseOverlaps.at(i),
+        const sf::Color c = mouseOverlapColor(mouseOverlaps[i],
                                               !items[i]->isEnabled() ? sf::Color{150, 150, 150, 255} : menuTextColor);
 
         renderText(items[i]->getName(), txtMenuBig.font, {indent, txtHeight}, c);
@@ -4541,13 +4541,13 @@ void MenuGame::formatLevelDescription()
 {
     levelDescription.clear();
 
-    std::vector<std::string> words;
+    sf::base::Vector<std::string> words;
 
     {
         strBuf.clear();
         std::string& desc = strBuf;
 
-        desc += assets.getLevelData(lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex)).description;
+        desc += assets.getLevelData((*lvlDrawer->levelDataIds)[lvlDrawer->currentIndex]).description;
 
         if (desc.empty())
         {
@@ -4563,12 +4563,12 @@ void MenuGame::formatLevelDescription()
         {
             if (desc[i] == '\n')
             {
-                words.emplace_back(desc.substr(j, i - j + 1)); // include newline.
+                words.emplaceBack(desc.substr(j, i - j + 1)); // include newline.
                 j = i + 1;
             }
             else if (desc[i] == ' ')
             {
-                words.emplace_back(desc.substr(j, i - j));
+                words.emplaceBack(desc.substr(j, i - j));
                 j = i + 1; // skip the space.
             }
         }
@@ -4599,16 +4599,16 @@ void MenuGame::formatLevelDescription()
             if (txtSelectionSmall.font.getGlobalWidth() < maxWidth)
             {
                 candidate += temp;
-                levelDescription.push_back(candidate);
+                levelDescription.pushBack(candidate);
             }
             else
             {
                 // ...otherwise add "candidate" to the vector and add the new
                 // word on its own.
-                levelDescription.push_back(candidate);
+                levelDescription.pushBack(candidate);
                 if (levelDescription.size() < descLines)
                 {
-                    levelDescription.push_back(words[i]);
+                    levelDescription.pushBack(words[i]);
                 }
             }
             candidate.clear();
@@ -4624,14 +4624,14 @@ void MenuGame::formatLevelDescription()
 
         // ...if it doesn't add to the vector "candidate" and then set it to be
         // just the overflowing word, to be checked upon in the next cycles.
-        levelDescription.push_back(candidate);
+        levelDescription.pushBack(candidate);
         candidate = words[i];
     }
 
     // Add whatever is left if it fits.
     if (levelDescription.size() < descLines)
     {
-        levelDescription.push_back(candidate);
+        levelDescription.pushBack(candidate);
     }
 }
 
@@ -4644,7 +4644,7 @@ void MenuGame::changeFavoriteLevelsToProfile()
 
     for (const std::string& id : assets.getCurrentLocalProfile().getFavoriteLevelIds())
     {
-        favoriteLevelDataIds.push_back(id);
+        favoriteLevelDataIds.pushBack(id);
     }
 
     sf::base::quickSort(favoriteLevelDataIds.begin(),
@@ -4682,12 +4682,12 @@ void MenuGame::changeFavoriteLevelsToProfile()
 
 [[nodiscard]] const PackInfo& MenuGame::getNthSelectablePackInfo(const sf::base::SizeT i)
 {
-    return assets.getSelectablePackInfos().at(i);
+    return assets.getSelectablePackInfos()[i];
 }
 
 void MenuGame::addRemoveFavoriteLevel()
 {
-    const LevelData& data{assets.getLevelData(lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))};
+    const LevelData& data{assets.getLevelData((*lvlDrawer->levelDataIds)[lvlDrawer->currentIndex])};
 
     const std::string levelID{data.packId + "_" + data.id};
 
@@ -4696,7 +4696,7 @@ void MenuGame::addRemoveFavoriteLevel()
     {
         assets.getCurrentLocalProfile().removeFavoriteLevel(levelID);
         favoriteLevelDataIds.erase(std::find(favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(), levelID));
-        favSlct.lvlOffsets.pop_back();
+        favSlct.lvlOffsets.popBack();
 
         // Make sure the index is within bounds.
         if (!favSlct.levelDataIds->empty())
@@ -4740,7 +4740,7 @@ void MenuGame::addRemoveFavoriteLevel()
     else
     {
         assets.getCurrentLocalProfile().addFavoriteLevel(levelID);
-        favSlct.lvlOffsets.emplace_back(0.f);
+        favSlct.lvlOffsets.emplaceBack(0.f);
         isLevelFavorite = true;
 
         // Add the level to the favorites vector
@@ -4763,7 +4763,7 @@ void MenuGame::addRemoveFavoriteLevel()
 
         if (it == end)
         {
-            favoriteLevelDataIds.emplace_back(levelID);
+            favoriteLevelDataIds.emplaceBack(levelID);
         }
         else
         {
@@ -4915,7 +4915,7 @@ void MenuGame::drawLevelSelectionRightSide(LevelDrawer& drawer, const bool rever
 
         //-------------------------------------
         // Level data
-        const LevelData* const levelData{&assets.getLevelData(drawer.levelDataIds->at(i))};
+        const LevelData* const levelData{&assets.getLevelData((*drawer.levelDataIds)[i])};
         if (levelData == nullptr)
         {
             continue;
@@ -5126,7 +5126,7 @@ void MenuGame::drawLevelSelectionLeftSide(LevelDrawer& drawer, const bool revert
 
     constexpr float lineThickness{2.f};
 
-    const LevelData& levelData{assets.getLevelData(drawer.levelDataIds->at(drawer.currentIndex))};
+    const LevelData& levelData{assets.getLevelData((*drawer.levelDataIds)[drawer.currentIndex])};
 
     const float maxPanelOffset{w * 0.33f};
     const float panelOffset{calcMenuOffset(levelDetailsOffset, maxPanelOffset, revertOffset)};
@@ -5804,7 +5804,7 @@ void MenuGame::drawOnlineStatus()
         return {false, "UNKNOWN"};
     }();
 
-    txtOnlineStatus.setString("ABC,:ç@'");
+    txtOnlineStatus.setString("ABC,:::'");
     const auto  txtHeight   = txtOnlineStatus.getGlobalHeight();
     const float spriteScale = (txtHeight + padding * 2.f) / 64.f;
 

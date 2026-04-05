@@ -7,9 +7,9 @@
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
 #include "SFML/Base/StringView.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <algorithm>
-#include <vector>
 
 namespace hg::Utils
 {
@@ -20,7 +20,7 @@ void withSplit(F&& f, const sf::base::StringView str, const sf::base::StringView
     for (auto first = str.data(), second = str.data(), last = first + str.size(); second != last && first != last;
          first = second + 1)
     {
-        second = std::find_first_of(first, last, std::cbegin(delims), std::cend(delims));
+        second = std::find_first_of(first, last, delims.data(), delims.data() + delims.size());
 
         if (first != second)
         {
@@ -30,12 +30,12 @@ void withSplit(F&& f, const sf::base::StringView str, const sf::base::StringView
 }
 
 template <typename TSplitType = sf::base::StringView>
-[[nodiscard]] inline std::vector<TSplitType> split(const sf::base::StringView str,
-                                                   const sf::base::StringView delims = " ")
+[[nodiscard]] inline sf::base::Vector<TSplitType> split(const sf::base::StringView str,
+                                                        const sf::base::StringView delims = " ")
 {
-    std::vector<TSplitType> result;
+    sf::base::Vector<TSplitType> result;
 
-    withSplit<TSplitType>([&](TSplitType&& piece) { result.emplace_back(SSVOH_MOVE(piece)); }, str, delims);
+    withSplit<TSplitType>([&](TSplitType&& piece) { result.emplaceBack(SSVOH_MOVE(piece)); }, str, delims);
 
     return result;
 }

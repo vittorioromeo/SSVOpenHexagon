@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include "SFML/Base/Vector.hpp"
+
 #include <string>
-#include <vector>
 
 namespace hg
 {
@@ -20,15 +21,15 @@ struct PackDependency
 
 struct PackData
 {
-    std::string                 folderPath;
-    std::string                 id;
-    std::string                 disambiguator;
-    std::string                 name;
-    std::string                 author;
-    std::string                 description;
-    int                         version;
-    float                       priority;
-    std::vector<PackDependency> dependencies;
+    std::string                      folderPath;
+    std::string                      id;
+    std::string                      disambiguator;
+    std::string                      name;
+    std::string                      author;
+    std::string                      description;
+    int                              version;
+    float                            priority;
+    sf::base::Vector<PackDependency> dependencies;
 };
 
 } // namespace hg

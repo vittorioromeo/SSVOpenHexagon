@@ -13,11 +13,11 @@
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/Variant.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <sodium.h>
 #include <sstream>
 #include <string>
-#include <vector>
 
 namespace sf
 {
@@ -34,7 +34,7 @@ namespace Impl
 
 struct CiphertextVectorPtr
 {
-    std::vector<sf::base::U8>* ptr;
+    sf::base::Vector<sf::base::U8>* ptr;
 };
 
 } // namespace Impl
@@ -110,10 +110,10 @@ struct STCPLogoutSuccess          { };
 struct STCPLogoutFailure          { };
 struct STCPDeleteAccountSuccess   { };
 struct STCPDeleteAccountFailure   { std::string error; };
-struct STCPTopScores              { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
+struct STCPTopScores              { std::string levelValidator; sf::base::Vector<Database::ProcessedScore> scores; };
 struct STCPOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
-struct STCPTopScoresAndOwnScore   { std::string levelValidator; std::vector<Database::ProcessedScore> scores; sf::base::Optional<Database::ProcessedScore> ownScore; };
-struct STCPServerStatus           { ProtocolVersion protocolVersion; GameVersion gameVersion; std::vector<std::string> supportedLevelValidators; };
+struct STCPTopScoresAndOwnScore   { std::string levelValidator; sf::base::Vector<Database::ProcessedScore> scores; sf::base::Optional<Database::ProcessedScore> ownScore; };
+struct STCPServerStatus           { ProtocolVersion protocolVersion; GameVersion gameVersion; sf::base::Vector<std::string> supportedLevelValidators; };
 // clang-format on
 
 #define SSVOH_STC_PACKETS_X(x, c)                                                                                    \

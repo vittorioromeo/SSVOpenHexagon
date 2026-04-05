@@ -11,10 +11,10 @@
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/Trait/IsEnum.hpp"
 #include "SFML/Base/Trait/UnderlyingType.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace ssvuj
 {
@@ -129,10 +129,10 @@ struct Converter<unsigned long>
     }
 };
 
-template <typename TItem, typename TAlloc>
-struct Converter<std::vector<TItem, TAlloc>>
+template <typename TItem>
+struct Converter<sf::base::Vector<TItem>>
 {
-    using T = std::vector<TItem, TAlloc>;
+    using T = sf::base::Vector<TItem>;
     static void fromObj(const Obj& mObj, T& mValue)
     {
         const auto& size(getObjSize(mObj));

@@ -167,13 +167,17 @@ void addLoginToken(const LoginToken& loginToken)
                << Impl::getStorage().dump(loginToken) << '\n';
 }
 
-[[nodiscard]] std::vector<User> getAllUsersWithSteamId(const sf::base::U64 steamId)
+[[nodiscard]] sf::base::Vector<User> getAllUsersWithSteamId(const sf::base::U64 steamId)
 {
     using namespace sqlite_orm;
 
     auto query = Impl::getStorage().get_all<User>(where(steamId == c(&User::steamId)));
 
-    return query;
+    sf::base::Vector<User> result;
+    result.reserve(query.size());
+    for (auto& u : query)
+        result.emplaceBack(std::move(u));
+    return result;
 }
 
 [[nodiscard]] sf::base::Optional<User> getUserWithSteamId(const sf::base::U64 steamId)
@@ -205,7 +209,7 @@ constexpr int tokenValiditySeconds = 3600;
     return (now - Utils::toTimepoint(lt.timestamp)) < std::chrono::seconds(tokenValiditySeconds);
 }
 
-[[nodiscard]] std::vector<LoginToken> getAllStaleLoginTokens()
+[[nodiscard]] sf::base::Vector<LoginToken> getAllStaleLoginTokens()
 {
     using namespace sqlite_orm;
 
@@ -216,7 +220,11 @@ constexpr int tokenValiditySeconds = 3600;
                                [&](const LoginToken& lt) { return isLoginTokenTimestampValid(lt); }),
                 std::end(query));
 
-    return query;
+    sf::base::Vector<LoginToken> result;
+    result.reserve(query.size());
+    for (auto& lt : query)
+        result.emplaceBack(std::move(lt));
+    return result;
 }
 
 void removeAllStaleLoginTokens()
@@ -230,7 +238,7 @@ void removeAllStaleLoginTokens()
     }
 }
 
-[[nodiscard]] std::vector<ProcessedScore> getTopScores(const int topLimit, const std::string& levelValidator)
+[[nodiscard]] sf::base::Vector<ProcessedScore> getTopScores(const int topLimit, const std::string& levelValidator)
 {
     using namespace sqlite_orm;
 
@@ -240,12 +248,12 @@ void removeAllStaleLoginTokens()
                                            order_by(&Score::value).desc(),
                                            limit(topLimit));
 
-    std::vector<ProcessedScore> result;
+    sf::base::Vector<ProcessedScore> result;
 
     sf::base::U32 index = 0;
     for (const auto& row : query)
     {
-        result.push_back( //
+        result.pushBack( //
             ProcessedScore{
                 .position       = index,            //
                 .userName       = std::get<0>(row), //

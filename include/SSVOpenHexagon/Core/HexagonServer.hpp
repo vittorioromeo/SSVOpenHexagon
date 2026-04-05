@@ -39,7 +39,7 @@ private:
     HexagonGame& _hexagonGame;
 
     const std::unordered_set<std::string> _supportedLevelValidators;
-    const std::vector<std::string>        _supportedLevelValidatorsVector;
+    const sf::base::Vector<std::string>   _supportedLevelValidatorsVector;
 
     const sf::IpAddress  _serverIp;
     const unsigned short _serverPort;
@@ -125,18 +125,18 @@ private:
     [[nodiscard]] bool sendLogoutFailure(ConnectedClient& c);
     [[nodiscard]] bool sendDeleteAccountSuccess(ConnectedClient& c);
     [[nodiscard]] bool sendDeleteAccountFailure(ConnectedClient& c, const std::string& error);
-    [[nodiscard]] bool sendTopScores(ConnectedClient&                             c,
-                                     const std::string&                           levelValidator,
-                                     const std::vector<Database::ProcessedScore>& scores);
+    [[nodiscard]] bool sendTopScores(ConnectedClient&                                  c,
+                                     const std::string&                                levelValidator,
+                                     const sf::base::Vector<Database::ProcessedScore>& scores);
     [[nodiscard]] bool sendOwnScore(ConnectedClient& c, const std::string& levelValidator, const Database::ProcessedScore& score);
     [[nodiscard]] bool sendTopScoresAndOwnScore(ConnectedClient&                                    c,
                                                 const std::string&                                  levelValidator,
-                                                const std::vector<Database::ProcessedScore>&        scores,
+                                                const sf::base::Vector<Database::ProcessedScore>&   scores,
                                                 const sf::base::Optional<Database::ProcessedScore>& ownScore);
-    [[nodiscard]] bool sendServerStatus(ConnectedClient&                c,
-                                        const ProtocolVersion&          protocolVersion,
-                                        const GameVersion&              gameVersion,
-                                        const std::vector<std::string>& supportedLevelValidators);
+    [[nodiscard]] bool sendServerStatus(ConnectedClient&                     c,
+                                        const ProtocolVersion&               protocolVersion,
+                                        const GameVersion&                   gameVersion,
+                                        const sf::base::Vector<std::string>& supportedLevelValidators);
 
     [[nodiscard]] bool kickAndRemoveClient(ConnectedClient& c);
 

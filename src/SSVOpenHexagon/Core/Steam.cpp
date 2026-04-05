@@ -183,8 +183,8 @@ void steam_manager::steam_manager_impl::on_user_achievement_stored(UserAchieveme
 
 void steam_manager::steam_manager_impl::load_workshop_data()
 {
-    const auto                     nSubscribedItems = SteamUGC()->GetNumSubscribedItems();
-    std::vector<PublishedFileId_t> subscribedItemsIds(nSubscribedItems);
+    const auto                          nSubscribedItems = SteamUGC()->GetNumSubscribedItems();
+    sf::base::Vector<PublishedFileId_t> subscribedItemsIds(nSubscribedItems);
     SteamUGC()->GetSubscribedItems(subscribedItemsIds.data(), nSubscribedItems);
 
     constexpr sf::base::SizeT folderBufSize = 512;

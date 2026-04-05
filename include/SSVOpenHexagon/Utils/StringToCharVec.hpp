@@ -12,7 +12,7 @@ namespace hg::Utils
 
 [[nodiscard]] inline std::vector<char> stringToCharVec(const std::string& s)
 {
-    return std::vector<char>(s.begin(), s.end());
+    return std::vector<char>(s.data(), s.data() + s.size());
 }
 
 } // namespace hg::Utils

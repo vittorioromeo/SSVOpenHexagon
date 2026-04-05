@@ -39,13 +39,13 @@
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <functional>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_set>
-#include <vector>
 
 struct ImGuiInputTextCallbackData;
 
@@ -133,29 +133,29 @@ private:
     sf::base::Optional<sf::ImGuiContext> imguiCtx;
 
     // IMGUI Lua Console
-    sf::Clock                ilcDeltaClock;
-    std::vector<std::string> ilcCmdLog;
-    std::vector<std::string> ilcHistory;
-    int                      ilcHistoryPos{-1};
-    std::string              ilcCmdBuffer;
-    std::string              ilcTrackBuffer;
-    bool                     ilcShowConsole{false};
-    bool                     ilcShowConsoleNext{false};
-    std::vector<std::string> ilcLuaTracked;
-    std::vector<std::string> ilcLuaTrackedNames;
-    std::vector<std::string> ilcLuaTrackedResults;
-    bool                     debugPause{false};
+    sf::Clock                     ilcDeltaClock;
+    sf::base::Vector<std::string> ilcCmdLog;
+    sf::base::Vector<std::string> ilcHistory;
+    int                           ilcHistoryPos{-1};
+    std::string                   ilcCmdBuffer;
+    std::string                   ilcTrackBuffer;
+    bool                          ilcShowConsole{false};
+    bool                          ilcShowConsoleNext{false};
+    sf::base::Vector<std::string> ilcLuaTracked;
+    sf::base::Vector<std::string> ilcLuaTrackedNames;
+    sf::base::Vector<std::string> ilcLuaTrackedResults;
+    bool                          debugPause{false};
 
-    std::vector<std::string> execScriptPackPathContext;
+    sf::base::Vector<std::string> execScriptPackPathContext;
 
 public:
     int ilcTextEditCallback(ImGuiInputTextCallbackData* data);
 
 public:
-    CPlayer            player;
-    std::vector<CWall> walls;
-    CCustomWallManager cwManager;
-    float              timeUntilRichPresenceUpdate = 0.f;
+    CPlayer                 player;
+    sf::base::Vector<CWall> walls;
+    CCustomWallManager      cwManager;
+    float                   timeUntilRichPresenceUpdate = 0.f;
 
 private:
     sf::base::Optional<sf::View> backgroundCamera;
@@ -216,10 +216,10 @@ private:
     sf::Texture* txStarParticle;
     sf::Texture* txSmallCircle;
 
-    std::vector<Particle>      particles;
-    std::vector<TrailParticle> trailParticles;
-    std::vector<SwapParticle>  swapParticles;
-    bool                       mustSpawnPBParticles{false};
+    sf::base::Vector<Particle>      particles;
+    sf::base::Vector<TrailParticle> trailParticles;
+    sf::base::Vector<SwapParticle>  swapParticles;
+    bool                            mustSpawnPBParticles{false};
 
     struct SwapParticleSpawnInfo
     {

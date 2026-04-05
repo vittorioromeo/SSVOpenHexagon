@@ -6,10 +6,11 @@
 
 #include "SSVOpenHexagon/Global/Version.hpp"
 
+#include "SFML/Base/Vector.hpp"
+
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 
 namespace hg
 {
@@ -26,7 +27,7 @@ public:
     ProfileData(const GameVersion                             mVersion,
                 const std::string&                            mName,
                 const std::unordered_map<std::string, float>& mScores,
-                const std::vector<std::string>&               mFavorites);
+                const sf::base::Vector<std::string>&          mFavorites);
 
     [[nodiscard]] GameVersion                                   getVersion() const noexcept;
     [[nodiscard]] const std::string&                            getName() const noexcept;

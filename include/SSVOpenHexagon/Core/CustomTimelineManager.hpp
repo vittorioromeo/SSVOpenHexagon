@@ -7,7 +7,7 @@
 #include "SSVOpenHexagon/Core/CustomTimelineHandle.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
-#include <vector>
+#include "SFML/Base/Vector.hpp"
 
 namespace hg
 {
@@ -17,7 +17,7 @@ struct CustomTimeline;
 class CustomTimelineManager
 {
 private:
-    std::vector<CustomTimeline> _timelines;
+    sf::base::Vector<CustomTimeline> _timelines;
 
 public:
     CustomTimelineManager();

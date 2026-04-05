@@ -71,7 +71,7 @@ static auto make_read(deserialization_result& result, const std::byte*& buffer, 
 
 void replay_data::record_input(const bool left, const bool right, const bool swap, const bool focus) noexcept
 {
-    input_bitset& ib                                = _inputs.emplace_back();
+    input_bitset& ib                                = _inputs.emplaceBack();
     ib[static_cast<unsigned int>(input_bit::left)]  = left;
     ib[static_cast<unsigned int>(input_bit::right)] = right;
     ib[static_cast<unsigned int>(input_bit::swap)]  = swap;

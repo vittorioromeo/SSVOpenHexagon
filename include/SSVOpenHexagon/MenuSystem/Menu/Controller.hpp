@@ -1,8 +1,7 @@
 #pragma once
 
 #include "SFML/Base/FixedFunction.hpp"
-
-#include <vector>
+#include "SFML/Base/Vector.hpp"
 
 namespace ssvms
 {
@@ -19,12 +18,12 @@ private:
         sf::base::FixedFunction<bool(), 64> snd;
     };
 
-    std::vector<Pair> enableWhenPairs;
+    sf::base::Vector<Pair> enableWhenPairs;
 
 public:
     void enableItemWhen(ItemBase& mItem, sf::base::FixedFunction<bool(), 64> mPred)
     {
-        enableWhenPairs.push_back(Pair{&mItem, std::move(mPred)});
+        enableWhenPairs.pushBack(Pair{&mItem, std::move(mPred)});
     }
 
     void update()

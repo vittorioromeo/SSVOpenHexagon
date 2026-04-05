@@ -12,12 +12,12 @@
 #include "SFML/Window/Mouse.hpp"
 
 #include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 #include <functional>
 #include <string>
-#include <vector>
 
 namespace hg
 {
@@ -57,7 +57,7 @@ private:
     // bind the hardcoded key a second time.
     sf::Keyboard::Key hardcodedKey;
 
-    [[nodiscard]] int getRealSize(const std::vector<ssvs::Input::Combo>& combos) const;
+    [[nodiscard]] int getRealSize(const sf::base::Vector<ssvs::Input::Combo>& combos) const;
     void              applyBind(const sf::Keyboard::Key key, const sf::Mouse::Button);
 
 public:
@@ -84,11 +84,11 @@ public:
         // If user manually added a hardcoded key to the config file
         // sanitize the bind. Cannot use a reference here because
         // `triggerGetter()` returns by value.
-        const std::vector<ssvs::Input::Combo> combos{triggerGetter().getCombos()};
+        const sf::base::Vector<ssvs::Input::Combo> combos{triggerGetter().getCombos()};
 
         for (int i = 0; i < static_cast<int>(combos.size()); ++i)
         {
-            if (combos.at(i).getKeys()[int(hardcodedKey) + 1])
+            if (combos[i].getKeys()[int(hardcodedKey) + 1])
             {
                 mFuncClear(i);
             }

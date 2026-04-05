@@ -947,7 +947,7 @@ void HexagonGame::updateParticles(float mFT)
         nextPBParticleSpawn -= mFT;
         if (nextPBParticleSpawn <= 0.f)
         {
-            particles.emplace_back(makePBParticle());
+            particles.emplaceBack(makePBParticle());
             nextPBParticleSpawn = 2.75f;
         }
     }
@@ -998,7 +998,7 @@ void HexagonGame::updateTrailParticles(float mFT)
 
     if (player.hasChangedAngle())
     {
-        trailParticles.emplace_back(makeTrailParticle());
+        trailParticles.emplaceBack(makeTrailParticle());
     }
 }
 
@@ -1052,7 +1052,7 @@ void HexagonGame::updateSwapParticles(float mFT)
         {
             for (int i = 0; i < 20; ++i)
             {
-                swapParticles.emplace_back(
+                swapParticles.emplaceBack(
                     makeSwapParticle(*swapParticlesSpawnInfo,
                                      0.45f /* expand */,
                                      1.f /* speedMult */,
@@ -1062,7 +1062,7 @@ void HexagonGame::updateSwapParticles(float mFT)
 
             for (int i = 0; i < 10; ++i)
             {
-                swapParticles.emplace_back(
+                swapParticles.emplaceBack(
                     makeSwapParticle(*swapParticlesSpawnInfo,
                                      3.14f /* expand */,
                                      0.45f /* speedMult */,
@@ -1074,7 +1074,7 @@ void HexagonGame::updateSwapParticles(float mFT)
         {
             for (int i = 0; i < 14; ++i)
             {
-                swapParticles.emplace_back(
+                swapParticles.emplaceBack(
                     makeSwapParticle(*swapParticlesSpawnInfo,
                                      3.14f /* expand */,
                                      1.3f /* speedMult */,
@@ -1161,7 +1161,7 @@ int HexagonGame::ilcTextEditCallback([[maybe_unused]] ImGuiInputTextCallbackData
                 std::snprintf(buf, sizeof(buf), "No match for \"%.*s\"!\n", (int)(word_end - word_start), word_start);
 
                 // No match
-                ilcCmdLog.emplace_back(buf);
+                ilcCmdLog.emplaceBack(buf);
             }
             else if (candidates.Size == 1)
             {
@@ -1199,10 +1199,10 @@ int HexagonGame::ilcTextEditCallback([[maybe_unused]] ImGuiInputTextCallbackData
                 }
 
                 // List matches
-                ilcCmdLog.emplace_back("Possible matches:\n");
+                ilcCmdLog.emplaceBack("Possible matches:\n");
                 for (int i = 0; i < candidates.Size; i++)
                 {
-                    ilcCmdLog.emplace_back(Utils::concat("- ", candidates[i], '\n'));
+                    ilcCmdLog.emplaceBack(Utils::concat("- ", candidates[i], '\n'));
                 }
             }
 
@@ -1329,14 +1329,14 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
             ImGui::PushStyleColor(ImGuiCol_Text, *color);
         }
 
-        std::vector<std::string> split;
-        sf::base::SizeT          last = 0;
+        sf::base::Vector<std::string> split;
+        sf::base::SizeT               last = 0;
 
         for (sf::base::SizeT j = 0; j < sItem.size(); ++j)
         {
             if (sItem[j] == '\n')
             {
-                split.emplace_back(sItem.substr(last, j - last));
+                split.emplaceBack(sItem.substr(last, j - last));
                 last = j + 1;
             }
         }
@@ -1344,7 +1344,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         const std::string lastPiece = sItem.substr(last);
         if (!lastPiece.empty())
         {
-            split.emplace_back(lastPiece);
+            split.emplaceBack(lastPiece);
         }
 
         for (const std::string& s : split)
@@ -1385,7 +1385,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         const std::string cmdString = ilcCmdBuffer;
         ilcCmdBuffer.clear();
 
-        ilcCmdLog.emplace_back(Utils::concat("# ", cmdString, '\n'));
+        ilcCmdLog.emplaceBack(Utils::concat("# ", cmdString, '\n'));
 
         ilcHistoryPos = -1;
         for (int i = ilcHistory.size() - 1; i >= 0; --i)
@@ -1397,9 +1397,9 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
             }
         }
 
-        ilcHistory.emplace_back(cmdString);
+        ilcHistory.emplaceBack(cmdString);
 
-        const std::vector<std::string> cmdSplit = Utils::split<std::string>(cmdString);
+        const sf::base::Vector<std::string> cmdSplit = Utils::split<std::string>(cmdString);
 
         if (Stricmp(cmdString.c_str(), "!CLEAR") == 0)
         {
@@ -1407,7 +1407,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         }
         else if (Stricmp(cmdString.c_str(), "!HELP") == 0)
         {
-            ilcCmdLog.emplace_back(R"(Built-in commands:
+            ilcCmdLog.emplaceBack(R"(Built-in commands:
 !clear          Clears the console
 !help           Display this help
 !ff <seconds>   Fast-forward simulation to specified time
@@ -1415,47 +1415,47 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 ?fn             Display Lua docs for function `fn`
 )");
         }
-        else if (cmdSplit.size() > 1 && cmdSplit.at(0) == "!ff")
+        else if (cmdSplit.size() > 1 && cmdSplit[0] == "!ff")
         {
             try
             {
-                const std::string& secondsStr = cmdSplit.at(1);
+                const std::string& secondsStr = cmdSplit[1];
                 const double       seconds    = std::stod(secondsStr);
 
-                ilcCmdLog.emplace_back(Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
+                ilcCmdLog.emplaceBack(Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
 
                 fastForwardTarget.emplace(seconds);
             } catch (const std::invalid_argument&)
             {
-                ilcCmdLog.emplace_back("[error]: invalid argument for <seconds>\n");
+                ilcCmdLog.emplaceBack("[error]: invalid argument for <seconds>\n");
             } catch (const std::out_of_range&)
             {
-                ilcCmdLog.emplace_back("[error]: out of range for <seconds>\n");
+                ilcCmdLog.emplaceBack("[error]: out of range for <seconds>\n");
             }
         }
-        else if (cmdSplit.size() > 1 && cmdSplit.at(0) == "!advt")
+        else if (cmdSplit.size() > 1 && cmdSplit[0] == "!advt")
         {
             try
             {
-                const std::string& ticksStr = cmdSplit.at(1);
+                const std::string& ticksStr = cmdSplit[1];
                 const int          ticks    = std::stoi(ticksStr);
 
-                ilcCmdLog.emplace_back(Utils::concat("[advt]: advancing simulation by ", ticks, " ticks\n"));
+                ilcCmdLog.emplaceBack(Utils::concat("[advt]: advancing simulation by ", ticks, " ticks\n"));
 
                 advanceTickCount.emplace(ticks >= 0 ? ticks : 0);
             } catch (const std::invalid_argument&)
             {
-                ilcCmdLog.emplace_back("[error]: invalid argument for <seconds>\n");
+                ilcCmdLog.emplaceBack("[error]: invalid argument for <seconds>\n");
             } catch (const std::out_of_range&)
             {
-                ilcCmdLog.emplace_back("[error]: out of range for <seconds>\n");
+                ilcCmdLog.emplaceBack("[error]: out of range for <seconds>\n");
             }
         }
         else if (cmdString[0] == '?')
         {
             const std::string rest = Utils::getRTrim(cmdString.substr(1));
             const std::string docs = LuaScripting::getDocsForFunction(rest);
-            ilcCmdLog.emplace_back(Utils::concat("[?]: ", docs));
+            ilcCmdLog.emplaceBack(Utils::concat("[?]: ", docs));
         }
         else
         {
@@ -1474,10 +1474,10 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
                 temp += mError.what();
                 temp += '\n';
 
-                ilcCmdLog.emplace_back(temp);
+                ilcCmdLog.emplaceBack(temp);
             } catch (...)
             {
-                ilcCmdLog.emplace_back("[error]: unknown\n");
+                ilcCmdLog.emplaceBack("[error]: unknown\n");
             }
         }
 
@@ -1507,8 +1507,8 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         if (ImGui::InputText("Track", &ilcTrackBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
         {
             const std::string codeToTrack = Utils::getLRTrim(ilcTrackBuffer);
-            ilcLuaTracked.emplace_back(Utils::concat("u_impl_addTrackedResult(", codeToTrack, ")\n"));
-            ilcLuaTrackedNames.emplace_back(codeToTrack);
+            ilcLuaTracked.emplaceBack(Utils::concat("u_impl_addTrackedResult(", codeToTrack, ")\n"));
+            ilcLuaTrackedNames.emplaceBack(codeToTrack);
 
             ilcTrackBuffer.clear();
             ImGui::SetItemDefaultFocus();
@@ -1538,7 +1538,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
                 lua.executeCode(code);
             } catch (std::runtime_error& e)
             {
-                ilcCmdLog.emplace_back(Utils::concat("[error]: error '", e.what(), "' while tracking ", code, '\n'));
+                ilcCmdLog.emplaceBack(Utils::concat("[error]: error '", e.what(), "' while tracking ", code, '\n'));
 
                 ilcLuaTracked.erase(ilcLuaTracked.begin() + i);
                 ilcLuaTrackedNames.erase(ilcLuaTrackedNames.begin() + i);
@@ -1547,7 +1547,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
             } catch (...)
             {
 
-                ilcCmdLog.emplace_back(Utils::concat("[error]: unknown error while tracking ", code, '\n'));
+                ilcCmdLog.emplaceBack(Utils::concat("[error]: unknown error while tracking ", code, '\n'));
 
                 ilcLuaTracked.erase(ilcLuaTracked.begin() + i);
                 ilcLuaTrackedNames.erase(ilcLuaTrackedNames.begin() + i);

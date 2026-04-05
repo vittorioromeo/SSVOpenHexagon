@@ -19,7 +19,7 @@ void timeline2::clear()
 
 void timeline2::append_wait_for(const duration d)
 {
-    _actions.emplace_back(sf::base::inPlaceType<action_wait_for>, d);
+    _actions.emplaceBack(sf::base::inPlaceType<action_wait_for>, d);
 }
 
 void timeline2::append_wait_for_seconds(const double s)
@@ -34,7 +34,7 @@ void timeline2::append_wait_for_sixths(const double s)
 
 void timeline2::append_wait_until(const time_point tp)
 {
-    _actions.emplace_back(sf::base::inPlaceType<action_wait_until>, tp);
+    _actions.emplaceBack(sf::base::inPlaceType<action_wait_until>, tp);
 }
 
 [[nodiscard]] sf::base::SizeT timeline2::size() const noexcept

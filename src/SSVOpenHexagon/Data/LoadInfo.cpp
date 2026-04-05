@@ -5,9 +5,9 @@
 #include "SSVOpenHexagon/Data/LoadInfo.hpp"
 
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string>
-#include <vector>
 
 namespace hg
 {
@@ -35,7 +35,7 @@ void LoadInfo::addFormattedError(std::string& error)
         error.erase(i, 1);
     }
 
-    errorMessages.emplace_back(error);
+    errorMessages.emplaceBack(error);
 }
 
 } // namespace hg

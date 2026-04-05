@@ -80,18 +80,18 @@ HexagonGame::ActiveReplay::ActiveReplay(const replay_file& mReplayFile) :
 
 void HexagonGame::createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
 {
-    walls.emplace_back(getSides(),
-                       getWallAngleLeft(),
-                       getWallAngleRight(),
-                       getWallSkewLeft(),
-                       getWallSkewRight(),
-                       centerPos,
-                       mSide,
-                       mThickness,
-                       levelStatus.wallSpawnDistance,
-                       mSpeed,
-                       mCurve,
-                       mHueMod);
+    walls.emplaceBack(getSides(),
+                      getWallAngleLeft(),
+                      getWallAngleRight(),
+                      getWallSkewLeft(),
+                      getWallSkewRight(),
+                      centerPos,
+                      mSide,
+                      mThickness,
+                      levelStatus.wallSpawnDistance,
+                      mSpeed,
+                      mCurve,
+                      mHueMod);
 }
 
 void HexagonGame::setMustStart(const bool x)
@@ -1313,7 +1313,7 @@ void HexagonGame::raiseWarning(const std::string& mFunctionName, const std::stri
                                                mAdditionalInfo);
 
     std::cout << errorMsg << std::endl;
-    ilcCmdLog.emplace_back(Utils::concat("[warning]: ", errorMsg, '\n'));
+    ilcCmdLog.emplaceBack(Utils::concat("[warning]: ", errorMsg, '\n'));
 }
 
 void HexagonGame::addMessage(std::string mMessage, double mDuration, bool mSoundToggle)

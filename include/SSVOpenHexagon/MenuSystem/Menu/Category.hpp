@@ -1,12 +1,12 @@
 #pragma once
 
 #include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <SSVUtils/Core/Common/Casts.hpp>
 #include <algorithm>
 #include <string>
 #include <utility>
-#include <vector>
 
 namespace ssvms
 {
@@ -18,11 +18,11 @@ class Category
     friend Menu;
 
 private:
-    Menu&                                      menu;
-    std::string                                name;
-    std::vector<sf::base::UniquePtr<ItemBase>> items;
-    int                                        index{0};
-    float                                      offset{0.f};
+    Menu&                                           menu;
+    std::string                                     name;
+    sf::base::Vector<sf::base::UniquePtr<ItemBase>> items;
+    int                                             index{0};
+    float                                           offset{0.f};
 
     void wrapIndex()
     {
@@ -44,7 +44,7 @@ public:
     template <typename T, typename... TArgs>
     T& create(const std::string& mName, TArgs&&... mArgs)
     {
-        items.push_back(sf::base::makeUnique<T>(menu, *this, mName, std::forward<TArgs>(mArgs)...));
+        items.pushBack(sf::base::makeUnique<T>(menu, *this, mName, std::forward<TArgs>(mArgs)...));
         return static_cast<T&>(*items.back());
     }
 

@@ -4,22 +4,27 @@
 
 #pragma once
 
+#include "SFML/Base/Vector.hpp"
+
 #include <unordered_set>
-#include <vector>
 
 namespace hg::Utils
 {
 
 template <typename T>
-[[nodiscard]] std::unordered_set<T> toUnorderedSet(const std::vector<T>& v)
+[[nodiscard]] std::unordered_set<T> toUnorderedSet(const sf::base::Vector<T>& v)
 {
     return std::unordered_set<T>(v.begin(), v.end());
 }
 
 template <typename T>
-[[nodiscard]] std::vector<T> toVector(const std::unordered_set<T>& s)
+[[nodiscard]] sf::base::Vector<T> toVector(const std::unordered_set<T>& s)
 {
-    return std::vector<T>(s.begin(), s.end());
+    sf::base::Vector<T> result;
+    result.reserve(s.size());
+    for (const auto& elem : s)
+        result.pushBack(elem);
+    return result;
 }
 
 } // namespace hg::Utils

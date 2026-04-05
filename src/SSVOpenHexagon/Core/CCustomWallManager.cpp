@@ -77,7 +77,7 @@ namespace hg
 
         for (sf::base::SizeT i = 0; i < reserveSize; ++i)
         {
-            _freeHandles.emplace_back(_nextFreeHandle + i);
+            _freeHandles.emplaceBack(_nextFreeHandle + i);
             _handleAvailable[_nextFreeHandle + i] = true;
         }
 
@@ -86,7 +86,7 @@ namespace hg
 
     const auto res = _freeHandles.back();
 
-    _freeHandles.pop_back();
+    _freeHandles.popBack();
     _handleAvailable[res] = false;
     ++_count;
 
@@ -108,7 +108,7 @@ void CCustomWallManager::destroyUnchecked(const CCustomWallHandle cwHandle)
     --_count;
 
     SSVOH_ASSERT(!contains(_freeHandles, cwHandle));
-    _freeHandles.emplace_back(cwHandle);
+    _freeHandles.emplaceBack(cwHandle);
 }
 
 void CCustomWallManager::destroy(const CCustomWallHandle cwHandle)
@@ -334,7 +334,7 @@ void CCustomWallManager::draw(Utils::FastVertexVectorTris& wallQuads)
     {
         if (!_handleAvailable[h] && _customWalls[h].getCanCollide())
         {
-            _tempAliveHandles.emplace_back(h);
+            _tempAliveHandles.emplaceBack(h);
         }
     }
 

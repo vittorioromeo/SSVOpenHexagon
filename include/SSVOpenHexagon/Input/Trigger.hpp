@@ -6,8 +6,9 @@
 
 #include "SSVOpenHexagon/Input/Combo.hpp"
 
+#include "SFML/Base/Vector.hpp"
+
 #include <initializer_list>
-#include <vector>
 
 namespace ssvs::Input
 {
@@ -15,7 +16,7 @@ namespace ssvs::Input
 class Trigger
 {
 private:
-    std::vector<Combo> combos;
+    sf::base::Vector<Combo> combos;
 
 public:
     Trigger() = default;

@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include "SFML/Base/Vector.hpp"
+
 #include <functional>
 #include <string>
-#include <vector>
 
 namespace Lua
 {
@@ -43,14 +44,14 @@ void init(Lua::LuaContext&                               lua,
           StyleData&                                     styleData,
           HGAssets&                                      assets,
           const std::function<void(const std::string&)>& fRunLuaFile,
-          std::vector<std::string>&                      execScriptPackPathContext,
+          sf::base::Vector<std::string>&                 execScriptPackPathContext,
           const std::function<const std::string&()>&     fPackPathGetter,
           const std::function<const PackData&()>&        fGetPackData,
           const bool                                     headless);
 
 void printDocs();
 
-const std::vector<std::string>& getAllFunctionNames();
+const sf::base::Vector<std::string>& getAllFunctionNames();
 
 std::string getDocsForFunction(const std::string& fnName);
 

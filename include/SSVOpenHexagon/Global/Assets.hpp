@@ -7,11 +7,11 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 
 namespace sf
 {
@@ -69,7 +69,7 @@ public:
 
     [[nodiscard]] bool packHasLevels(const std::string& mPackId);
 
-    [[nodiscard]] const std::vector<std::string>& getLevelIdsByPack(const std::string& mPackId);
+    [[nodiscard]] const sf::base::Vector<std::string>& getLevelIdsByPack(const std::string& mPackId);
 
     [[nodiscard]] const std::unordered_map<std::string, PackData>& getPackDatas();
 
@@ -77,7 +77,7 @@ public:
 
     [[nodiscard]] const PackData& getPackData(const std::string& mPackId);
 
-    [[nodiscard]] const std::vector<PackInfo>& getSelectablePackInfos() const noexcept;
+    [[nodiscard]] const sf::base::Vector<PackInfo>& getSelectablePackInfos() const noexcept;
 
     [[nodiscard]] const PackData* findPackData(const std::string& mPackDisambiguator,
                                                const std::string& mPackName,
@@ -102,13 +102,13 @@ public:
     void saveCurrentLocalProfile();
     void saveAllProfiles();
 
-    [[nodiscard]] bool                     anyLocalProfileActive() const;
-    [[nodiscard]] ProfileData&             getCurrentLocalProfile();
-    [[nodiscard]] const ProfileData&       getCurrentLocalProfile() const;
-    [[nodiscard]] ProfileData*             getLocalProfileByName(const std::string& mName);
-    [[nodiscard]] const ProfileData*       getLocalProfileByName(const std::string& mName) const;
-    [[nodiscard]] sf::base::SizeT          getLocalProfilesSize();
-    [[nodiscard]] std::vector<std::string> getLocalProfileNames();
+    [[nodiscard]] bool                          anyLocalProfileActive() const;
+    [[nodiscard]] ProfileData&                  getCurrentLocalProfile();
+    [[nodiscard]] const ProfileData&            getCurrentLocalProfile() const;
+    [[nodiscard]] ProfileData*                  getLocalProfileByName(const std::string& mName);
+    [[nodiscard]] const ProfileData*            getLocalProfileByName(const std::string& mName) const;
+    [[nodiscard]] sf::base::SizeT               getLocalProfilesSize();
+    [[nodiscard]] sf::base::Vector<std::string> getLocalProfileNames();
 
     [[nodiscard]] bool               pIsValidLocalProfile() const;
     [[nodiscard]] const std::string& pGetName() const;

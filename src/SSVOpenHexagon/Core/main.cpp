@@ -31,12 +31,12 @@
 
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <filesystem>
 #include <sodium.h>
 #include <string>
-#include <vector>
 
 #include <csignal>
 #include <cstdio>
@@ -79,7 +79,7 @@ void createFolderIfNonExistant(const std::string& folderName)
 
 struct ParsedArgs
 {
-    std::vector<std::string>        args;
+    sf::base::Vector<std::string>   args;
     sf::base::Optional<std::string> cliLevelName;
     sf::base::Optional<std::string> cliLevelPack;
     bool                            printLuaDocs{false};
@@ -130,7 +130,7 @@ struct ParsedArgs
             continue;
         }
 
-        result.args.emplace_back(argv[i]);
+        result.args.emplaceBack(argv[i]);
     }
 
     return result;
@@ -141,7 +141,7 @@ struct ParsedArgs
     return hg::Utils::concat("Open Hexagon ", hg::GAME_VERSION_STR, " - by Vittorio Romeo - https://vittorioromeo.info");
 }
 
-[[nodiscard]] sf::base::Optional<std::string> getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
+[[nodiscard]] sf::base::Optional<std::string> getFirstCompressedReplayFilenameFromArgs(const sf::base::Vector<std::string>& args)
 {
     for (const std::string& arg : args)
     {
@@ -245,7 +245,7 @@ struct ParsedArgs
 // ----------------------------------------------------------------------------
 
 [[nodiscard]] int mainClient(const bool                             headless,
-                             const std::vector<std::string>&        args,
+                             const sf::base::Vector<std::string>&   args,
                              const sf::base::Optional<std::string>& cliLevelName,
                              const sf::base::Optional<std::string>& cliLevelPack)
 {

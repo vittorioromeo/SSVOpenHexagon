@@ -233,9 +233,9 @@ template <typename T>
     return sendEncrypted(c, STCPDeleteAccountFailure{.error = error});
 }
 
-[[nodiscard]] bool HexagonServer::sendTopScores(ConnectedClient&                             c,
-                                                const std::string&                           levelValidator,
-                                                const std::vector<Database::ProcessedScore>& scores)
+[[nodiscard]] bool HexagonServer::sendTopScores(ConnectedClient&                                  c,
+                                                const std::string&                                levelValidator,
+                                                const sf::base::Vector<Database::ProcessedScore>& scores)
 {
     return sendEncrypted(c, //
                          STCPTopScores{
@@ -260,7 +260,7 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendTopScoresAndOwnScore(
     ConnectedClient&                                    c,
     const std::string&                                  levelValidator,
-    const std::vector<Database::ProcessedScore>&        scores,
+    const sf::base::Vector<Database::ProcessedScore>&   scores,
     const sf::base::Optional<Database::ProcessedScore>& ownScore)
 {
     return sendEncrypted(c, //
@@ -272,10 +272,10 @@ template <typename T>
     );
 }
 
-[[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient&                c,
-                                                   const ProtocolVersion&          protocolVersion,
-                                                   const GameVersion&              gameVersion,
-                                                   const std::vector<std::string>& supportedLevelValidators)
+[[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient&                     c,
+                                                   const ProtocolVersion&               protocolVersion,
+                                                   const GameVersion&                   gameVersion,
+                                                   const sf::base::Vector<std::string>& supportedLevelValidators)
 {
     return sendEncrypted(c, //
                          STCPServerStatus{

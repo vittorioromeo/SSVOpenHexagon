@@ -15,8 +15,7 @@
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/SizeT.hpp"
-
-#include <vector>
+#include "SFML/Base/Vector.hpp"
 
 namespace hg
 {
@@ -25,12 +24,12 @@ class CPlayer;
 
 class CCustomWallManager
 {
-    std::vector<CCustomWall>       _customWalls;
-    std::vector<CCustomWallHandle> _freeHandles;
-    std::vector<bool>              _handleAvailable;
-    CCustomWallHandle              _nextFreeHandle{0};
-    sf::base::SizeT                _count{0};
-    std::vector<CCustomWallHandle> _tempAliveHandles;
+    sf::base::Vector<CCustomWall>       _customWalls;
+    sf::base::Vector<CCustomWallHandle> _freeHandles;
+    sf::base::Vector<bool>              _handleAvailable;
+    CCustomWallHandle                   _nextFreeHandle{0};
+    sf::base::SizeT                     _count{0};
+    sf::base::Vector<CCustomWallHandle> _tempAliveHandles;
 
     [[nodiscard]] bool isValidHandle(const CCustomWallHandle h) const noexcept;
 

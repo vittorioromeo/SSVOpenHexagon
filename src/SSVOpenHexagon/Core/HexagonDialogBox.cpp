@@ -58,7 +58,7 @@ void HexagonDialogBox::create(const std::string& output,
     {
         if (c == '\n')
         {
-            dialogText.emplace_back(temp);
+            dialogText.emplaceBack(temp);
             temp.clear();
         }
         else

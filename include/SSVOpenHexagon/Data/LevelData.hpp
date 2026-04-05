@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include "SFML/Base/Vector.hpp"
+
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace Json
 {
@@ -36,7 +37,7 @@ struct LevelData
     std::string                            soundId;
     std::string                            styleId;
     std::string                            luaScriptPath;
-    std::vector<float>                     difficultyMults;
+    sf::base::Vector<float>                difficultyMults;
     bool                                   unscored;
     std::unordered_map<float, std::string> validators;
     std::unordered_map<float, std::string> validatorsWithoutPackId;

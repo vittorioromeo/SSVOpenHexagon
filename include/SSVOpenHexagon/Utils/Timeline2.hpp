@@ -10,8 +10,7 @@
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/Variant.hpp"
-
-#include <vector>
+#include "SFML/Base/Vector.hpp"
 
 namespace hg::Utils
 {
@@ -46,7 +45,7 @@ public:
     using action = sf::base::Variant<action_do, action_wait_for, action_wait_until, action_wait_until_fn>;
 
 private:
-    std::vector<action> _actions;
+    sf::base::Vector<action> _actions;
 
 public:
     void clear();
@@ -54,7 +53,7 @@ public:
     template <typename F>
     void append_do(F&& func)
     {
-        _actions.emplace_back(sf::base::inPlaceType<action_do>, SSVOH_FWD(func));
+        _actions.emplaceBack(sf::base::inPlaceType<action_do>, SSVOH_FWD(func));
     }
 
     void append_wait_for(const duration d);
@@ -65,7 +64,7 @@ public:
     template <typename F>
     void append_wait_until_fn(F&& tp_fn)
     {
-        _actions.emplace_back(sf::base::inPlaceType<action_wait_until_fn>, SSVOH_FWD(tp_fn));
+        _actions.emplaceBack(sf::base::inPlaceType<action_wait_until_fn>, SSVOH_FWD(tp_fn));
     }
 
     [[nodiscard]] sf::base::SizeT size() const noexcept;

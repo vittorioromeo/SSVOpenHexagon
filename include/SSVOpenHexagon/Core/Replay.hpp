@@ -9,11 +9,11 @@
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <bitset>
 #include <filesystem>
 #include <string>
-#include <vector>
 
 #include <cstring>
 
@@ -74,7 +74,7 @@ struct deserialization_result
 class replay_data
 {
 private:
-    std::vector<input_bitset> _inputs;
+    sf::base::Vector<input_bitset> _inputs;
 
 public:
     void record_input(const bool left, const bool right, const bool swap, const bool focus) noexcept;
@@ -147,7 +147,7 @@ struct replay_file
 
 struct compressed_replay_file
 {
-    std::vector<char> _data;
+    sf::base::Vector<char> _data;
 
     [[nodiscard]] bool serialize_to_file(const std::filesystem::path& p) const;
     [[nodiscard]] bool deserialize_from_file(const std::filesystem::path& p);

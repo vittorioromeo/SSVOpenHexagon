@@ -8,10 +8,10 @@
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace hg
 {
@@ -21,7 +21,7 @@ class LeaderboardCache
 private:
     struct CachedScores
     {
-        std::vector<Database::ProcessedScore>        _scores;
+        sf::base::Vector<Database::ProcessedScore>   _scores;
         sf::base::Optional<Database::ProcessedScore> _ownScore;
         HRTimePoint                                  _cacheTime;
     };
@@ -29,7 +29,7 @@ private:
     std::unordered_map<std::string, CachedScores> _levelValidatorToScores;
 
 public:
-    void receivedScores(const std::string& levelValidator, const std::vector<Database::ProcessedScore>& scores);
+    void receivedScores(const std::string& levelValidator, const sf::base::Vector<Database::ProcessedScore>& scores);
 
     void receivedOwnScore(const std::string& levelValidator, const Database::ProcessedScore& score);
 
@@ -37,7 +37,7 @@ public:
 
     [[nodiscard]] bool shouldRequestScores(const std::string& levelValidator) const;
 
-    [[nodiscard]] const std::vector<Database::ProcessedScore>& getScores(const std::string& levelValidator) const;
+    [[nodiscard]] const sf::base::Vector<Database::ProcessedScore>& getScores(const std::string& levelValidator) const;
 
     [[nodiscard]] const Database::ProcessedScore* getOwnScore(const std::string& levelValidator) const;
 

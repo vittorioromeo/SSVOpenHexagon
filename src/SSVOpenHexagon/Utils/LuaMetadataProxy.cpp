@@ -75,8 +75,8 @@ template <typename... Ts>
     if constexpr (sizeof...(Ts) > 0)
     {
         (((result += typeToStr(TypeWrapper<Ts>{})), result += ", "), ...);
-        result.pop_back();
-        result.pop_back();
+        result.popBack();
+        result.popBack();
     }
     result += ">";
 
@@ -171,7 +171,7 @@ try
 LuaMetadataProxy& LuaMetadataProxy::arg([[maybe_unused]] const std::string& mArgName)
 {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
-    argNames.emplace_back(mArgName);
+    argNames.emplaceBack(mArgName);
 #endif
 
     return *this;

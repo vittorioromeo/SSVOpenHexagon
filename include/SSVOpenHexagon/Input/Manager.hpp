@@ -8,10 +8,10 @@
 #include "SSVOpenHexagon/Input/InputState.hpp"
 
 #include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <algorithm>
 #include <utility>
-#include <vector>
 
 namespace ssvs::Input
 {
@@ -25,11 +25,11 @@ class Manager
     friend Bind;
 
 private:
-    InputState                             processedInput;
-    std::vector<sf::base::UniquePtr<Bind>> binds;
-    bool                                   isIgnoringNext{false};
-    bool                                   isIgnoringAll{false};
-    bool                                   mustSort{false};
+    InputState                                  processedInput;
+    sf::base::Vector<sf::base::UniquePtr<Bind>> binds;
+    bool                                        isIgnoringNext{false};
+    bool                                        isIgnoringAll{false};
+    bool                                        mustSort{false};
 
 public:
     void update(InputState& inputState, const float ft)
@@ -70,7 +70,7 @@ public:
     template <typename... TArgs>
     Bind& emplace(TArgs&&... args)
     {
-        auto& result = binds.emplace_back(sf::base::makeUnique<Bind>(*this, std::forward<TArgs>(args)...));
+        auto& result = binds.emplaceBack(sf::base::makeUnique<Bind>(*this, std::forward<TArgs>(args)...));
         mustSort     = true;
         return *result;
     }

@@ -15,11 +15,12 @@
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/Variant.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <deque>
 #include <sstream>
+#include <string>
 #include <unordered_set>
-#include <vector>
 
 namespace hg::Steam
 {
@@ -58,7 +59,7 @@ public:
     struct ELogoutFailure           { };
     struct EDeleteAccountSuccess    { };
     struct EDeleteAccountFailure    { std::string error; };
-    struct EReceivedTopScores       { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
+    struct EReceivedTopScores       { std::string levelValidator; sf::base::Vector<Database::ProcessedScore> scores; };
     struct EReceivedOwnScore        { std::string levelValidator; Database::ProcessedScore score; };
     struct EGameVersionMismatch     { };
     struct EProtocolVersionMismatch { };

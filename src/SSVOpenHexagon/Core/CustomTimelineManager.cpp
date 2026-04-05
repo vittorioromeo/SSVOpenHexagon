@@ -9,8 +9,7 @@
 
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
-
-#include <vector>
+#include "SFML/Base/Vector.hpp"
 
 namespace hg
 {
@@ -43,7 +42,7 @@ void CustomTimelineManager::updateAllTimelines(const HRTimePoint tp)
 
 [[nodiscard]] CustomTimelineHandle CustomTimelineManager::create()
 {
-    _timelines.emplace_back();
+    _timelines.emplaceBack();
     const CustomTimelineHandle h = _timelines.size() - 1;
 
     SSVOH_ASSERT(isHandleValid(h));
@@ -53,13 +52,13 @@ void CustomTimelineManager::updateAllTimelines(const HRTimePoint tp)
 [[nodiscard]] CustomTimeline& CustomTimelineManager::get(const CustomTimelineHandle h) noexcept
 {
     SSVOH_ASSERT(isHandleValid(h));
-    return _timelines.at(static_cast<sf::base::SizeT>(h));
+    return _timelines[static_cast<sf::base::SizeT>(h)];
 }
 
 [[nodiscard]] const CustomTimeline& CustomTimelineManager::get(const CustomTimelineHandle h) const noexcept
 {
     SSVOH_ASSERT(isHandleValid(h));
-    return _timelines.at(static_cast<sf::base::SizeT>(h));
+    return _timelines[static_cast<sf::base::SizeT>(h)];
 }
 
 } // namespace hg

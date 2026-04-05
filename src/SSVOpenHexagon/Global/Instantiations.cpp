@@ -1,14 +1,14 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <functional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 
 
-template class std::vector<std::string>;
+template class sf::base::Vector<std::string>;
 
 template class sf::base::Optional<int>;
 template class sf::base::Optional<sf::base::SizeT>;
