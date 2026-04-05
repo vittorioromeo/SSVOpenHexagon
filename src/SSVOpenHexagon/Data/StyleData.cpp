@@ -2,6 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Data/CapColor.hpp"
+#include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
@@ -10,8 +12,15 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
 
+#include <SFML/Base/SizeT.hpp>
+#include <SFML/Base/Vector.hpp>
+#include <SFML/System/Angle.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
 #include <SSVUtils/Core/Utils/Math.hpp>
+#include <algorithm>
+#include <string>
+
+#include <cmath>
 
 namespace hg
 {
@@ -206,7 +215,7 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
     for (auto i(0u); i < sides; ++i)
     {
         const float angle{Utils::toRad(BGRotOff) + div * i};
-        sf::Color   currentColor{ssvu::getByModIdx(colors, i)};
+        sf::Color   currentColor{colors[ssvu::getMod(i, colors.size())]};
 
         const bool mustDarkenUnevenBackgroundChunk = (i % 2 == 0 && i == sides - 1) && darkenUnevenBackgroundChunk;
 
@@ -313,7 +322,7 @@ void StyleData::setCapColor(const CapColor& mCapColor)
 [[nodiscard]] const sf::Color& StyleData::getColor(const sf::base::SizeT mIdx) const noexcept
 {
     SSVOH_ASSERT(!currentColors.empty());
-    return ssvu::getByModIdx(currentColors, mIdx);
+    return currentColors[ssvu::getMod(mIdx, currentColors.size())];
 }
 
 [[nodiscard]] float StyleData::getCurrentHue() const noexcept

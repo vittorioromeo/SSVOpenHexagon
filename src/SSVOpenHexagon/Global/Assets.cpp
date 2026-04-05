@@ -23,6 +23,8 @@
 #include "SSVOpenHexagon/Utils/EraseIf.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
+#include "SSVUtils/Core/FileSystem/Enums.hpp"
+#include "SSVUtils/Core/FileSystem/Scan.hpp"
 
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/Image.hpp"
@@ -37,9 +39,18 @@
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 
+#include <SFML/Base/Optional.hpp>
+#include <SFML/Base/SizeT.hpp>
+#include <SFML/Base/Vector.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <exception>
 #include <iostream>
+#include <map>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 namespace hg
 {
@@ -225,16 +236,16 @@ static void loadAssetsFromJson(AssetStorage& assetStorage, const ssvu::FileSyste
     }
 }
 
-[[nodiscard]] static sf::base::Vector<ssvufs::Path>& getScanBuffer()
+[[nodiscard]] static std::vector<ssvufs::Path>& getScanBuffer()
 {
-    static sf::base::Vector<ssvufs::Path> buffer;
+    static std::vector<ssvufs::Path> buffer;
     return buffer;
 }
 
-[[nodiscard, gnu::no_dangling]] static const sf::base::Vector<ssvufs::Path>& scanSingleByExt(const ssvufs::Path& path,
-                                                                                             const std::string& extension)
+[[nodiscard, gnu::no_dangling]] static const std::vector<ssvufs::Path>& scanSingleByExt(const ssvufs::Path& path,
+                                                                                        const std::string&  extension)
 {
-    sf::base::Vector<ssvufs::Path>& buffer = getScanBuffer();
+    std::vector<ssvufs::Path>& buffer = getScanBuffer();
     buffer.clear();
 
     ssvufs::scan<ssvufs::Mode::Single, ssvufs::Type::File, ssvufs::Pick::ByExt>(buffer, path, extension);
@@ -242,10 +253,10 @@ static void loadAssetsFromJson(AssetStorage& assetStorage, const ssvu::FileSyste
     return buffer;
 }
 
-[[nodiscard, gnu::no_dangling]] static const sf::base::Vector<ssvufs::Path>& scanSingleByName(const ssvufs::Path& path,
-                                                                                              const std::string&  name)
+[[nodiscard, gnu::no_dangling]] static const std::vector<ssvufs::Path>& scanSingleByName(const ssvufs::Path& path,
+                                                                                         const std::string&  name)
 {
-    sf::base::Vector<ssvufs::Path>& buffer = getScanBuffer();
+    std::vector<ssvufs::Path>& buffer = getScanBuffer();
     buffer.clear();
 
     ssvufs::scan<ssvufs::Mode::Single, ssvufs::Type::File, ssvufs::Pick::ByName>(buffer, path, name);
@@ -253,9 +264,9 @@ static void loadAssetsFromJson(AssetStorage& assetStorage, const ssvu::FileSyste
     return buffer;
 }
 
-[[nodiscard, gnu::no_dangling]] static const sf::base::Vector<ssvufs::Path>& scanSingleFolderName(const ssvufs::Path& path)
+[[nodiscard, gnu::no_dangling]] static const std::vector<ssvufs::Path>& scanSingleFolderName(const ssvufs::Path& path)
 {
-    sf::base::Vector<ssvufs::Path>& buffer = getScanBuffer();
+    std::vector<ssvufs::Path>& buffer = getScanBuffer();
     buffer.clear();
 
     ssvufs::scan<ssvufs::Mode::Single, ssvufs::Type::Folder>(buffer, path);
