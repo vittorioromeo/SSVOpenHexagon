@@ -129,8 +129,7 @@ public:
 
         mRenderTarget.drawVertices(
             {
-                .vertexData    = reinterpret_cast<const sf::Vertex*>(_data.get()),
-                .vertexCount   = _size,
+                .vertexSpan    = {reinterpret_cast<const sf::Vertex*>(_data.get()), _size},
                 .primitiveType = TPrimitive,
             },
             mRenderStates);
