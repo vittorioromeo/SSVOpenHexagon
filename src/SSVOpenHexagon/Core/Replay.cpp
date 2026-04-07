@@ -11,6 +11,7 @@
 #include "SFML/Network/Packet.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/String.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -212,7 +213,7 @@ void replay_player::reset() noexcept
     serialization_result result;
     const auto           write = make_write(result, buffer, buffer_end);
 
-    const auto write_str = [&](const std::string& s)
+    const auto write_str = [&](const sf::base::String& s)
     {
         SSVOH_TRY(write(static_cast<sf::base::U32>(s.size())));
 
@@ -253,7 +254,7 @@ void replay_player::reset() noexcept
     deserialization_result result;
     const auto             read = make_read(result, buffer, buffer_end);
 
-    const auto read_str = [&](std::string& s)
+    const auto read_str = [&](sf::base::String& s)
     {
         sf::base::U32 s_size;
         SSVOH_TRY(read(s_size));
@@ -396,10 +397,10 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 }
 
 
-[[nodiscard]] std::string replay_file::create_filename() const
+[[nodiscard]] sf::base::String replay_file::create_filename() const
 {
     const Utils::SCTimePoint tp     = Utils::toTimepoint(Utils::nowTimestamp());
-    const std::string        tp_str = Utils::formatTimepoint(tp, "%Y%m%d_%H%M%S");
+    const sf::base::String   tp_str = Utils::formatTimepoint(tp, "%Y%m%d_%H%M%S");
 
     return Utils::concat(_version,
                          '_',

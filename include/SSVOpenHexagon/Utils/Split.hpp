@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Global/Macros.hpp"
 
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Vector.hpp"
 
@@ -24,7 +25,7 @@ void withSplit(F&& f, const sf::base::StringView str, const sf::base::StringView
 
         if (first != second)
         {
-            f(TSplitType{first, static_cast<typename TSplitType::size_type>(second - first)});
+            f(TSplitType{first, static_cast<sf::base::SizeT>(second - first)});
         }
     }
 }

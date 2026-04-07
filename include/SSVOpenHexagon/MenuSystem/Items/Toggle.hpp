@@ -3,8 +3,8 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
 
 #include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/String.hpp"
 
-#include <string>
 #include <utility>
 
 namespace ssvms
@@ -24,7 +24,7 @@ private:
 public:
     Toggle(Menu&                                mMenu,
            Category&                            mCategory,
-           const std::string&                   mName,
+           const sf::base::String&              mName,
            sf::base::FixedFunction<bool(), 64>  mActivatedPredicate,
            sf::base::FixedFunction<void(), 128> mActivateAction,
            sf::base::FixedFunction<void(), 128> mDeactivateAction) :
@@ -37,7 +37,7 @@ public:
     }
 
     template <typename TFuncGet, typename TFuncSet>
-    Toggle(Menu& mMenu, Category& mCategory, const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet) :
+    Toggle(Menu& mMenu, Category& mCategory, const sf::base::String& mName, TFuncGet mFuncGet, TFuncSet mFuncSet) :
         ItemBase{mMenu, mCategory, mName},
         predicate{[=] { return mFuncGet(); }},
         activateAction{[=] { mFuncSet(true); }},
@@ -46,7 +46,7 @@ public:
         increasable = true;
     }
 
-    Toggle(Menu& mMenu, Category& mCategory, const std::string& mName, bool& mBool) :
+    Toggle(Menu& mMenu, Category& mCategory, const sf::base::String& mName, bool& mBool) :
         ItemBase{mMenu, mCategory, mName},
         predicate{[&mBool] { return mBool; }},
         activateAction{[&mBool] { mBool = true; }},
@@ -69,7 +69,7 @@ public:
         exec();
     }
 
-    [[nodiscard]] std::string getName() const override
+    [[nodiscard]] sf::base::String getName() const override
     {
         return predicate() ? name + ": on" : name + ": off";
     }

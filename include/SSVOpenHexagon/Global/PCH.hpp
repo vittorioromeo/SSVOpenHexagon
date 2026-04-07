@@ -126,6 +126,8 @@
 // SFML
 // ----------------------------------------------------------------------------
 
+#include "SSVOpenHexagon/Global/StringHash.hpp"
+
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/Glsl.hpp"
@@ -160,6 +162,7 @@
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 
 //
 //
@@ -200,7 +203,6 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 
 //
@@ -209,18 +211,18 @@
 // Explicit instantiation declarations (defined in `Instantiations.cpp`)
 // ----------------------------------------------------------------------------
 
-extern template class sf::base::Vector<std::string>;
+extern template class sf::base::Vector<sf::base::String>;
 
 extern template class sf::base::Optional<int>;
 extern template class sf::base::Optional<sf::base::SizeT>;
-extern template class sf::base::Optional<std::string>;
+extern template class sf::base::Optional<sf::base::String>;
 
-extern template class std::unordered_map<std::string, float>;
-extern template class std::unordered_map<float, std::string>;
-extern template class std::unordered_map<std::string, std::string>;
+extern template class std::unordered_map<sf::base::String, float>;
+extern template class std::unordered_map<float, sf::base::String>;
+extern template class std::unordered_map<sf::base::String, sf::base::String>;
 
-extern template class std::unordered_set<std::string>;
+extern template class std::unordered_set<sf::base::String>;
 
 extern template class std::function<void()>;
 extern template class std::function<bool()>;
-extern template class std::function<std::string()>;
+extern template class std::function<sf::base::String()>;

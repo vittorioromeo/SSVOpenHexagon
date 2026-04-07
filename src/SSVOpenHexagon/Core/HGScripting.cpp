@@ -28,10 +28,11 @@
 
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
 
 #include <iostream>
-#include <string>
 
 #include <cmath>
 
@@ -39,10 +40,10 @@ namespace hg
 {
 
 template <typename F>
-Utils::LuaMetadataProxy addLuaFn(Lua::LuaContext& lua, const std::string& name, F&& f)
+Utils::LuaMetadataProxy addLuaFn(Lua::LuaContext& lua, const sf::base::String& name, F&& f)
 {
     // TODO (P2): reduce instantiations by using captureless lambdas
-    lua.writeVariable(name, SSVOH_FWD(f));
+    lua.writeVariable(name.cStr(), SSVOH_FWD(f));
     return Utils::LuaMetadataProxy{Utils::TypeWrapper<F>{}, LuaScripting::getMetadata(), name};
 }
 
@@ -51,7 +52,7 @@ void HexagonGame::initLua_Utils()
     // ------------------------------------------------------------------------
     // Used internally to track values in the console.
     lua.writeVariable("u_impl_addTrackedResult",
-                      [this](const std::string& result) { ilcLuaTrackedResults.emplaceBack(result); });
+                      [this](const sf::base::String& result) { ilcLuaTrackedResults.emplaceBack(result); });
 
     // ------------------------------------------------------------------------
     addLuaFn(lua,
@@ -71,7 +72,7 @@ void HexagonGame::initLua_Utils()
 
     addLuaFn(lua,
              "u_log", //
-             [this](const std::string& mLog)
+             [this](const sf::base::String& mLog)
     {
         if (window == nullptr) // headless
         {
@@ -193,7 +194,7 @@ void HexagonGame::initLua_AudioControl()
 {
     addLuaFn(lua,
              "a_setMusic", //
-             [this](const std::string& mId)
+             [this](const sf::base::String& mId)
     {
         musicData           = assets.getMusicData(levelData->packId, mId);
         musicData.firstPlay = true;
@@ -207,7 +208,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_setMusicSegment", //
-             [this](const std::string& mId, int segment)
+             [this](const sf::base::String& mId, int segment)
     {
         musicData = assets.getMusicData(levelData->packId, mId);
         stopLevelMusic();
@@ -222,7 +223,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_setMusicSeconds", //
-             [this](const std::string& mId, float mTime)
+             [this](const sf::base::String& mId, float mTime)
     {
         musicData = assets.getMusicData(levelData->packId, mId);
         stopLevelMusic();
@@ -236,7 +237,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_playSound", //
-             [this](const std::string& mId) { playSoundOverride(mId); })
+             [this](const sf::base::String& mId) { playSoundOverride(mId); })
         .arg("soundId")
         .doc(
             "Play the sound with id `$0`. The id must be registered in "
@@ -244,7 +245,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_playPackSound", //
-             [this](const std::string& fileName) { playPackSoundOverride(getPackId(), fileName); })
+             [this](const sf::base::String& fileName) { playPackSoundOverride(getPackId(), fileName); })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -279,7 +280,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_overrideBeepSound", //
-             [this](const std::string& mId) { levelStatus.beepSound = getPackId() + "_" + mId; })
+             [this](const sf::base::String& mId) { levelStatus.beepSound = getPackId() + "_" + mId; })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -288,7 +289,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_overrideIncrementSound", //
-             [this](const std::string& mId) { levelStatus.levelUpSound = getPackId() + "_" + mId; })
+             [this](const sf::base::String& mId) { levelStatus.levelUpSound = getPackId() + "_" + mId; })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -298,7 +299,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_overrideSwapSound", //
-             [this](const std::string& mId) { levelStatus.swapSound = getPackId() + "_" + mId; })
+             [this](const sf::base::String& mId) { levelStatus.swapSound = getPackId() + "_" + mId; })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -307,7 +308,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_overrideDeathSound", //
-             [this](const std::string& mId) { levelStatus.deathSound = getPackId() + "_" + mId; })
+             [this](const sf::base::String& mId) { levelStatus.deathSound = getPackId() + "_" + mId; })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -325,7 +326,8 @@ void HexagonGame::initLua_MainTimeline()
 {
     addLuaFn(lua,
              "t_eval",
-             [this](const std::string& mCode) { timeline.append_do([this, mCode] { Utils::runLuaCode(lua, mCode); }); })
+             [this](const sf::base::String& mCode)
+    { timeline.append_do([this, mCode] { Utils::runLuaCode(lua, mCode); }); })
         .arg("code")
         .doc(
             "*Add to the main timeline*: evaluate the Lua code specified in "
@@ -365,7 +367,8 @@ void HexagonGame::initLua_EventTimeline()
 {
     addLuaFn(lua,
              "e_eval",
-             [this](const std::string& mCode) { eventTimeline.append_do([=, this] { Utils::runLuaCode(lua, mCode); }); })
+             [this](const sf::base::String& mCode)
+    { eventTimeline.append_do([=, this] { Utils::runLuaCode(lua, mCode); }); })
         .arg("code")
         .doc(
             "*Add to the event timeline*: evaluate the Lua code specified in "
@@ -417,7 +420,7 @@ void HexagonGame::initLua_EventTimeline()
 
     addLuaFn(lua,
              "e_messageAdd", //
-             [this](const std::string& mMsg, double mDuration)
+             [this](const sf::base::String& mMsg, double mDuration)
     {
         eventTimeline.append_do([this, mMsg, mDuration]
         {
@@ -436,7 +439,7 @@ void HexagonGame::initLua_EventTimeline()
 
     addLuaFn(lua,
              "e_messageAddImportant", //
-             [this](const std::string& mMsg, double mDuration)
+             [this](const sf::base::String& mMsg, double mDuration)
     { eventTimeline.append_do([this, mMsg, mDuration] { addMessage(mMsg, mDuration, /* mSoundToggle */ true); }); })
         .arg("message")
         .arg("duration")
@@ -447,7 +450,7 @@ void HexagonGame::initLua_EventTimeline()
 
     addLuaFn(lua,
              "e_messageAddImportantSilent",
-             [this](const std::string& mMsg, double mDuration)
+             [this](const sf::base::String& mMsg, double mDuration)
     { eventTimeline.append_do([this, mMsg, mDuration] { addMessage(mMsg, mDuration, /* mSoundToggle */ false); }); })
         .arg("message")
         .arg("duration")
@@ -488,7 +491,7 @@ void HexagonGame::initLua_CustomTimelines()
 
     addLuaFn(lua,
              "ct_eval",
-             [checkHandle, this](CustomTimelineHandle cth, const std::string& mCode)
+             [checkHandle, this](CustomTimelineHandle cth, const sf::base::String& mCode)
     {
         if (!checkHandle(cth, "ct_eval"))
         {
@@ -606,15 +609,17 @@ void HexagonGame::initLua_CustomTimelines()
 }
 
 template <typename T>
-auto HexagonGame::makeLuaAccessor(T& obj, const std::string& prefix)
+auto HexagonGame::makeLuaAccessor(T& obj, const sf::base::String& prefix)
 {
     return
-        [this, &obj, prefix](const std::string& name, auto pmd, const std::string& getterDesc, const std::string& setterDesc)
+        [this,
+         &obj,
+         prefix](const sf::base::String& name, auto pmd, const sf::base::String& getterDesc, const sf::base::String& setterDesc)
     {
         using Type = SFML_BASE_DECAY(decltype(obj.*pmd));
 
-        const std::string getterString = prefix + "_get" + name;
-        const std::string setterString = prefix + "_set" + name;
+        const sf::base::String getterString = prefix + "_get" + name;
+        const sf::base::String setterString = prefix + "_set" + name;
 
         addLuaFn(lua,
                  getterString, //
@@ -635,17 +640,18 @@ void HexagonGame::initLua_LevelControl()
 {
     addLuaFn(lua,
              "l_overrideScore", //
-             [this](const std::string& mVar)
+             [this](const sf::base::String& mVar)
     {
         try
         {
             levelStatus.scoreOverride   = mVar;
             levelStatus.scoreOverridden = true;
             // Make sure we're not passing in a string
-            lua.executeCode("if (type(" + mVar + R"( ) ~= "number") then
+            lua.executeCode(("if (type(" + mVar + sf::base::String(R"LUACODE( ) ~= "number") then
 								error("Score override must be a number value")
 								end
-)");
+)LUACODE"))
+                                .cStr());
         } catch (const std::runtime_error& mError)
         {
             std::cout << "[l_overrideScore] Runtime error on overriding score "
@@ -700,7 +706,7 @@ void HexagonGame::initLua_StyleControl()
 {
     addLuaFn(lua,
              "s_setStyle", //
-             [this](const std::string& mId)
+             [this](const sf::base::String& mId)
     {
         styleData = assets.getStyleData(levelData->packId, mId);
         styleData.computeColors();
@@ -839,7 +845,7 @@ void HexagonGame::initLua_Steam()
 {
     addLuaFn(lua,
              "steam_unlockAchievement", //
-             [this](const std::string& mId)
+             [this](const sf::base::String& mId)
     {
         if (inReplay())
         {
@@ -849,7 +855,7 @@ void HexagonGame::initLua_Steam()
 
         if (steamManager != nullptr && Config::getOfficial())
         {
-            steamManager->unlock_achievement(mId);
+            steamManager->unlock_achievement(mId.cStr());
         }
     })
         .arg("achievementId")
@@ -893,7 +899,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua,
              "u_playSound", //
-             [this](const std::string& mId)
+             [this](const sf::base::String& mId)
     {
         raiseWarning("u_playSound",
                      "This function will be removed in a future version of Open "
@@ -910,7 +916,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua,
              "u_playPackSound", //
-             [this](const std::string& fileName)
+             [this](const sf::base::String& fileName)
     {
         raiseWarning("u_playPackSound",
                      "This function will be removed in a future version of Open "
@@ -1012,7 +1018,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua,
              "m_messageAdd", //
-             [this](const std::string& mMsg, double mDuration)
+             [this](const sf::base::String& mMsg, double mDuration)
     {
         raiseWarning("m_messageAdd",
                      "This function will be removed in a future version of Open "
@@ -1037,7 +1043,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua,
              "m_messageAddImportant", //
-             [this](const std::string& mMsg, double mDuration)
+             [this](const sf::base::String& mMsg, double mDuration)
     {
         raiseWarning("m_messageAddImportant",
                      "This function will be removed in a future version of Open "
@@ -1057,7 +1063,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua,
              "m_messageAddImportantSilent",
-             [this](const std::string& mMsg, double mDuration)
+             [this](const sf::base::String& mMsg, double mDuration)
     {
         raiseWarning("m_messageAddImportantSilent",
                      "This function will be removed in a future version of Open "
@@ -1110,16 +1116,16 @@ void HexagonGame::initLua_Deprecated()
 void HexagonGame::initLua()
 {
     LuaScripting::init(lua,
-                       rng,
+                       *rng,
                        false /* inMenu */,
                        cwManager,
                        levelStatus,
                        status,
                        styleData,
                        assets,
-                       [this](const std::string& filename) -> void { runLuaFile(filename); },
+                       [this](const sf::base::String& filename) -> void { runLuaFile(filename); },
                        execScriptPackPathContext,
-                       [this]() -> const std::string& { return levelData->packPath; },
+                       [this]() -> const sf::base::String& { return levelData->packPath; },
                        [this]() -> const PackData& { return getPackData(); },
                        (window == nullptr) /* headless */);
 
@@ -1135,7 +1141,7 @@ void HexagonGame::initLua()
     initLua_Deprecated();
 }
 
-void HexagonGame::runLuaFile(const std::string& mFileName)
+void HexagonGame::runLuaFile(const sf::base::String& mFileName)
 try
 {
     const bool headless = window == nullptr;

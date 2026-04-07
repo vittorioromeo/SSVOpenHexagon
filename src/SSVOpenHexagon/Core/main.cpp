@@ -31,12 +31,12 @@
 
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <filesystem>
 #include <sodium.h>
-#include <string>
 
 #include <csignal>
 #include <cstdio>
@@ -63,9 +63,9 @@ static_assert(std::numeric_limits<double>::digits == 53);
 namespace
 {
 
-void createFolderIfNonExistant(const std::string& folderName)
+void createFolderIfNonExistant(const sf::base::String& folderName)
 {
-    const ssvu::FileSystem::Path path{folderName};
+    const ssvu::FileSystem::Path path{folderName.cStr()};
 
     if (path.isFolder())
     {
@@ -79,12 +79,12 @@ void createFolderIfNonExistant(const std::string& folderName)
 
 struct ParsedArgs
 {
-    sf::base::Vector<std::string>   args;
-    sf::base::Optional<std::string> cliLevelName;
-    sf::base::Optional<std::string> cliLevelPack;
-    bool                            printLuaDocs{false};
-    bool                            headless{false};
-    bool                            server{false};
+    sf::base::Vector<sf::base::String>   args;
+    sf::base::Optional<sf::base::String> cliLevelName;
+    sf::base::Optional<sf::base::String> cliLevelPack;
+    bool                                 printLuaDocs{false};
+    bool                                 headless{false};
+    bool                                 server{false};
 };
 
 [[nodiscard]] ParsedArgs parseArgs(const int argc, char* argv[])
@@ -136,16 +136,17 @@ struct ParsedArgs
     return result;
 }
 
-[[nodiscard]] std::string makeWindowTitle()
+[[nodiscard]] sf::base::String makeWindowTitle()
 {
     return hg::Utils::concat("Open Hexagon ", hg::GAME_VERSION_STR, " - by Vittorio Romeo - https://vittorioromeo.info");
 }
 
-[[nodiscard]] sf::base::Optional<std::string> getFirstCompressedReplayFilenameFromArgs(const sf::base::Vector<std::string>& args)
+[[nodiscard]] sf::base::Optional<sf::base::String> getFirstCompressedReplayFilenameFromArgs(
+    const sf::base::Vector<sf::base::String>& args)
 {
-    for (const std::string& arg : args)
+    for (const sf::base::String& arg : args)
     {
-        if (arg.find(".ohr.z") != std::string::npos)
+        if (arg.toStringView().find(".ohr.z") != sf::base::String::nPos)
         {
             return sf::base::makeOptional(arg);
         }
@@ -244,10 +245,10 @@ struct ParsedArgs
 // Client main entrypoint
 // ----------------------------------------------------------------------------
 
-[[nodiscard]] int mainClient(const bool                             headless,
-                             const sf::base::Vector<std::string>&   args,
-                             const sf::base::Optional<std::string>& cliLevelName,
-                             const sf::base::Optional<std::string>& cliLevelPack)
+[[nodiscard]] int mainClient(const bool                                  headless,
+                             const sf::base::Vector<sf::base::String>&   args,
+                             const sf::base::Optional<sf::base::String>& cliLevelName,
+                             const sf::base::Optional<sf::base::String>& cliLevelPack)
 {
     // ------------------------------------------------------------------------
     // Steam integration
@@ -370,8 +371,8 @@ struct ParsedArgs
     hg::Audio audio{
         //
         playbackDevice,
-        [&assets](const std::string& assetId) -> sf::SoundBuffer* { return assets.getSoundBuffer(assetId); }, //
-        [&assets](const std::string& assetId) -> const std::string* { return assets.getMusicPath(assetId); }  //
+        [&assets](const sf::base::String& assetId) -> sf::SoundBuffer* { return assets.getSoundBuffer(assetId); }, //
+        [&assets](const sf::base::String& assetId) -> const sf::base::String* { return assets.getMusicPath(assetId); } //
     };
 
     audio.setSoundVolume(hg::Config::getSoundVolume());
@@ -417,7 +418,7 @@ struct ParsedArgs
         };
 
         mg->fnHGNewGame =
-            [&](const std::string& packId, const std::string& levelId, bool firstPlay, float diffMult, bool executeLastReplay)
+            [&](const sf::base::String& packId, const sf::base::String& levelId, bool firstPlay, float diffMult, bool executeLastReplay)
         {
             hg.newGame(packId, levelId, firstPlay, diffMult, executeLastReplay);
 
@@ -442,7 +443,7 @@ struct ParsedArgs
     //
     // ------------------------------------------------------------------------
     // Load drag & drop replay, if any -- otherwise run game as normal
-    const sf::base::Optional<std::string> compressedReplayFilename = getFirstCompressedReplayFilenameFromArgs(args);
+    const sf::base::Optional<sf::base::String> compressedReplayFilename = getFirstCompressedReplayFilenameFromArgs(args);
 
     if (!headless)
     {
@@ -492,7 +493,7 @@ struct ParsedArgs
         }
         else
         {
-            if (hg::compressed_replay_file crf; crf.deserialize_from_file(*compressedReplayFilename))
+            if (hg::compressed_replay_file crf; crf.deserialize_from_file(compressedReplayFilename->cStr()))
             {
                 hg::lo("Replay") << "Playing compressed replay file '" << *compressedReplayFilename << "'\n";
 
@@ -517,7 +518,7 @@ struct ParsedArgs
             return 1;
         }
 
-        if (hg::compressed_replay_file crf; crf.deserialize_from_file(*compressedReplayFilename))
+        if (hg::compressed_replay_file crf; crf.deserialize_from_file(compressedReplayFilename->cStr()))
         {
             sf::base::Optional<hg::replay_file> replayFileOpt = hg::decompress_replay_file(crf);
 

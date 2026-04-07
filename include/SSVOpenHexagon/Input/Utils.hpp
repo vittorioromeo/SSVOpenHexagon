@@ -11,8 +11,9 @@
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 
+#include "SFML/Base/String.hpp"
+
 #include <map>
-#include <string>
 
 #include <cassert>
 
@@ -32,7 +33,7 @@ namespace Impl
 inline const auto* getKKeyStrArray() noexcept
 {
 #define SSVS_INS_KEY(name) SSVS_KEY_PREFIX #name
-    static std::string
+    static sf::base::String
         keys[]{SSVS_INS_KEY(A),         SSVS_INS_KEY(B),         SSVS_INS_KEY(C),        SSVS_INS_KEY(D),
                SSVS_INS_KEY(E),         SSVS_INS_KEY(F),         SSVS_INS_KEY(G),        SSVS_INS_KEY(H),
                SSVS_INS_KEY(I),         SSVS_INS_KEY(J),         SSVS_INS_KEY(K),        SSVS_INS_KEY(L),
@@ -67,11 +68,8 @@ inline const auto* getKKeyStrArray() noexcept
 inline const auto* getMBtnStrArray() noexcept
 {
 #define SSVS_INS_BTN(name) SSVS_BTN_PREFIX #name
-    static std::string buttons[]{SSVS_INS_BTN(Left),
-                                 SSVS_INS_BTN(Right),
-                                 SSVS_INS_BTN(Middle),
-                                 SSVS_INS_BTN(Extra1),
-                                 SSVS_INS_BTN(Extra2)};
+    static sf::base::String
+        buttons[]{SSVS_INS_BTN(Left), SSVS_INS_BTN(Right), SSVS_INS_BTN(Middle), SSVS_INS_BTN(Extra1), SSVS_INS_BTN(Extra2)};
 #undef SSVS_INS_BTN
 
     return buttons;
@@ -83,7 +81,7 @@ inline const auto& getStrKKeyMap() noexcept
     {                                                  \
         SSVS_KEY_PREFIX #name, sf::Keyboard::Key::name \
     }
-    static std::map<std::string, sf::Keyboard::Key>
+    static std::map<sf::base::String, sf::Keyboard::Key>
         keys{SSVS_INS_KEY(A),         SSVS_INS_KEY(B),         SSVS_INS_KEY(C),        SSVS_INS_KEY(D),
              SSVS_INS_KEY(E),         SSVS_INS_KEY(F),         SSVS_INS_KEY(G),        SSVS_INS_KEY(H),
              SSVS_INS_KEY(I),         SSVS_INS_KEY(J),         SSVS_INS_KEY(K),        SSVS_INS_KEY(L),
@@ -121,7 +119,7 @@ inline const auto& getStrKKeyHardcodedMap() noexcept
     {                                                  \
         SSVS_KEY_PREFIX #name, sf::Keyboard::Key::name \
     }
-    static std::map<std::string, sf::Keyboard::Key>
+    static std::map<sf::base::String, sf::Keyboard::Key>
         keys{SSVS_INS_KEY(J),
              SSVS_INS_KEY(K),
              SSVS_INS_KEY(L),
@@ -148,7 +146,7 @@ inline const auto& getStrMBtnMap() noexcept
     {                                                  \
         SSVS_BTN_PREFIX #name, sf::Mouse::Button::name \
     }
-    static std::map<std::string, sf::Mouse::Button>
+    static std::map<sf::base::String, sf::Mouse::Button>
         buttons{SSVS_INS_BTN(Left), SSVS_INS_BTN(Right), SSVS_INS_BTN(Middle), SSVS_INS_BTN(Extra1), SSVS_INS_BTN(Extra2)};
 #undef SSVS_INS_BTN
 
@@ -160,28 +158,28 @@ inline const auto& getStrMBtnMap() noexcept
 #undef SSVS_KEY_PREFIX
 #undef SSVS_BTN_PREFIX
 
-[[nodiscard]] inline bool isKKeyNameValid(const std::string& id) noexcept
+[[nodiscard]] inline bool isKKeyNameValid(const sf::base::String& id) noexcept
 {
     return Impl::getStrKKeyMap().contains(id);
 }
 
-[[nodiscard]] inline bool isKKeyHardcoded(const std::string& id) noexcept
+[[nodiscard]] inline bool isKKeyHardcoded(const sf::base::String& id) noexcept
 {
     return Impl::getStrKKeyHardcodedMap().contains(id);
 }
 
-[[nodiscard]] inline bool isMBtnNameValid(const std::string& id) noexcept
+[[nodiscard]] inline bool isMBtnNameValid(const sf::base::String& id) noexcept
 {
     return Impl::getStrMBtnMap().contains(id);
 }
 
-[[nodiscard]] inline sf::Keyboard::Key getKKey(const std::string& id) noexcept
+[[nodiscard]] inline sf::Keyboard::Key getKKey(const sf::base::String& id) noexcept
 {
     assert(isKKeyNameValid(id));
     return Impl::getStrKKeyMap().at(id);
 }
 
-[[nodiscard]] inline sf::Mouse::Button getMBtn(const std::string& id) noexcept
+[[nodiscard]] inline sf::Mouse::Button getMBtn(const sf::base::String& id) noexcept
 {
     assert(isMBtnNameValid(id));
     return Impl::getStrMBtnMap().at(id);
@@ -189,8 +187,8 @@ inline const auto& getStrMBtnMap() noexcept
 
 [[nodiscard]] inline const auto& getKKeyName(const sf::Keyboard::Key key) noexcept
 {
-    static const std::string unknown;
-    const auto               idx = static_cast<int>(key);
+    static const sf::base::String unknown;
+    const auto                    idx = static_cast<int>(key);
     if (idx < 0 || idx > static_cast<int>(sf::Keyboard::Key::Pause))
         return unknown;
     return Impl::getKKeyStrArray()[idx];

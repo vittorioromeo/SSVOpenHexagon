@@ -12,12 +12,12 @@
 #include "SFML/Window/Mouse.hpp"
 
 #include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 #include <functional>
-#include <string>
 
 namespace hg
 {
@@ -29,7 +29,7 @@ protected:
     int  ID;
 
 public:
-    explicit BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory, const std::string& mName, const int mID) :
+    explicit BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory, const sf::base::String& mName, const int mID) :
         ssvms::ItemBase(mMenu, mCategory, mName),
         ID{mID}
     {
@@ -65,7 +65,7 @@ public:
     explicit KeyboardBindControl(
         ssvms::Menu&            mMenu,
         ssvms::Category&        mCategory,
-        const std::string&      mName,
+        const sf::base::String& mName,
         TFuncGet                mFuncGet,
         TFuncSet                mFuncSet,
         TFuncClear              mFuncClear,
@@ -103,7 +103,7 @@ public:
     bool newKeyboardBind(const sf::Keyboard::Key key);
     bool newKeyboardBind(const sf::Mouse::Button btn);
 
-    [[nodiscard]] std::string getName() const override;
+    [[nodiscard]] sf::base::String getName() const override;
 };
 
 class JoystickBindControl final : public BindControlBase
@@ -119,13 +119,13 @@ private:
 
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncCallback>
-    explicit JoystickBindControl(ssvms::Menu&       mMenu,
-                                 ssvms::Category&   mCategory,
-                                 const std::string& mName,
-                                 TFuncGet           mFuncGet,
-                                 TFuncSet           mFuncSet,
-                                 TFuncCallback      mCallback,
-                                 const int          mButtonID) :
+    explicit JoystickBindControl(ssvms::Menu&            mMenu,
+                                 ssvms::Category&        mCategory,
+                                 const sf::base::String& mName,
+                                 TFuncGet                mFuncGet,
+                                 TFuncSet                mFuncSet,
+                                 TFuncCallback           mCallback,
+                                 const int               mButtonID) :
         BindControlBase{mMenu, mCategory, mName, mButtonID},
         valueGetter{mFuncGet},
         setButton{mFuncSet},
@@ -140,7 +140,7 @@ public:
 
     void newJoystickBind(const unsigned int joy);
 
-    [[nodiscard]] std::string getName() const override;
+    [[nodiscard]] sf::base::String getName() const override;
 };
 
 } // namespace hg

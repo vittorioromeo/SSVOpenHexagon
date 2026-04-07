@@ -1,11 +1,11 @@
 #pragma once
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <SSVUtils/Core/Common/Casts.hpp>
 #include <algorithm>
-#include <string>
 #include <utility>
 
 namespace ssvms
@@ -19,7 +19,7 @@ class Category
 
 private:
     Menu&                                           menu;
-    std::string                                     name;
+    sf::base::String                                name;
     sf::base::Vector<sf::base::UniquePtr<ItemBase>> items;
     int                                             index{0};
     float                                           offset{0.f};
@@ -37,12 +37,12 @@ private:
     }
 
 public:
-    Category(Menu& mMenu, const std::string& mName) : menu{mMenu}, name{mName}
+    Category(Menu& mMenu, const sf::base::String& mName) : menu{mMenu}, name{mName}
     {
     }
 
     template <typename T, typename... TArgs>
-    T& create(const std::string& mName, TArgs&&... mArgs)
+    T& create(const sf::base::String& mName, TArgs&&... mArgs)
     {
         items.pushBack(sf::base::makeUnique<T>(menu, *this, mName, std::forward<TArgs>(mArgs)...));
         return static_cast<T&>(*items.back());

@@ -6,7 +6,6 @@
 
 #include "SFML/Base/UniquePtr.hpp"
 
-#include <string>
 
 namespace sf
 {
@@ -16,6 +15,13 @@ class SoundBuffer;
 class Texture;
 
 } // namespace sf
+
+namespace sf::base
+{
+
+class String;
+
+} // namespace sf::base
 
 namespace hg
 {
@@ -34,19 +40,19 @@ public:
     explicit AssetStorage();
     ~AssetStorage();
 
-    [[nodiscard]] bool loadTexture(const std::string& id, const std::string& path);
+    [[nodiscard]] bool loadTexture(const sf::base::String& id, const sf::base::String& path);
 
-    [[nodiscard]] bool loadFont(const std::string& id, const std::string& path);
+    [[nodiscard]] bool loadFont(const sf::base::String& id, const sf::base::String& path);
 
-    [[nodiscard]] bool loadSoundBuffer(const std::string& id, const std::string& path);
+    [[nodiscard]] bool loadSoundBuffer(const sf::base::String& id, const sf::base::String& path);
 
-    [[nodiscard]] sf::Texture*     getTexture(const std::string& id) noexcept;
-    [[nodiscard]] sf::Font*        getFont(const std::string& id) noexcept;
-    [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const std::string& id) noexcept;
+    [[nodiscard]] sf::Texture*     getTexture(const sf::base::String& id) noexcept;
+    [[nodiscard]] sf::Font*        getFont(const sf::base::String& id) noexcept;
+    [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const sf::base::String& id) noexcept;
 
-    [[nodiscard]] bool hasTexture(const std::string& id) noexcept;
-    [[nodiscard]] bool hasFont(const std::string& id) noexcept;
-    [[nodiscard]] bool hasSoundBuffer(const std::string& id) noexcept;
+    [[nodiscard]] bool hasTexture(const sf::base::String& id) noexcept;
+    [[nodiscard]] bool hasFont(const sf::base::String& id) noexcept;
+    [[nodiscard]] bool hasSoundBuffer(const sf::base::String& id) noexcept;
 };
 
 } // namespace hg

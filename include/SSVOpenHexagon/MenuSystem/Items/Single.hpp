@@ -3,8 +3,8 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
 
 #include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/String.hpp"
 
-#include <string>
 
 namespace ssvms
 {
@@ -19,7 +19,7 @@ private:
     sf::base::FixedFunction<void(), 128> action;
 
 public:
-    Single(Menu& mMenu, Category& mCategory, const std::string& mName, sf::base::FixedFunction<void(), 128> mAction) :
+    Single(Menu& mMenu, Category& mCategory, const sf::base::String& mName, sf::base::FixedFunction<void(), 128> mAction) :
         ItemBase{mMenu, mCategory, mName},
         action{std::move(mAction)}
     {

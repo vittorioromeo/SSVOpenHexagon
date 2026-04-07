@@ -4,15 +4,16 @@
 
 #pragma once
 
-#include <string>
+#include "SFML/Base/String.hpp"
+
 
 namespace hg
 {
 
 struct PackInfo
 {
-    std::string id;
-    std::string path;
+    sf::base::String id;
+    sf::base::String path;
 };
 
 } // namespace hg

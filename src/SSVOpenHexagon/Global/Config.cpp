@@ -12,7 +12,10 @@
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 #include "SSVOpenHexagon/Input/Utils.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/LinkedValue/LinkedValue.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Io.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
@@ -32,16 +35,16 @@
 
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <SSVUtils/Core/String/ToStr.hpp>
 #include <algorithm>
 #include <initializer_list>
-#include <string>
 
-[[nodiscard]] static const sf::base::Vector<std::string>& defaultServerLevelWhitelist()
+[[nodiscard]] static const sf::base::Vector<sf::base::String>& defaultServerLevelWhitelist()
 {
-    static const sf::base::Vector<std::string> result{
+    static const sf::base::Vector<sf::base::String> result{
         // Vittorio Romeo - Cube
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_0.35",
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1",
@@ -295,80 +298,80 @@ using cil = std::initializer_list<cmb>;
     X_LINKEDVALUES_BINDS_JOYSTICK \
     X_LINKEDVALUES_BINDS_TRIGGERS
 
-#define X_LINKEDVALUES                                                                                              \
-    X(official, bool, "official", true)                                                                             \
-    X(noPulse, bool, "no_pulse", false)                                                                             \
-    X(noRotation, bool, "no_rotation", false)                                                                       \
-    X(noBackground, bool, "no_background", false)                                                                   \
-    X(noSound, bool, "no_sound", false)                                                                             \
-    X(noMusic, bool, "no_music", false)                                                                             \
-    X(blackAndWhite, bool, "black_and_white", false)                                                                \
-    X(pulseEnabled, bool, "pulse_enabled", true)                                                                    \
-    X(_3DEnabled, bool, "3D_enabled", true)                                                                         \
-    X(shadersEnabled, bool, "shaders_enabled", true)                                                                \
-    X(_3DMultiplier, float, "3D_multiplier", 1.f)                                                                   \
-    X(_3DMaxDepth, uint, "3D_max_depth", 100)                                                                       \
-    X(invincible, bool, "invincible", false)                                                                        \
-    X(autoRestart, bool, "auto_restart", false)                                                                     \
-    X(soundVolume, float, "sound_volume", 100.f)                                                                    \
-    X(musicVolume, float, "music_volume", 100.f)                                                                    \
-    X(flashEnabled, bool, "flash_enabled", true)                                                                    \
-    X(zoomFactor, float, "zoom_factor", 1.27f)                                                                      \
-    X(pixelMultiplier, int, "pixel_multiplier", 1)                                                                  \
-    X(playerSpeed, float, "player_speed", 9.45f)                                                                    \
-    X(playerFocusSpeed, float, "player_focus_speed", 4.625f)                                                        \
-    X(playerSize, float, "player_size", 7.3f)                                                                       \
-    X(limitFPS, bool, "limit_fps", true)                                                                            \
-    X(vsync, bool, "vsync", false)                                                                                  \
-    X(autoZoomFactor, bool, "auto_zoom_factor", true)                                                               \
-    X(fullscreen, bool, "fullscreen", false)                                                                        \
-    X(windowedAutoResolution, bool, "windowed_auto_resolution", false)                                              \
-    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution", false)                                          \
-    X(fullscreenWidth, uint, "fullscreen_width", 1920)                                                              \
-    X(fullscreenHeight, uint, "fullscreen_height", 1080)                                                            \
-    X(windowedWidth, uint, "windowed_width", 800)                                                                   \
-    X(windowedHeight, uint, "windowed_height", 600)                                                                 \
-    X(showMessages, bool, "show_messages", true)                                                                    \
-    X(debug, bool, "debug", false)                                                                                  \
-    X(beatPulse, bool, "beatpulse_enabled", true)                                                                   \
-    X(showTrackedVariables, bool, "show_tracked_variables", true)                                                   \
-    X(musicSpeedDMSync, bool, "music_speed_dm_sync", true)                                                          \
-    X(maxFPS, uint, "max_fps", 200)                                                                                 \
-    X(antialiasingLevel, uint, "antialiasing_level", 4)                                                             \
-    X(showFPS, bool, "show_fps", false)                                                                             \
-    X(musicSpeedMult, float, "music_speed_mult", 1.0f)                                                              \
-    X(drawTextOutlines, bool, "draw_text_outlines", true)                                                           \
-    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk", true)                                    \
-    X(rotateToStart, bool, "rotate_to_start", false)                                                                \
-    X(joystickDeadzone, float, "joystick_deadzone", 5.0f)                                                           \
-    X(textPadding, float, "text_padding", 8.0f)                                                                     \
-    X(textScaling, float, "text_scaling", 1.0f)                                                                     \
-    X(timescale, float, "timescale", 1.0f)                                                                          \
-    X(showKeyIcons, bool, "show_key_icons", false)                                                                  \
-    X(keyIconsScale, float, "key_icons_scale", 0.75f)                                                               \
-    X(firstTimePlaying, bool, "first_time_playing", true)                                                           \
-    X(showLevelInfo, bool, "show_level_info", false)                                                                \
-    X(showTimer, bool, "show_timer", true)                                                                          \
-    X(showStatusText, bool, "show_status_text", true)                                                               \
-    X(serverIp, std::string, "server_ip", "139.162.199.162")                                                        \
-    X(serverPort, ushort, "server_port", 50'505)                                                                    \
-    X(serverControlPort, ushort, "server_control_port", 50'506)                                                     \
-    X(serverLevelWhitelist, sf::base::Vector<std::string>, "server_level_whitelist", defaultServerLevelWhitelist()) \
-    X(saveLastLoginUsername, bool, "save_last_login_username", true)                                                \
-    X(lastLoginUsername, std::string, "last_login_username", "")                                                    \
-    X(showLoginAtStartup, bool, "show_login_at_startup", false)                                                     \
-    X(cameraShakeMultiplier, float, "camera_shake_multiplier", 1.f)                                                 \
-    X(angleTiltIntensity, float, "angle_tilt_intensity", 1.f)                                                       \
-    X(showPlayerTrail, bool, "show_player_trail", true)                                                             \
-    X(playerTrailAlpha, uint, "player_trail_alpha", 35)                                                             \
-    X(playerTrailScale, float, "player_trail_scale", 0.9f)                                                          \
-    X(playerTrailDecay, float, "player_trail_decay", 3.0f)                                                          \
-    X(playerTrailHasSwapColor, bool, "player_trail_has_swap_color", true)                                           \
-    X(showSwapParticles, bool, "show_swap_particles", true)                                                         \
-    X(playSwapReadySound, bool, "play_swap_ready_sound", true)                                                      \
-    X(showSwapBlinkingEffect, bool, "show_swap_blinking_effect", true)                                              \
-    X(useLuaFileCache, bool, "use_lua_file_cache", false)                                                           \
-    X(disableGameRendering, bool, "disable_game_rendering", false)                                                  \
+#define X_LINKEDVALUES                                                                                                   \
+    X(official, bool, "official", true)                                                                                  \
+    X(noPulse, bool, "no_pulse", false)                                                                                  \
+    X(noRotation, bool, "no_rotation", false)                                                                            \
+    X(noBackground, bool, "no_background", false)                                                                        \
+    X(noSound, bool, "no_sound", false)                                                                                  \
+    X(noMusic, bool, "no_music", false)                                                                                  \
+    X(blackAndWhite, bool, "black_and_white", false)                                                                     \
+    X(pulseEnabled, bool, "pulse_enabled", true)                                                                         \
+    X(_3DEnabled, bool, "3D_enabled", true)                                                                              \
+    X(shadersEnabled, bool, "shaders_enabled", true)                                                                     \
+    X(_3DMultiplier, float, "3D_multiplier", 1.f)                                                                        \
+    X(_3DMaxDepth, uint, "3D_max_depth", 100)                                                                            \
+    X(invincible, bool, "invincible", false)                                                                             \
+    X(autoRestart, bool, "auto_restart", false)                                                                          \
+    X(soundVolume, float, "sound_volume", 100.f)                                                                         \
+    X(musicVolume, float, "music_volume", 100.f)                                                                         \
+    X(flashEnabled, bool, "flash_enabled", true)                                                                         \
+    X(zoomFactor, float, "zoom_factor", 1.27f)                                                                           \
+    X(pixelMultiplier, int, "pixel_multiplier", 1)                                                                       \
+    X(playerSpeed, float, "player_speed", 9.45f)                                                                         \
+    X(playerFocusSpeed, float, "player_focus_speed", 4.625f)                                                             \
+    X(playerSize, float, "player_size", 7.3f)                                                                            \
+    X(limitFPS, bool, "limit_fps", true)                                                                                 \
+    X(vsync, bool, "vsync", false)                                                                                       \
+    X(autoZoomFactor, bool, "auto_zoom_factor", true)                                                                    \
+    X(fullscreen, bool, "fullscreen", false)                                                                             \
+    X(windowedAutoResolution, bool, "windowed_auto_resolution", false)                                                   \
+    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution", false)                                               \
+    X(fullscreenWidth, uint, "fullscreen_width", 1920)                                                                   \
+    X(fullscreenHeight, uint, "fullscreen_height", 1080)                                                                 \
+    X(windowedWidth, uint, "windowed_width", 800)                                                                        \
+    X(windowedHeight, uint, "windowed_height", 600)                                                                      \
+    X(showMessages, bool, "show_messages", true)                                                                         \
+    X(debug, bool, "debug", false)                                                                                       \
+    X(beatPulse, bool, "beatpulse_enabled", true)                                                                        \
+    X(showTrackedVariables, bool, "show_tracked_variables", true)                                                        \
+    X(musicSpeedDMSync, bool, "music_speed_dm_sync", true)                                                               \
+    X(maxFPS, uint, "max_fps", 200)                                                                                      \
+    X(antialiasingLevel, uint, "antialiasing_level", 4)                                                                  \
+    X(showFPS, bool, "show_fps", false)                                                                                  \
+    X(musicSpeedMult, float, "music_speed_mult", 1.0f)                                                                   \
+    X(drawTextOutlines, bool, "draw_text_outlines", true)                                                                \
+    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk", true)                                         \
+    X(rotateToStart, bool, "rotate_to_start", false)                                                                     \
+    X(joystickDeadzone, float, "joystick_deadzone", 5.0f)                                                                \
+    X(textPadding, float, "text_padding", 8.0f)                                                                          \
+    X(textScaling, float, "text_scaling", 1.0f)                                                                          \
+    X(timescale, float, "timescale", 1.0f)                                                                               \
+    X(showKeyIcons, bool, "show_key_icons", false)                                                                       \
+    X(keyIconsScale, float, "key_icons_scale", 0.75f)                                                                    \
+    X(firstTimePlaying, bool, "first_time_playing", true)                                                                \
+    X(showLevelInfo, bool, "show_level_info", false)                                                                     \
+    X(showTimer, bool, "show_timer", true)                                                                               \
+    X(showStatusText, bool, "show_status_text", true)                                                                    \
+    X(serverIp, sf::base::String, "server_ip", "139.162.199.162")                                                        \
+    X(serverPort, ushort, "server_port", 50'505)                                                                         \
+    X(serverControlPort, ushort, "server_control_port", 50'506)                                                          \
+    X(serverLevelWhitelist, sf::base::Vector<sf::base::String>, "server_level_whitelist", defaultServerLevelWhitelist()) \
+    X(saveLastLoginUsername, bool, "save_last_login_username", true)                                                     \
+    X(lastLoginUsername, sf::base::String, "last_login_username", "")                                                    \
+    X(showLoginAtStartup, bool, "show_login_at_startup", false)                                                          \
+    X(cameraShakeMultiplier, float, "camera_shake_multiplier", 1.f)                                                      \
+    X(angleTiltIntensity, float, "angle_tilt_intensity", 1.f)                                                            \
+    X(showPlayerTrail, bool, "show_player_trail", true)                                                                  \
+    X(playerTrailAlpha, uint, "player_trail_alpha", 35)                                                                  \
+    X(playerTrailScale, float, "player_trail_scale", 0.9f)                                                               \
+    X(playerTrailDecay, float, "player_trail_decay", 3.0f)                                                               \
+    X(playerTrailHasSwapColor, bool, "player_trail_has_swap_color", true)                                                \
+    X(showSwapParticles, bool, "show_swap_particles", true)                                                              \
+    X(playSwapReadySound, bool, "play_swap_ready_sound", true)                                                           \
+    X(showSwapBlinkingEffect, bool, "show_swap_blinking_effect", true)                                                   \
+    X(useLuaFileCache, bool, "use_lua_file_cache", false)                                                                \
+    X(disableGameRendering, bool, "disable_game_rendering", false)                                                       \
     X_LINKEDVALUES_BINDS
 
 // TODO: enable cache on server
@@ -472,9 +475,9 @@ static void resetBindsFromDefault()
 #undef X_LINKEDVALUES_BINDS_TRIGGERS
 #undef X_LINKEDVALUES_BINDS_JOYSTICK
 
-float           sizeX{1500}, sizeY{1500};
-constexpr float defaultSpawnDistance{1600};
-std::string     uneligibilityReason;
+float            sizeX{1500}, sizeY{1500};
+constexpr float  defaultSpawnDistance{1600};
+sf::base::String uneligibilityReason;
 
 static void applyAutoWindowedResolution()
 {
@@ -490,7 +493,7 @@ static void applyAutoFullscreenResolution()
     fullscreenHeight() = d.size.y;
 }
 
-void loadConfig(const sf::base::Vector<std::string>& mOverridesIds)
+void loadConfig(const sf::base::Vector<sf::base::String>& mOverridesIds)
 {
     hg::lo("::loadConfig") << "loading config\n";
 
@@ -506,7 +509,7 @@ void loadConfig(const sf::base::Vector<std::string>& mOverridesIds)
                 const auto overrideRoot(ssvuj::getFromFile(p));
                 for (auto itr(std::begin(overrideRoot)); itr != std::end(overrideRoot); ++itr)
                 {
-                    root()[ssvuj::getKey(itr)] = *itr;
+                    root()[ssvuj::getKey(itr).cStr()] = *itr;
                 }
             }
         }
@@ -861,7 +864,7 @@ void setShowStatusText(bool mX)
     showStatusText() = mX;
 }
 
-void setServerIp(const std::string& mX)
+void setServerIp(const sf::base::String& mX)
 {
     serverIp() = mX;
 }
@@ -876,7 +879,7 @@ void setServerControlPort(unsigned short mX)
     serverControlPort() = mX;
 }
 
-void setServerLevelWhitelist(const sf::base::Vector<std::string>& levelValidators)
+void setServerLevelWhitelist(const sf::base::Vector<sf::base::String>& levelValidators)
 {
     serverLevelWhitelist() = levelValidators;
 }
@@ -886,7 +889,7 @@ void setSaveLastLoginUsername(bool mX)
     saveLastLoginUsername() = mX;
 }
 
-void setLastLoginUsername(const std::string& mX)
+void setLastLoginUsername(const sf::base::String& mX)
 {
     lastLoginUsername() = mX;
 }
@@ -961,7 +964,7 @@ void setDisableGameRendering(bool x)
     return official();
 }
 
-[[nodiscard]] const std::string& getUneligibilityReason()
+[[nodiscard]] const sf::base::String& getUneligibilityReason()
 {
     return uneligibilityReason;
 }
@@ -1251,7 +1254,7 @@ void setDisableGameRendering(bool x)
     return getOfficial() ? showStatusText().getDefault() : showStatusText();
 }
 
-[[nodiscard]] const std::string& getServerIp()
+[[nodiscard]] const sf::base::String& getServerIp()
 {
     return serverIp();
 }
@@ -1266,7 +1269,7 @@ void setDisableGameRendering(bool x)
     return serverControlPort();
 }
 
-[[nodiscard]] const sf::base::Vector<std::string>& getServerLevelWhitelist()
+[[nodiscard]] const sf::base::Vector<sf::base::String>& getServerLevelWhitelist()
 {
     return serverLevelWhitelist();
 }
@@ -1276,7 +1279,7 @@ void setDisableGameRendering(bool x)
     return saveLastLoginUsername();
 }
 
-[[nodiscard]] const std::string& getLastLoginUsername()
+[[nodiscard]] const sf::base::String& getLastLoginUsername()
 {
     return lastLoginUsername();
 }
@@ -1405,11 +1408,11 @@ void keyboardBindsSanityCheck()
 //**************************************************
 // Get trigger names
 
-std::string bindToHumanReadableName(std::string s)
+sf::base::String bindToHumanReadableName(sf::base::String s)
 {
-    if (s.starts_with('k'))
+    if (s.size() > 0 && s[0] == 'k')
     {
-        return s.substr(1);
+        return sf::base::String(s.toStringView().substrByPosLen(1));
     }
 
     if (s == "bLeft")
@@ -1450,10 +1453,10 @@ const sf::base::Array<TriggerGetter, SSVOH_TO_SIZET(Tid::TriggersCount)>
     return triggerPause();
 }};
 
-[[nodiscard]] std::string getKeyboardBindNames(const Tid bindID)
+[[nodiscard]] sf::base::String getKeyboardBindNames(const Tid bindID)
 {
-    int         j;
-    std::string bindNames;
+    int              j;
+    sf::base::String bindNames;
 
     const auto combos = triggerGetters[SSVOH_TO_SIZET(bindID)]().getCombos();
 
@@ -1560,9 +1563,9 @@ const sf::base::Array<JoystickTriggerGetter,
                            []() -> unsigned int { return joystickAddToFavorites(); },
                            []() -> unsigned int { return joystickFavoritesMenu(); }};
 
-std::string getJoystickBindName(const Joystick::Jid bindID)
+sf::base::String getJoystickBindName(const Joystick::Jid bindID)
 {
-    static sf::base::Array<sf::base::Array<std::string, 2>, 12> buttonsNames{
+    static sf::base::Array<sf::base::Array<sf::base::String, 2>, 12> buttonsNames{
         {{"A", "SQUARE"},
          {"B", "CROSS"},
          {"X", "CIRCLE"},
@@ -1601,7 +1604,7 @@ std::string getJoystickBindName(const Joystick::Jid bindID)
         return value >= 12 ? "" : buttonsNames[value][1];
     }
 
-    return ssvu::toStr(value);
+    return sf::base::String(ssvu::toStr(value));
 }
 
 //**********************************************

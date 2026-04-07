@@ -3,11 +3,11 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/jsoncpp.inl"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVUtils/Core/FileSystem/Path.hpp"
 
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/StringViewStreamOp.hpp"
 
@@ -15,7 +15,6 @@
 #include <fstream>
 #include <iostream>
 #include <steam/steamclientpublic.h>
-#include <string>
 
 
 namespace hg
@@ -60,6 +59,7 @@ INSTANTIATE_LOGSTREAM_OPERATOR(int);
 INSTANTIATE_LOGSTREAM_OPERATOR(long);
 INSTANTIATE_LOGSTREAM_OPERATOR(short*);
 INSTANTIATE_LOGSTREAM_OPERATOR(std::string_view);
+INSTANTIATE_LOGSTREAM_OPERATOR(sf::base::String);
 INSTANTIATE_LOGSTREAM_OPERATOR(std::string);
 INSTANTIATE_LOGSTREAM_OPERATOR(unsigned int);
 INSTANTIATE_LOGSTREAM_OPERATOR(unsigned long long);
@@ -70,7 +70,6 @@ INSTANTIATE_LOGSTREAM_OPERATOR(unsigned short);
 INSTANTIATE_LOGSTREAM_OPERATOR(double);
 INSTANTIATE_LOGSTREAM_OPERATOR(void*);
 INSTANTIATE_LOGSTREAM_OPERATOR(const void*);
-INSTANTIATE_LOGSTREAM_OPERATOR(sf::base::String);
 INSTANTIATE_LOGSTREAM_OPERATOR(Json::Value);
 INSTANTIATE_LOGSTREAM_OPERATOR(EResult);
 INSTANTIATE_LOGSTREAM_OPERATOR(ssvu::FileSystem::Path);

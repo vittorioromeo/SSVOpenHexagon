@@ -7,10 +7,10 @@
 
 #include "SFML/Base/Algorithm/Find.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 
 #include <istream>
 #include <stdexcept>
-#include <string>
 
 namespace Lua
 {
@@ -68,16 +68,18 @@ LuaContext::~LuaContext()
 }
 
 
-LuaContext::ExecutionErrorException::ExecutionErrorException(const std::string& msg) : std::runtime_error(msg.c_str())
+LuaContext::ExecutionErrorException::ExecutionErrorException(const sf::base::String& msg) :
+    std::runtime_error(msg.cStr())
 {
 }
 
-LuaContext::VariableDoesntExistException::VariableDoesntExistException(const std::string& variable) :
-    std::runtime_error((std::string("Variable \"") + variable + std::string("\" doesn't exist in lua context")).c_str())
+LuaContext::VariableDoesntExistException::VariableDoesntExistException(const sf::base::String& variable) :
+    std::runtime_error(
+        (sf::base::String("Variable \"") + variable + sf::base::String("\" doesn't exist in lua context")).cStr())
 {
 }
 
-LuaContext::SyntaxErrorException::SyntaxErrorException(const std::string& msg) : std::runtime_error(msg.c_str())
+LuaContext::SyntaxErrorException::SyntaxErrorException(const sf::base::String& msg) : std::runtime_error(msg.cStr())
 {
 }
 
@@ -109,7 +111,7 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
         // first we extract the part between currentVar and the next dot
         // we encounter
         nextVar = sf::base::find(currentVar, mVarName.end(), '.');
-        std::string buffer(currentVar, nextVar);
+        sf::base::String buffer(currentVar, static_cast<sf::base::SizeT>(nextVar - currentVar));
         // since nextVar is pointing to a dot, we have to increase it
         // first in order to find the next variable
         if (nextVar != mVarName.end())
@@ -122,22 +124,22 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
         // previous loop
         if (currentVar == mVarName.begin())
         {
-            lua_getglobal(_state, buffer.c_str());
+            lua_getglobal(_state, buffer.cStr());
         }
         else
         {
             // if mVarName is "a.b" and "a" is not a table (eg. it's a
-            // number or a std::string), this happens
+            // number or a sf::base::String), this happens
             // we don't have a specific exception for this, we consider
             // this as a variable-doesn't-exist
             if (!lua_istable(_state, -1))
             {
                 lua_pop(_state, 1);
-                throw VariableDoesntExistException(std::string{mVarName});
+                throw VariableDoesntExistException(sf::base::String{mVarName});
             }
 
             // replacing the current table in the stack by its member
-            lua_pushstring(_state, buffer.c_str());
+            lua_pushstring(_state, buffer.cStr());
             lua_gettable(_state, -2);
             lua_remove(_state, -2);
         }
@@ -150,7 +152,7 @@ void LuaContext::_getGlobal(std::string_view mVarName) const
         if (lua_isnil(_state, -1))
         {
             lua_pop(_state, 1);
-            throw VariableDoesntExistException(std::string{mVarName});
+            throw VariableDoesntExistException(sf::base::String{mVarName});
         }
 
         currentVar = nextVar; // updating currentVar
@@ -168,7 +170,7 @@ try
     // a member of an array
     sf::base::SizeT lastDot = mVarName.find_last_of('.');
 
-    if (lastDot == std::string::npos)
+    if (lastDot == sf::base::String::nPos)
     {
         // this is the first case, we simply call setglobal (which
         // cleans the stack)
@@ -176,11 +178,11 @@ try
         return;
     }
 
-    std::string varNameAsStr{mVarName}; // needed for null-terminated substrs
-    const auto  tableName = varNameAsStr.substr(0, lastDot);
+    sf::base::String       varNameAsStr{mVarName}; // needed for null-terminated substrs
+    const sf::base::String tableName(varNameAsStr.toStringView().substrByPosLen(0, lastDot));
 
     // in the second case, we call _getGlobal on the table name
-    _getGlobal(tableName);
+    _getGlobal(std::string_view{tableName.data(), tableName.size()});
 
     try
     {
@@ -192,13 +194,13 @@ try
         // now we have our value at -2 (was pushed before
         // _setGlobal is called) and our table at -1
         lua_pushstring(_state,
-                       varNameAsStr.substr(lastDot + 1).c_str()); // value at -3,
-                                                                  // table at -2,
-                                                                  // key at -1
-        lua_pushvalue(_state, -3);                                // value at -4, table at -3,
-                                                                  // key at -2, value at -1
-        lua_settable(_state, -3);                                 // value at -2, table at -1
-        lua_pop(_state, 2);                                       // stack empty \o/
+                       sf::base::String(varNameAsStr.toStringView().substrByPosLen(lastDot + 1)).cStr()); // value at -3,
+                                                                                                          // table at -2,
+                                                                                                          // key at -1
+        lua_pushvalue(_state, -3); // value at -4, table at -3,
+                                   // key at -2, value at -1
+        lua_settable(_state, -3);  // value at -2, table at -1
+        lua_pop(_state, 2);        // stack empty \o/
     } catch (...)
     {
         lua_pop(_state, 2);
@@ -273,7 +275,7 @@ void LuaContext::_load(std::istream& code)
     {
         // there was an error during loading, an error message was
         // pushed on the stack
-        const std::string errorMsg = _readTopAndPop(1, (std::string*)nullptr);
+        const sf::base::String errorMsg = _readTopAndPop(1, (sf::base::String*)nullptr);
 
         if (loadReturnValue == LUA_ERRMEM)
         {
@@ -295,7 +297,7 @@ void LuaContext::_load(std::string_view code)
     {
         // there was an error during loading, an error message was
         // pushed on the stack
-        const std::string errorMsg = _readTopAndPop(1, (std::string*)nullptr);
+        const sf::base::String errorMsg = _readTopAndPop(1, (sf::base::String*)nullptr);
 
         if (loadReturnValue == LUA_ERRMEM)
         {

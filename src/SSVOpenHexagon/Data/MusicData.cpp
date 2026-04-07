@@ -8,9 +8,9 @@
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 
 #include <SSVUtils/Core/Utils/Rnd.hpp>
-#include <string>
 
 
 namespace hg
@@ -18,11 +18,11 @@ namespace hg
 
 MusicData::MusicData() = default;
 
-MusicData::MusicData(const std::string& mId,
-                     const std::string& mFileName,
-                     const std::string& mName,
-                     const std::string& mAlbum,
-                     const std::string& mAuthor) :
+MusicData::MusicData(const sf::base::String& mId,
+                     const sf::base::String& mFileName,
+                     const sf::base::String& mName,
+                     const sf::base::String& mAlbum,
+                     const sf::base::String& mAuthor) :
     id{mId},
     fileName{mFileName},
     name{mName},
@@ -41,7 +41,7 @@ void MusicData::addSegment(float mSeconds, float mBeatPulseDelayOffset)
     segments.pushBack(Segment{mSeconds, mBeatPulseDelayOffset});
 }
 
-[[nodiscard]] MusicData::Segment MusicData::playRandomSegment(const std::string& mPackId, Audio& mAudio)
+[[nodiscard]] MusicData::Segment MusicData::playRandomSegment(const sf::base::String& mPackId, Audio& mAudio)
 {
     if (firstPlay)
     {
@@ -53,14 +53,14 @@ void MusicData::addSegment(float mSeconds, float mBeatPulseDelayOffset)
     return playSegment(mPackId, mAudio, rndIdx);
 }
 
-[[nodiscard]] MusicData::Segment MusicData::playSegment(const std::string& mPackId, Audio& mAudio, sf::base::SizeT mIdx)
+[[nodiscard]] MusicData::Segment MusicData::playSegment(const sf::base::String& mPackId, Audio& mAudio, sf::base::SizeT mIdx)
 {
     const Segment& segment = segments[mIdx];
     playSeconds(mPackId, mAudio, segment.time);
     return segment;
 }
 
-void MusicData::playSeconds(const std::string& mPackId, Audio& mAudio, float mSeconds) const
+void MusicData::playSeconds(const sf::base::String& mPackId, Audio& mAudio, float mSeconds) const
 {
     if (!mAudio.loadAndPlayMusic(mPackId, id, mSeconds))
     {

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SFML/Base/InPlacePImpl.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 
 namespace hg

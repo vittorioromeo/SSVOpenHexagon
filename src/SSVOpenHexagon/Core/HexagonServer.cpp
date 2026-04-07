@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
@@ -28,6 +29,8 @@
 #include "SFML/Network/TcpSocket.hpp"
 #include "SFML/Network/UdpSocket.hpp"
 
+#include "SFML/System/IO.hpp"
+
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
@@ -37,10 +40,11 @@
 
 #include <boost/pfr.hpp>
 
-#include <sstream>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 
+#include <cmath>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
@@ -97,7 +101,7 @@ template <typename... Ts>
     return false;
 }
 
-[[nodiscard]] bool HexagonServer::isLevelSupported(const std::string& levelValidator) const
+[[nodiscard]] bool HexagonServer::isLevelSupported(const sf::base::String& levelValidator) const
 {
     return _supportedLevelValidators.contains(levelValidator);
 }
@@ -193,24 +197,26 @@ template <typename T>
     return sendEncrypted(c, STCPRegistrationSuccess{});
 }
 
-[[nodiscard]] bool HexagonServer::sendRegistrationFailure(ConnectedClient& c, const std::string& error)
+[[nodiscard]] bool HexagonServer::sendRegistrationFailure(ConnectedClient& c, const sf::base::String& error)
 {
-    return sendEncrypted(c, STCPRegistrationFailure{.error = error});
+    return sendEncrypted(c, STCPRegistrationFailure{.error = std::string(error.cStr())});
 }
 
-[[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient& c, const sf::base::U64 loginToken, const std::string& loginName)
+[[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient&        c,
+                                                   const sf::base::U64     loginToken,
+                                                   const sf::base::String& loginName)
 {
     return sendEncrypted(c, //
                          STCPLoginSuccess{
                              .loginToken = static_cast<sf::base::U64>(loginToken), //
-                             .loginName  = loginName                               //
+                             .loginName  = std::string(loginName.cStr())           //
                          } //
     );
 }
 
-[[nodiscard]] bool HexagonServer::sendLoginFailure(ConnectedClient& c, const std::string& error)
+[[nodiscard]] bool HexagonServer::sendLoginFailure(ConnectedClient& c, const sf::base::String& error)
 {
-    return sendEncrypted(c, STCPLoginFailure{.error = error});
+    return sendEncrypted(c, STCPLoginFailure{.error = std::string(error.cStr())});
 }
 
 [[nodiscard]] bool HexagonServer::sendLogoutSuccess(ConnectedClient& c)
@@ -228,60 +234,67 @@ template <typename T>
     return sendEncrypted(c, STCPDeleteAccountSuccess{});
 }
 
-[[nodiscard]] bool HexagonServer::sendDeleteAccountFailure(ConnectedClient& c, const std::string& error)
+[[nodiscard]] bool HexagonServer::sendDeleteAccountFailure(ConnectedClient& c, const sf::base::String& error)
 {
-    return sendEncrypted(c, STCPDeleteAccountFailure{.error = error});
+    return sendEncrypted(c, STCPDeleteAccountFailure{.error = std::string(error.cStr())});
 }
 
 [[nodiscard]] bool HexagonServer::sendTopScores(ConnectedClient&                                  c,
-                                                const std::string&                                levelValidator,
+                                                const sf::base::String&                           levelValidator,
                                                 const sf::base::Vector<Database::ProcessedScore>& scores)
 {
     return sendEncrypted(c, //
                          STCPTopScores{
-                             .levelValidator = levelValidator, //
-                             .scores         = scores          //
+                             .levelValidator = std::string(levelValidator.cStr()), //
+                             .scores         = scores                              //
                          } //
     );
 }
 
 [[nodiscard]] bool HexagonServer::sendOwnScore(ConnectedClient&                c,
-                                               const std::string&              levelValidator,
+                                               const sf::base::String&         levelValidator,
                                                const Database::ProcessedScore& score)
 {
     return sendEncrypted(c, //
                          STCPOwnScore{
-                             .levelValidator = levelValidator, //
-                             .score          = score           //
+                             .levelValidator = std::string(levelValidator.cStr()), //
+                             .score          = score                               //
                          } //
     );
 }
 
 [[nodiscard]] bool HexagonServer::sendTopScoresAndOwnScore(
     ConnectedClient&                                    c,
-    const std::string&                                  levelValidator,
+    const sf::base::String&                             levelValidator,
     const sf::base::Vector<Database::ProcessedScore>&   scores,
     const sf::base::Optional<Database::ProcessedScore>& ownScore)
 {
     return sendEncrypted(c, //
                          STCPTopScoresAndOwnScore{
-                             .levelValidator = levelValidator, //
-                             .scores         = scores,         //
-                             .ownScore       = ownScore        //
+                             .levelValidator = std::string(levelValidator.cStr()), //
+                             .scores         = scores,                             //
+                             .ownScore       = ownScore                            //
                          } //
     );
 }
 
-[[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient&                     c,
-                                                   const ProtocolVersion&               protocolVersion,
-                                                   const GameVersion&                   gameVersion,
-                                                   const sf::base::Vector<std::string>& supportedLevelValidators)
+[[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient&                          c,
+                                                   const ProtocolVersion&                    protocolVersion,
+                                                   const GameVersion&                        gameVersion,
+                                                   const sf::base::Vector<sf::base::String>& supportedLevelValidators)
 {
+    sf::base::Vector<std::string> convertedValidators;
+    convertedValidators.reserve(supportedLevelValidators.size());
+    for (const auto& s : supportedLevelValidators)
+    {
+        convertedValidators.emplaceBack(std::string(s.cStr()));
+    }
+
     return sendEncrypted(c, //
                          STCPServerStatus{
-                             .protocolVersion          = protocolVersion,         //
-                             .gameVersion              = gameVersion,             //
-                             .supportedLevelValidators = supportedLevelValidators //
+                             .protocolVersion          = protocolVersion,    //
+                             .gameVersion              = gameVersion,        //
+                             .supportedLevelValidators = convertedValidators //
                          } //
     );
 }
@@ -371,7 +384,7 @@ bool HexagonServer::runIteration_Control()
         return true;
     }
 
-    const auto splitted = Utils::split<std::string>(controlMsg);
+    const auto splitted = Utils::split<sf::base::String>(controlMsg);
 
     if (splitted.empty())
     {
@@ -424,14 +437,14 @@ bool HexagonServer::runIteration_Control()
                 return true;
             }
 
-            std::string query = splitted[2];
+            sf::base::String query = splitted[2];
             for(sf::base::SizeT i = 3; i < splitted.size(); ++i)
             {
                 query += ' ';
                 query += splitted[i];
             }
 
-            const sf::base::Optional<std::string> executeOutcome =
+            const sf::base::Optional<sf::base::String> executeOutcome =
                 Database::execute(query);
 
             if(executeOutcome.hasValue())
@@ -710,7 +723,7 @@ void HexagonServer::runIteration_FlushLogs()
 
     const auto lv = Utils::getLevelValidator(rf._level_id, rf._difficulty_mult); // TODO
 
-    const std::string levelValidator{lv.data(), lv.size()};
+    const sf::base::String levelValidator{lv.data(), lv.size()};
 
     SSVOH_SLOG << "Processing replay from client '" << clientAddr << "' for level '" << levelValidator << "'\n";
 
@@ -788,6 +801,10 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
         {
             return "<COMPRESSED_REPLAY_FILE>";
         }
+        else if constexpr (SFML_BASE_IS_SAME(U, sf::base::String))
+        {
+            return field;
+        }
         else if constexpr (SFML_BASE_IS_SAME(U, std::string))
         {
             return field;
@@ -831,7 +848,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
     constexpr int topScoresLimit = 6;
 
-    _errorOss.str("");
+    _errorOss.setStr("");
     const PVClientToServer pv = decodeClientToServerPacket(c._rtKeys.hasValue() ? &c._rtKeys->keyReceive : nullptr, _errorOss, p);
 
     const auto checkState = [&](const ConnectedClient::State state)
@@ -863,7 +880,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
     return pv.linearMatch( //
 
         [&](const PInvalid&)
-    { return fail("Error processing packet from client '", clientAddr, "', details: ", _errorOss.str()); },
+    { return fail("Error processing packet from client '", clientAddr, "', details: ", _errorOss.getString()); },
 
         [&](const PEncryptedMsg&)
     { return fail("Received non-decrypted encrypted msg packet from client '", clientAddr, '\''); },
@@ -928,7 +945,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
         const auto sendFail = [&](const auto&... xs)
         {
-            const std::string errorStr = Utils::concat(xs...);
+            const sf::base::String errorStr = Utils::concat(xs...);
 
             SSVOH_SLOG << errorStr << '\n';
             return sendRegistrationFailure(c, errorStr);
@@ -949,7 +966,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
             return sendFail("User with steamId '", steamId, "' already registered");
         }
 
-        if (Database::anyUserWithName(name))
+        if (Database::anyUserWithName(sf::base::String(name)))
         {
             return sendFail("User with name '", name, "' already registered");
         }
@@ -958,7 +975,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
             Database::User{
                 .steamId      = steamId,
                 .name         = name,
-                .passwordHash = Utils::stringToCharVec(passwordHash) //
+                .passwordHash = Utils::stringToCharVec(sf::base::String(passwordHash)) //
             } //
         );
 
@@ -974,7 +991,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
         const auto sendFail = [&](const auto&... xs)
         {
-            const std::string errorStr = Utils::concat(xs...);
+            const sf::base::String errorStr = Utils::concat(xs...);
 
             SSVOH_SLOG << errorStr << '\n';
             return sendLoginFailure(c, errorStr);
@@ -995,12 +1012,12 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
             return sendFail("No user with steamId '", steamId, "' registered");
         }
 
-        if (!Database::anyUserWithName(name))
+        if (!Database::anyUserWithName(sf::base::String(name)))
         {
             return sendFail("No user with name '", name, "' registered");
         }
 
-        const sf::base::Optional<Database::User> user = Database::getUserWithSteamIdAndName(steamId, name);
+        const sf::base::Optional<Database::User> user = Database::getUserWithSteamIdAndName(steamId, sf::base::String(name));
 
         if (!user.hasValue())
         {
@@ -1009,7 +1026,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
         SSVOH_ASSERT(user.hasValue());
 
-        if (user->passwordHash != Utils::stringToCharVec(passwordHash))
+        if (user->passwordHash != Utils::stringToCharVec(sf::base::String(passwordHash)))
         {
             return sendFail("Invalid password for user matching '", steamId, "' and '", name, '\'');
         }
@@ -1030,15 +1047,15 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
         c._loginData.emplace(ConnectedClient::LoginData{
             ._userId       = user->id,
             ._steamId      = steamId,
-            ._name         = name,
-            ._passwordHash = passwordHash,
+            ._name         = sf::base::String(name),
+            ._passwordHash = sf::base::String(passwordHash),
             ._loginToken   = loginToken //
         });
 
         c._state = ConnectedClient::State::LoggedIn;
 
         SSVOH_SLOG << "Successfully logged in\n";
-        return sendLoginSuccess(c, loginToken, user->name);
+        return sendLoginSuccess(c, loginToken, sf::base::String(user->name));
     },
 
         [&](const CTSPLogout& ctsp)
@@ -1081,7 +1098,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
         const auto sendFail = [&](const auto&... xs)
         {
-            const std::string errorStr = Utils::concat(xs...);
+            const sf::base::String errorStr = Utils::concat(xs...);
 
             SSVOH_SLOG << errorStr << '\n';
             return sendDeleteAccountFailure(c, errorStr);
@@ -1101,7 +1118,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
         SSVOH_ASSERT(user.hasValue());
 
-        if (user->passwordHash != Utils::stringToCharVec(passwordHash))
+        if (user->passwordHash != Utils::stringToCharVec(sf::base::String(passwordHash)))
         {
             return sendFail("Invalid password for user matching '", steamId, '\'');
         }
@@ -1122,16 +1139,16 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
             return true;
         }
 
-        if (!isLevelSupported(ctsp.levelValidator))
+        const sf::base::String lvSfStr(ctsp.levelValidator);
+
+        if (!isLevelSupported(lvSfStr))
         {
             return true;
         }
 
-        const std::string& lv = ctsp.levelValidator;
-
         SSVOH_SLOG_VERBOSE << "Sending top " << topScoresLimit << " scores to client '" << clientAddr << "'\n";
 
-        return sendTopScores(c, lv, Database::getTopScores(topScoresLimit, lv));
+        return sendTopScores(c, lvSfStr, Database::getTopScores(topScoresLimit, lvSfStr));
     },
 
         [&](const CTSPReplay& ctsp)
@@ -1156,12 +1173,14 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
             return true;
         }
 
-        if (!isLevelSupported(ctsp.levelValidator))
+        const sf::base::String lvSfStr2(ctsp.levelValidator);
+
+        if (!isLevelSupported(lvSfStr2))
         {
             return true;
         }
 
-        const sf::base::Optional<Database::ProcessedScore> ps = Database::getScore(ctsp.levelValidator, c._loginData->_steamId);
+        const sf::base::Optional<Database::ProcessedScore> ps = Database::getScore(lvSfStr2, c._loginData->_steamId);
 
         if (!ps.hasValue())
         {
@@ -1170,7 +1189,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
         SSVOH_SLOG_VERBOSE << "Sending own score to client '" << clientAddr << "'\n";
 
-        return sendOwnScore(c, ctsp.levelValidator, *ps);
+        return sendOwnScore(c, lvSfStr2, *ps);
     },
 
         [&](const CTSPRequestTopScoresAndOwnScore& ctsp)
@@ -1183,12 +1202,12 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
             return true;
         }
 
-        if (!isLevelSupported(ctsp.levelValidator))
+        const sf::base::String lv(ctsp.levelValidator);
+
+        if (!isLevelSupported(lv))
         {
             return true;
         }
-
-        const std::string& lv = ctsp.levelValidator;
 
         SSVOH_SLOG_VERBOSE << "Sending top " << topScoresLimit << " scores and own score to client '" << clientAddr << "'\n";
 
@@ -1207,7 +1226,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
             return true;
         }
 
-        const std::string& lv = ctsp.levelValidator;
+        const sf::base::String lv(ctsp.levelValidator);
 
         SSVOH_SLOG << "Client '" << clientAddr << "' started game for level '" << lv << "'\n";
 
@@ -1271,11 +1290,11 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
     );
 }
 
-[[nodiscard]] static std::unordered_set<std::string> makeSupportedLevelValidators(
-    HGAssets&                              assets,
-    const std::unordered_set<std::string>& levelValidatorWhitelist)
+[[nodiscard]] static std::unordered_set<sf::base::String> makeSupportedLevelValidators(
+    HGAssets&                                   assets,
+    const std::unordered_set<sf::base::String>& levelValidatorWhitelist)
 {
-    std::unordered_set<std::string> result;
+    std::unordered_set<sf::base::String> result;
 
     for (const auto& [assetId, ld] : assets.getLevelDatas())
     {
@@ -1286,7 +1305,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
         for (const float dm : ld.difficultyMults)
         {
-            if (const std::string& validator = ld.getValidator(dm); levelValidatorWhitelist.contains(validator))
+            if (const sf::base::String& validator = ld.getValidator(dm); levelValidatorWhitelist.contains(validator))
             {
                 result.emplace(validator);
             }
@@ -1296,12 +1315,12 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
     return result;
 }
 
-HexagonServer::HexagonServer(HGAssets&                              assets,
-                             HexagonGame&                           hexagonGame,
-                             const sf::IpAddress&                   serverIp,
-                             const unsigned short                   serverPort,
-                             const unsigned short                   serverControlPort,
-                             const std::unordered_set<std::string>& serverLevelWhitelist) :
+HexagonServer::HexagonServer(HGAssets&                                   assets,
+                             HexagonGame&                                hexagonGame,
+                             const sf::IpAddress&                        serverIp,
+                             const unsigned short                        serverPort,
+                             const unsigned short                        serverControlPort,
+                             const std::unordered_set<sf::base::String>& serverLevelWhitelist) :
     _assets{assets},
     _hexagonGame{hexagonGame},
     _supportedLevelValidators{makeSupportedLevelValidators(assets, serverLevelWhitelist)},
@@ -1375,15 +1394,15 @@ HexagonServer::HexagonServer(HGAssets&                              assets,
     // ------------------------------------------------------------------------
     // Print supported (ranked) level validators
     {
-        std::ostringstream oss;
+        sf::OutStringStream oss;
         oss << "Server initialized!\nSupported levels:\n";
 
-        for (const std::string& levelValidator : _supportedLevelValidators)
+        for (const sf::base::String& levelValidator : _supportedLevelValidators)
         {
             oss << " - " << levelValidator << '\n';
         }
 
-        SSVOH_SLOG << oss.str() << '\n';
+        SSVOH_SLOG << oss.getString() << '\n';
     }
 
     run();

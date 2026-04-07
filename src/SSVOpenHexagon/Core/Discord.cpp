@@ -6,6 +6,7 @@
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
 
 #include <math.h> // Needed by `discord.h`...
 

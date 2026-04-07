@@ -14,8 +14,6 @@
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/IntTypes.hpp"
 
-#include <bitset>
-
 namespace hg
 {
 
@@ -30,21 +28,19 @@ private:
     sf::base::Array<sf::Color, 4> _vertexColors;
     sf::base::U8                  _killingSide{0u};
 
-    enum CWFlags : unsigned int
+    enum CWFlags : sf::base::U8
     {
-        NoCollision,
-        Deadly,
-
-        CWFlagsCount
+        NoCollision = 1u << 0,
+        Deadly      = 1u << 1,
     };
 
-    std::bitset<CWFlags::CWFlagsCount> _flags; // Default: collides, not deadly
+    sf::base::U8 _flags{0u}; // Default: collides, not deadly
 
 public:
     [[gnu::always_inline]] void reset()
     {
         _killingSide = 0u;
-        _flags.reset();
+        _flags       = 0u;
     }
 
     [[gnu::always_inline]] void draw(Utils::FastVertexVectorTris& wallQuads)
@@ -97,12 +93,18 @@ public:
 
     [[gnu::always_inline]] void setCanCollide(const bool collide) noexcept
     {
-        _flags[CWFlags::NoCollision] = !collide;
+        if (collide)
+            _flags &= ~CWFlags::NoCollision;
+        else
+            _flags |= CWFlags::NoCollision;
     }
 
     [[gnu::always_inline]] void setDeadly(const bool deadly) noexcept
     {
-        _flags[CWFlags::Deadly] = deadly;
+        if (deadly)
+            _flags |= CWFlags::Deadly;
+        else
+            _flags &= ~CWFlags::Deadly;
     }
 
     [[nodiscard, gnu::always_inline]] const sf::Vec2f getVertexPos(const int vertexIndex) const noexcept
@@ -122,12 +124,12 @@ public:
 
     [[nodiscard, gnu::always_inline]] bool getCanCollide() const noexcept
     {
-        return !_flags[CWFlags::NoCollision];
+        return (_flags & CWFlags::NoCollision) == 0u;
     }
 
     [[nodiscard, gnu::always_inline]] bool getDeadly() const noexcept
     {
-        return _flags[CWFlags::Deadly];
+        return (_flags & CWFlags::Deadly) != 0u;
     }
 
     [[nodiscard, gnu::always_inline]] constexpr bool isCustomWall() const noexcept

@@ -10,10 +10,10 @@
 
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 #include <tuple>
 
 namespace hg::Utils
@@ -26,23 +26,23 @@ class LuaMetadataProxy
 private:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wattributes"
-    [[maybe_unused]] LuaMetadata& luaMetadata;
-    [[maybe_unused]] std::string  name;
-    [[maybe_unused]] std::string (*erasedRet)(LuaMetadataProxy*);
-    [[maybe_unused]] std::string (*erasedArgs)(LuaMetadataProxy*);
+    [[maybe_unused]] LuaMetadata&     luaMetadata;
+    [[maybe_unused]] sf::base::String name;
+    [[maybe_unused]] sf::base::String (*erasedRet)(LuaMetadataProxy*);
+    [[maybe_unused]] sf::base::String (*erasedArgs)(LuaMetadataProxy*);
 #pragma GCC diagnostic pop
 
-    std::string                   docs;
-    sf::base::Vector<std::string> argNames;
+    sf::base::String                   docs;
+    sf::base::Vector<sf::base::String> argNames;
 
     template <typename T>
     [[nodiscard]] static const char* typeToStr(TypeWrapper<T>) noexcept;
 
     template <typename... Ts>
-    [[nodiscard]] static std::string typeToStr(TypeWrapper<std::tuple<Ts...>>);
+    [[nodiscard]] static sf::base::String typeToStr(TypeWrapper<std::tuple<Ts...>>);
 
     template <typename FOp>
-    [[nodiscard]] static std::string makeArgsString([[maybe_unused]] LuaMetadataProxy* self)
+    [[nodiscard]] static sf::base::String makeArgsString([[maybe_unused]] LuaMetadataProxy* self)
     {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
         using AE = Utils::ArgExtractor<FOp>;
@@ -53,7 +53,7 @@ private:
         }
         else if constexpr (AE::numArgs == 1)
         {
-            std::string res;
+            sf::base::String res;
 
             res += typeToStr(TypeWrapper < SFML_BASE_DECAY(typename AE::template NthArg < 0 >>){});
 
@@ -64,7 +64,7 @@ private:
         }
         else
         {
-            std::string res;
+            sf::base::String res;
 
             [&]<sf::base::SizeT... Is>(std::index_sequence<Is...>)
             {
@@ -86,10 +86,10 @@ private:
 #endif
     }
 
-    [[nodiscard]] std::string resolveArgNames(const std::string& docs);
+    [[nodiscard]] sf::base::String resolveArgNames(const sf::base::String& docs);
 
     template <typename Ret>
-    [[nodiscard]] static std::string makeErasedRet(LuaMetadataProxy*)
+    [[nodiscard]] static sf::base::String makeErasedRet(LuaMetadataProxy*)
     {
 #ifdef SSVOH_PRODUCE_LUA_METADATA
         return typeToStr(TypeWrapper<SFML_BASE_DECAY(Ret)>{});
@@ -101,7 +101,7 @@ private:
 public:
 #ifdef SSVOH_PRODUCE_LUA_METADATA
     template <typename F, typename FOp = decltype(&SFML_BASE_DECAY(F)::operator())>
-    explicit LuaMetadataProxy(TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName) :
+    explicit LuaMetadataProxy(TypeWrapper<F>, LuaMetadata& mLuaMetadata, const sf::base::String& mName) :
         luaMetadata{mLuaMetadata},
         name{mName},
         erasedRet{&makeErasedRet<typename Utils::ArgExtractor<FOp>::Return>},
@@ -110,7 +110,7 @@ public:
     }
 #else
     template <typename F>
-    explicit LuaMetadataProxy(TypeWrapper<F>, LuaMetadata& mLuaMetadata, [[maybe_unused]] const std::string& mName) :
+    explicit LuaMetadataProxy(TypeWrapper<F>, LuaMetadata& mLuaMetadata, [[maybe_unused]] const sf::base::String& mName) :
         luaMetadata{mLuaMetadata},
         name{""},
         erasedRet{nullptr},
@@ -121,8 +121,8 @@ public:
 
     ~LuaMetadataProxy();
 
-    LuaMetadataProxy& arg(const std::string& mArgName);
-    LuaMetadataProxy& doc(const std::string& mDocs);
+    LuaMetadataProxy& arg(const sf::base::String& mArgName);
+    LuaMetadataProxy& doc(const sf::base::String& mDocs);
 };
 
 } // namespace hg::Utils

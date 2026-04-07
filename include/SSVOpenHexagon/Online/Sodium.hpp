@@ -8,6 +8,7 @@
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 
 #include <sodium.h>
 #include <string>
@@ -57,9 +58,9 @@ struct SodiumRTKeys
     const SodiumPublicKeyArray& serverPublicKey);
 
 template <typename T>
-[[nodiscard]] std::string sodiumKeyToString(const T& sodiumKey)
+[[nodiscard]] sf::base::String sodiumKeyToString(const T& sodiumKey)
 {
-    std::string result;
+    sf::base::String result;
     result.reserve(sodiumKey.size());
 
     for (const unsigned char c : sodiumKey)
@@ -70,7 +71,7 @@ template <typename T>
     return result;
 }
 
-[[nodiscard]] std::string sodiumHash(const std::string& s);
+[[nodiscard]] sf::base::String sodiumHash(const sf::base::String& s);
 
 [[nodiscard]] sf::base::U64 randomUInt64();
 

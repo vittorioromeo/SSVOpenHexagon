@@ -12,6 +12,7 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
 
 #include <sqlite3.h>
 #include <sqlite_orm.h>
@@ -120,20 +121,22 @@ void dumpUsers()
     return !getAllUsersWithSteamId(steamId).empty();
 }
 
-[[nodiscard]] bool anyUserWithName(const std::string& name)
+[[nodiscard]] bool anyUserWithName(const sf::base::String& name)
 {
     using namespace sqlite_orm;
 
-    auto query = Impl::getStorage().get_all<User>(where(name == c(&User::name)));
+    const std::string nameStd(name.cStr());
+    auto              query = Impl::getStorage().get_all<User>(where(nameStd == c(&User::name)));
 
     return !query.empty();
 }
 
-[[nodiscard]] sf::base::Optional<User> getUserWithSteamIdAndName(const sf::base::U64 steamId, const std::string& name)
+[[nodiscard]] sf::base::Optional<User> getUserWithSteamIdAndName(const sf::base::U64 steamId, const sf::base::String& name)
 {
     using namespace sqlite_orm;
 
-    auto query = Impl::getStorage().get_all<User>(where(steamId == c(&User::steamId) && name == c(&User::name)));
+    const std::string nameStd(name.cStr());
+    auto query = Impl::getStorage().get_all<User>(where(steamId == c(&User::steamId) && nameStd == c(&User::name)));
 
     if (query.empty())
     {
@@ -238,15 +241,16 @@ void removeAllStaleLoginTokens()
     }
 }
 
-[[nodiscard]] sf::base::Vector<ProcessedScore> getTopScores(const int topLimit, const std::string& levelValidator)
+[[nodiscard]] sf::base::Vector<ProcessedScore> getTopScores(const int topLimit, const sf::base::String& levelValidator)
 {
     using namespace sqlite_orm;
 
-    auto query = Impl::getStorage().select(columns(&User::name, &Score::timestamp, &Score::value),
-                                           join<Score>(on(c(&User::steamId) == &Score::userSteamId)),
-                                           where(levelValidator == c(&Score::levelValidator)),
-                                           order_by(&Score::value).desc(),
-                                           limit(topLimit));
+    const std::string levelValidatorStd(levelValidator.cStr());
+    auto              query = Impl::getStorage().select(columns(&User::name, &Score::timestamp, &Score::value),
+                                                        join<Score>(on(c(&User::steamId) == &Score::userSteamId)),
+                                                        where(levelValidatorStd == c(&Score::levelValidator)),
+                                                        order_by(&Score::value).desc(),
+                                                        limit(topLimit));
 
     sf::base::Vector<ProcessedScore> result;
 
@@ -281,19 +285,24 @@ void removeAllStaleLoginTokens()
     return isLoginTokenTimestampValid(query.at(0));
 }
 
-void addScore(const std::string& levelValidator, const sf::base::U64 timestamp, const sf::base::U64 userSteamId, const double value)
+void addScore(const sf::base::String& levelValidator,
+              const sf::base::U64     timestamp,
+              const sf::base::U64     userSteamId,
+              const double            value)
 {
     using namespace sqlite_orm;
 
     Score score{
-        .levelValidator = levelValidator, //
-        .timestamp      = timestamp,      //
-        .userSteamId    = userSteamId,    //
-        .value          = value           //
+        .levelValidator = std::string(levelValidator.cStr()), //
+        .timestamp      = timestamp,                          //
+        .userSteamId    = userSteamId,                        //
+        .value          = value                               //
     };
 
+    const std::string levelValidatorStd(levelValidator.cStr());
+
     const auto query = Impl::getStorage().get_all<Score>(
-        where(userSteamId == c(&Score::userSteamId) && levelValidator == c(&Score::levelValidator)));
+        where(userSteamId == c(&Score::userSteamId) && levelValidatorStd == c(&Score::levelValidator)));
 
     if (query.empty())
     {
@@ -317,13 +326,14 @@ void addScore(const std::string& levelValidator, const sf::base::U64 timestamp, 
     SSVOH_DLOG << "Updated score with id '" << score.id << "' to storage:\n" << Impl::getStorage().dump(score) << '\n';
 }
 
-[[nodiscard]] sf::base::Optional<ProcessedScore> getScore(const std::string& levelValidator, const sf::base::U64 userSteamId)
+[[nodiscard]] sf::base::Optional<ProcessedScore> getScore(const sf::base::String& levelValidator, const sf::base::U64 userSteamId)
 {
     using namespace sqlite_orm;
 
+    const std::string levelValidatorStd(levelValidator.cStr());
     const auto query = Impl::getStorage().select(columns(&User::name, &Score::timestamp, &Score::value, &Score::userSteamId),
                                                  join<Score>(on(c(&User::steamId) == &Score::userSteamId)),
-                                                 where(levelValidator == c(&Score::levelValidator)),
+                                                 where(levelValidatorStd == c(&Score::levelValidator)),
                                                  order_by(&Score::value).desc());
 
     if (query.empty())
@@ -350,7 +360,7 @@ void addScore(const std::string& levelValidator, const sf::base::U64 timestamp, 
     return sf::base::nullOpt;
 }
 
-[[nodiscard]] sf::base::Optional<std::string> execute(const std::string& query)
+[[nodiscard]] sf::base::Optional<sf::base::String> execute(const sf::base::String& query)
 {
     const auto callback = [](void* a_param, int argc, char** argv, char** column) -> int
     {
@@ -369,12 +379,12 @@ void addScore(const std::string& levelValidator, const sf::base::U64 timestamp, 
     sqlite3* db = Impl::getStorage().get_connection().get();
 
     char* error = nullptr;
-    sqlite3_exec(db, query.c_str(), callback, nullptr, &error);
+    sqlite3_exec(db, query.cStr(), callback, nullptr, &error);
 
     if (error != nullptr)
     {
         SFML_BASE_SCOPE_GUARD({ sqlite3_free(error); });
-        return sf::base::makeOptional<std::string>(error);
+        return sf::base::makeOptional<sf::base::String>(error);
     }
 
     return sf::base::nullOpt;

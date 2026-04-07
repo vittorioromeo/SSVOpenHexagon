@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
+#include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
@@ -16,12 +17,13 @@
 #include "SFML/Network/TcpSocket.hpp"
 #include "SFML/Network/UdpSocket.hpp"
 
+#include "SFML/System/IO.hpp"
+
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 
 #include <list>
-#include <sstream>
-#include <string>
 #include <unordered_set>
 
 namespace hg
@@ -38,8 +40,8 @@ private:
     HGAssets&    _assets;
     HexagonGame& _hexagonGame;
 
-    const std::unordered_set<std::string> _supportedLevelValidators;
-    const sf::base::Vector<std::string>   _supportedLevelValidatorsVector;
+    const std::unordered_set<sf::base::String> _supportedLevelValidators;
+    const sf::base::Vector<sf::base::String>   _supportedLevelValidatorsVector;
 
     const sf::IpAddress  _serverIp;
     const unsigned short _serverPort;
@@ -51,8 +53,8 @@ private:
     sf::SocketSelector _socketSelector;
     bool               _running;
 
-    sf::Packet         _packetBuffer;
-    std::ostringstream _errorOss;
+    sf::Packet          _packetBuffer;
+    sf::OutStringStream _errorOss;
 
     struct ConnectedClient
     {
@@ -73,11 +75,11 @@ private:
 
         struct LoginData
         {
-            sf::base::U32 _userId;
-            sf::base::U64 _steamId;
-            std::string   _name;
-            std::string   _passwordHash;
-            sf::base::U64 _loginToken;
+            sf::base::U32    _userId;
+            sf::base::U64    _steamId;
+            sf::base::String _name;
+            sf::base::String _passwordHash;
+            sf::base::U64    _loginToken;
         };
 
         sf::base::Optional<LoginData> _loginData;
@@ -87,7 +89,7 @@ private:
         struct GameStatus
         {
             Utils::SCTimePoint _startTP;
-            std::string        _levelValidator;
+            sf::base::String   _levelValidator;
         };
 
         sf::base::Optional<GameStatus> _gameStatus;
@@ -118,25 +120,27 @@ private:
     [[nodiscard]] bool sendKick(ConnectedClient& c);
     [[nodiscard]] bool sendPublicKey(ConnectedClient& c);
     [[nodiscard]] bool sendRegistrationSuccess(ConnectedClient& c);
-    [[nodiscard]] bool sendRegistrationFailure(ConnectedClient& c, const std::string& error);
-    [[nodiscard]] bool sendLoginSuccess(ConnectedClient& c, const sf::base::U64 loginToken, const std::string& loginName);
-    [[nodiscard]] bool sendLoginFailure(ConnectedClient& c, const std::string& error);
+    [[nodiscard]] bool sendRegistrationFailure(ConnectedClient& c, const sf::base::String& error);
+    [[nodiscard]] bool sendLoginSuccess(ConnectedClient& c, const sf::base::U64 loginToken, const sf::base::String& loginName);
+    [[nodiscard]] bool sendLoginFailure(ConnectedClient& c, const sf::base::String& error);
     [[nodiscard]] bool sendLogoutSuccess(ConnectedClient& c);
     [[nodiscard]] bool sendLogoutFailure(ConnectedClient& c);
     [[nodiscard]] bool sendDeleteAccountSuccess(ConnectedClient& c);
-    [[nodiscard]] bool sendDeleteAccountFailure(ConnectedClient& c, const std::string& error);
+    [[nodiscard]] bool sendDeleteAccountFailure(ConnectedClient& c, const sf::base::String& error);
     [[nodiscard]] bool sendTopScores(ConnectedClient&                                  c,
-                                     const std::string&                                levelValidator,
+                                     const sf::base::String&                           levelValidator,
                                      const sf::base::Vector<Database::ProcessedScore>& scores);
-    [[nodiscard]] bool sendOwnScore(ConnectedClient& c, const std::string& levelValidator, const Database::ProcessedScore& score);
+    [[nodiscard]] bool sendOwnScore(ConnectedClient&                c,
+                                    const sf::base::String&         levelValidator,
+                                    const Database::ProcessedScore& score);
     [[nodiscard]] bool sendTopScoresAndOwnScore(ConnectedClient&                                    c,
-                                                const std::string&                                  levelValidator,
+                                                const sf::base::String&                             levelValidator,
                                                 const sf::base::Vector<Database::ProcessedScore>&   scores,
                                                 const sf::base::Optional<Database::ProcessedScore>& ownScore);
-    [[nodiscard]] bool sendServerStatus(ConnectedClient&                     c,
-                                        const ProtocolVersion&               protocolVersion,
-                                        const GameVersion&                   gameVersion,
-                                        const sf::base::Vector<std::string>& supportedLevelValidators);
+    [[nodiscard]] bool sendServerStatus(ConnectedClient&                          c,
+                                        const ProtocolVersion&                    protocolVersion,
+                                        const GameVersion&                        gameVersion,
+                                        const sf::base::Vector<sf::base::String>& supportedLevelValidators);
 
     [[nodiscard]] bool kickAndRemoveClient(ConnectedClient& c);
 
@@ -161,15 +165,15 @@ private:
     template <typename... Ts>
     [[nodiscard]] bool fail(const Ts&...);
 
-    [[nodiscard]] bool isLevelSupported(const std::string& levelValidator) const;
+    [[nodiscard]] bool isLevelSupported(const sf::base::String& levelValidator) const;
 
 public:
-    explicit HexagonServer(HGAssets&                              assets,
-                           HexagonGame&                           hexagonGame,
-                           const sf::IpAddress&                   serverIp,
-                           const unsigned short                   serverPort,
-                           const unsigned short                   serverControlPort,
-                           const std::unordered_set<std::string>& serverLevelWhitelist);
+    explicit HexagonServer(HGAssets&                                   assets,
+                           HexagonGame&                                hexagonGame,
+                           const sf::IpAddress&                        serverIp,
+                           const unsigned short                        serverPort,
+                           const unsigned short                        serverControlPort,
+                           const std::unordered_set<sf::base::String>& serverLevelWhitelist);
 
     ~HexagonServer();
 

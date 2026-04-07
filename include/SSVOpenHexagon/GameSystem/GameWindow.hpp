@@ -30,11 +30,11 @@
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <SSVUtils/Delegate/Delegate.hpp>
 #include <ratio>
-#include <string>
 #include <utility>
 
 #include <cassert>
@@ -51,7 +51,7 @@ private:
     GameState*                              gameState{nullptr};
     bool                                    running{true};
     sf::base::Optional<sf::RenderWindow>    renderWindow;
-    std::string                             title;
+    sf::base::String                        title;
     float                                   msUpdate{0.f};
     float                                   msDraw{0.f};
     float                                   maxFPS{60.f};
@@ -212,7 +212,7 @@ public:
         renderWindow->draw(std::forward<Ts>(xs)...);
     }
 
-    void saveScreenshot(const std::string& path) const
+    void saveScreenshot(const sf::base::String& path) const
     {
         auto texture = sf::Texture::create({renderWindow->getSize().x, renderWindow->getSize().y});
 
@@ -262,7 +262,7 @@ public:
         renderWindow->setMouseCursorVisible(enabled);
     }
 
-    void setTitle(std::string newTitle)
+    void setTitle(sf::base::String newTitle)
     {
         title = std::move(newTitle);
         renderWindow->setTitle(title);

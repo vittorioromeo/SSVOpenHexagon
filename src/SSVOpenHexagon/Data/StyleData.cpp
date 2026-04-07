@@ -7,10 +7,14 @@
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
+
+#include "SFML/Base/String.hpp"
 
 #include <SFML/Base/SizeT.hpp>
 #include <SFML/Base/Vector.hpp>
@@ -18,16 +22,15 @@
 #include <SSVUtils/Core/Utils/Containers.hpp>
 #include <SSVUtils/Core/Utils/Math.hpp>
 #include <algorithm>
-#include <string>
 
 #include <cmath>
 
 namespace hg
 {
 
-[[nodiscard]] ColorData StyleData::colorDataFromObjOrDefault(const ssvuj::Obj&  mRoot,
-                                                             const std::string& mKey,
-                                                             const ColorData&   mDefault)
+[[nodiscard]] ColorData StyleData::colorDataFromObjOrDefault(const ssvuj::Obj&       mRoot,
+                                                             const sf::base::String& mKey,
+                                                             const ColorData&        mDefault)
 {
     if (ssvuj::hasObj(mRoot, mKey))
     {
@@ -40,7 +43,7 @@ namespace hg
 StyleData::StyleData() = default;
 
 StyleData::StyleData(const ssvuj::Obj& mRoot) :
-    id{ssvuj::getExtr<std::string>(mRoot, "id", "nullId")},
+    id{ssvuj::getExtr<sf::base::String>(mRoot, "id", "nullId")},
     hueMin{ssvuj::getExtr<float>(mRoot, "hue_min", 0.f)},
     hueMax{ssvuj::getExtr<float>(mRoot, "hue_max", 360.f)},
     hueIncrement{ssvuj::getExtr<float>(mRoot, "hue_increment", 0.f)},

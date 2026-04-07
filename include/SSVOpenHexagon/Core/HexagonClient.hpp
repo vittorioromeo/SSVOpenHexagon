@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
@@ -12,14 +13,15 @@
 #include "SFML/Network/Packet.hpp"
 #include "SFML/Network/TcpSocket.hpp"
 
+#include "SFML/System/IO.hpp"
+
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Variant.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <deque>
-#include <sstream>
-#include <string>
 #include <unordered_set>
 
 namespace hg::Steam
@@ -49,18 +51,18 @@ public:
 
     // clang-format off
     struct EConnectionSuccess       { };
-    struct EConnectionFailure       { std::string error; };
+    struct EConnectionFailure       { sf::base::String error; };
     struct EKicked                  { };
     struct ERegistrationSuccess     { };
-    struct ERegistrationFailure     { std::string error;};
+    struct ERegistrationFailure     { sf::base::String error;};
     struct ELoginSuccess            { };
-    struct ELoginFailure            { std::string error; };
+    struct ELoginFailure            { sf::base::String error; };
     struct ELogoutSuccess           { };
     struct ELogoutFailure           { };
     struct EDeleteAccountSuccess    { };
-    struct EDeleteAccountFailure    { std::string error; };
-    struct EReceivedTopScores       { std::string levelValidator; sf::base::Vector<Database::ProcessedScore> scores; };
-    struct EReceivedOwnScore        { std::string levelValidator; Database::ProcessedScore score; };
+    struct EDeleteAccountFailure    { sf::base::String error; };
+    struct EReceivedTopScores       { sf::base::String levelValidator; sf::base::Vector<Database::ProcessedScore> scores; };
+    struct EReceivedOwnScore        { sf::base::String levelValidator; Database::ProcessedScore score; };
     struct EGameVersionMismatch     { };
     struct EProtocolVersionMismatch { };
     // clang-format on
@@ -94,8 +96,8 @@ private:
     sf::TcpSocket _socket;
     bool          _socketConnected;
 
-    sf::Packet         _packetBuffer;
-    std::ostringstream _errorOss;
+    sf::Packet          _packetBuffer;
+    sf::OutStringStream _errorOss;
 
     HRTimePoint _lastHeartbeatTime;
 
@@ -107,12 +109,12 @@ private:
 
     State _state;
 
-    sf::base::Optional<sf::base::U64> _loginToken;
-    sf::base::Optional<std::string>   _loginName;
+    sf::base::Optional<sf::base::U64>    _loginToken;
+    sf::base::Optional<sf::base::String> _loginName;
 
     std::deque<Event> _events;
 
-    std::unordered_set<std::string> _levelValidatorsSupportedByServer;
+    std::unordered_set<sf::base::String> _levelValidatorsSupportedByServer;
 
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();
@@ -126,16 +128,18 @@ private:
     [[nodiscard]] bool sendHeartbeat();
     [[nodiscard]] bool sendDisconnect();
     [[nodiscard]] bool sendPublicKey();
-    [[nodiscard]] bool sendRegister(const sf::base::U64 steamId, const std::string& name, const std::string& passwordHash);
-    [[nodiscard]] bool sendLogin(const sf::base::U64 steamId, const std::string& name, const std::string& passwordHash);
+    [[nodiscard]] bool sendRegister(const sf::base::U64     steamId,
+                                    const sf::base::String& name,
+                                    const sf::base::String& passwordHash);
+    [[nodiscard]] bool sendLogin(const sf::base::U64 steamId, const sf::base::String& name, const sf::base::String& passwordHash);
     [[nodiscard]] bool sendLogout(const sf::base::U64 steamId);
-    [[nodiscard]] bool sendDeleteAccount(const sf::base::U64 steamId, const std::string& passwordHash);
-    [[nodiscard]] bool sendRequestTopScores(const sf::base::U64 loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendRequestOwnScore(const sf::base::U64 loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendRequestTopScoresAndOwnScore(const sf::base::U64 loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendStartedGame(const sf::base::U64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendDeleteAccount(const sf::base::U64 steamId, const sf::base::String& passwordHash);
+    [[nodiscard]] bool sendRequestTopScores(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
+    [[nodiscard]] bool sendRequestOwnScore(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
+    [[nodiscard]] bool sendRequestTopScoresAndOwnScore(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
+    [[nodiscard]] bool sendStartedGame(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
     [[nodiscard]] bool sendCompressedReplay(const sf::base::U64           loginToken,
-                                            const std::string&            levelValidator,
+                                            const sf::base::String&       levelValidator,
                                             const compressed_replay_file& compressedReplayFile);
     [[nodiscard]] bool sendRequestServerStatus(const sf::base::U64 loginToken);
     [[nodiscard]] bool sendReady(const sf::base::U64 loginToken);
@@ -171,24 +175,24 @@ public:
 
     void update();
 
-    bool tryRegister(const std::string& name, const std::string& password);
-    bool tryLogin(const std::string& name, const std::string& password);
+    bool tryRegister(const sf::base::String& name, const sf::base::String& password);
+    bool tryLogin(const sf::base::String& name, const sf::base::String& password);
     bool tryLogoutFromServer();
-    bool tryDeleteAccount(const std::string& password);
-    bool tryRequestTopScores(const std::string& levelValidator);
-    bool tryRequestOwnScore(const std::string& levelValidator);
-    bool tryRequestTopScoresAndOwnScore(const std::string& levelValidator);
-    bool trySendStartedGame(const std::string& levelValidator);
-    bool trySendCompressedReplay(const std::string& levelValidator, const compressed_replay_file& compressedReplayFile);
+    bool tryDeleteAccount(const sf::base::String& password);
+    bool tryRequestTopScores(const sf::base::String& levelValidator);
+    bool tryRequestOwnScore(const sf::base::String& levelValidator);
+    bool tryRequestTopScoresAndOwnScore(const sf::base::String& levelValidator);
+    bool trySendStartedGame(const sf::base::String& levelValidator);
+    bool trySendCompressedReplay(const sf::base::String& levelValidator, const compressed_replay_file& compressedReplayFile);
 
     [[nodiscard]] State getState() const noexcept;
     [[nodiscard]] bool  hasRTKeys() const noexcept;
 
-    [[nodiscard]] const sf::base::Optional<std::string>& getLoginName() const noexcept;
+    [[nodiscard]] const sf::base::Optional<sf::base::String>& getLoginName() const noexcept;
 
     [[nodiscard]] sf::base::Optional<Event> pollEvent();
 
-    [[nodiscard]] bool isLevelSupportedByServer(const std::string& levelValidator) const noexcept;
+    [[nodiscard]] bool isLevelSupportedByServer(const sf::base::String& levelValidator) const noexcept;
 };
 
 } // namespace hg

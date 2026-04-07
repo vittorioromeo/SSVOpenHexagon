@@ -4,13 +4,14 @@
 
 #pragma once
 
-#include <string>
+#include "SFML/Base/String.hpp"
+
 #include <vector>
 
 namespace hg::Utils
 {
 
-[[nodiscard]] inline std::vector<char> stringToCharVec(const std::string& s)
+[[nodiscard]] inline std::vector<char> stringToCharVec(const sf::base::String& s)
 {
     return std::vector<char>(s.data(), s.data() + s.size());
 }

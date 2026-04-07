@@ -41,7 +41,10 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
 #include "SSVOpenHexagon/MenuSystem/Menu/Menu.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Io.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
@@ -80,6 +83,8 @@
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
@@ -456,14 +461,14 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
 
             if (!dialogBox.empty() && dialogBox.isInputBox())
             {
-                std::string& input = dialogBox.getInput();
+                sf::base::String& input = dialogBox.getInput();
 
                 if (e->unicode >= 32 && e->unicode < 127)
                 {
                     if (input.size() < 32)
                     {
                         playSoundOverride("beep.ogg");
-                        input.push_back(static_cast<char>(e->unicode));
+                        input.pushBack(static_cast<char>(e->unicode));
                     }
                 }
             }
@@ -477,14 +482,14 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
 
             if (!dialogBox.empty() && dialogBox.isInputBox())
             {
-                std::string& input = dialogBox.getInput();
+                sf::base::String& input = dialogBox.getInput();
 
                 if (e->code == sf::Keyboard::Key::Backspace)
                 {
                     if (!input.empty())
                     {
                         playSoundOverride("beep.ogg");
-                        input.pop_back();
+                        input.erase(input.size() - 1, 1);
                     }
                 }
             }
@@ -780,7 +785,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     {
         const auto [randomPack, randomLevel] = pickRandomMainMenuBackgroundStyle();
 
-        const std::string& randomPackId = getNthSelectablePackInfo(randomPack).id;
+        const sf::base::String& randomPackId = getNthSelectablePackInfo(randomPack).id;
 
         lvlSlct.levelDataIds = &assets.getLevelIdsByPack(randomPackId);
         setIndex(randomLevel);
@@ -798,7 +803,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     unsigned int maxSize{0}, packSize;
     for (sf::base::SizeT i{0}; i < getSelectablePackInfosSize(); ++i)
     {
-        const std::string& packId = getNthSelectablePackInfo(i).id;
+        const sf::base::String& packId = getNthSelectablePackInfo(i).id;
 
         if (!assets.packHasLevels(packId))
         {
@@ -841,7 +846,7 @@ void MenuGame::init(bool error)
     // Online::setForceLeaderboardRefresh(true);
 }
 
-void MenuGame::init(bool error, const std::string& pack, const std::string& level)
+void MenuGame::init(bool error, const sf::base::String& pack, const sf::base::String& level)
 {
     init(error);
     loadCommandLineLevel(pack, level);
@@ -1060,7 +1065,7 @@ void MenuGame::initInput()
         t::Once);
 }
 
-void MenuGame::runLuaFile(const std::string& mFileName)
+void MenuGame::runLuaFile(const sf::base::String& mFileName)
 try
 {
     if (Config::getUseLuaFileCache())
@@ -1093,7 +1098,7 @@ void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
     resetNamesScrolls();
 }
 
-void MenuGame::playSoundOverride(const std::string& assetId)
+void MenuGame::playSoundOverride(const sf::base::String& assetId)
 {
     if (!Config::getNoSound())
     {
@@ -1115,13 +1120,13 @@ void MenuGame::initLua()
                        hexagonGameStatus,
                        styleData,
                        assets,
-                       [this](const std::string& filename) { runLuaFile(filename); },
+                       [this](const sf::base::String& filename) { runLuaFile(filename); },
                        execScriptPackPathContext,
-                       [this]() -> const std::string& { return levelData->packPath; },
+                       [this]() -> const sf::base::String& { return levelData->packPath; },
                        [this]() -> const PackData& { return *currentPack; },
                        false /* headless */);
 
-    lua.writeVariable("u_log", [](const std::string& mLog) { hg::lo("lua-menu") << mLog << '\n'; });
+    lua.writeVariable("u_log", [](const sf::base::String& mLog) { hg::lo("lua-menu") << mLog << '\n'; });
 
     lua.writeVariable("u_getDifficultyMult", [] { return 1; });
 
@@ -1416,21 +1421,18 @@ void MenuGame::initMenus()
             switch (ratio)
             {
                 case 17: // 16:9
-                    sixByNine.create<i::Single>(ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y), [this, &vm] {
-                        changeResolutionTo(vm.size.x, vm.size.y);
-                    });
+                    sixByNine.create<i::Single>(sf::base::String(ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y)),
+                                                [this, &vm] { changeResolutionTo(vm.size.x, vm.size.y); });
                     break;
 
                 case 13: // 4:3
-                    fourByThree.create<i::Single>(ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y), [this, &vm] {
-                        changeResolutionTo(vm.size.x, vm.size.y);
-                    });
+                    fourByThree.create<i::Single>(sf::base::String(ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y)),
+                                                  [this, &vm] { changeResolutionTo(vm.size.x, vm.size.y); });
                     break;
 
                 default: // 16:10 and uncommon
-                    sixByTen.create<i::Single>(ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y), [this, &vm] {
-                        changeResolutionTo(vm.size.x, vm.size.y);
-                    });
+                    sixByTen.create<i::Single>(sf::base::String(ssvu::toStr(vm.size.x) + "x" + ssvu::toStr(vm.size.y)),
+                                               [this, &vm] { changeResolutionTo(vm.size.x, vm.size.y); });
                     break;
             }
         }
@@ -1693,12 +1695,12 @@ void MenuGame::initMenus()
     profileSelection.sortByName();
 }
 
-bool MenuGame::loadCommandLineLevel(const std::string& pack, const std::string& level)
+bool MenuGame::loadCommandLineLevel(const sf::base::String& pack, const sf::base::String& level)
 {
     // First find the ID of the pack with name matching the one typed by the
     // user. `packDatas` is the only vector in assets with a data type
     // containing the name of the pack (without it being part of the id).
-    std::string packID;
+    sf::base::String packID;
     for (auto& d : assets.getPackDatas())
     {
         if (d.second.name == pack)
@@ -1725,9 +1727,9 @@ bool MenuGame::loadCommandLineLevel(const std::string& pack, const std::string& 
 
     // Iterate through packInfos to find the menu pack index and the index
     // of the level.
-    const std::string levelID{packID + "_" + level};
-    const auto&       p{assets.getSelectablePackInfos()};
-    const auto&       levelsList{assets.getLevelIdsByPack(packID)};
+    const sf::base::String levelID{packID + "_" + level};
+    const auto&            p{assets.getSelectablePackInfos()};
+    const auto&            levelsList{assets.getLevelIdsByPack(packID)};
 
     for (int i{0}; i < static_cast<int>(p.size()); ++i)
     {
@@ -1799,24 +1801,24 @@ void MenuGame::playLocally()
         return {0, 0};
     }
 
-    sf::base::Vector<std::string> levelIDs;
-    ssvuj::Obj                    object = ssvuj::getFromFile("Assets/menubackgrounds.json");
-    for (const auto& f : ssvuj::getExtr<sf::base::Vector<std::string>>(object, "ids"))
+    sf::base::Vector<sf::base::String> levelIDs;
+    ssvuj::Obj                         object = ssvuj::getFromFile("Assets/menubackgrounds.json");
+    for (const auto& f : ssvuj::getExtr<sf::base::Vector<sf::base::String>>(object, "ids"))
     {
         levelIDs.emplaceBack(f);
     }
 
     // pick one of those at random
-    const std::string pickedLevel{levelIDs[ssvu::getRndI(0, levelIDs.size())]};
+    const sf::base::String pickedLevel{levelIDs[ssvu::getRndI(0, levelIDs.size())]};
 
     // retrieve the level index location
-    const auto&                          p(assets.getSelectablePackInfos());
-    const sf::base::Vector<std::string>* levelsIDs;
+    const auto&                               p(assets.getSelectablePackInfos());
+    const sf::base::Vector<sf::base::String>* levelsIDs;
 
     // store info main menu requires to set the color theme
     for (int i{0}; i < static_cast<int>(p.size()); ++i)
     {
-        const std::string& packId = p[i].id;
+        const sf::base::String& packId = p[i].id;
 
         if (!assets.packHasLevels(packId))
         {
@@ -2253,7 +2255,7 @@ void MenuGame::okAction()
 
         case States::SMain:
         {
-            const std::string& category{getCurrentMenu()->getCategory().getName()};
+            const sf::base::String& category{getCurrentMenu()->getCategory().getName()};
             getCurrentMenu()->exec();
 
             // Going into the level selection set the selected level
@@ -2368,12 +2370,12 @@ void MenuGame::eraseAction()
 {
     if (isEnteringText() && !enteredStr.empty())
     {
-        enteredStr.erase(enteredStr.end() - 1);
+        enteredStr.erase(static_cast<sf::base::SizeT>(enteredStr.size() - 1), 1);
         playSoundOverride("beep.ogg");
     }
     else if (state == States::SLPSelect)
     {
-        const std::string name{profileSelectionMenu.getCategory().getItem().getName()};
+        const sf::base::String name{profileSelectionMenu.getCategory().getItem().getName()};
 
         // There must be at least one profile, don't erase profile
         // currently in use.
@@ -2397,7 +2399,7 @@ void MenuGame::eraseAction()
         }
 
         // Remove the profile .json
-        if (const std::string fileName{"Profiles/" + name + ".json"}; std::remove(fileName.c_str()) != 0)
+        if (const sf::base::String fileName{"Profiles/" + name + ".json"}; std::remove(fileName.cStr()) != 0)
         {
             hg::lo("eraseAction()") << "Error: file " << fileName << " does not exist\n";
 
@@ -2489,7 +2491,8 @@ void MenuGame::update(float mFT)
 {
     hexagonClient.update();
 
-    const auto showHCEventDialogBox = [this](const bool error, const std::string& msg, const std::string& err = "")
+    const auto showHCEventDialogBox =
+        [this](const bool error, const sf::base::String& msg, const sf::base::String& err = "")
     {
         if (!dialogBox.empty())
         {
@@ -2892,7 +2895,7 @@ void MenuGame::setIndex(const int mIdx)
 {
     lvlDrawer->currentIndex = mIdx;
 
-    const std::string levelID{(*lvlDrawer->levelDataIds)[lvlDrawer->currentIndex]};
+    const sf::base::String levelID{(*lvlDrawer->levelDataIds)[lvlDrawer->currentIndex]};
 
     levelData   = &assets.getLevelData(levelID);
     currentPack = &assets.getPackData(levelData->packId);
@@ -3042,7 +3045,7 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
 
     // Do the necessary asset reload operation and get the log
     // of the results.
-    std::string reloadOutput;
+    sf::base::String reloadOutput;
     if (reloadEntirePack)
     {
         reloadOutput = assets.reloadPack(levelData->packId, levelData->packPath);
@@ -3204,14 +3207,14 @@ void MenuGame::refreshCamera()
         formatLevelDescription();
     }
 }
-void MenuGame::renderText(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
+void MenuGame::renderText(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos)
 {
     mText.setString(mStr);
     mText.position = mPos;
     drawOverlay(mText);
 }
 
-void MenuGame::renderText(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor)
+void MenuGame::renderText(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3219,7 +3222,7 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText, const sf::Ve
     mText.setFillColor(prevColor);
 }
 
-void MenuGame::renderText(const std::string& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos)
+void MenuGame::renderText(const sf::base::String& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos)
 {
     const sf::Vec2f prevScale = mText.scale;
     setVisualCharacterSize(mText, mSize);
@@ -3227,11 +3230,11 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText, const unsign
     mText.scale = prevScale;
 }
 
-void MenuGame::renderText(const std::string& mStr,
-                          sf::Text&          mText,
-                          const unsigned int mSize,
-                          const sf::Vec2f    mPos,
-                          const sf::Color&   mColor)
+void MenuGame::renderText(const sf::base::String& mStr,
+                          sf::Text&               mText,
+                          const unsigned int      mSize,
+                          const sf::Vec2f         mPos,
+                          const sf::Color&        mColor)
 {
     const sf::Vec2f prevScale = mText.scale;
     setVisualCharacterSize(mText, mSize);
@@ -3243,14 +3246,14 @@ void MenuGame::renderText(const std::string& mStr,
 }
 
 // Text rendering centered
-void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos)
+void MenuGame::renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos)
 {
     mText.setString(mStr);
     mText.position = {mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
     drawOverlay(mText);
 }
 
-void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor)
+void MenuGame::renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3258,7 +3261,7 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText, cons
     mText.setFillColor(prevColor);
 }
 
-void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos)
+void MenuGame::renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos)
 {
     const sf::Vec2f prevScale = mText.scale;
     setVisualCharacterSize(mText, mSize);
@@ -3266,11 +3269,11 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText, cons
     mText.scale = prevScale;
 }
 
-void MenuGame::renderTextCentered(const std::string& mStr,
-                                  sf::Text&          mText,
-                                  const unsigned int mSize,
-                                  const sf::Vec2f    mPos,
-                                  const sf::Color&   mColor)
+void MenuGame::renderTextCentered(const sf::base::String& mStr,
+                                  sf::Text&               mText,
+                                  const unsigned int      mSize,
+                                  const sf::Vec2f         mPos,
+                                  const sf::Color&        mColor)
 {
     const sf::Vec2f prevScale = mText.scale;
     setVisualCharacterSize(mText, mSize);
@@ -3282,18 +3285,18 @@ void MenuGame::renderTextCentered(const std::string& mStr,
 }
 
 // Text rendering centered with an offset
-void MenuGame::renderTextCenteredOffset(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos, const float xOffset)
+void MenuGame::renderTextCenteredOffset(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const float xOffset)
 {
     mText.setString(mStr);
     mText.position = {xOffset + mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
     drawOverlay(mText);
 }
 
-void MenuGame::renderTextCenteredOffset(const std::string& mStr,
-                                        sf::Text&          mText,
-                                        const sf::Vec2f    mPos,
-                                        const float        xOffset,
-                                        const sf::Color&   mColor)
+void MenuGame::renderTextCenteredOffset(const sf::base::String& mStr,
+                                        sf::Text&               mText,
+                                        const sf::Vec2f         mPos,
+                                        const float             xOffset,
+                                        const sf::Color&        mColor)
 {
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
@@ -3747,8 +3750,8 @@ void MenuGame::drawOptionsSubmenus(ssvms::Category& mSubMenu, const float baseIn
 
     // Draw the text on top of the quads
     quadBorder = quadBorder * 1.5f - panelOffset;
-    std::string itemName;
-    float       txtHeight{quadHeight - txtMenuSmall.height * fontHeightOffset + doubleBorder};
+    sf::base::String itemName;
+    float            txtHeight{quadHeight - txtMenuSmall.height * fontHeightOffset + doubleBorder};
     for (int i{0}; i < size; ++i)
     {
         SSVOH_ASSERT(i < static_cast<int>(items.size()));
@@ -3777,7 +3780,7 @@ void MenuGame::drawOptionsSubmenus(ssvms::Category& mSubMenu, const float baseIn
     }
 }
 
-std::string MenuGame::formatSurvivalTime(ProfileData* data)
+sf::base::String MenuGame::formatSurvivalTime(ProfileData* data)
 {
     int time{0};
     for (auto& s : data->getScores())
@@ -3802,7 +3805,7 @@ std::string MenuGame::formatSurvivalTime(ProfileData* data)
         stream << std::setfill('0') << std::setw(2) << time / 60 << ":" << std::setfill('0') << std::setw(2) << time % 60;
     }
 
-    return stream.str();
+    return sf::base::String(stream.str());
 }
 
 inline constexpr float        profFrameSize{10.f};
@@ -3822,9 +3825,9 @@ void MenuGame::drawProfileSelection(const float xOffset, const bool revertOffset
         selectedFontHeight{Utils::getFontHeight(txtProfile.font, profSelectedCharSize)};
 
     // check if the width of the menu should be increased
-    constexpr float profMinWidth{400.f};
-    float           textWidth{profMinWidth};
-    std::string     itemName;
+    constexpr float  profMinWidth{400.f};
+    float            textWidth{profMinWidth};
+    sf::base::String itemName;
     for (auto& p : items)
     {
         itemName = p->getName();
@@ -3949,7 +3952,7 @@ void MenuGame::drawProfileSelectionBoot()
     // Make sure the instructions do not overlap the title bar or the credits
     height = std::max(height - 2.f * instructionsHeight, titleBar.getGlobalBottom() + 40.f);
 
-    const std::string instructions[] = {"SELECT LOCAL PROFILE", "PRESS ESC TO CREATE A NEW PROFILE"};
+    const sf::base::String instructions[] = {"SELECT LOCAL PROFILE", "PRESS ESC TO CREATE A NEW PROFILE"};
     for (auto& s : instructions)
     {
         renderTextCentered(s, txtInstructionsBig.font, {w / 2.f, height});
@@ -3958,7 +3961,7 @@ void MenuGame::drawProfileSelectionBoot()
     height += selectedFontHeight;
 
     // Draw scrollbar if needed
-    std::string itemName;
+    sf::base::String itemName;
     if (scrollbarNotches != 0)
     {
         float width = 0.f;
@@ -4047,8 +4050,8 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
     renderTextCenteredOffset(enteredStr, txtEnteringText.font, {textWidth / 2.f, txtHeight + profFrameSize / 2.f}, indent, menuTextColor);
 
     // Draw instructions text above the quads
-    const std::string instructions[] = {"INSERT TEXT", "PRESS ENTER WHEN DONE", "PRESS ESC TO ABORT"};
-    const float       instructionsHeight{txtInstructionsMedium.height * 1.5f};
+    const sf::base::String instructions[] = {"INSERT TEXT", "PRESS ENTER WHEN DONE", "PRESS ESC TO ABORT"};
+    const float            instructionsHeight{txtInstructionsMedium.height * 1.5f};
     txtHeight -= profFrameSize + instructionsHeight * 3.f;
     txtInstructionsMedium.font.setFillColor(menuQuadColor);
     for (auto& s : instructions)
@@ -4066,7 +4069,7 @@ void MenuGame::drawEnteringTextBoot()
     // Draw instructions text
     const float instructionsHeight{txtInstructionsBig.height * 1.5f};
     height -= instructionsHeight * 2.f;
-    const std::string instructions[] = {"PROFILE CREATION", "PLEASE TYPE A NAME AND PRESS ENTER"};
+    const sf::base::String instructions[] = {"PROFILE CREATION", "PLEASE TYPE A NAME AND PRESS ENTER"};
     for (auto& s : instructions)
     {
         renderTextCentered(s, txtInstructionsBig.font, {w / 2.f, height});
@@ -4127,17 +4130,17 @@ void MenuGame::drawLoadResults()
     // 1
     float textOffset{w - 3.f * xOffset};
     renderTextCentered("PACKS LOADED", txtLoadSmall.font, {textOffset / 2.f, topHeight});
-    renderTextCentered(ssvu::toStr(loadInfo.packs), txtLoadBig.font, {textOffset / 2.f, numbersHeight});
+    renderTextCentered(sf::base::String(ssvu::toStr(loadInfo.packs)), txtLoadBig.font, {textOffset / 2.f, numbersHeight});
 
     // 2
     textOffset = w - xOffset;
     renderTextCentered("LEVELS LOADED", txtLoadSmall.font, {textOffset / 2.f, topHeight});
-    renderTextCentered(ssvu::toStr(loadInfo.levels), txtLoadBig.font, {textOffset / 2.f, numbersHeight});
+    renderTextCentered(sf::base::String(ssvu::toStr(loadInfo.levels)), txtLoadBig.font, {textOffset / 2.f, numbersHeight});
 
     // 3
     textOffset = w + xOffset;
     renderTextCentered("ASSETS LOADED", txtLoadSmall.font, {textOffset / 2.f, topHeight});
-    renderTextCentered(ssvu::toStr(loadInfo.assets), txtLoadBig.font, {textOffset / 2.f, numbersHeight});
+    renderTextCentered(sf::base::String(ssvu::toStr(loadInfo.assets)), txtLoadBig.font, {textOffset / 2.f, numbersHeight});
 
     //--------------------------------------
     // Random tip
@@ -4146,7 +4149,7 @@ void MenuGame::drawLoadResults()
     float       height{h - tipInterline * 2.f};
     for (int i{1}; i >= 0; --i) // all tips are on two lines
     {
-        renderTextCentered(std::string(randomTip[i]), txtRandomTip.font, {w / 2.f, height - tipInterline});
+        renderTextCentered(sf::base::String(randomTip[i]), txtRandomTip.font, {w / 2.f, height - tipInterline});
         height -= tipInterline;
     }
 
@@ -4157,7 +4160,7 @@ void MenuGame::drawLoadResults()
 
     textOffset = w + 3.f * xOffset;
     renderTextCentered("ERRORS", txtLoadSmall.font, {textOffset / 2.f, topHeight}, sf::Color::Red);
-    renderTextCentered(ssvu::toStr(size), txtLoadBig.font, {textOffset / 2.f, numbersHeight}, sf::Color::Red);
+    renderTextCentered(sf::base::String(ssvu::toStr(size)), txtLoadBig.font, {textOffset / 2.f, numbersHeight}, sf::Color::Red);
 
     // No error messages
     if (!size)
@@ -4214,20 +4217,19 @@ float MenuGame::getLevelSelectionHeight() const
            (lvlDrawer->packIdx != static_cast<int>(getSelectablePackInfosSize()) - 1 ? 2.f : 1.f) * slctFrameSize;
 }
 
-void MenuGame::scrollName(std::string& text, float& scroller)
+void MenuGame::scrollName(sf::base::String& text, float& scroller)
 {
     // FPS consistent scrolling
     scroller += getFPSMult();
     text += "  ";
 
-    auto        it{std::next(text.begin(), ssvu::getMod(static_cast<int>(scroller / 100.f), text.length()))};
-    std::string charsToMove;
-    std::move(text.begin(), it, std::back_inserter(charsToMove));
-    text.erase(text.begin(), it);
+    const auto       modIdx = ssvu::getMod(static_cast<int>(scroller / 100.f), text.size());
+    sf::base::String charsToMove(text.toStringView().substrByPosLen(0, static_cast<sf::base::SizeT>(modIdx)));
+    text.erase(0, static_cast<sf::base::SizeT>(modIdx));
     text += charsToMove;
 }
 
-void MenuGame::scrollNameRightBorder(std::string& text, const std::string key, sf::Text& font, float& scroller, float border)
+void MenuGame::scrollNameRightBorder(sf::base::String& text, const sf::base::String key, sf::Text& font, float& scroller, float border)
 {
     // Store length of the key
     font.setString(key);
@@ -4247,15 +4249,15 @@ void MenuGame::scrollNameRightBorder(std::string& text, const std::string key, s
     // Scroll the name and shrink it to the required length
     scrollName(text, scroller);
     font.setString(text);
-    while (font.getGlobalWidth() > border && text.length() > 1)
+    while (font.getGlobalWidth() > border && text.size() > 1)
     {
-        text.pop_back();
+        text.erase(text.size() - 1, 1);
         font.setString(text);
     }
     text = key + text;
 }
 
-void MenuGame::scrollNameRightBorder(std::string& text, sf::Text& font, float& scroller, const float border)
+void MenuGame::scrollNameRightBorder(sf::base::String& text, sf::Text& font, float& scroller, const float border)
 {
     Utils::uppercasify(text);
     font.setString(text);
@@ -4267,9 +4269,9 @@ void MenuGame::scrollNameRightBorder(std::string& text, sf::Text& font, float& s
 
     scrollName(text, scroller);
     font.setString(text);
-    while (font.getGlobalWidth() > border && text.length() > 1)
+    while (font.getGlobalWidth() > border && text.size() > 1)
     {
-        text.pop_back();
+        text.erase(text.size() - 1, 1);
         font.setString(text);
     }
 }
@@ -4541,11 +4543,11 @@ void MenuGame::formatLevelDescription()
 {
     levelDescription.clear();
 
-    sf::base::Vector<std::string> words;
+    sf::base::Vector<sf::base::String> words;
 
     {
         strBuf.clear();
-        std::string& desc = strBuf;
+        sf::base::String& desc = strBuf;
 
         desc += assets.getLevelData((*lvlDrawer->levelDataIds)[lvlDrawer->currentIndex]).description;
 
@@ -4563,12 +4565,12 @@ void MenuGame::formatLevelDescription()
         {
             if (desc[i] == '\n')
             {
-                words.emplaceBack(desc.substr(j, i - j + 1)); // include newline.
+                words.emplaceBack(sf::base::String(desc.toStringView().substrByPosLen(j, i - j + 1))); // include newline.
                 j = i + 1;
             }
             else if (desc[i] == ' ')
             {
-                words.emplaceBack(desc.substr(j, i - j));
+                words.emplaceBack(sf::base::String(desc.toStringView().substrByPosLen(j, i - j)));
                 j = i + 1; // skip the space.
             }
         }
@@ -4576,9 +4578,9 @@ void MenuGame::formatLevelDescription()
 
     // Group words into lines depending on whether
     // they fit within the maximum width.
-    const float maxWidth{getMaximumTextWidth()};
-    std::string candidate;
-    std::string temp;
+    const float      maxWidth{getMaximumTextWidth()};
+    sf::base::String candidate;
+    sf::base::String temp;
     for (sf::base::SizeT i{0}; i < words.size() && levelDescription.size() < descLines; ++i)
     {
         if (!candidate.empty())
@@ -4642,15 +4644,18 @@ void MenuGame::changeFavoriteLevelsToProfile()
 
     favoriteLevelDataIds.clear();
 
-    for (const std::string& id : assets.getCurrentLocalProfile().getFavoriteLevelIds())
+    for (const sf::base::String& id : assets.getCurrentLocalProfile().getFavoriteLevelIds())
     {
         favoriteLevelDataIds.pushBack(id);
     }
 
     sf::base::quickSort(favoriteLevelDataIds.begin(),
                         favoriteLevelDataIds.end(),
-                        [this](const std::string& a, const std::string& b) -> bool
-    { return ssvu::toLower(assets.getLevelData(a).name) < ssvu::toLower(assets.getLevelData(b).name); });
+                        [this](const sf::base::String& a, const sf::base::String& b) -> bool
+    {
+        return ssvu::toLower(std::string(assets.getLevelData(a).name.cStr())) <
+               ssvu::toLower(std::string(assets.getLevelData(b).name.cStr()));
+    });
 
     const int sz{static_cast<int>(favoriteLevelDataIds.size())};
 
@@ -4689,7 +4694,7 @@ void MenuGame::addRemoveFavoriteLevel()
 {
     const LevelData& data{assets.getLevelData((*lvlDrawer->levelDataIds)[lvlDrawer->currentIndex])};
 
-    const std::string levelID{data.packId + "_" + data.id};
+    const sf::base::String levelID{data.packId + "_" + data.id};
 
     // Level is a favorite so remove it.
     if (isLevelFavorite)
@@ -4745,14 +4750,15 @@ void MenuGame::addRemoveFavoriteLevel()
 
         // Add the level to the favorites vector
         // keeping it sorted in alphabetical order.
-        auto              it{favoriteLevelDataIds.begin()};
-        const auto        end{favoriteLevelDataIds.end()};
-        const std::string tweakedFavName{ssvu::toLower(assets.getLevelData(levelID).name)};
+        auto                   it{favoriteLevelDataIds.begin()};
+        const auto             end{favoriteLevelDataIds.end()};
+        const sf::base::String tweakedFavName{
+            sf::base::String(ssvu::toLower(std::string(assets.getLevelData(levelID).name.cStr())))};
 
-        std::string tweakedLevelName;
+        sf::base::String tweakedLevelName;
         while (it != end)
         {
-            tweakedLevelName = ssvu::toLower(assets.getLevelData(*it).name);
+            tweakedLevelName = sf::base::String(ssvu::toLower(std::string(assets.getLevelData(*it).name.cStr())));
             if (tweakedLevelName > tweakedFavName)
             {
                 break;
@@ -4825,9 +4831,9 @@ void MenuGame::drawLevelSelectionRightSide(LevelDrawer& drawer, const bool rever
         levelsSize = focusHeld ? 1 : drawer.levelDataIds->size();
     }
 
-    static std::string tempString;
-    float              prevLevelIndent{0.f}, height{0.f};
-    sf::Vec2f          topLeft, topRight, bottomRight, bottomLeft;
+    static sf::base::String tempString;
+    float                   prevLevelIndent{0.f}, height{0.f};
+    sf::Vec2f               topLeft, topRight, bottomRight, bottomLeft;
 
     // The drawing order is: levels list then pack labels.
     // The reason for it is that when a pack is deselected the
@@ -4936,8 +4942,8 @@ void MenuGame::drawLevelSelectionRightSide(LevelDrawer& drawer, const bool rever
 
         const sf::Color c0 = mouseOverlapColor(mouseOverlap, menuQuadColor);
 
-        const auto         currentDiffMult = levelData->getNthDiffMult(diffMultIdx);
-        const std::string& levelValidator  = levelData->getValidator(currentDiffMult);
+        const auto              currentDiffMult = levelData->getNthDiffMult(diffMultIdx);
+        const sf::base::String& levelValidator  = levelData->getValidator(currentDiffMult);
 
         renderText(tempString, txtSelectionBig.font, {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
 
@@ -5151,7 +5157,7 @@ void MenuGame::drawLevelSelectionLeftSide(LevelDrawer& drawer, const bool revert
     //-------------------------------------
     // Level name
 
-    std::string tempString{levelData.name};
+    sf::base::String tempString{levelData.name};
     scrollNameRightBorder(tempString, txtSelectionBig.font, namesScroll[static_cast<int>(Label::LevelName)], textRightBorder);
     renderText(tempString, txtSelectionBig.font, {textXPos, height - txtSelectionBig.height * fontHeightOffset});
 
@@ -5348,10 +5354,10 @@ void MenuGame::drawLevelSelectionLeftSide(LevelDrawer& drawer, const bool revert
     }
     else
     {
-        const std::string& localLevelValidator = levelData.getValidatorWithoutPackId(currentDiffMult);
+        const sf::base::String& localLevelValidator = levelData.getValidatorWithoutPackId(currentDiffMult);
 
         tempString = localLevelValidator;
-        renderText(ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) + "s",
+        renderText(sf::base::String(ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) + "s"),
                    txtSelectionSmall.font,
                    {textToQuadBorder - panelOffset, height - txtSelectionSmall.height * fontHeightOffset});
     }
@@ -5376,7 +5382,7 @@ void MenuGame::drawLevelSelectionLeftSide(LevelDrawer& drawer, const bool revert
 
     height += txtSelectionSmall.height;
 
-    const std::string& levelValidator = levelData.getValidator(currentDiffMult);
+    const sf::base::String& levelValidator = levelData.getValidator(currentDiffMult);
 
     if (!levelData.unscored && hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready &&
         hexagonClient.isLevelSupportedByServer(levelValidator) && leaderboardCache->shouldRequestScores(levelValidator))
@@ -5420,18 +5426,18 @@ void MenuGame::drawLevelSelectionLeftSide(LevelDrawer& drawer, const bool revert
 
 
         const auto drawEntry =
-            [&](const int i, const std::string& userName, const sf::base::U64 scoreTimestamp, const double scoreValue)
+            [&](const int i, const std::string& userNameStd, const sf::base::U64 scoreTimestamp, const double scoreValue)
         {
             const float score = scoreValue;
 
             const auto tp = Utils::toTimepoint(scoreTimestamp);
 
-            const std::string timestampStr = Utils::formatTimepoint(tp, "%Y-%m-%d %H:%M:%S");
+            const sf::base::String timestampStr = Utils::formatTimepoint(tp, "%Y-%m-%d %H:%M:%S");
 
-            const std::string posStr   = Utils::concat('#', i + 1);
-            std::string       scoreStr = ssvu::toStr(score) + 's';
+            const sf::base::String posStr   = Utils::concat('#', i + 1);
+            sf::base::String       scoreStr = sf::base::String(ssvu::toStr(score)) + 's';
 
-            std::string playerStr = userName;
+            sf::base::String playerStr = sf::base::String(userNameStd);
             if (playerStr.size() > 19)
             {
                 playerStr.resize(16);
@@ -5750,7 +5756,7 @@ void MenuGame::drawOnlineStatus()
 
     const HexagonClient::State state = hexagonClient.getState();
 
-    const auto [stateGood, stateString] = [&]() -> std::tuple<bool, std::string>
+    const auto [stateGood, stateString] = [&]() -> std::tuple<bool, sf::base::String>
     {
         switch (state)
         {
@@ -5837,25 +5843,27 @@ void MenuGame::drawOnlineStatus()
     drawScreen(txtOnlineStatus);
 }
 
-void MenuGame::showDialogBox(const std::string& msg)
+void MenuGame::showDialogBox(const sf::base::String& msg)
 {
     dialogBox.create(msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
 }
 
-void MenuGame::showInputDialogBox(const std::string& msg)
+void MenuGame::showInputDialogBox(const sf::base::String& msg)
 {
     dialogBox.createInput(msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
 }
 
-void MenuGame::showInputDialogBoxNice(const std::string& title, const std::string& inputType, const std::string& extra)
+void MenuGame::showInputDialogBoxNice(const sf::base::String& title,
+                                      const sf::base::String& inputType,
+                                      const sf::base::String& extra)
 {
     showInputDialogBoxNiceWithDefault(title, inputType, "" /* default */, extra);
 }
 
-void MenuGame::showInputDialogBoxNiceWithDefault(const std::string& title,
-                                                 const std::string& inputType,
-                                                 const std::string& def,
-                                                 const std::string& extra)
+void MenuGame::showInputDialogBoxNiceWithDefault(const sf::base::String& title,
+                                                 const sf::base::String& inputType,
+                                                 const sf::base::String& def,
+                                                 const sf::base::String& extra)
 {
     strBuf.clear();
 
@@ -5886,7 +5894,7 @@ void MenuGame::openLoginDialogBoxAndStartLoginProcess()
 
     dialogInputState = DialogInputState::Login_EnteringUsername;
 
-    const std::string defaultLoginUsername = Config::getSaveLastLoginUsername() ? Config::getLastLoginUsername() : "";
+    const sf::base::String defaultLoginUsername = Config::getSaveLastLoginUsername() ? Config::getLastLoginUsername() : "";
 
     showInputDialogBoxNiceWithDefault("LOGIN", "USERNAME", defaultLoginUsername);
 }

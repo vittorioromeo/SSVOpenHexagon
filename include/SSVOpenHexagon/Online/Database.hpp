@@ -8,9 +8,9 @@
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 
 // TODO (P2): remove reliance on steam ID for future platforms
 
@@ -25,9 +25,9 @@ void dumpUsers();
 
 [[nodiscard]] bool anyUserWithSteamId(const sf::base::U64 steamId);
 
-[[nodiscard]] bool anyUserWithName(const std::string& name);
+[[nodiscard]] bool anyUserWithName(const sf::base::String& name);
 
-[[nodiscard]] sf::base::Optional<User> getUserWithSteamIdAndName(const sf::base::U64 steamId, const std::string& name);
+[[nodiscard]] sf::base::Optional<User> getUserWithSteamIdAndName(const sf::base::U64 steamId, const sf::base::String& name);
 
 void removeAllLoginTokensForUser(const sf::base::U32 userId);
 
@@ -40,17 +40,18 @@ void addLoginToken(const LoginToken& loginToken);
 [[nodiscard]] sf::base::Vector<LoginToken> getAllStaleLoginTokens();
 void                                       removeAllStaleLoginTokens();
 
-[[nodiscard]] sf::base::Vector<ProcessedScore> getTopScores(const int topLimit, const std::string& levelValidator);
+[[nodiscard]] sf::base::Vector<ProcessedScore> getTopScores(const int topLimit, const sf::base::String& levelValidator);
 
 [[nodiscard]] bool isLoginTokenValid(sf::base::U64 token);
 
-void addScore(const std::string&  levelValidator,
-              const sf::base::U64 timestamp,
-              const sf::base::U64 userSteamId,
-              const double        value);
+void addScore(const sf::base::String& levelValidator,
+              const sf::base::U64     timestamp,
+              const sf::base::U64     userSteamId,
+              const double            value);
 
-[[nodiscard]] sf::base::Optional<ProcessedScore> getScore(const std::string& levelValidator, const sf::base::U64 userSteamId);
+[[nodiscard]] sf::base::Optional<ProcessedScore> getScore(const sf::base::String& levelValidator,
+                                                          const sf::base::U64     userSteamId);
 
-[[nodiscard]] sf::base::Optional<std::string> execute(const std::string& query);
+[[nodiscard]] sf::base::Optional<sf::base::String> execute(const sf::base::String& query);
 
 } // namespace hg::Database

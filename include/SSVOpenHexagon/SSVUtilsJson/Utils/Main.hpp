@@ -26,11 +26,11 @@ inline const Obj& getObj(const Obj& mObj) noexcept
 /// @param mKey Key of the child.
 [[gnu::no_dangling]] inline Obj& getObj(Obj& mObj, const Key& mKey) noexcept
 {
-    return mObj[mKey];
+    return mObj[mKey.cStr()];
 }
 [[gnu::no_dangling]] inline const Obj& getObj(const Obj& mObj, const Key& mKey) noexcept
 {
-    return mObj[mKey];
+    return mObj[mKey.cStr()];
 }
 
 /// @brief Gets a JSON Obj from another JSON Obj.
@@ -73,7 +73,7 @@ inline auto getObjSize(const Obj& mArray, Idx mIdx) noexcept
 /// @param mKey Key of the child.
 inline bool hasObj(const Obj& mObj, const Key& mKey) noexcept
 {
-    return mObj.isObject() && mObj.isMember(mKey);
+    return mObj.isObject() && mObj.isMember(mKey.cStr());
 }
 
 /// @brief Checks whether a JSON Obj array has a certain member.

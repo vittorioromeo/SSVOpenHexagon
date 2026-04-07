@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SFML/Base/String.hpp"
+
 namespace sf::base
 {
 class String;

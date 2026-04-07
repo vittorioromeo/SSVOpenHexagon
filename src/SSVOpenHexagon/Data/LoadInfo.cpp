@@ -5,14 +5,14 @@
 #include "SSVOpenHexagon/Data/LoadInfo.hpp"
 
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 
 namespace hg
 {
 
-void LoadInfo::addFormattedError(std::string& error)
+void LoadInfo::addFormattedError(sf::base::String& error)
 {
     if (error.empty())
     {
@@ -24,13 +24,13 @@ void LoadInfo::addFormattedError(std::string& error)
 
     // Replace first newline with '-', place a space before it,
     // and remove a space after it.
-    sf::base::SizeT i = error.find('\n');
+    sf::base::SizeT i = error.toStringView().find('\n');
     error.insert(i, " ");
     error[++i] = '-';
     error.erase(++i, 1);
 
     // Remove all other newlines.
-    while ((i = error.find('\n', i)) != std::string::npos)
+    while ((i = error.toStringView().find('\n', i)) != sf::base::String::nPos)
     {
         error.erase(i, 1);
     }

@@ -3,7 +3,10 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/LevelData.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 
@@ -11,24 +14,23 @@
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 
 namespace hg
 {
 
-LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath, const std::string& mPackId) :
+LevelData::LevelData(const ssvuj::Obj& mRoot, const sf::base::String& mPackPath, const sf::base::String& mPackId) :
     packPath{mPackPath},
     packId{mPackId},
-    id{ssvuj::getExtr<std::string>(mRoot, "id", "nullId")},
-    name{ssvuj::getExtr<std::string>(mRoot, "name", "nullName")},
-    description{ssvuj::getExtr<std::string>(mRoot, "description", "")},
-    author{ssvuj::getExtr<std::string>(mRoot, "author", "")},
+    id{ssvuj::getExtr<sf::base::String>(mRoot, "id", "nullId")},
+    name{ssvuj::getExtr<sf::base::String>(mRoot, "name", "nullName")},
+    description{ssvuj::getExtr<sf::base::String>(mRoot, "description", "")},
+    author{ssvuj::getExtr<sf::base::String>(mRoot, "author", "")},
     menuPriority{ssvuj::getExtr<int>(mRoot, "menuPriority", 0)},
     selectable{ssvuj::getExtr<bool>(mRoot, "selectable", true)},
-    musicId{ssvuj::getExtr<std::string>(mRoot, "musicId", "nullMusicId")},
-    soundId{ssvuj::getExtr<std::string>(mRoot, "soundId", "nullSoundId")},
-    styleId{ssvuj::getExtr<std::string>(mRoot, "styleId", "nullStyleId")},
-    luaScriptPath{packPath + ssvuj::getExtr<std::string>(mRoot, "luaFile", "nullLuaPath")},
+    musicId{ssvuj::getExtr<sf::base::String>(mRoot, "musicId", "nullMusicId")},
+    soundId{ssvuj::getExtr<sf::base::String>(mRoot, "soundId", "nullSoundId")},
+    styleId{ssvuj::getExtr<sf::base::String>(mRoot, "styleId", "nullStyleId")},
+    luaScriptPath{packPath + ssvuj::getExtr<sf::base::String>(mRoot, "luaFile", "nullLuaPath")},
     difficultyMults{ssvuj::getExtr<sf::base::Vector<float>>(mRoot, "difficultyMults", {})},
     unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)}
 {
@@ -63,13 +65,13 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath, cons
     return difficultyMults[index];
 }
 
-[[nodiscard]] const std::string& LevelData::getValidator(const float diffMult) const
+[[nodiscard]] const sf::base::String& LevelData::getValidator(const float diffMult) const
 {
     SSVOH_ASSERT(validators.find(diffMult) != validators.end());
     return validators.at(diffMult);
 }
 
-[[nodiscard]] const std::string& LevelData::getValidatorWithoutPackId(const float diffMult) const
+[[nodiscard]] const sf::base::String& LevelData::getValidatorWithoutPackId(const float diffMult) const
 {
     SSVOH_ASSERT(validatorsWithoutPackId.find(diffMult) != validatorsWithoutPackId.end());
     return validatorsWithoutPackId.at(diffMult);

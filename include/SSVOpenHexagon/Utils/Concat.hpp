@@ -4,12 +4,15 @@
 
 #pragma once
 
+#include "SFML/System/IO.hpp"
+
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Trait/IsConvertible.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
 
-#include <sstream>
-#include <string>
 #include <string_view>
 
 namespace hg::Utils
@@ -45,6 +48,7 @@ struct IsCharArray<const char (&)[N]> : std::true_type
 
 template <typename... Ts>
 inline constexpr bool AllConvertibleToStringView = ((SFML_BASE_IS_CONVERTIBLE(Ts, std::string_view) ||
+                                                     SFML_BASE_IS_CONVERTIBLE(Ts, sf::base::StringView) ||
                                                      IsCharArray<Ts>::value || SFML_BASE_IS_SAME(Ts, char)) &&
                                                     ...);
 
@@ -74,7 +78,7 @@ template <sf::base::SizeT N>
     return 1;
 }
 
-[[nodiscard, gnu::always_inline]] inline sf::base::SizeT getSize(const std::string& s) noexcept
+[[nodiscard, gnu::always_inline]] inline sf::base::SizeT getSize(const sf::base::String& s) noexcept
 {
     return s.size();
 }
@@ -87,18 +91,18 @@ template <sf::base::SizeT N>
 } // namespace Impl
 
 template <typename... Ts>
-[[nodiscard]] std::string concat(const Ts&... xs)
+[[nodiscard]] sf::base::String concat(const Ts&... xs)
     requires(!Impl::AllConvertibleToStringView<Ts...>)
 {
-    thread_local std::ostringstream oss;
-    oss.str("");
+    thread_local sf::OutStringStream oss;
+    oss.setStr("");
 
     (oss << ... << xs);
-    return oss.str();
+    return oss.to<sf::base::String>();
 }
 
 template <typename... Ts>
-void concatInto(std::string& result, const Ts&... xs)
+void concatInto(sf::base::String& result, const Ts&... xs)
     requires(Impl::AllConvertibleToStringView<Ts...>)
 {
     const sf::base::SizeT space = (1 + ... + Impl::getSize(xs));
@@ -107,10 +111,10 @@ void concatInto(std::string& result, const Ts&... xs)
 }
 
 template <typename... Ts>
-[[nodiscard]] std::string concat(const Ts&... xs)
+[[nodiscard]] sf::base::String concat(const Ts&... xs)
     requires(Impl::AllConvertibleToStringView<Ts...>)
 {
-    std::string result;
+    sf::base::String result;
     concatInto(result, xs...);
     return result;
 }

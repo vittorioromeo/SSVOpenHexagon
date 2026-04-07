@@ -8,6 +8,8 @@
 
 #include "SFML/Graphics/Font.hpp"
 
+#include "SFML/Base/String.hpp"
+
 #include <string>
 #include <tuple>
 
@@ -33,13 +35,13 @@ HexagonDialogBox::HexagonDialogBox(sf::Font& mFont, ssvs::GameWindow& mWindow) :
 {
 }
 
-void HexagonDialogBox::create(const std::string& output,
-                              const int          charSize,
-                              const float        mFrameSize,
-                              const DBoxDraw     mDrawMode,
-                              const float        mXPos,
-                              const float        mYPos,
-                              const bool         mInputBox)
+void HexagonDialogBox::create(const sf::base::String& output,
+                              const int               charSize,
+                              const float             mFrameSize,
+                              const DBoxDraw          mDrawMode,
+                              const float             mXPos,
+                              const float             mYPos,
+                              const bool              mInputBox)
 {
     lineHeight = Utils::getFontHeight(txtDialog, charSize);
     txtDialog.setString(output);
@@ -53,7 +55,7 @@ void HexagonDialogBox::create(const std::string& output,
     inputBoxPassword = false;
     input.clear();
 
-    std::string temp;
+    sf::base::String temp;
     for (char c : output)
     {
         if (c == '\n')
@@ -77,19 +79,19 @@ void HexagonDialogBox::create(const std::string& output,
     }
 }
 
-void HexagonDialogBox::create(const std::string& output,
-                              const int          charSize,
-                              const float        mFrameSize,
-                              const DBoxDraw     mDrawMode,
-                              const KKey         mKeyToClose,
-                              const float        mXPos,
-                              const float        mYPos)
+void HexagonDialogBox::create(const sf::base::String& output,
+                              const int               charSize,
+                              const float             mFrameSize,
+                              const DBoxDraw          mDrawMode,
+                              const KKey              mKeyToClose,
+                              const float             mXPos,
+                              const float             mYPos)
 {
     create(output, charSize, mFrameSize, mDrawMode, mXPos, mYPos);
     keyToClose = mKeyToClose;
 }
 
-void HexagonDialogBox::createInput(const std::string& output, const int charSize, const float mFrameSize, const DBoxDraw mDrawMode)
+void HexagonDialogBox::createInput(const sf::base::String& output, const int charSize, const float mFrameSize, const DBoxDraw mDrawMode)
 {
     create(output, charSize, mFrameSize, mDrawMode, 0.f, 0.f, true);
     keyToClose = KKey::Enter;
@@ -159,7 +161,7 @@ void HexagonDialogBox::drawText(const sf::View& view, const sf::Color& txtColor,
 
         if (inputBoxPassword)
         {
-            txtDialog.setString(std::string(input.size(), '*'));
+            txtDialog.setString(sf::base::String(std::string(input.size(), '*')));
         }
         else
         {
@@ -290,12 +292,12 @@ void HexagonDialogBox::clearDialogBox()
     return inputBox;
 }
 
-[[nodiscard]] std::string& HexagonDialogBox::getInput() noexcept
+[[nodiscard]] sf::base::String& HexagonDialogBox::getInput() noexcept
 {
     return input;
 }
 
-[[nodiscard]] const std::string& HexagonDialogBox::getInput() const noexcept
+[[nodiscard]] const sf::base::String& HexagonDialogBox::getInput() const noexcept
 {
     return input;
 }

@@ -3,7 +3,8 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
 #include "SSVOpenHexagon/MenuSystem/Menu/Menu.hpp"
 
-#include <string>
+#include "SFML/Base/String.hpp"
+
 
 namespace ssvms
 {
@@ -13,7 +14,7 @@ namespace Items
 {
 struct GoBack final : public ItemBase
 {
-    GoBack(Menu& mMenu, Category& mCategory, const std::string& mName) : ItemBase{mMenu, mCategory, mName}
+    GoBack(Menu& mMenu, Category& mCategory, const sf::base::String& mName) : ItemBase{mMenu, mCategory, mName}
     {
     }
 

@@ -6,8 +6,8 @@
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
 
-#include <string>
 
 namespace hg::Utils
 {
@@ -21,6 +21,6 @@ using SCTimePoint = std::chrono::time_point<SCClock>;
 
 [[nodiscard]] SCTimePoint toTimepoint(const sf::base::U64 timestamp);
 
-[[nodiscard]] std::string formatTimepoint(const SCTimePoint time, const std::string& format);
+[[nodiscard]] sf::base::String formatTimepoint(const SCTimePoint time, const sf::base::String& format);
 
 } // namespace hg::Utils

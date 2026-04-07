@@ -5,19 +5,24 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Global/StringHash.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
+
+#include "SFML/Base/String.hpp"
 
 namespace hg::Utils
 {
 
 [[nodiscard]] MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
 {
-    MusicData result{ssvuj::getExtr<std::string>(mRoot, "id"),
-                     ssvuj::getExtr<std::string>(mRoot, "file_name"),
-                     ssvuj::getExtr<std::string>(mRoot, "name"),
-                     ssvuj::getExtr<std::string>(mRoot, "album"),
-                     ssvuj::getExtr<std::string>(mRoot, "author")};
+    MusicData result{ssvuj::getExtr<sf::base::String>(mRoot, "id"),
+                     ssvuj::getExtr<sf::base::String>(mRoot, "file_name"),
+                     ssvuj::getExtr<sf::base::String>(mRoot, "name"),
+                     ssvuj::getExtr<sf::base::String>(mRoot, "album"),
+                     ssvuj::getExtr<sf::base::String>(mRoot, "author")};
 
     for (const auto& segment : ssvuj::getObj(mRoot, "segments"))
     {
@@ -41,9 +46,9 @@ namespace hg::Utils
                                                         : GameVersion{-1, 0, 0};
 
     return {version,
-            ssvuj::getExtr<std::string>(mRoot, "name"),
-            ssvuj::getExtr<std::unordered_map<std::string, float>>(mRoot, "scores"),
-            ssvuj::getExtr<sf::base::Vector<std::string>>(mRoot, "favorites", {})};
+            ssvuj::getExtr<sf::base::String>(mRoot, "name"),
+            ssvuj::getExtr<std::unordered_map<sf::base::String, float>>(mRoot, "scores"),
+            ssvuj::getExtr<sf::base::Vector<sf::base::String>>(mRoot, "favorites", {})};
 }
 
 } // namespace hg::Utils

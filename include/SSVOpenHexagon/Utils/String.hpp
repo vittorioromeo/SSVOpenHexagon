@@ -4,52 +4,59 @@
 
 #pragma once
 
-#include "SFML/Base/Algorithm/Find.hpp"
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 
-#include <string>
+#include <cctype>
 
 namespace hg::Utils
 {
 
-inline void lTrim(std::string& str)
+inline void lTrim(sf::base::String& str)
 {
-    const auto it = sf::base::findIf(str.begin(), str.end(), [](char ch) { return !std::isspace(ch); });
+    sf::base::SizeT i = 0;
+    while (i < str.size() && std::isspace(str[i]))
+        ++i;
 
-    str.erase(str.begin(), it);
+    if (i > 0)
+        str.erase(0, i);
 }
 
-inline void rTrim(std::string& str)
+inline void rTrim(sf::base::String& str)
 {
-    const auto it = sf::base::findIf(str.rbegin(), str.rend(), [](char ch) { return !std::isspace(ch); });
+    sf::base::SizeT i = str.size();
+    while (i > 0 && std::isspace(str[i - 1]))
+        --i;
 
-    str.erase(it.base(), str.end());
+    if (i < str.size())
+        str.erase(i, str.size() - i);
 }
 
-inline void lrTrim(std::string& str)
+inline void lrTrim(sf::base::String& str)
 {
     lTrim(str);
     rTrim(str);
 }
 
-[[nodiscard]] inline std::string getLTrim(std::string s)
+[[nodiscard]] inline sf::base::String getLTrim(sf::base::String s)
 {
     lTrim(s);
     return s;
 }
 
-[[nodiscard]] inline std::string getRTrim(std::string s)
+[[nodiscard]] inline sf::base::String getRTrim(sf::base::String s)
 {
     rTrim(s);
     return s;
 }
 
-[[nodiscard]] inline std::string getLRTrim(std::string s)
+[[nodiscard]] inline sf::base::String getLRTrim(sf::base::String s)
 {
     lrTrim(s);
     return s;
 }
 
-inline void uppercasify(std::string& s)
+inline void uppercasify(sf::base::String& s)
 {
     for (auto& c : s)
     {
@@ -57,13 +64,13 @@ inline void uppercasify(std::string& s)
     }
 }
 
-[[nodiscard]] inline std::string toUppercase(std::string s)
+[[nodiscard]] inline sf::base::String toUppercase(sf::base::String s)
 {
     uppercasify(s);
     return s;
 }
 
-inline void lowercasify(std::string& s)
+inline void lowercasify(sf::base::String& s)
 {
     for (auto& c : s)
     {
@@ -71,7 +78,7 @@ inline void lowercasify(std::string& s)
     }
 }
 
-[[nodiscard]] inline std::string toLowercase(std::string s)
+[[nodiscard]] inline sf::base::String toLowercase(sf::base::String s)
 {
     lowercasify(s);
     return s;

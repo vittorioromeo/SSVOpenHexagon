@@ -7,7 +7,9 @@
 #include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 #include "SSVOpenHexagon/Input/Utils.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include "SFML/Graphics/Color.hpp"
@@ -16,6 +18,8 @@
 #include "SFML/Window/Mouse.hpp"
 
 #include "SFML/System/Vec2.hpp"
+
+#include "SFML/Base/String.hpp"
 
 namespace ssvuj
 {
@@ -60,14 +64,14 @@ void Converter<ssvs::Input::Trigger>::toObj(Obj& mObj, const T& mValue)
 
 void Converter<sf::Keyboard::Key>::fromObj(const Obj& mObj, T& mValue)
 {
-    mValue = ssvs::getKKey(getExtr<std::string>(mObj));
+    mValue = ssvs::getKKey(getExtr<sf::base::String>(mObj));
 }
 
 void Converter<sf::Keyboard::Key>::toObj(Obj& mObj, const T& mValue)
 {
     if (mValue == T::Unknown)
     {
-        std::string empty;
+        sf::base::String empty;
         arch(mObj, empty); // TODO (P2): using `""` seems to be bugged
         return;
     }
@@ -77,7 +81,7 @@ void Converter<sf::Keyboard::Key>::toObj(Obj& mObj, const T& mValue)
 
 void Converter<sf::Mouse::Button>::fromObj(const Obj& mObj, T& mValue)
 {
-    mValue = ssvs::getMBtn(getExtr<std::string>(mObj));
+    mValue = ssvs::getMBtn(getExtr<sf::base::String>(mObj));
 }
 
 void Converter<sf::Mouse::Button>::toObj(Obj& mObj, const T& mValue)
@@ -89,11 +93,11 @@ void Converter<ssvs::Input::Combo>::fromObj(const Obj& mObj, T& mValue)
 {
     mValue.clearBind();
 
-    std::string str;
+    sf::base::String str;
 
     for (const auto& i : mObj)
     {
-        str = getExtr<std::string>(i);
+        str = getExtr<sf::base::String>(i);
 
         if (str.empty())
         {

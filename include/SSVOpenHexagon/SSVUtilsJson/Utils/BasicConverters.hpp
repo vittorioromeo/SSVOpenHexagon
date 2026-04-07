@@ -9,11 +9,11 @@
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Trait/IsEnum.hpp"
 #include "SFML/Base/Trait/UnderlyingType.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 #include <unordered_map>
 
 namespace ssvuj
@@ -68,8 +68,21 @@ SSVUJ_IMPL_CNV_BASE(int, mObj.asInt());
 SSVUJ_IMPL_CNV_BASE(float, mObj.asFloat());
 SSVUJ_IMPL_CNV_BASE(double, mObj.asDouble());
 SSVUJ_IMPL_CNV_BASE(bool, mObj.asBool());
-SSVUJ_IMPL_CNV_BASE(std::string, mObj.asString());
 SSVUJ_IMPL_CNV_BASE(const char*, mObj.asCString());
+
+template <>
+struct Converter<sf::base::String> final
+{
+    using T = sf::base::String;
+    static void fromObj(const Obj& mObj, T& mValue)
+    {
+        mValue = sf::base::String(mObj.asString());
+    }
+    static void toObj(Obj& mObj, const T& mValue)
+    {
+        mObj = mValue.cStr();
+    }
+};
 
 #undef SSVUJ_IMPL_CNV_BASE
 

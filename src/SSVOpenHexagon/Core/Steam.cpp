@@ -5,7 +5,10 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Io.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
 #include <stdint.h> // Steam API needs this.
@@ -16,12 +19,14 @@
     #include "steam/steamencryptedappticket.h"
 #endif
 
+#include "SSVOpenHexagon/Global/StringHash.hpp"
+
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 
 #include <functional>
-#include <string>
 #include <string_view>
 #include <unordered_set>
 
@@ -88,8 +93,8 @@ private:
     bool                         _got_ticket;
     sf::base::Optional<CSteamID> _ticket_steam_id;
 
-    std::unordered_set<std::string> _unlocked_achievements;
-    std::unordered_set<std::string> _workshop_pack_folders;
+    std::unordered_set<sf::base::String> _unlocked_achievements;
+    std::unordered_set<sf::base::String> _workshop_pack_folders;
 
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Winvalid-offsetof"
@@ -147,7 +152,7 @@ public:
 
     bool update_hardcoded_achievements();
 
-    void for_workshop_pack_folders(const std::function<void(const std::string&)>& f) const;
+    void for_workshop_pack_folders(const std::function<void(const sf::base::String&)>& f) const;
 
     bool request_encrypted_app_ticket();
 
@@ -203,7 +208,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
 
         if (installed)
         {
-            std::string folderBufStr{folderBuf};
+            sf::base::String folderBufStr{folderBuf};
 
             hg::lo("Steam") << "Workshop id " << id << " is installed, with size " << itemDiskSize << " at folder "
                             << folderBufStr << '\n';
@@ -321,7 +326,7 @@ bool steam_manager::steam_manager_impl::unlock_achievement(std::string_view name
         return false;
     }
 
-    if (_unlocked_achievements.contains(std::string(name)))
+    if (_unlocked_achievements.contains(sf::base::String(name)))
     {
         return false;
     }
@@ -620,14 +625,14 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
     return failures == 0;
 }
 
-void steam_manager::steam_manager_impl::for_workshop_pack_folders(const std::function<void(const std::string&)>& f) const
+void steam_manager::steam_manager_impl::for_workshop_pack_folders(const std::function<void(const sf::base::String&)>& f) const
 {
     if (!_initialized)
     {
         return;
     }
 
-    for (const std::string& s : _workshop_pack_folders)
+    for (const sf::base::String& s : _workshop_pack_folders)
     {
         f(s);
     }
@@ -872,7 +877,7 @@ bool steam_manager::update_hardcoded_achievements()
     return impl().update_hardcoded_achievements();
 }
 
-void steam_manager::for_workshop_pack_folders(const std::function<void(const std::string&)>& f) const
+void steam_manager::for_workshop_pack_folders(const std::function<void(const sf::base::String&)>& f) const
 {
     return impl().for_workshop_pack_folders(f);
 }
@@ -971,7 +976,7 @@ bool steam_manager::update_hardcoded_achievements()
     return false;
 }
 
-void steam_manager::for_workshop_pack_folders([[maybe_unused]] const std::function<void(const std::string&)>& f) const
+void steam_manager::for_workshop_pack_folders([[maybe_unused]] const std::function<void(const sf::base::String&)>& f) const
 {
 }
 

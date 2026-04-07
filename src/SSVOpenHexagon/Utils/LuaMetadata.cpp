@@ -4,9 +4,9 @@
 
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 
-#include <string>
 
 namespace hg::Utils
 {
@@ -14,7 +14,7 @@ namespace hg::Utils
 [[nodiscard]] sf::base::SizeT LuaMetadata::getCategoryIndexFromName(const sf::base::StringView fnName)
 {
     const sf::base::SizeT underscoreIndex = fnName.find("_");
-    if (underscoreIndex == std::string::npos)
+    if (underscoreIndex == sf::base::String::nPos)
     {
         // Return the last index: the miscellaneous index.
         return NUM_CATEGORIES - 1;

@@ -2,29 +2,39 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
+#include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Imgui.hpp"
+#include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 #include "SSVOpenHexagon/Input/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVUtils/Internal/PCG/pcg_extras.hpp"
+#include "SSVUtils/Internal/PCG/pcg_random.hpp"
 
 #include "SFML/ImGui/ImGuiContext.hpp"
 
@@ -39,7 +49,19 @@
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 
+#include <SFML/Base/UniquePtr.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <algorithm>
+#include <filesystem>
+#include <iostream>
+#include <ostream>
+#include <random>
+
+#include <cctype>
 #include <cmath>
+#include <cstdio>
 
 namespace hg
 {
@@ -59,7 +81,7 @@ static void setVisualCharacterSize(sf::Text& text, const float characterSize)
     return status.getCustomScore() != 0.f ? status.getCustomScore() : status.getPlayedAccumulatedFrametime();
 }
 
-[[nodiscard]] random_number_generator initializeRng()
+[[nodiscard]] sf::base::UniquePtr<random_number_generator> initializeRng()
 {
     thread_local pcg32_fast seed_rng = []
     {
@@ -67,7 +89,7 @@ static void setVisualCharacterSize(sf::Text& text, const float characterSize)
         return pcg32_fast{seed_source};
     }();
 
-    return random_number_generator{seed_rng()};
+    return sf::base::makeUnique<random_number_generator>(seed_rng());
 }
 
 } // namespace
@@ -99,7 +121,9 @@ void HexagonGame::setMustStart(const bool x)
     mustStart = x;
 }
 
-static sf::Texture& getTextureOrNullTexture(HGAssets& assets, sf::base::Optional<sf::Texture>& nullTexture, const std::string& mId)
+static sf::Texture& getTextureOrNullTexture(HGAssets&                        assets,
+                                            sf::base::Optional<sf::Texture>& nullTexture,
+                                            const sf::base::String&          mId)
 {
     if (!assets.hasTexture(mId))
     {
@@ -205,11 +229,11 @@ void HexagonGame::updateLevelInfo()
 
     const float tPadding = padding;
 
-    const auto trim = [](std::string s)
+    const auto trim = [](sf::base::String s)
     {
         if (s.size() > 26)
         {
-            return s.substr(0, 26);
+            return sf::base::String(s.toStringView().substrByPosLen(0, 26));
         }
 
         return s;
@@ -223,7 +247,7 @@ void HexagonGame::updateLevelInfo()
         textUI->levelInfoTextLevel.origin   = textUI->levelInfoTextLevel.getLocalTopLeft();
         textUI->levelInfoTextLevel.position = levelInfoRectangle.getGlobalTopLeft() + sf::Vec2f{tPadding, tPadding};
 
-        const auto prepareText = [&](sf::Text& text, const float characterSize, const std::string& string)
+        const auto prepareText = [&](sf::Text& text, const float characterSize, const sf::base::String& string)
         {
             text.setFillColor(getColorText());
             setVisualCharacterSize(text, characterSize / Config::getZoomFactor());
@@ -257,19 +281,19 @@ void HexagonGame::updateLevelInfo()
     }
 }
 
-void HexagonGame::nameFormat(std::string& name)
+void HexagonGame::nameFormat(sf::base::String& name)
 {
     name[0] = std::toupper(name[0]);
 }
 
-[[nodiscard]] std::string HexagonGame::diffFormat(float diff)
+[[nodiscard]] sf::base::String HexagonGame::diffFormat(float diff)
 {
     char buf[255];
     std::snprintf(buf, sizeof(buf), "%g", diff);
     return buf;
 }
 
-[[nodiscard]] std::string HexagonGame::timeFormat(float time)
+[[nodiscard]] sf::base::String HexagonGame::timeFormat(float time)
 {
     char buf[255];
     std::snprintf(buf, sizeof(buf), "%.3f", time);
@@ -558,7 +582,7 @@ void HexagonGame::updateRichPresenceCallbacks()
     return window != nullptr && audio != nullptr && !Config::getNoMusic();
 }
 
-void HexagonGame::playSoundOverride(const std::string& mId)
+void HexagonGame::playSoundOverride(const sf::base::String& mId)
 {
     if (shouldPlaySounds())
     {
@@ -566,7 +590,7 @@ void HexagonGame::playSoundOverride(const std::string& mId)
     }
 }
 
-void HexagonGame::playSoundAbort(const std::string& mId)
+void HexagonGame::playSoundAbort(const sf::base::String& mId)
 {
     if (shouldPlaySounds())
     {
@@ -574,7 +598,7 @@ void HexagonGame::playSoundAbort(const std::string& mId)
     }
 }
 
-void HexagonGame::playPackSoundOverride(const std::string& mPackId, const std::string& mId)
+void HexagonGame::playPackSoundOverride(const sf::base::String& mPackId, const sf::base::String& mId)
 {
     if (shouldPlaySounds())
     {
@@ -595,7 +619,11 @@ void HexagonGame::saveReplay()
     }
 }
 
-void HexagonGame::newGame(const std::string& mPackId, const std::string& mId, bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
+void HexagonGame::newGame(const sf::base::String& mPackId,
+                          const sf::base::String& mId,
+                          bool                    mFirstPlay,
+                          float                   mDifficultyMult,
+                          bool                    executeLastReplay)
 {
     // Save replay when restarting without having died
     if (!mFirstPlay)
@@ -631,7 +659,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId, bo
         rng = initializeRng();
 
         // Save data for immediate replay.
-        lastSeed       = rng.seed();
+        lastSeed       = rng->seed();
         lastReplayData = replay_data{};
         lastFirstPlay  = mFirstPlay;
 
@@ -668,7 +696,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId, bo
 
         activeReplay->replayLevelName = Utils::toUppercase(levelData->name);
 
-        rng       = random_number_generator{activeReplay->replayFile._seed};
+        rng       = sf::base::makeUnique<random_number_generator>(activeReplay->replayFile._seed);
         firstPlay = activeReplay->replayFile._first_play;
     }
 
@@ -801,19 +829,19 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId, bo
 
         // Format strings to only show the first key to avoid extremely long
         // messages
-        int commaPos = status.restartInput.find(',');
+        int commaPos = status.restartInput.toStringView().find(',');
         if (commaPos > 0)
         {
             status.restartInput.erase(commaPos);
         }
-        commaPos = status.replayInput.find(',');
+        commaPos = status.replayInput.toStringView().find(',');
         if (commaPos > 0)
         {
             status.replayInput.erase(commaPos);
         }
 
         // Add joystick buttons if any and finalize message
-        std::string joystickButton = Config::getJoystickBindName(Joystick::Jid::Restart);
+        sf::base::String joystickButton = Config::getJoystickBindName(Joystick::Jid::Restart);
         if (!status.restartInput.empty())
         {
             if (!joystickButton.empty())
@@ -891,7 +919,7 @@ void HexagonGame::death_updateRichPresence()
 // TODO (P2): ??? meant for rich presence?
 #if 0
     // Gather player's Personal Best
-    std::string pbStr = "(";
+    sf::base::String pbStr = "(";
     if(isPersonalBest)
     {
         pbStr += "New PB!)";
@@ -904,11 +932,11 @@ void HexagonGame::death_updateRichPresence()
     }
 #endif
 
-    std::string nameStr = levelData->name;
+    sf::base::String nameStr = levelData->name;
     nameFormat(nameStr);
 
-    const std::string diffStr = diffFormat(difficultyMult);
-    const std::string timeStr = timeFormat(status.getTimeSeconds());
+    const sf::base::String diffStr = diffFormat(difficultyMult);
+    const sf::base::String timeStr = timeFormat(status.getTimeSeconds());
 
     if (discordManager != nullptr)
     {
@@ -928,7 +956,7 @@ void HexagonGame::death_updateRichPresence()
         return SaveScoreIfNeededResult::ShouldNotSave;
     }
 
-    const std::string validatorWithoutPackid = levelData->getValidatorWithoutPackId(difficultyMult);
+    const sf::base::String validatorWithoutPackid = levelData->getValidatorWithoutPackId(difficultyMult);
 
     const double score = status.getTimeSeconds();
 
@@ -1022,7 +1050,7 @@ void HexagonGame::death(bool mForce)
 [[nodiscard]] replay_file HexagonGame::death_createReplayFile()
 {
     // TODO (P2): for testing
-    const std::string rfName = assets.anyLocalProfileActive() ? assets.getCurrentLocalProfile().getName() : "no_profile";
+    const sf::base::String rfName = assets.anyLocalProfileActive() ? assets.getCurrentLocalProfile().getName() : "no_profile";
 
     return replay_file{
         ._version{0},
@@ -1054,20 +1082,20 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     // ------------------------------------------------------------------------
     // Send compressed replay to server.
     const auto lv = Utils::getLevelValidator(rf._level_id, rf._difficulty_mult); // TODO
-    if (const std::string levelValidator{lv.data(), lv.size()}; !death_sendReplay(levelValidator, crf))
+    if (const sf::base::String levelValidator{lv.data(), lv.size()}; !death_sendReplay(levelValidator, crf))
     {
         hg::lo("Replay") << "Failure sending replay\n";
     }
 
     // ------------------------------------------------------------------------
     // Save compressed replay locally.
-    if (const std::string filename = Utils::concat(rf.create_filename(), ".z"); !death_saveReplay(filename, crf))
+    if (const sf::base::String filename = Utils::concat(rf.create_filename(), ".z"); !death_saveReplay(filename, crf))
     {
         hg::lo("Replay") << "Failure saving replay\n";
     }
 }
 
-[[nodiscard]] bool HexagonGame::death_sendReplay(const std::string& levelValidator, const compressed_replay_file& crf)
+[[nodiscard]] bool HexagonGame::death_sendReplay(const sf::base::String& levelValidator, const compressed_replay_file& crf)
 {
     if (hexagonClient == nullptr || hexagonClient->getState() != HexagonClient::State::LoggedIn_Ready ||
         !Config::getOfficial())
@@ -1087,9 +1115,9 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     return true;
 }
 
-[[nodiscard]] bool HexagonGame::death_saveReplay(std::string filename, const compressed_replay_file& crf)
+[[nodiscard]] bool HexagonGame::death_saveReplay(sf::base::String filename, const compressed_replay_file& crf)
 {
-    std::string dirPath = "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
+    sf::base::String dirPath = "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
 
     // Replace invalid characters for Windows file paths.
     for (const char c : {':', '*', '?', '"', '<', '>', '|'})
@@ -1098,10 +1126,10 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
         std::replace(filename.begin(), filename.end(), c, '_');
     }
 
-    std::filesystem::create_directories(dirPath);
+    std::filesystem::create_directories(dirPath.cStr());
     std::filesystem::path p;
-    p /= dirPath;
-    p /= filename;
+    p /= dirPath.cStr();
+    p /= filename.cStr();
 
     if (!crf.serialize_to_file(p))
     {
@@ -1294,7 +1322,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     }
 }
 
-void HexagonGame::raiseWarning(const std::string& mFunctionName, const std::string& mAdditionalInfo)
+void HexagonGame::raiseWarning(const sf::base::String& mFunctionName, const sf::base::String& mAdditionalInfo)
 {
     // Only raise the warning once to avoid redundancy
     if (calledDeprecatedFunctions.contains(mFunctionName))
@@ -1305,18 +1333,18 @@ void HexagonGame::raiseWarning(const std::string& mFunctionName, const std::stri
     calledDeprecatedFunctions.emplace(mFunctionName);
 
     // Raise warning to the console
-    const std::string errorMsg = Utils::concat("[Lua] WARNING: The function \"",
-                                               mFunctionName,
-                                               "\" (used in level \"",
-                                               levelData->name,
-                                               "\") is deprecated. ",
-                                               mAdditionalInfo);
+    const sf::base::String errorMsg = Utils::concat("[Lua] WARNING: The function \"",
+                                                    mFunctionName,
+                                                    "\" (used in level \"",
+                                                    levelData->name,
+                                                    "\") is deprecated. ",
+                                                    mAdditionalInfo);
 
     std::cout << errorMsg << std::endl;
     ilcCmdLog.emplaceBack(Utils::concat("[warning]: ", errorMsg, '\n'));
 }
 
-void HexagonGame::addMessage(std::string mMessage, double mDuration, bool mSoundToggle)
+void HexagonGame::addMessage(sf::base::String mMessage, double mDuration, bool mSoundToggle)
 {
     if (!Config::getShowMessages())
     {
@@ -1366,7 +1394,7 @@ void HexagonGame::setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay
     musicData.firstPlay = mMusicFirstPlay;
 }
 
-[[nodiscard]] const std::string& HexagonGame::getPackId() const noexcept
+[[nodiscard]] const sf::base::String& HexagonGame::getPackId() const noexcept
 {
     return levelData->packId;
 }
@@ -1376,17 +1404,17 @@ void HexagonGame::setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay
     return assets.getPackData(getPackId());
 }
 
-[[nodiscard]] const std::string& HexagonGame::getPackDisambiguator() const noexcept
+[[nodiscard]] const sf::base::String& HexagonGame::getPackDisambiguator() const noexcept
 {
     return getPackData().disambiguator;
 }
 
-[[nodiscard]] const std::string& HexagonGame::getPackAuthor() const noexcept
+[[nodiscard]] const sf::base::String& HexagonGame::getPackAuthor() const noexcept
 {
     return getPackData().author;
 }
 
-[[nodiscard]] const std::string& HexagonGame::getPackName() const noexcept
+[[nodiscard]] const sf::base::String& HexagonGame::getPackName() const noexcept
 {
     return getPackData().name;
 }
@@ -1425,7 +1453,7 @@ void HexagonGame::stopLevelMusic()
     }
 }
 
-void HexagonGame::invalidateScore(const std::string& mReason)
+void HexagonGame::invalidateScore(const sf::base::String& mReason)
 {
     if (status.scoreInvalid)
     {

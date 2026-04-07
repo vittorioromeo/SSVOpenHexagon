@@ -4,11 +4,12 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -18,32 +19,32 @@ namespace hg
 class ProfileData
 {
 private:
-    GameVersion                            version;
-    std::string                            name;
-    std::unordered_map<std::string, float> scores;
-    std::unordered_set<std::string>        favoriteLevelsDataIDs;
+    GameVersion                                 version;
+    sf::base::String                            name;
+    std::unordered_map<sf::base::String, float> scores;
+    std::unordered_set<sf::base::String>        favoriteLevelsDataIDs;
 
 public:
-    ProfileData(const GameVersion                             mVersion,
-                const std::string&                            mName,
-                const std::unordered_map<std::string, float>& mScores,
-                const sf::base::Vector<std::string>&          mFavorites);
+    ProfileData(const GameVersion                                  mVersion,
+                const sf::base::String&                            mName,
+                const std::unordered_map<sf::base::String, float>& mScores,
+                const sf::base::Vector<sf::base::String>&          mFavorites);
 
-    [[nodiscard]] GameVersion                                   getVersion() const noexcept;
-    [[nodiscard]] const std::string&                            getName() const noexcept;
-    [[nodiscard]] const std::unordered_map<std::string, float>& getScores() const noexcept;
+    [[nodiscard]] GameVersion                                        getVersion() const noexcept;
+    [[nodiscard]] const sf::base::String&                            getName() const noexcept;
+    [[nodiscard]] const std::unordered_map<sf::base::String, float>& getScores() const noexcept;
 
-    [[nodiscard]] std::unordered_set<std::string>& getFavoriteLevelIds() noexcept;
+    [[nodiscard]] std::unordered_set<sf::base::String>& getFavoriteLevelIds() noexcept;
 
-    [[nodiscard]] const std::unordered_set<std::string>& getFavoriteLevelIds() const noexcept;
+    [[nodiscard]] const std::unordered_set<sf::base::String>& getFavoriteLevelIds() const noexcept;
 
-    void                setScore(const std::string& mId, const float mScore);
-    [[nodiscard]] float getScore(const std::string& mId) const;
+    void                setScore(const sf::base::String& mId, const float mScore);
+    [[nodiscard]] float getScore(const sf::base::String& mId) const;
 
-    void addFavoriteLevel(const std::string& mLevelID);
-    void removeFavoriteLevel(const std::string& mLevelID);
+    void addFavoriteLevel(const sf::base::String& mLevelID);
+    void removeFavoriteLevel(const sf::base::String& mLevelID);
 
-    [[nodiscard]] bool isLevelFavorite(const std::string& mLevelID) const noexcept;
+    [[nodiscard]] bool isLevelFavorite(const sf::base::String& mLevelID) const noexcept;
 };
 
 } // namespace hg

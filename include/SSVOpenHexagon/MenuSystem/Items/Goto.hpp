@@ -3,7 +3,8 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
 #include "SSVOpenHexagon/MenuSystem/Menu/Menu.hpp"
 
-#include <string>
+#include "SFML/Base/String.hpp"
+
 
 namespace ssvms
 {
@@ -17,7 +18,7 @@ private:
     Category& target;
 
 public:
-    Goto(Menu& mMenu, Category& mCategory, const std::string& mName, Category& mTarget) :
+    Goto(Menu& mMenu, Category& mCategory, const sf::base::String& mName, Category& mTarget) :
         ItemBase{mMenu, mCategory, mName},
         target{mTarget}
     {

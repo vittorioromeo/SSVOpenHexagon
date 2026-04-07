@@ -9,9 +9,9 @@
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp" // IWYU pragma: keep
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 
 namespace ssvuj
 {
@@ -72,8 +72,8 @@ template class LinkedValue<int>;
 template class LinkedValue<float>;
 template class LinkedValue<unsigned int>;
 template class LinkedValue<unsigned short>;
-template class LinkedValue<std::string>;
-template class LinkedValue<sf::base::Vector<std::string>>;
+template class LinkedValue<sf::base::String>;
+template class LinkedValue<sf::base::Vector<sf::base::String>>;
 template class LinkedValue<ssvs::Input::Trigger>;
 
 } // namespace ssvuj

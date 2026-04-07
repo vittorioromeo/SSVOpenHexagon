@@ -11,9 +11,9 @@
 
 #include "SFML/System/Vec2.hpp"
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 
 namespace Json
 {
@@ -55,9 +55,9 @@ private:
 
     [[nodiscard]] static sf::Color calculateColor(const float mCurrentHue, const float mPulseFactor, const ColorData& mColorData);
 
-    [[nodiscard]] static ColorData colorDataFromObjOrDefault(const ssvuj::Obj&  mRoot,
-                                                             const std::string& mKey,
-                                                             const ColorData&   mDefault);
+    [[nodiscard]] static ColorData colorDataFromObjOrDefault(const ssvuj::Obj&       mRoot,
+                                                             const sf::base::String& mKey,
+                                                             const ColorData&        mDefault);
 
     void drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
                             const sf::Vec2f              mCenterPos,
@@ -72,11 +72,11 @@ private:
                                        const bool                   blackAndWhite) const;
 
 public:
-    std::string id{};
-    float       hueMin{};
-    float       hueMax{};
-    float       hueIncrement{};
-    bool        huePingPong{};
+    sf::base::String id{};
+    float            hueMin{};
+    float            hueMax{};
+    float            hueIncrement{};
+    bool             huePingPong{};
 
     float pulseMin{};
     float pulseMax{};

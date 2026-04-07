@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 #include <unordered_map>
 
 namespace Json
@@ -24,29 +24,29 @@ namespace hg
 
 struct LevelData
 {
-    std::string packPath;
-    std::string packId;
+    sf::base::String packPath;
+    sf::base::String packId;
 
-    std::string                            id;
-    std::string                            name;
-    std::string                            description;
-    std::string                            author;
-    int                                    menuPriority;
-    bool                                   selectable;
-    std::string                            musicId;
-    std::string                            soundId;
-    std::string                            styleId;
-    std::string                            luaScriptPath;
-    sf::base::Vector<float>                difficultyMults;
-    bool                                   unscored;
-    std::unordered_map<float, std::string> validators;
-    std::unordered_map<float, std::string> validatorsWithoutPackId;
+    sf::base::String                            id;
+    sf::base::String                            name;
+    sf::base::String                            description;
+    sf::base::String                            author;
+    int                                         menuPriority;
+    bool                                        selectable;
+    sf::base::String                            musicId;
+    sf::base::String                            soundId;
+    sf::base::String                            styleId;
+    sf::base::String                            luaScriptPath;
+    sf::base::Vector<float>                     difficultyMults;
+    bool                                        unscored;
+    std::unordered_map<float, sf::base::String> validators;
+    std::unordered_map<float, sf::base::String> validatorsWithoutPackId;
 
-    LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath, const std::string& mPackId);
+    LevelData(const ssvuj::Obj& mRoot, const sf::base::String& mPackPath, const sf::base::String& mPackId);
 
-    [[nodiscard]] const std::string& getValidator(const float diffMult) const;
+    [[nodiscard]] const sf::base::String& getValidator(const float diffMult) const;
 
-    [[nodiscard]] const std::string& getValidatorWithoutPackId(const float diffMult) const;
+    [[nodiscard]] const sf::base::String& getValidatorWithoutPackId(const float diffMult) const;
 
     [[nodiscard]] float getNthDiffMult(int index) const noexcept;
 };

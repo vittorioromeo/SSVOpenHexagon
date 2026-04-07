@@ -8,7 +8,7 @@
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Core/CustomTimelineManager.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
-#include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
+#include "SSVOpenHexagon/Core/RandomNumberGeneratorTypes.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Data/CapColor.hpp"
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
@@ -35,14 +35,16 @@
 #include "SFML/Graphics/View.hpp"
 
 #include "SFML/System/Clock.hpp"
+#include "SFML/System/IO.hpp"
 #include "SFML/System/Vec2.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
+#include <SFML/Base/UniquePtr.hpp>
 #include <functional>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -73,6 +75,7 @@ class HexagonClient;
 struct LevelData;
 struct SpeedData;
 struct PackData;
+class random_number_generator;
 
 namespace Steam
 {
@@ -133,20 +136,20 @@ private:
     sf::base::Optional<sf::ImGuiContext> imguiCtx;
 
     // IMGUI Lua Console
-    sf::Clock                     ilcDeltaClock;
-    sf::base::Vector<std::string> ilcCmdLog;
-    sf::base::Vector<std::string> ilcHistory;
-    int                           ilcHistoryPos{-1};
-    std::string                   ilcCmdBuffer;
-    std::string                   ilcTrackBuffer;
-    bool                          ilcShowConsole{false};
-    bool                          ilcShowConsoleNext{false};
-    sf::base::Vector<std::string> ilcLuaTracked;
-    sf::base::Vector<std::string> ilcLuaTrackedNames;
-    sf::base::Vector<std::string> ilcLuaTrackedResults;
-    bool                          debugPause{false};
+    sf::Clock                          ilcDeltaClock;
+    sf::base::Vector<sf::base::String> ilcCmdLog;
+    sf::base::Vector<sf::base::String> ilcHistory;
+    int                                ilcHistoryPos{-1};
+    std::string                        ilcCmdBuffer;
+    std::string                        ilcTrackBuffer;
+    bool                               ilcShowConsole{false};
+    bool                               ilcShowConsoleNext{false};
+    sf::base::Vector<sf::base::String> ilcLuaTracked;
+    sf::base::Vector<sf::base::String> ilcLuaTrackedNames;
+    sf::base::Vector<sf::base::String> ilcLuaTrackedResults;
+    bool                               debugPause{false};
 
-    sf::base::Vector<std::string> execScriptPackPathContext;
+    sf::base::Vector<sf::base::String> execScriptPackPathContext;
 
 public:
     int ilcTextEditCallback(ImGuiInputTextCallbackData* data);
@@ -173,8 +176,8 @@ private:
 
     const sf::Vec2f centerPos{0.f, 0.f};
 
-    Lua::LuaContext                 lua;
-    std::unordered_set<std::string> calledDeprecatedFunctions;
+    Lua::LuaContext                      lua;
+    std::unordered_set<sf::base::String> calledDeprecatedFunctions;
 
     LevelStatus levelStatus;
     MusicData   musicData;
@@ -246,7 +249,6 @@ private:
 
     sf::RectangleShape levelInfoRectangle;
 
-
     bool firstPlay{true};
     bool restartFirstTime{true};
     bool inputFocused{false};
@@ -255,44 +257,44 @@ private:
     bool mustChangeSides{false};
     bool mustStart{false};
 
-    random_number_generator rng;
-    HexagonGameStatus       status;
+    sf::base::UniquePtr<random_number_generator> rng;
+    HexagonGameStatus                            status;
 
     float deathInputIgnore{0.f};
 
     struct ActiveReplay
     {
-        replay_file   replayFile;
-        replay_player replayPlayer;
-        std::string   replayPackName;
-        std::string   replayLevelName;
+        replay_file      replayFile;
+        replay_player    replayPlayer;
+        sf::base::String replayPackName;
+        sf::base::String replayLevelName;
 
         explicit ActiveReplay(const replay_file& mReplayFile);
     };
 
     sf::base::Optional<ActiveReplay> activeReplay;
 
-    random_number_generator::seed_type lastSeed{};
-    replay_data                        lastReplayData{};
-    bool                               lastFirstPlay{};
-    double                             lastPlayedScore{};
+    random_number_generator_seed_type lastSeed{};
+    replay_data                       lastReplayData{};
+    bool                              lastFirstPlay{};
+    double                            lastPlayedScore{};
 
-    std::string restartId;
-    float       difficultyMult{1};
-    int         inputImplLastMovement{0};
-    int         inputMovement{0};
-    bool        inputImplCW{false};
-    bool        inputImplCCW{false};
-    bool        playerNowReadyToSwap{false};
+    sf::base::String restartId;
+    float            difficultyMult{1};
+    int              inputImplLastMovement{0};
+    int              inputMovement{0};
+    bool             inputImplCW{false};
+    bool             inputImplCCW{false};
+    bool             playerNowReadyToSwap{false};
 
-    std::ostringstream os;
+    sf::OutStringStream os;
 
 
     // Color of the polygon in the center.
     CapColor capColor;
 
-    std::string packId;
-    std::string levelId;
+    sf::base::String packId;
+    sf::base::String levelId;
 
     // Lua related methods
     void initLua_Utils();
@@ -308,7 +310,7 @@ private:
     void initLua_Deprecated();
 
     void initLua();
-    void runLuaFile(const std::string& mFileName);
+    void runLuaFile(const sf::base::String& mFileName);
 
     // Wall creation
     void createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod);
@@ -347,7 +349,7 @@ public:
         (void)runLuaFunctionIfExists<void>(mName, mArgs...);
     }
 
-    void raiseWarning(const std::string& mFunctionName, const std::string& mAdditionalInfo);
+    void raiseWarning(const sf::base::String& mFunctionName, const sf::base::String& mAdditionalInfo);
 
     void setLastReplay(const replay_file& mReplayFile);
 
@@ -423,7 +425,7 @@ private:
     void stopLevelMusic();
 
     // Message-related methods
-    void addMessage(std::string mMessage, double mDuration, bool mSoundToggle);
+    void addMessage(sf::base::String mMessage, double mDuration, bool mSoundToggle);
     void clearMessages();
 
     enum class CheckScore
@@ -438,16 +440,16 @@ private:
     [[nodiscard]] bool shouldSaveScore();
     void               goToMenu(bool mSendScores = true, bool mError = false);
 
-    void invalidateScore(const std::string& mReason);
+    void invalidateScore(const sf::base::String& mReason);
 
     [[nodiscard]] bool imguiLuaConsoleHasInput();
 
     template <typename T>
-    auto makeLuaAccessor(T& obj, const std::string& prefix);
+    auto makeLuaAccessor(T& obj, const sf::base::String& prefix);
 
-    static void                      nameFormat(std::string& name);
-    [[nodiscard]] static std::string diffFormat(float diff);
-    [[nodiscard]] static std::string timeFormat(float time);
+    static void                           nameFormat(sf::base::String& name);
+    [[nodiscard]] static sf::base::String diffFormat(float diff);
+    [[nodiscard]] static sf::base::String timeFormat(float time);
 
 private:
     void performPlayerSwap(const bool mPlaySound);
@@ -478,7 +480,11 @@ public:
     void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID);
 
     // Gameplay methods
-    void newGame(const std::string& mPackId, const std::string& mId, bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
+    void newGame(const sf::base::String& mPackId,
+                 const sf::base::String& mId,
+                 bool                    mFirstPlay,
+                 float                   mDifficultyMult,
+                 bool                    executeLastReplay);
 
     enum class SaveScoreIfNeededResult
     {
@@ -496,8 +502,8 @@ public:
     [[nodiscard]] SaveScoreIfNeededResult death_saveScoreIfNeeded();
     void                                  death_saveScoreIfNeededAndShowPBEffects();
     void                                  death_sendAndSaveReplay(const replay_file& rf);
-    [[nodiscard]] bool death_sendReplay(const std::string& levelValidator, const compressed_replay_file& crf);
-    [[nodiscard]] bool death_saveReplay(std::string filename, const compressed_replay_file& crf);
+    [[nodiscard]] bool death_sendReplay(const sf::base::String& levelValidator, const compressed_replay_file& crf);
+    [[nodiscard]] bool death_saveReplay(sf::base::String filename, const compressed_replay_file& crf);
 
     struct GameExecutionResult
     {
@@ -521,9 +527,9 @@ public:
 
     [[nodiscard]] bool shouldPlaySounds() const;
     [[nodiscard]] bool shouldPlayMusic() const;
-    void               playSoundOverride(const std::string& mId);
-    void               playSoundAbort(const std::string& mId);
-    void               playPackSoundOverride(const std::string& mPackId, const std::string& mId);
+    void               playSoundOverride(const sf::base::String& mId);
+    void               playSoundAbort(const sf::base::String& mId);
+    void               playPackSoundOverride(const sf::base::String& mPackId, const sf::base::String& mId);
 
     // Graphics-related methods
     template <typename TDrawable>
@@ -570,12 +576,12 @@ public:
     [[nodiscard]] int   getInputMovement() const;
 
     // Pack information
-    [[nodiscard]] const PackData&    getPackData() const noexcept;
-    [[nodiscard]] const std::string& getPackId() const noexcept;
-    [[nodiscard]] const std::string& getPackDisambiguator() const noexcept;
-    [[nodiscard]] const std::string& getPackAuthor() const noexcept;
-    [[nodiscard]] const std::string& getPackName() const noexcept;
-    [[nodiscard]] int                getPackVersion() const noexcept;
+    [[nodiscard]] const PackData&         getPackData() const noexcept;
+    [[nodiscard]] const sf::base::String& getPackId() const noexcept;
+    [[nodiscard]] const sf::base::String& getPackDisambiguator() const noexcept;
+    [[nodiscard]] const sf::base::String& getPackAuthor() const noexcept;
+    [[nodiscard]] const sf::base::String& getPackName() const noexcept;
+    [[nodiscard]] int                     getPackVersion() const noexcept;
 
     [[nodiscard]] bool inReplay() const noexcept;
     [[nodiscard]] bool mustReplayInput() const noexcept;

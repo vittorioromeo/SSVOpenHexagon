@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <string>
+#include "SFML/Base/String.hpp"
+
 
 namespace ssvuj::Impl
 {
@@ -61,7 +62,7 @@ template <>
 }
 
 template <>
-[[nodiscard]] inline bool isObjType<std::string>(const Obj& mObj) noexcept
+[[nodiscard]] inline bool isObjType<sf::base::String>(const Obj& mObj) noexcept
 {
     return mObj.isString();
 }

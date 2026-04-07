@@ -10,9 +10,9 @@
 
 #include "SFML/Window/Keyboard.hpp"
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 
 namespace sf
 {
@@ -48,8 +48,8 @@ private:
 
     DBoxDraw drawMode;
 
-    sf::base::Vector<std::string> dialogText;
-    sf::Text                      txtDialog;
+    sf::base::Vector<sf::base::String> dialogText;
+    sf::Text                           txtDialog;
 
     float dialogWidth{0.f};
     float frameSize{0.f};
@@ -62,9 +62,9 @@ private:
 
     KKey keyToClose{KKey::Unknown};
 
-    bool        inputBox{false};
-    bool        inputBoxPassword{false};
-    std::string input;
+    bool             inputBox{false};
+    bool             inputBoxPassword{false};
+    sf::base::String input;
 
     void drawText(const sf::View& view, const sf::Color& txtColor, const float xOffset, const float yOffset);
     void drawBox(Utils::FastVertexVectorTris& quads,
@@ -80,35 +80,35 @@ private:
 public:
     explicit HexagonDialogBox(sf::Font& font, ssvs::GameWindow& window);
 
-    void create(const std::string& output,
-                const int          charSize,
-                const float        mFrameSize,
-                const DBoxDraw     mDrawMode,
-                const float        xPos      = 0.f,
-                const float        yPos      = 0.f,
-                const bool         mInputBox = false);
+    void create(const sf::base::String& output,
+                const int               charSize,
+                const float             mFrameSize,
+                const DBoxDraw          mDrawMode,
+                const float             xPos      = 0.f,
+                const float             yPos      = 0.f,
+                const bool              mInputBox = false);
 
-    void create(const std::string& output,
-                const int          charSize,
-                const float        mFrameSize,
-                const DBoxDraw     mDrawMode,
-                const KKey         mKeyToClose,
-                const float        mXPos = 0.f,
-                const float        mYPos = 0.f);
+    void create(const sf::base::String& output,
+                const int               charSize,
+                const float             mFrameSize,
+                const DBoxDraw          mDrawMode,
+                const KKey              mKeyToClose,
+                const float             mXPos = 0.f,
+                const float             mYPos = 0.f);
 
-    void createInput(const std::string& output, const int charSize, const float mFrameSize, const DBoxDraw mDrawMode);
+    void createInput(const sf::base::String& output, const int charSize, const float mFrameSize, const DBoxDraw mDrawMode);
 
     void draw(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
 
     void clearDialogBox();
 
-    [[nodiscard]] KKey               getKeyToClose() const noexcept;
-    [[nodiscard]] bool               empty() const noexcept;
-    [[nodiscard]] bool               isInputBox() const noexcept;
-    [[nodiscard]] std::string&       getInput() noexcept;
-    [[nodiscard]] const std::string& getInput() const noexcept;
-    void                             setInputBoxPassword(const bool x) noexcept;
-    [[nodiscard]] bool               getInputBoxPassword() noexcept;
+    [[nodiscard]] KKey                    getKeyToClose() const noexcept;
+    [[nodiscard]] bool                    empty() const noexcept;
+    [[nodiscard]] bool                    isInputBox() const noexcept;
+    [[nodiscard]] sf::base::String&       getInput() noexcept;
+    [[nodiscard]] const sf::base::String& getInput() const noexcept;
+    void                                  setInputBoxPassword(const bool x) noexcept;
+    [[nodiscard]] bool                    getInputBoxPassword() noexcept;
 };
 
 } // namespace hg

@@ -4,10 +4,14 @@
 
 #pragma once
 
+#include "SFML/System/IO.hpp"
+
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
+
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <iostream>
-#include <sstream>
-#include <string>
+#include <ostream>
 
 namespace ssvuj
 {
@@ -35,10 +39,10 @@ namespace Impl
 
 } // namespace Impl
 
-[[nodiscard]] inline bool readFromString(Obj& mObj, const std::string& mStr)
+[[nodiscard]] inline bool readFromString(Obj& mObj, const sf::base::String& mStr)
 {
     Reader reader;
-    return Impl::tryParse(mObj, reader, mStr);
+    return Impl::tryParse(mObj, reader, std::string(mStr.cStr()));
 }
 
 [[nodiscard]] inline bool readFromFile(Obj& mObj, const ssvufs::Path& mPath)
@@ -47,7 +51,7 @@ namespace Impl
     return Impl::tryParse(mObj, reader, mPath.getContentsAsStr(Impl::getBuffer()));
 }
 
-[[nodiscard]] inline bool readFromFile(Obj& mObj, const ssvufs::Path& mPath, std::string& mError)
+[[nodiscard]] inline bool readFromFile(Obj& mObj, const ssvufs::Path& mPath, sf::base::String& mError)
 {
     Reader reader;
     if (!Impl::tryParse(mObj, reader, mPath.getContentsAsStr(Impl::getBuffer())))
@@ -67,7 +71,7 @@ namespace Impl
     return true;
 }
 
-[[nodiscard]] inline Obj getFromStr(const std::string& mStr)
+[[nodiscard]] inline Obj getFromStr(const sf::base::String& mStr)
 {
     Obj result;
     (void)readFromString(result, mStr);
@@ -81,10 +85,10 @@ namespace Impl
     return result;
 }
 
-[[nodiscard]] inline std::pair<Obj, std::string> getFromFileWithErrors(const ssvufs::Path& mPath)
+[[nodiscard]] inline std::pair<Obj, sf::base::String> getFromFileWithErrors(const ssvufs::Path& mPath)
 {
-    Obj         result;
-    std::string error;
+    Obj              result;
+    sf::base::String error;
     (void)readFromFile(result, mPath, error);
     return {result, error};
 }
@@ -96,11 +100,12 @@ inline void writeToStream(const Obj& mObj, std::ostream& mStream)
     mStream.flush();
 }
 
-inline void writeToString(const Obj& mObj, std::string& mStr)
+inline void writeToString(const Obj& mObj, sf::base::String& mStr)
 {
-    std::ostringstream o;
-    writeToStream(mObj, o);
-    mStr = o.str();
+    sf::OutStringStream o;
+    std::ostream        tmp{o.rdbuf()};
+    writeToStream(mObj, tmp);
+    mStr = o.to<sf::base::String>();
 }
 
 inline void writeToFile(const Obj& mObj, const ssvufs::Path& mPath)
@@ -110,9 +115,9 @@ inline void writeToFile(const Obj& mObj, const ssvufs::Path& mPath)
     o.close();
 }
 
-[[nodiscard]] inline std::string getWriteToString(const Obj& mObj)
+[[nodiscard]] inline sf::base::String getWriteToString(const Obj& mObj)
 {
-    std::string result;
+    sf::base::String result;
     writeToString(mObj, result);
     return result;
 }

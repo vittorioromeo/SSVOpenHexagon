@@ -4,13 +4,14 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 #include <unordered_map>
 
 namespace hg
@@ -26,23 +27,23 @@ private:
         HRTimePoint                                  _cacheTime;
     };
 
-    std::unordered_map<std::string, CachedScores> _levelValidatorToScores;
+    std::unordered_map<sf::base::String, CachedScores> _levelValidatorToScores;
 
 public:
-    void receivedScores(const std::string& levelValidator, const sf::base::Vector<Database::ProcessedScore>& scores);
+    void receivedScores(const sf::base::String& levelValidator, const sf::base::Vector<Database::ProcessedScore>& scores);
 
-    void receivedOwnScore(const std::string& levelValidator, const Database::ProcessedScore& score);
+    void receivedOwnScore(const sf::base::String& levelValidator, const Database::ProcessedScore& score);
 
-    void requestedScores(const std::string& levelValidator);
+    void requestedScores(const sf::base::String& levelValidator);
 
-    [[nodiscard]] bool shouldRequestScores(const std::string& levelValidator) const;
+    [[nodiscard]] bool shouldRequestScores(const sf::base::String& levelValidator) const;
 
-    [[nodiscard]] const sf::base::Vector<Database::ProcessedScore>& getScores(const std::string& levelValidator) const;
+    [[nodiscard]] const sf::base::Vector<Database::ProcessedScore>& getScores(const sf::base::String& levelValidator) const;
 
-    [[nodiscard]] const Database::ProcessedScore* getOwnScore(const std::string& levelValidator) const;
+    [[nodiscard]] const Database::ProcessedScore* getOwnScore(const sf::base::String& levelValidator) const;
 
-    [[nodiscard]] bool getSupported(const std::string& levelValidator) const;
-    [[nodiscard]] bool hasInformation(const std::string& levelValidator) const;
+    [[nodiscard]] bool getSupported(const sf::base::String& levelValidator) const;
+    [[nodiscard]] bool hasInformation(const sf::base::String& levelValidator) const;
 };
 
 } // namespace hg

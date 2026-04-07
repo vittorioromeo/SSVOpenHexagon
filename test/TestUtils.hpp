@@ -1,11 +1,13 @@
 #pragma once
 
-#include <sstream>
-#include <iostream>
-#include <random>
+#include "SFML/System/IO.hpp"
 
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
 #include "SFML/Base/Trait/CommonType.hpp"
+
+#include <iostream>
+#include <random>
 
 
 #define TEST_MAIN(...) int __attribute__((const)) main(__VA_ARGS__)
@@ -23,20 +25,20 @@ namespace test_impl::impl {
 
 inline auto& get_ostringstream() noexcept
 {
-    static std::ostringstream oss;
+    static sf::OutStringStream oss;
     return oss;
 }
 
 inline auto& clear_and_get_ostringstream() noexcept
 {
     auto& oss(get_ostringstream());
-    oss.str("");
+    oss.setStr("");
     return oss;
 }
 
 [[noreturn]] inline void fail() noexcept
 {
-    std::cout << get_ostringstream().str() << std::endl;
+    std::cout << get_ostringstream().getString() << std::endl;
     std::abort();
 }
 
@@ -86,7 +88,8 @@ void do_test(bool x, TF&& f)
         return;
     }
 
-    auto& error(impl::clear_and_get_ostringstream());
+    auto&        oss = impl::clear_and_get_ostringstream();
+    std::ostream error{oss.rdbuf()};
     f(error);
     impl::fail();
 }

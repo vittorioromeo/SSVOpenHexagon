@@ -19,8 +19,8 @@
 
 #include "SFML/Base/InPlaceVector.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 
-#include <string>
 
 namespace hg
 {
@@ -40,9 +40,9 @@ private:
     sf::base::Optional<sf::MusicReader> _musicReader;
     sf::base::Optional<sf::Music>       _music;
     float                               _musicVolume;
-    std::string                         _lastLoadedMusicPath;
+    sf::base::String                    _lastLoadedMusicPath;
 
-    void playSoundImpl(const std::string& assetId, const bool modeOverride)
+    void playSoundImpl(const sf::base::String& assetId, const bool modeOverride)
     {
         sf::SoundBuffer* soundBuffer = _soundBufferGetter(assetId);
         if (soundBuffer == nullptr)
@@ -178,30 +178,30 @@ public:
             sound.stop();
     }
 
-    void playSoundOverride(const std::string& id)
+    void playSoundOverride(const sf::base::String& id)
     {
         playSoundImpl(id, /* modeOverride */ true);
     }
 
-    void playPackSoundOverride(const std::string& packId, const std::string& id)
+    void playPackSoundOverride(const sf::base::String& packId, const sf::base::String& id)
     {
         playSoundImpl(Utils::concat(packId, '_', id), /* modeOverride */ true);
     }
 
-    void playSoundAbort(const std::string& id)
+    void playSoundAbort(const sf::base::String& id)
     {
         playSoundImpl(id, /* modeOverride */ false);
     }
 
-    void playPackSoundAbort(const std::string& packId, const std::string& id)
+    void playPackSoundAbort(const sf::base::String& packId, const sf::base::String& id)
     {
         playSoundImpl(Utils::concat(packId, '_', id), /* modeOverride */ false);
     }
 
-    [[nodiscard]] bool loadAndPlayMusic(const std::string& packId, const std::string& id, const float playingOffsetSeconds)
+    [[nodiscard]] bool loadAndPlayMusic(const sf::base::String& packId, const sf::base::String& id, const float playingOffsetSeconds)
     {
-        const std::string  assetId = Utils::concat(packId, '_', id);
-        const std::string* path    = _musicPathGetter(assetId);
+        const sf::base::String  assetId = Utils::concat(packId, '_', id);
+        const sf::base::String* path    = _musicPathGetter(assetId);
 
         if (path == nullptr)
         {
@@ -314,27 +314,27 @@ void Audio::stopSounds()
     impl().stopSounds();
 }
 
-void Audio::playSoundOverride(const std::string& id)
+void Audio::playSoundOverride(const sf::base::String& id)
 {
     impl().playSoundOverride(id);
 }
 
-void Audio::playPackSoundOverride(const std::string& packId, const std::string& id)
+void Audio::playPackSoundOverride(const sf::base::String& packId, const sf::base::String& id)
 {
     impl().playPackSoundOverride(packId, id);
 }
 
-void Audio::playSoundAbort(const std::string& id)
+void Audio::playSoundAbort(const sf::base::String& id)
 {
     impl().playSoundAbort(id);
 }
 
-void Audio::playPackSoundAbort(const std::string& packId, const std::string& id)
+void Audio::playPackSoundAbort(const sf::base::String& packId, const sf::base::String& id)
 {
     impl().playPackSoundAbort(packId, id);
 }
 
-[[nodiscard]] bool Audio::loadAndPlayMusic(const std::string& packId, const std::string& id, const float playingOffsetSeconds)
+[[nodiscard]] bool Audio::loadAndPlayMusic(const sf::base::String& packId, const sf::base::String& id, const float playingOffsetSeconds)
 {
     return impl().loadAndPlayMusic(packId, id, playingOffsetSeconds);
 }

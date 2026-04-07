@@ -4,10 +4,10 @@
 
 #pragma once
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 
 #include <functional>
-#include <string>
 
 namespace sf
 {
@@ -21,9 +21,9 @@ namespace hg
 class Audio
 {
 public:
-    using SoundBufferGetter = std::function<sf::SoundBuffer*(const std::string&)>;
+    using SoundBufferGetter = std::function<sf::SoundBuffer*(const sf::base::String&)>;
 
-    using MusicPathGetter = std::function<const std::string*(const std::string&)>;
+    using MusicPathGetter = std::function<const sf::base::String*(const sf::base::String&)>;
 
 private:
     class AudioImpl;
@@ -55,13 +55,15 @@ public:
 
     void stopSounds();
 
-    void playSoundOverride(const std::string& id);
-    void playPackSoundOverride(const std::string& packId, const std::string& id);
+    void playSoundOverride(const sf::base::String& id);
+    void playPackSoundOverride(const sf::base::String& packId, const sf::base::String& id);
 
-    void playSoundAbort(const std::string& id);
-    void playPackSoundAbort(const std::string& packId, const std::string& id);
+    void playSoundAbort(const sf::base::String& id);
+    void playPackSoundAbort(const sf::base::String& packId, const sf::base::String& id);
 
-    [[nodiscard]] bool loadAndPlayMusic(const std::string& packId, const std::string& id, const float playingOffsetSeconds);
+    [[nodiscard]] bool loadAndPlayMusic(const sf::base::String& packId,
+                                        const sf::base::String& id,
+                                        const float             playingOffsetSeconds);
 
     void setCurrentMusicPitch(const float pitch);
 };

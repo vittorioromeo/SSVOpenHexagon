@@ -4,9 +4,10 @@
 
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
-#include <string>
 
 namespace hg
 {

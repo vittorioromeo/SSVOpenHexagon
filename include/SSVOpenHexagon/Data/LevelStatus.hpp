@@ -4,7 +4,10 @@
 
 #pragma once
 
-#include <string>
+#include "SSVOpenHexagon/Global/StringHash.hpp"
+
+#include "SFML/Base/String.hpp"
+
 #include <unordered_map>
 
 namespace hg
@@ -12,19 +15,19 @@ namespace hg
 
 struct LevelStatus
 {
-    std::unordered_map<std::string, std::string> trackedVariables;
+    std::unordered_map<sf::base::String, sf::base::String> trackedVariables;
 
     // Allows alternative scoring to be possible
-    bool        scoreOverridden{false};
-    std::string scoreOverride;
+    bool             scoreOverridden{false};
+    sf::base::String scoreOverride;
 
     // Music and sound related attributes
-    bool        syncMusicToDM{true};
-    float       musicPitch{1.f};
-    std::string beepSound{"beep.ogg"};
-    std::string levelUpSound{"increment.ogg"};
-    std::string swapSound{"swap.ogg"};
-    std::string deathSound{"death.ogg"};
+    bool             syncMusicToDM{true};
+    float            musicPitch{1.f};
+    sf::base::String beepSound{"beep.ogg"};
+    sf::base::String levelUpSound{"increment.ogg"};
+    sf::base::String swapSound{"swap.ogg"};
+    sf::base::String deathSound{"death.ogg"};
 
     float speedMult{1.f};
     float playerSpeedMult{1.f};

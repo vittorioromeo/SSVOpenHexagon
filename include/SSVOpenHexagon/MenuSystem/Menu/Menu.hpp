@@ -4,11 +4,11 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/Controller.hpp"
 
 #include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <stack>
-#include <string>
 
 namespace ssvms
 {
@@ -25,7 +25,7 @@ private:
     Controller                                      controller;
 
 public:
-    [[nodiscard]] auto& createCategory(const std::string& mName)
+    [[nodiscard]] auto& createCategory(const sf::base::String& mName)
     {
         categories.pushBack(sf::base::makeUnique<Category>(*this, mName));
 
@@ -69,7 +69,7 @@ public:
         return categories;
     }
 
-    [[nodiscard]] auto& getCategoryByName(const std::string& mName) const
+    [[nodiscard]] auto& getCategoryByName(const sf::base::String& mName) const
     {
         for (const sf::base::UniquePtr<Category>& c : categories)
         {

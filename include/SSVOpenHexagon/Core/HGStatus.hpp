@@ -9,8 +9,8 @@
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 
-#include <string>
 
 namespace hg
 {
@@ -59,25 +59,25 @@ private:
     float  customScore{};                // Value for alternative scoring
 
 public:
-    float       pulse{75};
-    float       pulseDirection{1};
-    float       pulseDelay{0};
-    float       beatPulse{0};
-    float       beatPulseDelay{0};
-    float       pulse3D{1.f};
-    float       pulse3DDirection{1};
-    float       flashEffect{0};
-    float       radius{75};
-    float       fastSpin{0};
-    float       cameraShake{0};
-    bool        hasDied{false};
-    StateChange mustStateChange{StateChange::None};
-    bool        scoreInvalid{false};
-    std::string invalidReason{""};
-    bool        started{false};
-    std::string restartInput;
-    std::string replayInput;
-    bool        showPlayerTrail{true};
+    float            pulse{75};
+    float            pulseDirection{1};
+    float            pulseDelay{0};
+    float            beatPulse{0};
+    float            beatPulseDelay{0};
+    float            pulse3D{1.f};
+    float            pulse3DDirection{1};
+    float            flashEffect{0};
+    float            radius{75};
+    float            fastSpin{0};
+    float            cameraShake{0};
+    bool             hasDied{false};
+    StateChange      mustStateChange{StateChange::None};
+    bool             scoreInvalid{false};
+    sf::base::String invalidReason{""};
+    bool             started{false};
+    sf::base::String restartInput;
+    sf::base::String replayInput;
+    bool             showPlayerTrail{true};
 
     // Shaders
     sf::base::Array<sf::base::Optional<sf::base::SizeT>, static_cast<sf::base::SizeT>(RenderStage::Count)> fragmentShaderIds;

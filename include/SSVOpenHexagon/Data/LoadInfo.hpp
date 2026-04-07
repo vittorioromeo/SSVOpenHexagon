@@ -4,21 +4,21 @@
 
 #pragma once
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 
 namespace hg
 {
 
 struct LoadInfo
 {
-    unsigned int                  packs{0};
-    unsigned int                  levels{0};
-    unsigned int                  assets{0};
-    sf::base::Vector<std::string> errorMessages;
+    unsigned int                       packs{0};
+    unsigned int                       levels{0};
+    unsigned int                       assets{0};
+    sf::base::Vector<sf::base::String> errorMessages;
 
-    void addFormattedError(std::string& error);
+    void addFormattedError(sf::base::String& error);
 };
 
 } // namespace hg

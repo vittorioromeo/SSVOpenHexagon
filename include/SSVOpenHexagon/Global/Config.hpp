@@ -12,9 +12,9 @@
 #include "SFML/Window/Mouse.hpp"
 
 #include "SFML/Base/Array.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 
 namespace ssvs
 {
@@ -33,7 +33,7 @@ inline constexpr float TICKS_PER_SECOND = 240.f;
 inline constexpr float TIME_STEP        = 60.f / TICKS_PER_SECOND;
 inline constexpr float TIME_SLICE       = 60.f / TICKS_PER_SECOND;
 
-void loadConfig(const sf::base::Vector<std::string>& mOverridesIds);
+void loadConfig(const sf::base::Vector<sf::base::String>& mOverridesIds);
 void reapplyResolution();
 void resetConfigToDefaults();
 void resetBindsToDefaults();
@@ -83,12 +83,12 @@ void setFirstTimePlaying(bool mX);
 void setShowLevelInfo(bool mX);
 void setShowTimer(bool mX);
 void setShowStatusText(bool mX);
-void setServerIp(const std::string& mX);
+void setServerIp(const sf::base::String& mX);
 void setServerPort(unsigned short mX);
 void setServerControlPort(unsigned short mX);
-void setServerLevelWhitelist(const sf::base::Vector<std::string>& levelValidators);
+void setServerLevelWhitelist(const sf::base::Vector<sf::base::String>& levelValidators);
 void setSaveLastLoginUsername(bool mX);
-void setLastLoginUsername(const std::string& mX);
+void setLastLoginUsername(const sf::base::String& mX);
 void setShowLoginAtStartup(bool mX);
 void setCameraShakeMultiplier(float x);
 void setAngleTiltIntensity(float x);
@@ -103,84 +103,84 @@ void setShowSwapBlinkingEffect(bool x);
 void setUseLuaFileCache(bool x);
 void setDisableGameRendering(bool x);
 
-[[nodiscard]] bool                                 getOfficial();
-[[nodiscard]] const std::string&                   getUneligibilityReason();
-[[nodiscard]] float                                getSizeX();
-[[nodiscard]] float                                getSizeY();
-[[nodiscard]] float                                getSpawnDistance();
-[[nodiscard]] float                                getZoomFactor();
-[[nodiscard]] int                                  getPixelMultiplier();
-[[nodiscard]] float                                getPlayerSpeed();
-[[nodiscard]] float                                getPlayerFocusSpeed();
-[[nodiscard]] float                                getPlayerSize();
-[[nodiscard]] bool                                 getNoPulse();
-[[nodiscard]] bool                                 getNoRotation();
-[[nodiscard]] bool                                 getNoBackground();
-[[nodiscard]] bool                                 getBlackAndWhite();
-[[nodiscard]] bool                                 getNoSound();
-[[nodiscard]] bool                                 getNoMusic();
-[[nodiscard]] float                                getSoundVolume();
-[[nodiscard]] float                                getMusicVolume();
-[[nodiscard]] bool                                 getLimitFPS();
-[[nodiscard]] bool                                 getVsync();
-[[nodiscard]] bool                                 getAutoZoomFactor();
-[[nodiscard]] bool                                 getFullscreen();
-[[nodiscard]] bool                                 getWindowedAutoResolution();
-[[nodiscard]] bool                                 getFullscreenAutoResolution();
-[[nodiscard]] unsigned int                         getFullscreenWidth();
-[[nodiscard]] unsigned int                         getFullscreenHeight();
-[[nodiscard]] unsigned int                         getWindowedWidth();
-[[nodiscard]] unsigned int                         getWindowedHeight();
-[[nodiscard]] unsigned int                         getWidth();
-[[nodiscard]] unsigned int                         getHeight();
-[[nodiscard]] bool                                 getShowMessages();
-[[nodiscard]] bool                                 getRotateToStart();
-[[nodiscard]] bool                                 getDebug();
-[[nodiscard]] bool                                 getBeatPulse();
-[[nodiscard]] bool                                 getInvincible();
-[[nodiscard]] bool                                 get3D();
-[[nodiscard]] bool                                 getShaders();
-[[nodiscard]] unsigned int                         get3DMaxDepth();
-[[nodiscard]] float                                get3DMultiplier();
-[[nodiscard]] bool                                 getAutoRestart();
-[[nodiscard]] bool                                 getFlash();
-[[nodiscard]] bool                                 getShowTrackedVariables();
-[[nodiscard]] bool                                 getMusicSpeedDMSync();
-[[nodiscard]] unsigned int                         getMaxFPS();
-[[nodiscard]] bool                                 getShowFPS();
-[[nodiscard]] unsigned int                         getAntialiasingLevel();
-[[nodiscard]] float                                getMusicSpeedMult();
-[[nodiscard]] bool                                 getDrawTextOutlines();
-[[nodiscard]] bool                                 getDarkenUnevenBackgroundChunk();
-[[nodiscard]] float                                getJoystickDeadzone();
-[[nodiscard]] float                                getTextPadding();
-[[nodiscard]] float                                getTextScaling();
-[[nodiscard]] float                                getTimescale();
-[[nodiscard]] bool                                 getShowKeyIcons();
-[[nodiscard]] float                                getKeyIconsScale();
-[[nodiscard]] bool                                 getFirstTimePlaying();
-[[nodiscard]] bool                                 getShowLevelInfo();
-[[nodiscard]] bool                                 getShowTimer();
-[[nodiscard]] bool                                 getShowStatusText();
-[[nodiscard]] const std::string&                   getServerIp();
-[[nodiscard]] unsigned short                       getServerPort();
-[[nodiscard]] unsigned short                       getServerControlPort();
-[[nodiscard]] const sf::base::Vector<std::string>& getServerLevelWhitelist();
-[[nodiscard]] bool                                 getSaveLastLoginUsername();
-[[nodiscard]] const std::string&                   getLastLoginUsername();
-[[nodiscard]] bool                                 getShowLoginAtStartup();
-[[nodiscard]] float                                getCameraShakeMultiplier();
-[[nodiscard]] float                                getAngleTiltIntensity();
-[[nodiscard]] bool                                 getShowPlayerTrail();
-[[nodiscard]] unsigned int                         getPlayerTrailAlpha();
-[[nodiscard]] float                                getPlayerTrailScale();
-[[nodiscard]] float                                getPlayerTrailDecay();
-[[nodiscard]] bool                                 getPlayerTrailHasSwapColor();
-[[nodiscard]] bool                                 getShowSwapParticles();
-[[nodiscard]] bool                                 getPlaySwapReadySound();
-[[nodiscard]] bool                                 getShowSwapBlinkingEffect();
-[[nodiscard]] bool                                 getUseLuaFileCache();
-[[nodiscard]] bool                                 getDisableGameRendering();
+[[nodiscard]] bool                                      getOfficial();
+[[nodiscard]] const sf::base::String&                   getUneligibilityReason();
+[[nodiscard]] float                                     getSizeX();
+[[nodiscard]] float                                     getSizeY();
+[[nodiscard]] float                                     getSpawnDistance();
+[[nodiscard]] float                                     getZoomFactor();
+[[nodiscard]] int                                       getPixelMultiplier();
+[[nodiscard]] float                                     getPlayerSpeed();
+[[nodiscard]] float                                     getPlayerFocusSpeed();
+[[nodiscard]] float                                     getPlayerSize();
+[[nodiscard]] bool                                      getNoPulse();
+[[nodiscard]] bool                                      getNoRotation();
+[[nodiscard]] bool                                      getNoBackground();
+[[nodiscard]] bool                                      getBlackAndWhite();
+[[nodiscard]] bool                                      getNoSound();
+[[nodiscard]] bool                                      getNoMusic();
+[[nodiscard]] float                                     getSoundVolume();
+[[nodiscard]] float                                     getMusicVolume();
+[[nodiscard]] bool                                      getLimitFPS();
+[[nodiscard]] bool                                      getVsync();
+[[nodiscard]] bool                                      getAutoZoomFactor();
+[[nodiscard]] bool                                      getFullscreen();
+[[nodiscard]] bool                                      getWindowedAutoResolution();
+[[nodiscard]] bool                                      getFullscreenAutoResolution();
+[[nodiscard]] unsigned int                              getFullscreenWidth();
+[[nodiscard]] unsigned int                              getFullscreenHeight();
+[[nodiscard]] unsigned int                              getWindowedWidth();
+[[nodiscard]] unsigned int                              getWindowedHeight();
+[[nodiscard]] unsigned int                              getWidth();
+[[nodiscard]] unsigned int                              getHeight();
+[[nodiscard]] bool                                      getShowMessages();
+[[nodiscard]] bool                                      getRotateToStart();
+[[nodiscard]] bool                                      getDebug();
+[[nodiscard]] bool                                      getBeatPulse();
+[[nodiscard]] bool                                      getInvincible();
+[[nodiscard]] bool                                      get3D();
+[[nodiscard]] bool                                      getShaders();
+[[nodiscard]] unsigned int                              get3DMaxDepth();
+[[nodiscard]] float                                     get3DMultiplier();
+[[nodiscard]] bool                                      getAutoRestart();
+[[nodiscard]] bool                                      getFlash();
+[[nodiscard]] bool                                      getShowTrackedVariables();
+[[nodiscard]] bool                                      getMusicSpeedDMSync();
+[[nodiscard]] unsigned int                              getMaxFPS();
+[[nodiscard]] bool                                      getShowFPS();
+[[nodiscard]] unsigned int                              getAntialiasingLevel();
+[[nodiscard]] float                                     getMusicSpeedMult();
+[[nodiscard]] bool                                      getDrawTextOutlines();
+[[nodiscard]] bool                                      getDarkenUnevenBackgroundChunk();
+[[nodiscard]] float                                     getJoystickDeadzone();
+[[nodiscard]] float                                     getTextPadding();
+[[nodiscard]] float                                     getTextScaling();
+[[nodiscard]] float                                     getTimescale();
+[[nodiscard]] bool                                      getShowKeyIcons();
+[[nodiscard]] float                                     getKeyIconsScale();
+[[nodiscard]] bool                                      getFirstTimePlaying();
+[[nodiscard]] bool                                      getShowLevelInfo();
+[[nodiscard]] bool                                      getShowTimer();
+[[nodiscard]] bool                                      getShowStatusText();
+[[nodiscard]] const sf::base::String&                   getServerIp();
+[[nodiscard]] unsigned short                            getServerPort();
+[[nodiscard]] unsigned short                            getServerControlPort();
+[[nodiscard]] const sf::base::Vector<sf::base::String>& getServerLevelWhitelist();
+[[nodiscard]] bool                                      getSaveLastLoginUsername();
+[[nodiscard]] const sf::base::String&                   getLastLoginUsername();
+[[nodiscard]] bool                                      getShowLoginAtStartup();
+[[nodiscard]] float                                     getCameraShakeMultiplier();
+[[nodiscard]] float                                     getAngleTiltIntensity();
+[[nodiscard]] bool                                      getShowPlayerTrail();
+[[nodiscard]] unsigned int                              getPlayerTrailAlpha();
+[[nodiscard]] float                                     getPlayerTrailScale();
+[[nodiscard]] float                                     getPlayerTrailDecay();
+[[nodiscard]] bool                                      getPlayerTrailHasSwapColor();
+[[nodiscard]] bool                                      getShowSwapParticles();
+[[nodiscard]] bool                                      getPlaySwapReadySound();
+[[nodiscard]] bool                                      getShowSwapBlinkingEffect();
+[[nodiscard]] bool                                      getUseLuaFileCache();
+[[nodiscard]] bool                                      getDisableGameRendering();
 
 // keyboard binds
 
@@ -210,7 +210,7 @@ enum class Tid : int
 
 void keyboardBindsSanityCheck();
 
-[[nodiscard]] std::string getKeyboardBindNames(const Tid bindID);
+[[nodiscard]] sf::base::String getKeyboardBindNames(const Tid bindID);
 
 using TriggerGetter = ssvs::Input::Trigger& (*)();
 extern const sf::base::Array<TriggerGetter, SSVOH_TO_SIZET(Tid::TriggersCount)> triggerGetters;
@@ -223,7 +223,7 @@ void clearTriggerBind(ssvs::Input::Trigger& trig, const int index);
 
 void joystickBindsSanityCheck();
 
-[[nodiscard]] std::string getJoystickBindName(const Joystick::Jid bindID);
+[[nodiscard]] sf::base::String getJoystickBindName(const Joystick::Jid bindID);
 
 using JoystickTriggerGetter = unsigned int (*)();
 extern const sf::base::Array<JoystickTriggerGetter, SSVOH_TO_SIZET(Joystick::Jid::JoystickBindsCount)> joystickTriggerGetters;

@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
+#include "SSVOpenHexagon/Global/StringHash.hpp"
 
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/Image.hpp"
@@ -15,8 +16,8 @@
 #include "SFML/System/Path.hpp"
 
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 
-#include <string>
 #include <unordered_map>
 
 namespace hg
@@ -32,12 +33,12 @@ template <typename Map, typename Key>
 class AssetStorage::AssetStorageImpl
 {
 private:
-    std::unordered_map<std::string, sf::Texture>     _textures;
-    std::unordered_map<std::string, sf::Font>        _fonts;
-    std::unordered_map<std::string, sf::SoundBuffer> _soundBuffers;
+    std::unordered_map<sf::base::String, sf::Texture>     _textures;
+    std::unordered_map<sf::base::String, sf::Font>        _fonts;
+    std::unordered_map<sf::base::String, sf::SoundBuffer> _soundBuffers;
 
 public:
-    [[nodiscard]] bool loadTexture(const std::string& id, const std::string& path)
+    [[nodiscard]] bool loadTexture(const sf::base::String& id, const sf::base::String& path)
     {
         sf::base::Optional texture = sf::Texture::loadFromFile(path);
 
@@ -50,7 +51,7 @@ public:
         return inserted;
     }
 
-    [[nodiscard]] bool loadFont(const std::string& id, const std::string& path)
+    [[nodiscard]] bool loadFont(const sf::base::String& id, const sf::base::String& path)
     {
         sf::base::Optional font = sf::Font::openFromFile(path);
 
@@ -63,7 +64,7 @@ public:
         return inserted;
     }
 
-    [[nodiscard]] bool loadSoundBuffer(const std::string& id, const std::string& path)
+    [[nodiscard]] bool loadSoundBuffer(const sf::base::String& id, const sf::base::String& path)
     {
         sf::base::Optional soundBuffer = sf::SoundBuffer::loadFromFile(path);
 
@@ -76,32 +77,32 @@ public:
         return inserted;
     }
 
-    [[nodiscard]] sf::Texture* getTexture(const std::string& id) noexcept
+    [[nodiscard]] sf::Texture* getTexture(const sf::base::String& id) noexcept
     {
         return getAsPtr(_textures, id);
     }
 
-    [[nodiscard]] sf::Font* getFont(const std::string& id) noexcept
+    [[nodiscard]] sf::Font* getFont(const sf::base::String& id) noexcept
     {
         return getAsPtr(_fonts, id);
     }
 
-    [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const std::string& id) noexcept
+    [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const sf::base::String& id) noexcept
     {
         return getAsPtr(_soundBuffers, id);
     }
 
-    [[nodiscard]] bool hasTexture(const std::string& id) noexcept
+    [[nodiscard]] bool hasTexture(const sf::base::String& id) noexcept
     {
         return _textures.find(id) != _textures.end();
     }
 
-    [[nodiscard]] bool hasFont(const std::string& id) noexcept
+    [[nodiscard]] bool hasFont(const sf::base::String& id) noexcept
     {
         return _fonts.find(id) != _fonts.end();
     }
 
-    [[nodiscard]] bool hasSoundBuffer(const std::string& id) noexcept
+    [[nodiscard]] bool hasSoundBuffer(const sf::base::String& id) noexcept
     {
         return _soundBuffers.find(id) != _soundBuffers.end();
     }
@@ -125,47 +126,47 @@ AssetStorage::AssetStorage() : _impl{sf::base::makeUnique<AssetStorageImpl>()}
 
 AssetStorage::~AssetStorage() = default;
 
-[[nodiscard]] bool AssetStorage::loadTexture(const std::string& id, const std::string& path)
+[[nodiscard]] bool AssetStorage::loadTexture(const sf::base::String& id, const sf::base::String& path)
 {
     return impl().loadTexture(id, path);
 }
 
-[[nodiscard]] bool AssetStorage::loadFont(const std::string& id, const std::string& path)
+[[nodiscard]] bool AssetStorage::loadFont(const sf::base::String& id, const sf::base::String& path)
 {
     return impl().loadFont(id, path);
 }
 
-[[nodiscard]] bool AssetStorage::loadSoundBuffer(const std::string& id, const std::string& path)
+[[nodiscard]] bool AssetStorage::loadSoundBuffer(const sf::base::String& id, const sf::base::String& path)
 {
     return impl().loadSoundBuffer(id, path);
 }
 
-[[nodiscard]] sf::Texture* AssetStorage::getTexture(const std::string& id) noexcept
+[[nodiscard]] sf::Texture* AssetStorage::getTexture(const sf::base::String& id) noexcept
 {
     return impl().getTexture(id);
 }
 
-[[nodiscard]] sf::Font* AssetStorage::getFont(const std::string& id) noexcept
+[[nodiscard]] sf::Font* AssetStorage::getFont(const sf::base::String& id) noexcept
 {
     return impl().getFont(id);
 }
 
-[[nodiscard]] sf::SoundBuffer* AssetStorage::getSoundBuffer(const std::string& id) noexcept
+[[nodiscard]] sf::SoundBuffer* AssetStorage::getSoundBuffer(const sf::base::String& id) noexcept
 {
     return impl().getSoundBuffer(id);
 }
 
-[[nodiscard]] bool AssetStorage::hasTexture(const std::string& id) noexcept
+[[nodiscard]] bool AssetStorage::hasTexture(const sf::base::String& id) noexcept
 {
     return impl().hasTexture(id);
 }
 
-[[nodiscard]] bool AssetStorage::hasFont(const std::string& id) noexcept
+[[nodiscard]] bool AssetStorage::hasFont(const sf::base::String& id) noexcept
 {
     return impl().hasFont(id);
 }
 
-[[nodiscard]] bool AssetStorage::hasSoundBuffer(const std::string& id) noexcept
+[[nodiscard]] bool AssetStorage::hasSoundBuffer(const sf::base::String& id) noexcept
 {
     return impl().hasSoundBuffer(id);
 }

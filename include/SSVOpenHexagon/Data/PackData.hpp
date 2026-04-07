@@ -4,29 +4,29 @@
 
 #pragma once
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
 
 namespace hg
 {
 
 struct PackDependency
 {
-    std::string disambiguator;
-    std::string name;
-    std::string author;
-    int         minVersion;
+    sf::base::String disambiguator;
+    sf::base::String name;
+    sf::base::String author;
+    int              minVersion;
 };
 
 struct PackData
 {
-    std::string                      folderPath;
-    std::string                      id;
-    std::string                      disambiguator;
-    std::string                      name;
-    std::string                      author;
-    std::string                      description;
+    sf::base::String                 folderPath;
+    sf::base::String                 id;
+    sf::base::String                 disambiguator;
+    sf::base::String                 name;
+    sf::base::String                 author;
+    sf::base::String                 description;
     int                              version;
     float                            priority;
     sf::base::Vector<PackDependency> dependencies;

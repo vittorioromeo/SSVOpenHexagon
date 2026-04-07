@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
-
 namespace discord
 {
 class Core;

@@ -10,13 +10,14 @@
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
+#include "SFML/System/IO.hpp"
+
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/Variant.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <sodium.h>
-#include <sstream>
 #include <string>
 
 namespace sf
@@ -94,7 +95,7 @@ template <typename T>
 [[nodiscard]] bool makeClientToServerEncryptedPacket(const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data);
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                          std::ostringstream&          errorOss,
+                                                          sf::OutStringStream&         errorOss,
                                                           sf::Packet&                  p);
 
 // ----------------------------------------------------------------------------
@@ -135,7 +136,7 @@ template <typename T>
 [[nodiscard]] bool makeServerToClientEncryptedPacket(const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data);
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                          std::ostringstream&          errorOss,
+                                                          sf::OutStringStream&         errorOss,
                                                           sf::Packet&                  p);
 
 } // namespace hg

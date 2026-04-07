@@ -4,10 +4,10 @@
 
 #pragma once
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <functional>
-#include <string>
 
 namespace Lua
 {
@@ -35,24 +35,24 @@ namespace hg::LuaScripting
 
 [[nodiscard]] Utils::LuaMetadata& getMetadata();
 
-void init(Lua::LuaContext&                               lua,
-          random_number_generator&                       rng,
-          const bool                                     inMenu,
-          CCustomWallManager&                            cwManager,
-          LevelStatus&                                   levelStatus,
-          HexagonGameStatus&                             hexagonGameStatus,
-          StyleData&                                     styleData,
-          HGAssets&                                      assets,
-          const std::function<void(const std::string&)>& fRunLuaFile,
-          sf::base::Vector<std::string>&                 execScriptPackPathContext,
-          const std::function<const std::string&()>&     fPackPathGetter,
-          const std::function<const PackData&()>&        fGetPackData,
-          const bool                                     headless);
+void init(Lua::LuaContext&                                    lua,
+          random_number_generator&                            rng,
+          const bool                                          inMenu,
+          CCustomWallManager&                                 cwManager,
+          LevelStatus&                                        levelStatus,
+          HexagonGameStatus&                                  hexagonGameStatus,
+          StyleData&                                          styleData,
+          HGAssets&                                           assets,
+          const std::function<void(const sf::base::String&)>& fRunLuaFile,
+          sf::base::Vector<sf::base::String>&                 execScriptPackPathContext,
+          const std::function<const sf::base::String&()>&     fPackPathGetter,
+          const std::function<const PackData&()>&             fGetPackData,
+          const bool                                          headless);
 
 void printDocs();
 
-const sf::base::Vector<std::string>& getAllFunctionNames();
+const sf::base::Vector<sf::base::String>& getAllFunctionNames();
 
-std::string getDocsForFunction(const std::string& fnName);
+sf::base::String getDocsForFunction(const sf::base::String& fnName);
 
 } // namespace hg::LuaScripting

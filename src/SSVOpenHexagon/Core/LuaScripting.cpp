@@ -2,11 +2,13 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
+#include "SSVOpenHexagon/Data/CapColor.hpp"
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
@@ -25,39 +27,47 @@
 #include "SFML/Graphics/Glsl.hpp"
 #include "SFML/Graphics/Shader.hpp"
 
-#include "SFML/Base/ScopeGuard.hpp"
+#include "SFML/System/IO.hpp"
+
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/StringViewStreamOp.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <sstream>
-#include <string>
+#include <SFML/Base/Optional.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vec2Base.hpp>
+#include <functional>
+#include <iostream>
 #include <tuple>
 
 namespace hg::LuaScripting
 {
 
 template <typename F>
-Utils::LuaMetadataProxy addLuaFn(Lua::LuaContext& lua, const std::string& name, F&& f)
+Utils::LuaMetadataProxy addLuaFn(Lua::LuaContext& lua, const sf::base::String& name, F&& f)
 {
     // TODO (P2): does this handle duplicates properly? Both menu and game call
     // the same thing.
 
-    lua.writeVariable(name, SSVOH_FWD(f));
+    lua.writeVariable(name.cStr(), SSVOH_FWD(f));
     return Utils::LuaMetadataProxy{Utils::TypeWrapper<F>{}, getMetadata(), name};
 }
 
 template <typename T>
-auto makeLuaAccessor(Lua::LuaContext& lua, T& obj, const std::string& prefix)
+auto makeLuaAccessor(Lua::LuaContext& lua, T& obj, const sf::base::String& prefix)
 {
     return
-        [&lua, &obj, prefix](const std::string& name, auto pmd, const std::string& getterDesc, const std::string& setterDesc)
+        [&lua,
+         &obj,
+         prefix](const sf::base::String& name, auto pmd, const sf::base::String& getterDesc, const sf::base::String& setterDesc)
     {
         using Type = sf::base::Decay<decltype(obj.*pmd)>;
 
-        const std::string getterString = prefix + "_get" + name;
-        const std::string setterString = prefix + "_set" + name;
+        const sf::base::String getterString = prefix + "_get" + name;
+        const sf::base::String setterString = prefix + "_set" + name;
 
         addLuaFn(lua,
                  getterString, //
@@ -251,7 +261,7 @@ static void initUtils(Lua::LuaContext& lua, const bool inMenu, const bool headle
 
     addLuaFn(lua,
              "u_getVersionString", //
-             []() -> std::string
+             []() -> sf::base::String
     {
         return GAME_VERSION_STR;
     }).doc("Returns the string representing the current version of the game");
@@ -949,7 +959,7 @@ static void initLevelControl(Lua::LuaContext& lua, LevelStatus& levelStatus, Hex
 
     addLuaFn(lua,
              "l_addTracked", //
-             [&levelStatus](const std::string& mVar, const std::string& mName)
+             [&levelStatus](const sf::base::String& mVar, const sf::base::String& mName)
     { levelStatus.trackedVariables[mVar] = mName; })
         .arg("variable")
         .arg("name")
@@ -961,7 +971,7 @@ static void initLevelControl(Lua::LuaContext& lua, LevelStatus& levelStatus, Hex
 
     addLuaFn(lua,
              "l_removeTracked", //
-             [&levelStatus](const std::string& mVar) { levelStatus.trackedVariables.erase(mVar); })
+             [&levelStatus](const sf::base::String& mVar) { levelStatus.trackedVariables.erase(mVar); })
         .arg("variable")
         .doc("Remove the variable `$0` from the list of tracked variables");
 
@@ -1285,26 +1295,26 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
             "style.");
 }
 
-static void initExecScript(Lua::LuaContext&                               lua,
-                           HGAssets&                                      assets,
-                           const std::function<void(const std::string&)>& fRunLuaFile,
-                           sf::base::Vector<std::string>&                 execScriptPackPathContext,
-                           const std::function<const std::string&()>&     fPackPathGetter,
-                           const std::function<const PackData&()>&        fGetPackData)
+static void initExecScript(Lua::LuaContext&                                    lua,
+                           HGAssets&                                           assets,
+                           const std::function<void(const sf::base::String&)>& fRunLuaFile,
+                           sf::base::Vector<sf::base::String>&                 execScriptPackPathContext,
+                           const std::function<const sf::base::String&()>&     fPackPathGetter,
+                           const std::function<const PackData&()>&             fGetPackData)
 {
     addLuaFn(lua,
              "u_execScript", //
-             [fRunLuaFile, &execScriptPackPathContext, fPackPathGetter](const std::string& mScriptName)
+             [fRunLuaFile, &execScriptPackPathContext, fPackPathGetter](const sf::base::String& mScriptName)
     { fRunLuaFile(Utils::getDependentScriptFilename(execScriptPackPathContext, fPackPathGetter(), mScriptName)); })
         .arg("scriptFilename")
         .doc("Execute the script located at `<pack>/Scripts/$0`.");
 
     addLuaFn(lua,
              "u_execDependencyScript", //
-             [fRunLuaFile, &assets, &execScriptPackPathContext, fGetPackData](const std::string& mPackDisambiguator,
-                                                                              const std::string& mPackName,
-                                                                              const std::string& mPackAuthor,
-                                                                              const std::string& mScriptName)
+             [fRunLuaFile, &assets, &execScriptPackPathContext, fGetPackData](const sf::base::String& mPackDisambiguator,
+                                                                              const sf::base::String& mPackName,
+                                                                              const sf::base::String& mPackAuthor,
+                                                                              const sf::base::String& mScriptName)
     {
         Utils::withDependencyScriptFilename(fRunLuaFile,
                                             execScriptPackPathContext,
@@ -1325,20 +1335,21 @@ static void initExecScript(Lua::LuaContext&                               lua,
             "`<dependeePack>/Scripts/$3`.");
 }
 
-static void initShaders(Lua::LuaContext&                           lua,
-                        HGAssets&                                  assets,
-                        sf::base::Vector<std::string>&             execScriptPackPathContext,
-                        const std::function<const std::string&()>& fPackPathGetter,
-                        const std::function<const PackData&()>&    fGetPackData,
-                        HexagonGameStatus&                         hexagonGameStatus,
-                        const bool                                 headless)
+static void initShaders(Lua::LuaContext&                                lua,
+                        HGAssets&                                       assets,
+                        sf::base::Vector<sf::base::String>&             execScriptPackPathContext,
+                        const std::function<const sf::base::String&()>& fPackPathGetter,
+                        const std::function<const PackData&()>&         fGetPackData,
+                        HexagonGameStatus&                              hexagonGameStatus,
+                        const bool                                      headless)
 {
     // ------------------------------------------------------------------------
     // Shader id retrieval
 
     addLuaFn(lua,
              "shdr_getShaderId",
-             [&assets, &execScriptPackPathContext, fPackPathGetter, headless](const std::string& shaderFilename) -> sf::base::SizeT
+             [&assets, &execScriptPackPathContext, fPackPathGetter, headless](
+                 const sf::base::String& shaderFilename) -> sf::base::SizeT
     {
         if (headless)
         {
@@ -1347,7 +1358,9 @@ static void initShaders(Lua::LuaContext&                           lua,
         }
 
         // With format "Packs/<PACK>/Shaders/<SHADER>"
-        const std::string shaderPath = Utils::getDependentShaderFilename(execScriptPackPathContext, fPackPathGetter(), shaderFilename);
+        const sf::base::String shaderPath = Utils::getDependentShaderFilename(execScriptPackPathContext,
+                                                                              fPackPathGetter(),
+                                                                              shaderFilename);
 
         const sf::base::Optional<sf::base::SizeT> id = assets.getShaderIdByPath(shaderPath);
 
@@ -1371,10 +1384,13 @@ static void initShaders(Lua::LuaContext&                           lua,
 
     addLuaFn(lua,
              "shdr_getDependencyShaderId",
-             [&assets, &execScriptPackPathContext, fGetPackData, headless](const std::string& packDisambiguator,
-                                                                           const std::string& packName,
-                                                                           const std::string& packAuthor,
-                                                                           const std::string& shaderFilename) -> sf::base::SizeT
+             [&assets,
+              &execScriptPackPathContext,
+              fGetPackData,
+              headless](const sf::base::String& packDisambiguator,
+                        const sf::base::String& packName,
+                        const sf::base::String& packAuthor,
+                        const sf::base::String& shaderFilename) -> sf::base::SizeT
     {
         if (headless)
         {
@@ -1384,7 +1400,7 @@ static void initShaders(Lua::LuaContext&                           lua,
 
         sf::base::SizeT result = static_cast<sf::base::SizeT>(-1);
 
-        auto setResult = [&assets, &result](const std::string& shaderPath)
+        auto setResult = [&assets, &result](const sf::base::String& shaderPath)
         {
             const sf::base::Optional<sf::base::SizeT> id = assets.getShaderIdByPath(shaderPath);
 
@@ -1473,7 +1489,7 @@ static void initShaders(Lua::LuaContext&                           lua,
 
     addLuaFn(lua,
              "shdr_setUniformF",
-             [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name, const float a)
+             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const float a)
     {
         withValidShaderId("shdr_setUniformF",
                           shaderId,
@@ -1492,7 +1508,7 @@ static void initShaders(Lua::LuaContext&                           lua,
 
     addLuaFn(lua,
              "shdr_setUniformFVec2",
-             [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name, const float a, const float b)
+             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const float a, const float b)
     {
         withValidShaderId("shdr_setUniformFVec2",
                           shaderId,
@@ -1512,7 +1528,7 @@ static void initShaders(Lua::LuaContext&                           lua,
 
     addLuaFn(lua,
              "shdr_setUniformFVec3",
-             [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name, const float a, const float b, const float c)
+             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const float a, const float b, const float c)
     {
         withValidShaderId("shdr_setUniformFVec3",
                           shaderId,
@@ -1533,12 +1549,12 @@ static void initShaders(Lua::LuaContext&                           lua,
 
     addLuaFn(lua,
              "shdr_setUniformFVec4",
-             [withValidShaderId](const sf::base::SizeT shaderId,
-                                 const std::string&    name,
-                                 const float           a,
-                                 const float           b,
-                                 const float           c,
-                                 const float           d)
+             [withValidShaderId](const sf::base::SizeT   shaderId,
+                                 const sf::base::String& name,
+                                 const float             a,
+                                 const float             b,
+                                 const float             c,
+                                 const float             d)
     {
         withValidShaderId("shdr_setUniformFVec4",
                           shaderId,
@@ -1563,7 +1579,7 @@ static void initShaders(Lua::LuaContext&                           lua,
 
     addLuaFn(lua,
              "shdr_setUniformI",
-             [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name, const int a)
+             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const int a)
     {
         withValidShaderId("shdr_setUniformI",
                           shaderId,
@@ -1582,7 +1598,7 @@ static void initShaders(Lua::LuaContext&                           lua,
 
     addLuaFn(lua,
              "shdr_setUniformIVec2",
-             [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name, const int a, const int b)
+             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const int a, const int b)
     {
         withValidShaderId("shdr_setUniformIVec2",
                           shaderId,
@@ -1602,7 +1618,7 @@ static void initShaders(Lua::LuaContext&                           lua,
 
     addLuaFn(lua,
              "shdr_setUniformIVec3",
-             [withValidShaderId](const sf::base::SizeT shaderId, const std::string& name, const int a, const int b, const int c)
+             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const int a, const int b, const int c)
     {
         withValidShaderId("shdr_setUniformIVec3",
                           shaderId,
@@ -1623,12 +1639,12 @@ static void initShaders(Lua::LuaContext&                           lua,
 
     addLuaFn(lua,
              "shdr_setUniformIVec4",
-             [withValidShaderId](const sf::base::SizeT shaderId,
-                                 const std::string&    name,
-                                 const int             a,
-                                 const int             b,
-                                 const int             c,
-                                 const int             d)
+             [withValidShaderId](const sf::base::SizeT   shaderId,
+                                 const sf::base::String& name,
+                                 const int               a,
+                                 const int               b,
+                                 const int               c,
+                                 const int               d)
     {
         withValidShaderId("shdr_setUniformIVec4",
                           shaderId,
@@ -1720,19 +1736,19 @@ static void initConfig(Lua::LuaContext& lua)
     return lm;
 }
 
-void init(Lua::LuaContext&                               lua,
-          random_number_generator&                       rng,
-          const bool                                     inMenu,
-          CCustomWallManager&                            cwManager,
-          LevelStatus&                                   levelStatus,
-          HexagonGameStatus&                             hexagonGameStatus,
-          StyleData&                                     styleData,
-          HGAssets&                                      assets,
-          const std::function<void(const std::string&)>& fRunLuaFile,
-          sf::base::Vector<std::string>&                 execScriptPackPathContext,
-          const std::function<const std::string&()>&     fPackPathGetter,
-          const std::function<const PackData&()>&        fGetPackData,
-          const bool                                     headless)
+void init(Lua::LuaContext&                                    lua,
+          random_number_generator&                            rng,
+          const bool                                          inMenu,
+          CCustomWallManager&                                 cwManager,
+          LevelStatus&                                        levelStatus,
+          HexagonGameStatus&                                  hexagonGameStatus,
+          StyleData&                                          styleData,
+          HGAssets&                                           assets,
+          const std::function<void(const sf::base::String&)>& fRunLuaFile,
+          sf::base::Vector<sf::base::String>&                 execScriptPackPathContext,
+          const std::function<const sf::base::String&()>&     fPackPathGetter,
+          const std::function<const PackData&()>&             fGetPackData,
+          const bool                                          headless)
 {
     initRandom(lua, rng);
     redefineIoOpen(lua);
@@ -1759,25 +1775,30 @@ void printDocs()
     {
         std::cout << '\n' << lm.prefixHeaders[i] << "\n\n";
 
-        lm.forFnEntries([](const std::string& ret, const std::string& name, const std::string& args, const std::string& docs) {
-            std::cout << "* **`" << ret << " " << name << "(" << args << ")`**: " << docs << "\n\n";
-        }, i);
+        lm.forFnEntries([](const sf::base::String& ret,
+                           const sf::base::String& name,
+                           const sf::base::String& args,
+                           const sf::base::String& docs)
+        { std::cout << "* **`" << ret << " " << name << "(" << args << ")`**: " << docs << "\n\n"; },
+                        i);
     }
 }
 
-const sf::base::Vector<std::string>& getAllFunctionNames()
+const sf::base::Vector<sf::base::String>& getAllFunctionNames()
 {
     Utils::LuaMetadata& lm = getMetadata();
 
-    static sf::base::Vector<std::string> result = [&]
+    static sf::base::Vector<sf::base::String> result = [&]
     {
-        sf::base::Vector<std::string> v;
+        sf::base::Vector<sf::base::String> v;
 
         for (sf::base::SizeT i = 0; i < lm.getNumCategories(); ++i)
         {
-            lm.forFnEntries([&](const std::string&, const std::string& name, const std::string&, const std::string&) {
-                v.emplaceBack(name);
-            }, i);
+            lm.forFnEntries([&](const sf::base::String&,
+                                const sf::base::String& name,
+                                const sf::base::String&,
+                                const sf::base::String&) { v.emplaceBack(name); },
+                            i);
         }
 
         return v;
@@ -1786,17 +1807,17 @@ const sf::base::Vector<std::string>& getAllFunctionNames()
     return result;
 }
 
-std::string getDocsForFunction(const std::string& fnName)
+sf::base::String getDocsForFunction(const sf::base::String& fnName)
 {
     Utils::LuaMetadata& lm = getMetadata();
 
-    bool               found = false;
-    std::ostringstream oss;
+    bool                found = false;
+    sf::OutStringStream oss;
 
     for (sf::base::SizeT i = 0; i < lm.getNumCategories(); ++i)
     {
         lm.forFnEntries(
-            [&](const std::string& ret, const std::string& name, const std::string& args, const std::string& docs)
+            [&](const sf::base::String& ret, const sf::base::String& name, const sf::base::String& args, const sf::base::String& docs)
         {
             if (found || name != fnName)
             {
@@ -1815,7 +1836,7 @@ std::string getDocsForFunction(const std::string& fnName)
         return "UNKNOWN FUNCTION";
     }
 
-    return oss.str();
+    return oss.to<sf::base::String>();
 }
 
 } // namespace hg::LuaScripting

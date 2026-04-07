@@ -7,9 +7,9 @@
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 
 #include <sodium.h>
-#include <string>
 
 
 namespace hg
@@ -65,11 +65,11 @@ namespace hg
 
 // ----------------------------------------------------------------------------
 
-[[nodiscard]] std::string sodiumHash(const std::string& in)
+[[nodiscard]] sf::base::String sodiumHash(const sf::base::String& in)
 {
     constexpr sf::base::Array<unsigned char, crypto_generichash_KEYBYTES> key{};
 
-    std::string out;
+    sf::base::String out;
     out.resize(crypto_generichash_BYTES);
 
     crypto_generichash(reinterpret_cast<unsigned char*>(out.data()),

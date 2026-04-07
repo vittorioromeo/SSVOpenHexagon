@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>
+#include "SFML/Base/String.hpp"
+
 
 namespace ssvms
 {
@@ -10,15 +11,18 @@ class Category;
 class ItemBase
 {
 protected:
-    Menu&       menu;
-    Category&   category;
-    std::string name;
-    bool        enabled{true};
-    bool        increasable{false};
-    float       offset{0.f};
+    Menu&            menu;
+    Category&        category;
+    sf::base::String name;
+    bool             enabled{true};
+    bool             increasable{false};
+    float            offset{0.f};
 
 public:
-    ItemBase(Menu& mMenu, Category& mCategory, const std::string& mName) : menu{mMenu}, category{mCategory}, name{mName}
+    ItemBase(Menu& mMenu, Category& mCategory, const sf::base::String& mName) :
+        menu{mMenu},
+        category{mCategory},
+        name{mName}
     {
     }
 
@@ -43,7 +47,7 @@ public:
     {
         return menu;
     }
-    [[nodiscard]] virtual std::string getName() const
+    [[nodiscard]] virtual sf::base::String getName() const
     {
         return name;
     }

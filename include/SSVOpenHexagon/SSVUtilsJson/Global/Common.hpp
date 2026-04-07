@@ -6,7 +6,7 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/JsonCpp.hpp"
 
-#include <string>
+#include "SFML/Base/String.hpp"
 
 namespace ssvuj
 {
@@ -15,7 +15,7 @@ template <typename T>
 struct Converter;
 
 using Obj           = Json::Value;
-using Key           = std::string;
+using Key           = sf::base::String;
 using Idx           = unsigned int;
 using Writer        = Json::StyledStreamWriter;
 using Reader        = Json::Reader;

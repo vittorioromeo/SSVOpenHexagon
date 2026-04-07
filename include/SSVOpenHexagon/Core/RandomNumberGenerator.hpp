@@ -8,7 +8,10 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include <SSVUtils/Internal/PCG/PCG.hpp>
+#include <SSVUtils/Internal/PCG/pcg_random.hpp>
 #include <random>
+
+#include <cstdint>
 
 namespace hg
 {
@@ -16,13 +19,12 @@ namespace hg
 class random_number_generator
 {
 public:
-    using engine_type = pcg32_fast;
-    using seed_type   = random_number_generator_seed_type;
-    using state_type  = engine_type::state_type;
+    using seed_type  = random_number_generator_seed_type;
+    using state_type = std::uint64_t;
 
 private:
-    seed_type   _seed;
-    engine_type _rng;
+    seed_type  _seed;
+    pcg32_fast _rng;
 
 public:
     explicit random_number_generator(const seed_type seed) noexcept;

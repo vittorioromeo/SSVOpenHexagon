@@ -18,6 +18,8 @@
 #include "SFML/Graphics/Shader.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
 
 #include <SSVUtils/Core/String/ToStr.hpp>
 #include <SSVUtils/Core/Utils/Rnd.hpp>
@@ -25,9 +27,9 @@
 namespace hg
 {
 
-[[nodiscard]] static std::string formatTime(const double x)
+[[nodiscard]] static sf::base::String formatTime(const double x)
 {
-    return ssvu::toStr(std::floor(x * 1000) / 1000.f);
+    return sf::base::String(ssvu::toStr(std::floor(x * 1000) / 1000.f));
 }
 
 static void setVisualCharacterSize(sf::Text& text, const float characterSize)
@@ -451,7 +453,7 @@ void HexagonGame::updateText(float mFT)
     }
 
     // ------------------------------------------------------------------------
-    os.str("");
+    os.setStr("");
 
     if (debugPause)
     {
@@ -517,12 +519,12 @@ void HexagonGame::updateText(float mFT)
             os << '\n';
             for (const auto& [variableName, display] : trackedVariables)
             {
-                if (!lua.doesVariableExist(variableName))
+                if (!lua.doesVariableExist(variableName.cStr()))
                 {
                     continue;
                 }
 
-                const std::string value{lua.readVariable<std::string>(variableName)};
+                const sf::base::String value{lua.readVariable<sf::base::String>(variableName.cStr())};
 
                 os << Utils::toUppercase(display) << ": " << Utils::toUppercase(value) << '\n';
             }
@@ -552,7 +554,7 @@ void HexagonGame::updateText(float mFT)
     else
     {
         // Alternative scoring
-        textUI->timeText.setString(lua.readVariable<std::string>(levelStatus.scoreOverride));
+        textUI->timeText.setString(lua.readVariable<sf::base::String>(levelStatus.scoreOverride.cStr()));
     }
 
     const auto getScaledCharacterSize = [&](const float size)
@@ -561,7 +563,7 @@ void HexagonGame::updateText(float mFT)
     setVisualCharacterSize(textUI->timeText, getScaledCharacterSize(70.f));
 
     // Set information text
-    textUI->text.setString(os.str());
+    textUI->text.setString(os.to<sf::base::String>());
     setVisualCharacterSize(textUI->text, getScaledCharacterSize(20.f));
     textUI->text.origin = {0.f, 0.f};
 
@@ -585,7 +587,7 @@ void HexagonGame::updateText(float mFT)
     {
         const replay_file& rf = activeReplay->replayFile;
 
-        os.str("");
+        os.setStr("");
 
         if (!levelStatus.scoreOverridden)
         {
@@ -601,7 +603,7 @@ void HexagonGame::updateText(float mFT)
         os.flush();
 
         setVisualCharacterSize(textUI->replayText, getScaledCharacterSize(16.f));
-        textUI->replayText.setString(os.str());
+        textUI->replayText.setString(os.to<sf::base::String>());
     }
     else
     {

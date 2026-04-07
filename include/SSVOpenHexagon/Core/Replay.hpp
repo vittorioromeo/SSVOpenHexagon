@@ -9,11 +9,11 @@
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <bitset>
 #include <filesystem>
-#include <string>
 
 #include <cstring>
 
@@ -112,16 +112,16 @@ struct replay_file
 {
     using seed_type = random_number_generator_seed_type;
 
-    sf::base::U32 _version;         // Replay format version.
-    std::string   _player_name;     // Name of the player.
-    seed_type     _seed;            // RNG seed for the session.
-    replay_data   _data;            // Input data.
-    std::string   _pack_id;         // Id of the selected pack.
-    std::string   _level_id;        // Id of the played level.
-    bool          _first_play;      // If this was achieved on first level play.
-    float         _difficulty_mult; // Played difficulty multiplier.
-    double        _played_score;    // Played score (This can be an overridden score or
-                                    // frametime, excluding pauses).
+    sf::base::U32    _version;         // Replay format version.
+    sf::base::String _player_name;     // Name of the player.
+    seed_type        _seed;            // RNG seed for the session.
+    replay_data      _data;            // Input data.
+    sf::base::String _pack_id;         // Id of the selected pack.
+    sf::base::String _level_id;        // Id of the played level.
+    bool             _first_play;      // If this was achieved on first level play.
+    float            _difficulty_mult; // Played difficulty multiplier.
+    double           _played_score;    // Played score (This can be an overridden score or
+                                       // frametime, excluding pauses).
 
     [[nodiscard]] bool operator==(const replay_file& rhs) const noexcept;
     [[nodiscard]] bool operator!=(const replay_file& rhs) const noexcept;
@@ -140,7 +140,7 @@ struct replay_file
     [[nodiscard]] bool serialize_to_packet(sf::Packet& p) const;
     [[nodiscard]] bool deserialize_from_packet(sf::Packet& p);
 
-    [[nodiscard]] std::string create_filename() const;
+    [[nodiscard]] sf::base::String create_filename() const;
 
     [[nodiscard]] double played_seconds() const noexcept;
 };

@@ -6,12 +6,13 @@
 
 #include "TestUtils.hpp"
 
-#include <string>
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/Vector.hpp"
 
-void testSplit(const std::string& s, const sf::base::Vector<std::string>& expected)
+void testSplit(const sf::base::String& s, const sf::base::Vector<sf::base::String>& expected)
 {
-    const sf::base::Vector<std::string> splitted = hg::Utils::split<std::string>(s);
+    const sf::base::Vector<sf::base::String> splitted = hg::Utils::split<sf::base::String>(s);
 
     TEST_ASSERT_EQ(splitted.size(), expected.size());
     for(sf::base::SizeT i = 0; i < expected.size(); ++i)

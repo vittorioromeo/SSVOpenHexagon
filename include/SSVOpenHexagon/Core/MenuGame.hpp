@@ -28,12 +28,12 @@
 
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 #include <functional>
-#include <string>
 #include <string_view>
 #include <utility>
 
@@ -87,7 +87,7 @@ public:
     // Hexagon game callbacks (to avoid physical dependency)
     std::function<void(const ssvs::Input::Trigger&, int)> fnHGTriggerRefresh;
 
-    std::function<void(const std::string&, const std::string&, bool, float, bool)> fnHGNewGame;
+    std::function<void(const sf::base::String&, const sf::base::String&, bool, float, bool)> fnHGNewGame;
 
     std::function<void()> fnHGUpdateRichPresenceCallbacks;
 
@@ -166,9 +166,9 @@ private:
     HexagonDialogBox                      dialogBox;
     sf::base::UniquePtr<LeaderboardCache> leaderboardCache;
 
-    Lua::LuaContext               lua;
-    sf::base::Vector<std::string> execScriptPackPathContext;
-    const PackData*               currentPack;
+    Lua::LuaContext                    lua;
+    sf::base::Vector<sf::base::String> execScriptPackPathContext;
+    const PackData*                    currentPack;
 
     //---------------------------------------
     // Initialization
@@ -334,7 +334,7 @@ private:
     bool                    mouseCursorVisible{true};
     sf::Vec2i               lastMouseMovedPosition{};
 
-    std::string strBuf;
+    sf::base::String strBuf;
 
     void playSelectedLevel();
 
@@ -401,9 +401,9 @@ private:
     void drawOptionsSubmenus(ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset);
 
     // Profiles Menu
-    std::string formatSurvivalTime(ProfileData* data);
-    void        drawProfileSelection(const float xOffset, const bool revertOffset);
-    void        drawProfileSelectionBoot();
+    sf::base::String formatSurvivalTime(ProfileData* data);
+    void             drawProfileSelection(const float xOffset, const bool revertOffset);
+    void             drawProfileSelectionBoot();
 
     // Entering text menu
     float enteringTextOffset;
@@ -436,7 +436,7 @@ private:
         int currentIndex{0};
 
         // Pointer to avoid heavy copy loads.
-        const sf::base::Vector<std::string>* levelDataIds;
+        const sf::base::Vector<sf::base::String>* levelDataIds;
 
         float                   XOffset{0.f};   // to make the menu slide in/out
         float                   YOffset{0.f};   // to scroll up and down the menu
@@ -446,30 +446,30 @@ private:
         bool isFavorites{false};
     };
 
-    bool                          isLevelFavorite;
-    sf::base::Vector<std::string> favoriteLevelDataIds;
-    LevelDrawer                   lvlSlct;
-    LevelDrawer                   favSlct;
-    LevelDrawer*                  lvlDrawer;
+    bool                               isLevelFavorite;
+    sf::base::Vector<sf::base::String> favoriteLevelDataIds;
+    LevelDrawer                        lvlSlct;
+    LevelDrawer                        favSlct;
+    LevelDrawer*                       lvlDrawer;
 
     void                          changeFavoriteLevelsToProfile();
     [[nodiscard]] bool            isFavoriteLevels() const;
     [[nodiscard]] sf::base::SizeT getSelectablePackInfosSize() const;
     [[nodiscard]] const PackInfo& getNthSelectablePackInfo(const sf::base::SizeT i);
 
-    int                           diffMultIdx{0};
-    bool                          firstLevelSelection{true};
-    PackChange                    packChangeState{PackChange::Rest};
-    float                         namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
-    sf::base::Vector<std::string> levelDescription;
-    float                         textToQuadBorder{0.f};
-    float                         slctFrameSize{0.f};
-    float                         packLabelHeight{0.f};
-    float                         levelLabelHeight{0.f};
-    float                         packChangeOffset{0.f}; // level list yOffset when being fold
-    float                         levelDetailsOffset{0.f};
-    static inline constexpr float baseScrollSpeed{30.f};
-    float                         scrollSpeed{baseScrollSpeed};
+    int                                diffMultIdx{0};
+    bool                               firstLevelSelection{true};
+    PackChange                         packChangeState{PackChange::Rest};
+    float                              namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
+    sf::base::Vector<sf::base::String> levelDescription;
+    float                              textToQuadBorder{0.f};
+    float                              slctFrameSize{0.f};
+    float                              packLabelHeight{0.f};
+    float                              levelLabelHeight{0.f};
+    float                              packChangeOffset{0.f}; // level list yOffset when being fold
+    float                              levelDetailsOffset{0.f};
+    static inline constexpr float      baseScrollSpeed{30.f};
+    float                              scrollSpeed{baseScrollSpeed};
 
     // Login at startup
     bool mustShowLoginAtStartup{true};
@@ -508,11 +508,11 @@ private:
     void checkWindowBottomScroll(const float scroll, std::function<void(const float)> action);
     bool checkWindowBottomScrollWithResult(const float scroll, std::function<void(const float)> action);
 
-    void scrollName(std::string& text, float& scroller);
+    void scrollName(sf::base::String& text, float& scroller);
 
-    void scrollNameRightBorder(std::string& text, const std::string key, sf::Text& font, float& scroller, float border);
+    void scrollNameRightBorder(sf::base::String& text, const sf::base::String key, sf::Text& font, float& scroller, float border);
 
-    void scrollNameRightBorder(std::string& text, sf::Text& font, float& scroller, const float border);
+    void scrollNameRightBorder(sf::base::String& text, sf::Text& font, float& scroller, const float border);
 
     void resetNamesScrolls();
 
@@ -527,51 +527,51 @@ private:
     void drawLevelSelectionLeftSide(LevelDrawer& drawer, const bool revertOffset);
 
     // Text rendering
-    void renderText(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos);
+    void renderText(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos);
 
-    void renderText(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor);
+    void renderText(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor);
 
-    void renderText(const std::string& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos);
+    void renderText(const sf::base::String& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos);
 
-    void renderText(const std::string& mStr,
-                    sf::Text&          mText,
-                    const unsigned int mSize,
-                    const sf::Vec2f    mPos,
-                    const sf::Color&   mColor);
+    void renderText(const sf::base::String& mStr,
+                    sf::Text&               mText,
+                    const unsigned int      mSize,
+                    const sf::Vec2f         mPos,
+                    const sf::Color&        mColor);
 
     // Text rendering centered
-    void renderTextCentered(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos);
+    void renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos);
 
-    void renderTextCentered(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor);
+    void renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor);
 
-    void renderTextCentered(const std::string& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos);
+    void renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos);
 
-    void renderTextCentered(const std::string& mStr,
-                            sf::Text&          mText,
-                            const unsigned int mSize,
-                            const sf::Vec2f    mPos,
-                            const sf::Color&   mColor);
+    void renderTextCentered(const sf::base::String& mStr,
+                            sf::Text&               mText,
+                            const unsigned int      mSize,
+                            const sf::Vec2f         mPos,
+                            const sf::Color&        mColor);
 
     // Text rendering centered with an offset
-    void renderTextCenteredOffset(const std::string& mStr, sf::Text& mText, const sf::Vec2f mPos, const float xOffset);
+    void renderTextCenteredOffset(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const float xOffset);
 
-    void renderTextCenteredOffset(const std::string& mStr,
-                                  sf::Text&          mText,
-                                  const sf::Vec2f    mPos,
-                                  const float        xOffset,
-                                  const sf::Color&   mColor);
+    void renderTextCenteredOffset(const sf::base::String& mStr,
+                                  sf::Text&               mText,
+                                  const sf::Vec2f         mPos,
+                                  const float             xOffset,
+                                  const sf::Color&        mColor);
 
     //---------------------------------------
     // Misc / Unused
 
-    std::string scoresMessage;
-    float       exitTimer{0}, currentCreditsId{0};
-    bool        mustTakeScreenshot{false};
-    std::string currentLeaderboard, enteredStr, leaderboardString;
+    sf::base::String scoresMessage;
+    float            exitTimer{0}, currentCreditsId{0};
+    bool             mustTakeScreenshot{false};
+    sf::base::String currentLeaderboard, enteredStr, leaderboardString;
 
-    void runLuaFile(const std::string& mFileName);
+    void runLuaFile(const sf::base::String& mFileName);
     void changeResolutionTo(unsigned int mWidth, unsigned int mHeight);
-    void playSoundOverride(const std::string& assetId);
+    void playSoundOverride(const sf::base::String& assetId);
 
     [[nodiscard]] float getWindowWidth() const noexcept;
 
@@ -596,20 +596,22 @@ private:
 
     DialogInputState dialogInputState{DialogInputState::Nothing};
 
-    std::string registrationUsername;
-    std::string registrationPassword;
-    std::string registrationPasswordConfirm;
-    std::string loginUsername;
-    std::string loginPassword;
-    std::string deleteAccountPassword;
+    sf::base::String registrationUsername;
+    sf::base::String registrationPassword;
+    sf::base::String registrationPasswordConfirm;
+    sf::base::String loginUsername;
+    sf::base::String loginPassword;
+    sf::base::String deleteAccountPassword;
 
-    void showDialogBox(const std::string& msg);
-    void showInputDialogBox(const std::string& msg);
-    void showInputDialogBoxNice(const std::string& title, const std::string& inputType, const std::string& extra = "");
-    void showInputDialogBoxNiceWithDefault(const std::string& title,
-                                           const std::string& inputType,
-                                           const std::string& def,
-                                           const std::string& extra = "");
+    void showDialogBox(const sf::base::String& msg);
+    void showInputDialogBox(const sf::base::String& msg);
+    void showInputDialogBoxNice(const sf::base::String& title,
+                                const sf::base::String& inputType,
+                                const sf::base::String& extra = "");
+    void showInputDialogBoxNiceWithDefault(const sf::base::String& title,
+                                           const sf::base::String& inputType,
+                                           const sf::base::String& def,
+                                           const sf::base::String& extra = "");
 
 public:
     MenuGame(Steam::steam_manager&     mSteamManager,
@@ -622,9 +624,9 @@ public:
     ~MenuGame();
 
     void init(bool mErrored);
-    void init(bool mErrored, const std::string& pack, const std::string& level);
+    void init(bool mErrored, const sf::base::String& pack, const sf::base::String& level);
 
-    bool loadCommandLineLevel(const std::string& pack, const std::string& level);
+    bool loadCommandLineLevel(const sf::base::String& pack, const sf::base::String& level);
 
     [[nodiscard]] ssvs::GameState& getGame() noexcept;
 

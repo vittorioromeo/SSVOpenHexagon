@@ -12,11 +12,11 @@
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
 #include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
-#include <string>
 
 namespace hg
 {
@@ -112,9 +112,9 @@ void KeyboardBindControl::applyBind(const sf::Keyboard::Key key, const sf::Mouse
     waitingForBind = false;
 }
 
-[[nodiscard]] std::string KeyboardBindControl::getName() const
+[[nodiscard]] sf::base::String KeyboardBindControl::getName() const
 {
-    std::string bindNames = Config::getKeyboardBindNames(static_cast<Config::Tid>(ID));
+    sf::base::String bindNames = Config::getKeyboardBindNames(static_cast<Config::Tid>(ID));
 
     if (waitingForBind)
     {
@@ -166,9 +166,9 @@ void JoystickBindControl::newJoystickBind(const unsigned int joy)
     waitingForBind = false;
 }
 
-[[nodiscard]] std::string JoystickBindControl::getName() const
+[[nodiscard]] sf::base::String JoystickBindControl::getName() const
 {
-    std::string bindName = Config::getJoystickBindName(static_cast<Joystick::Jid>(ID));
+    sf::base::String bindName = Config::getJoystickBindName(static_cast<Joystick::Jid>(ID));
 
     if (waitingForBind)
     {
