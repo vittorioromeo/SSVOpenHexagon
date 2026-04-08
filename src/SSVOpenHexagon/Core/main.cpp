@@ -325,7 +325,7 @@ struct ParsedArgs
                     return;
                 }
 
-                window->getRenderWindow().setIcon({icon->getSize().x, icon->getSize().y}, icon->getPixelsPtr());
+                window->getRenderWindow().setIcon(icon->getPixelsPtr(), icon->getSize());
             };
 
             window->onRecreation += resetIcon;

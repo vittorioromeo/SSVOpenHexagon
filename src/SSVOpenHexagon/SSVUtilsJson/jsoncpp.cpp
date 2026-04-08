@@ -59,7 +59,7 @@ enum
     uintToStringBufferSize = 3 * sizeof(LargestUInt) + 1
 };
 typedef char UIntToStringBuffer[uintToStringBufferSize];
-void  uintToString(LargestUInt value, char*& current)
+void         uintToString(LargestUInt value, char*& current)
 {
     *--current = 0;
     do
@@ -835,9 +835,7 @@ private:
 ValueIteratorBase::ValueIteratorBase() : current_(), isNull_(true)
 {
 }
-ValueIteratorBase::ValueIteratorBase(const Value::ObjectValues::iterator& current) :
-    current_(current),
-    isNull_(false)
+ValueIteratorBase::ValueIteratorBase(const Value::ObjectValues::iterator& current) : current_(current), isNull_(false)
 {
 }
 
@@ -1863,11 +1861,11 @@ PathArgument::PathArgument(const std::string& key) : key_(key.c_str()), index_()
 {
 }
 Path::Path(const std::string&  path,
-                  const PathArgument& a1,
-                  const PathArgument& a2,
-                  const PathArgument& a3,
-                  const PathArgument& a4,
-                  const PathArgument& a5)
+           const PathArgument& a1,
+           const PathArgument& a2,
+           const PathArgument& a3,
+           const PathArgument& a4,
+           const PathArgument& a5)
 {
     InArgs in;
     in.emplaceBack(&a1);

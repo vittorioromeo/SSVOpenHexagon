@@ -17,6 +17,8 @@
 #include "SFML/Base/PlacementNew.hpp"
 #include "SFML/Base/SizeT.hpp"
 
+#include <SFML/System/Vec2Base.hpp>
+
 #include <cstring>
 
 namespace hg::Utils

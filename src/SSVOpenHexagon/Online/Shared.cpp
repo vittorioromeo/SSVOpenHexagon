@@ -343,7 +343,7 @@ class AdvancedMatcher
 {
 private:
     sf::OutStringStream& _errorOss;
-    sf::Packet&         _p;
+    sf::Packet&          _p;
 
 public:
     [[nodiscard]] explicit AdvancedMatcher(sf::OutStringStream& errorOss, sf::Packet& p) : _errorOss{errorOss}, _p{p}
@@ -573,7 +573,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
     }
 }
 
-[[nodiscard]] bool decryptPacket(sf::OutStringStream&          errorOss,
+[[nodiscard]] bool decryptPacket(sf::OutStringStream&         errorOss,
                                  sf::Packet&                  p,
                                  const SodiumReceiveKeyArray& keyReceive,
                                  sf::Packet&                  decryptedPacket)
@@ -695,20 +695,20 @@ SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS_ENCRYPTED, NOTHING)
 
 // ----------------------------------------------------------------------------
 
-#define HANDLE_PACKET(type)                                            \
-    do                                                                 \
-    {                                                                  \
-        if (*pt == getPacketType<type>())                              \
-        {                                                              \
-            type result;                                               \
-                                                                       \
-            if (!extractAllMembers(result))                            \
-            {                                                          \
+#define HANDLE_PACKET(type)                                                  \
+    do                                                                       \
+    {                                                                        \
+        if (*pt == getPacketType<type>())                                    \
+        {                                                                    \
+            type result;                                                     \
+                                                                             \
+            if (!extractAllMembers(result))                                  \
+            {                                                                \
                 return VariantType{PInvalid{.error = errorOss.getString()}}; \
-            }                                                          \
-                                                                       \
-            return VariantType{result};                                \
-        }                                                              \
+            }                                                                \
+                                                                             \
+            return VariantType{result};                                      \
+        }                                                                    \
     } while (false)
 
 #define INJECT_COMMON_PACKET_HANDLING_CODE(function)                          \
@@ -716,14 +716,14 @@ SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS_ENCRYPTED, NOTHING)
                                                                               \
     if (!pt.hasValue())                                                       \
     {                                                                         \
-        return VariantType{PInvalid{.error = errorOss.getString()}};                \
+        return VariantType{PInvalid{.error = errorOss.getString()}};          \
     }                                                                         \
                                                                               \
     if (*pt == getPacketType<PEncryptedMsg>())                                \
     {                                                                         \
         if (!decodeEncryptedPacket(keyReceive, errorOss, p))                  \
         {                                                                     \
-            return VariantType{PInvalid{.error = errorOss.getString()}};            \
+            return VariantType{PInvalid{.error = errorOss.getString()}};      \
         }                                                                     \
                                                                               \
         return function(keyReceive, errorOss, getStaticPacketBuffer());       \
@@ -760,7 +760,7 @@ static auto makeExtractAllMembers(sf::OutStringStream& errorOss, sf::Packet& p)
 }
 
 [[nodiscard]] static bool decodeEncryptedPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                sf::OutStringStream&          errorOss,
+                                                sf::OutStringStream&         errorOss,
                                                 sf::Packet&                  p)
 {
     if (keyReceive == nullptr)
@@ -834,14 +834,14 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::OutSt
 // ----------------------------------------------------------------------------
 
 [[nodiscard]] static PVClientToServer decodeClientToServerPacketInner(const SodiumReceiveKeyArray* keyReceive,
-                                                                      sf::OutStringStream&          errorOss,
+                                                                      sf::OutStringStream&         errorOss,
                                                                       sf::Packet&                  p)
 {
     return packetHandlerImpl<PVClientToServer, SSVOH_CTS_PACKETS>(keyReceive, errorOss, p, decodeClientToServerPacketInner);
 }
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                          sf::OutStringStream&          errorOss,
+                                                          sf::OutStringStream&         errorOss,
                                                           sf::Packet&                  p)
 {
     if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(errorOss, p))
@@ -883,14 +883,14 @@ SSVOH_STC_PACKETS_X(INSTANTIATE_MAKE_STC_ENCRYPTED, NOTHING)
 // ----------------------------------------------------------------------------
 
 [[nodiscard]] static PVServerToClient decodeServerToClientPacketInner(const SodiumReceiveKeyArray* keyReceive,
-                                                                      sf::OutStringStream&          errorOss,
+                                                                      sf::OutStringStream&         errorOss,
                                                                       sf::Packet&                  p)
 {
     return packetHandlerImpl<PVServerToClient, SSVOH_STC_PACKETS>(keyReceive, errorOss, p, decodeServerToClientPacketInner);
 }
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                          sf::OutStringStream&          errorOss,
+                                                          sf::OutStringStream&         errorOss,
                                                           sf::Packet&                  p)
 {
     if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(errorOss, p))
