@@ -7,6 +7,8 @@
 #include "SSVOpenHexagon/Input/Combo.hpp"
 #include "SSVOpenHexagon/Input/Manager.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
+#include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
+#include "SSVOpenHexagon/MenuSystem/Menu/Menu.hpp"
 
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
@@ -14,10 +16,6 @@
 #include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
-#include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
-#include <functional>
 
 namespace hg
 {
@@ -43,10 +41,10 @@ class KeyboardBindControl final : public BindControlBase
 {
 private:
     using Trigger       = ssvs::Input::Trigger;
-    using TriggerGetter = std::function<ssvs::Input::Trigger()>;
-    using SizeGetter    = std::function<int()>;
-    using AddBind       = std::function<void(const sf::Keyboard::Key, const sf::Mouse::Button)>;
-    using Callback      = std::function<void(const ssvs::Input::Trigger&, const int)>;
+    using TriggerGetter = sf::base::FixedFunction<ssvs::Input::Trigger&(), 64>;
+    using SizeGetter    = sf::base::FixedFunction<int(), 64>;
+    using AddBind       = sf::base::FixedFunction<void(const sf::Keyboard::Key, const sf::Mouse::Button), 64>;
+    using Callback      = sf::base::FixedFunction<void(const ssvs::Input::Trigger&, const int), 64>;
 
     TriggerGetter                       triggerGetter;
     SizeGetter                          sizeGetter;
@@ -109,9 +107,9 @@ public:
 class JoystickBindControl final : public BindControlBase
 {
 private:
-    using ValueGetter = std::function<unsigned int()>;
-    using ValueSetter = std::function<void(const unsigned int)>;
-    using Callback    = std::function<void(const unsigned int, const int)>;
+    using ValueGetter = sf::base::FixedFunction<unsigned int(), 64>;
+    using ValueSetter = sf::base::FixedFunction<void(const unsigned int), 64>;
+    using Callback    = sf::base::FixedFunction<void(const unsigned int, const int), 64>;
 
     ValueGetter valueGetter;
     ValueSetter setButton;

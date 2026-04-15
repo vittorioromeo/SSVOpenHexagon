@@ -32,13 +32,12 @@
 #include "SFML/System/IO.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/MiniPFR.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
-
-#include <boost/pfr.hpp>
 
 #include <iostream>
 #include <stdexcept>
@@ -821,12 +820,12 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
     stream << "Received '" << title << "' packet from client '" << clientAddr << "', contents: {";
 
-    constexpr sf::base::SizeT nFields = boost::pfr::tuple_size_v<T>;
+    constexpr sf::base::SizeT nFields = sf::base::minipfr::numFields<T>;
     if constexpr (nFields > 0)
     {
         sf::base::SizeT i = 0;
-        boost::pfr::for_each_field(ctsp,
-                                   [&](const auto& field)
+        sf::base::minipfr::forEachField(ctsp,
+                                        [&](const auto& field)
         {
             stream << stringify(field);
 

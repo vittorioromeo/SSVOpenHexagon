@@ -38,21 +38,23 @@
 
 #include "SFML/ImGui/ImGuiContext.hpp"
 
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/Text.hpp"
+#include "SFML/Graphics/View.hpp"
+
+#include "SFML/Window/Keyboard.hpp"
 
 #include "SFML/System/Angle.hpp"
+#include "SFML/System/Path.hpp"
 #include "SFML/System/Rect2.hpp"
 #include "SFML/System/Vec2.hpp"
 
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
+#include "SFML/Base/UniquePtr.hpp"
 
-#include <SFML/Base/UniquePtr.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/Window/Keyboard.hpp>
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
@@ -1127,7 +1129,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     }
 
     std::filesystem::create_directories(dirPath.cStr());
-    std::filesystem::path p;
+    sf::Path p;
     p /= dirPath.cStr();
     p /= filename.cStr();
 

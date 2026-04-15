@@ -24,11 +24,14 @@
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Glsl.hpp"
 #include "SFML/Graphics/Shader.hpp"
 
 #include "SFML/System/IO.hpp"
+#include "SFML/System/Priv/Vec2Base.hpp"
 
+#include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringStreamOp.hpp"
@@ -36,9 +39,6 @@
 #include "SFML/Base/Trait/Decay.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/System/Vec2Base.hpp>
 #include <functional>
 #include <iostream>
 #include <tuple>

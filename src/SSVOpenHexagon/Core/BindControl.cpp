@@ -8,15 +8,14 @@
 #include "SSVOpenHexagon/Input/Combo.hpp"
 #include "SSVOpenHexagon/Input/Manager.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
+#include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
+#include "SSVOpenHexagon/MenuSystem/Menu/Menu.hpp"
 
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp>
-#include <SSVOpenHexagon/MenuSystem/Menu/Menu.hpp>
 
 namespace hg
 {

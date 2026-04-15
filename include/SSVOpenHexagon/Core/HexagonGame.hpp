@@ -38,13 +38,13 @@
 #include "SFML/System/IO.hpp"
 #include "SFML/System/Vec2.hpp"
 
+#include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SFML/Base/UniquePtr.hpp>
-#include <functional>
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -318,7 +318,7 @@ private:
 public:
     // ------------------------------------------------------------------------
     // Testing-related utilities
-    std::function<void(const replay_file&)> onDeathReplayCreated;
+    sf::base::FixedFunction<void(const replay_file&), 64> onDeathReplayCreated;
 
     void setMustStart(const bool x);
 
@@ -466,7 +466,7 @@ private:
     Utils::FastVertexVectorTris playerTris3D;
 
 public:
-    std::function<void(const bool)> fnGoToMenu;
+    sf::base::FixedFunction<void(const bool), 64> fnGoToMenu;
 
     HexagonGame(Steam::steam_manager*     mSteamManager,
                 Discord::discord_manager* mDiscordManager,

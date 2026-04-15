@@ -10,6 +10,8 @@
 
 #include "SFML/Network/Packet.hpp"
 
+#include "SFML/System/Path.hpp"
+
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/String.hpp"
 
@@ -311,7 +313,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
     return buf;
 }
 
-[[nodiscard]] bool replay_file::serialize_to_file(const std::filesystem::path& p) const
+[[nodiscard]] bool replay_file::serialize_to_file(const sf::Path& p) const
 {
     std::byte* buf = get_static_buf();
 
@@ -321,16 +323,16 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
         return false;
     }
 
-    std::ofstream os(p, std::ios::binary | std::ios::out);
+    std::ofstream os(p.c_str(), std::ios::binary | std::ios::out);
     os.write(reinterpret_cast<const char*>(buf), sr.written_bytes());
     os.flush();
 
     return static_cast<bool>(os);
 }
 
-[[nodiscard]] bool replay_file::deserialize_from_file(const std::filesystem::path& p)
+[[nodiscard]] bool replay_file::deserialize_from_file(const sf::Path& p)
 {
-    std::ifstream is(p, std::ios::binary | std::ios::in);
+    std::ifstream is(p.c_str(), std::ios::binary | std::ios::in);
     if (!static_cast<bool>(is))
     {
         std::cerr << "Couldn't open replay path '" << p << "'\n";
@@ -421,18 +423,18 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
     return _played_score / 60.0;
 }
 
-[[nodiscard]] bool compressed_replay_file::serialize_to_file(const std::filesystem::path& p) const
+[[nodiscard]] bool compressed_replay_file::serialize_to_file(const sf::Path& p) const
 {
-    std::ofstream os(p, std::ios::binary | std::ios::out);
+    std::ofstream os(p.c_str(), std::ios::binary | std::ios::out);
     os.write(_data.data(), _data.size());
     os.flush();
 
     return static_cast<bool>(os);
 }
 
-[[nodiscard]] bool compressed_replay_file::deserialize_from_file(const std::filesystem::path& p)
+[[nodiscard]] bool compressed_replay_file::deserialize_from_file(const sf::Path& p)
 {
-    std::ifstream is(p, std::ios::binary | std::ios::in);
+    std::ifstream is(p.c_str(), std::ios::binary | std::ios::in);
     if (!static_cast<bool>(is))
     {
         std::cerr << "Couldn't open compressed replay path '" << p << "'\n";

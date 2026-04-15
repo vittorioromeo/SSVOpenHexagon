@@ -152,7 +152,7 @@ public:
 
     bool update_hardcoded_achievements();
 
-    void for_workshop_pack_folders(const std::function<void(const sf::base::String&)>& f) const;
+    void for_workshop_pack_folders(sf::base::FixedFunction<void(const sf::base::String&), 64> f) const;
 
     bool request_encrypted_app_ticket();
 
@@ -625,7 +625,8 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
     return failures == 0;
 }
 
-void steam_manager::steam_manager_impl::for_workshop_pack_folders(const std::function<void(const sf::base::String&)>& f) const
+void steam_manager::steam_manager_impl::for_workshop_pack_folders(
+    sf::base::FixedFunction<void(const sf::base::String&), 64> f) const
 {
     if (!_initialized)
     {
@@ -877,7 +878,7 @@ bool steam_manager::update_hardcoded_achievements()
     return impl().update_hardcoded_achievements();
 }
 
-void steam_manager::for_workshop_pack_folders(const std::function<void(const sf::base::String&)>& f) const
+void steam_manager::for_workshop_pack_folders(sf::base::FixedFunction<void(const sf::base::String&), 64> f) const
 {
     return impl().for_workshop_pack_folders(f);
 }
@@ -976,7 +977,7 @@ bool steam_manager::update_hardcoded_achievements()
     return false;
 }
 
-void steam_manager::for_workshop_pack_folders([[maybe_unused]] const std::function<void(const sf::base::String&)>& f) const
+void steam_manager::for_workshop_pack_folders([[maybe_unused]] sf::base::FixedFunction<void(const sf::base::String&), 64> f) const
 {
 }
 

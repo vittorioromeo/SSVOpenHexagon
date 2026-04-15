@@ -2,26 +2,29 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
+#include "sodium/crypto_secretbox.h"
 
 #include "SFML/Network/Packet.hpp"
 
 #include "SFML/System/IO.hpp"
 
+#include "SFML/Base/Array.hpp"
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/MiniPFR.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
 #include "SFML/Base/TypePackIndex.hpp"
 #include "SFML/Base/Variant.hpp"
+#include "SFML/Base/Vector.hpp"
 
-#include <boost/pfr.hpp>
-
-#include <iostream>
 #include <sodium.h>
 
 namespace hg
@@ -124,10 +127,10 @@ struct Extractor
     {
         bool result = true;
 
-        if constexpr ((boost::pfr::tuple_size_v<T>) > 0)
+        if constexpr (sf::base::minipfr::numFields<T> > 0)
         {
-            boost::pfr::for_each_field(target,
-                                       [&](auto& nestedField)
+            sf::base::minipfr::forEachField(target,
+                                            [&](auto& nestedField)
             {
                 if (!extractInto(nestedField, errorOss, p))
                 {
@@ -485,9 +488,9 @@ auto encodeField(sf::Packet& p, const TData& data, const TField& field);
 template <typename TData, typename TField>
 void encodeFieldImpl(sf::Packet& p, const TData& data, const TField& field, long)
 {
-    if constexpr (boost::pfr::tuple_size_v < TField >> 0)
+    if constexpr (sf::base::minipfr::numFields<TField> > 0)
     {
-        boost::pfr::for_each_field(field, [&](const auto& nestedField) { encodeField(p, data, nestedField); });
+        sf::base::minipfr::forEachField(field, [&](const auto& nestedField) { encodeField(p, data, nestedField); });
     }
 }
 
@@ -567,9 +570,9 @@ void encodeOHPacket(sf::Packet& p, const T& data)
 {
     encodePacketType(p, data);
 
-    if constexpr (boost::pfr::tuple_size_v < T >> 0)
+    if constexpr (sf::base::minipfr::numFields<T> > 0)
     {
-        boost::pfr::for_each_field(data, [&](const auto& field) { encodeField(p, data, field); });
+        sf::base::minipfr::forEachField(data, [&](const auto& field) { encodeField(p, data, field); });
     }
 }
 
@@ -742,16 +745,18 @@ static auto makeExtractAllMembers(sf::OutStringStream& errorOss, sf::Packet& p)
     {
         bool success = true;
 
-        if constexpr ((boost::pfr::tuple_size_v<T>) > 0)
+        if constexpr (sf::base::minipfr::numFields<T> > 0)
         {
-            boost::pfr::for_each_field(target,
-                                       [&](auto& field, sf::base::SizeT i)
+            sf::base::SizeT i = 0;
+            sf::base::minipfr::forEachField(target,
+                                            [&](auto& field)
             {
                 if (!extractInto(field, errorOss, p))
                 {
                     errorOss << "Error decoding field #" << i << " \n";
                     success = false;
                 }
+                ++i;
             });
         }
 

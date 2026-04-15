@@ -8,6 +8,8 @@
 
 #include "SFML/Network/Packet.hpp"
 
+#include "SFML/System/Path.hpp"
+
 #include <random>
 
 static void test_replay_data_basic()

@@ -9,6 +9,7 @@
 #include "SFML/Base/Vector.hpp"
 
 #include <functional>
+#include <string_view>
 
 namespace Lua
 {

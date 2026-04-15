@@ -13,7 +13,6 @@
 #include "SFML/Base/Vector.hpp"
 
 #include <bitset>
-#include <filesystem>
 
 #include <cstring>
 
@@ -21,6 +20,7 @@ namespace sf
 {
 
 class Packet;
+class Path;
 
 }
 
@@ -134,8 +134,8 @@ struct replay_file
 
     [[nodiscard]] deserialization_result deserialize(const std::byte* buffer, const std::byte* const buffer_end);
 
-    [[nodiscard]] bool serialize_to_file(const std::filesystem::path& p) const;
-    [[nodiscard]] bool deserialize_from_file(const std::filesystem::path& p);
+    [[nodiscard]] bool serialize_to_file(const sf::Path& p) const;
+    [[nodiscard]] bool deserialize_from_file(const sf::Path& p);
 
     [[nodiscard]] bool serialize_to_packet(sf::Packet& p) const;
     [[nodiscard]] bool deserialize_from_packet(sf::Packet& p);
@@ -149,8 +149,8 @@ struct compressed_replay_file
 {
     sf::base::Vector<char> _data;
 
-    [[nodiscard]] bool serialize_to_file(const std::filesystem::path& p) const;
-    [[nodiscard]] bool deserialize_from_file(const std::filesystem::path& p);
+    [[nodiscard]] bool serialize_to_file(const sf::Path& p) const;
+    [[nodiscard]] bool deserialize_from_file(const sf::Path& p);
 
     [[nodiscard]] bool serialize_to_packet(sf::Packet& p) const;
     [[nodiscard]] bool deserialize_from_packet(sf::Packet& p);

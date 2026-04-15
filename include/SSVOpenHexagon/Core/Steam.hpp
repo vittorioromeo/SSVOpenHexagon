@@ -4,12 +4,12 @@
 
 #pragma once
 
+#include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 
-#include <functional>
 #include <string_view>
 
 namespace hg::Steam
@@ -55,7 +55,7 @@ public:
 
     bool update_hardcoded_achievements();
 
-    void for_workshop_pack_folders(const std::function<void(const sf::base::String&)>& f) const;
+    void for_workshop_pack_folders(sf::base::FixedFunction<void(const sf::base::String&), 64> f) const;
 
     bool request_encrypted_app_ticket();
 

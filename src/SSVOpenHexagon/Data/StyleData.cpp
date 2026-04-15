@@ -14,11 +14,12 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
 
-#include "SFML/Base/String.hpp"
+#include "SFML/System/Angle.hpp"
 
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/Vector.hpp>
-#include <SFML/System/Angle.hpp>
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/Vector.hpp"
+
 #include <SSVUtils/Core/Utils/Containers.hpp>
 #include <SSVUtils/Core/Utils/Math.hpp>
 #include <algorithm>

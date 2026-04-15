@@ -7,8 +7,9 @@
 #include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 
+#include "SFML/Base/FixedFunction.hpp"
+
 #include <algorithm>
-#include <functional>
 #include <utility>
 
 #include <cstddef>
@@ -22,7 +23,7 @@ class Manager;
 class Bind
 {
 private:
-    using InputFunc = std::function<void(float)>;
+    using InputFunc = sf::base::FixedFunction<void(float), 64>;
 
     Manager&    manager;
     Trigger     trigger;

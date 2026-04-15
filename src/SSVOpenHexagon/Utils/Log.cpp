@@ -11,6 +11,7 @@
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/StringViewStreamOp.hpp"
 
+#include <SFML/System/Path.hpp>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -74,6 +75,7 @@ INSTANTIATE_LOGSTREAM_OPERATOR(Json::Value);
 INSTANTIATE_LOGSTREAM_OPERATOR(EResult);
 INSTANTIATE_LOGSTREAM_OPERATOR(ssvu::FileSystem::Path);
 INSTANTIATE_LOGSTREAM_OPERATOR(std::filesystem::path);
+INSTANTIATE_LOGSTREAM_OPERATOR(sf::Path);
 
 void LogStream::flush()
 {

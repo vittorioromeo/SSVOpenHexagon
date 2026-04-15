@@ -27,13 +27,15 @@
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 
-#include "SFML/Base/String.hpp"
+#include "SFML/Graphics/Vertex.hpp"
+#include "SFML/Graphics/View.hpp"
 
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/Vector.hpp>
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics/View.hpp>
-#include <SFML/System/Angle.hpp>
+#include "SFML/System/Angle.hpp"
+
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/Vector.hpp"
+
 #include <SSVUtils/Core/Utils/Rnd.hpp>
 #include <random>
 #include <string>

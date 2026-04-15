@@ -192,23 +192,6 @@ set_target_properties(sodium PROPERTIES UNITY_BUILD OFF) # not supported
 #
 #
 # -----------------------------------------------------------------------------
-# CPM: Boost.PFR
-# -----------------------------------------------------------------------------
-
-CPMAddPackage(
-    NAME boostpfr
-    GITHUB_REPOSITORY boostorg/pfr
-    GIT_TAG b0bf18798c7037ca8a91a1cd2ad2e5798d8f6d46
-    DOWNLOAD_ONLY YES
-)
-
-if (boostpfr_ADDED)
-    set(boostpfr_INCLUDE_DIR ${boostpfr_SOURCE_DIR}/include)
-endif()
-
-#
-#
-# -----------------------------------------------------------------------------
 # C++ Standard
 # -----------------------------------------------------------------------------
 
@@ -370,7 +353,6 @@ target_include_directories(
                              PUBLIC ${zlib_SOURCE_DIR}
                              PUBLIC ${zlib_BINARY_DIR}
                              PUBLIC ${luajit_SOURCE_DIR}/src
-                             PUBLIC ${boostpfr_INCLUDE_DIR}
 )
 
 target_link_libraries(

@@ -40,6 +40,7 @@
 #include "SSVOpenHexagon/MenuSystem/Menu/Category.hpp"
 #include "SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp"
 #include "SSVOpenHexagon/MenuSystem/Menu/Menu.hpp"
+#include "SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
@@ -73,8 +74,8 @@
 #include "SFML/Window/VideoModeUtils.hpp"
 
 #include "SFML/System/Angle.hpp"
+#include "SFML/System/Priv/Vec2Base.hpp"
 #include "SFML/System/Rect2.hpp"
-#include "SFML/System/Vec2Base.hpp"
 
 #include "SFML/Base/Algorithm/Sort.hpp"
 #include "SFML/Base/Array.hpp"
@@ -88,7 +89,6 @@
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
 #include <SSVUtils/Core/String/ToStr.hpp>
 #include <algorithm>
 #include <functional>
@@ -2150,7 +2150,7 @@ void MenuGame::changePackQuick(const int direction)
     // one.
     float scroll{packLabelHeight * (lvlDrawer->packIdx - 1)};
 
-    std::function<void(const float)> action{[this](const float target)
+    sf::base::FixedFunction<void(const float), 64> action{[this](const float target)
     { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }};
 
     // If the height is lower than the offset of the level selection
@@ -4363,8 +4363,8 @@ void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
 
 void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
 {
-    float                            scrollTop, scrollBottom;
-    std::function<void(const float)> action{[this](const float target)
+    float                                          scrollTop, scrollBottom;
+    sf::base::FixedFunction<void(const float), 64> action{[this](const float target)
     { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; }};
 
     if (packChangeDirection == -2)
@@ -4386,7 +4386,8 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
             // have a point of reference and the list is programmed to keep
             // scrollBottom inside the window. If this occurs cut the
             // animation short.
-            std::function<void(const float)> specialAction{[this, action, scrollTop, mLevelListHeight](const float target)
+            sf::base::FixedFunction<void(const float), 64> specialAction{
+                [this, &action, scrollTop, mLevelListHeight](const float target)
             {
                 if (scrollTop < -lvlDrawer->YOffset)
                 {
@@ -4470,7 +4471,7 @@ void MenuGame::scrollLevelListToTargetY(float mFT)
 
 inline constexpr int descLines{5};
 
-void MenuGame::checkWindowTopScroll(const float scroll, std::function<void(const float)> action)
+void MenuGame::checkWindowTopScroll(const float scroll, sf::base::FixedFunction<void(const float), 64> action)
 {
     const float target{-scroll};
     if (target <= lvlDrawer->YOffset)
@@ -4481,7 +4482,7 @@ void MenuGame::checkWindowTopScroll(const float scroll, std::function<void(const
     action(target);
 }
 
-bool MenuGame::checkWindowTopScrollWithResult(const float scroll, std::function<void(const float)> action)
+bool MenuGame::checkWindowTopScrollWithResult(const float scroll, sf::base::FixedFunction<void(const float), 64> action)
 {
     const float target{-scroll};
     if (target <= lvlDrawer->YOffset)
@@ -4493,7 +4494,7 @@ bool MenuGame::checkWindowTopScrollWithResult(const float scroll, std::function<
     return true;
 }
 
-void MenuGame::checkWindowBottomScroll(const float scroll, std::function<void(const float)> action)
+void MenuGame::checkWindowBottomScroll(const float scroll, sf::base::FixedFunction<void(const float), 64> action)
 {
     const float target{h - scroll};
     if (target >= lvlDrawer->YOffset)
@@ -4504,7 +4505,7 @@ void MenuGame::checkWindowBottomScroll(const float scroll, std::function<void(co
     action(target);
 }
 
-bool MenuGame::checkWindowBottomScrollWithResult(const float scroll, std::function<void(const float)> action)
+bool MenuGame::checkWindowBottomScrollWithResult(const float scroll, sf::base::FixedFunction<void(const float), 64> action)
 {
     const float target{h - scroll};
     if (target >= lvlDrawer->YOffset)

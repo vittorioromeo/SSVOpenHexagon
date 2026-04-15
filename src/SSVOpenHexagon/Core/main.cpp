@@ -29,6 +29,8 @@
 #include "SFML/Network/IpAddress.hpp"
 #include "SFML/Network/IpAddressUtils.hpp"
 
+#include "SFML/System/Path.hpp"
+
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/String.hpp"

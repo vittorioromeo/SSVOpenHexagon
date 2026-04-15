@@ -14,10 +14,10 @@
 #include "SFML/Graphics/RenderTarget.hpp"
 #include "SFML/Graphics/Vertex.hpp"
 
+#include "SFML/System/Priv/Vec2Base.hpp"
+
 #include "SFML/Base/PlacementNew.hpp"
 #include "SFML/Base/SizeT.hpp"
-
-#include <SFML/System/Vec2Base.hpp>
 
 #include <cstring>
 

@@ -40,14 +40,14 @@
 #include "SFML/Audio/SoundBuffer.hpp"
 
 #include "SFML/Base/Algorithm/Sort.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
-#include <SFML/Base/Optional.hpp>
-#include <SFML/Base/SizeT.hpp>
-#include <SFML/Base/Vector.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <exception>
 #include <iostream>
@@ -714,7 +714,8 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
     {
         if (steamManager->is_initialized())
         {
-            steamManager->for_workshop_pack_folders(tryLoadPackFromPath);
+            steamManager->for_workshop_pack_folders([&](const sf::base::String& packPath)
+            { tryLoadPackFromPath(packPath); });
         }
         else if (loadWorkshopPackDatasFromCache())
         {

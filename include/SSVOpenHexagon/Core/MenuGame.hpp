@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
+#include "SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp"
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
@@ -27,13 +28,12 @@
 #include "SFML/System/Vec2.hpp"
 
 #include "SFML/Base/Array.hpp"
+#include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp>
-#include <functional>
 #include <string_view>
 #include <utility>
 
@@ -85,11 +85,11 @@ class MenuGame
 public:
     //---------------------------------------
     // Hexagon game callbacks (to avoid physical dependency)
-    std::function<void(const ssvs::Input::Trigger&, int)> fnHGTriggerRefresh;
+    sf::base::FixedFunction<void(const ssvs::Input::Trigger&, int), 64> fnHGTriggerRefresh;
 
-    std::function<void(const sf::base::String&, const sf::base::String&, bool, float, bool)> fnHGNewGame;
+    sf::base::FixedFunction<void(const sf::base::String&, const sf::base::String&, bool, float, bool), 64> fnHGNewGame;
 
-    std::function<void()> fnHGUpdateRichPresenceCallbacks;
+    sf::base::FixedFunction<void(), 64> fnHGUpdateRichPresenceCallbacks;
 
 private:
     [[nodiscard]] sf::View getBackgroundView() const
@@ -502,11 +502,11 @@ private:
     void quickPackFoldStretch();
     void scrollLevelListToTargetY(float mFT);
 
-    void checkWindowTopScroll(const float scroll, std::function<void(const float)> action);
-    bool checkWindowTopScrollWithResult(const float scroll, std::function<void(const float)> action);
+    void checkWindowTopScroll(const float scroll, sf::base::FixedFunction<void(const float), 64> action);
+    bool checkWindowTopScrollWithResult(const float scroll, sf::base::FixedFunction<void(const float), 64> action);
 
-    void checkWindowBottomScroll(const float scroll, std::function<void(const float)> action);
-    bool checkWindowBottomScrollWithResult(const float scroll, std::function<void(const float)> action);
+    void checkWindowBottomScroll(const float scroll, sf::base::FixedFunction<void(const float), 64> action);
+    bool checkWindowBottomScrollWithResult(const float scroll, sf::base::FixedFunction<void(const float), 64> action);
 
     void scrollName(sf::base::String& text, float& scroller);
 
