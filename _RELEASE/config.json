@@ -37,7 +37,7 @@
 	"key_icons_scale" : 0.750,
 	"last_login_username" : "vee",
 	"limit_fps" : true,
-	"max_fps" : 200,
+	"max_fps" : 360,
 	"music_speed_dm_sync" : true,
 	"music_speed_mult" : 1.0,
 	"music_volume" : 100.0,

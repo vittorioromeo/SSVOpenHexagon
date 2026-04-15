@@ -336,7 +336,7 @@ using cil = std::initializer_list<cmb>;
     X(beatPulse, bool, "beatpulse_enabled", true)                                                                        \
     X(showTrackedVariables, bool, "show_tracked_variables", true)                                                        \
     X(musicSpeedDMSync, bool, "music_speed_dm_sync", true)                                                               \
-    X(maxFPS, uint, "max_fps", 200)                                                                                      \
+    X(maxFPS, uint, "max_fps", 360)                                                                                      \
     X(antialiasingLevel, uint, "antialiasing_level", 4)                                                                  \
     X(showFPS, bool, "show_fps", false)                                                                                  \
     X(musicSpeedMult, float, "music_speed_mult", 1.0f)                                                                   \
