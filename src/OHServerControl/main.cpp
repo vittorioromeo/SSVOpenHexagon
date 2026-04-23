@@ -30,9 +30,17 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    std::string   stringBuf;
-    sf::Packet    packet;
-    sf::UdpSocket controlSocket(true /* isBlocking */);
+    std::string stringBuf;
+    sf::Packet  packet;
+
+    auto controlSocketOpt = sf::UdpSocket::create(true /* isBlocking */);
+    if (!controlSocketOpt.hasValue())
+    {
+        std::cerr << "Failed to create UDP control socket\n";
+        return -1;
+    }
+
+    sf::UdpSocket& controlSocket = *controlSocketOpt;
 
     const auto sendToServer = [&]
     {

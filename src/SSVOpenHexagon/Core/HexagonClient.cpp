@@ -6,21 +6,29 @@
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
+#include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
+#include "SFML/Network/IpAddress.hpp"
 #include "SFML/Network/IpAddressUtils.hpp"
 #include "SFML/Network/Packet.hpp"
+#include "SFML/Network/Socket.hpp"
+
+#include "SFML/System/Time.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/StringStreamOp.hpp"
 
+#include <stdexcept>
+#include <string>
 #include <thread>
 
 
@@ -94,27 +102,30 @@ template <typename... Ts>
 
 [[nodiscard]] bool HexagonClient::initializeTcpSocket()
 {
-    if (_socketConnected)
+    if (_socket.hasValue())
     {
         return fail("Socket already initialized");
     }
 
-    _socket.setBlocking(true);
+    _socket = sf::TcpSocket::create(true /* isBlocking */);
+    if (!_socket.hasValue())
+    {
+        return fail("Failure creating TCP socket");
+    }
 
     SSVOH_CLOG << "Connecting socket to server...\n";
 
-    if (_socket.connect(_serverIp,
-                        _serverPort,
-                        /* timeout */ sf::seconds(0.5)) != sf::Socket::Status::Done)
+    if (_socket->connect(_serverIp,
+                         _serverPort,
+                         /* timeout */ sf::seconds(0.5)) != sf::Socket::Status::Done)
     {
         SSVOH_CLOG_ERROR << "Failure connecting socket to server\n";
 
-        _socketConnected = false;
+        _socket.reset();
         return false;
     }
 
-    _socket.setBlocking(false);
-    _socketConnected = true;
+    _socket->setBlocking(false);
 
     SSVOH_CLOG << "Socket connected to server\n";
     return true;
@@ -127,7 +138,7 @@ template <typename... Ts>
         return fail("Failure sending packet to server, too many tries");
     }
 
-    const auto status = _socket.send(p);
+    const auto status = _socket->send(p);
 
     if (status == sf::Socket::Status::NotReady)
     {
@@ -160,7 +171,7 @@ template <typename... Ts>
         return fail("Failure receiving packet from server, too many tries");
     }
 
-    const auto status = _socket.receive(p);
+    const auto status = _socket->receive(p);
 
     if (status == sf::Socket::Status::NotReady)
     {
@@ -205,7 +216,7 @@ template <typename... Ts>
 template <typename T>
 [[nodiscard]] bool HexagonClient::sendUnencrypted(const T& data)
 {
-    if (!_socketConnected)
+    if (!_socket.hasValue())
     {
         return fail();
     }
@@ -217,7 +228,7 @@ template <typename T>
 template <typename T>
 [[nodiscard]] bool HexagonClient::sendEncrypted(const T& data)
 {
-    if (!_socketConnected)
+    if (!_socket.hasValue())
     {
         return fail();
     }
@@ -393,7 +404,7 @@ bool HexagonClient::connect()
 {
     _state = State::Connecting;
 
-    if (_socketConnected)
+    if (_socket.hasValue())
     {
         return fail("Socket already initialized");
     }
@@ -436,8 +447,7 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager, const sf::IpAdd
     _ticketSteamID{},
     _serverIp{serverIp},
     _serverPort{serverPort},
-    _socket{true /* isBlocking */},
-    _socketConnected{false},
+    _socket{},
     _packetBuffer{},
     _errorOss{},
     _lastHeartbeatTime{},
@@ -479,24 +489,23 @@ void HexagonClient::disconnect()
 {
     SSVOH_CLOG << "Disconnecting client...\n";
 
-    _socket.setBlocking(true);
-
-    if ((_state == State::LoggedIn || _state == State::LoggedIn_Ready) && _ticketSteamID.hasValue())
+    if (_socket.hasValue())
     {
-        (void)sendLogout(*_ticketSteamID);
-    }
+        _socket->setBlocking(true);
 
-    if (_state == State::Connected || _state == State::LoggedIn || _state == State::LoggedIn_Ready)
-    {
-        (void)sendDisconnect();
-    }
+        if ((_state == State::LoggedIn || _state == State::LoggedIn_Ready) && _ticketSteamID.hasValue())
+        {
+            (void)sendLogout(*_ticketSteamID);
+        }
 
-    if (!_socket.disconnect())
-    {
-        SSVOH_CLOG << "Failure disconnecting client socket\n";
-    }
+        if (_state == State::Connected || _state == State::LoggedIn || _state == State::LoggedIn_Ready)
+        {
+            (void)sendDisconnect();
+        }
 
-    _socketConnected = false;
+        _socket->disconnect();
+        _socket.reset();
+    }
 
     SSVOH_CLOG << "Client disconnected\n";
 
@@ -505,7 +514,7 @@ void HexagonClient::disconnect()
 
 bool HexagonClient::sendHeartbeatIfNecessary()
 {
-    if (!_socketConnected)
+    if (!_socket.hasValue())
     {
         return true;
     }
@@ -528,7 +537,7 @@ bool HexagonClient::sendHeartbeatIfNecessary()
 
 bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 {
-    if (!_socketConnected)
+    if (!_socket.hasValue())
     {
         return fail();
     }
@@ -749,7 +758,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
 void HexagonClient::update()
 {
-    if (!_socketConnected)
+    if (!_socket.hasValue())
     {
         return;
     }
@@ -926,12 +935,12 @@ void HexagonClient::addEvent(const Event& e)
 
 [[nodiscard]] bool HexagonClient::connectedAndInState(const State s) const noexcept
 {
-    return _socketConnected && _state == s;
+    return _socket.hasValue() && _state == s;
 }
 
 [[nodiscard]] bool HexagonClient::connectedAndInAnyState(const State s0, const State s1) const noexcept
 {
-    return _socketConnected && (_state == s0 || _state == s1);
+    return _socket.hasValue() && (_state == s0 || _state == s1);
 }
 
 [[nodiscard]] sf::base::Optional<HexagonClient::Event> HexagonClient::pollEvent()

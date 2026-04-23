@@ -9,9 +9,11 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
+#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
@@ -25,23 +27,29 @@
 #include "SFML/Network/IpAddress.hpp"
 #include "SFML/Network/IpAddressUtils.hpp"
 #include "SFML/Network/Packet.hpp"
+#include "SFML/Network/Socket.hpp"
 #include "SFML/Network/TcpListener.hpp"
 #include "SFML/Network/TcpSocket.hpp"
 #include "SFML/Network/UdpSocket.hpp"
 
 #include "SFML/System/IO.hpp"
+#include "SFML/System/Time.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/MiniPFR.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
+#include <utility>
 
 #include <cmath>
 #include <csignal>
@@ -68,8 +76,8 @@ static auto& slog(const char* funcName)
 namespace hg
 {
 
-HexagonServer::ConnectedClient::ConnectedClient(const Utils::SCTimePoint lastActivity) :
-    _socket{true /* isBlocking */}, // TODO (P0): should this be blocking????
+HexagonServer::ConnectedClient::ConnectedClient(const Utils::SCTimePoint lastActivity, sf::TcpSocket&& socket) :
+    _socket{std::move(socket)},
     _lastActivity{lastActivity},
     _consecutiveFailures{0},
     _mustDisconnect{false},
@@ -77,14 +85,6 @@ HexagonServer::ConnectedClient::ConnectedClient(const Utils::SCTimePoint lastAct
     _loginData{},
     _state{State::Disconnected}
 {
-}
-
-HexagonServer::ConnectedClient::~ConnectedClient()
-{
-    if (!_socket.disconnect())
-    {
-        SSVOH_SLOG_ERROR << "Failed to disconnect connected client socket\n";
-    }
 }
 
 template <typename... Ts>
@@ -109,8 +109,6 @@ template <typename... Ts>
 {
     SSVOH_SLOG << "Initializing UDP control socket...\n";
 
-    _controlSocket.setBlocking(true);
-
     if (_controlSocket.bind(_serverControlPort, sf::IpAddress::LocalHost) != sf::Socket::Status::Done)
     {
         return fail("Failure binding UDP control socket");
@@ -128,9 +126,8 @@ template <typename... Ts>
 {
     SSVOH_SLOG << "Initializing TCP listener...\n";
 
-    _listener.setBlocking(true);
-
-    if (_listener.listen(_serverPort) == sf::TcpListener::Status::Error)
+    _listener = sf::TcpListener::create(_serverPort, true /* isBlocking */);
+    if (!_listener.hasValue())
     {
         return fail("Failure initializing TCP listener");
     }
@@ -142,7 +139,7 @@ template <typename... Ts>
 {
     SSVOH_SLOG << "Initializing socket selector...\n";
 
-    if (!_socketSelector.add(_listener))
+    if (!_socketSelector.add(*_listener))
     {
         return fail("Failed to add listener to socket selector");
     }
@@ -152,12 +149,25 @@ template <typename... Ts>
 
 [[nodiscard]] bool HexagonServer::sendPacket(ConnectedClient& c, sf::Packet& p)
 {
-    if (c._socket.send(p) != sf::Socket::Status::Done)
+    // In non-blocking mode, `send` may return `Partial` if the TCP send buffer
+    // could not take the whole packet; the same packet must be retried before
+    // any other send to keep the stream uncorrupted.
+    for (int tries = 0; tries < 5; ++tries)
     {
-        return fail("Failure sending packet");
+        const auto status = c._socket.send(p);
+
+        if (status == sf::Socket::Status::Done)
+        {
+            return true;
+        }
+
+        if (status != sf::Socket::Status::Partial)
+        {
+            return fail("Failure sending packet");
+        }
     }
 
-    return true;
+    return fail("Failure sending packet, too many partial sends");
 }
 
 template <typename T>
@@ -336,7 +346,7 @@ void HexagonServer::runIteration()
 {
     SSVOH_SLOG_VERBOSE << "New iteration...\n";
 
-    if (_socketSelector.wait(sf::seconds(30)))
+    if (_socketSelector.wait(sf::seconds(10)) && _running && _listener.hasValue())
     {
         // A timeout is specified so that we can purge clients even if we didn't
         // receive anything.
@@ -460,30 +470,31 @@ bool HexagonServer::runIteration_Control()
 
 bool HexagonServer::runIteration_TryAcceptingNewClient()
 {
-    if (!_socketSelector.isReady(_listener))
+    if (!_socketSelector.isReady(*_listener))
     {
         return false;
     }
 
     SSVOH_SLOG << "Listener is ready, attempting to accept new client\n";
 
-    ConnectedClient& potentialClient = _connectedClients.emplace_back(Utils::SCClock::now());
-
-    sf::TcpSocket& potentialSocket = potentialClient._socket;
-    potentialSocket.setBlocking(true);
-
-    const void* potentialClientAddress = static_cast<void*>(&potentialClient);
-
     // TODO (P1): potential hanging spot?
     // The listener is ready: there is a pending connection
-    if (_listener.accept(potentialSocket) != sf::Socket::Status::Done)
-    {
-        SSVOH_SLOG << "Listener failed to accept new client '" << potentialClientAddress << "'\n";
+    sf::TcpListener::AcceptResult acceptResult = _listener->accept();
 
-        // Error, we won't get a new connection, delete the socket
-        _connectedClients.pop_back();
+    if (acceptResult.status != sf::Socket::Status::Done || !acceptResult.socket.hasValue())
+    {
+        SSVOH_SLOG << "Listener failed to accept new client\n";
         return false;
     }
+
+    ConnectedClient& potentialClient = _connectedClients.emplace_back(Utils::SCClock::now(), std::move(*acceptResult.socket));
+
+    // Non-blocking: receive() returns NotReady on partial packets instead of
+    // hanging the single-threaded loop waiting for the rest of a packet whose
+    // sender stopped mid-stream. TcpSocket internally buffers partial data.
+    potentialClient._socket.setBlocking(false);
+
+    const void* potentialClientAddress = static_cast<void*>(&potentialClient);
 
     SSVOH_SLOG << "Listener accepted new client '" << potentialClientAddress << "'\n";
 
@@ -491,7 +502,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     // Add the new client to the selector so that we will be notified when he
     // sends something
-    if (!_socketSelector.add(potentialSocket))
+    if (!_socketSelector.add(potentialClient._socket))
     {
         return fail("Failed to add potential client socket to socket selector");
     }
@@ -515,11 +526,18 @@ void HexagonServer::runIteration_LoopOverSockets()
         SSVOH_SLOG_VERBOSE << "Client '" << clientAddr << "' has sent data\n ";
 
         // The client has sent some data, we can receive it
-        _packetBuffer.clear();
+        const auto status = clientSocket.receive(_packetBuffer); // clears the packet buffer internally
 
-        // TODO (P1): potential hanging spot?
-        // TODO (P0): SHOULD WE SET THE SOCKET TO NONBLOCKING HERE???
-        if (clientSocket.receive(_packetBuffer) == sf::Socket::Status::Done)
+        // Partial packet: `TcpSocket::m_pendingPacket` has buffered what
+        // arrived so far; the next selector wakeup will resume where we left
+        // off. Do not count as a failure; the inactivity timeout still drops
+        // clients that never complete a packet.
+        if (status == sf::Socket::Status::NotReady)
+        {
+            continue;
+        }
+
+        if (status == sf::Socket::Status::Done)
         {
             SSVOH_SLOG_VERBOSE << "Successfully received data from client '" << clientAddr << "'\n";
 
@@ -532,7 +550,7 @@ void HexagonServer::runIteration_LoopOverSockets()
             }
         }
 
-        // Failed to receive data
+        // Disconnected / Error / processPacket failed
         SSVOH_SLOG_VERBOSE << "Failed to receive data from client '" << clientAddr
                            << "' (consecutive failures: " << connectedClient._consecutiveFailures << ")\n";
 
@@ -698,22 +716,27 @@ void HexagonServer::runIteration_FlushLogs()
         return true;
     };
 
+    if (_assets == nullptr || _hexagonGame == nullptr)
+    {
+        return discard("server built without replay-processing dependencies");
+    }
+
     if (!c._gameStatus.hasValue())
     {
         return discard("no game started");
     }
 
-    if (!_assets.isValidPackId(rf._pack_id))
+    if (!_assets->isValidPackId(rf._pack_id))
     {
         return discard("invalid pack id '", rf._pack_id, '\'');
     }
 
-    if (!_assets.isValidLevelId(rf._level_id))
+    if (!_assets->isValidLevelId(rf._level_id))
     {
         return discard("invalid level id '", rf._level_id, '\'');
     }
 
-    const LevelData& levelData = _assets.getLevelData(rf._level_id);
+    const LevelData& levelData = _assets->getLevelData(rf._level_id);
 
     if (levelData.unscored)
     {
@@ -729,7 +752,7 @@ void HexagonServer::runIteration_FlushLogs()
     constexpr int maxProcessingSeconds = 5;
 
     const sf::base::Optional<HexagonGame::GameExecutionResult>
-        ger = _hexagonGame.runReplayUntilDeathAndGetScore(rf, maxProcessingSeconds, 1.f /* timescale */);
+        ger = _hexagonGame->runReplayUntilDeathAndGetScore(rf, maxProcessingSeconds, 1.f /* timescale */);
 
     if (!ger.hasValue())
     {
@@ -1290,12 +1313,17 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 }
 
 [[nodiscard]] static std::unordered_set<sf::base::String> makeSupportedLevelValidators(
-    HGAssets&                                   assets,
+    HGAssets*                                   assets,
     const std::unordered_set<sf::base::String>& levelValidatorWhitelist)
 {
     std::unordered_set<sf::base::String> result;
 
-    for (const auto& [assetId, ld] : assets.getLevelDatas())
+    if (assets == nullptr)
+    {
+        return result;
+    }
+
+    for (const auto& [assetId, ld] : assets->getLevelDatas())
     {
         if (ld.unscored)
         {
@@ -1314,8 +1342,8 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
     return result;
 }
 
-HexagonServer::HexagonServer(HGAssets&                                   assets,
-                             HexagonGame&                                hexagonGame,
+HexagonServer::HexagonServer(HGAssets*                                   assets,
+                             HexagonGame*                                hexagonGame,
                              const sf::IpAddress&                        serverIp,
                              const unsigned short                        serverPort,
                              const unsigned short                        serverControlPort,
@@ -1327,8 +1355,8 @@ HexagonServer::HexagonServer(HGAssets&                                   assets,
     _serverIp{serverIp},
     _serverPort{serverPort},
     _serverControlPort{serverControlPort},
-    _controlSocket{true /* isBlocking */},
-    _listener{true /* isBlocking */},
+    _controlSocket{sf::UdpSocket::create(true /* isBlocking */).value()},
+    _listener{},
     _socketSelector{},
     _running{true},
     _verbose{false},
@@ -1370,27 +1398,6 @@ HexagonServer::HexagonServer(HGAssets&                                   assets,
 #undef SSVOH_SLOG_INIT_ERROR
 
     // ------------------------------------------------------------------------
-    // Signal handling: exit gracefully on CTRL-C
-    {
-        static bool&            globalRunning  = _running;
-        static sf::TcpListener& globalListener = _listener;
-
-        // TODO (P2): UB
-        std::signal(SIGINT,
-                    [](int s)
-        {
-            std::printf("Caught signal %d\n", s);
-
-            if (!globalListener.close())
-            {
-                std::printf("Failed closing global listener\n");
-            }
-
-            globalRunning = false;
-        });
-    }
-
-    // ------------------------------------------------------------------------
     // Print supported (ranked) level validators
     {
         sf::OutStringStream oss;
@@ -1403,8 +1410,47 @@ HexagonServer::HexagonServer(HGAssets&                                   assets,
 
         SSVOH_SLOG << oss.getString() << '\n';
     }
+}
 
-    run();
+void HexagonServer::stop()
+{
+    _running = false;
+    _listener.reset();
+
+    // Closing an FD does not unblock a `select()` already in progress on
+    // another thread (the selector keeps sleeping until its timeout). Poke
+    // the server's own control socket with a throwaway UDP byte so the
+    // selector wakes on an actually-observable event; the next iteration
+    // then sees `_running == false` and exits.
+    if (const unsigned short controlPort = _controlSocket.getLocalPort(); controlPort != 0)
+    {
+        if (auto wake = sf::UdpSocket::create(true /* isBlocking */); wake.hasValue())
+        {
+            const char byte = '\0';
+            (void)wake->send(&byte, 1, sf::IpAddress::LocalHost, controlPort);
+        }
+    }
+}
+
+unsigned short HexagonServer::getListenerPort() const
+{
+    return _listener.hasValue() ? _listener->getLocalPort() : static_cast<unsigned short>(0);
+}
+
+sf::base::Vector<SodiumPublicKeyArray> HexagonServer::getConnectedClientPublicKeys() const
+{
+    sf::base::Vector<SodiumPublicKeyArray> result;
+    result.reserve(_connectedClients.size());
+
+    for (const ConnectedClient& c : _connectedClients)
+    {
+        if (c._clientPublicKey.hasValue())
+        {
+            result.emplaceBack(*c._clientPublicKey);
+        }
+    }
+
+    return result;
 }
 
 HexagonServer::~HexagonServer()
@@ -1417,23 +1463,11 @@ HexagonServer::~HexagonServer()
 
         (void)sendKick(connectedClient);
 
-        if (!connectedClient._socket.disconnect())
-        {
-            SSVOH_SLOG << "Failed to disconnect connected client socket during "
-                          "shutdown\n";
-        }
+        connectedClient._socket.disconnect();
     }
 
     _socketSelector.clear();
-    if (!_listener.close())
-    {
-        SSVOH_SLOG << "Failed to close listener during shutdown\n";
-    }
-
-    if (!_controlSocket.unbind())
-    {
-        SSVOH_SLOG << "Failed to unbing control socket during shutdown\n";
-    }
+    _listener.reset();
 }
 
 } // namespace hg

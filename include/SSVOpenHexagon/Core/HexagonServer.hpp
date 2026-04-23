@@ -22,7 +22,9 @@
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/Vector.hpp"
 
+#include <atomic>
 #include <list>
 #include <unordered_set>
 
@@ -37,8 +39,8 @@ struct replay_file;
 class HexagonServer
 {
 private:
-    HGAssets&    _assets;
-    HexagonGame& _hexagonGame;
+    HGAssets*    _assets;      //!< may be `nullptr` in test builds that do not exercise replay handling
+    HexagonGame* _hexagonGame; //!< may be `nullptr` in test builds that do not exercise replay handling
 
     const std::unordered_set<sf::base::String> _supportedLevelValidators;
     const sf::base::Vector<sf::base::String>   _supportedLevelValidatorsVector;
@@ -49,9 +51,9 @@ private:
 
     sf::UdpSocket _controlSocket;
 
-    sf::TcpListener    _listener;
-    sf::SocketSelector _socketSelector;
-    bool               _running;
+    sf::base::Optional<sf::TcpListener> _listener;
+    sf::SocketSelector                  _socketSelector;
+    std::atomic<bool>                   _running;
 
     sf::Packet          _packetBuffer;
     sf::OutStringStream _errorOss;
@@ -94,8 +96,7 @@ private:
 
         sf::base::Optional<GameStatus> _gameStatus;
 
-        explicit ConnectedClient(const Utils::SCTimePoint lastActivity);
-        ~ConnectedClient();
+        ConnectedClient(const Utils::SCTimePoint lastActivity, sf::TcpSocket&& socket);
     };
 
     std::list<ConnectedClient> _connectedClients;
@@ -144,7 +145,6 @@ private:
 
     [[nodiscard]] bool kickAndRemoveClient(ConnectedClient& c);
 
-    void run();
     void runIteration();
     bool runIteration_Control();
     bool runIteration_TryAcceptingNewClient();
@@ -168,8 +168,8 @@ private:
     [[nodiscard]] bool isLevelSupported(const sf::base::String& levelValidator) const;
 
 public:
-    explicit HexagonServer(HGAssets&                                   assets,
-                           HexagonGame&                                hexagonGame,
+    explicit HexagonServer(HGAssets*                                   assets,
+                           HexagonGame*                                hexagonGame,
                            const sf::IpAddress&                        serverIp,
                            const unsigned short                        serverPort,
                            const unsigned short                        serverControlPort,
@@ -179,6 +179,24 @@ public:
 
     HexagonServer(const HexagonServer&) = delete;
     HexagonServer(HexagonServer&&)      = delete;
+
+    // Enters the event loop and returns only when `stop()` is called or the
+    // listener is closed (e.g. by SIGINT if the caller installs a handler).
+    void run();
+
+    // Thread-safe. Requests `run()` to return; resets the listener to unblock
+    // a pending `SocketSelector::wait()`.
+    void stop();
+
+    // Port actually bound by the listener (useful when the server was created
+    // with `sf::Socket::AnyPort`). Returns 0 if the listener failed to init.
+    [[nodiscard]] unsigned short getListenerPort() const;
+
+    // Snapshot of the public keys currently stored for connected clients
+    // (one entry per `ConnectedClient` whose `CTSPPublicKey` has been
+    // processed). Not thread-safe: call only when `run()` is not executing,
+    // e.g. after `stop()` + `thread.join()`.
+    [[nodiscard]] sf::base::Vector<SodiumPublicKeyArray> getConnectedClientPublicKeys() const;
 };
 
 } // namespace hg

@@ -93,8 +93,7 @@ private:
     const sf::IpAddress  _serverIp;
     const unsigned short _serverPort;
 
-    sf::TcpSocket _socket;
-    bool          _socketConnected;
+    sf::base::Optional<sf::TcpSocket> _socket;
 
     sf::Packet          _packetBuffer;
     sf::OutStringStream _errorOss;

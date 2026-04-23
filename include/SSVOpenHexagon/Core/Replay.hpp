@@ -22,7 +22,7 @@ namespace sf
 class Packet;
 class Path;
 
-}
+} // namespace sf
 
 namespace hg
 {
