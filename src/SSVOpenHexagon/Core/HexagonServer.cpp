@@ -351,9 +351,15 @@ void HexagonServer::runIteration()
         // A timeout is specified so that we can purge clients even if we didn't
         // receive anything.
 
+        // Note on ordering: `LoopOverSockets` iterates the selector's ready
+        // span directly (O(M)), which is invalidated by any subsequent call
+        // to `add` / `remove` / `clear`. `runIteration_TryAcceptingNewClient`
+        // adds the new client socket to the selector, so it must run AFTER
+        // `LoopOverSockets`. `Control` only reads and doesn't touch the
+        // selector, so its relative position doesn't matter.
         runIteration_Control();
-        runIteration_TryAcceptingNewClient();
         runIteration_LoopOverSockets();
+        runIteration_TryAcceptingNewClient();
     }
 
     runIteration_PurgeClients();
@@ -500,9 +506,10 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     potentialClient._state = ConnectedClient::State::Connected;
 
-    // Add the new client to the selector so that we will be notified when he
-    // sends something
-    if (!_socketSelector.add(potentialClient._socket))
+    // Attach `&potentialClient` as the selector's `userData` so the ready
+    // list we iterate in `runIteration_LoopOverSockets` can recover the
+    // owning `ConnectedClient` via a single `static_cast` — no side-table.
+    if (!_socketSelector.add(potentialClient._socket, &potentialClient))
     {
         return fail("Failed to add potential client socket to socket selector");
     }
@@ -512,21 +519,25 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
 void HexagonServer::runIteration_LoopOverSockets()
 {
-    for (auto it = _connectedClients.begin(); it != _connectedClients.end(); ++it)
+    // Iterate only the sockets the selector actually reported ready (O(M)
+    // rather than O(N)). Each client socket was registered with its owning
+    // `ConnectedClient*` as `userData`, so we recover the owner with a
+    // single cast -- no side-table needed. Entries whose `userData` is
+    // null belong to the listener or the control socket; both are handled
+    // via `isReady` point-checks elsewhere, so we skip them here.
+    for (const sf::SocketSelector::ReadyEntry& entry : _socketSelector.getReadyToReceive())
     {
-        ConnectedClient& connectedClient = *it;
-        const void*      clientAddr      = static_cast<void*>(&connectedClient);
-        sf::TcpSocket&   clientSocket    = connectedClient._socket;
-
-        if (!_socketSelector.isReady(clientSocket))
+        if (entry.userData == nullptr)
         {
             continue;
         }
 
+        ConnectedClient& connectedClient = *static_cast<ConnectedClient*>(entry.userData);
+        const void*      clientAddr      = static_cast<void*>(&connectedClient);
+
         SSVOH_SLOG_VERBOSE << "Client '" << clientAddr << "' has sent data\n ";
 
-        // The client has sent some data, we can receive it
-        const auto status = clientSocket.receive(_packetBuffer); // clears the packet buffer internally
+        const auto status = connectedClient._socket.receive(_packetBuffer); // clears the packet buffer internally
 
         // Partial packet: `TcpSocket::m_pendingPacket` has buffered what
         // arrived so far; the next selector wakeup will resume where we left
@@ -559,14 +570,13 @@ void HexagonServer::runIteration_LoopOverSockets()
         constexpr int maxConsecutiveFailures = 5;
         if (connectedClient._consecutiveFailures == maxConsecutiveFailures)
         {
-            SSVOH_SLOG << "Too many consecutive failures for client '" << clientAddr << "', removing from list\n";
+            SSVOH_SLOG << "Too many consecutive failures for client '" << clientAddr << "', marking for disconnect\n";
 
-            if (!kickAndRemoveClient(connectedClient))
-            {
-                SSVOH_SLOG << "Failed kicking client after max consecutive failures\n";
-            }
-
-            it = _connectedClients.erase(it);
+            // Mark the client; `runIteration_PurgeClients` will call
+            // `kickAndRemoveClient` and erase it from `_connectedClients`.
+            // Doing the removal here would invalidate the ready span we are
+            // currently iterating.
+            connectedClient._mustDisconnect = true;
         }
     }
 }
