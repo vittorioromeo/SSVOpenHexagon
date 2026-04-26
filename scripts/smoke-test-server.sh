@@ -169,6 +169,53 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# Step 3c: load phase — spawn several `OHSmokeClient` processes in
+# parallel, each performing many round-trips on its own connection.
+# This stresses the server with concurrent traffic from real OS
+# processes (separate from the in-process load test in `test/`).
+LOAD_WORKERS=8
+LOAD_PER_WORKER=100
+LOAD_TOTAL=$(( LOAD_WORKERS * LOAD_PER_WORKER ))
+log "load phase: $LOAD_WORKERS clients × $LOAD_PER_WORKER round-trips = $LOAD_TOTAL"
+
+LOAD_PIDS=()
+LOAD_LOGS=()
+LOAD_START_NS=$(date +%s%N)
+for w in $(seq 1 $LOAD_WORKERS); do
+    LOG="$(mktemp -t "ohw-smoke-load-${w}.XXXXXX.log")"
+    LOAD_LOGS+=("$LOG")
+    "$SMOKE_CLIENT_BIN" --count "$LOAD_PER_WORKER" 127.0.0.1 "$SERVER_TCP_PORT" \
+        > "$LOG" 2>&1 &
+    LOAD_PIDS+=($!)
+done
+
+load_failures=0
+for pid in "${LOAD_PIDS[@]}"; do
+    if ! wait "$pid"; then
+        load_failures=$((load_failures + 1))
+    fi
+done
+LOAD_END_NS=$(date +%s%N)
+LOAD_MS=$(( (LOAD_END_NS - LOAD_START_NS) / 1000000 ))
+
+if [ $load_failures -ne 0 ]; then
+    fail "load phase: $load_failures of $LOAD_WORKERS workers failed"
+    for log in "${LOAD_LOGS[@]}"; do
+        echo "----- $log -----" >&2
+        tail -n 5 "$log" >&2
+    done
+    rm -f "${LOAD_LOGS[@]}"
+    exit 1
+fi
+
+# Throughput is wall-clock, includes process spawn overhead — useful as a
+# sanity ceiling, not a benchmark figure.
+LOAD_RPS=0
+[ "$LOAD_MS" -gt 0 ] && LOAD_RPS=$(( LOAD_TOTAL * 1000 / LOAD_MS ))
+ok "load phase: $LOAD_TOTAL round-trips in ${LOAD_MS}ms (~${LOAD_RPS} req/s wall-clock)"
+rm -f "${LOAD_LOGS[@]}"
+
+# -----------------------------------------------------------------------------
 # Step 4: exercise the UDP control channel. Sending "verbose true" must
 # flip the server's `_verbose` flag and the server logs that it did.
 log "sending control message 'verbose true' via OHServerControl..."
