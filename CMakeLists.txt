@@ -487,6 +487,31 @@ endif()
 #
 #
 # -----------------------------------------------------------------------------
+# Smoke-test client (used by `scripts/smoke-test-server.sh`)
+# -----------------------------------------------------------------------------
+
+if(NOT SSVOH_ANDROID)
+    add_executable(
+        OHSmokeClient "${CMAKE_CURRENT_SOURCE_DIR}/src/OHSmokeClient/main.cpp"
+    )
+
+    target_link_libraries(OHSmokeClient
+        ${SFML_LIBRARIES}
+        libluajit
+        zlib
+        ${PUBLIC_LIBRARIES}
+        SSVOpenHexagonLib
+        SSVOpenHexagonLibC
+    )
+
+    if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
+        target_link_libraries(OHSmokeClient pthread)
+    endif()
+endif()
+
+#
+#
+# -----------------------------------------------------------------------------
 # Tests
 # -----------------------------------------------------------------------------
 

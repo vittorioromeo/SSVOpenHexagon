@@ -31,6 +31,7 @@ RELEASE_DIR="$REPO_ROOT/_RELEASE"
 
 SERVER_BIN="$BUILD_DIR/SSVOpenHexagon"
 CONTROL_BIN="$BUILD_DIR/OHServerControl"
+SMOKE_CLIENT_BIN="$BUILD_DIR/OHSmokeClient"
 
 SERVER_TCP_PORT=50505
 SERVER_UDP_CONTROL_PORT=50506
@@ -89,9 +90,10 @@ trap cleanup EXIT INT TERM
 
 # -----------------------------------------------------------------------------
 # Step 0: pre-flight checks.
-[ -x "$SERVER_BIN" ]  || { fail "server binary missing or not executable: $SERVER_BIN"; exit 2; }
-[ -x "$CONTROL_BIN" ] || { fail "control binary missing or not executable: $CONTROL_BIN"; exit 2; }
-[ -d "$RELEASE_DIR" ] || { fail "release directory missing: $RELEASE_DIR"; exit 2; }
+[ -x "$SERVER_BIN" ]       || { fail "server binary missing or not executable: $SERVER_BIN"; exit 2; }
+[ -x "$CONTROL_BIN" ]      || { fail "control binary missing or not executable: $CONTROL_BIN"; exit 2; }
+[ -x "$SMOKE_CLIENT_BIN" ] || { fail "smoke-client binary missing or not executable: $SMOKE_CLIENT_BIN"; exit 2; }
+[ -d "$RELEASE_DIR" ]      || { fail "release directory missing: $RELEASE_DIR"; exit 2; }
 [ -f "$RELEASE_DIR/config.json" ] || { fail "release config.json missing in $RELEASE_DIR"; exit 2; }
 
 # Refuse to run if the port is already in use — otherwise the spawned
@@ -135,16 +137,34 @@ done
 ok "listener bound on :$SERVER_TCP_PORT"
 
 # -----------------------------------------------------------------------------
-# Step 3: open a raw TCP connection and close it immediately. We can't
-# easily speak the game's binary+sodium protocol from bash, but we can
-# prove the accept path works and that the server doesn't freeze when a
-# client disconnects without sending anything.
+# Step 3a: bare TCP probe — connect and close immediately. Proves the
+# accept path works and that an unceremonious disconnect doesn't freeze
+# the event loop.
 log "probing TCP accept path..."
 if exec 3<>"/dev/tcp/127.0.0.1/$SERVER_TCP_PORT"; then
     exec 3<&- 3>&-
     ok "TCP connect + close succeeded"
 else
     fail "could not open TCP connection to :$SERVER_TCP_PORT"
+    exit 1
+fi
+
+# -----------------------------------------------------------------------------
+# Step 3b: real protocol round-trip via `OHSmokeClient`. Sends a
+# `CTSPPublicKey` and asserts the server replies with `STCPPublicKey`,
+# proving the network path actually carries data both ways and that the
+# server's packet decoder + processor work end-to-end.
+log "running OHSmokeClient round-trip against :$SERVER_TCP_PORT..."
+SMOKE_CLIENT_OUT="$(mktemp -t ohw-smoke-client.XXXXXX.log)"
+if "$SMOKE_CLIENT_BIN" 127.0.0.1 "$SERVER_TCP_PORT" > "$SMOKE_CLIENT_OUT" 2>&1; then
+    ok "smoke-client round-trip succeeded ($(grep -c '\[smoke-client\]' "$SMOKE_CLIENT_OUT") events logged)"
+    rm -f "$SMOKE_CLIENT_OUT"
+else
+    smoke_rc=$?
+    fail "smoke-client failed (rc=$smoke_rc)"
+    echo "----- smoke-client output -----" >&2
+    cat "$SMOKE_CLIENT_OUT" >&2
+    rm -f "$SMOKE_CLIENT_OUT"
     exit 1
 fi
 
