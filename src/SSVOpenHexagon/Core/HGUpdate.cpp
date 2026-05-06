@@ -439,7 +439,7 @@ void HexagonGame::updateWalls(float mFT)
 {
     bool            collided{false};
     const float     radiusSquared{status.radius * status.radius + 8.f};
-    const sf::Vec2f pPos{player.getPosition()};
+    const sf::Vec2f& pPos{player.getPosition()};
 
     for (CWall& w : walls)
     {

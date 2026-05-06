@@ -338,8 +338,8 @@ void CCustomWallManager::draw(Utils::FastVertexVectorTris& wallQuads)
         }
     }
 
-    const float     radiusSquared{radius * radius};
-    const sf::Vec2f pPos{mPlayer.getPosition()};
+    const float      radiusSquared{radius * radius};
+    const sf::Vec2f& pPos{mPlayer.getPosition()};
 
     {
         bool collided{false};
