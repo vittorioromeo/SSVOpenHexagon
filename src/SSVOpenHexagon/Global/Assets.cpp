@@ -1518,7 +1518,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     if (!verifyAllPackDependencies())
     {
         hg::lo("HGAssets::installPackAtRuntime") << "verifyAllPackDependencies reported issues\n";
-        // Don't fail outright — `verifyAllPackDependencies` populates
+        // Don't fail outright -- `verifyAllPackDependencies` populates
         // `packIdsWithMissingDependencies` for the UI to surface.
     }
 

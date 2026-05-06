@@ -109,7 +109,7 @@ void clientWorker(const unsigned short port, const int messagesPerClient, std::a
             {
                 break;
             }
-            // Partial or NotReady — brief yield and retry.
+            // Partial or NotReady -- brief yield and retry.
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         if (sendStatus != Status::Done)
@@ -182,7 +182,7 @@ int main()
     TEST_ASSERT_EQ(successes.load(), expectedSuccesses);
 
     // ------------------------------------------------------------------------
-    // Server must still be alive and responsive after the storm — exercise it
+    // Server must still be alive and responsive after the storm -- exercise it
     // one more time with a single request.
     auto probeOpt = sf::TcpSocket::create(true);
     TEST_ASSERT(probeOpt.hasValue());

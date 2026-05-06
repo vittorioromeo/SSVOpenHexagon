@@ -3,12 +3,12 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 // Concurrency test for `hg::HexagonServer`. Opens many client connections
-// simultaneously — far more than the existing load test's 8 — so that
+// simultaneously -- far more than the existing load test's 8 -- so that
 // `_connectedClients` actually fills up while the server is iterating it.
 //
 // Each client sends a `CTSPPublicKey` carrying a UNIQUE public key. After
 // the storm we stop the server and compare the keys the server stored
-// against the ones the clients generated — that proves the server received
+// against the ones the clients generated -- that proves the server received
 // each client's distinct payload correctly, not just echoed responses.
 
 #include "SSVOpenHexagon/Core/HexagonServer.hpp"
@@ -135,7 +135,7 @@ int main()
                 return;
             }
 
-            // Blocks until the full `STCPPublicKey` arrives — implies the
+            // Blocks until the full `STCPPublicKey` arrives -- implies the
             // server has accepted us, added us to `_connectedClients`, and
             // stored our key in `_clientPublicKey`.
             sf::Packet          inPacket;
@@ -150,7 +150,7 @@ int main()
                 }
             }
 
-            // Don't disconnect — keep the socket alive past thread exit so
+            // Don't disconnect -- keep the socket alive past thread exit so
             // the server still has us in `_connectedClients` when we query it.
             clientSockets[i] = std::move(sockOpt);
         });

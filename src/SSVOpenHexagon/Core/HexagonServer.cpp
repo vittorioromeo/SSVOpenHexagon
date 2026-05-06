@@ -508,7 +508,7 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
 
     // Attach `&potentialClient` as the selector's `userData` so the ready
     // list we iterate in `runIteration_LoopOverSockets` can recover the
-    // owning `ConnectedClient` via a single `static_cast` — no side-table.
+    // owning `ConnectedClient` via a single `static_cast` -- no side-table.
     if (!_socketSelector.add(potentialClient._socket, &potentialClient))
     {
         return fail("Failed to add potential client socket to socket selector");

@@ -9,7 +9,7 @@
 //   * run the server on a background thread, bound to an ephemeral port
 //   * client #1 completes the unencrypted public-key handshake and verifies
 //     the server returns its public key
-//   * client #2 connects and stalls mid-packet (partial size prefix) — this
+//   * client #2 connects and stalls mid-packet (partial size prefix) -- this
 //     would have frozen the old blocking loop; here we must still be able to
 //     send a second request on client #1 and get a prompt response.
 //   * `server.stop()` unblocks `run()` and the thread joins cleanly.
@@ -40,14 +40,14 @@ namespace
 
 using Status = sf::Socket::Status;
 
-// Convenience — the TEST_ASSERT_EQ macro requires an ostreamable type, so we
+// Convenience -- the TEST_ASSERT_EQ macro requires an ostreamable type, so we
 // compare enum values as ints.
 constexpr int toInt(Status s)
 {
     return static_cast<int>(s);
 }
 
-// Poll-connects to `port` until success or timeout — the server thread may
+// Poll-connects to `port` until success or timeout -- the server thread may
 // not have finished binding the listener yet when this is called.
 void connectWithRetry(sf::TcpSocket& socket, const unsigned short port, const std::chrono::milliseconds timeout)
 {
@@ -89,14 +89,14 @@ int main()
 
     // ------------------------------------------------------------------------
     // Spin up the server on an ephemeral port. Control port: 0 too (whatever).
-    // Stub-out assets/game — this test never sends replay packets.
+    // Stub-out assets/game -- this test never sends replay packets.
     const std::unordered_set<sf::base::String> emptyWhitelist;
 
     hg::HexagonServer server{nullptr /* assets */,
                              nullptr /* hexagonGame */,
                              sf::IpAddress::LocalHost,
                              sf::Socket::AnyPort /* serverPort */,
-                             static_cast<unsigned short>(0) /* serverControlPort — any free port */,
+                             static_cast<unsigned short>(0) /* serverControlPort -- any free port */,
                              emptyWhitelist};
 
     const unsigned short port = server.getListenerPort();
@@ -105,14 +105,14 @@ int main()
     std::thread serverThread{[&server] { server.run(); }};
 
     // ------------------------------------------------------------------------
-    // Client #1 — complete a CTSPPublicKey round trip.
+    // Client #1 -- complete a CTSPPublicKey round trip.
     sf::base::Optional<sf::TcpSocket> client1Opt = sf::TcpSocket::create(/* isBlocking */ true);
     TEST_ASSERT(client1Opt.hasValue());
     sf::TcpSocket& client1 = *client1Opt;
 
     connectWithRetry(client1, port, std::chrono::seconds(2));
 
-    // Generate a throwaway client key pair — the server just echoes its own
+    // Generate a throwaway client key pair -- the server just echoes its own
     // public key back in response to CTSPPublicKey (before any RT-key exchange
     // completes), so we don't need to actually decrypt anything.
     const hg::SodiumPSKeys clientKeys = hg::generateSodiumPSKeys();
@@ -131,7 +131,7 @@ int main()
     TEST_ASSERT(decoded1.is<hg::STCPPublicKey>());
 
     // ------------------------------------------------------------------------
-    // Client #2 — connects and sends only 3 of the 4 size-prefix bytes, then
+    // Client #2 -- connects and sends only 3 of the 4 size-prefix bytes, then
     // holds. With the old blocking server this would have frozen the event
     // loop and Client #1's next request would never get a response.
     sf::base::Optional<sf::TcpSocket> client2Opt = sf::TcpSocket::create(/* isBlocking */ true);
@@ -149,7 +149,7 @@ int main()
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     // ------------------------------------------------------------------------
-    // Client #1 — send a second request. If the server is alive, we get a
+    // Client #1 -- send a second request. If the server is alive, we get a
     // response within the timeout. If the old hang bug is present, we don't.
     hg::makeClientToServerPacket(outPacket, hg::CTSPPublicKey{.key = clientKeys.keyPublic});
     TEST_ASSERT_EQ(toInt(client1.send(outPacket)), toInt(Status::Done));

@@ -154,7 +154,7 @@ void HexagonGame::update(float mFT, const float timescale)
     // ------------------------------------------------------------------------
     // Update Discord and Steam "rich presence".
     // Discord "rich presence" is also updated in `HexagonGame::start`.
-    // Skipped in preview mode — the user isn't actually playing this level.
+    // Skipped in preview mode -- the user isn't actually playing this level.
 
     if (window != nullptr && !previewMode)
     {
@@ -242,7 +242,7 @@ void HexagonGame::update(float mFT, const float timescale)
         }
 
         // --------------------------------------------------------------------
-        // Update key icons + level info — both belong to gameplay HUD and
+        // Update key icons + level info -- both belong to gameplay HUD and
         // touch `textUI` state that the preview HG doesn't necessarily
         // populate. Skipped entirely when running as a menu backdrop.
         if (!previewMode)
@@ -409,7 +409,7 @@ void HexagonGame::update(float mFT, const float timescale)
 
     updateText(mFT);
 
-    // Score / state-change machinery is meaningless in preview mode —
+    // Score / state-change machinery is meaningless in preview mode --
     // we never want a backdrop to push the user back to the menu, swap
     // levels via auto-restart, or invalidate a non-existent score.
     if (status.started && !previewMode)
@@ -453,7 +453,7 @@ void HexagonGame::update(float mFT, const float timescale)
 
 void HexagonGame::updateWalls(float mFT)
 {
-    // Always advance wall motion — that's the visual the menu backdrop
+    // Always advance wall motion -- that's the visual the menu backdrop
     // and previews need. Collision processing is gated on `!previewMode`
     // so the stand-in player can never die when previewing.
     if (previewMode)
@@ -581,7 +581,7 @@ void HexagonGame::start()
         }
     }
 
-    // Don't resume music for preview HG instances — they share the
+    // Don't resume music for preview HG instances -- they share the
     // single audio module with the gameplay HG, so resuming here would
     // unpause whatever music the previous gameplay session had loaded
     // (most visibly: scrolling LevelSelect after exiting a level would
@@ -830,7 +830,7 @@ void HexagonGame::refreshPulse()
 
         // Match the target's aspect ratio. For preview-mode HG instances
         // `renderTarget` is a fixed-size off-screen texture, so we must
-        // not bake the live window dimensions into the view — otherwise
+        // not bake the live window dimensions into the view -- otherwise
         // resizing the window would stretch the preview every frame as
         // soon as the next pulse tick fires.
         const sf::Vec2f targetSize =
@@ -948,7 +948,7 @@ void HexagonGame::updateFlash(float mFT)
 
     // `flashPolygon` is allocated lazily by `initFlashEffect` (typically
     // called from Lua). Iterating with `begin()` on a never-reserved
-    // vector trips an assert — skip the alpha-update entirely until the
+    // vector trips an assert -- skip the alpha-update entirely until the
     // polygon has been initialised.
     if (flashPolygon.size() == 0u) return;
 

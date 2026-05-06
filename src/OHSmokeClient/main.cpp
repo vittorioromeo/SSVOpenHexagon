@@ -13,10 +13,10 @@
 //   3. Print a final summary line and exit.
 //
 // Exit codes:
-//   0 — every round-trip succeeded
-//   1 — protocol-level failure (connect/send/receive/decode) on any
+//   0 -- every round-trip succeeded
+//   1 -- protocol-level failure (connect/send/receive/decode) on any
 //       round-trip
-//   2 — pre-flight failure (sodium init, TcpSocket::create, bad args)
+//   2 -- pre-flight failure (sodium init, TcpSocket::create, bad args)
 //
 // Used by `scripts/smoke-test-server.sh` both as a single-shot
 // correctness check and (with `--count`, multiple processes spawned
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
     }
     std::fprintf(stdout, "[smoke-client] connected to %s:%u\n", host, static_cast<unsigned>(port));
 
-    // Reuse a single keypair across all round-trips on this connection —
+    // Reuse a single keypair across all round-trips on this connection --
     // we don't need the private half for the unencrypted handshake.
     const hg::SodiumPSKeys clientKeys = hg::generateSodiumPSKeys();
 

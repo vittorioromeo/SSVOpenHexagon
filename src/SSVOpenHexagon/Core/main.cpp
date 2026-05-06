@@ -487,7 +487,7 @@ struct ParsedArgs
         // simply leaves the menu without an animated backdrop.
         if (hgMenuBg.hasValue() && hgPreview.hasValue())
         {
-            // "Shader Test" from the bundled `Artwork` pack — the only
+            // "Shader Test" from the bundled `Artwork` pack -- the only
             // pack/level the menu backdrop ever runs. Pack id format is
             // `<disambiguator>_<author>_<name>_<version>`; level id is
             // `<packId>_<levelJsonId>`.

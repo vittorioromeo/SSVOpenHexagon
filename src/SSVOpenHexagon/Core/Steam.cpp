@@ -184,7 +184,7 @@ private:
 
     // In-flight preview-image fetches. Polled by `pump_workshop_http()`
     // each frame using `SteamUtils()->IsAPICallCompleted` so we don't
-    // need a CCallResult per request — simpler than juggling N call-
+    // need a CCallResult per request -- simpler than juggling N call-
     // result instances when the user browses through several items.
     struct PendingPreview
     {
@@ -811,7 +811,7 @@ void steam_manager::steam_manager_impl::query_workshop_details(const sf::base::V
     if (ids.empty()) return;
     if (_pending_query != k_UGCQueryHandleInvalid)
     {
-        // A query is already in flight; KISS — drop this details request.
+        // A query is already in flight; KISS -- drop this details request.
         // The caller (UI) will retry next time the user navigates.
         return;
     }
@@ -1011,7 +1011,7 @@ void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResu
 
     // On a successful download, also synthesize an `ItemInstalled` event.
     // Steam's `ItemInstalled_t` callback is unreliable for first-time
-    // workshop downloads — for items the user subscribed to via the
+    // workshop downloads -- for items the user subscribed to via the
     // overlay or the website, it sometimes never fires after the disk
     // write completes. Driving the same install path off of
     // `DownloadItemResult_t` makes the hot-install path deterministic

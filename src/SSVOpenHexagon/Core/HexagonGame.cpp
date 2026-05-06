@@ -712,7 +712,7 @@ void HexagonGame::newGame(const sf::base::String& mPackId,
     // Audio cleanup
     if (window != nullptr && audio != nullptr && !previewMode)
     {
-        // Audio is silenced when previewing — the menu doesn't want a
+        // Audio is silenced when previewing -- the menu doesn't want a
         // level's music to fight with whatever the menu itself plays.
         audio->stopSounds();
         stopLevelMusic();
@@ -1020,7 +1020,7 @@ void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
 
 void HexagonGame::death(bool mForce)
 {
-    // Preview instances must never enter the death/score-save cascade —
+    // Preview instances must never enter the death/score-save cascade --
     // belt-and-suspenders alongside `performPlayerKill`'s early-return,
     // since Lua / timeline can call `death()` directly.
     if (previewMode)
@@ -1327,7 +1327,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 
     // Note: the menu's `init()` plays its own `select.ogg` to signal the
     // user has returned to the menu, so we don't play anything here for
-    // the success case — playing both sounds back-to-back was audible as
+    // the success case -- playing both sounds back-to-back was audible as
     // a "double beep" on ESC.
 
     calledDeprecatedFunctions.clear();
@@ -1736,7 +1736,7 @@ void HexagonGame::performPlayerSwap(const bool mPlaySound)
 
 void HexagonGame::performPlayerKill()
 {
-    // Menu/preview HG instances visualize a level in the background — they
+    // Menu/preview HG instances visualize a level in the background -- they
     // must never kill the player or trip the death cascade, regardless of
     // what walls collide or what Lua scripts request.
     if (previewMode)

@@ -71,7 +71,7 @@ void HexagonGame::renderWithView(const sf::View& view, TDrawable&& drawable, sf:
 void HexagonGame::draw()
 {
     // Window may be null when running headless. Render target may be null
-    // when no draw target is wired up — both forbid rendering.
+    // when no draw target is wired up -- both forbid rendering.
     if (window == nullptr || renderTarget == nullptr || Config::getDisableGameRendering())
     {
         return;
@@ -173,7 +173,7 @@ void HexagonGame::draw()
         }
         else
         {
-            // Player isn't rendered in preview mode — the menu doesn't show
+            // Player isn't rendered in preview mode -- the menu doesn't show
             // a controllable player while a level animates as a backdrop.
             player.draw(getSides(),
                         getColorMain(),
@@ -305,7 +305,7 @@ void HexagonGame::draw()
     drawParticles();
 
     // Text overlays, key icons, level info, and flash effect belong to
-    // gameplay UI — not to the preview backdrop the menu wants.
+    // gameplay UI -- not to the preview backdrop the menu wants.
     if (!previewMode)
     {
         drawText(getRenderStates(RenderStage::Text));

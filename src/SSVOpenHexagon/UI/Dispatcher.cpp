@@ -83,12 +83,12 @@ void dispatchToScreen(Context& ctx, App& app, Services& svc, Screen which)
 }
 
 // Render a screen with a per-frame slide offset, a global alpha multiplier,
-// and an optional input-suppression flag — saving and restoring every
+// and an optional input-suppression flag -- saving and restoring every
 // `Context` field we mutate so the outer dispatcher logic is unaffected.
 void drawScreenWithEffects(Context& ctx, App& app, Services& svc, Screen which, float slideX, float alpha, bool acceptInput)
 {
     if (alpha <= 0.001f)
-        return; // fully transparent — skip the work entirely
+        return; // fully transparent -- skip the work entirely
 
     const sf::Transform savedTransform   = ctx.renderStates.transform;
     const Input         savedInput       = ctx.input;
@@ -143,7 +143,7 @@ void drawScreenWithEffects(Context& ctx, App& app, Services& svc, Screen which, 
 //
 // Push (Main → Sub) drives it 0 → 1; pop (Sub → Main) drives it 1 → 0.
 // Main's slide+fade and the sub-screen's fade run simultaneously over the
-// full `t` range, each with its own easing — symmetric on push and pop.
+// full `t` range, each with its own easing -- symmetric on push and pop.
 void drawCurrentScreen(Context& ctx, App& app, Services& svc)
 {
     // Linear time-based advance. Easing is applied to the rendered values
@@ -166,14 +166,14 @@ void drawCurrentScreen(Context& ctx, App& app, Services& svc)
     // Sub-screen fades in concurrently. easeInOutCubic gives a soft-soft
     // curve so it doesn't pop in or out. It also slides in from the right
     // so the preview / metadata travel with the rest of the UI rather
-    // than appearing in place — matches the "stack" feel of Main sliding
+    // than appearing in place -- matches the "stack" feel of Main sliding
     // out left.
     const float subAlpha  = easeInOutCubic(t);
     const float subSlideX = kSubscreenSlideX * (1.f - exitT);
 
     // The sub-screen we render: when the user is on a sub-screen, that's
     // `current`. When they just popped back to Main, it's `previousScreen`
-    // — needed so the outgoing screen can fade out smoothly.
+    // -- needed so the outgoing screen can fade out smoothly.
     const Screen subScreen = (app.current != Screen::Main) ? app.current : app.previousScreen;
     const bool   hasSub    = (subScreen != Screen::Main) && (t > 0.001f);
 

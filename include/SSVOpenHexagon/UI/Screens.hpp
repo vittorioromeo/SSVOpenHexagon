@@ -31,7 +31,7 @@ void pushScreen(App& app, Screen target); //!< saves current on backStack, trans
 void goBack    (App& app);                //!< pops backStack (no-op if empty)
 
 // Convenience: when `ctx.input.escape` is set, pop the screen and return
-// true — caller should immediately `return` to skip the rest of the draw.
+// true -- caller should immediately `return` to skip the rest of the draw.
 // Replaces the `if (ctx.input.escape) { goBack(app); return; }` block at
 // the top of every screen.
 [[nodiscard]] bool handleEscape(const Context& ctx, App& app);

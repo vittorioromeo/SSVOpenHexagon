@@ -60,7 +60,7 @@ public:
 
     [[nodiscard]] bool isLevelFavorite(const sf::base::String& mLevelID) const noexcept;
 
-    // Per-level state — never throws; missing entries are returned as
+    // Per-level state -- never throws; missing entries are returned as
     // zero-initialised. Mutating accessor `getOrCreatePerLevelState` inserts
     // an empty entry on first access.
     [[nodiscard]] PerLevelState        getPerLevelState   (const sf::base::String& mLevelId) const noexcept;

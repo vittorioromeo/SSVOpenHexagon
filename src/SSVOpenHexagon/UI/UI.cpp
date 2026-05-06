@@ -31,7 +31,7 @@ namespace hg::ui
 namespace
 {
 
-// Smallest movement we still consider "moving" — below this we just snap to
+// Smallest movement we still consider "moving" -- below this we just snap to
 // avoid the asymptotic crawl of an exponential ease. Bumped from sub-pixel
 // to a couple of pixels so the tail of the animation never feels like a
 // crawl; sub-pixel residue is imperceptible anyway.
@@ -48,7 +48,7 @@ constexpr float kMinStepPerSecond = 240.f;
 constexpr float kRowPad = 12.f;
 
 // Fraction of the font size used as text outline thickness. The accent
-// outline is the gradient sentinel — kept thin so glyph interiors stay
+// outline is the gradient sentinel -- kept thin so glyph interiors stay
 // readable, beefy enough that the gradient pass has room to paint. Both
 // `drawText` and `measureText` use this so measured bounds match what's
 // actually drawn (outline pushes the bounding rect outward).
@@ -115,7 +115,7 @@ void drawText(Context& ctx, sf::Vec2f pos, const char* s, sf::Color color, float
         truncateToFit(safe, maxWidth, effSize);
     }
     // Outline thickness scales with font size so headings get a beefier
-    // border than body text. The accent color is the gradient sentinel —
+    // border than body text. The accent color is the gradient sentinel --
     // the post-process shader replaces it with an animated noise gradient.
     const float outline = effSize * kOutlineFactor;
     ctx.target->draw(*ctx.font,
@@ -130,7 +130,7 @@ void drawText(Context& ctx, sf::Vec2f pos, const char* s, sf::Color color, float
                      ctx.renderStates);
 }
 
-// True if `pt` is inside `r` (open right/bottom — matches SFML conventions).
+// True if `pt` is inside `r` (open right/bottom -- matches SFML conventions).
 bool pointInRect(sf::Vec2f pt, sf::Rect2f r) noexcept
 {
     return pt.x >= r.position.x && pt.x < r.position.x + r.size.x && pt.y >= r.position.y &&
@@ -183,7 +183,7 @@ bool stepToward(float& current, float target, float dt, float speed)
     const float a       = 1.f - sf::base::exp(-speed * dt);
     const float expStep = diff * a;
 
-    // Velocity floor — guarantee we move at least `kMinStepPerSecond * dt`
+    // Velocity floor -- guarantee we move at least `kMinStepPerSecond * dt`
     // toward the target. Hides the asymptotic slowdown of exponential
     // decay, so the cursor doesn't crawl through the last few pixels.
     const float floor = kMinStepPerSecond * dt;
@@ -363,7 +363,7 @@ bool toggle(Context& ctx, const char* text, bool& value, bool focused, float wid
     drawText(ctx, {r.position.x + r.size.x - kRowPad - kMarkerW, rowTextY(ctx, r)}, marker, value ? ctx.colAccent : ctx.colTextDim);
 
     // Activation: Enter while focused, or mouse click. Left/right are
-    // intentionally NOT bound — multi-pane screens (Options, Workshop)
+    // intentionally NOT bound -- multi-pane screens (Options, Workshop)
     // bind those arrows to pane switching, so a focused toggle reacting
     // to them would both flip its value and move the focus on the same
     // frame.
@@ -411,7 +411,7 @@ bool slider(Context& ctx, const char* text, float& value, float min, float max, 
     drawText(ctx, {numericX, rowTextY(ctx, r, numFontSize)}, numBuf, focused ? ctx.colHighlight : ctx.colText, numFontSize);
 
     drawRect(ctx, {{trackX, trackY}, {trackW, 4.f}}, sf::Color{60, 60, 70, 255});
-    // Track fill — accent when editing, dim accent otherwise so the
+    // Track fill -- accent when editing, dim accent otherwise so the
     // user has a visual cue that left/right will step the value.
     drawRect(ctx, {{trackX, trackY}, {trackW * fillPct, 4.f}}, focused && editing ? sf::Color::White : ctx.colAccent);
 
@@ -442,7 +442,7 @@ bool slider(Context& ctx, const char* text, float& value, float min, float max, 
 
     // Mouse drag on the track: while the LMB is held over the row, set the
     // value from the cursor's x-position within the track. Snap to `step`
-    // and clamp to `[min, max]`. Stateless — relies only on `mouseDown` +
+    // and clamp to `[min, max]`. Stateless -- relies only on `mouseDown` +
     // `hovered`, which is fine for a list of sliders since the user can't
     // be over two at once.
     if (hovered && ctx.input.mouseDown && trackW > 0.f && (max - min) > 0.f)
@@ -620,8 +620,8 @@ sf::Vec2f viewportSize(const Context& ctx) noexcept
 {
     // Prefer the size of the view the host installed on `renderStates`.
     // Screens use this for layout (anchoring, percentages, mouse hit-test
-    // bounds), so they need to read the *virtual* drawing space — which
-    // matches the host's design coordinate system — rather than raw window
+    // bounds), so they need to read the *virtual* drawing space -- which
+    // matches the host's design coordinate system -- rather than raw window
     // pixels. The default (uninitialized) `View{}` falls back to the
     // target size, mirroring what `RenderTarget::draw` does at draw time.
     const sf::View& view = ctx.renderStates.view;
@@ -635,7 +635,7 @@ sf::Vec2f viewportSize(const Context& ctx) noexcept
 
 sf::Vec2f screenOrigin(const Context& /*ctx*/) noexcept
 {
-    // The legacy logo sprite has been retired — the Main screen now draws
+    // The legacy logo sprite has been retired -- the Main screen now draws
     // its own outlined "OPEN HEXAGON" title at this anchor, and every
     // sub-screen aligns its heading here too. Virtual pixel space, holds
     // at any window resolution thanks to the overlay view.
@@ -734,7 +734,7 @@ void truncateToFit(char* buf, float width, float fontSize) noexcept
     constexpr sf::base::SizeT kEllipsisLen = 3;
     if (maxFull <= kEllipsisLen)
     {
-        buf[maxFull] = '\0'; // pathologically narrow — hard-clip
+        buf[maxFull] = '\0'; // pathologically narrow -- hard-clip
         return;
     }
     const sf::base::SizeT keep = maxFull - kEllipsisLen;

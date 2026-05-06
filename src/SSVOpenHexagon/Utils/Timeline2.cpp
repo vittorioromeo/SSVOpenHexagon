@@ -64,7 +64,7 @@ timeline2_runner::outcome timeline2_runner::update(timeline2& timeline, const ti
         // `action_do` is handled out-of-band because its callback can run
         // user code (Lua) that appends to the same timeline. The append
         // may reallocate `_actions`, freeing the variant we'd otherwise
-        // still be visiting through `linearMatch` — `linearMatch`'s fold
+        // still be visiting through `linearMatch` -- `linearMatch`'s fold
         // re-reads the variant's discriminator after the visitor returns,
         // which would be a heap-use-after-free on the reallocated buffer.
         // Move the function out, advance the index, drop the reference,

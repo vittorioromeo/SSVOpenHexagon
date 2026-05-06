@@ -5,7 +5,7 @@
 #pragma once
 
 // The full state of the new menu UI. One instance per running game.
-// Each screen has a small named sub-struct here — replaces the ~80 ad-hoc
+// Each screen has a small named sub-struct here -- replaces the ~80 ad-hoc
 // member variables of the old `MenuGame` class.
 
 #include "SSVOpenHexagon/Core/Steam.hpp" // for `WorkshopItem`
@@ -55,7 +55,7 @@ struct OptionsScreenState
     float categorySelectionY{0.f};
     float itemSelectionY{0.f};
 
-    // True while the focused slider is in "edit mode" — left/right then
+    // True while the focused slider is in "edit mode" -- left/right then
     // step the slider's value instead of navigating panes. Toggled on by
     // Enter on a slider row, off by Enter again, by Escape, or by
     // up/down (which also moves the focus away).
@@ -64,7 +64,7 @@ struct OptionsScreenState
 
 enum class LevelSortKey : sf::base::U8
 {
-    PackPriority = 0, //!< default — pack-priority then menu-priority
+    PackPriority = 0, //!< default -- pack-priority then menu-priority
     Name,
     Author,
     MinDifficulty,
@@ -82,7 +82,7 @@ struct WorkshopBrowseScreenState
     bool queryInFlight{false};
     bool initialQueryFired{false};
 
-    // Total result count Steam reports for the active query — used to
+    // Total result count Steam reports for the active query -- used to
     // render the page indicator as "current/total". 0 until the first
     // query lands.
     sf::base::U32 totalMatching{0};
@@ -93,7 +93,7 @@ struct WorkshopBrowseScreenState
 
     // Resolved {publishedFileId, title} pairs used to display dependency
     // names. Populated from every QueryComplete event (regular + details).
-    // Linear scan — count is small (≤ a handful per item).
+    // Linear scan -- count is small (≤ a handful per item).
     struct WorkshopNameEntry
     {
         sf::base::U64    publishedFileId{};
@@ -203,7 +203,7 @@ struct ProfileSnapshot
 
     // Capability flags driven by the host from `HexagonClient::State`. The
     // Online screen reads these to decide which action buttons to surface
-    // — avoids reverse-engineering the state from `onlineStatus`.
+    // -- avoids reverse-engineering the state from `onlineStatus`.
     bool canConnect{false};
     bool canDisconnect{false};
     bool canLogIn{false};

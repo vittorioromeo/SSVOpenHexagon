@@ -123,7 +123,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     navigatePane(ctx, svc, s.selectedIdx, n,               s.activePane == kPaneList);
     navigatePane(ctx, svc, s.actionIdx,   kActionRowCount, s.activePane == kPaneActions);
 
-    // Windowing index — the pill animates inside the visible slice.
+    // Windowing index -- the pill animates inside the visible slice.
     // `animatedPill` (called below) drives the per-frame stepToward for us.
     constexpr int kMaxVisible = 12;
     const int     start       = (s.selectedIdx >= kMaxVisible) ? s.selectedIdx - kMaxVisible + 1 : 0;
@@ -135,7 +135,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
 
     // ---- Search bar + page indicator + status (above the three columns)
     // Page indicator sits to the right of the search bar (mirroring the
-    // counter in the level select toolbar) — keeps it out of the sidebar
+    // counter in the level select toolbar) -- keeps it out of the sidebar
     // where it was previously stealing a button slot.
     {
         bool searchSubmitted = false;
@@ -145,7 +145,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         }
         (void)searchSubmitted;
 
-        // "PAGE current/total" — total = ⌈totalMatching / kSteamPageSize⌉.
+        // "PAGE current/total" -- total = ⌈totalMatching / kSteamPageSize⌉.
         // Steam UGC pages are 50 items by default; we don't override that
         // when querying. Falls back to "PAGE n" when no query has landed
         // (totalMatching = 0).
@@ -209,7 +209,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
 
         // Pagination buttons. The page indicator itself lives outside
         // the sidebar (next to the search bar) so it doesn't consume a
-        // navigable row slot — every button index here corresponds 1:1
+        // navigable row slot -- every button index here corresponds 1:1
         // to a visible row.
         const auto sidebarButton = [&](const char* lbl, int idx, auto&& onActivate) {
             const bool foc = sbFocused(idx);
@@ -256,7 +256,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     }
     else
     {
-        // Item-list pill — index is windowed (`selectedIdx - start`)
+        // Item-list pill -- index is windowed (`selectedIdx - start`)
         // because we scroll inside the visible slice, not the full list.
         animatedPill(ctx, ctx.cursor, 420.f, s.selectedIdx - start, s.selectionY, s.activePane == kPaneList);
 
@@ -383,7 +383,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         }
         else
         {
-            // Placeholder text — "(NO PREVIEW)" when there's no URL at
+            // Placeholder text -- "(NO PREVIEW)" when there's no URL at
             // all, "(LOADING PREVIEW...)" while the HTTP fetch is in
             // flight or after a decode failure.
             const char* placeholder = item.previewUrl.empty() ? "(NO PREVIEW)" : "(LOADING PREVIEW...)";
@@ -428,7 +428,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         constexpr float kActionW = 240.f;
         animatedPill(ctx, ctx.cursor, kActionW, s.actionIdx, s.actionSelectionY, actionsFocused);
 
-        // DOWNLOAD / DELETE — semantics swap based on subscription state,
+        // DOWNLOAD / DELETE -- semantics swap based on subscription state,
         // but the row index stays the same (focusable as action 0).
         if (item.isSubscribed)
         {
@@ -510,7 +510,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
             const float depsLeft = detailsLeft + 300.f;
             ctx.cursor = ctx.origin = {depsLeft, listTop};
 
-            // The dependency list renders at 0.25x the normal size — it's
+            // The dependency list renders at 0.25x the normal size -- it's
             // background metadata, not something the user reads top-to-
             // bottom. We temporarily shrink `ctx.fontSize` and `rowHeight`
             // (since `label`/`labelf` derive their backdrop from those),

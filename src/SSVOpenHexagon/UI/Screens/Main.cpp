@@ -20,7 +20,7 @@ namespace
 {
 
 // The new main menu has six entries; "WORKSHOP" is added vs. the old menu and
-// "LOCAL PROFILES" becomes plain "PROFILE" (single-profile model — see the
+// "LOCAL PROFILES" becomes plain "PROFILE" (single-profile model -- see the
 // design doc, F4). Items that route into the new UI use `pushScreen`; items
 // that route into still-old screens go through `Services` callbacks.
 constexpr struct
@@ -56,7 +56,7 @@ void drawMainScreen(Context& ctx, App& app, Services& svc)
     stepToward(s.selectionY, static_cast<float>(s.selectedIdx) * ctx.rowHeight, ctx.dt, 256.f);
     stepToward(s.openProgress, 1.f, ctx.dt, 6.f);
 
-    // Custom title block — replaces the legacy `titleBar.png` logo. Two
+    // Custom title block -- replaces the legacy `titleBar.png` logo. Two
     // stacked outlined words ("OPEN" then a much bigger "HEXAGON") with
     // the game version pinned to the right of the upper line. The accent
     // outline is the gradient sentinel, so the post-process shader paints
@@ -67,7 +67,7 @@ void drawMainScreen(Context& ctx, App& app, Services& svc)
     constexpr float kHexSize     = 110.f;
     constexpr float kVersionSize = 24.f;
 
-    // Real glyph bounds — no per-character-advance guessing. The bounds'
+    // Real glyph bounds -- no per-character-advance guessing. The bounds'
     // `position` carries the natural top-left offset SFML applies to a
     // glyph string; we shift draw positions by `-bounds.position` so the
     // visible rect starts exactly where we ask it to.
@@ -83,7 +83,7 @@ void drawMainScreen(Context& ctx, App& app, Services& svc)
     const float blockWidth  = lineWidth + kPad * 2.f;
     const float blockHeight = openBounds.size.y + kLineGap + hexBounds.size.y + kPad * 2.f;
 
-    // Solid backdrop behind the title — the gradient outlines pop off
+    // Solid backdrop behind the title -- the gradient outlines pop off
     // it and it hides any background-level visuals that would otherwise
     // show through the gaps between glyphs.
     ctx.target->draw(
@@ -94,7 +94,7 @@ void drawMainScreen(Context& ctx, App& app, Services& svc)
         },
         ctx.renderStates);
 
-    // Inner content cursor — top-left of the actual text area.
+    // Inner content cursor -- top-left of the actual text area.
     const sf::Vec2f content{ctx.cursor.x + kPad, ctx.cursor.y + kPad};
 
     // First line: "OPEN" left-aligned, "2.2.0" centered vertically next to it.
@@ -119,7 +119,7 @@ void drawMainScreen(Context& ctx, App& app, Services& svc)
     pill(ctx, {ctx.cursor.x, ctx.cursor.y + s.selectionY}, 360.f);
 
     // Per-item staggered fade-in driven by `openProgress`. We tint the
-    // text colors temporarily, draw the row, then restore — saves a
+    // text colors temporarily, draw the row, then restore -- saves a
     // theme-stack abstraction we'd only use in this one place.
     const sf::Color textBefore      = ctx.colText;
     const sf::Color highlightBefore = ctx.colHighlight;

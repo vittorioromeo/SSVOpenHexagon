@@ -416,7 +416,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
                 return;
             }
 
-            // Boot screen — any key advances to the main menu.
+            // Boot screen -- any key advances to the main menu.
             if (state == States::EpilepsyWarning)
             {
                 checkCloseBootScreens();
@@ -450,7 +450,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
                 return;
             }
 
-            // No menus left to dispatch into — just clear the lock.
+            // No menus left to dispatch into -- just clear the lock.
             setIgnoreAllInputs(0);
         }
         else if (event.is<sf::Event::MouseButtonReleased>() ||
@@ -548,7 +548,7 @@ void MenuGame::initNewUIServices()
     ui_services.onOnlineLogout     = [this] { hexagonClient.tryLogoutFromServer(); };
     ui_services.onOnlineLogin      = [this]
     {
-        // Reuse the legacy login dialog overlay — it already runs on top
+        // Reuse the legacy login dialog overlay -- it already runs on top
         // of the new UI's draw because dialogBox rendering happens in
         // `MenuGame::draw` after `drawNewMainMenu`.
         if (dialogInputState != DialogInputState::Nothing)
@@ -567,7 +567,7 @@ void MenuGame::initNewUIServices()
     ui_services.onStartLevel = [this](const sf::base::String& levelId, float difficultyMult)
     {
         // `levelId` is the pack-prefixed asset key as stored in
-        // `levelDataIdsByPack` — `LevelData::id` alone wouldn't pass
+        // `levelDataIdsByPack` -- `LevelData::id` alone wouldn't pass
         // `isValidLevelId`. Direct call to the gameplay-launch hook, no
         // legacy menu state to populate.
         if (!assets.isValidLevelId(levelId) || !fnHGNewGame)
@@ -622,7 +622,7 @@ void MenuGame::initNewUIServices()
 void MenuGame::applyLevelThemeToContext(hg::ui::Context& /*ctx*/) const
 {
     // Intentionally empty. The new UI uses a fixed white/black/magenta
-    // palette (see `Context` defaults) — the magenta accent is a sentinel
+    // palette (see `Context` defaults) -- the magenta accent is a sentinel
     // replaced by an animated gradient in the post-process shader pass.
     // Per-level theming would fight the gradient and isn't wanted here.
 }
@@ -636,7 +636,7 @@ void MenuGame::setMenuPreviewGames(HexagonGame*     menuBackground,
     hgPreview = preview;
 
     // Boot the menu-background level once. Skipped silently when the
-    // configured pack/level isn't installed — the menu still works, just
+    // configured pack/level isn't installed -- the menu still works, just
     // without an animated backdrop.
     if (hgMenuBg != nullptr && !menuBackgroundPackId.empty() && !menuBackgroundLevelId.empty() &&
         assets.isValidPackId(menuBackgroundPackId) && assets.isValidLevelId(menuBackgroundLevelId))
@@ -647,7 +647,7 @@ void MenuGame::setMenuPreviewGames(HexagonGame*     menuBackground,
                           /*difficultyMult=*/1.f,
                           /*executeLastReplay=*/false);
         // Force the level to start on the first `update()` so walls begin
-        // spawning immediately. `start()` is private — flagging via
+        // spawning immediately. `start()` is private -- flagging via
         // `setMustStart` is the public path used by replay tooling too.
         hgMenuBg->setMustStart(true);
     }
@@ -711,7 +711,7 @@ void MenuGame::pumpWorkshopEvents()
                 break;
 
             case EK::DetailsComplete:
-                // On-demand lookup (e.g. dep titles). Don't touch `items` —
+                // On-demand lookup (e.g. dep titles). Don't touch `items` --
                 // those drive the visible list. Only populate the name cache.
                 mergeIntoNameCache(evt->queryResults);
                 break;
@@ -778,7 +778,7 @@ void MenuGame::drawNewMainMenu()
 {
     // Refresh per-frame snapshots the screens read from. Cheap; runs only
     // when the new UI is active. Profile may be unset (no local profile
-    // chosen yet) — handle that case so the new UI doesn't crash on first
+    // chosen yet) -- handle that case so the new UI doesn't crash on first
     // boot before the user picks one.
     {
         const bool hasProfile      = assets.pIsValidLocalProfile();
@@ -828,7 +828,7 @@ void MenuGame::drawNewMainMenu()
         ui_app.profileSnapshot.canLogOut     = loggedIn;
     }
 
-    // Drain any pending Steam Workshop events before drawing — hot-installs
+    // Drain any pending Steam Workshop events before drawing -- hot-installs
     // a newly-downloaded pack, mirrors subscribe state into the cached item
     // list, etc. Cheap when the queue is empty.
     pumpWorkshopEvents();
@@ -849,7 +849,7 @@ void MenuGame::drawNewMainMenu()
     }
 
     // Lazy-load the post-process shader once. If the file is missing we
-    // still draw the UI — the gradient pass just becomes a passthrough.
+    // still draw the UI -- the gradient pass just becomes a passthrough.
     if (!menuAccentShaderLoadAttempted)
     {
         menuAccentShaderLoadAttempted = true;
@@ -874,11 +874,11 @@ void MenuGame::drawNewMainMenu()
 
     // Refresh per-frame text metrics now that font + fontSize are set so
     // every row widget (`button`, `label`, `slider`, …) gets accurate
-    // vertical centering via `rowTextY`. Cheap — measures one glyph.
+    // vertical centering via `rowTextY`. Cheap -- measures one glyph.
     hg::ui::recomputeTextMetrics(ctx);
 
     // Mouse button state. Position is mapped *below*, after `renderStates`
-    // has been set up — so widget hit-testing matches the transformed
+    // has been set up -- so widget hit-testing matches the transformed
     // render.
     ctx.input.mouseDown    = (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
     ctx.input.mousePressed = ctx.input.mouseDown && !mouseWasPressed;
@@ -957,7 +957,7 @@ void MenuGame::drawNewMainMenu()
     }
 
     // Reset edges so they don't carry to next frame. Mouse pos/down are not
-    // edges and survive — they're rebuilt next frame anyway.
+    // edges and survive -- they're rebuilt next frame anyway.
     ui_pendingInput = {};
 
     if (ui_app.exitRequested)
@@ -1042,7 +1042,7 @@ void MenuGame::initInput()
     game.addInput({{k::Escape}},    [this](float) { ui_pendingInput.escape = true; },    t::Once);
     game.addInput({{k::Backspace}}, [this](float) { ui_pendingInput.backspace = true; }, t::Once);
 
-    // Alt+Enter toggles fullscreen — preserved through the legacy refactor
+    // Alt+Enter toggles fullscreen -- preserved through the legacy refactor
     // because it's a global shortcut, not a menu action.
     game.addInput({{k::LAlt, k::Enter}},
                   [this](float)
@@ -1131,7 +1131,7 @@ void MenuGame::ignoreInputsAfterMenuExec()
 bool MenuGame::loadCommandLineLevel(const sf::base::String& /*pack*/, const sf::base::String& /*level*/)
 {
     // Legacy command-line level loading. The new UI doesn't expose it
-    // and the implementation depended on legacy menu state — leaving it
+    // and the implementation depended on legacy menu state -- leaving it
     // as a no-op so the `--level` flag silently does nothing rather
     // than crashing.
     return false;
@@ -1361,7 +1361,7 @@ void MenuGame::refreshCamera()
     epilepsyWarning.scale    = {0.36f, 0.36f};
 
     // The new UI is rendered through the overlay view at virtual ~1366×768
-    // — `fourByThree` is still computed here because the dialog box
+    // -- `fourByThree` is still computed here because the dialog box
     // rendering reads it indirectly via `getOverlayView`.
     fourByThree = 10.f * getWindowWidth() / getWindowHeight() < 16;
 
@@ -1660,14 +1660,14 @@ void MenuGame::draw()
             }
             else
             {
-                // Intermediate allocation failed — fall back to a single
+                // Intermediate allocation failed -- fall back to a single
                 // pass so the menu still draws (just no blur).
                 runPass(menuBgTexture->getTexture(), window.getRenderWindow(), {0.f, 0.f});
             }
         }
         else
         {
-            // Texture allocation failed — fall back to direct render so
+            // Texture allocation failed -- fall back to direct render so
             // the menu still has a backdrop, just without the blur.
             hgMenuBg->getGame().onDraw();
         }
@@ -1688,7 +1688,7 @@ void MenuGame::draw()
         previewTexture->display();
     }
 
-    // Fallback hexagon background — only fires if the menu-bg HG instance
+    // Fallback hexagon background -- only fires if the menu-bg HG instance
     // wasn't allocated (texture creation failed at boot). With the
     // standard new-UI flow `hgMenuBg` is always live.
     if (mainOrAbove && hgMenuBg == nullptr)
@@ -1706,7 +1706,7 @@ void MenuGame::draw()
     }
 
     // The legacy "CURRENT PROFILE: <name>" line has been removed (single-
-    // profile model — see `playLocally`). Missing-dependency warnings
+    // profile model -- see `playLocally`). Missing-dependency warnings
     // still surface if any packs need attention.
     if (mainOrAbove)
     {

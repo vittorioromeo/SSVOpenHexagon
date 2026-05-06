@@ -15,8 +15,8 @@ namespace
 {
 
 // Two flavors of option:
-//   ToggleItem  — read+write a bool
-//   SliderItem  — read+write a float (with min/max/step)
+//   ToggleItem  -- read+write a bool
+//   SliderItem  -- read+write a float (with min/max/step)
 // We keep two parallel arrays per category instead of a tagged union to keep
 // each loop's code dead-simple. Adding a new item = adding one line.
 struct ToggleItem
@@ -141,7 +141,7 @@ void drawOptionsScreen(Context& ctx, App& app, Services& svc)
 {
     OptionsScreenState& s = app.options;
 
-    // The category list has a synthetic "BACK" row appended at the end —
+    // The category list has a synthetic "BACK" row appended at the end --
     // keyboard-navigable like any other category, but activating it pops
     // the screen instead of populating the items pane. `kBackRow` is the
     // category-list index of that row; `kCatNavCount` is the total number
@@ -235,14 +235,14 @@ void drawOptionsScreen(Context& ctx, App& app, Services& svc)
     // Re-capture the category *after* navigation. The previous code held
     // a `const CategoryDef&` from before input handling, so when the user
     // clicked or arrowed onto a different tab, the items pane spent one
-    // frame rendering — and worse, mouse-activating — the *previous*
+    // frame rendering -- and worse, mouse-activating -- the *previous*
     // category's items against the new category's `selectedItem`. That
     // surfaced as "clicking an option in one tab affects another tab".
     const bool         onBackRow = (s.selectedCategory == kBackRow);
     const CategoryDef& cat       = onBackRow ? kCategories[0] : kCategories[s.selectedCategory];
     const int          itemN     = onBackRow ? 0 : totalItems(cat);
 
-    // Snap the item pill (no animation) when the category changes — the
+    // Snap the item pill (no animation) when the category changes -- the
     // visible items list has changed entirely, so a smooth transition would
     // travel through unrelated rows. Also clamp `selectedItem` against the
     // *new* category's item count.
@@ -286,7 +286,7 @@ void drawOptionsScreen(Context& ctx, App& app, Services& svc)
     }
 
     // ---- Items (right column) ---------------------------------------------
-    // Suppress the entire items pane when BACK is focused — otherwise
+    // Suppress the entire items pane when BACK is focused -- otherwise
     // it would bleed the GAMEPLAY items through (since `cat` falls back
     // to category 0 when `onBackRow` is true so `s.selectedCategory`
     // index access stays valid).
@@ -297,7 +297,7 @@ void drawOptionsScreen(Context& ctx, App& app, Services& svc)
 
     ctx.cursor = ctx.origin = rightColTop;
 
-    // Item selection pill — only relevant once focus has moved here (no
+    // Item selection pill -- only relevant once focus has moved here (no
     // pill is drawn at all when the user is still on the category list).
     if (s.selectedItem >= 0 && itemN > 0)
     {

@@ -118,7 +118,7 @@ struct Context
     // by row widgets (button/toggle/label/slider/textField) to vertically
     // center their text in a row of arbitrary height. Without this we
     // get the eyeballed `(r.size.y - fontSize) * 0.5f` look, which only
-    // matches by accident — actual glyph bounds depend on the font.
+    // matches by accident -- actual glyph bounds depend on the font.
     float textCenterOffsetY{0.f};
 
     // Per-screen alpha multiplier set by the dispatcher during transitions
@@ -173,7 +173,7 @@ void separator(Context& ctx);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Interactive widgets. Return whether the user activated/changed them this
-// frame. `focused` is true if the keyboard focus is on this widget — caller
+// frame. `focused` is true if the keyboard focus is on this widget -- caller
 // computes this from its own `selectedIdx`.
 
 // Button: clicked or Enter while focused.
@@ -240,7 +240,7 @@ bool navigateList(Context& ctx, Services& svc, int& idx, int n);
 // Pane helpers. A "pane" is a vertical column of focusable rows: the new
 // menu has nine of them (Main items, Online actions, Options categories +
 // items, LevelSelect packs/levels/actions, Workshop sidebar/list/actions).
-// Every pane needs the same three pieces — animated pill, active-aware
+// Every pane needs the same three pieces -- animated pill, active-aware
 // up/down navigation, and (for multi-pane screens) left/right focus
 // movement. Inlining them at every site is what produced the
 // "active-but-still-using-the-default-pill-color" bug; each helper here
@@ -281,8 +281,8 @@ void beginScreen(Context& ctx, sf::Vec2f origin, const char* title);
 [[nodiscard]] sf::Vec2f screenOrigin(const Context& ctx) noexcept;
 
 // Truncates `buf` in place so it renders within `width` pixels at the
-// given font size, appending "..." when something is cut. Approximate —
-// uses a fixed per-glyph advance — but good enough to keep custom text
+// given font size, appending "..." when something is cut. Approximate --
+// uses a fixed per-glyph advance -- but good enough to keep custom text
 // from overflowing row backdrops. `label`/`heading` apply this internally.
 void truncateToFit(char* buf, float width, float fontSize) noexcept;
 
@@ -304,7 +304,7 @@ void playUiSound(const Context& ctx, sf::base::StringView name);
 // size, in `ctx.colHighlight`, with the standard magenta outline so the
 // post-process gradient pass picks it up. For one-off titles / labels
 // that don't fit the row-based widget cadence. Does not advance the
-// cursor — callers position themselves manually.
+// cursor -- callers position themselves manually.
 void text(Context& ctx, sf::Vec2f pos, const char* str, float charSize);
 
 // Local bounds of the text `text()` would draw with the same arguments,
@@ -316,7 +316,7 @@ void text(Context& ctx, sf::Vec2f pos, const char* str, float charSize);
 
 // Refresh `ctx.textCenterOffsetY` from the current font + `fontSize`.
 // Call once after the host fills `ctx.font` / `ctx.fontSize` (typically
-// at the top of each frame). Cheap — measures one reference glyph.
+// at the top of each frame). Cheap -- measures one reference glyph.
 void recomputeTextMetrics(Context& ctx);
 
 // Y-coordinate at which to draw text so that it sits vertically

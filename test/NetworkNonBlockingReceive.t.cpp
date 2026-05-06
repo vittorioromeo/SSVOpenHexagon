@@ -45,7 +45,7 @@ int main()
     TEST_ASSERT_EQ(static_cast<int>(client.connect(sf::IpAddress::LocalHost, port, sf::seconds(1))),
                    static_cast<int>(sf::Socket::Status::Done));
 
-    // Server accepts the connection and switches to non-blocking mode — this
+    // Server accepts the connection and switches to non-blocking mode -- this
     // is the crucial step that HexagonServer now performs.
     auto acceptResult = listener.accept();
     TEST_ASSERT_EQ(static_cast<int>(acceptResult.status), static_cast<int>(sf::Socket::Status::Done));
@@ -97,7 +97,7 @@ int main()
     TEST_ASSERT(selector.isReady(server));
 
     // Step 4: second receive completes the packet and returns Done, resuming
-    // from the buffered 3 bytes — no data lost.
+    // from the buffered 3 bytes -- no data lost.
     TEST_ASSERT_EQ(static_cast<int>(server.receive(packet)), static_cast<int>(sf::Socket::Status::Done));
     TEST_ASSERT_EQ(packet.getDataSize(), payloadSize);
 

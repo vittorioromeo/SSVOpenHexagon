@@ -178,7 +178,7 @@ public:
 
     // Override render target. When null (default), HG renders into the
     // game window. Setting this to a `sf::RenderTexture*` redirects all
-    // draws — used to render a level preview into an off-screen texture.
+    // draws -- used to render a level preview into an off-screen texture.
     // Caller is responsible for `clear()` / `display()` lifecycle on the
     // texture; HG won't clear the target if `previewMode` is on.
     sf::RenderTarget* renderTarget{nullptr};

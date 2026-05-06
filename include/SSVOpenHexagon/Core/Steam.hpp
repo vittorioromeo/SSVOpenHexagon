@@ -141,7 +141,7 @@ public:
     // `QueryComplete` event, same as `query_workshop_items`.
     void query_workshop_details(const sf::base::Vector<sf::base::U64>& ids);
 
-    // Subscribe / unsubscribe — `ItemInstalled` will fire after Steam
+    // Subscribe / unsubscribe -- `ItemInstalled` will fire after Steam
     // finishes downloading.
     void subscribe_workshop_item(sf::base::U64 publishedFileId);
     void unsubscribe_workshop_item(sf::base::U64 publishedFileId);
@@ -164,7 +164,7 @@ public:
 
     // Polls in-flight HTTP requests started by `request_workshop_preview`
     // and emits `PreviewDownloaded` events for completed ones. Cheap when
-    // nothing is pending — call once per frame from the host's event pump.
+    // nothing is pending -- call once per frame from the host's event pump.
     void pump_workshop_http();
 };
 

@@ -159,7 +159,7 @@ void rebuildFilteredList(LevelSelectScreenState& s, const HGAssets& assets, cons
     // Compute display rows. Pack grouping (with header rows above each
     // group) only applies to the default sort, where levels are already
     // adjacent within their pack. Other sort orders intermix packs, so a
-    // header would be ambiguous — use a flat list there.
+    // header would be ambiguous -- use a flat list there.
     s.filteredDisplayRows.clear();
     s.filteredDisplayRows.reserve(s.filteredLevelIds.size());
     if (s.sortKey == LevelSortKey::PackPriority)
@@ -325,7 +325,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     }
 
     // Auto-scroll the level list so `levelIdx` stays inside the window.
-    // `kMaxVisible` is measured in *display rows* — pack-group header rows
+    // `kMaxVisible` is measured in *display rows* -- pack-group header rows
     // count too, otherwise the list visually grows / shrinks every time a
     // header scrolls in or out of view.
     constexpr int kMaxVisible = 14;
@@ -362,7 +362,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         }
         // Push scrollStart forward until levelIdx fits inside the window.
         // The display-row count varies with pack boundaries, so the cheap
-        // "subtract kMaxVisible" formula doesn't work — we walk instead.
+        // "subtract kMaxVisible" formula doesn't work -- we walk instead.
         while (s.scrollStart < s.levelIdx && computeEnd(s.scrollStart) <= s.levelIdx)
         {
             ++s.scrollStart;
@@ -473,7 +473,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         const int packStart = s.packScrollStart;
         const int packEnd   = std::min(packCount, packStart + kMaxPackVisible);
 
-        // Header label above the list — offsets every pack row down by
+        // Header label above the list -- offsets every pack row down by
         // one row so the pill animation also has to start below it.
         const float kPacksHeaderH   = ctx.rowHeight + 4.f;
         const float packsContentTop = listTop + kPacksHeaderH;
@@ -489,7 +489,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         }
 
         ctx.cursor = ctx.origin = {packsLeft, listTop};
-        // Header rendered in the accent color (gradient sentinel — the
+        // Header rendered in the accent color (gradient sentinel -- the
         // post-process shader paints it with the animated noise gradient).
         const sf::Color textBefore = ctx.colText;
         ctx.colText                = ctx.colAccent;
@@ -528,7 +528,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             }
         }
 
-        // Faded peek of the next pack below the visible window — visual
+        // Faded peek of the next pack below the visible window -- visual
         // hint that the list scrolls.
         if (packEnd < packCount)
         {
@@ -546,7 +546,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     }
     else
     {
-        // Persistent windowing — scroll position only changes when the
+        // Persistent windowing -- scroll position only changes when the
         // selection leaves the visible range or when an explicit jump
         // (e.g. pack click) repositions it. `end` is computed via
         // `computeEnd` so pack-header rows count toward the visible
@@ -562,8 +562,8 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         // `filteredDisplayRows` (built at rebuild time, accounting for
         // header rows). When the window starts at a pack boundary we draw
         // an extra header row at the top, which shifts following rows
-        // down by one — accounted for by `topHeader`.
-        // The pill's index isn't `levelIdx` directly — pack-group header
+        // down by one -- accounted for by `topHeader`.
+        // The pill's index isn't `levelIdx` directly -- pack-group header
         // rows shift the visual rows down. `rel` is the display-row index
         // of the focused level inside the visible window; pass it as the
         // pill helper's `idx` so the animation lands on the right row.
@@ -627,7 +627,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             }
         }
 
-        // Faded peek of the next level below the visible window — visual
+        // Faded peek of the next level below the visible window -- visual
         // hint that the list scrolls. Skips pack-header rendering for
         // simplicity; the user just needs to know "more below".
         if (end < n)
@@ -669,7 +669,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         text(ctx, ctx.cursor + sf::Vec2f{12.f, 0.f}, titleBuf, titleSize);
         ctx.cursor.y += titleHeight + 6.f;
 
-        // Live preview of the selected level — sampled from the off-screen
+        // Live preview of the selected level -- sampled from the off-screen
         // RenderTexture the host paints with `hgPreview`. Occupies the
         // left side of the details column; the action buttons render to
         // its right.
@@ -698,7 +698,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             const auto withCombinedAlpha = [&](sf::Color c)
             { return sf::Color{c.r, c.g, c.b, static_cast<sf::base::U8>(static_cast<float>(c.a) * combinedAlpha)}; };
 
-            // Black backdrop framing — `ctx.colRow` is opaque black in the
+            // Black backdrop framing -- `ctx.colRow` is opaque black in the
             // current theme, and we shrink the rendered sprite by
             // `kFrameInset` on every side so the bg shows through as a
             // visible border.
@@ -842,7 +842,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         // Keyboard: when focused, left/right arrows cycle (the pane-switch
         // logic above already consumed them on this exact frame, so the
         // pane-switch handler must let them through if we're already on
-        // Actions — we simulate that by routing the inline buttons via
+        // Actions -- we simulate that by routing the inline buttons via
         // mouse only and treating the row's focus state as cosmetic).
         // For simplicity, the [<] and [>] mini-buttons handle both mouse
         // and keyboard: when the row is focused, hitting Enter cycles
@@ -936,7 +936,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         separator(ctx);
         newLine(ctx, 4.f);
 
-        // Best score row (read-only — difficulty is its own action above).
+        // Best score row (read-only -- difficulty is its own action above).
         if (profile != nullptr && !cur.difficultyMults.empty())
         {
             const float dm   = cur.difficultyMults[s.difficultyIdx];
