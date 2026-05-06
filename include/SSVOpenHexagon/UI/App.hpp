@@ -54,6 +54,12 @@ struct OptionsScreenState
     int   selectedItem{-1};
     float categorySelectionY{0.f};
     float itemSelectionY{0.f};
+
+    // True while the focused slider is in "edit mode" — left/right then
+    // step the slider's value instead of navigating panes. Toggled on by
+    // Enter on a slider row, off by Enter again, by Escape, or by
+    // up/down (which also moves the focus away).
+    bool sliderEditing{false};
 };
 
 enum class LevelSortKey : sf::base::U8
@@ -69,12 +75,12 @@ enum class LevelSortKey : sf::base::U8
 
 struct WorkshopBrowseScreenState
 {
-    Steam::WorkshopQueryMode             queryMode{Steam::WorkshopQueryMode::MostPopular};
-    int                                  page{1};
+    Steam::WorkshopQueryMode              queryMode{Steam::WorkshopQueryMode::MostPopular};
+    int                                   page{1};
     sf::base::Vector<Steam::WorkshopItem> items;
 
-    bool  queryInFlight{false};
-    bool  initialQueryFired{false};
+    bool queryInFlight{false};
+    bool initialQueryFired{false};
 
     // Total result count Steam reports for the active query — used to
     // render the page indicator as "current/total". 0 until the first
@@ -102,29 +108,23 @@ struct WorkshopBrowseScreenState
     int   selectedIdx{0};
     float selectionY{0.f};
 
-    // Three-pane focus: sidebar (filters / pagination) | list | actions.
-    // Left/right arrows hop between adjacent panes; up/down navigate the
-    // active one. Default is the list, since that's where the user's
-    // attention naturally goes after entering the screen.
-    bool  sidebarFocused{false};
+    // Three-pane focus: 0 = sidebar (filters / pagination), 1 = list,
+    // 2 = actions. Left/right arrows hop between adjacent panes via the
+    // shared `paneSwitchLeftRight` helper; up/down navigate the active
+    // pane. Default is the list, since that's where the user's attention
+    // naturally goes after entering the screen.
+    int activePane{1};
+
     int   sidebarIdx{0};
     float sidebarSelectionY{0.f};
 
     // Show only items that are subscribed AND installed. Useful for
     // re-finding packs the user has already pulled down.
-    bool  downloadedOnly{false};
+    bool downloadedOnly{false};
 
-    // Action-pane focus (DOWNLOAD / DELETE / BACK). Right arrow on the
-    // item list jumps in here; left arrow / Escape jumps back. `actionIdx`
-    // is the row within the action pane (0 = primary, 1 = back).
-    bool  actionsFocused{false};
+    // Action-pane row index (DOWNLOAD/DELETE = 0, BACK = 1).
     int   actionIdx{0};
     float actionSelectionY{0.f};
-
-    // Per-item preview carousel: which preview image to show, and a
-    // playback timer that auto-advances the carousel for the focused item.
-    int   carouselIdx{0};
-    float carouselTimer{0.f};
 
     // Async preview-image cache, keyed by `publishedFileId`. The flow:
     //   1. UI navigates to an item; if not in the map, it fires
@@ -139,7 +139,7 @@ struct WorkshopBrowseScreenState
     // the user returns to the workshop browser.
     std::unordered_map<sf::base::U64, sf::base::Optional<sf::Texture>> previewTextures;
 
-    char  statusMessage[128] = {};
+    char statusMessage[128] = {};
 };
 
 struct LevelSelectScreenState
@@ -161,13 +161,13 @@ struct LevelSelectScreenState
     bool                               cacheStale{true};
 
     // Selection within `filteredLevelIds`.
-    int           levelIdx{0};
-    int           difficultyIdx{0};
-    sf::base::String lastPreviewedId{}; //!< last level *id* we fired `onPreviewLevel` for
-    int           scrollStart{0};       //!< persistent first-visible index for the level list
-    int           packScrollStart{0};   //!< persistent first-visible index for the pack column
-    float         selectionY{0.f};      //!< animated y-pixel cursor on the level list (visible space)
-    float         packSelectionY{0.f};  //!< animated y-pixel cursor on the pack column
+    int              levelIdx{0};
+    int              difficultyIdx{0};
+    sf::base::String lastPreviewedId{};   //!< last level *id* we fired `onPreviewLevel` for
+    int              scrollStart{0};      //!< persistent first-visible index for the level list
+    int              packScrollStart{0};  //!< persistent first-visible index for the pack column
+    float            selectionY{0.f};     //!< animated y-pixel cursor on the level list (visible space)
+    float            packSelectionY{0.f}; //!< animated y-pixel cursor on the pack column
 
     // Which column gets keyboard up/down/enter input. Left/right arrows
     // cycle between panes; clicking on a pack/level/action also moves the
@@ -181,7 +181,7 @@ struct LevelSelectScreenState
     Pane pane{Pane::Levels};
 
     // Index inside the actions pane (FAVORITE, PLAY, DIFFICULTY, BACK).
-    int actionIdx{1}; //!< default to PLAY
+    int   actionIdx{1}; //!< default to PLAY
     float actionSelectionY{0.f};
 
     // 0..1 alpha for the live level-preview pane on the right. Eases in
@@ -196,10 +196,10 @@ struct LevelSelectScreenState
 // on `HGAssets`/`HexagonClient`/etc.
 struct ProfileSnapshot
 {
-    char name[64]            = {};
-    int  totalScored         = 0;
-    int  totalFavorites      = 0;
-    char onlineStatus[64]    = "OFFLINE";
+    char name[64]         = {};
+    int  totalScored      = 0;
+    int  totalFavorites   = 0;
+    char onlineStatus[64] = "OFFLINE";
 
     // Capability flags driven by the host from `HexagonClient::State`. The
     // Online screen reads these to decide which action buttons to surface

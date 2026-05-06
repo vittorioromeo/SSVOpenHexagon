@@ -52,13 +52,13 @@ struct Input
     bool mousePressed{}; //!< edge: mouse button just pressed this frame
     bool mouseDown{};    //!< level: mouse button held this frame
 
-    bool up{};       //!< edge: navigate up
-    bool down{};     //!< edge: navigate down
-    bool left{};     //!< edge: decrease / move left
-    bool right{};    //!< edge: increase / move right
-    bool enter{};    //!< edge: activate selection
-    bool escape{};   //!< edge: back / cancel
-    bool backspace{};//!< edge: erase one character (text fields)
+    bool up{};        //!< edge: navigate up
+    bool down{};      //!< edge: navigate down
+    bool left{};      //!< edge: decrease / move left
+    bool right{};     //!< edge: increase / move right
+    bool enter{};     //!< edge: activate selection
+    bool escape{};    //!< edge: back / cancel
+    bool backspace{}; //!< edge: erase one character (text fields)
 
     // Null-terminated chars typed this frame (max 7 chars + NUL). Caller fills.
     char typedChars[8] = {0};
@@ -101,15 +101,15 @@ struct Context
     // a sentinel color: the shader pass that composites the UI onto the
     // window replaces every magenta pixel with a screen-space gradient, so
     // pills and text outlines animate as a colored gradient at runtime.
-    sf::Color colText      {255, 255, 255, 255};
-    sf::Color colTextDim   {255, 255, 255, 160};
-    sf::Color colHighlight {255, 255, 255, 255};
-    sf::Color colAccent    {255,   0, 255, 255};
-    sf::Color colRow       {  0,   0,   0, 200};
+    sf::Color colText{255, 255, 255, 255};
+    sf::Color colTextDim{255, 255, 255, 160};
+    sf::Color colHighlight{255, 255, 255, 255};
+    sf::Color colAccent{255, 0, 255, 255};
+    sf::Color colRow{0, 0, 0, 200};
     // Focused rows reuse the same dark transparent background as non-focused
     // rows so a focus pill drawn behind them shows through uniformly. Focus
     // is signaled by the pill underneath plus the highlighted text color.
-    sf::Color colRowFocused{  0,   0,   0, 200};
+    sf::Color colRowFocused{0, 0, 0, 200};
 
     float fontSize{22.f};
 
@@ -154,9 +154,9 @@ float easeOutBack(float t) noexcept;
 ////////////////////////////////////////////////////////////////////////////////
 // Layout helpers.
 
-void newLine  (Context& ctx, float dyExtra = 0.f);
+void newLine(Context& ctx, float dyExtra = 0.f);
 void newColumn(Context& ctx, float dx);
-void indent   (Context& ctx, float dx);
+void indent(Context& ctx, float dx);
 
 // Rectangle of the current row at the cursor, given a width.
 sf::Rect2f rowRect(const Context& ctx, float width) noexcept;
@@ -167,8 +167,8 @@ sf::Rect2f rowRect(const Context& ctx, float width) noexcept;
 // Display widgets paint a `colRow` row backdrop (semi-transparent) before
 // drawing their text, matching the look of interactive widgets. `width`
 // controls the backdrop width; pass a smaller value when the text is short.
-void label    (Context& ctx, const char* text, float width = 420.f);
-void heading  (Context& ctx, const char* text, float width = 420.f);
+void label(Context& ctx, const char* text, float width = 420.f);
+void heading(Context& ctx, const char* text, float width = 420.f);
 void separator(Context& ctx);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -180,16 +180,29 @@ void separator(Context& ctx);
 bool button(Context& ctx, const char* text, bool focused, float width = 360.f);
 
 // Toggle: returns true if `value` flipped this frame.
-bool toggle(Context& ctx, const char* text, bool& value, bool focused, float width = 360.f);
+bool toggle(Context& ctx, const char* text, bool& value, bool focused, float width = 360.f, bool enabled = true);
 
 // Slider: returns true if `value` changed this frame.
-bool slider(Context& ctx, const char* text, float& value,
-            float min, float max, float step, bool focused, float width = 360.f);
+//
+// `editing` is in/out. While `true` the widget consumes left/right to
+// step `value`. The widget itself flips it on Enter (when focused) and
+// flips it back off on a second Enter. Callers that want up/down or
+// escape to also exit edit mode should check `editing` themselves and
+// reset it before running pane navigation. Mouse drag is always live
+// and ignores the flag.
+bool slider(Context&    ctx,
+            const char* text,
+            float&      value,
+            float       min,
+            float       max,
+            float       step,
+            bool        focused,
+            bool&       editing,
+            float       width = 360.f);
 
 // One-line text input. Returns true if the buffer changed this frame.
 // `submitted` is set to true on Enter while focused.
-bool textField(Context& ctx, const char* labelText, sf::base::String& buf,
-               bool focused, bool& submitted, float width = 360.f);
+bool textField(Context& ctx, const char* labelText, sf::base::String& buf, bool focused, bool& submitted, float width = 360.f);
 
 // Generic clickable rectangle. Returns true on click inside `rect` this frame.
 struct RowResult
@@ -222,6 +235,35 @@ void labelf(Context& ctx, const char* fmt, ...);
 // via `svc.playSound` whenever the index moves. Returns true on change.
 // `n` is the list length; no-op if `n <= 0`.
 bool navigateList(Context& ctx, Services& svc, int& idx, int n);
+
+////////////////////////////////////////////////////////////////////////////////
+// Pane helpers. A "pane" is a vertical column of focusable rows: the new
+// menu has nine of them (Main items, Online actions, Options categories +
+// items, LevelSelect packs/levels/actions, Workshop sidebar/list/actions).
+// Every pane needs the same three pieces — animated pill, active-aware
+// up/down navigation, and (for multi-pane screens) left/right focus
+// movement. Inlining them at every site is what produced the
+// "active-but-still-using-the-default-pill-color" bug; each helper here
+// collapses the per-screen boilerplate to one line.
+
+// Animates `pillY` toward `idx * ctx.rowHeight` and draws a row-height
+// selection pill at `topLeft + (0, pillY)`. The pill uses `colAccent`
+// when `active`, the desaturated accent otherwise.
+void animatedPill(Context& ctx, sf::Vec2f topLeft, float width, int idx, float& pillY, bool active);
+
+// Active-aware list navigation. Identical to `navigateList(ctx, svc, idx, n)`
+// when `active` is true; a no-op when false (so multi-pane screens can
+// loop over their panes and only the focused one consumes up/down).
+// Returns true if `idx` changed.
+bool navigatePane(Context& ctx, Services& svc, int& idx, int n, bool active);
+
+// Lightweight handler for left/right arrow pane switching. `activePane` is
+// clamped to `[0, paneCount)`; left moves it down by one, right moves it
+// up by one (no wrap). Plays a "beep" through `svc` on change. Returns
+// true if `activePane` changed. Screens that bind left/right to other
+// actions (e.g. LevelSelect's DIFFICULTY arrows) skip this helper and
+// roll their own switching logic.
+bool paneSwitchLeftRight(Context& ctx, Services& svc, int& activePane, int paneCount);
 
 // Anchors a screen at `origin`, draws the heading, and leaves the cursor
 // positioned for the first widget. Replaces the cursor-reset + heading

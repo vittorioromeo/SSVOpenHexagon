@@ -3,6 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 
 #include "SFML/Base/Optional.hpp"
@@ -60,10 +61,28 @@ timeline2_runner::outcome timeline2_runner::update(timeline2& timeline, const ti
     {
         timeline2::action& a = timeline.action_at(_current_idx);
 
-        const outcome o = a.linearMatch(
-            [&](timeline2::action_do& x)
+        // `action_do` is handled out-of-band because its callback can run
+        // user code (Lua) that appends to the same timeline. The append
+        // may reallocate `_actions`, freeing the variant we'd otherwise
+        // still be visiting through `linearMatch` — `linearMatch`'s fold
+        // re-reads the variant's discriminator after the visitor returns,
+        // which would be a heap-use-after-free on the reallocated buffer.
+        // Move the function out, advance the index, drop the reference,
+        // *then* invoke.
+        if (a.is<timeline2::action_do>())
         {
-            x._func();
+            auto fn = SSVOH_MOVE(a.as<timeline2::action_do>()._func);
+            ++_current_idx;
+            fn();
+            continue;
+        }
+
+        const outcome o = a.linearMatch(
+            [&](timeline2::action_do&)
+        {
+            // Already handled above; unreachable. Kept to satisfy the
+            // exhaustive-match requirement of `linearMatch`.
+            SSVOH_ASSERT(false);
             return outcome::proceed;
         },
             [&](timeline2::action_wait_for& x)

@@ -45,7 +45,7 @@ namespace
 // Visual depth of sub-screens above the Main menu. When a sub-screen is
 // active, Main slides this many pixels left (partially out of the
 // viewport) so the user still sees it as the "back" of the stack.
-constexpr float kSubscreenSlideX = 480.f;
+constexpr float kSubscreenSlideX = 1024.f;
 
 // How much of the original alpha the backgrounded Main keeps. 1.0 = full,
 // 0.0 = invisible. ~30% reads as "muted but still there".

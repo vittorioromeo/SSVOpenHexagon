@@ -2,9 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/UI/UI.hpp"
-
 #include "SSVOpenHexagon/UI/Services.hpp"
+#include "SSVOpenHexagon/UI/UI.hpp"
 
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/RectangleShapeData.hpp"
@@ -18,6 +17,8 @@
 
 #include "SFML/Base/Math/Exp.hpp"
 #include "SFML/Base/String.hpp"
+
+#include <SFML/Graphics/Color.hpp>
 
 #include <cmath>
 #include <cstdarg>
@@ -55,12 +56,13 @@ constexpr float kOutlineFactor = 0.025f;
 
 void drawRect(Context& ctx, sf::Rect2f r, sf::Color fill)
 {
-    ctx.target->draw(sf::RectangleShapeData{
-                         .position  = {r.position.x, r.position.y},
-                         .fillColor = fill,
-                         .size      = {r.size.x, r.size.y},
-                     },
-                     ctx.renderStates);
+    ctx.target->draw(
+        sf::RectangleShapeData{
+            .position  = {r.position.x, r.position.y},
+            .fillColor = fill,
+            .size      = {r.size.x, r.size.y},
+        },
+        ctx.renderStates);
 }
 
 // Sanitize a UTF-8 input into a stack buffer of ASCII the menu font can
@@ -103,8 +105,7 @@ void sanitizeForMenuFont(const char* in, char (&out)[kTextSanitizeBufSize])
     out[i] = '\0';
 }
 
-void drawText(Context& ctx, sf::Vec2f pos, const char* s, sf::Color color,
-              float sizeOverride = 0.f, float maxWidth = 0.f)
+void drawText(Context& ctx, sf::Vec2f pos, const char* s, sf::Color color, float sizeOverride = 0.f, float maxWidth = 0.f)
 {
     char safe[kTextSanitizeBufSize];
     sanitizeForMenuFont(s, safe);
@@ -132,8 +133,8 @@ void drawText(Context& ctx, sf::Vec2f pos, const char* s, sf::Color color,
 // True if `pt` is inside `r` (open right/bottom — matches SFML conventions).
 bool pointInRect(sf::Vec2f pt, sf::Rect2f r) noexcept
 {
-    return pt.x >= r.position.x && pt.x < r.position.x + r.size.x &&
-           pt.y >= r.position.y && pt.y < r.position.y + r.size.y;
+    return pt.x >= r.position.x && pt.x < r.position.x + r.size.x && pt.y >= r.position.y &&
+           pt.y < r.position.y + r.size.y;
 }
 
 } // namespace
@@ -152,10 +153,9 @@ sf::Vec2f screenToUI(const Context& ctx, sf::Vec2f pixelPos) noexcept
     // `RenderTarget::draw` does: a default-constructed `view` is replaced
     // with one spanning the target's size, so we must do the same here or
     // `screenToWorld` operates on a zero-sized view and returns garbage.
-    const sf::Vec2f targetSize = ctx.target->getSize().to<sf::Vec2f>();
-    const sf::View  effectiveView = (ctx.renderStates.view == sf::View{})
-                                        ? sf::View::fromScreenSize(targetSize)
-                                        : ctx.renderStates.view;
+    const sf::Vec2f targetSize    = ctx.target->getSize().to<sf::Vec2f>();
+    const sf::View  effectiveView = (ctx.renderStates.view == sf::View{}) ? sf::View::fromScreenSize(targetSize)
+                                                                          : ctx.renderStates.view;
     const sf::Vec2f world         = effectiveView.screenToWorld(pixelPos, targetSize);
 
     // world → model (undo the user-supplied transform). Identity transforms
@@ -186,8 +186,8 @@ bool stepToward(float& current, float target, float dt, float speed)
     // Velocity floor — guarantee we move at least `kMinStepPerSecond * dt`
     // toward the target. Hides the asymptotic slowdown of exponential
     // decay, so the cursor doesn't crawl through the last few pixels.
-    const float floor   = kMinStepPerSecond * dt;
-    float       step    = expStep;
+    const float floor = kMinStepPerSecond * dt;
+    float       step  = expStep;
     if (std::fabs(step) < floor)
     {
         step = (diff > 0.f) ? floor : -floor;
@@ -271,10 +271,7 @@ void label(Context& ctx, const char* text, float width)
     sanitizeForMenuFont(text, safe);
     truncateToFit(safe, r.size.x - kRowPad * 2.f, ctx.fontSize);
 
-    drawText(ctx,
-             {r.position.x + kRowPad, rowTextY(ctx, r)},
-             safe,
-             ctx.colText);
+    drawText(ctx, {r.position.x + kRowPad, rowTextY(ctx, r)}, safe, ctx.colText);
     newLine(ctx);
 }
 
@@ -290,13 +287,10 @@ void heading(Context& ctx, const char* text, float width)
     sanitizeForMenuFont(text, safe);
     truncateToFit(safe, width - kRowPad * 2.f, headingSize);
 
-    drawText(ctx, {bg.position.x + kRowPad, rowTextY(ctx, bg, headingSize)},
-             safe, ctx.colHighlight, headingSize);
+    drawText(ctx, {bg.position.x + kRowPad, rowTextY(ctx, bg, headingSize)}, safe, ctx.colHighlight, headingSize);
 
     // Accent stripe under the heading.
-    drawRect(ctx,
-             {{ctx.cursor.x, ctx.cursor.y + bgHeight}, {width, 2.f}},
-             ctx.colAccent);
+    drawRect(ctx, {{ctx.cursor.x, ctx.cursor.y + bgHeight}, {width, 2.f}}, ctx.colAccent);
 
     ctx.cursor.x = ctx.origin.x;
     ctx.cursor.y += bgHeight + 14.f;
@@ -304,9 +298,7 @@ void heading(Context& ctx, const char* text, float width)
 
 void separator(Context& ctx)
 {
-    drawRect(ctx,
-             {{ctx.cursor.x, ctx.cursor.y + ctx.rowHeight * 0.5f}, {420.f, 1.f}},
-             ctx.colTextDim);
+    drawRect(ctx, {{ctx.cursor.x, ctx.cursor.y + ctx.rowHeight * 0.5f}, {420.f, 1.f}}, ctx.colTextDim);
     newLine(ctx, 4.f);
 }
 
@@ -319,14 +311,11 @@ void separator(Context& ctx)
 void drawHoverOverlay(Context& ctx, sf::Rect2f r)
 {
     const sf::Color& bg = ctx.colRow;
-    const int        bgLuma = (static_cast<int>(bg.r) * 299 +
-                               static_cast<int>(bg.g) * 587 +
-                               static_cast<int>(bg.b) * 114) /
-                              1000;
-    drawRect(ctx, r,
-             (bgLuma > 128)
-                 ? sf::Color{  0,   0,   0,  60}    // light bg → dark hover tint
-                 : sf::Color{255, 255, 255,  60});  // dark bg  → light hover tint
+    const int bgLuma = (static_cast<int>(bg.r) * 299 + static_cast<int>(bg.g) * 587 + static_cast<int>(bg.b) * 114) / 1000;
+    drawRect(ctx,
+             r,
+             (bgLuma > 128) ? sf::Color{0, 0, 0, 60}         // light bg → dark hover tint
+                            : sf::Color{255, 255, 255, 60}); // dark bg  → light hover tint
 }
 
 bool button(Context& ctx, const char* text, bool focused, float width)
@@ -335,7 +324,8 @@ bool button(Context& ctx, const char* text, bool focused, float width)
     const bool       hovered = pointInRect(ctx.input.mousePos, r);
 
     drawRect(ctx, r, focused ? ctx.colRowFocused : ctx.colRow);
-    if (hovered && !focused) drawHoverOverlay(ctx, r);
+    if (hovered && !focused)
+        drawHoverOverlay(ctx, r);
 
     drawText(ctx,
              {r.position.x + kRowPad, rowTextY(ctx, r)},
@@ -344,39 +334,40 @@ bool button(Context& ctx, const char* text, bool focused, float width)
              0.f,
              width - kRowPad * 2.f);
 
-    const bool activated = (focused && ctx.input.enter) ||
-                           (hovered && ctx.input.mousePressed);
+    const bool activated = (focused && ctx.input.enter) || (hovered && ctx.input.mousePressed);
 
     newLine(ctx);
-    if (activated) playUiSound(ctx, "select.ogg");
+    if (activated)
+        playUiSound(ctx, "select.ogg");
     return activated;
 }
 
-bool toggle(Context& ctx, const char* text, bool& value, bool focused, float width)
+bool toggle(Context& ctx, const char* text, bool& value, bool focused, float width, bool enabled)
 {
     const sf::Rect2f r       = rowRect(ctx, width);
     const bool       hovered = pointInRect(ctx.input.mousePos, r);
 
-    drawRect(ctx, r, focused ? ctx.colRowFocused : ctx.colRow);
-    if (hovered && !focused) drawHoverOverlay(ctx, r);
+    drawRect(ctx, r, enabled ? (focused ? ctx.colRowFocused : ctx.colRow) : ctx.colRow * sf::Color{128, 128, 128, 255});
+    if (hovered && !focused)
+        drawHoverOverlay(ctx, r);
 
     constexpr float kMarkerW = 80.f;
     drawText(ctx,
              {r.position.x + kRowPad, rowTextY(ctx, r)},
              text,
-             focused ? ctx.colHighlight : ctx.colText,
+             enabled ? (focused ? ctx.colHighlight : ctx.colText) : ctx.colTextDim,
              0.f,
              r.size.x - kRowPad * 2.f - kMarkerW - 8.f);
 
-    const char* marker = value ? "[ ON ]" : "[ OFF ]";
-    drawText(ctx,
-             {r.position.x + r.size.x - kRowPad - kMarkerW,
-              rowTextY(ctx, r)},
-             marker,
-             value ? ctx.colAccent : ctx.colTextDim);
+    const char* marker = value ? "ON" : "OFF";
+    drawText(ctx, {r.position.x + r.size.x - kRowPad - kMarkerW, rowTextY(ctx, r)}, marker, value ? ctx.colAccent : ctx.colTextDim);
 
-    const bool activated = (focused && (ctx.input.enter || ctx.input.left || ctx.input.right)) ||
-                           (hovered && ctx.input.mousePressed);
+    // Activation: Enter while focused, or mouse click. Left/right are
+    // intentionally NOT bound — multi-pane screens (Options, Workshop)
+    // bind those arrows to pane switching, so a focused toggle reacting
+    // to them would both flip its value and move the focus on the same
+    // frame.
+    const bool activated = (focused && ctx.input.enter) || (hovered && ctx.input.mousePressed);
 
     newLine(ctx);
     if (activated)
@@ -388,13 +379,14 @@ bool toggle(Context& ctx, const char* text, bool& value, bool focused, float wid
     return false;
 }
 
-bool slider(Context& ctx, const char* text, float& value, float min, float max, float step, bool focused, float width)
+bool slider(Context& ctx, const char* text, float& value, float min, float max, float step, bool focused, bool& editing, float width)
 {
     const sf::Rect2f r       = rowRect(ctx, width);
     const bool       hovered = pointInRect(ctx.input.mousePos, r);
 
     drawRect(ctx, r, focused ? ctx.colRowFocused : ctx.colRow);
-    if (hovered && !focused) drawHoverOverlay(ctx, r);
+    if (hovered && !focused)
+        drawHoverOverlay(ctx, r);
 
     drawText(ctx,
              {r.position.x + kRowPad, rowTextY(ctx, r)},
@@ -416,20 +408,36 @@ bool slider(Context& ctx, const char* text, float& value, float min, float max, 
 
     char numBuf[16];
     std::snprintf(numBuf, sizeof(numBuf), "%.2f", static_cast<double>(value));
-    drawText(ctx,
-             {numericX, rowTextY(ctx, r, numFontSize)},
-             numBuf,
-             focused ? ctx.colHighlight : ctx.colText,
-             numFontSize);
+    drawText(ctx, {numericX, rowTextY(ctx, r, numFontSize)}, numBuf, focused ? ctx.colHighlight : ctx.colText, numFontSize);
 
-    drawRect(ctx, {{trackX, trackY}, {trackW, 4.f}},          sf::Color{60, 60, 70, 255});
-    drawRect(ctx, {{trackX, trackY}, {trackW * fillPct, 4.f}}, ctx.colAccent);
+    drawRect(ctx, {{trackX, trackY}, {trackW, 4.f}}, sf::Color{60, 60, 70, 255});
+    // Track fill — accent when editing, dim accent otherwise so the
+    // user has a visual cue that left/right will step the value.
+    drawRect(ctx, {{trackX, trackY}, {trackW * fillPct, 4.f}}, focused && editing ? sf::Color::White : ctx.colAccent);
 
     bool changed = false;
-    if (focused)
+
+    // Enter toggles edit mode on the focused row.
+    if (focused && ctx.input.enter)
     {
-        if (ctx.input.left)  { value -= step; changed = true; }
-        if (ctx.input.right) { value += step; changed = true; }
+        editing = !editing;
+        playUiSound(ctx, "select.ogg");
+    }
+
+    // Left/right step the value, but only while edit mode is active.
+    // Outside edit mode they pass through to the host's pane navigation.
+    if (focused && editing)
+    {
+        if (ctx.input.left)
+        {
+            value -= step;
+            changed = true;
+        }
+        if (ctx.input.right)
+        {
+            value += step;
+            changed = true;
+        }
     }
 
     // Mouse drag on the track: while the LMB is held over the row, set the
@@ -444,9 +452,7 @@ bool slider(Context& ctx, const char* text, float& value, float min, float max, 
         const float rawValue = min + clamped * (max - min);
 
         // Quantize to the requested step.
-        const float quant = (step > 0.f)
-                                ? min + std::round((rawValue - min) / step) * step
-                                : rawValue;
+        const float quant = (step > 0.f) ? min + std::round((rawValue - min) / step) * step : rawValue;
         if (quant != value)
         {
             value   = quant;
@@ -456,8 +462,10 @@ bool slider(Context& ctx, const char* text, float& value, float min, float max, 
 
     if (changed)
     {
-        if (value < min) value = min;
-        if (value > max) value = max;
+        if (value < min)
+            value = min;
+        if (value > max)
+            value = max;
         playUiSound(ctx, "beep.ogg"); // each tick beeps; quieter than `select.ogg`
     }
 
@@ -473,7 +481,8 @@ bool textField(Context& ctx, const char* labelText, sf::base::String& buf, bool 
     const bool       hovered = pointInRect(ctx.input.mousePos, r);
 
     drawRect(ctx, r, focused ? ctx.colRowFocused : ctx.colRow);
-    if (hovered && !focused) drawHoverOverlay(ctx, r);
+    if (hovered && !focused)
+        drawHoverOverlay(ctx, r);
 
     constexpr float kInputOffsetX = 180.f;
     drawText(ctx,
@@ -513,7 +522,8 @@ bool textField(Context& ctx, const char* labelText, sf::base::String& buf, bool 
     }
 
     newLine(ctx);
-    if (changed) playUiSound(ctx, "beep.ogg"); // typing / erasing
+    if (changed)
+        playUiSound(ctx, "beep.ogg"); // typing / erasing
     return changed;
 }
 
@@ -548,11 +558,55 @@ void labelf(Context& ctx, const char* fmt, ...)
 
 bool navigateList(Context& ctx, Services& svc, int& idx, int n)
 {
-    if (n <= 0) return false;
+    if (n <= 0)
+        return false;
     bool changed = false;
-    if (ctx.input.up)   { idx = (idx + n - 1) % n; changed = true; }
-    if (ctx.input.down) { idx = (idx + 1) % n;     changed = true; }
-    if (changed && svc.playSound) svc.playSound("beep.ogg");
+    if (ctx.input.up)
+    {
+        idx     = (idx + n - 1) % n;
+        changed = true;
+    }
+    if (ctx.input.down)
+    {
+        idx     = (idx + 1) % n;
+        changed = true;
+    }
+    if (changed && svc.playSound)
+        svc.playSound("beep.ogg");
+    return changed;
+}
+
+void animatedPill(Context& ctx, sf::Vec2f topLeft, float width, int idx, float& pillY, bool active)
+{
+    stepToward(pillY, static_cast<float>(idx) * ctx.rowHeight, ctx.dt, 256.f);
+    const sf::Color color = active ? ctx.colAccent : desaturate(ctx.colAccent);
+    pill(ctx, {topLeft.x, topLeft.y + pillY}, width, color);
+}
+
+bool navigatePane(Context& ctx, Services& svc, int& idx, int n, bool active)
+{
+    if (!active)
+        return false;
+    return navigateList(ctx, svc, idx, n);
+}
+
+bool paneSwitchLeftRight(Context& ctx, Services& svc, int& activePane, int paneCount)
+{
+    if (paneCount <= 1)
+        return false;
+    bool changed = false;
+    if (ctx.input.left && activePane > 0)
+    {
+        --activePane;
+        changed = true;
+    }
+    if (ctx.input.right && activePane < paneCount - 1)
+    {
+        ++activePane;
+        changed = true;
+    }
+    if (changed && svc.playSound)
+        svc.playSound("beep.ogg");
     return changed;
 }
 
@@ -571,9 +625,11 @@ sf::Vec2f viewportSize(const Context& ctx) noexcept
     // pixels. The default (uninitialized) `View{}` falls back to the
     // target size, mirroring what `RenderTarget::draw` does at draw time.
     const sf::View& view = ctx.renderStates.view;
-    if (view != sf::View{}) return view.size;
+    if (view != sf::View{})
+        return view.size;
 
-    if (ctx.target == nullptr) return {0.f, 0.f};
+    if (ctx.target == nullptr)
+        return {0.f, 0.f};
     return ctx.target->getSize().to<sf::Vec2f>();
 }
 
@@ -592,11 +648,9 @@ void drawFadedPeekRow(Context& ctx, const char* text, float width)
     // Alpha at ~1/3 of the original is enough to read as "ghost row".
     const sf::Color textBefore = ctx.colText;
     const sf::Color rowBefore  = ctx.colRow;
-    const auto      fadeAlpha  = [](sf::base::U8 a) {
-        return static_cast<sf::base::U8>(static_cast<unsigned int>(a) / 3u);
-    };
-    ctx.colText = sf::Color{textBefore.r, textBefore.g, textBefore.b, fadeAlpha(textBefore.a)};
-    ctx.colRow  = sf::Color{rowBefore.r,  rowBefore.g,  rowBefore.b,  fadeAlpha(rowBefore.a)};
+    const auto fadeAlpha = [](sf::base::U8 a) { return static_cast<sf::base::U8>(static_cast<unsigned int>(a) / 3u); };
+    ctx.colText          = sf::Color{textBefore.r, textBefore.g, textBefore.b, fadeAlpha(textBefore.a)};
+    ctx.colRow           = sf::Color{rowBefore.r, rowBefore.g, rowBefore.b, fadeAlpha(rowBefore.a)};
 
     label(ctx, text, width);
 
@@ -606,7 +660,8 @@ void drawFadedPeekRow(Context& ctx, const char* text, float width)
 
 void playUiSound(const Context& ctx, sf::base::StringView name)
 {
-    if (ctx.services && ctx.services->playSound) ctx.services->playSound(name);
+    if (ctx.services && ctx.services->playSound)
+        ctx.services->playSound(name);
 }
 
 void text(Context& ctx, sf::Vec2f pos, const char* str, float charSize)
@@ -624,13 +679,12 @@ sf::Rect2f measureText(const Context& ctx, const char* str, float charSize)
     char safe[kTextSanitizeBufSize];
     sanitizeForMenuFont(str, safe);
 
-    return sf::TextUtils::precomputeTextLocalBounds(
-        *ctx.font,
-        sf::TextData{
-            .string           = sf::UnicodeString{safe},
-            .characterSize    = static_cast<unsigned int>(charSize),
-            .outlineThickness = charSize * kOutlineFactor,
-        });
+    return sf::TextUtils::precomputeTextLocalBounds(*ctx.font,
+                                                    sf::TextData{
+                                                        .string           = sf::UnicodeString{safe},
+                                                        .characterSize    = static_cast<unsigned int>(charSize),
+                                                        .outlineThickness = charSize * kOutlineFactor,
+                                                    });
 }
 
 void recomputeTextMetrics(Context& ctx)
@@ -651,32 +705,31 @@ void recomputeTextMetrics(Context& ctx)
 
 float rowTextY(const Context& ctx, sf::Rect2f rowRect, float charSize) noexcept
 {
-    const float scale = (charSize <= 0.f || ctx.fontSize <= 0.f)
-                            ? 1.f
-                            : (charSize / ctx.fontSize);
+    const float scale = (charSize <= 0.f || ctx.fontSize <= 0.f) ? 1.f : (charSize / ctx.fontSize);
     return rowRect.position.y + rowRect.size.y * 0.5f - ctx.textCenterOffsetY * scale;
 }
 
 sf::Color desaturate(sf::Color c) noexcept
 {
     const sf::base::U8 g = static_cast<sf::base::U8>(
-        (static_cast<int>(c.r) * 299 +
-         static_cast<int>(c.g) * 587 +
-         static_cast<int>(c.b) * 114) / 1000);
+        (static_cast<int>(c.r) * 299 + static_cast<int>(c.g) * 587 + static_cast<int>(c.b) * 114) / 1000);
     return sf::Color{g, g, g, c.a};
 }
 
 void truncateToFit(char* buf, float width, float fontSize) noexcept
 {
-    if (buf == nullptr || width <= 0.f) return;
+    if (buf == nullptr || width <= 0.f)
+        return;
 
     // The OpenSquare menu font is roughly 0.6em wide per glyph (monospace).
     const float charW = fontSize * 0.6f;
-    if (charW <= 0.f) return;
+    if (charW <= 0.f)
+        return;
 
     const sf::base::SizeT len     = std::strlen(buf);
     const sf::base::SizeT maxFull = static_cast<sf::base::SizeT>(width / charW);
-    if (len <= maxFull) return; // already fits
+    if (len <= maxFull)
+        return; // already fits
 
     constexpr sf::base::SizeT kEllipsisLen = 3;
     if (maxFull <= kEllipsisLen)
@@ -685,20 +738,20 @@ void truncateToFit(char* buf, float width, float fontSize) noexcept
         return;
     }
     const sf::base::SizeT keep = maxFull - kEllipsisLen;
-    buf[keep + 0] = '.';
-    buf[keep + 1] = '.';
-    buf[keep + 2] = '.';
-    buf[keep + 3] = '\0';
+    buf[keep + 0]              = '.';
+    buf[keep + 1]              = '.';
+    buf[keep + 2]              = '.';
+    buf[keep + 3]              = '\0';
 }
 
 bool containsCI(sf::base::StringView haystack, sf::base::StringView needle) noexcept
 {
-    if (needle.empty()) return true;
-    if (haystack.size() < needle.size()) return false;
+    if (needle.empty())
+        return true;
+    if (haystack.size() < needle.size())
+        return false;
 
-    const auto toLower = [](char c) -> char {
-        return (c >= 'A' && c <= 'Z') ? static_cast<char>(c - 'A' + 'a') : c;
-    };
+    const auto toLower = [](char c) -> char { return (c >= 'A' && c <= 'Z') ? static_cast<char>(c - 'A' + 'a') : c; };
 
     const auto hSize = haystack.size();
     const auto nSize = needle.size();
@@ -713,7 +766,8 @@ bool containsCI(sf::base::StringView haystack, sf::base::StringView needle) noex
                 break;
             }
         }
-        if (matched) return true;
+        if (matched)
+            return true;
     }
     return false;
 }

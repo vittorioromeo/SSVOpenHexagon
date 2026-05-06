@@ -581,7 +581,12 @@ void HexagonGame::start()
         }
     }
 
-    if (audio != nullptr && !Config::getNoMusic())
+    // Don't resume music for preview HG instances — they share the
+    // single audio module with the gameplay HG, so resuming here would
+    // unpause whatever music the previous gameplay session had loaded
+    // (most visibly: scrolling LevelSelect after exiting a level would
+    // restart that level's music in the menu).
+    if (audio != nullptr && !Config::getNoMusic() && !previewMode)
     {
         audio->resumeMusic();
     }

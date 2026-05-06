@@ -284,25 +284,17 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     }
 
     // ---- Pane switching (left / right) ------------------------------------
-    using Pane = LevelSelectScreenState::Pane;
-    if (ctx.input.left)
-    {
-        s.pane = (s.pane == Pane::Packs) ? Pane::Actions : (s.pane == Pane::Levels) ? Pane::Packs : Pane::Levels;
-        if (svc.playSound)
-            svc.playSound("beep.ogg");
-    }
-    else if (ctx.input.right)
-    {
-        s.pane = (s.pane == Pane::Actions) ? Pane::Packs : (s.pane == Pane::Packs) ? Pane::Levels : Pane::Actions;
-        if (svc.playSound)
-            svc.playSound("beep.ogg");
-    }
+    // Pane indices: 0 = Packs, 1 = Levels, 2 = Actions. Non-wrapping
+    // left/right via the shared helper, matching Options + Workshop.
+    using Pane     = LevelSelectScreenState::Pane;
+    int activePane = static_cast<int>(s.pane);
+    paneSwitchLeftRight(ctx, svc, activePane, 3);
+    s.pane = static_cast<Pane>(activePane);
 
     // ---- Navigation within the current pane -------------------------------
-    if (s.pane == Pane::Packs && packCount > 0)
     {
         int packIdx = activePackIdx;
-        if (navigateList(ctx, svc, packIdx, packCount))
+        if (navigatePane(ctx, svc, packIdx, packCount, s.pane == Pane::Packs))
         {
             // Jump the level cursor to the first level of the newly-focused
             // pack (if any), and scroll the level list so it sits at the top.
@@ -318,37 +310,18 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             }
         }
     }
-    else if (s.pane == Pane::Levels && n > 0)
-    {
-        navigateList(ctx, svc, s.levelIdx, n);
-        if (ctx.input.enter && svc.onStartLevel)
-        {
-            const LevelData& cur = assets.getLevelData(s.filteredLevelIds[s.levelIdx]);
-            const int        dN  = static_cast<int>(cur.difficultyMults.size());
-            const float      dm  = (dN > 0) ? cur.difficultyMults[s.difficultyIdx] : 1.f;
-            svc.onStartLevel(s.filteredLevelIds[s.levelIdx], dm);
-            return;
-        }
-    }
-    else if (s.pane == Pane::Actions)
-    {
-        navigateList(ctx, svc, s.actionIdx, actionCount);
-        if (s.actionIdx < 0 || s.actionIdx >= actionCount)
-        {
-            s.actionIdx = 0;
-        }
+    navigatePane(ctx, svc, s.levelIdx, n, s.pane == Pane::Levels);
+    navigatePane(ctx, svc, s.actionIdx, actionCount, s.pane == Pane::Actions);
+    if (s.actionIdx < 0 || s.actionIdx >= actionCount)
+        s.actionIdx = 0;
 
-        // Difficulty row: left/right adjusts. Up/down already handled by
-        // navigateList above, but we can't have BOTH cycle + nav from the
-        // same arrows — the pane-switch above would steal them. Difficulty
-        // adjustment uses the dedicated `[<]`/`[>]` mouse buttons rendered
-        // inline; users can still cycle with left/right when the row is
-        // focused via the keyboard, so we re-read here AFTER pane-switch
-        // logic has already consumed left/right (only re-runs if the user
-        // is on this row).
-        // Note: the pane-switch code consumed `left`/`right` already. We
-        // rely on mouse-only `[<]`/`[>]` clicks for keyboard-free use; the
-        // dedicated buttons in the render step cycle the value too.
+    if (s.pane == Pane::Levels && n > 0 && ctx.input.enter && svc.onStartLevel)
+    {
+        const LevelData& cur = assets.getLevelData(s.filteredLevelIds[s.levelIdx]);
+        const int        dN  = static_cast<int>(cur.difficultyMults.size());
+        const float      dm  = (dN > 0) ? cur.difficultyMults[s.difficultyIdx] : 1.f;
+        svc.onStartLevel(s.filteredLevelIds[s.levelIdx], dm);
+        return;
     }
 
     // Auto-scroll the level list so `levelIdx` stays inside the window.
@@ -360,14 +333,14 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     // Compute the windowed end (exclusive) for a candidate `start`,
     // counting both level rows and any pack headers that get drawn
     // alongside them. Used both for auto-scroll and for the render loop.
-    const auto getPackOf = [&](int i) {
-        return assets.getLevelData(s.filteredLevelIds[i]).packId.toStringView();
-    };
-    const bool grouping = (s.sortKey == LevelSortKey::PackPriority);
-    const auto computeEnd = [&](int start) {
-        if (n <= 0) return 0;
-        int       end  = start;
-        int       used = (grouping && (start == 0 || getPackOf(start) != getPackOf(start - 1))) ? 1 : 0;
+    const auto getPackOf  = [&](int i) { return assets.getLevelData(s.filteredLevelIds[i]).packId.toStringView(); };
+    const bool grouping   = (s.sortKey == LevelSortKey::PackPriority);
+    const auto computeEnd = [&](int start)
+    {
+        if (n <= 0)
+            return 0;
+        int end  = start;
+        int used = (grouping && (start == 0 || getPackOf(start) != getPackOf(start - 1))) ? 1 : 0;
         while (end < n)
         {
             int extra = 1;
@@ -450,7 +423,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         }
 
         // Favorites toggle. Wider than other widgets to leave room for the
-        // long label on the left and the `[ ON ]/[ OFF ]` marker on the right.
+        // long label on the left and the `ON/OFF` marker on the right.
         ctx.cursor.x = left + 250.f;
         ctx.cursor.y -= ctx.rowHeight;
         bool favOnly = s.favoritesOnly;
@@ -500,17 +473,19 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         const int packStart = s.packScrollStart;
         const int packEnd   = std::min(packCount, packStart + kMaxPackVisible);
 
-        stepToward(s.packSelectionY, static_cast<float>(activePackIdx - packStart) * ctx.rowHeight, ctx.dt, 256.f);
-
         // Header label above the list — offsets every pack row down by
         // one row so the pill animation also has to start below it.
         const float kPacksHeaderH   = ctx.rowHeight + 4.f;
         const float packsContentTop = listTop + kPacksHeaderH;
 
-        const sf::Color packPillColor = (s.pane == Pane::Packs) ? ctx.colAccent : desaturate(ctx.colAccent);
         if (packCount > 0)
         {
-            pill(ctx, {packsLeft, packsContentTop + s.packSelectionY}, kPacksW, packPillColor);
+            animatedPill(ctx,
+                         {packsLeft, packsContentTop},
+                         kPacksW,
+                         activePackIdx - packStart,
+                         s.packSelectionY,
+                         s.pane == Pane::Packs);
         }
 
         ctx.cursor = ctx.origin = {packsLeft, listTop};
@@ -577,8 +552,8 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         // `computeEnd` so pack-header rows count toward the visible
         // budget; otherwise inserting a header would push the bottom
         // level off-screen.
-        const int  start  = s.scrollStart;
-        const int  end    = computeEnd(start);
+        const int start = s.scrollStart;
+        const int end   = computeEnd(start);
 
         // Helper: pack id of the level at index `i`. Used in two places.
         const auto packOf = [&](int i) { return assets.getLevelData(s.filteredLevelIds[i]).packId.toStringView(); };
@@ -588,13 +563,13 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         // header rows). When the window starts at a pack boundary we draw
         // an extra header row at the top, which shifts following rows
         // down by one — accounted for by `topHeader`.
+        // The pill's index isn't `levelIdx` directly — pack-group header
+        // rows shift the visual rows down. `rel` is the display-row index
+        // of the focused level inside the visible window; pass it as the
+        // pill helper's `idx` so the animation lands on the right row.
         const bool topHeader = grouping && (start == 0 || packOf(start) != packOf(start - 1));
         const int  rel       = s.filteredDisplayRows[s.levelIdx] - s.filteredDisplayRows[start] + (topHeader ? 1 : 0);
-        stepToward(s.selectionY, static_cast<float>(rel) * ctx.rowHeight, ctx.dt, 256.f);
-
-        // Pill drawn behind the rows. Desaturate when this pane isn't focused.
-        const sf::Color levelPillColor = (s.pane == Pane::Levels) ? ctx.colAccent : desaturate(ctx.colAccent);
-        pill(ctx, {listLeft, listTop + s.selectionY}, kListW, levelPillColor);
+        animatedPill(ctx, {listLeft, listTop}, kListW, rel, s.selectionY, s.pane == Pane::Levels);
 
         // Render header rows + level buttons.
         ctx.cursor = ctx.origin       = {listLeft, listTop};
@@ -780,13 +755,9 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             s.difficultyIdx = 0;
         }
 
-        // Pill animation tracks the focused action row.
         if (s.actionIdx < 0 || s.actionIdx >= actionCount)
             s.actionIdx = 0;
-        stepToward(s.actionSelectionY, static_cast<float>(s.actionIdx) * ctx.rowHeight, ctx.dt, 256.f);
-
-        const sf::Color actionPillColor = (s.pane == Pane::Actions) ? ctx.colAccent : desaturate(ctx.colAccent);
-        pill(ctx, {ctx.cursor.x, ctx.cursor.y + s.actionSelectionY}, kActionW, actionPillColor);
+        animatedPill(ctx, ctx.cursor, kActionW, s.actionIdx, s.actionSelectionY, s.pane == Pane::Actions);
 
         // Helper: row index → semantic action.
         const auto activate = [&](ActionRow row)

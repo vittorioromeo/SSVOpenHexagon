@@ -39,6 +39,8 @@
 #include "SFML/Base/Trait/Decay.hpp"
 #include "SFML/Base/Vector.hpp"
 
+#include <SFML/Base/StringView.hpp>
+#include <SFML/Graphics/Priv/ShaderBase.hpp>
 #include <functional>
 #include <iostream>
 #include <tuple>
@@ -1465,6 +1467,29 @@ static void initShaders(Lua::LuaContext&                                lua,
         f(*shader);
     };
 
+    const auto withValidShaderUniform =
+        [withValidShaderId](const char* caller, const sf::base::SizeT shaderId, const sf::base::StringView uniformName, auto&& f)
+    {
+        withValidShaderId(caller,
+                          shaderId,
+                          [&](sf::Shader& shader)
+        {
+            const auto locationOpt = shader.getUniformLocation(uniformName);
+
+            if (!locationOpt.hasValue())
+            {
+                hg::lo("hg::LuaScripting::initShaders")
+                    << "`" << caller << "` failed, shader with id '" << shaderId
+                    << "' does not have a uniform with name '" << uniformName << "' or it was optimized out (unused)\n";
+
+                return;
+            }
+
+            const auto location = *locationOpt;
+            f(shader, location);
+        });
+    };
+
     const auto checkValidRenderStage = [headless](const char* caller, const sf::base::SizeT renderStage, auto& ids) -> bool
     {
         if (headless)
@@ -1487,17 +1512,16 @@ static void initShaders(Lua::LuaContext&                                lua,
     // ------------------------------------------------------------------------
     // Float uniforms
 
+
     addLuaFn(lua,
              "shdr_setUniformF",
-             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const float a)
+             [withValidShaderUniform](const sf::base::SizeT shaderId, const sf::base::String& name, const float a)
     {
-        withValidShaderId("shdr_setUniformF",
-                          shaderId,
-                          [&](sf::Shader& shader)
-        {
-            const auto location = shader.getUniformLocation(name).value(); // TODO: optimization opportunity
-            shader.setUniform(location, a);
-        });
+        withValidShaderUniform("shdr_setUniformF",
+                               shaderId,
+                               name,
+                               [&](sf::Shader& shader, const sf::Shader::UniformLocation location)
+        { shader.setUniform(location, a); });
     })
         .arg("shaderId")
         .arg("name")
@@ -1508,15 +1532,13 @@ static void initShaders(Lua::LuaContext&                                lua,
 
     addLuaFn(lua,
              "shdr_setUniformFVec2",
-             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const float a, const float b)
+             [withValidShaderUniform](const sf::base::SizeT shaderId, const sf::base::String& name, const float a, const float b)
     {
-        withValidShaderId("shdr_setUniformFVec2",
-                          shaderId,
-                          [&](sf::Shader& shader)
-        {
-            const auto location = shader.getUniformLocation(name).value(); // TODO: optimization opportunity
-            shader.setUniform(location, sf::Glsl::Vec2{a, b});
-        });
+        withValidShaderUniform("shdr_setUniformFVec2",
+                               shaderId,
+                               name,
+                               [&](sf::Shader& shader, const sf::Shader::UniformLocation location)
+        { shader.setUniform(location, sf::Glsl::Vec2{a, b}); });
     })
         .arg("shaderId")
         .arg("name")
@@ -1528,15 +1550,17 @@ static void initShaders(Lua::LuaContext&                                lua,
 
     addLuaFn(lua,
              "shdr_setUniformFVec3",
-             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const float a, const float b, const float c)
+             [withValidShaderUniform](const sf::base::SizeT   shaderId,
+                                      const sf::base::String& name,
+                                      const float             a,
+                                      const float             b,
+                                      const float             c)
     {
-        withValidShaderId("shdr_setUniformFVec3",
-                          shaderId,
-                          [&](sf::Shader& shader)
-        {
-            const auto location = shader.getUniformLocation(name).value(); // TODO: optimization opportunity
-            shader.setUniform(location, sf::Glsl::Vec3{a, b, c});
-        });
+        withValidShaderUniform("shdr_setUniformFVec3",
+                               shaderId,
+                               name,
+                               [&](sf::Shader& shader, const sf::Shader::UniformLocation location)
+        { shader.setUniform(location, sf::Glsl::Vec3{a, b, c}); });
     })
         .arg("shaderId")
         .arg("name")
@@ -1549,20 +1573,18 @@ static void initShaders(Lua::LuaContext&                                lua,
 
     addLuaFn(lua,
              "shdr_setUniformFVec4",
-             [withValidShaderId](const sf::base::SizeT   shaderId,
-                                 const sf::base::String& name,
-                                 const float             a,
-                                 const float             b,
-                                 const float             c,
-                                 const float             d)
+             [withValidShaderUniform](const sf::base::SizeT   shaderId,
+                                      const sf::base::String& name,
+                                      const float             a,
+                                      const float             b,
+                                      const float             c,
+                                      const float             d)
     {
-        withValidShaderId("shdr_setUniformFVec4",
-                          shaderId,
-                          [&](sf::Shader& shader)
-        {
-            const auto location = shader.getUniformLocation(name).value(); // TODO: optimization opportunity
-            shader.setUniform(location, sf::Glsl::Vec4{a, b, c, d});
-        });
+        withValidShaderUniform("shdr_setUniformFVec4",
+                               shaderId,
+                               name,
+                               [&](sf::Shader& shader, const sf::Shader::UniformLocation location)
+        { shader.setUniform(location, sf::Glsl::Vec4{a, b, c, d}); });
     })
         .arg("shaderId")
         .arg("name")
@@ -1579,15 +1601,13 @@ static void initShaders(Lua::LuaContext&                                lua,
 
     addLuaFn(lua,
              "shdr_setUniformI",
-             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const int a)
+             [withValidShaderUniform](const sf::base::SizeT shaderId, const sf::base::String& name, const int a)
     {
-        withValidShaderId("shdr_setUniformI",
-                          shaderId,
-                          [&](sf::Shader& shader)
-        {
-            const auto location = shader.getUniformLocation(name).value(); // TODO: optimization opportunity
-            shader.setUniform(location, a);
-        });
+        withValidShaderUniform("shdr_setUniformI",
+                               shaderId,
+                               name,
+                               [&](sf::Shader& shader, const sf::Shader::UniformLocation location)
+        { shader.setUniform(location, a); });
     })
         .arg("shaderId")
         .arg("name")
@@ -1598,15 +1618,13 @@ static void initShaders(Lua::LuaContext&                                lua,
 
     addLuaFn(lua,
              "shdr_setUniformIVec2",
-             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const int a, const int b)
+             [withValidShaderUniform](const sf::base::SizeT shaderId, const sf::base::String& name, const int a, const int b)
     {
-        withValidShaderId("shdr_setUniformIVec2",
-                          shaderId,
-                          [&](sf::Shader& shader)
-        {
-            const auto location = shader.getUniformLocation(name).value(); // TODO: optimization opportunity
-            shader.setUniform(location, sf::Glsl::Ivec2{a, b});
-        });
+        withValidShaderUniform("shdr_setUniformIVec2",
+                               shaderId,
+                               name,
+                               [&](sf::Shader& shader, const sf::Shader::UniformLocation location)
+        { shader.setUniform(location, sf::Glsl::Ivec2{a, b}); });
     })
         .arg("shaderId")
         .arg("name")
@@ -1618,15 +1636,13 @@ static void initShaders(Lua::LuaContext&                                lua,
 
     addLuaFn(lua,
              "shdr_setUniformIVec3",
-             [withValidShaderId](const sf::base::SizeT shaderId, const sf::base::String& name, const int a, const int b, const int c)
+             [withValidShaderUniform](const sf::base::SizeT shaderId, const sf::base::String& name, const int a, const int b, const int c)
     {
-        withValidShaderId("shdr_setUniformIVec3",
-                          shaderId,
-                          [&](sf::Shader& shader)
-        {
-            const auto location = shader.getUniformLocation(name).value(); // TODO: optimization opportunity
-            shader.setUniform(location, sf::Glsl::Ivec3{a, b, c});
-        });
+        withValidShaderUniform("shdr_setUniformIVec3",
+                               shaderId,
+                               name,
+                               [&](sf::Shader& shader, const sf::Shader::UniformLocation location)
+        { shader.setUniform(location, sf::Glsl::Ivec3{a, b, c}); });
     })
         .arg("shaderId")
         .arg("name")
@@ -1639,20 +1655,18 @@ static void initShaders(Lua::LuaContext&                                lua,
 
     addLuaFn(lua,
              "shdr_setUniformIVec4",
-             [withValidShaderId](const sf::base::SizeT   shaderId,
-                                 const sf::base::String& name,
-                                 const int               a,
-                                 const int               b,
-                                 const int               c,
-                                 const int               d)
+             [withValidShaderUniform](const sf::base::SizeT   shaderId,
+                                      const sf::base::String& name,
+                                      const int               a,
+                                      const int               b,
+                                      const int               c,
+                                      const int               d)
     {
-        withValidShaderId("shdr_setUniformIVec4",
-                          shaderId,
-                          [&](sf::Shader& shader)
-        {
-            const auto location = shader.getUniformLocation(name).value(); // TODO: optimization opportunity
-            shader.setUniform(location, sf::Glsl::Ivec4{a, b, c, d});
-        });
+        withValidShaderUniform("shdr_setUniformIVec4",
+                               shaderId,
+                               name,
+                               [&](sf::Shader& shader, const sf::Shader::UniformLocation location)
+        { shader.setUniform(location, sf::Glsl::Ivec4{a, b, c, d}); });
     })
         .arg("shaderId")
         .arg("name")

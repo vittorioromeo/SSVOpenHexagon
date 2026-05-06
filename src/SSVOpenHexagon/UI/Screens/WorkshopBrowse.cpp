@@ -101,60 +101,32 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     const int n = static_cast<int>(filtered.size());
     if (s.selectedIdx < 0 || s.selectedIdx >= n) s.selectedIdx = 0;
 
-    // Three-pane keyboard navigation. Left/right arrow walk the panes
-    // sidebar → list → actions; up/down navigate the active pane.
+    // Three-pane keyboard navigation. Pane indices: 0 = sidebar,
+    // 1 = list, 2 = actions. Left/right hop via `paneSwitchLeftRight`;
+    // up/down navigate the active pane.
     //
     // Sidebar layout: 4 mode tabs + 3 pagination rows + DOWNLOADED-only
     // toggle. Indices kept stable so input handlers can compare directly.
     constexpr int kSidebarCount   = 8; // 0..3 modes, 4 prev, 5 next, 6 refresh, 7 dl-only
     constexpr int kActionRowCount = 2;
+    constexpr int kPaneSidebar    = 0;
+    constexpr int kPaneList       = 1;
+    constexpr int kPaneActions    = 2;
 
-    if (s.sidebarFocused && ctx.input.right)
-    {
-        s.sidebarFocused = false;
-        if (svc.playSound) svc.playSound("beep.ogg");
-    }
-    else if (!s.sidebarFocused && !s.actionsFocused && ctx.input.left)
-    {
-        s.sidebarFocused = true;
-        if (svc.playSound) svc.playSound("beep.ogg");
-    }
-    else if (!s.sidebarFocused && !s.actionsFocused && ctx.input.right && n > 0)
-    {
-        s.actionsFocused = true;
-        s.actionIdx      = 0;
-        if (svc.playSound) svc.playSound("beep.ogg");
-    }
-    else if (s.actionsFocused && ctx.input.left)
-    {
-        s.actionsFocused = false;
-        if (svc.playSound) svc.playSound("beep.ogg");
-    }
+    // The actions pane is only meaningful when there's an item to act on.
+    // Skip past it during pane-switching when the list is empty.
+    const int paneCount = (n > 0) ? 3 : 2;
+    if (s.activePane >= paneCount) s.activePane = paneCount - 1;
+    paneSwitchLeftRight(ctx, svc, s.activePane, paneCount);
 
-    if (s.sidebarFocused)
-    {
-        navigateList(ctx, svc, s.sidebarIdx, kSidebarCount);
-    }
-    else if (s.actionsFocused)
-    {
-        navigateList(ctx, svc, s.actionIdx, kActionRowCount);
-    }
-    else
-    {
-        navigateList(ctx, svc, s.selectedIdx, n);
-    }
+    navigatePane(ctx, svc, s.sidebarIdx,  kSidebarCount,   s.activePane == kPaneSidebar);
+    navigatePane(ctx, svc, s.selectedIdx, n,               s.activePane == kPaneList);
+    navigatePane(ctx, svc, s.actionIdx,   kActionRowCount, s.activePane == kPaneActions);
 
-    // Visible-window animation. Mirrors the windowing in the render loop
-    // below so the pill stays inside the rendered slice when the list
-    // scrolls (`start > 0` once the cursor passes `maxVisible`).
+    // Windowing index — the pill animates inside the visible slice.
+    // `animatedPill` (called below) drives the per-frame stepToward for us.
     constexpr int kMaxVisible = 12;
     const int     start       = (s.selectedIdx >= kMaxVisible) ? s.selectedIdx - kMaxVisible + 1 : 0;
-    if (n > 0)
-    {
-        stepToward(s.selectionY,
-                   static_cast<float>(s.selectedIdx - start) * ctx.rowHeight,
-                   ctx.dt, 256.f);
-    }
 
     // ---- Layout ----------------------------------------------------------
     const sf::Vec2f origin = screenOrigin(ctx);
@@ -214,15 +186,10 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         ctx.cursor = ctx.origin = {left, listTop};
 
         // Pill behind the focused sidebar row, animated like the other panes.
-        stepToward(s.sidebarSelectionY,
-                   static_cast<float>(s.sidebarIdx) * ctx.rowHeight,
-                   ctx.dt, 256.f);
-        const sf::Color sidebarPillColor = s.sidebarFocused
-                                               ? ctx.colAccent
-                                               : desaturate(ctx.colAccent);
-        pill(ctx, {left, listTop + s.sidebarSelectionY}, kSidebarW, sidebarPillColor);
+        const bool sidebarActive = (s.activePane == kPaneSidebar);
+        animatedPill(ctx, {left, listTop}, kSidebarW, s.sidebarIdx, s.sidebarSelectionY, sidebarActive);
 
-        const auto sbFocused = [&](int idx) { return s.sidebarFocused && s.sidebarIdx == idx; };
+        const auto sbFocused = [&](int idx) { return sidebarActive && s.sidebarIdx == idx; };
 
         // Mode tabs (rows 0..3). The currently-active mode is also rendered
         // as "focused" so users see what's selected even when keyboard
@@ -289,7 +256,9 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     }
     else
     {
-        pill(ctx, {ctx.cursor.x, ctx.cursor.y + s.selectionY}, 420.f);
+        // Item-list pill — index is windowed (`selectedIdx - start`)
+        // because we scroll inside the visible slice, not the full list.
+        animatedPill(ctx, ctx.cursor, 420.f, s.selectedIdx - start, s.selectionY, s.activePane == kPaneList);
 
         const int end = (start + kMaxVisible < n) ? start + kMaxVisible : n;
 
@@ -448,25 +417,16 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         newLine(ctx, 8.f);
 
         // Action row order: action[0] = DELETE/DOWNLOAD, action[1] = BACK.
-        // `s.actionsFocused` shifts up/down navigation onto these rows
-        // when focus is here; right-arrow on the item list jumps in,
-        // left-arrow / Escape jumps out.
-        const int  actionCount      = 2;
-        const bool actionsFocused   = s.actionsFocused;
-        const auto isActionFocused  = [&](int idx) { return actionsFocused && s.actionIdx == idx; };
+        // `paneSwitchLeftRight` (above) wires right-arrow on the item
+        // list to jump in; left-arrow jumps back. `Enter` activates the
+        // focused row.
+        const int  actionCount     = 2;
+        const bool actionsFocused  = (s.activePane == kPaneActions);
+        const auto isActionFocused = [&](int idx) { return actionsFocused && s.actionIdx == idx; };
 
-        // Selection pill behind the focused action row, mirroring the
-        // pattern used by the level-select Actions pane. Drawn before
-        // the rows so the rows' translucent backdrop blends over it.
+        // Selection pill via the shared helper.
         constexpr float kActionW = 240.f;
-        stepToward(s.actionSelectionY,
-                   static_cast<float>(s.actionIdx) * ctx.rowHeight,
-                   ctx.dt, 256.f);
-        const sf::Color actionPillColor = actionsFocused
-                                              ? ctx.colAccent
-                                              : desaturate(ctx.colAccent);
-        pill(ctx, {ctx.cursor.x, ctx.cursor.y + s.actionSelectionY},
-             kActionW, actionPillColor);
+        animatedPill(ctx, ctx.cursor, kActionW, s.actionIdx, s.actionSelectionY, actionsFocused);
 
         // DOWNLOAD / DELETE — semantics swap based on subscription state,
         // but the row index stays the same (focusable as action 0).

@@ -24,6 +24,7 @@ struct ToggleItem
     const char* label;
     bool (*get)();
     void (*set)(bool);
+    bool (*enabled)() = [] { return true; };
 };
 
 struct SliderItem
@@ -36,16 +37,13 @@ struct SliderItem
     float step;
 };
 
+constexpr auto unofficialOnly = [] { return !Config::getOfficial(); };
+
 ////////////////////////////////////////////////////////////////////////////////
 // GAMEPLAY
 
 constexpr ToggleItem kGameplayToggles[] = {
-    {"NO PULSE", &Config::getNoPulse, &Config::setNoPulse},
-    {"NO ROTATION", &Config::getNoRotation, &Config::setNoRotation},
-    {"NO BACKGROUND", &Config::getNoBackground, &Config::setNoBackground},
-    {"BLACK & WHITE", &Config::getBlackAndWhite, &Config::setBlackAndWhite},
     {"AUTO RESTART", &Config::getAutoRestart, &Config::setAutoRestart},
-    {"INVINCIBLE", &Config::getInvincible, &Config::setInvincible},
     {"ROTATE TO START", &Config::getRotateToStart, &Config::setRotateToStart},
 };
 
@@ -99,8 +97,14 @@ constexpr int kGraphicsSliderCount = static_cast<int>(sizeof(kGraphicsSliders) /
 
 constexpr ToggleItem kAdvancedToggles[] = {
     {"USE LUA FILE CACHE", &Config::getUseLuaFileCache, &Config::setUseLuaFileCache},
-    {"DISABLE GAME RENDERING", &Config::getDisableGameRendering, &Config::setDisableGameRendering},
-    {"DEBUG MODE", &Config::getDebug, &Config::setDebug},
+    // {"DISABLE GAME RENDERING", &Config::getDisableGameRendering, &Config::setDisableGameRendering},
+    {"OFFICIAL MODE", &Config::getOfficial, &Config::setOfficial},
+    {"DEBUG MODE", &Config::getDebug, &Config::setDebug, unofficialOnly},
+    {"NO PULSE", &Config::getNoPulse, &Config::setNoPulse, unofficialOnly},
+    {"NO ROTATION", &Config::getNoRotation, &Config::setNoRotation, unofficialOnly},
+    {"NO BACKGROUND", &Config::getNoBackground, &Config::setNoBackground, unofficialOnly},
+    {"BLACK & WHITE", &Config::getBlackAndWhite, &Config::setBlackAndWhite, unofficialOnly},
+    {"INVINCIBLE", &Config::getInvincible, &Config::setInvincible, unofficialOnly},
 };
 constexpr int kAdvancedToggleCount = static_cast<int>(sizeof(kAdvancedToggles) / sizeof(*kAdvancedToggles));
 
@@ -151,85 +155,113 @@ void drawOptionsScreen(Context& ctx, App& app, Services& svc)
         s.selectedCategory = 0;
     }
 
-    // BACK row has no items; for any real category, take the items as-is.
+    // ---- Input ------------------------------------------------------------
+    // Slider edit mode hijacks navigation: while a slider is being
+    // edited, left/right step the value (consumed by the widget below)
+    // and up/down or escape exit edit mode WITHOUT also moving focus.
+    // We snapshot it at frame start because the widget may flip it
+    // mid-frame (Enter toggles), and we don't want that flip to retro-
+    // actively gate this frame's navigation.
+    const bool wasEditingSlider = s.sliderEditing;
+    if (wasEditingSlider && (ctx.input.escape || ctx.input.up || ctx.input.down))
+    {
+        s.sliderEditing = false;
+    }
+
+    // Escape pops the item-pane focus first, then the screen. Skipped
+    // when we just used escape to exit slider edit mode.
+    if (ctx.input.escape && !wasEditingSlider)
+    {
+        if (s.selectedItem >= 0)
+        {
+            s.selectedItem = -1;
+        }
+        else
+        {
+            goBack(app);
+            return;
+        }
+    }
+
+    // Two-pane focus: 0 = categories, 1 = items. Encoded as a derived
+    // value off `selectedItem` (the existing sentinel) so screen state
+    // stays in one field; the helpers consume an int the same way.
+    const int  prevCategory     = s.selectedCategory;
+    const bool categoriesActive = (s.selectedItem < 0);
+
+    // Block all pane navigation while a slider is being edited so that
+    // left/right reach the widget instead of being swallowed by the
+    // pane logic.
+    if (!wasEditingSlider)
+    {
+        navigatePane(ctx, svc, s.selectedCategory, kCatNavCount, categoriesActive);
+
+        // Item-count for the (possibly newly-selected) category. Computed
+        // *after* navigation so navigatePane below uses the right bound.
+        const auto itemNFor = [&](int catIdx) -> int
+        { return (catIdx == kBackRow) ? 0 : totalItems(kCategories[catIdx]); };
+
+        if (categoriesActive)
+        {
+            if (s.selectedCategory == kBackRow)
+            {
+                if (ctx.input.right || ctx.input.enter)
+                {
+                    goBack(app);
+                    return;
+                }
+            }
+            else if (ctx.input.right || ctx.input.enter)
+            {
+                s.selectedItem = 0;
+            }
+        }
+        else
+        {
+            const int curItemN = itemNFor(s.selectedCategory);
+            if (curItemN <= 0)
+            {
+                s.selectedItem = -1;
+            }
+            else
+            {
+                navigatePane(ctx, svc, s.selectedItem, curItemN, /*active=*/true);
+                if (ctx.input.left)
+                    s.selectedItem = -1; // back to category list
+            }
+        }
+    }
+
+    // Re-capture the category *after* navigation. The previous code held
+    // a `const CategoryDef&` from before input handling, so when the user
+    // clicked or arrowed onto a different tab, the items pane spent one
+    // frame rendering — and worse, mouse-activating — the *previous*
+    // category's items against the new category's `selectedItem`. That
+    // surfaced as "clicking an option in one tab affects another tab".
     const bool         onBackRow = (s.selectedCategory == kBackRow);
     const CategoryDef& cat       = onBackRow ? kCategories[0] : kCategories[s.selectedCategory];
     const int          itemN     = onBackRow ? 0 : totalItems(cat);
 
-    // ---- Input ------------------------------------------------------------
-    // Escape pops the item-pane focus first, then the screen.
-    if (ctx.input.escape)
-    {
-        if (s.selectedItem >= 0) { s.selectedItem = -1; }
-        else                     { goBack(app); return; }
-    }
-
-    const int prevCategory = s.selectedCategory;
-
-    if (s.selectedItem < 0)
-    {
-        // Focus on category list (incl. the synthetic BACK row).
-        navigateList(ctx, svc, s.selectedCategory, kCatNavCount);
-        if (s.selectedCategory == kBackRow)
-        {
-            if (ctx.input.right || ctx.input.enter)
-            {
-                goBack(app);
-                return;
-            }
-        }
-        else if (ctx.input.right || ctx.input.enter)
-        {
-            // Move focus into the items pane.
-            s.selectedItem = 0;
-        }
-    }
-    else if (itemN <= 0)
-    {
-        s.selectedItem = -1;
-    }
-    else
-    {
-        navigateList(ctx, svc, s.selectedItem, itemN);
-        if (ctx.input.left) s.selectedItem = -1; // back to category list
-    }
-
-    stepToward(s.categorySelectionY,
-               static_cast<float>(s.selectedCategory) * ctx.rowHeight,
-               ctx.dt, 256.f);
-
     // Snap the item pill (no animation) when the category changes — the
     // visible items list has changed entirely, so a smooth transition would
-    // travel through unrelated rows. Also re-clamp `selectedItem` because
-    // the new category may have fewer items.
+    // travel through unrelated rows. Also clamp `selectedItem` against the
+    // *new* category's item count.
     if (prevCategory != s.selectedCategory)
     {
-        if (s.selectedItem >= itemN) s.selectedItem = itemN > 0 ? 0 : -1;
+        if (s.selectedItem >= itemN)
+            s.selectedItem = itemN > 0 ? 0 : -1;
         s.itemSelectionY = (s.selectedItem >= 0) ? static_cast<float>(s.selectedItem) * ctx.rowHeight : 0.f;
-    }
-    else if (s.selectedItem >= 0)
-    {
-        stepToward(s.itemSelectionY,
-                   static_cast<float>(s.selectedItem) * ctx.rowHeight,
-                   ctx.dt, 256.f);
     }
 
     // ---- Layout -----------------------------------------------------------
     beginScreen(ctx, screenOrigin(ctx), "OPTIONS");
 
-    const sf::Vec2f leftColTop  = {ctx.origin.x,           ctx.cursor.y};
-    const sf::Vec2f rightColTop = {ctx.origin.x + 240.f,   ctx.cursor.y};
+    const sf::Vec2f leftColTop  = {ctx.origin.x, ctx.cursor.y};
+    const sf::Vec2f rightColTop = {ctx.origin.x + 240.f, ctx.cursor.y};
 
     // ---- Category list (left column) --------------------------------------
     ctx.cursor = ctx.origin = leftColTop;
-    {
-        // Category selection pill — dimmed when focus has moved into the
-        // item pane, so it's clear which side is active.
-        const sf::Color fill = (s.selectedItem < 0)
-            ? ctx.colAccent
-            : sf::Color{ctx.colAccent.r, ctx.colAccent.g, ctx.colAccent.b, 80};
-        pill(ctx, {ctx.cursor.x, ctx.cursor.y + s.categorySelectionY}, 220.f, fill);
-    }
+    animatedPill(ctx, leftColTop, 220.f, s.selectedCategory, s.categorySelectionY, categoriesActive);
 
     for (int i = 0; i < kCategoryCount; ++i)
     {
@@ -265,10 +297,11 @@ void drawOptionsScreen(Context& ctx, App& app, Services& svc)
 
     ctx.cursor = ctx.origin = rightColTop;
 
-    // Item selection pill, only when item pane has focus.
+    // Item selection pill — only relevant once focus has moved here (no
+    // pill is drawn at all when the user is still on the category list).
     if (s.selectedItem >= 0 && itemN > 0)
     {
-        pill(ctx, {ctx.cursor.x, ctx.cursor.y + s.itemSelectionY}, 420.f);
+        animatedPill(ctx, rightColTop, 420.f, s.selectedItem, s.itemSelectionY, /*active=*/true);
     }
 
     int rowIdx = 0;
@@ -277,10 +310,12 @@ void drawOptionsScreen(Context& ctx, App& app, Services& svc)
     {
         const bool focused = (s.selectedItem == rowIdx);
         bool       v       = cat.toggles[i].get();
-        if (toggle(ctx, cat.toggles[i].label, v, focused, 420.f))
+
+        if (toggle(ctx, cat.toggles[i].label, v, focused, 420.f, cat.toggles[i].enabled()))
         {
             cat.toggles[i].set(v);
         }
+
         ++rowIdx;
     }
 
@@ -288,7 +323,10 @@ void drawOptionsScreen(Context& ctx, App& app, Services& svc)
     {
         const bool focused = (s.selectedItem == rowIdx);
         float      v       = cat.sliders[i].get();
-        if (slider(ctx, cat.sliders[i].label, v, cat.sliders[i].min, cat.sliders[i].max, cat.sliders[i].step, focused, 420.f))
+        // Only the focused slider sees the shared edit flag; unfocused
+        // ones can never enter edit mode anyway, so passing the same
+        // reference is safe.
+        if (slider(ctx, cat.sliders[i].label, v, cat.sliders[i].min, cat.sliders[i].max, cat.sliders[i].step, focused, s.sliderEditing, 420.f))
         {
             cat.sliders[i].set(v);
         }

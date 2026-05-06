@@ -43,7 +43,7 @@
 	"music_volume" : 100.0,
 	"no_background" : false,
 	"no_music" : false,
-	"no_pulse" : true,
+	"no_pulse" : false,
 	"no_rotation" : false,
 	"no_sound" : false,
 	"official" : true,
@@ -266,7 +266,7 @@
 	"use_lua_file_cache" : true,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 836,
-	"windowed_width" : 1483,
-	"zoom_factor" : 0.9186602830886841
+	"windowed_height" : 1372,
+	"windowed_width" : 3440,
+	"zoom_factor" : 0.5597667694091797
 }

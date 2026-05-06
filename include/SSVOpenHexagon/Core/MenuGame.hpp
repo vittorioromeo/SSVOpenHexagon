@@ -10,12 +10,10 @@
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
-#include "SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp"
 #include "SSVOpenHexagon/UI/App.hpp"
 #include "SSVOpenHexagon/UI/Services.hpp"
 #include "SSVOpenHexagon/UI/UI.hpp"
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
-#include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
@@ -73,16 +71,8 @@ class discord_manager;
 
 enum class States
 {
-    ETLPNewBoot,
-    LoadingScreen,
     EpilepsyWarning,
-    SLPSelectBoot,
-    SMain,
-    LevelSelection,
-    MOpts,
-    MOnline,
-    SLPSelect,
-    ETLPNew
+    SMain
 };
 
 class MenuGame
@@ -191,20 +181,15 @@ private:
     // animation helpers read it via `Context::dt`.
     float ui_dt{1.f / 60.f};
 
-    // Master switch for Phase 0. When true, the new UI replaces the old main
-    // menu rendering. Set to true unconditionally for now; will become a
-    // build-time flag once Phase 1+ migrate other screens.
-    bool useNewUI{true};
-
     // Optional `HexagonGame` instances used as menu visuals. Both run in
     // `previewMode`. `hgMenuBg` plays a fixed backdrop level under the
     // entire menu; `hgPreview` renders the currently-selected level into
     // `previewTexture` for display in LevelSelect. Owned by `main.cpp`,
     // installed via `setMenuPreviewGames`.
-    HexagonGame*      hgMenuBg{nullptr};
-    HexagonGame*      hgPreview{nullptr};
+    HexagonGame*                          hgMenuBg{nullptr};
+    HexagonGame*                          hgPreview{nullptr};
     sf::base::Optional<sf::RenderTexture> previewTexture;
-    sf::base::String  previewLoadedLevelId; //!< prevents reloading on every frame
+    sf::base::String                      previewLoadedLevelId; //!< prevents reloading on every frame
 
     // Off-screen target the new UI renders into. Once filled each frame, a
     // full-screen quad copies it back to the window through
@@ -233,10 +218,10 @@ public:
     // Installed once by the host (`main.cpp`) after both auxiliary HG
     // instances have been constructed. Kicks off the menu-background level
     // and prepares the preview render texture.
-    void setMenuPreviewGames(HexagonGame*       menuBackground,
-                             HexagonGame*       preview,
-                             sf::base::String   menuBackgroundPackId,
-                             sf::base::String   menuBackgroundLevelId);
+    void setMenuPreviewGames(HexagonGame*     menuBackground,
+                             HexagonGame*     preview,
+                             sf::base::String menuBackgroundPackId,
+                             sf::base::String menuBackgroundLevelId);
 
     // True iff the new UI is the right place to handle this frame's input
     // for the given state. Used to short-circuit old `*Action()` cascades.
@@ -313,30 +298,9 @@ public:
     //---------------------------------------
     // Navigation
 
-    bool   wasFocusHeld;
-    bool   focusHeld;
-    float  wheelProgress;
-    float  touchDelay;
     States state;
-    int    packChangeDirection;
 
-    void leftRightActionImpl(bool left);
-    void leftAction();
-    void rightAction();
-    void upAction();
-    void downAction();
-    void okAction();
-    void eraseAction();
-    void exitAction();
-
-    void changePackTo(const int idx);
-    void changePack();
-    void changePackQuick(const int direction);
-    void changePackAction(const int direction);
-
-    [[nodiscard]] ssvms::Menu* getCurrentMenu() noexcept;
-    [[nodiscard]] bool         isInMenu() noexcept;
-    void                       ignoreInputsAfterMenuExec();
+    void ignoreInputsAfterMenuExec();
 
     //---------------------------------------
     // State changes
@@ -350,9 +314,7 @@ public:
     int         ignoreInputs;
 
     void update(float mFT);
-    void setIndex(int mIdx);
     void refreshCamera();
-    void reloadAssets(const bool reloadEntirePack);
     void setIgnoreAllInputs(const unsigned int presses);
 
     //---------------------------------------
@@ -362,11 +324,6 @@ public:
     float            h;
     int              scrollbarOffset{0};
     bool             fourByThree{false};
-    ssvms::Menu      welcomeMenu;
-    ssvms::Menu      mainMenu;
-    ssvms::Menu      optionsMenu;
-    ssvms::Menu      onlineMenu;
-    ssvms::Menu      profileSelectionMenu;
     const LevelData* levelData;
     StyleData        styleData;
 
@@ -404,157 +361,44 @@ public:
     sf::Color                   menuSelectionColor;
     sf::Color                   dialogBoxTextColor;
     Utils::FastVertexVectorTris menuBackgroundTris;
-    Utils::FastVertexVectorTris menuQuads;
 
     // Mouse control
-    HRTimePoint             lastMouseClick{};
-    bool                    mouseHovering{false};
-    bool                    mouseWasPressed{false};
-    bool                    mousePressed{false};
-    bool                    mustFavorite{false};
-    bool                    mustPlay{false};
-    sf::base::Optional<int> mustChangeIndexTo;
-    sf::base::Optional<int> mustChangePackIndexTo;
-    sf::base::Optional<int> mustUseMenuItem;
-    bool                    mouseCursorVisible{true};
-    sf::Vec2i               lastMouseMovedPosition{};
+    bool      mouseHovering{false};
+    bool      mouseWasPressed{false};
+    bool      mousePressed{false};
+    bool      mouseCursorVisible{true};
+    sf::Vec2i lastMouseMovedPosition{};
 
     sf::base::String strBuf;
-
-    void playSelectedLevel();
 
     void setMouseCursorVisible(const bool x);
 
     [[nodiscard]] bool isMouseCursorVisible() const;
-
-    [[nodiscard]] bool overlayMouseOverlap(const sf::Vec2f mins, const sf::Vec2f maxs) const;
-
-    [[nodiscard]] bool overlayMouseOverlapAndUpdateHover(const sf::Vec2f mins, const sf::Vec2f maxs);
-
-    [[nodiscard]] sf::Color mouseOverlapColor(const bool mouseOverlap, const sf::Color& c) const;
-
-    [[nodiscard]] bool mouseLeftRisingEdge() const;
 
     void draw();
 
     // Helper functions
     [[nodiscard]] float getFPSMult() const;
 
-    void drawGraphics();
-
     void drawOnlineStatus();
 
     void adjustMenuOffset(const bool resetMenuOffset);
 
-    [[nodiscard]] float calcMenuOffset(float& offset, const float maxOffset, const bool revertOffset, const bool speedUp = false);
-
-    void calcMenuItemOffset(float& offset, bool selected);
-
-    void createQuad(const sf::Color& color, float x1, float x2, float y1, float y2);
-
-    void createQuad(const sf::Color& color, const sf::Vec2f mins, const sf::Vec2f maxs);
-
-    void createQuad(const sf::Color& color, const sf::Rect2f& rect);
-
-    void createQuadTrapezoid(const sf::Color& color, float x1, float x2, float x3, float y1, float y2, bool left);
-
-    [[nodiscard]] std::pair<int, int> getScrollbarNotches(const int size, const int maxSize) const;
-
-    void drawScrollbar(const float      totalHeight,
-                       const int        size,
-                       const int        notches,
-                       const float      x,
-                       const float      y,
-                       const sf::Color& color);
-
-    void drawMainSubmenus(const sf::base::Vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent);
-
-    void drawSubmenusSmall(const sf::base::Vector<sf::base::UniquePtr<ssvms::Category>>& subMenus, const float indent);
-
-    // Load menu
+    // Load menu data still surfaces missing-pack warnings on the main
+    // screen, so `loadInfo` and `randomTip` remain. The legacy boot-time
+    // load-results draw and its supporting graphics fields are gone.
     LoadInfo&                            loadInfo;
     sf::base::Array<std::string_view, 2> randomTip;
     float                                hexagonRotation;
-    void                                 drawLoadResults();
 
     // Main menu
     float menuHalfHeight;
 
-    void drawMainMenu(ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset);
-
-    // Options menu
-    void drawOptionsSubmenus(ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset);
-
     // Profiles Menu
     sf::base::String formatSurvivalTime(ProfileData* data);
-    void             drawProfileSelection(const float xOffset, const bool revertOffset);
-    void             drawProfileSelectionBoot();
 
-    // Entering text menu
+    // Entering text menu (legacy text-input dialog state)
     float enteringTextOffset;
-    void  drawEnteringText(const float xOffset, const bool revertOffset);
-    void  drawEnteringTextBoot();
-
-    // Level selection menu
-    enum class PackChange
-    {
-        Rest,
-        Folding,
-        Stretching
-    };
-
-    enum class Label
-    {
-        LevelName,
-        PackName,
-        PackAuthor,
-        MusicName,
-        MusicAuthor,
-        MusicAlbum,
-        ScrollsSize
-    };
-
-    // To keep data of the regular level selection and favorites separated.
-    struct LevelDrawer
-    {
-        int packIdx{0};
-        int currentIndex{0};
-
-        // Pointer to avoid heavy copy loads.
-        const sf::base::Vector<sf::base::String>* levelDataIds;
-
-        float                   XOffset{0.f};   // to make the menu slide in/out
-        float                   YOffset{0.f};   // to scroll up and down the menu
-        float                   YScrollTo{0.f}; // height list must scroll to show current item
-        sf::base::Vector<float> lvlOffsets;     // xOffset of the single level labels
-
-        bool isFavorites{false};
-    };
-
-    bool                               isLevelFavorite;
-    sf::base::Vector<sf::base::String> favoriteLevelDataIds;
-    LevelDrawer                        lvlSlct;
-    LevelDrawer                        favSlct;
-    LevelDrawer*                       lvlDrawer;
-
-    void                          changeFavoriteLevelsToProfile();
-    [[nodiscard]] bool            isFavoriteLevels() const;
-    [[nodiscard]] sf::base::SizeT getSelectablePackInfosSize() const;
-    [[nodiscard]] const PackInfo& getNthSelectablePackInfo(const sf::base::SizeT i);
-
-    int                                diffMultIdx{0};
-    bool                               firstLevelSelection{true};
-    PackChange                         packChangeState{PackChange::Rest};
-    float                              namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
-    sf::base::Vector<sf::base::String> levelDescription;
-    float                              textToQuadBorder{0.f};
-    float                              slctFrameSize{0.f};
-    float                              packLabelHeight{0.f};
-    float                              levelLabelHeight{0.f};
-    float                              packChangeOffset{0.f}; // level list yOffset when being fold
-    float                              levelDetailsOffset{0.f};
-    static inline constexpr float      baseScrollSpeed{30.f};
-    float                              scrollSpeed{baseScrollSpeed};
 
     // Login at startup
     bool mustShowLoginAtStartup{true};
@@ -563,12 +407,7 @@ public:
     // First timer tips
     bool  showFirstTimeTips{false};
     bool  mustShowFTTMainMenu{true};
-    bool  mustShowFTTLevelSelect{true};
-    bool  mustShowFTTDeathTips{true};
     float dialogBoxDelay{0.f};
-
-    void addRemoveFavoriteLevel();
-    void switchToFromFavoriteLevels();
 
     // Visual effects
     float                         difficultyBumpEffect{0.f};
@@ -606,10 +445,6 @@ public:
     [[nodiscard]] float getMaximumTextWidth() const;
 
     void formatLevelDescription();
-
-    void drawLevelSelectionRightSide(LevelDrawer& drawer, const bool revertOffset);
-
-    void drawLevelSelectionLeftSide(LevelDrawer& drawer, const bool revertOffset);
 
     // Text rendering
     void renderText(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos);

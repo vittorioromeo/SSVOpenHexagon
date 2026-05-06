@@ -60,23 +60,23 @@ struct WorkshopEvent
 {
     enum class Kind : sf::base::U8
     {
-        QueryComplete = 0,    //!< paged "browse" query finished
-        DetailsComplete,      //!< on-demand details query (e.g. dep names)
-        ItemSubscribed,       //!< user subscribed; download is in flight
-        ItemUnsubscribed,     //!< user unsubscribed; folder may still exist
-        ItemInstalled,        //!< pack is on disk at `installFolder`
-        DownloadProgress,     //!< periodic progress update
-        PreviewDownloaded,    //!< HTTP fetch of `previewUrl` finished; bytes in `previewBytes`
+        QueryComplete = 0, //!< paged "browse" query finished
+        DetailsComplete,   //!< on-demand details query (e.g. dep names)
+        ItemSubscribed,    //!< user subscribed; download is in flight
+        ItemUnsubscribed,  //!< user unsubscribed; folder may still exist
+        ItemInstalled,     //!< pack is on disk at `installFolder`
+        DownloadProgress,  //!< periodic progress update
+        PreviewDownloaded, //!< HTTP fetch of `previewUrl` finished; bytes in `previewBytes`
     };
 
-    Kind                         kind{Kind::QueryComplete};
-    sf::base::U64                publishedFileId{};   //!< for ItemSubscribed/Unsubscribed/Installed/DownloadProgress/PreviewDownloaded
-    sf::base::U64                bytesDone{};         //!< for DownloadProgress
-    sf::base::U64                bytesTotal{};        //!< for DownloadProgress
-    sf::base::String             installFolder;       //!< for ItemInstalled
-    sf::base::Vector<WorkshopItem> queryResults;       //!< for QueryComplete
-    sf::base::U32                totalMatching{};     //!< for QueryComplete: ISteamUGC's `m_unTotalMatchingResults`
-    sf::base::Vector<sf::base::U8> previewBytes;       //!< for PreviewDownloaded: raw image bytes fetched from `previewUrl`
+    Kind          kind{Kind::QueryComplete};
+    sf::base::U64 publishedFileId{}; //!< for ItemSubscribed/Unsubscribed/Installed/DownloadProgress/PreviewDownloaded
+    sf::base::U64 bytesDone{};       //!< for DownloadProgress
+    sf::base::U64 bytesTotal{};      //!< for DownloadProgress
+    sf::base::String               installFolder;   //!< for ItemInstalled
+    sf::base::Vector<WorkshopItem> queryResults;    //!< for QueryComplete
+    sf::base::U32                  totalMatching{}; //!< for QueryComplete: ISteamUGC's `m_unTotalMatchingResults`
+    sf::base::Vector<sf::base::U8> previewBytes; //!< for PreviewDownloaded: raw image bytes fetched from `previewUrl`
 };
 
 class steam_manager
@@ -143,7 +143,7 @@ public:
 
     // Subscribe / unsubscribe — `ItemInstalled` will fire after Steam
     // finishes downloading.
-    void subscribe_workshop_item  (sf::base::U64 publishedFileId);
+    void subscribe_workshop_item(sf::base::U64 publishedFileId);
     void unsubscribe_workshop_item(sf::base::U64 publishedFileId);
 
     // Returns true if Steam currently reports the item as subscribed.

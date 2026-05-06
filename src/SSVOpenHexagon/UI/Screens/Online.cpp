@@ -42,14 +42,8 @@ void drawOnlineScreen(Context& ctx, App& app, Services& svc)
     items[count++] = {"BACK", nullptr};
 
     if (s.selectedIdx < 0 || s.selectedIdx >= count) s.selectedIdx = 0;
-    navigateList(ctx, svc, s.selectedIdx, count);
-
-    // Animated selection pill behind the focused row. Drawn before the
-    // buttons so the row backdrop renders on top of it.
-    stepToward(s.selectionY,
-               static_cast<float>(s.selectedIdx) * ctx.rowHeight,
-               ctx.dt, 256.f);
-    pill(ctx, {ctx.cursor.x, ctx.cursor.y + s.selectionY}, 360.f);
+    navigatePane(ctx, svc, s.selectedIdx, count, /*active=*/true);
+    animatedPill(ctx, ctx.cursor, 360.f, s.selectedIdx, s.selectionY, /*active=*/true);
 
     for (int i = 0; i < count; ++i)
     {

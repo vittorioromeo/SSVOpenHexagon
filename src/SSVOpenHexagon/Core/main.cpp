@@ -38,6 +38,7 @@
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <filesystem>
+#include <iostream>
 #include <sodium.h>
 
 #include <csignal>

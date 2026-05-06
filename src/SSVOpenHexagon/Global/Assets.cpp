@@ -48,6 +48,8 @@
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
+#include <SFML/Base/Algorithm/Erase.hpp>
+#include <SFML/System/IO.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <exception>
 #include <iostream>
@@ -142,8 +144,14 @@ public:
 
     [[nodiscard]] LoadInfo& getLoadResults();
 
-    [[nodiscard]] sf::base::U64 getPackListVersion() const noexcept { return _packListVersion; }
-    void                        bumpPackListVersion() noexcept { ++_packListVersion; }
+    [[nodiscard]] sf::base::U64 getPackListVersion() const noexcept
+    {
+        return _packListVersion;
+    }
+    void bumpPackListVersion() noexcept
+    {
+        ++_packListVersion;
+    }
 
     [[nodiscard]] bool installPackAtRuntime(const sf::base::String& folderPath);
 
@@ -850,18 +858,76 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(const sf::base::String& 
         return;
     }
 
+    const auto migrateShader = [](const sf::base::String& shaderCode) -> sf::base::String
+    {
+        const bool needsMigration = shaderCode.contains("#version") || shaderCode.contains("gl_Color") ||
+                                    shaderCode.contains("gl_FragColor") || shaderCode.contains("gl_TexCoord");
+
+        if (!needsMigration)
+            return shaderCode;
+
+        hg::lo("HGAssets::migrateShader") << "Legacy shader code detected, migrating...\n";
+
+        // Split shader code into lines
+        sf::base::Vector<sf::base::String> lines;
+        shaderCode.forLines([&](sf::base::StringView line) { lines.emplaceBack(line); });
+
+        const auto mergeLines = [&lines]
+        {
+            sf::base::String result;
+            bool             first = true;
+
+            for (const auto& line : lines)
+            {
+                if (!first)
+                    result += '\n';
+
+                first = false;
+
+                result += line;
+            }
+
+            return result;
+        };
+
+        // Find and remove any line starting with `#version`
+        sf::base::vectorEraseIf(lines, [](const sf::base::String& line) { return line.startsWith("#version"); });
+
+        // Replace legacy usages of `gl_Color` or `gl_FragColor` and replace them with `in`/`out` variables
+        lines.insert(lines.begin(), "in vec4 sf_v_color;");
+        lines.insert(lines.begin() + 1, "in vec2 sf_v_texCoord;");
+        lines.insert(lines.begin() + 2, "layout(location = 0) out vec4 sf_fragColor;");
+
+        for (auto& line : lines)
+        {
+            line.replaceAllOccurrences("gl_Color", "sf_v_color");
+            line.replaceAllOccurrences("gl_FragColor", "sf_fragColor");
+            line.replaceAllOccurrences("gl_TexCoord[0].xy", "sf_v_texCoord");
+        }
+
+        return mergeLines();
+    };
+
     const auto loadShadersOfType = [&](const char* const extension, sf::Shader::Type shaderType)
     {
         for (const auto& p : scanSingleByExt(mPath + "Shaders/", extension))
         {
             sf::base::Optional<sf::Shader> shader;
 
-            if (shaderType == sf::Shader::Type::Vertex)
-                shader = sf::Shader::loadFromFile({.vertexPath = p.getStr()});
-            else if (shaderType == sf::Shader::Type::Fragment)
-                shader = sf::Shader::loadFromFile({.fragmentPath = p.getStr()});
-            else if (shaderType == sf::Shader::Type::Geometry)
-                shader = sf::Shader::loadFromFile({.geometryPath = p.getStr()});
+            const sf::base::StringView shaderPath{p.getStr()};
+
+            sf::base::String contents;
+            if (sf::readFromFile(shaderPath, contents))
+            {
+                const sf::base::String migrated = migrateShader(contents);
+
+                if (shaderType == sf::Shader::Type::Vertex)
+                    shader = sf::Shader::loadFromMemory({.vertexCode = migrated});
+                else if (shaderType == sf::Shader::Type::Fragment)
+                    shader = sf::Shader::loadFromMemory({.fragmentCode = migrated});
+                else if (shaderType == sf::Shader::Type::Geometry)
+                    shader = sf::Shader::loadFromMemory({.geometryCode = migrated});
+            }
 
             if (!shader.hasValue())
             {
@@ -1458,10 +1524,9 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
 
     // Re-sort selectablePackInfos by priority. (Matches the initial-load
     // sort at the end of `loadAllPackAssets`.)
-    sf::base::quickSort(selectablePackInfos.begin(), selectablePackInfos.end(),
-                        [&](const PackInfo& a, const PackInfo& b) {
-                            return packDatas.at(a.id).priority < packDatas.at(b.id).priority;
-                        });
+    sf::base::quickSort(selectablePackInfos.begin(), selectablePackInfos.end(), [&](const PackInfo& a, const PackInfo& b) {
+        return packDatas.at(a.id).priority < packDatas.at(b.id).priority;
+    });
 
     bumpPackListVersion();
     return true;

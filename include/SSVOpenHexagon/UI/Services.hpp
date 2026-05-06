@@ -43,11 +43,6 @@ namespace hg::ui
 struct Services
 {
     sf::base::FixedFunction<void(), 64> onExit;
-    sf::base::FixedFunction<void(), 64> onPlayRequested;     //!< user clicked PLAY on main menu (legacy: opens old level select)
-    sf::base::FixedFunction<void(), 64> onOptionsRequested;
-    sf::base::FixedFunction<void(), 64> onOnlineRequested;   //!< (deprecated) used by old fallback
-    sf::base::FixedFunction<void(), 64> onProfileRequested;
-    sf::base::FixedFunction<void(), 64> onWorkshopRequested;
 
     // Online-screen actions. Each delegates to the legacy `HexagonClient`
     // and dialog flow; the buttons in the new Online screen call the ones

@@ -1325,10 +1325,10 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     ilcLuaTrackedNames.clear();
     ilcLuaTrackedResults.clear();
 
-    if (!mError)
-    {
-        playSoundOverride("beep.ogg");
-    }
+    // Note: the menu's `init()` plays its own `select.ogg` to signal the
+    // user has returned to the menu, so we don't play anything here for
+    // the success case — playing both sounds back-to-back was audible as
+    // a "double beep" on ESC.
 
     calledDeprecatedFunctions.clear();
 
