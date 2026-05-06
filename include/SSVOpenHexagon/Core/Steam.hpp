@@ -9,11 +9,59 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <string_view>
 
 namespace hg::Steam
 {
+
+////////////////////////////////////////////////////////////////////////////////
+// Workshop API additions for the new in-game browser. See
+// `docs/UI_REWRITE_DESIGN.md` §5.1 for design rationale.
+
+// One workshop item as returned by `query_workshop_items`. POD; copies are
+// fine.
+struct WorkshopItem
+{
+    sf::base::U64    publishedFileId{};
+    sf::base::String title;
+    sf::base::String author;
+    sf::base::String description;
+    sf::base::U64    sizeBytes{};
+    bool             isSubscribed{};
+    bool             isInstalled{};
+};
+
+// Sort/filter mode passed to `query_workshop_items`.
+enum class WorkshopQueryMode : sf::base::U8
+{
+    MostPopular = 0,
+    Newest,
+    Trending,
+    All,
+};
+
+// Async event surfaced by `poll_workshop_event()`. Tagged union of small
+// structs; the `kind` discriminator picks the active member.
+struct WorkshopEvent
+{
+    enum class Kind : sf::base::U8
+    {
+        QueryComplete = 0,    //!< query finished, results delivered
+        ItemSubscribed,       //!< user subscribed; download is in flight
+        ItemUnsubscribed,     //!< user unsubscribed; folder may still exist
+        ItemInstalled,        //!< pack is on disk at `installFolder`
+        DownloadProgress,     //!< periodic progress update
+    };
+
+    Kind                         kind{Kind::QueryComplete};
+    sf::base::U64                publishedFileId{};   //!< for ItemSubscribed/Unsubscribed/Installed/DownloadProgress
+    sf::base::U64                bytesDone{};         //!< for DownloadProgress
+    sf::base::U64                bytesTotal{};        //!< for DownloadProgress
+    sf::base::String             installFolder;       //!< for ItemInstalled
+    sf::base::Vector<WorkshopItem> queryResults;       //!< for QueryComplete
+};
 
 class steam_manager
 {
@@ -64,6 +112,21 @@ public:
     [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
 
     [[nodiscard]] sf::base::Optional<sf::base::U64> get_ticket_steam_id() const noexcept;
+
+    // Workshop API additions (see `WorkshopItem` / `WorkshopEvent` above).
+    // Each call is a no-op if Steam is not initialized.
+
+    // Kick off an async query. Results arrive via `poll_workshop_event()` as
+    // a `QueryComplete` event. Page is 1-based per Steam UGC convention.
+    void query_workshop_items(WorkshopQueryMode mode, int page);
+
+    // Subscribe / unsubscribe — `ItemInstalled` will fire after Steam
+    // finishes downloading.
+    void subscribe_workshop_item  (sf::base::U64 publishedFileId);
+    void unsubscribe_workshop_item(sf::base::U64 publishedFileId);
+
+    // Drains one event from the queue. Caller polls until empty.
+    [[nodiscard]] sf::base::Optional<WorkshopEvent> poll_workshop_event();
 };
 
 } // namespace hg::Steam

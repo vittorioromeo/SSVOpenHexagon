@@ -161,6 +161,34 @@ public:
     [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
 
     [[nodiscard]] sf::base::Optional<sf::base::U64> get_ticket_steam_id() const noexcept;
+
+    // Workshop API additions (see `Steam.hpp`).
+    void                                    query_workshop_items(WorkshopQueryMode mode, int page);
+    void                                    subscribe_workshop_item  (sf::base::U64 publishedFileId);
+    void                                    unsubscribe_workshop_item(sf::base::U64 publishedFileId);
+    [[nodiscard]] sf::base::Optional<WorkshopEvent> poll_workshop_event();
+
+private:
+    sf::base::Vector<WorkshopEvent>                                  _workshop_events;
+    UGCQueryHandle_t                                                 _pending_query{k_UGCQueryHandleInvalid};
+    CCallResult<steam_manager_impl, SteamUGCQueryCompleted_t>        _query_call_result;
+
+    void on_query_completed(SteamUGCQueryCompleted_t* data, bool io_failure);
+
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Winvalid-offsetof"
+    #if defined(__clang__)
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+    #endif
+    STEAM_CALLBACK(steam_manager_impl, on_item_installed, ItemInstalled_t);
+    STEAM_CALLBACK(steam_manager_impl, on_item_subscribed, RemoteStoragePublishedFileSubscribed_t);
+    STEAM_CALLBACK(steam_manager_impl, on_item_unsubscribed, RemoteStoragePublishedFileUnsubscribed_t);
+    STEAM_CALLBACK(steam_manager_impl, on_download_item_result, DownloadItemResult_t);
+    #if defined(__clang__)
+        #pragma GCC diagnostic pop
+    #endif
+    #pragma GCC diagnostic pop
 };
 
 void steam_manager::steam_manager_impl::on_user_stats_received(UserStatsReceived_t* data)
@@ -639,6 +667,165 @@ void steam_manager::steam_manager_impl::for_workshop_pack_folders(
     }
 }
 
+// ----------------------------------------------------------------------------
+// Workshop API impl
+
+void steam_manager::steam_manager_impl::query_workshop_items(WorkshopQueryMode mode, int page)
+{
+    if (!_initialized)
+    {
+        return;
+    }
+
+    EUGCQuery sortMode = k_EUGCQuery_RankedByVote;
+    switch (mode)
+    {
+        case WorkshopQueryMode::MostPopular: sortMode = k_EUGCQuery_RankedByVote; break;
+        case WorkshopQueryMode::Newest:      sortMode = k_EUGCQuery_RankedByPublicationDate; break;
+        case WorkshopQueryMode::Trending:    sortMode = k_EUGCQuery_RankedByTrend; break;
+        case WorkshopQueryMode::All:         sortMode = k_EUGCQuery_RankedByVote; break;
+    }
+
+    const AppId_t appId = SteamUtils()->GetAppID();
+
+    UGCQueryHandle_t handle = SteamUGC()->CreateQueryAllUGCRequest(
+        sortMode,
+        k_EUGCMatchingUGCType_All,
+        appId,                  // creatorAppID
+        appId,                  // consumerAppID
+        page < 1 ? 1 : page);
+
+    if (handle == k_UGCQueryHandleInvalid)
+    {
+        hg::lo("Steam") << "Workshop: failed to create query\n";
+        return;
+    }
+
+    SteamUGC()->SetReturnLongDescription(handle, true);
+
+    _pending_query = handle;
+    SteamAPICall_t call = SteamUGC()->SendQueryUGCRequest(handle);
+    _query_call_result.Set(call, this, &steam_manager_impl::on_query_completed);
+}
+
+void steam_manager::steam_manager_impl::on_query_completed(SteamUGCQueryCompleted_t* data, bool io_failure)
+{
+    if (data == nullptr || io_failure || data->m_eResult != k_EResultOK || _pending_query == k_UGCQueryHandleInvalid)
+    {
+        hg::lo("Steam") << "Workshop query failed (rc: " << (data ? static_cast<int>(data->m_eResult) : -1) << ")\n";
+        if (_pending_query != k_UGCQueryHandleInvalid)
+        {
+            SteamUGC()->ReleaseQueryUGCRequest(_pending_query);
+            _pending_query = k_UGCQueryHandleInvalid;
+        }
+        return;
+    }
+
+    WorkshopEvent ev;
+    ev.kind = WorkshopEvent::Kind::QueryComplete;
+
+    for (uint32 i = 0; i < data->m_unNumResultsReturned; ++i)
+    {
+        SteamUGCDetails_t details{};
+        if (!SteamUGC()->GetQueryUGCResult(_pending_query, i, &details))
+        {
+            continue;
+        }
+
+        WorkshopItem item;
+        item.publishedFileId = details.m_nPublishedFileId;
+        item.title           = details.m_rgchTitle;
+        item.description     = details.m_rgchDescription;
+        item.sizeBytes       = static_cast<sf::base::U64>(details.m_nFileSize);
+        // Author and isSubscribed/isInstalled require separate calls; leave
+        // as defaults for now. The browse UI shows what we have; expansion
+        // can come later.
+        item.isInstalled = SteamUGC()->GetItemState(details.m_nPublishedFileId) & k_EItemStateInstalled;
+        item.isSubscribed = SteamUGC()->GetItemState(details.m_nPublishedFileId) & k_EItemStateSubscribed;
+
+        ev.queryResults.emplaceBack(SSVOH_MOVE(item));
+    }
+
+    SteamUGC()->ReleaseQueryUGCRequest(_pending_query);
+    _pending_query = k_UGCQueryHandleInvalid;
+
+    _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+}
+
+void steam_manager::steam_manager_impl::subscribe_workshop_item(sf::base::U64 publishedFileId)
+{
+    if (!_initialized) return;
+    SteamUGC()->SubscribeItem(static_cast<PublishedFileId_t>(publishedFileId));
+    SteamUGC()->DownloadItem(static_cast<PublishedFileId_t>(publishedFileId), /* highPriority */ true);
+}
+
+void steam_manager::steam_manager_impl::unsubscribe_workshop_item(sf::base::U64 publishedFileId)
+{
+    if (!_initialized) return;
+    SteamUGC()->UnsubscribeItem(static_cast<PublishedFileId_t>(publishedFileId));
+}
+
+sf::base::Optional<WorkshopEvent> steam_manager::steam_manager_impl::poll_workshop_event()
+{
+    if (_workshop_events.empty())
+    {
+        return sf::base::nullOpt;
+    }
+    WorkshopEvent ev = SSVOH_MOVE(_workshop_events.front());
+    _workshop_events.erase(_workshop_events.begin());
+    return sf::base::makeOptional(SSVOH_MOVE(ev));
+}
+
+void steam_manager::steam_manager_impl::on_item_installed(ItemInstalled_t* data)
+{
+    if (data == nullptr) return;
+
+    constexpr sf::base::SizeT folderBufSize = 512;
+    char                      folderBuf[folderBufSize] = {};
+    uint64                    diskSize{};
+    uint32                    timestamp{};
+    if (SteamUGC()->GetItemInstallInfo(data->m_nPublishedFileId, &diskSize, folderBuf, folderBufSize, &timestamp))
+    {
+        WorkshopEvent ev;
+        ev.kind            = WorkshopEvent::Kind::ItemInstalled;
+        ev.publishedFileId = data->m_nPublishedFileId;
+        ev.installFolder   = folderBuf;
+        _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+    }
+}
+
+void steam_manager::steam_manager_impl::on_item_subscribed(RemoteStoragePublishedFileSubscribed_t* data)
+{
+    if (data == nullptr) return;
+    WorkshopEvent ev;
+    ev.kind            = WorkshopEvent::Kind::ItemSubscribed;
+    ev.publishedFileId = data->m_nPublishedFileId;
+    _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+}
+
+void steam_manager::steam_manager_impl::on_item_unsubscribed(RemoteStoragePublishedFileUnsubscribed_t* data)
+{
+    if (data == nullptr) return;
+    WorkshopEvent ev;
+    ev.kind            = WorkshopEvent::Kind::ItemUnsubscribed;
+    ev.publishedFileId = data->m_nPublishedFileId;
+    _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+}
+
+void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResult_t* data)
+{
+    if (data == nullptr) return;
+    // For now we surface this as a simple progress signal at completion. A
+    // periodic byte-level tick would query `GetItemDownloadInfo` from the
+    // calling code each frame; that's the next refinement.
+    WorkshopEvent ev;
+    ev.kind            = WorkshopEvent::Kind::DownloadProgress;
+    ev.publishedFileId = data->m_nPublishedFileId;
+    _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+}
+
+// ----------------------------------------------------------------------------
+
 [[maybe_unused]] static sf::base::U32 unSecretData = 123'456;
 
 bool steam_manager::steam_manager_impl::request_encrypted_app_ticket()
@@ -903,6 +1090,26 @@ bool steam_manager::request_encrypted_app_ticket()
     return impl().get_ticket_steam_id();
 }
 
+void steam_manager::query_workshop_items(WorkshopQueryMode mode, int page)
+{
+    impl().query_workshop_items(mode, page);
+}
+
+void steam_manager::subscribe_workshop_item(sf::base::U64 publishedFileId)
+{
+    impl().subscribe_workshop_item(publishedFileId);
+}
+
+void steam_manager::unsubscribe_workshop_item(sf::base::U64 publishedFileId)
+{
+    impl().unsubscribe_workshop_item(publishedFileId);
+}
+
+[[nodiscard]] sf::base::Optional<WorkshopEvent> steam_manager::poll_workshop_event()
+{
+    return impl().poll_workshop_event();
+}
+
 } // namespace hg::Steam
 
 #else
@@ -997,6 +1204,23 @@ bool steam_manager::request_encrypted_app_ticket()
 }
 
 [[nodiscard]] sf::base::Optional<sf::base::U64> steam_manager::get_ticket_steam_id() const noexcept
+{
+    return sf::base::nullOpt;
+}
+
+void steam_manager::query_workshop_items([[maybe_unused]] WorkshopQueryMode mode, [[maybe_unused]] int page)
+{
+}
+
+void steam_manager::subscribe_workshop_item([[maybe_unused]] sf::base::U64 publishedFileId)
+{
+}
+
+void steam_manager::unsubscribe_workshop_item([[maybe_unused]] sf::base::U64 publishedFileId)
+{
+}
+
+[[nodiscard]] sf::base::Optional<WorkshopEvent> steam_manager::poll_workshop_event()
 {
     return sf::base::nullOpt;
 }

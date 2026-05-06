@@ -145,6 +145,8 @@ public:
     [[nodiscard]] sf::base::U64 getPackListVersion() const noexcept { return _packListVersion; }
     void                        bumpPackListVersion() noexcept { ++_packListVersion; }
 
+    [[nodiscard]] bool installPackAtRuntime(const sf::base::String& folderPath);
+
     [[nodiscard]] bool         hasTexture(const sf::base::String& mId);
     [[nodiscard]] sf::Texture& getTexture(const sf::base::String& mId);
 
@@ -1407,6 +1409,65 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
 }
 
 //**********************************************
+// HOT INSTALL
+
+[[nodiscard]] bool HGAssets::HGAssetsImpl::installPackAtRuntime(const sf::base::String& folderPath)
+{
+    // Validate the folder has a `pack.json` we can parse.
+    const ssvufs::Path packPath{folderPath.cStr()};
+    if (!ssvufs::Path{packPath + "/pack.json"}.isFile())
+    {
+        hg::lo("HGAssets::installPackAtRuntime") << "No pack.json under '" << folderPath << "'\n";
+        return false;
+    }
+
+    // Load metadata + assets. `loadPackData` populates `packDatas` and
+    // `packInfos`; `loadPackAssets` then populates `levelDatas` /
+    // `styleDataMap` / `musicDataMap` / `selectablePackInfos`.
+    if (!loadPackData(packPath))
+    {
+        hg::lo("HGAssets::installPackAtRuntime") << "loadPackData failed for '" << folderPath << "'\n";
+        return false;
+    }
+
+    // The pack id was just inserted as the last element of `packInfos`. Use
+    // it to fetch the corresponding `PackData` for `loadPackAssets`.
+    const sf::base::String& newPackId = packInfos.back().id;
+    const auto              it        = packDatas.find(newPackId);
+    if (it == packDatas.end())
+    {
+        hg::lo("HGAssets::installPackAtRuntime") << "PackData missing after loadPackData\n";
+        return false;
+    }
+
+    if (!loadPackAssets(it->second, isHeadless()))
+    {
+        hg::lo("HGAssets::installPackAtRuntime") << "loadPackAssets failed for '" << newPackId << "'\n";
+        return false;
+    }
+
+    // Re-validate dependencies so a freshly-installed pack is recognized
+    // (and any of its dependents that were previously missing become
+    // available).
+    if (!verifyAllPackDependencies())
+    {
+        hg::lo("HGAssets::installPackAtRuntime") << "verifyAllPackDependencies reported issues\n";
+        // Don't fail outright — `verifyAllPackDependencies` populates
+        // `packIdsWithMissingDependencies` for the UI to surface.
+    }
+
+    // Re-sort selectablePackInfos by priority. (Matches the initial-load
+    // sort at the end of `loadAllPackAssets`.)
+    sf::base::quickSort(selectablePackInfos.begin(), selectablePackInfos.end(),
+                        [&](const PackInfo& a, const PackInfo& b) {
+                            return packDatas.at(a.id).priority < packDatas.at(b.id).priority;
+                        });
+
+    bumpPackListVersion();
+    return true;
+}
+
+//**********************************************
 // LOCAL SCORE
 
 float HGAssets::HGAssetsImpl::getLocalScore(const sf::base::String& mId)
@@ -1630,6 +1691,11 @@ const sf::base::Vector<PackInfo>& HGAssets::getSelectablePackInfos() const noexc
 sf::base::U64 HGAssets::packListVersion() const noexcept
 {
     return _impl->getPackListVersion();
+}
+
+bool HGAssets::installPackAtRuntime(const sf::base::String& folderPath)
+{
+    return _impl->installPackAtRuntime(folderPath);
 }
 
 const PackData* HGAssets::findPackData(const sf::base::String& mPackDisambiguator,

@@ -87,6 +87,12 @@ public:
     // UI uses it as a "should I rebuild my filtered/sorted list?" signal.
     [[nodiscard]] sf::base::U64 packListVersion() const noexcept;
 
+    // Install (or refresh in place) a pack from a folder on disk at
+    // runtime. Used by the Workshop browser when an `ItemInstalled_t`
+    // callback fires. Returns true on success, false on validation /
+    // dependency failure.
+    [[nodiscard]] bool installPackAtRuntime(const sf::base::String& folderPath);
+
     [[nodiscard]] const PackData* findPackData(const sf::base::String& mPackDisambiguator,
                                                const sf::base::String& mPackName,
                                                const sf::base::String& mPackAuthor) const noexcept;
