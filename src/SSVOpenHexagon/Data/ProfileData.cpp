@@ -83,4 +83,24 @@ void ProfileData::removeFavoriteLevel(const sf::base::String& mLevelID)
     return favoriteLevelsDataIDs.find(mLevelID) != favoriteLevelsDataIDs.end();
 }
 
+[[nodiscard]] PerLevelState ProfileData::getPerLevelState(const sf::base::String& mLevelId) const noexcept
+{
+    const auto it = perLevelState.find(mLevelId);
+    if (it == perLevelState.end())
+    {
+        return {};
+    }
+    return it->second;
+}
+
+[[nodiscard]] PerLevelState& ProfileData::getOrCreatePerLevelState(const sf::base::String& mLevelId)
+{
+    return perLevelState[mLevelId];
+}
+
+[[nodiscard]] const std::unordered_map<sf::base::String, PerLevelState>& ProfileData::getPerLevelStates() const noexcept
+{
+    return perLevelState;
+}
+
 } // namespace hg

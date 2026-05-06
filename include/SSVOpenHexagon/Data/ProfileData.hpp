@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 
+#include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
@@ -16,6 +17,18 @@
 namespace hg
 {
 
+// Per-level user metadata, keyed by level *id* (one entry per level, all
+// difficulties share). The new UI's level-select screen uses this for sort
+// keys ("recently played", "play count") and filters ("only show
+// uncompleted"). Persisted alongside `scores` / `favorites` in the profile
+// JSON.
+struct PerLevelState
+{
+    sf::base::U64 lastPlayedTs{0};
+    sf::base::U32 playCount{0};
+    bool          isCompleted{false};
+};
+
 class ProfileData
 {
 private:
@@ -23,6 +36,7 @@ private:
     sf::base::String                            name;
     std::unordered_map<sf::base::String, float> scores;
     std::unordered_set<sf::base::String>        favoriteLevelsDataIDs;
+    std::unordered_map<sf::base::String, PerLevelState> perLevelState;
 
 public:
     ProfileData(const GameVersion                                  mVersion,
@@ -45,6 +59,13 @@ public:
     void removeFavoriteLevel(const sf::base::String& mLevelID);
 
     [[nodiscard]] bool isLevelFavorite(const sf::base::String& mLevelID) const noexcept;
+
+    // Per-level state — never throws; missing entries are returned as
+    // zero-initialised. Mutating accessor `getOrCreatePerLevelState` inserts
+    // an empty entry on first access.
+    [[nodiscard]] PerLevelState        getPerLevelState   (const sf::base::String& mLevelId) const noexcept;
+    [[nodiscard]] PerLevelState&       getOrCreatePerLevelState(const sf::base::String& mLevelId);
+    [[nodiscard]] const std::unordered_map<sf::base::String, PerLevelState>& getPerLevelStates() const noexcept;
 };
 
 } // namespace hg

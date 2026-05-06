@@ -39,6 +39,7 @@ struct LevelData
     sf::base::String                            luaScriptPath;
     sf::base::Vector<float>                     difficultyMults;
     bool                                        unscored;
+    sf::base::Vector<sf::base::String>          tags; //!< optional, parsed from `level.json` "tags" array
     std::unordered_map<float, sf::base::String> validators;
     std::unordered_map<float, sf::base::String> validatorsWithoutPackId;
 

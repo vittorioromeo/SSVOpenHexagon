@@ -86,6 +86,10 @@ private:
 
     std::unordered_set<sf::base::String> packIdsWithMissingDependencies;
 
+    // Bumped any time the level/pack list changes; surfaced via
+    // `HGAssets::packListVersion()`.
+    sf::base::U64 _packListVersion{0};
+
     struct LoadedShader
     {
         sf::base::UniquePtr<sf::Shader> shader;
@@ -137,6 +141,9 @@ public:
     [[nodiscard]] bool isHeadless() const;
 
     [[nodiscard]] LoadInfo& getLoadResults();
+
+    [[nodiscard]] sf::base::U64 getPackListVersion() const noexcept { return _packListVersion; }
+    void                        bumpPackListVersion() noexcept { ++_packListVersion; }
 
     [[nodiscard]] bool         hasTexture(const sf::base::String& mId);
     [[nodiscard]] sf::Texture& getTexture(const sf::base::String& mId);
@@ -335,6 +342,8 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(Steam::steam_manager* mSteamManager, bool m
         std::terminate();
         return;
     }
+
+    bumpPackListVersion();
 
     if (!loadAllLocalProfiles())
     {
@@ -1233,6 +1242,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
         output += "Custom sound files successfully reloaded\n";
     }
 
+    bumpPackListVersion();
     return output;
 }
 
@@ -1392,6 +1402,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     output += levelData.soundId;
     output += ".ogg successfully loaded\n";
 
+    bumpPackListVersion();
     return output;
 }
 
@@ -1614,6 +1625,11 @@ const PackData& HGAssets::getPackData(const sf::base::String& mPackId)
 const sf::base::Vector<PackInfo>& HGAssets::getSelectablePackInfos() const noexcept
 {
     return _impl->getSelectablePackInfos();
+}
+
+sf::base::U64 HGAssets::packListVersion() const noexcept
+{
+    return _impl->getPackListVersion();
 }
 
 const PackData* HGAssets::findPackData(const sf::base::String& mPackDisambiguator,

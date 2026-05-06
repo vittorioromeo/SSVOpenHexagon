@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Global/StringHash.hpp"
 
+#include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
@@ -80,6 +81,11 @@ public:
     [[nodiscard]] const PackData& getPackData(const sf::base::String& mPackId);
 
     [[nodiscard]] const sf::base::Vector<PackInfo>& getSelectablePackInfos() const noexcept;
+
+    // Counter bumped whenever the level/pack list changes (initial load,
+    // hot-install, hot-uninstall, dev-time reload). Cheap to read; the new
+    // UI uses it as a "should I rebuild my filtered/sorted list?" signal.
+    [[nodiscard]] sf::base::U64 packListVersion() const noexcept;
 
     [[nodiscard]] const PackData* findPackData(const sf::base::String& mPackDisambiguator,
                                                const sf::base::String& mPackName,

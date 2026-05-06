@@ -32,7 +32,8 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const sf::base::String& mPackPath,
     styleId{ssvuj::getExtr<sf::base::String>(mRoot, "styleId", "nullStyleId")},
     luaScriptPath{packPath + ssvuj::getExtr<sf::base::String>(mRoot, "luaFile", "nullLuaPath")},
     difficultyMults{ssvuj::getExtr<sf::base::Vector<float>>(mRoot, "difficultyMults", {})},
-    unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)}
+    unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)},
+    tags{ssvuj::getExtr<sf::base::Vector<sf::base::String>>(mRoot, "tags", {})}
 {
     difficultyMults.emplaceBack(1.f);
     sf::base::quickSort(difficultyMults.begin(), difficultyMults.end());
