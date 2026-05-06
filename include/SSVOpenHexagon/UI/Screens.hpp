@@ -8,16 +8,24 @@
 // translation unit under `src/SSVOpenHexagon/UI/Screens/`. A single dispatcher
 // (`drawCurrentScreen`) calls the right one based on `App::current`.
 
+#include "SSVOpenHexagon/UI/App.hpp" // for `Screen`
+
 namespace hg::ui
 {
 
 struct Context;
-struct App;
 struct Services;
 
 void drawCurrentScreen(Context& ctx, App& app, Services& svc);
 
 // Per-screen draw functions. Add new declarations here as screens are added.
-void drawMainScreen(Context& ctx, App& app, Services& svc);
+void drawMainScreen   (Context& ctx, App& app, Services& svc);
+void drawProfileScreen(Context& ctx, App& app, Services& svc);
+void drawOptionsScreen(Context& ctx, App& app, Services& svc);
+
+// Navigation helpers used by every screen. Implementation lives next to the
+// dispatcher.
+void pushScreen(App& app, Screen target); //!< saves current on backStack, transitions to target
+void goBack    (App& app);                //!< pops backStack (no-op if empty)
 
 } // namespace hg::ui

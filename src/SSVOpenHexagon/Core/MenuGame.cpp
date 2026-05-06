@@ -910,15 +910,47 @@ void MenuGame::initNewUIServices()
 
 void MenuGame::drawNewMainMenu()
 {
+    // Refresh per-frame snapshots the screens read from. Cheap; runs only
+    // when the new UI is active.
+    {
+        const auto& prof = assets.getCurrentLocalProfile();
+
+        const auto& name = assets.pGetName();
+        std::snprintf(ui_app.profileSnapshot.name,
+                      sizeof(ui_app.profileSnapshot.name),
+                      "%.*s",
+                      static_cast<int>(name.size()),
+                      name.cStr());
+
+        ui_app.profileSnapshot.totalScored    = static_cast<int>(prof.getScores().size());
+        ui_app.profileSnapshot.totalFavorites = static_cast<int>(prof.getFavoriteLevelIds().size());
+
+        const char* statusStr = "OFFLINE";
+        switch (hexagonClient.getState())
+        {
+            case HexagonClient::State::Disconnected:    statusStr = "OFFLINE"; break;
+            case HexagonClient::State::InitError:       statusStr = "INIT ERROR"; break;
+            case HexagonClient::State::Connecting:      statusStr = "CONNECTING..."; break;
+            case HexagonClient::State::ConnectionError: statusStr = "CONNECTION ERROR"; break;
+            case HexagonClient::State::Connected:       statusStr = "CONNECTED"; break;
+            case HexagonClient::State::LoggedIn:        statusStr = "LOGGED IN"; break;
+            case HexagonClient::State::LoggedIn_Ready:  statusStr = "LOGGED IN (READY)"; break;
+        }
+        std::snprintf(ui_app.profileSnapshot.onlineStatus,
+                      sizeof(ui_app.profileSnapshot.onlineStatus),
+                      "%s",
+                      statusStr);
+    }
+
     // Build a Context for this frame.
     hg::ui::Context ctx{};
-    ctx.target   = &window.getRenderWindow();
-    ctx.font     = &openSquare;
-    ctx.input    = ui_pendingInput;
-    ctx.dt       = ui_dt;
+    ctx.target = &window.getRenderWindow();
+    ctx.font   = &openSquare;
+    ctx.input  = ui_pendingInput;
+    ctx.dt     = ui_dt;
 
     // Mouse: position in screen space, button edge.
-    ctx.input.mousePos = sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>();
+    ctx.input.mousePos     = sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>();
     ctx.input.mouseDown    = (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
     ctx.input.mousePressed = ctx.input.mouseDown && !mouseWasPressed;
 

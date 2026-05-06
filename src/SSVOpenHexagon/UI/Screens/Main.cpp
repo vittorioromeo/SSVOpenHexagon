@@ -21,18 +21,19 @@ namespace
 
 // The new main menu has six entries; "WORKSHOP" is added vs. the old menu and
 // "LOCAL PROFILES" becomes plain "PROFILE" (single-profile model — see the
-// design doc, F4).
+// design doc, F4). Items that route into the new UI use `pushScreen`; items
+// that route into still-old screens go through `Services` callbacks.
 constexpr struct
 {
     const char* label;
     void (*activate)(App&, Services&);
 } kItems[] = {
-    {"PLAY",     [](App&, Services& s) { if (s.onPlayRequested)     s.onPlayRequested(); }},
-    {"WORKSHOP", [](App&, Services& s) { if (s.onWorkshopRequested) s.onWorkshopRequested(); }},
-    {"OPTIONS",  [](App&, Services& s) { if (s.onOptionsRequested)  s.onOptionsRequested(); }},
-    {"PROFILE",  [](App&, Services& s) { if (s.onProfileRequested)  s.onProfileRequested(); }},
-    {"ONLINE",   [](App&, Services& s) { if (s.onOnlineRequested)   s.onOnlineRequested(); }},
-    {"EXIT",     [](App& a, Services& s) { a.exitRequested = true; if (s.onExit) s.onExit(); }},
+    {"PLAY",     [](App&, Services& s)      { if (s.onPlayRequested)     s.onPlayRequested(); }},
+    {"WORKSHOP", [](App&, Services& s)      { if (s.onWorkshopRequested) s.onWorkshopRequested(); }},
+    {"OPTIONS",  [](App& a, Services&)      { pushScreen(a, Screen::Options); }},
+    {"PROFILE",  [](App& a, Services&)      { pushScreen(a, Screen::Profile); }},
+    {"ONLINE",   [](App&, Services& s)      { if (s.onOnlineRequested)   s.onOnlineRequested(); }},
+    {"EXIT",     [](App& a, Services& s)    { a.exitRequested = true; if (s.onExit) s.onExit(); }},
 };
 
 constexpr int kItemCount = static_cast<int>(sizeof(kItems) / sizeof(kItems[0]));
