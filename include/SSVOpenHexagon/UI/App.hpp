@@ -8,6 +8,8 @@
 // Each screen has a small named sub-struct here — replaces the ~80 ad-hoc
 // member variables of the old `MenuGame` class.
 
+#include "SSVOpenHexagon/Core/Steam.hpp" // for `WorkshopItem`
+
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
@@ -21,7 +23,7 @@ enum class Screen : sf::base::U8
     Profile,
     Options,
     LevelSelect,
-    // Phase 3+: WorkshopBrowse.
+    WorkshopBrowse,
     // Phase 4+: Online.
 };
 
@@ -60,6 +62,22 @@ enum class LevelSortKey : sf::base::U8
     PersonalBest,
     LastPlayed,
     PlayCount,
+};
+
+struct WorkshopBrowseScreenState
+{
+    Steam::WorkshopQueryMode             queryMode{Steam::WorkshopQueryMode::MostPopular};
+    int                                  page{1};
+    sf::base::Vector<Steam::WorkshopItem> items;
+
+    bool  queryInFlight{false};
+    bool  initialQueryFired{false};
+
+    int   selectedIdx{0};
+    float selectionY{0.f};
+    float openProgress{0.f};
+
+    char  statusMessage[128] = {};
 };
 
 struct LevelSelectScreenState
@@ -112,10 +130,11 @@ struct App
     // Stack of screens to pop on `escape`.
     sf::base::Vector<Screen> backStack{};
 
-    MainScreenState        main{};
-    ProfileScreenState     profile{};
-    OptionsScreenState     options{};
-    LevelSelectScreenState levelSelect{};
+    MainScreenState           main{};
+    ProfileScreenState        profile{};
+    OptionsScreenState        options{};
+    LevelSelectScreenState    levelSelect{};
+    WorkshopBrowseScreenState workshop{};
 
     // Snapshots refreshed by the host each frame.
     ProfileSnapshot profileSnapshot{};

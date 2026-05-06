@@ -965,6 +965,60 @@ void MenuGame::initNewUIServices()
 
     ui_services.assets         = &assets;
     ui_services.currentProfile = &assets.getCurrentLocalProfile();
+    ui_services.steamManager   = &steamManager;
+}
+
+void MenuGame::pumpWorkshopEvents()
+{
+    using EK = hg::Steam::WorkshopEvent::Kind;
+
+    while (auto evt = steamManager.poll_workshop_event())
+    {
+        switch (evt->kind)
+        {
+            case EK::QueryComplete:
+                ui_app.workshop.items         = std::move(evt->queryResults);
+                ui_app.workshop.queryInFlight = false;
+                std::snprintf(ui_app.workshop.statusMessage,
+                              sizeof(ui_app.workshop.statusMessage),
+                              "%zu items received",
+                              static_cast<std::size_t>(ui_app.workshop.items.size()));
+                break;
+
+            case EK::ItemInstalled:
+                if (!evt->installFolder.empty())
+                {
+                    (void)assets.installPackAtRuntime(evt->installFolder);
+                }
+                // Reflect install state in the UI's cached list.
+                for (auto& it : ui_app.workshop.items)
+                {
+                    if (it.publishedFileId == evt->publishedFileId)
+                    {
+                        it.isInstalled = true;
+                        break;
+                    }
+                }
+                break;
+
+            case EK::ItemSubscribed:
+            case EK::ItemUnsubscribed:
+                for (auto& it : ui_app.workshop.items)
+                {
+                    if (it.publishedFileId == evt->publishedFileId)
+                    {
+                        it.isSubscribed = (evt->kind == EK::ItemSubscribed);
+                        break;
+                    }
+                }
+                break;
+
+            case EK::DownloadProgress:
+                // Future: surface a progress bar. For now we just note the
+                // event and let `ItemInstalled` close the loop.
+                break;
+        }
+    }
 }
 
 void MenuGame::drawNewMainMenu()
@@ -1000,6 +1054,11 @@ void MenuGame::drawNewMainMenu()
                       "%s",
                       statusStr);
     }
+
+    // Drain any pending Steam Workshop events before drawing — hot-installs
+    // a newly-downloaded pack, mirrors subscribe state into the cached item
+    // list, etc. Cheap when the queue is empty.
+    pumpWorkshopEvents();
 
     // Build a Context for this frame.
     hg::ui::Context ctx{};

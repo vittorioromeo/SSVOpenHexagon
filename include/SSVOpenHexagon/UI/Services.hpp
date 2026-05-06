@@ -25,6 +25,11 @@ namespace hg
 {
 class HGAssets;
 class ProfileData;
+
+namespace Steam
+{
+class steam_manager;
+} // namespace Steam
 } // namespace hg
 
 namespace hg::ui
@@ -51,10 +56,11 @@ struct Services
 
     // Direct pointers to backend systems screens read from. Phase 2's Level
     // Select reads pack/level metadata via these; Phase 3's Workshop browser
-    // will install packs through `assets`. Both may be null in non-game
-    // contexts (e.g. unit tests).
-    HGAssets*    assets{nullptr};
-    ProfileData* currentProfile{nullptr};
+    // calls Steam UGC and `installPackAtRuntime` directly. Any of these may
+    // be null in non-game contexts (e.g. unit tests).
+    HGAssets*             assets{nullptr};
+    ProfileData*          currentProfile{nullptr};
+    Steam::steam_manager* steamManager{nullptr};
 };
 
 } // namespace hg::ui

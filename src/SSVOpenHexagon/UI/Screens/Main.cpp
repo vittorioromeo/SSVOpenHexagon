@@ -29,7 +29,7 @@ constexpr struct
     void (*activate)(App&, Services&);
 } kItems[] = {
     {"PLAY",     [](App& a, Services&)      { pushScreen(a, Screen::LevelSelect); }},
-    {"WORKSHOP", [](App&, Services& s)      { if (s.onWorkshopRequested) s.onWorkshopRequested(); }},
+    {"WORKSHOP", [](App& a, Services&)      { pushScreen(a, Screen::WorkshopBrowse); }},
     {"OPTIONS",  [](App& a, Services&)      { pushScreen(a, Screen::Options); }},
     {"PROFILE",  [](App& a, Services&)      { pushScreen(a, Screen::Profile); }},
     {"ONLINE",   [](App&, Services& s)      { if (s.onOnlineRequested)   s.onOnlineRequested(); }},

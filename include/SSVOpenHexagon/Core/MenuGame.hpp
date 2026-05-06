@@ -201,6 +201,11 @@ private:
     void initNewUIServices();
     void drawNewMainMenu();
 
+    // Drains pending Steam Workshop events each frame: hot-installs newly-
+    // downloaded packs, mirrors subscribe/unsubscribe state into the
+    // browse-screen's cached item list, etc. No-op if Steam isn't running.
+    void pumpWorkshopEvents();
+
     //---------------------------------------
     // Initialization
 
