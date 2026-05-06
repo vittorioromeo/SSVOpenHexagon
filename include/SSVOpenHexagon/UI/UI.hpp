@@ -102,6 +102,15 @@ struct Context
 ////////////////////////////////////////////////////////////////////////////////
 // Animation helpers. Plain floats, exponential ease toward target.
 
+// Maps a window-pixel position into the UI's layout (model) space, using
+// the view + transform stored on `ctx.renderStates`. The host should call
+// this when filling `ctx.input.mousePos` so widget hit-testing matches the
+// transformed render.
+//
+//   ctx.input.mousePos = hg::ui::screenToUI(
+//       ctx, sf::Mouse::getPosition(window).to<sf::Vec2f>());
+[[nodiscard]] sf::Vec2f screenToUI(const Context& ctx, sf::Vec2f pixelPos) noexcept;
+
 // Returns true if a step actually moved `current` (i.e. animation not yet at
 // target). `speed` is an inverse time constant; 12 ≈ "reach target in ~80 ms".
 bool stepToward(float& current, float target, float dt, float speed = 12.f);

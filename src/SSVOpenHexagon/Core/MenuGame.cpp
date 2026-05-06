@@ -12,8 +12,6 @@
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
-
-#include "SSVOpenHexagon/UI/Screens.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
@@ -48,6 +46,7 @@
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Io.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
+#include "SSVOpenHexagon/UI/Screens.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
@@ -244,9 +243,10 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     enteredChars{},
     backgroundCamera{
         sf::View{.center = sf::Vec2f{0.f, 0.f},
-                 .size   = {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}},
-    overlayCamera{sf::View{.center = {Config::getWidth() / 2.f, Config::getHeight() * Config::getZoomFactor() / 2.f},
-                           .size   = {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}},
+                 .size = {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}},
+    overlayCamera{
+        sf::View{.center = {Config::getWidth() / 2.f, Config::getHeight() * Config::getZoomFactor() / 2.f},
+                 .size = {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}},
     mustRefresh{false},
     wasFocusHeld{false},
     focusHeld{false},
@@ -873,8 +873,8 @@ void MenuGame::initNewUIServices()
     // Wire the new UI's action callbacks to existing MenuGame helpers. Once
     // every screen is migrated, these can be replaced with direct calls and
     // `MenuGame` itself can be deleted.
-    ui_services.onExit             = [this] { window.stop(); };
-    ui_services.onPlayRequested    = [this]
+    ui_services.onExit          = [this] { window.stop(); };
+    ui_services.onPlayRequested = [this]
     {
         // PLAY is handled by the new Level Select screen; this fallback only
         // exists for transition periods or if the new path is bypassed.
@@ -954,8 +954,8 @@ void MenuGame::initNewUIServices()
     ui_services.playSound = [this](sf::base::StringView s)
     {
         // Best-effort; small stack buffer keeps us null-terminated.
-        char buf[64] = {};
-        const auto n = s.size() < (sizeof(buf) - 1) ? s.size() : (sizeof(buf) - 1);
+        char       buf[64] = {};
+        const auto n       = s.size() < (sizeof(buf) - 1) ? s.size() : (sizeof(buf) - 1);
         for (decltype(s.size()) i = 0; i < n; ++i)
         {
             buf[i] = s.data()[i];
@@ -1031,7 +1031,7 @@ void MenuGame::drawNewMainMenu()
     // chosen yet) — handle that case so the new UI doesn't crash on first
     // boot before the user picks one.
     {
-        const bool hasProfile = assets.pIsValidLocalProfile();
+        const bool hasProfile      = assets.pIsValidLocalProfile();
         ui_services.currentProfile = hasProfile ? &assets.getCurrentLocalProfile() : nullptr;
 
         if (hasProfile)
@@ -1058,18 +1058,29 @@ void MenuGame::drawNewMainMenu()
         const char* statusStr = "OFFLINE";
         switch (hexagonClient.getState())
         {
-            case HexagonClient::State::Disconnected:    statusStr = "OFFLINE"; break;
-            case HexagonClient::State::InitError:       statusStr = "INIT ERROR"; break;
-            case HexagonClient::State::Connecting:      statusStr = "CONNECTING..."; break;
-            case HexagonClient::State::ConnectionError: statusStr = "CONNECTION ERROR"; break;
-            case HexagonClient::State::Connected:       statusStr = "CONNECTED"; break;
-            case HexagonClient::State::LoggedIn:        statusStr = "LOGGED IN"; break;
-            case HexagonClient::State::LoggedIn_Ready:  statusStr = "LOGGED IN (READY)"; break;
+            case HexagonClient::State::Disconnected:
+                statusStr = "OFFLINE";
+                break;
+            case HexagonClient::State::InitError:
+                statusStr = "INIT ERROR";
+                break;
+            case HexagonClient::State::Connecting:
+                statusStr = "CONNECTING...";
+                break;
+            case HexagonClient::State::ConnectionError:
+                statusStr = "CONNECTION ERROR";
+                break;
+            case HexagonClient::State::Connected:
+                statusStr = "CONNECTED";
+                break;
+            case HexagonClient::State::LoggedIn:
+                statusStr = "LOGGED IN";
+                break;
+            case HexagonClient::State::LoggedIn_Ready:
+                statusStr = "LOGGED IN (READY)";
+                break;
         }
-        std::snprintf(ui_app.profileSnapshot.onlineStatus,
-                      sizeof(ui_app.profileSnapshot.onlineStatus),
-                      "%s",
-                      statusStr);
+        std::snprintf(ui_app.profileSnapshot.onlineStatus, sizeof(ui_app.profileSnapshot.onlineStatus), "%s", statusStr);
     }
 
     // Drain any pending Steam Workshop events before drawing — hot-installs
@@ -1084,10 +1095,19 @@ void MenuGame::drawNewMainMenu()
     ctx.input  = ui_pendingInput;
     ctx.dt     = ui_dt;
 
-    // Mouse: position in screen space, button edge.
-    ctx.input.mousePos     = sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>();
+    // Mouse button state. Position is mapped *below*, after `renderStates`
+    // has been set up — so widget hit-testing matches the transformed
+    // render.
     ctx.input.mouseDown    = (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
     ctx.input.mousePressed = ctx.input.mouseDown && !mouseWasPressed;
+
+    ctx.renderStates.transform = sf::Transform::fromPosition({100.f, 100.f});
+
+    // Map raw pixel mouse → UI layout space, accounting for the view +
+    // transform set on `renderStates`. Identity transforms = no-op.
+    const sf::Vec2f mousePixelPos = sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>();
+    ctx.input.mousePos            = hg::ui::screenToUI(ctx, mousePixelPos);
+
 
     hg::ui::drawCurrentScreen(ctx, ui_app, ui_services);
 
@@ -3365,9 +3385,9 @@ void MenuGame::refreshCamera()
     w = getWindowWidth() * fmax;
     h = getWindowHeight() * fmax;
 
-    backgroundCamera = {sf::View{.center = sf::Vec2f{0.f, 0.f},
-                                 .size   = {Config::getSizeX() * Config::getZoomFactor(),
-                                          Config::getSizeY() * Config::getZoomFactor()}}};
+    backgroundCamera = {
+        sf::View{.center = sf::Vec2f{0.f, 0.f},
+                 .size = {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}};
 
     overlayCamera = sf::View{.center = {w / 2.f, h / 2.f}, .size = {w, h}};
 

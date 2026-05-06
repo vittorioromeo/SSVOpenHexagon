@@ -8,6 +8,8 @@
 #include "SFML/Graphics/RectangleShapeData.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 #include "SFML/Graphics/TextData.hpp"
+#include "SFML/Graphics/Transform.hpp"
+#include "SFML/Graphics/View.hpp"
 
 #include "SFML/System/UnicodeString.hpp"
 
@@ -95,6 +97,25 @@ bool pointInRect(sf::Vec2f pt, sf::Rect2f r) noexcept
 }
 
 } // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+// Coordinate mapping
+
+sf::Vec2f screenToUI(const Context& ctx, sf::Vec2f pixelPos) noexcept
+{
+    if (ctx.target == nullptr)
+    {
+        return pixelPos;
+    }
+
+    // pixel → world (undo the view's projection)
+    const sf::Vec2f targetSize = ctx.target->getSize().to<sf::Vec2f>();
+    const sf::Vec2f world      = ctx.renderStates.view.screenToWorld(pixelPos, targetSize);
+
+    // world → model (undo the user-supplied transform). Identity transforms
+    // are the default; this is a no-op in that common case.
+    return ctx.renderStates.transform.getInverse().transformPoint(world);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Animation
