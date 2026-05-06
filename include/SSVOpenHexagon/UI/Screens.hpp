@@ -1,0 +1,23 @@
+// Copyright (c) 2013-2020 Vittorio Romeo
+// License: Academic Free License ("AFL") v. 3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
+
+#pragma once
+
+// Forward declarations of every screen draw function. Each lives in its own
+// translation unit under `src/SSVOpenHexagon/UI/Screens/`. A single dispatcher
+// (`drawCurrentScreen`) calls the right one based on `App::current`.
+
+namespace hg::ui
+{
+
+struct Context;
+struct App;
+struct Services;
+
+void drawCurrentScreen(Context& ctx, App& app, Services& svc);
+
+// Per-screen draw functions. Add new declarations here as screens are added.
+void drawMainScreen(Context& ctx, App& app, Services& svc);
+
+} // namespace hg::ui

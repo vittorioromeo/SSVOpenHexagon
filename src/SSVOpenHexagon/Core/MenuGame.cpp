@@ -12,6 +12,8 @@
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
+
+#include "SSVOpenHexagon/UI/Screens.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
@@ -241,10 +243,10 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     txtOnlineStatus{openSquare, {.string = "", .characterSize = 24}},
     enteredChars{},
     backgroundCamera{
-        sf::View{sf::Vec2f{0.f, 0.f},
-                 {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}},
-    overlayCamera{sf::View{{Config::getWidth() / 2.f, Config::getHeight() * Config::getZoomFactor() / 2.f},
-                           {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}},
+        sf::View{.center = sf::Vec2f{0.f, 0.f},
+                 .size   = {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}},
+    overlayCamera{sf::View{.center = {Config::getWidth() / 2.f, Config::getHeight() * Config::getZoomFactor() / 2.f},
+                           .size   = {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}},
     mustRefresh{false},
     wasFocusHeld{false},
     focusHeld{false},
@@ -778,6 +780,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     initMenus();
     initInput();
     initLua();
+    initNewUIServices();
 
     //--------------------------------
     // Main menu background
@@ -851,6 +854,87 @@ void MenuGame::init(bool error, const sf::base::String& pack, const sf::base::St
     init(error);
     loadCommandLineLevel(pack, level);
 }
+
+// ----------------------------------------------------------------------------
+// New immediate-mode UI integration (see `docs/UI_REWRITE_DESIGN.md`).
+
+bool MenuGame::newUIActiveForCurrentState() const noexcept
+{
+    if (!useNewUI)
+    {
+        return false;
+    }
+    // Phase 0: only the main menu is migrated.
+    return state == States::SMain;
+}
+
+void MenuGame::initNewUIServices()
+{
+    // Wire the new UI's action callbacks to existing MenuGame helpers. Once
+    // every screen is migrated, these can be replaced with direct calls and
+    // `MenuGame` itself can be deleted.
+    ui_services.onExit             = [this] { window.stop(); };
+    ui_services.onPlayRequested    = [this]
+    {
+        if (firstLevelSelection)
+        {
+            lvlSlct.packIdx     = 0;
+            diffMultIdx         = 0;
+            lvlSlct.levelDataIds = &assets.getLevelIdsByPack(getNthSelectablePackInfo(0).id);
+            setIndex(0);
+        }
+        changeStateTo(States::LevelSelection);
+        playSoundOverride("select.ogg");
+    };
+    ui_services.onOptionsRequested  = [this] { changeStateTo(States::MOpts); };
+    ui_services.onOnlineRequested   = [this] { changeStateTo(States::MOnline); };
+    ui_services.onProfileRequested  = [this] { changeStateTo(States::SLPSelect); };
+    ui_services.onWorkshopRequested = [this]
+    {
+        // Phase 3 will replace this with the Workshop browse screen. Until
+        // then, surface a dialog so the entry point exists in the UI.
+        showDialogBox("WORKSHOP BROWSING IS COMING IN A FUTURE UPDATE.\nPRESS ANY KEY TO CONTINUE.");
+    };
+    ui_services.playSound = [this](sf::base::StringView s)
+    {
+        // Best-effort; small stack buffer keeps us null-terminated.
+        char buf[64] = {};
+        const auto n = s.size() < (sizeof(buf) - 1) ? s.size() : (sizeof(buf) - 1);
+        for (decltype(s.size()) i = 0; i < n; ++i)
+        {
+            buf[i] = s.data()[i];
+        }
+        playSoundOverride(buf);
+    };
+}
+
+void MenuGame::drawNewMainMenu()
+{
+    // Build a Context for this frame.
+    hg::ui::Context ctx{};
+    ctx.target   = &window.getRenderWindow();
+    ctx.font     = &openSquare;
+    ctx.input    = ui_pendingInput;
+    ctx.dt       = ui_dt;
+
+    // Mouse: position in screen space, button edge.
+    ctx.input.mousePos = sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>();
+    ctx.input.mouseDown    = (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    ctx.input.mousePressed = ctx.input.mouseDown && !mouseWasPressed;
+
+    hg::ui::drawCurrentScreen(ctx, ui_app, ui_services);
+
+    // Reset edges so they don't carry to next frame. Mouse pos/down are not
+    // edges and survive — they're rebuilt next frame anyway.
+    ui_pendingInput = {};
+
+    if (ui_app.exitRequested)
+    {
+        window.stop();
+    }
+}
+
+// ----------------------------------------------------------------------------
 
 void MenuGame::initAssets()
 {
@@ -1896,11 +1980,21 @@ void MenuGame::leftRightActionImpl(bool left)
 
 void MenuGame::leftAction()
 {
+    if (newUIActiveForCurrentState())
+    {
+        ui_pendingInput.left = true;
+        return;
+    }
     leftRightActionImpl(true /* left */);
 }
 
 void MenuGame::rightAction()
 {
+    if (newUIActiveForCurrentState())
+    {
+        ui_pendingInput.right = true;
+        return;
+    }
     leftRightActionImpl(false /* left */);
 }
 
@@ -1908,6 +2002,12 @@ inline constexpr int maxProfilesOnScreen{6};
 
 void MenuGame::upAction()
 {
+    if (newUIActiveForCurrentState())
+    {
+        ui_pendingInput.up = true;
+        return;
+    }
+
     if (state == States::LevelSelection)
     {
         // Do not do anything until the pack change animation is over.
@@ -2012,6 +2112,11 @@ inline constexpr int maxErrorsOnScreen{7};
 
 void MenuGame::downAction()
 {
+    if (newUIActiveForCurrentState())
+    {
+        ui_pendingInput.down = true;
+        return;
+    }
     if (state == States::LevelSelection)
     {
         if (packChangeState != PackChange::Rest)
@@ -2188,6 +2293,12 @@ void MenuGame::changePackAction(const int direction)
 
 void MenuGame::okAction()
 {
+    if (newUIActiveForCurrentState())
+    {
+        ui_pendingInput.enter = true;
+        return;
+    }
+
     touchDelay = 50.f;
 
     switch (state)
@@ -2436,6 +2547,12 @@ void MenuGame::eraseAction()
 
 void MenuGame::exitAction()
 {
+    if (newUIActiveForCurrentState())
+    {
+        ui_pendingInput.escape = true;
+        return;
+    }
+
     if (isInMenu() && getCurrentMenu()->getCategory().getName() == "main")
     {
         return;
@@ -2489,6 +2606,10 @@ void MenuGame::exitAction()
 
 void MenuGame::update(float mFT)
 {
+    // Capture frame time for the new UI's animations. `mFT` is in
+    // milliseconds (per the engine's convention); convert to seconds.
+    ui_dt = mFT / 1000.f;
+
     hexagonClient.update();
 
     const auto showHCEventDialogBox =
@@ -3077,10 +3198,11 @@ void MenuGame::refreshCamera()
     w = getWindowWidth() * fmax;
     h = getWindowHeight() * fmax;
 
-    backgroundCamera = {sf::Vec2f{0.f, 0.f},
-                        {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}};
+    backgroundCamera = {sf::View{.center = sf::Vec2f{0.f, 0.f},
+                                 .size   = {Config::getSizeX() * Config::getZoomFactor(),
+                                          Config::getSizeY() * Config::getZoomFactor()}}};
 
-    overlayCamera = sf::View{{w / 2.f, h / 2.f}, {w, h}};
+    overlayCamera = sf::View{.center = {w / 2.f, h / 2.f}, .size = {w, h}};
 
     titleBar.origin   = sf::Vec2f{0.f, 0.f};
     titleBar.scale    = {0.5f, 0.5f};
@@ -5610,6 +5732,15 @@ void MenuGame::draw()
             break;
 
         case States::SMain:
+            // New immediate-mode UI takes over the main screen.
+            if (useNewUI)
+            {
+                drawNewMainMenu();
+                drawGraphics();
+                drawOnlineStatus();
+                break;
+            }
+
             // Fold previous menus
             if (optionsMenu.getCategory().getOffset() != 0.f)
             {

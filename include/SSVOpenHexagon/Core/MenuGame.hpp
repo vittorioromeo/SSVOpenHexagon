@@ -11,6 +11,9 @@
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
 #include "SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp"
+#include "SSVOpenHexagon/UI/App.hpp"
+#include "SSVOpenHexagon/UI/Services.hpp"
+#include "SSVOpenHexagon/UI/UI.hpp"
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
@@ -142,13 +145,13 @@ private:
     template <typename TDrawable>
     void drawScreen(const TDrawable& drawable)
     {
-        drawWithView(sf::View{{0.f, 0.f}, {getWindowWidth(), getWindowHeight()}}, drawable);
+        drawWithView(sf::View{.center = {0.f, 0.f}, .size = {getWindowWidth(), getWindowHeight()}}, drawable);
     }
 
     template <typename TDrawable>
     void drawScreen(const TDrawable& drawable, sf::RenderStates states)
     {
-        drawWithView(sf::View{{0.f, 0.f}, {getWindowWidth(), getWindowHeight()}}, drawable, states);
+        drawWithView(sf::View{.center = {0.f, 0.f}, .size = {getWindowWidth(), getWindowHeight()}}, drawable, states);
     }
 
     //---------------------------------------
@@ -169,6 +172,34 @@ private:
     Lua::LuaContext                    lua;
     sf::base::Vector<sf::base::String> execScriptPackPathContext;
     const PackData*                    currentPack;
+
+    //---------------------------------------
+    // New immediate-mode UI (see `docs/UI_REWRITE_DESIGN.md`).
+
+    // The new UI's persistent state (one-per-MenuGame).
+    hg::ui::App      ui_app;
+    hg::ui::Services ui_services;
+
+    // Edges accumulated by the existing `*Action()` callbacks while the new
+    // UI is active for the current screen. Drained into a fresh `ui::Input`
+    // each frame in `drawNewMainMenu`, then reset.
+    hg::ui::Input ui_pendingInput;
+
+    // Last frame time in seconds, captured at top of `update()`. The new UI's
+    // animation helpers read it via `Context::dt`.
+    float ui_dt{1.f / 60.f};
+
+    // Master switch for Phase 0. When true, the new UI replaces the old main
+    // menu rendering. Set to true unconditionally for now; will become a
+    // build-time flag once Phase 1+ migrate other screens.
+    bool useNewUI{true};
+
+    // True iff the new UI is the right place to handle this frame's input
+    // for the given state. Used to short-circuit old `*Action()` cascades.
+    [[nodiscard]] bool newUIActiveForCurrentState() const noexcept;
+
+    void initNewUIServices();
+    void drawNewMainMenu();
 
     //---------------------------------------
     // Initialization
