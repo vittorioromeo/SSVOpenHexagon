@@ -377,9 +377,11 @@ HexagonGame::HexagonGame(Steam::steam_manager*     mSteamManager,
         const float height     = Config::getHeight();
         const float zoomFactor = Config::getZoomFactor();
 
-        backgroundCamera.emplace(sf::View{sf::Vec2f{0.f, 0.f}, sf::Vec2f{width * zoomFactor, height * zoomFactor}});
+        backgroundCamera.emplace(
+            sf::View{.center = sf::Vec2f{0.f, 0.f}, .size = sf::Vec2f{width * zoomFactor, height * zoomFactor}});
 
-        overlayCamera.emplace(sf::View{sf::Vec2f{width / 2.f, height / 2.f}, sf::Vec2f{width, height}});
+        overlayCamera.emplace(
+            sf::View{.center = sf::Vec2f{width / 2.f, height / 2.f}, .size = sf::Vec2f{width, height}});
 
         txStarParticle = &getTextureOrNullTexture(assets, nullTexture, "starParticle.png");
         txSmallCircle  = &getTextureOrNullTexture(assets, nullTexture, "smallCircle.png");
@@ -774,12 +776,12 @@ void HexagonGame::newGame(const sf::base::String& mPackId,
         SSVOH_ASSERT(backgroundCamera.hasValue());
 
         // Reset zoom
-        *overlayCamera = sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                                  sf::Vec2f(Config::getWidth(), Config::getHeight())};
+        *overlayCamera = sf::View{.center = {Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                                  .size   = sf::Vec2f(Config::getWidth(), Config::getHeight())};
 
-        *backgroundCamera = sf::View{sf::Vec2f{0.f, 0.f},
-                                     {Config::getWidth() * Config::getZoomFactor(),
-                                      Config::getHeight() * Config::getZoomFactor()}};
+        *backgroundCamera = sf::View{.center = sf::Vec2f{0.f, 0.f},
+                                     .size   = {Config::getWidth() * Config::getZoomFactor(),
+                                              Config::getHeight() * Config::getZoomFactor()}};
 
         backgroundCamera->rotation = sf::degrees(0.f);
 
@@ -891,8 +893,8 @@ void HexagonGame::death_shakeCamera()
     SSVOH_ASSERT(overlayCamera.hasValue());
     SSVOH_ASSERT(backgroundCamera.hasValue());
 
-    *overlayCamera = sf::View{{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                              sf::Vec2f(Config::getWidth(), Config::getHeight())};
+    *overlayCamera = sf::View{.center = {Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                              .size   = sf::Vec2f(Config::getWidth(), Config::getHeight())};
 
     backgroundCamera->center = sf::Vec2f{0.f, 0.f};
 

@@ -795,9 +795,9 @@ void HexagonGame::refreshPulse()
         const float p{Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
         const float rotation{backgroundCamera->rotation.asDegrees()};
 
-        *backgroundCamera = sf::View{sf::Vec2f{0.f, 0.f},
-                                     {(Config::getWidth() * Config::getZoomFactor()) * p,
-                                      (Config::getHeight() * Config::getZoomFactor()) * p}};
+        *backgroundCamera = sf::View{.center = sf::Vec2f{0.f, 0.f},
+                                     .size   = {(Config::getWidth() * Config::getZoomFactor()) * p,
+                                              (Config::getHeight() * Config::getZoomFactor()) * p}};
 
         backgroundCamera->rotation = sf::degrees(rotation);
     }
