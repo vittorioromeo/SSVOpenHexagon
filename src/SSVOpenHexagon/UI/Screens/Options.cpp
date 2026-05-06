@@ -231,10 +231,11 @@ void drawOptionsScreen(Context& ctx, App& app, Services& /*svc*/)
         const sf::Vec2f pillSize{220.f + 16.f, ctx.rowHeight + 8.f};
         const sf::Color pillFill = (s.selectedItem < 0) ? ctx.colAccent : sf::Color{ctx.colAccent.r, ctx.colAccent.g, ctx.colAccent.b, 80};
         ctx.target->draw(sf::RectangleShapeData{
-            .position  = pillPos,
-            .fillColor = pillFill,
-            .size      = pillSize,
-        });
+                             .position  = pillPos,
+                             .fillColor = pillFill,
+                             .size      = pillSize,
+                         },
+                         ctx.renderStates);
     }
 
     for (int i = 0; i < kCategoryCount; ++i)
@@ -256,10 +257,11 @@ void drawOptionsScreen(Context& ctx, App& app, Services& /*svc*/)
         const sf::Vec2f pillPos {ctx.cursor.x - 8.f, ctx.cursor.y + s.itemSelectionY - 4.f};
         const sf::Vec2f pillSize{420.f + 16.f, ctx.rowHeight + 8.f};
         ctx.target->draw(sf::RectangleShapeData{
-            .position  = pillPos,
-            .fillColor = ctx.colAccent,
-            .size      = pillSize,
-        });
+                             .position  = pillPos,
+                             .fillColor = ctx.colAccent,
+                             .size      = pillSize,
+                         },
+                         ctx.renderStates);
     }
 
     int rowIdx = 0;

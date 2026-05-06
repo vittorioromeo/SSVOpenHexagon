@@ -18,6 +18,7 @@
 //     Dynamic text uses `sf::base::String&`.
 
 #include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
 
 #include "SFML/System/Rect2.hpp"
 #include "SFML/System/Vec2.hpp"
@@ -68,6 +69,12 @@ struct Context
     sf::RenderTarget* target{};
     const sf::Font*   font{};
     Input             input{};
+
+    // Render states applied to every primitive the UI draws this frame. Lets
+    // the host (`MenuGame`) push a custom view / transform across all
+    // widgets in one place. VRSFML doesn't auto-apply the target's view, so
+    // every `target->draw(...)` call inside the UI passes this through.
+    sf::RenderStates renderStates{};
 
     // Time delta of the current frame, in seconds. Animation helpers read this.
     float dt{1.f / 60.f};

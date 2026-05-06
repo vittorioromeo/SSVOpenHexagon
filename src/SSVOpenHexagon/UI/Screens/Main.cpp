@@ -79,10 +79,11 @@ void drawMainScreen(Context& ctx, App& app, Services& svc)
         const sf::Vec2f pillPos{ctx.cursor.x - 8.f, ctx.cursor.y + s.selectionY - 4.f};
         const sf::Vec2f pillSize{360.f + 16.f, ctx.rowHeight + 8.f};
         ctx.target->draw(sf::RectangleShapeData{
-            .position  = pillPos,
-            .fillColor = ctx.colAccent,
-            .size      = pillSize,
-        });
+                             .position  = pillPos,
+                             .fillColor = ctx.colAccent,
+                             .size      = pillSize,
+                         },
+                         ctx.renderStates);
     }
 
     // ---- Items -------------------------------------------------------------

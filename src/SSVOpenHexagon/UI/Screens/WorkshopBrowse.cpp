@@ -169,10 +169,11 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         const sf::Vec2f pillPos {ctx.cursor.x - 8.f, ctx.cursor.y + s.selectionY - 4.f};
         const sf::Vec2f pillSize{420.f + 16.f, ctx.rowHeight + 8.f};
         ctx.target->draw(sf::RectangleShapeData{
-            .position  = pillPos,
-            .fillColor = ctx.colAccent,
-            .size      = pillSize,
-        });
+                             .position  = pillPos,
+                             .fillColor = ctx.colAccent,
+                             .size      = pillSize,
+                         },
+                         ctx.renderStates);
 
         const int   maxVisible = 12;
         int         start      = 0;
@@ -203,12 +204,14 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     {
         const Steam::WorkshopItem& item = s.items[s.selectedIdx];
 
-        ctx.target->draw(*ctx.font, sf::TextData{
-            .position      = ctx.cursor,
-            .string        = sf::UnicodeString{item.title.cStr()},
-            .characterSize = static_cast<unsigned int>(ctx.fontSize * 1.3f),
-            .fillColor     = ctx.colHighlight,
-        });
+        ctx.target->draw(*ctx.font,
+                         sf::TextData{
+                             .position      = ctx.cursor,
+                             .string        = sf::UnicodeString{item.title.cStr()},
+                             .characterSize = static_cast<unsigned int>(ctx.fontSize * 1.3f),
+                             .fillColor     = ctx.colHighlight,
+                         },
+                         ctx.renderStates);
         ctx.cursor.y += ctx.rowHeight + 6.f;
 
         char idBuf[64] = {};

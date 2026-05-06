@@ -34,10 +34,11 @@ constexpr float kRowPad = 12.f;
 void drawRect(Context& ctx, sf::Rect2f r, sf::Color fill)
 {
     ctx.target->draw(sf::RectangleShapeData{
-        .position  = {r.position.x, r.position.y},
-        .fillColor = fill,
-        .size      = {r.size.x, r.size.y},
-    });
+                         .position  = {r.position.x, r.position.y},
+                         .fillColor = fill,
+                         .size      = {r.size.x, r.size.y},
+                     },
+                     ctx.renderStates);
 }
 
 // Sanitize a UTF-8 input into a stack buffer of ASCII the menu font can
@@ -82,7 +83,8 @@ void drawText(Context& ctx, sf::Vec2f pos, const char* s, sf::Color color, float
                          .string        = sf::UnicodeString{safe},
                          .characterSize = static_cast<unsigned int>(sizeOverride > 0.f ? sizeOverride : ctx.fontSize),
                          .fillColor     = color,
-                     });
+                     },
+                     ctx.renderStates);
 }
 
 // True if `pt` is inside `r` (open right/bottom — matches SFML conventions).
