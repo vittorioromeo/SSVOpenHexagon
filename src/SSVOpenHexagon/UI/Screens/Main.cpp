@@ -28,7 +28,7 @@ constexpr struct
     const char* label;
     void (*activate)(App&, Services&);
 } kItems[] = {
-    {"PLAY",     [](App&, Services& s)      { if (s.onPlayRequested)     s.onPlayRequested(); }},
+    {"PLAY",     [](App& a, Services&)      { pushScreen(a, Screen::LevelSelect); }},
     {"WORKSHOP", [](App&, Services& s)      { if (s.onWorkshopRequested) s.onWorkshopRequested(); }},
     {"OPTIONS",  [](App& a, Services&)      { pushScreen(a, Screen::Options); }},
     {"PROFILE",  [](App& a, Services&)      { pushScreen(a, Screen::Profile); }},

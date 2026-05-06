@@ -30,9 +30,10 @@ void drawCurrentScreen(Context& ctx, App& app, Services& svc)
 {
     switch (app.current)
     {
-        case Screen::Main:    drawMainScreen   (ctx, app, svc); break;
-        case Screen::Profile: drawProfileScreen(ctx, app, svc); break;
-        case Screen::Options: drawOptionsScreen(ctx, app, svc); break;
+        case Screen::Main:        drawMainScreen       (ctx, app, svc); break;
+        case Screen::Profile:     drawProfileScreen    (ctx, app, svc); break;
+        case Screen::Options:     drawOptionsScreen    (ctx, app, svc); break;
+        case Screen::LevelSelect: drawLevelSelectScreen(ctx, app, svc); break;
     }
 }
 

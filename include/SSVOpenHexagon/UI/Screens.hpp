@@ -19,9 +19,10 @@ struct Services;
 void drawCurrentScreen(Context& ctx, App& app, Services& svc);
 
 // Per-screen draw functions. Add new declarations here as screens are added.
-void drawMainScreen   (Context& ctx, App& app, Services& svc);
-void drawProfileScreen(Context& ctx, App& app, Services& svc);
-void drawOptionsScreen(Context& ctx, App& app, Services& svc);
+void drawMainScreen       (Context& ctx, App& app, Services& svc);
+void drawProfileScreen    (Context& ctx, App& app, Services& svc);
+void drawOptionsScreen    (Context& ctx, App& app, Services& svc);
+void drawLevelSelectScreen(Context& ctx, App& app, Services& svc);
 
 // Navigation helpers used by every screen. Implementation lives next to the
 // dispatcher.

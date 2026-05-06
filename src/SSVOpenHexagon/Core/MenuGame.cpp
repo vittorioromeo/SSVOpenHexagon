@@ -876,10 +876,12 @@ void MenuGame::initNewUIServices()
     ui_services.onExit             = [this] { window.stop(); };
     ui_services.onPlayRequested    = [this]
     {
+        // PLAY is handled by the new Level Select screen; this fallback only
+        // exists for transition periods or if the new path is bypassed.
         if (firstLevelSelection)
         {
-            lvlSlct.packIdx     = 0;
-            diffMultIdx         = 0;
+            lvlSlct.packIdx      = 0;
+            diffMultIdx          = 0;
             lvlSlct.levelDataIds = &assets.getLevelIdsByPack(getNthSelectablePackInfo(0).id);
             setIndex(0);
         }
@@ -895,6 +897,60 @@ void MenuGame::initNewUIServices()
         // then, surface a dialog so the entry point exists in the UI.
         showDialogBox("WORKSHOP BROWSING IS COMING IN A FUTURE UPDATE.\nPRESS ANY KEY TO CONTINUE.");
     };
+
+    ui_services.onStartLevel = [this](const sf::base::String& levelId, float difficultyMult)
+    {
+        // Locate the level's pack and route through the existing legacy path
+        // until the gameplay-launch flow is migrated. Sets the legacy menu's
+        // selection state to the right level + difficulty, then transitions
+        // to LevelSelection where pressing OK starts the game (the user
+        // pressed PLAY, so we proxy the OK).
+        if (!assets.isValidLevelId(levelId))
+        {
+            return;
+        }
+        const LevelData& ld = assets.getLevelData(levelId);
+
+        // Find the pack index in the selectable pack list.
+        int packIdx = 0;
+        for (sf::base::SizeT i = 0; i < getSelectablePackInfosSize(); ++i)
+        {
+            if (getNthSelectablePackInfo(static_cast<int>(i)).id == ld.packId)
+            {
+                packIdx = static_cast<int>(i);
+                break;
+            }
+        }
+
+        lvlSlct.packIdx      = packIdx;
+        lvlSlct.levelDataIds = &assets.getLevelIdsByPack(ld.packId);
+
+        // Find the level index within the pack.
+        for (sf::base::SizeT i = 0; i < lvlSlct.levelDataIds->size(); ++i)
+        {
+            if ((*lvlSlct.levelDataIds)[i] == levelId)
+            {
+                setIndex(static_cast<int>(i));
+                break;
+            }
+        }
+
+        // Find the difficulty index.
+        diffMultIdx = 0;
+        for (sf::base::SizeT i = 0; i < ld.difficultyMults.size(); ++i)
+        {
+            if (ld.difficultyMults[i] == difficultyMult)
+            {
+                diffMultIdx = static_cast<int>(i);
+                break;
+            }
+        }
+
+        // Drive the legacy "play this level" path.
+        changeStateTo(States::LevelSelection);
+        playLocally();
+    };
+
     ui_services.playSound = [this](sf::base::StringView s)
     {
         // Best-effort; small stack buffer keeps us null-terminated.
@@ -906,6 +962,9 @@ void MenuGame::initNewUIServices()
         }
         playSoundOverride(buf);
     };
+
+    ui_services.assets         = &assets;
+    ui_services.currentProfile = &assets.getCurrentLocalProfile();
 }
 
 void MenuGame::drawNewMainMenu()
