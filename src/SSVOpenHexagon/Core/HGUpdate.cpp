@@ -154,8 +154,9 @@ void HexagonGame::update(float mFT, const float timescale)
     // ------------------------------------------------------------------------
     // Update Discord and Steam "rich presence".
     // Discord "rich presence" is also updated in `HexagonGame::start`.
+    // Skipped in preview mode — the user isn't actually playing this level.
 
-    if (window != nullptr)
+    if (window != nullptr && !previewMode)
     {
         sf::base::String nameStr = levelData->name;
         nameFormat(nameStr);
@@ -191,7 +192,16 @@ void HexagonGame::update(float mFT, const float timescale)
     {
         updateFlash(mFT);
 
-        if (!mustReplayInput())
+        if (previewMode)
+        {
+            // Preview / menu-backdrop: input is fully muted. Inputs from
+            // a global keybind (e.g. user playing a different level above)
+            // would otherwise leak through and steer the preview's player.
+            inputMovement = 0;
+            inputSwap     = false;
+            inputFocused  = false;
+        }
+        else if (!mustReplayInput())
         {
             updateInput();
         }
@@ -232,17 +242,20 @@ void HexagonGame::update(float mFT, const float timescale)
         }
 
         // --------------------------------------------------------------------
-        // Update key icons.
-        if (Config::getShowKeyIcons() || mustShowReplayUI())
+        // Update key icons + level info — both belong to gameplay HUD and
+        // touch `textUI` state that the preview HG doesn't necessarily
+        // populate. Skipped entirely when running as a menu backdrop.
+        if (!previewMode)
         {
-            updateKeyIcons();
-        }
+            if (Config::getShowKeyIcons() || mustShowReplayUI())
+            {
+                updateKeyIcons();
+            }
 
-        // --------------------------------------------------------------------
-        // Update level info.
-        if (Config::getShowLevelInfo() || mustShowReplayUI())
-        {
-            updateLevelInfo();
+            if (Config::getShowLevelInfo() || mustShowReplayUI())
+            {
+                updateLevelInfo();
+            }
         }
 
         // --------------------------------------------------------------------
@@ -396,7 +409,10 @@ void HexagonGame::update(float mFT, const float timescale)
 
     updateText(mFT);
 
-    if (status.started)
+    // Score / state-change machinery is meaningless in preview mode —
+    // we never want a backdrop to push the user back to the menu, swap
+    // levels via auto-restart, or invalidate a non-existent score.
+    if (status.started && !previewMode)
     {
         if (status.mustStateChange != StateChange::None)
         {
@@ -437,8 +453,20 @@ void HexagonGame::update(float mFT, const float timescale)
 
 void HexagonGame::updateWalls(float mFT)
 {
-    bool            collided{false};
-    const float     radiusSquared{status.radius * status.radius + 8.f};
+    // Always advance wall motion — that's the visual the menu backdrop
+    // and previews need. Collision processing is gated on `!previewMode`
+    // so the stand-in player can never die when previewing.
+    if (previewMode)
+    {
+        for (CWall& w : walls)
+        {
+            w.update(levelStatus.wallSpawnDistance, getRadius(), centerPos, mFT);
+        }
+        return;
+    }
+
+    bool             collided{false};
+    const float      radiusSquared{status.radius * status.radius + 8.f};
     const sf::Vec2f& pPos{player.getPosition()};
 
     for (CWall& w : walls)
@@ -795,9 +823,19 @@ void HexagonGame::refreshPulse()
         const float p{Config::getNoPulse() ? 1.f : (status.pulse / levelStatus.pulseMin)};
         const float rotation{backgroundCamera->rotation.asDegrees()};
 
+        // Match the target's aspect ratio. For preview-mode HG instances
+        // `renderTarget` is a fixed-size off-screen texture, so we must
+        // not bake the live window dimensions into the view — otherwise
+        // resizing the window would stretch the preview every frame as
+        // soon as the next pulse tick fires.
+        const sf::Vec2f targetSize =
+            (previewMode && renderTarget != nullptr)
+                ? renderTarget->getSize().to<sf::Vec2f>()
+                : sf::Vec2f{static_cast<float>(Config::getWidth()),
+                            static_cast<float>(Config::getHeight())};
+
         *backgroundCamera = sf::View{.center = sf::Vec2f{0.f, 0.f},
-                                     .size   = {(Config::getWidth() * Config::getZoomFactor()) * p,
-                                              (Config::getHeight() * Config::getZoomFactor()) * p}};
+                                     .size   = targetSize * Config::getZoomFactor() * p};
 
         backgroundCamera->rotation = sf::degrees(rotation);
     }
@@ -882,7 +920,11 @@ void HexagonGame::updateCameraShake(float mFT)
 
     const auto makeShakeVec = [this]
     {
-        const float i = status.cameraShake;
+        // Clamp to non-negative: `cameraShake -= mFT` above can dip below
+        // zero on a frame where `mFT` exceeds the remaining shake, which
+        // would make `rng->get_real(-i, i)` see `min > max` and assert.
+        // The next frame's early-out resets `preShakeCenters`.
+        const float i = std::max(0.f, status.cameraShake);
         return sf::Vec2f(rng->get_real(-i, i), rng->get_real(-i, i));
     };
 
@@ -898,6 +940,12 @@ void HexagonGame::updateFlash(float mFT)
     }
 
     status.flashEffect = std::clamp(status.flashEffect, 0.f, 255.f);
+
+    // `flashPolygon` is allocated lazily by `initFlashEffect` (typically
+    // called from Lua). Iterating with `begin()` on a never-reserved
+    // vector trips an assert — skip the alpha-update entirely until the
+    // polygon has been initialised.
+    if (flashPolygon.size() == 0u) return;
 
     for (sf::Vertex& vertex : flashPolygon)
     {

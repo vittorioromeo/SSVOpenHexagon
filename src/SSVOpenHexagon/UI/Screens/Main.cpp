@@ -2,9 +2,9 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/UI/Screens.hpp"
-
+#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/UI/App.hpp"
+#include "SSVOpenHexagon/UI/Screens.hpp"
 #include "SSVOpenHexagon/UI/Services.hpp"
 #include "SSVOpenHexagon/UI/UI.hpp"
 
@@ -28,12 +28,17 @@ constexpr struct
     const char* label;
     void (*activate)(App&, Services&);
 } kItems[] = {
-    {"PLAY",     [](App& a, Services&)      { pushScreen(a, Screen::LevelSelect); }},
-    {"WORKSHOP", [](App& a, Services&)      { pushScreen(a, Screen::WorkshopBrowse); }},
-    {"OPTIONS",  [](App& a, Services&)      { pushScreen(a, Screen::Options); }},
-    {"PROFILE",  [](App& a, Services&)      { pushScreen(a, Screen::Profile); }},
-    {"ONLINE",   [](App&, Services& s)      { if (s.onOnlineRequested)   s.onOnlineRequested(); }},
-    {"EXIT",     [](App& a, Services& s)    { a.exitRequested = true; if (s.onExit) s.onExit(); }},
+    {"PLAY", [](App& a, Services&) { pushScreen(a, Screen::LevelSelect); }},
+    {"WORKSHOP", [](App& a, Services&) { pushScreen(a, Screen::WorkshopBrowse); }},
+    {"OPTIONS", [](App& a, Services&) { pushScreen(a, Screen::Options); }},
+    {"ONLINE", [](App& a, Services&) { pushScreen(a, Screen::Online); }},
+    {"EXIT",
+     [](App& a, Services& s)
+{
+    a.exitRequested = true;
+    if (s.onExit)
+        s.onExit();
+}},
 };
 
 constexpr int kItemCount = static_cast<int>(sizeof(kItems) / sizeof(kItems[0]));
@@ -42,80 +47,106 @@ constexpr int kItemCount = static_cast<int>(sizeof(kItems) / sizeof(kItems[0]));
 
 void drawMainScreen(Context& ctx, App& app, Services& svc)
 {
+    const auto savedTransform = ctx.renderStates.transform;
+    ctx.renderStates.transform.scaleBy({1.35f, 1.35f}); // TODO: ok but need to fix mouse coords
+
     MainScreenState& s = app.main;
 
-    // ---- Input -------------------------------------------------------------
-    if (ctx.input.up)
-    {
-        s.selectedIdx = (s.selectedIdx + kItemCount - 1) % kItemCount;
-        if (svc.playSound) svc.playSound("beep.ogg");
-    }
-    if (ctx.input.down)
-    {
-        s.selectedIdx = (s.selectedIdx + 1) % kItemCount;
-        if (svc.playSound) svc.playSound("beep.ogg");
-    }
-
-    // ---- Animation step ----------------------------------------------------
-    // `selectionY` lerps toward the focused row's vertical position. The
-    // visual selection cursor is drawn at `selectionY`, not at `selectedIdx`.
-    stepToward(s.selectionY, static_cast<float>(s.selectedIdx) * ctx.rowHeight, ctx.dt, 18.f);
-
-    // `openProgress` ramps 0 -> 1 once when this screen is entered. Reset
-    // upstream when the screen changes (see App-level transition handling).
+    navigateList(ctx, svc, s.selectedIdx, kItemCount);
+    stepToward(s.selectionY, static_cast<float>(s.selectedIdx) * ctx.rowHeight, ctx.dt, 256.f);
     stepToward(s.openProgress, 1.f, ctx.dt, 6.f);
 
-    // ---- Layout ------------------------------------------------------------
-    const sf::Vec2u sz   = ctx.target->getSize();
-    const float     col  = static_cast<float>(sz.x) * 0.5f - 200.f;
-    const float     top  = static_cast<float>(sz.y) * 0.30f;
+    // Custom title block — replaces the legacy `titleBar.png` logo. Two
+    // stacked outlined words ("OPEN" then a much bigger "HEXAGON") with
+    // the game version pinned to the right of the upper line. The accent
+    // outline is the gradient sentinel, so the post-process shader paints
+    // an animated gradient through every glyph border.
+    ctx.cursor = ctx.origin = screenOrigin(ctx);
 
-    ctx.cursor = ctx.origin = {col, top};
-    heading(ctx, "OPEN HEXAGON");
+    constexpr float kOpenSize    = 56.f;
+    constexpr float kHexSize     = 110.f;
+    constexpr float kVersionSize = 24.f;
 
-    // Animated selection pill behind the focused item, drawn before the rows
-    // so the rows render on top.
-    {
-        const sf::Vec2f pillPos{ctx.cursor.x - 8.f, ctx.cursor.y + s.selectionY - 4.f};
-        const sf::Vec2f pillSize{360.f + 16.f, ctx.rowHeight + 8.f};
-        ctx.target->draw(sf::RectangleShapeData{
-                             .position  = pillPos,
-                             .fillColor = ctx.colAccent,
-                             .size      = pillSize,
-                         },
-                         ctx.renderStates);
-    }
+    // Real glyph bounds — no per-character-advance guessing. The bounds'
+    // `position` carries the natural top-left offset SFML applies to a
+    // glyph string; we shift draw positions by `-bounds.position` so the
+    // visible rect starts exactly where we ask it to.
+    const sf::Rect2f openBounds = measureText(ctx, "OPEN", kOpenSize);
+    const sf::Rect2f hexBounds  = measureText(ctx, "HEXAGON", kHexSize);
+    const sf::Rect2f verBounds  = measureText(ctx, GAME_VERSION_STR_V, kVersionSize);
 
-    // ---- Items -------------------------------------------------------------
+    constexpr float kPad     = 12.f;
+    constexpr float kVerGap  = 24.f; // horizontal gap "OPEN" → version
+    constexpr float kLineGap = 4.f;  // vertical breathing room between lines
+
+    const float lineWidth   = std::max(openBounds.size.x + kVerGap + verBounds.size.x, hexBounds.size.x);
+    const float blockWidth  = lineWidth + kPad * 2.f;
+    const float blockHeight = openBounds.size.y + kLineGap + hexBounds.size.y + kPad * 2.f;
+
+    // Solid backdrop behind the title — the gradient outlines pop off
+    // it and it hides any background-level visuals that would otherwise
+    // show through the gaps between glyphs.
+    ctx.target->draw(
+        sf::RectangleShapeData{
+            .position  = ctx.cursor,
+            .fillColor = ctx.colRow,
+            .size      = {blockWidth, blockHeight},
+        },
+        ctx.renderStates);
+
+    // Inner content cursor — top-left of the actual text area.
+    const sf::Vec2f content{ctx.cursor.x + kPad, ctx.cursor.y + kPad};
+
+    // First line: "OPEN" left-aligned, "2.2.0" centered vertically next to it.
+    text(ctx, {content.x - openBounds.position.x, content.y - openBounds.position.y}, "OPEN", kOpenSize);
+
+    // Second line: "HEXAGON" left-aligned beneath.
+    text(ctx,
+         {content.x - hexBounds.position.x, content.y + openBounds.size.y + kLineGap - hexBounds.position.y},
+         "HEXAGON",
+         kHexSize);
+
+    // Version overlay: drawn on top of "HEXAGON", right-aligned to the
+    // title block, vertically centered against the HEXAGON line.
+    text(ctx,
+         {content.x + lineWidth - verBounds.size.x - verBounds.position.x,
+          content.y + openBounds.size.y - verBounds.size.y - verBounds.position.y},
+         GAME_VERSION_STR_V,
+         kVersionSize);
+
+    ctx.cursor.y += blockHeight + 24.f;
+
+    pill(ctx, {ctx.cursor.x, ctx.cursor.y + s.selectionY}, 360.f);
+
+    // Per-item staggered fade-in driven by `openProgress`. We tint the
+    // text colors temporarily, draw the row, then restore — saves a
+    // theme-stack abstraction we'd only use in this one place.
+    const sf::Color textBefore      = ctx.colText;
+    const sf::Color highlightBefore = ctx.colHighlight;
+    const auto      tintAlpha       = [](sf::Color c, float a)
+    { return sf::Color{c.r, c.g, c.b, static_cast<unsigned char>(c.a * a)}; };
+
     for (int i = 0; i < kItemCount; ++i)
     {
-        // Per-item staggered fade based on `openProgress`.
         const float itemAlpha = easeOutCubic(
-            std::min(1.f, std::max(0.f, s.openProgress * static_cast<float>(kItemCount + 2) - static_cast<float>(i))));
+            std::clamp(s.openProgress * static_cast<float>(kItemCount + 2) - static_cast<float>(i), 0.f, 1.f));
 
-        // Apply alpha by tinting the text colour. We don't push/pop colour
-        // (no theme stack); we just compute the right value here.
-        const sf::Color textBefore     = ctx.colText;
-        const sf::Color highlightBefore = ctx.colHighlight;
-        ctx.colText      = sf::Color{textBefore.r,      textBefore.g,      textBefore.b,
-                                     static_cast<unsigned char>(textBefore.a * itemAlpha)};
-        ctx.colHighlight = sf::Color{highlightBefore.r, highlightBefore.g, highlightBefore.b,
-                                     static_cast<unsigned char>(highlightBefore.a * itemAlpha)};
+        ctx.colText      = tintAlpha(textBefore, itemAlpha);
+        ctx.colHighlight = tintAlpha(highlightBefore, itemAlpha);
 
-        const bool focused = (i == s.selectedIdx);
-        if (button(ctx, kItems[i].label, focused))
+        if (button(ctx, kItems[i].label, i == s.selectedIdx))
         {
-            kItems[i].activate(app, svc);
-            // Don't keep iterating after an action — the screen may have
-            // changed underneath us.
             ctx.colText      = textBefore;
             ctx.colHighlight = highlightBefore;
-            return;
+            kItems[i].activate(app, svc);
+            return; // screen may have changed under us
         }
-
-        ctx.colText      = textBefore;
-        ctx.colHighlight = highlightBefore;
     }
+
+    ctx.colText      = textBefore;
+    ctx.colHighlight = highlightBefore;
+
+    ctx.renderStates.transform = savedTransform;
 }
 
 } // namespace hg::ui

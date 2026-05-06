@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
@@ -64,8 +65,11 @@
 
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/RectangleShapeData.hpp"
 #include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/Text.hpp"
+#include "SFML/Graphics/Texture.hpp"
 #include "SFML/Graphics/View.hpp"
 
 #include "SFML/Window/Event.hpp"
@@ -252,7 +256,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     focusHeld{false},
     wheelProgress{0.f},
     touchDelay{0.f},
-    state{States::LoadingScreen},
+    state{States::EpilepsyWarning},
     packChangeDirection{0},
     levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
     ignoreInputs{0},
@@ -328,20 +332,14 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     {
         if ((--ignoreInputs) == 0)
         {
-            if (state == States::LoadingScreen)
-            {
-                changeStateTo(States::EpilepsyWarning);
-                setIgnoreAllInputs(1);
-                scrollbarOffset = 0;
-            }
-            else
-            {
-                mainMenu.getItems()[0]->getOffset() = maxOffset;
-                mainMenu.getCategory().getOffset()  = fourByThree ? 280.f : 400.f;
+            // The legacy LoadingScreen state has been removed — the app
+            // now boots straight into EpilepsyWarning, and any key press
+            // here goes directly to the main menu.
+            mainMenu.getItems()[0]->getOffset() = maxOffset;
+            mainMenu.getCategory().getOffset()  = fourByThree ? 280.f : 400.f;
 
-                playLocally();
-                setIgnoreAllInputs(0);
-            }
+            playLocally();
+            setIgnoreAllInputs(0);
 
             playSoundOverride("select.ogg");
         }
@@ -461,6 +459,23 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
                 enteredChars.emplaceBack(ssvu::toNum<char>(e->unicode));
             }
 
+            // Feed printable ASCII into the new UI's typedChars buffer so
+            // text fields can read it. typedChars is a NUL-terminated buffer
+            // of size 8 (max 7 chars/frame); excess bytes in a single frame
+            // are dropped.
+            if (newUIActiveForCurrentState() && e->unicode >= 32 && e->unicode < 127)
+            {
+                hg::ui::Input&  uin = ui_pendingInput;
+                sf::base::SizeT len = 0;
+                while (len < 7 && uin.typedChars[len] != '\0')
+                    ++len;
+                if (len < 7)
+                {
+                    uin.typedChars[len]     = static_cast<char>(e->unicode);
+                    uin.typedChars[len + 1] = '\0';
+                }
+            }
+
             if (!dialogBox.empty() && dialogBox.isInputBox())
             {
                 sf::base::String& input = dialogBox.getInput();
@@ -480,6 +495,12 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
             if (window.hasFocus())
             {
                 setMouseCursorVisible(false);
+            }
+
+            // Feed backspace edges into the new UI so text fields can erase.
+            if (newUIActiveForCurrentState() && e->code == sf::Keyboard::Key::Backspace)
+            {
+                ui_pendingInput.backspace = true;
             }
 
             if (!dialogBox.empty() && dialogBox.isInputBox())
@@ -888,9 +909,30 @@ void MenuGame::initNewUIServices()
         changeStateTo(States::LevelSelection);
         playSoundOverride("select.ogg");
     };
-    ui_services.onOptionsRequested  = [this] { changeStateTo(States::MOpts); };
-    ui_services.onOnlineRequested   = [this] { changeStateTo(States::MOnline); };
-    ui_services.onProfileRequested  = [this] { changeStateTo(States::SLPSelect); };
+    ui_services.onOptionsRequested = [this] { changeStateTo(States::MOpts); };
+    ui_services.onOnlineRequested  = [this] { changeStateTo(States::MOnline); };
+
+    ui_services.onOnlineConnect    = [this] { hexagonClient.connect(); };
+    ui_services.onOnlineDisconnect = [this] { hexagonClient.disconnect(); };
+    ui_services.onOnlineLogout     = [this] { hexagonClient.tryLogoutFromServer(); };
+    ui_services.onOnlineLogin      = [this]
+    {
+        // Reuse the legacy login dialog overlay — it already runs on top
+        // of the new UI's draw because dialogBox rendering happens in
+        // `MenuGame::draw` after `drawNewMainMenu`.
+        if (dialogInputState != DialogInputState::Nothing)
+            return;
+        openLoginDialogBoxAndStartLoginProcess();
+        ignoreInputsAfterMenuExec();
+    };
+    ui_services.onOnlineRegister = [this]
+    {
+        if (dialogInputState != DialogInputState::Nothing)
+            return;
+        dialogInputState = DialogInputState::Registration_EnteringUsername;
+        showInputDialogBoxNice("REGISTRATION", "USERNAME");
+        ignoreInputsAfterMenuExec();
+    };
     ui_services.onWorkshopRequested = [this]
     {
         // Phase 3 will replace this with the Workshop browse screen. Until
@@ -900,16 +942,22 @@ void MenuGame::initNewUIServices()
 
     ui_services.onStartLevel = [this](const sf::base::String& levelId, float difficultyMult)
     {
-        // Locate the level's pack and route through the existing legacy path
-        // until the gameplay-launch flow is migrated. Sets the legacy menu's
-        // selection state to the right level + difficulty, then transitions
-        // to LevelSelection where pressing OK starts the game (the user
-        // pressed PLAY, so we proxy the OK).
+        // Drive the legacy gameplay-launch path with the level + difficulty
+        // selected from the new UI. We populate the legacy menu's selection
+        // state (`lvlSlct`/`lvlDrawer`/`levelData`/`diffMultIdx`) then call
+        // `playSelectedLevel()`, which is the same call site the legacy
+        // LevelSelection screen uses on OK. `levelId` is the pack-prefixed
+        // asset key as stored in `levelDataIdsByPack`, NOT the bare
+        // `LevelData::id` (the latter would not pass `isValidLevelId`).
         if (!assets.isValidLevelId(levelId))
         {
             return;
         }
         const LevelData& ld = assets.getLevelData(levelId);
+
+        // The legacy code reads through `lvlDrawer`. Force it to the regular
+        // (non-favorites) drawer so we drive the pack we just resolved.
+        lvlDrawer = &lvlSlct;
 
         // Find the pack index in the selectable pack list.
         int packIdx = 0;
@@ -925,7 +973,8 @@ void MenuGame::initNewUIServices()
         lvlSlct.packIdx      = packIdx;
         lvlSlct.levelDataIds = &assets.getLevelIdsByPack(ld.packId);
 
-        // Find the level index within the pack.
+        // Find the level index within the pack. `setIndex` populates
+        // `levelData`, `currentPack`, and `styleData` from the resolved id.
         for (sf::base::SizeT i = 0; i < lvlSlct.levelDataIds->size(); ++i)
         {
             if ((*lvlSlct.levelDataIds)[i] == levelId)
@@ -946,9 +995,56 @@ void MenuGame::initNewUIServices()
             }
         }
 
-        // Drive the legacy "play this level" path.
-        changeStateTo(States::LevelSelection);
-        playLocally();
+        // Same call site the legacy menu uses on OK from level selection.
+        resetNamesScrolls();
+        playSelectedLevel();
+    };
+
+    ui_services.onPreviewLevel = [this](const sf::base::String& levelId)
+    {
+        // Drive the legacy backdrop (style colors, pack info) when the new
+        // UI's LevelSelect cursor moves. `setIndex` populates `levelData`,
+        // `currentPack`, and `styleData`, which the legacy `drawGraphics`
+        // reads each frame to render the menu background.
+        if (!assets.isValidLevelId(levelId))
+            return;
+        const LevelData& ld = assets.getLevelData(levelId);
+
+        lvlDrawer = &lvlSlct;
+
+        int packIdx = 0;
+        for (sf::base::SizeT i = 0; i < getSelectablePackInfosSize(); ++i)
+        {
+            if (getNthSelectablePackInfo(static_cast<int>(i)).id == ld.packId)
+            {
+                packIdx = static_cast<int>(i);
+                break;
+            }
+        }
+        lvlSlct.packIdx      = packIdx;
+        lvlSlct.levelDataIds = &assets.getLevelIdsByPack(ld.packId);
+        for (sf::base::SizeT i = 0; i < lvlSlct.levelDataIds->size(); ++i)
+        {
+            if ((*lvlSlct.levelDataIds)[i] == levelId)
+            {
+                setIndex(static_cast<int>(i));
+                break;
+            }
+        }
+
+        // Reload the preview HG with the newly-selected level so its
+        // walls/style/3D animate inside the LevelSelect right-side preview
+        // texture. Skipped if we're already showing this level.
+        if (hgPreview != nullptr && previewLoadedLevelId != levelId)
+        {
+            hgPreview->newGame(ld.packId,
+                               levelId,
+                               /*firstPlay=*/true,
+                               /*difficultyMult=*/1.f,
+                               /*executeLastReplay=*/false);
+            hgPreview->setMustStart(true);
+            previewLoadedLevelId = levelId;
+        }
     };
 
     ui_services.playSound = [this](sf::base::StringView s)
@@ -971,21 +1067,101 @@ void MenuGame::initNewUIServices()
     ui_services.currentProfile = nullptr;
 }
 
+void MenuGame::applyLevelThemeToContext(hg::ui::Context& /*ctx*/) const
+{
+    // Intentionally empty. The new UI uses a fixed white/black/magenta
+    // palette (see `Context` defaults) — the magenta accent is a sentinel
+    // replaced by an animated gradient in the post-process shader pass.
+    // Per-level theming would fight the gradient and isn't wanted here.
+}
+
+void MenuGame::setMenuPreviewGames(HexagonGame*     menuBackground,
+                                   HexagonGame*     preview,
+                                   sf::base::String menuBackgroundPackId,
+                                   sf::base::String menuBackgroundLevelId)
+{
+    hgMenuBg  = menuBackground;
+    hgPreview = preview;
+
+    // Boot the menu-background level once. Skipped silently when the
+    // configured pack/level isn't installed — the menu still works, just
+    // without an animated backdrop.
+    if (hgMenuBg != nullptr && !menuBackgroundPackId.empty() && !menuBackgroundLevelId.empty() &&
+        assets.isValidPackId(menuBackgroundPackId) && assets.isValidLevelId(menuBackgroundLevelId))
+    {
+        hgMenuBg->newGame(menuBackgroundPackId,
+                          menuBackgroundLevelId,
+                          /*firstPlay=*/true,
+                          /*difficultyMult=*/1.f,
+                          /*executeLastReplay=*/false);
+        // Force the level to start on the first `update()` so walls begin
+        // spawning immediately. `start()` is private — flagging via
+        // `setMustStart` is the public path used by replay tooling too.
+        hgMenuBg->setMustStart(true);
+    }
+
+    // Allocate the off-screen target the preview HG will draw into. Fixed
+    // 16:9 so the miniature preview keeps a consistent shape regardless of
+    // the actual window resolution / aspect ratio. The LevelSelect screen
+    // sizes the on-screen preview to the same ratio.
+    if (hgPreview != nullptr)
+    {
+        constexpr sf::Vec2u previewSize{1280u, 720u};
+        if (auto rt = sf::RenderTexture::create(previewSize); rt.hasValue())
+        {
+            previewTexture          = SSVOH_MOVE(rt);
+            hgPreview->renderTarget = &*previewTexture;
+        }
+    }
+}
+
 void MenuGame::pumpWorkshopEvents()
 {
     using EK = hg::Steam::WorkshopEvent::Kind;
+
+    // Helper: stash {id, title} pairs into the screen's name cache so the
+    // dependency list can render readable titles instead of raw 64-bit ids.
+    const auto mergeIntoNameCache = [&](const auto& items)
+    {
+        auto& cache = ui_app.workshop.nameCache;
+        for (const auto& it : items)
+        {
+            bool present = false;
+            for (auto& e : cache)
+            {
+                if (e.publishedFileId == it.publishedFileId)
+                {
+                    e.title = it.title;
+                    present = true;
+                    break;
+                }
+            }
+            if (!present)
+            {
+                cache.emplaceBack(hg::ui::WorkshopBrowseScreenState::WorkshopNameEntry{it.publishedFileId, it.title});
+            }
+        }
+    };
 
     while (auto evt = steamManager.poll_workshop_event())
     {
         switch (evt->kind)
         {
             case EK::QueryComplete:
+                mergeIntoNameCache(evt->queryResults);
                 ui_app.workshop.items         = std::move(evt->queryResults);
                 ui_app.workshop.queryInFlight = false;
+                ui_app.workshop.totalMatching = evt->totalMatching;
                 std::snprintf(ui_app.workshop.statusMessage,
                               sizeof(ui_app.workshop.statusMessage),
                               "%zu items received",
                               static_cast<std::size_t>(ui_app.workshop.items.size()));
+                break;
+
+            case EK::DetailsComplete:
+                // On-demand lookup (e.g. dep titles). Don't touch `items` —
+                // those drive the visible list. Only populate the name cache.
+                mergeIntoNameCache(evt->queryResults);
                 break;
 
             case EK::ItemInstalled:
@@ -1020,8 +1196,31 @@ void MenuGame::pumpWorkshopEvents()
                 // Future: surface a progress bar. For now we just note the
                 // event and let `ItemInstalled` close the loop.
                 break;
+
+            case EK::PreviewDownloaded:
+            {
+                // Decode the HTTP response bytes into a `sf::Texture` and
+                // park it in the per-item cache. Failures (corrupt image,
+                // unsupported format) leave the optional empty so the UI
+                // still shows the "(NO PREVIEW)" placeholder.
+                auto& slot = ui_app.workshop.previewTextures[evt->publishedFileId];
+                if (!evt->previewBytes.empty())
+                {
+                    if (auto tex = sf::Texture::loadFromMemory(evt->previewBytes.data(),
+                                                               evt->previewBytes.size());
+                        tex.hasValue())
+                    {
+                        tex->setSmooth(true);
+                        slot = SSVOH_MOVE(tex);
+                    }
+                }
+                break;
+            }
         }
     }
+
+    // Drive in-flight HTTP preview downloads. Cheap when nothing is pending.
+    steamManager.pump_workshop_http();
 }
 
 void MenuGame::drawNewMainMenu()
@@ -1055,32 +1254,27 @@ void MenuGame::drawNewMainMenu()
             ui_app.profileSnapshot.totalFavorites = 0;
         }
 
-        const char* statusStr = "OFFLINE";
-        switch (hexagonClient.getState())
-        {
-            case HexagonClient::State::Disconnected:
-                statusStr = "OFFLINE";
-                break;
-            case HexagonClient::State::InitError:
-                statusStr = "INIT ERROR";
-                break;
-            case HexagonClient::State::Connecting:
-                statusStr = "CONNECTING...";
-                break;
-            case HexagonClient::State::ConnectionError:
-                statusStr = "CONNECTION ERROR";
-                break;
-            case HexagonClient::State::Connected:
-                statusStr = "CONNECTED";
-                break;
-            case HexagonClient::State::LoggedIn:
-                statusStr = "LOGGED IN";
-                break;
-            case HexagonClient::State::LoggedIn_Ready:
-                statusStr = "LOGGED IN (READY)";
-                break;
-        }
+        // Map the legacy `HexagonClient::State` into both a display string
+        // and the capability flags consumed by the new Online screen.
+        using S               = HexagonClient::State;
+        const S     hcState   = hexagonClient.getState();
+        const char* statusStr = hcState == S::Disconnected      ? "OFFLINE"
+                                : hcState == S::InitError       ? "INIT ERROR"
+                                : hcState == S::Connecting      ? "CONNECTING..."
+                                : hcState == S::ConnectionError ? "CONNECTION ERROR"
+                                : hcState == S::Connected       ? "CONNECTED"
+                                : hcState == S::LoggedIn        ? "LOGGED IN"
+                                : hcState == S::LoggedIn_Ready  ? "LOGGED IN (READY)"
+                                                                : "OFFLINE";
         std::snprintf(ui_app.profileSnapshot.onlineStatus, sizeof(ui_app.profileSnapshot.onlineStatus), "%s", statusStr);
+
+        const bool loggedIn                  = (hcState == S::LoggedIn || hcState == S::LoggedIn_Ready);
+        const bool connected                 = (hcState == S::Connected || loggedIn);
+        ui_app.profileSnapshot.canConnect    = !connected && hcState != S::Connecting;
+        ui_app.profileSnapshot.canDisconnect = connected || hcState == S::Connecting;
+        ui_app.profileSnapshot.canLogIn      = (hcState == S::Connected);
+        ui_app.profileSnapshot.canRegister   = (hcState == S::Connected);
+        ui_app.profileSnapshot.canLogOut     = loggedIn;
     }
 
     // Drain any pending Steam Workshop events before drawing — hot-installs
@@ -1088,12 +1282,49 @@ void MenuGame::drawNewMainMenu()
     // list, etc. Cheap when the queue is empty.
     pumpWorkshopEvents();
 
+    // Lazy-allocate the off-screen target the new UI renders into. Its
+    // pixel size mirrors the window so the overlay view + mouse mapping
+    // already in place keep working unchanged. Recreated on resize.
+    {
+        const sf::Vec2u winSz = window.getRenderWindow().getSize();
+        const bool      need  = !uiCompositeTexture.hasValue() || uiCompositeTexture->getSize() != winSz;
+        if (need && winSz.x > 0 && winSz.y > 0)
+        {
+            if (auto rt = sf::RenderTexture::create(winSz); rt.hasValue())
+            {
+                uiCompositeTexture = SSVOH_MOVE(rt);
+            }
+        }
+    }
+
+    // Lazy-load the post-process shader once. If the file is missing we
+    // still draw the UI — the gradient pass just becomes a passthrough.
+    if (!menuAccentShaderLoadAttempted)
+    {
+        menuAccentShaderLoadAttempted = true;
+        if (auto sh = sf::Shader::loadFromFile({.fragmentPath = "Assets/menuAccentGradient.frag"}); sh.hasValue())
+        {
+            menuAccentShader = SSVOH_MOVE(sh);
+        }
+    }
+
+    menuAccentShaderTime += ui_dt * 50.f;
+
     // Build a Context for this frame.
     hg::ui::Context ctx{};
-    ctx.target = &window.getRenderWindow();
+    // Render the UI into the off-screen composite texture when available;
+    // otherwise fall back to drawing straight on the window so the menu
+    // never goes invisible if texture allocation failed.
+    ctx.target = uiCompositeTexture.hasValue() ? static_cast<sf::RenderTarget*>(&*uiCompositeTexture)
+                                               : static_cast<sf::RenderTarget*>(&window.getRenderWindow());
     ctx.font   = &openSquare;
     ctx.input  = ui_pendingInput;
     ctx.dt     = ui_dt;
+
+    // Refresh per-frame text metrics now that font + fontSize are set so
+    // every row widget (`button`, `label`, `slider`, …) gets accurate
+    // vertical centering via `rowTextY`. Cheap — measures one glyph.
+    hg::ui::recomputeTextMetrics(ctx);
 
     // Mouse button state. Position is mapped *below*, after `renderStates`
     // has been set up — so widget hit-testing matches the transformed
@@ -1101,15 +1332,78 @@ void MenuGame::drawNewMainMenu()
     ctx.input.mouseDown    = (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
     ctx.input.mousePressed = ctx.input.mouseDown && !mouseWasPressed;
 
-    ctx.renderStates.transform = sf::Transform::fromPosition({100.f, 100.f});
+    // Render the new UI through the same overlay view used by the title
+    // bar, credits, and dialog box. That view is built in `refreshCamera`
+    // around a virtual ~1366×768 design space, so UI coordinates stay
+    // resolution-independent and grow with the window the same way the
+    // legacy decorations do.
+    ctx.renderStates.view      = getOverlayView();
+    ctx.renderStates.transform = sf::Transform{}.scaleBy({0.75f, 0.75f});
+
+    // Pointer used by widgets to play sound feedback (button click,
+    // toggle flip, slider tick…) without threading `Services&` through
+    // every signature. Cleared per-frame, since the dispatcher doesn't
+    // own `Services`.
+    ctx.services = &ui_services;
+
+    // Surface the per-frame preview render texture (filled in by
+    // `MenuGame::draw` from `hgPreview`) so LevelSelect can paint it.
+    ui_services.previewTexture = previewTexture.hasValue() && !previewLoadedLevelId.empty() ? &*previewTexture : nullptr;
 
     // Map raw pixel mouse → UI layout space, accounting for the view +
-    // transform set on `renderStates`. Identity transforms = no-op.
+    // transform set on `renderStates`.
     const sf::Vec2f mousePixelPos = sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>();
     ctx.input.mousePos            = hg::ui::screenToUI(ctx, mousePixelPos);
 
+    applyLevelThemeToContext(ctx);
+
+    // Clear the off-screen UI texture to fully transparent black so the
+    // background level (rendered earlier into the window) shows through
+    // wherever the UI doesn't draw.
+    if (uiCompositeTexture.hasValue() && ctx.target == &*uiCompositeTexture)
+    {
+        uiCompositeTexture->clear(sf::Color{0, 0, 0, 0});
+    }
 
     hg::ui::drawCurrentScreen(ctx, ui_app, ui_services);
+
+    // Composite the UI back onto the window with the gradient shader. The
+    // shader leaves white text and dark row backgrounds alone but maps
+    // every magenta-saturated pixel (selection pills, text outlines) to
+    // an animated noise gradient.
+    if (uiCompositeTexture.hasValue() && ctx.target == &*uiCompositeTexture)
+    {
+        uiCompositeTexture->display();
+
+        const sf::Texture& tex     = uiCompositeTexture->getTexture();
+        const sf::Vec2u    texSize = tex.getSize();
+        const sf::Vec2u    winSize = window.getRenderWindow().getSize();
+
+        sf::RenderStates states{};
+        states.texture = &tex;
+        states.view    = sf::View::fromScreenSize(winSize.to<sf::Vec2f>());
+
+        if (menuAccentShader.hasValue())
+        {
+            if (auto loc = menuAccentShader->getUniformLocation("u_resolution"); loc.hasValue())
+            {
+                menuAccentShader->setUniform(*loc,
+                                             sf::Glsl::Vec2{static_cast<float>(winSize.x), static_cast<float>(winSize.y)});
+            }
+            if (auto loc = menuAccentShader->getUniformLocation("u_time"); loc.hasValue())
+            {
+                menuAccentShader->setUniform(*loc, menuAccentShaderTime);
+            }
+            states.shader = &*menuAccentShader;
+        }
+
+        window.getRenderWindow().draw(
+            sf::Sprite{
+                .position    = {0.f, 0.f},
+                .textureRect = {{0.f, 0.f}, texSize.to<sf::Vec2f>()},
+            },
+            states);
+    }
 
     // Reset edges so they don't carry to next frame. Mouse pos/down are not
     // edges and survive — they're rebuilt next frame anyway.
@@ -1293,6 +1587,14 @@ void MenuGame::initInput()
                 [this](float /*unused*/)
     {
         if (isEnteringText())
+        {
+            return;
+        }
+        // The new UI's text fields are always-focused (e.g. the LevelSelect
+        // search bar), so a rebound exit key like 'T' would otherwise both
+        // type into the search and pop the screen on the same frame. Only
+        // the hardcoded Escape binding (line 1438) reaches the new UI now.
+        if (newUIActiveForCurrentState())
         {
             return;
         }
@@ -2059,7 +2361,29 @@ void MenuGame::playLocally()
 {
     assets.pSaveCurrent();
     enteredStr = "";
-    state      = assets.getLocalProfilesSize() == 0 ? States::ETLPNewBoot : States::SLPSelectBoot;
+
+    // Single-profile model: no more profile-selection screen. If no
+    // profile exists yet, auto-create a default one; otherwise pick the
+    // first existing profile when none is currently selected. Goes
+    // straight to the main menu.
+    if (assets.getLocalProfilesSize() == 0)
+    {
+        const sf::base::String defaultName{"PLAYER"};
+        assets.pCreate(defaultName);
+        assets.pSetCurrent(defaultName);
+        changeFavoriteLevelsToProfile();
+    }
+    else if (!assets.pIsValidLocalProfile())
+    {
+        const auto names = assets.getLocalProfileNames();
+        if (!names.empty())
+        {
+            assets.pSetCurrent(names[0]);
+            changeFavoriteLevelsToProfile();
+        }
+    }
+
+    changeStateTo(States::SMain);
 }
 
 [[nodiscard]] std::pair<const unsigned int, const unsigned int> MenuGame::pickRandomMainMenuBackgroundStyle()
@@ -2796,6 +3120,18 @@ void MenuGame::update(float mFT)
     // Capture frame time for the new UI's animations. `mFT` is in
     // milliseconds (per the engine's convention); convert to seconds.
     ui_dt = mFT / 1000.f;
+
+    // Tick the menu-background level (always) and the in-LevelSelect
+    // preview (only when it has a level loaded). `previewMode` keeps
+    // both from doing anything they shouldn't (input, scoring, audio).
+    // HG's `update`/`draw` are private; trigger them through the public
+    // `onUpdate`/`onDraw` delegates that HG's constructor wired up.
+    if (hgMenuBg != nullptr)
+        hgMenuBg->getGame().onUpdate(mFT);
+    if (hgPreview != nullptr && !previewLoadedLevelId.empty())
+    {
+        hgPreview->getGame().onUpdate(mFT);
+    }
 
     hexagonClient.update();
 
@@ -3633,6 +3969,22 @@ void MenuGame::returnToLevelSelection()
     adjustLevelsOffset();
     lvlDrawer->XOffset = 0.f;
     setIgnoreAllInputs(1); // otherwise you go back to the main menu
+
+    // Steer the post-gameplay menu back to the new UI's LevelSelect screen
+    // when the new UI is active. Use `changeStateTo` (not a raw assignment)
+    // so any state-transition side effects fire.
+    if (useNewUI)
+    {
+        if (state != States::SMain)
+        {
+            changeStateTo(States::SMain);
+        }
+        ui_app.current = hg::ui::Screen::LevelSelect;
+        ui_app.backStack.clear();
+        ui_app.backStack.emplaceBack(hg::ui::Screen::Main);
+
+        hg::lo("MenuGame::returnToLevelSelection") << "[newUI] state=SMain, app.current=LevelSelect" << logEndl;
+    }
 }
 
 
@@ -5847,8 +6199,146 @@ void MenuGame::draw()
 
     const bool mainOrAbove{state >= States::SMain};
 
-    // Only draw the hexagon background past the loading screens.
-    if (mainOrAbove)
+    // Render the menu-background level first so menus draw on top of it.
+    // `previewMode` keeps it from clearing the window (we just did) and
+    // from drawing a player or any HUD/text overlay.
+    //
+    // The HG paints into `menuBgTexture`; we then blit that texture to
+    // the window through `menuBgBlurShader`, which gaussian-blurs by
+    // an amount driven by `ui_app.backDepthAnim` (0 on Main, 1 on a
+    // sub-screen). This gives a smooth in/out blur transition without
+    // touching the rest of the rendering.
+    if (mainOrAbove && hgMenuBg != nullptr && useNewUI)
+    {
+        // Lazy-allocate / resize the off-screen targets to match the window.
+        // Two textures: the source the HG renders into, and a ping-pong
+        // intermediate for the horizontal pass of the separable blur.
+        const sf::Vec2u winSz = window.getRenderWindow().getSize();
+        // Bilinear filtering is critical for the separable blur shader: it
+        // samples between texels at fractional offsets and relies on the
+        // hardware interpolation to return a weighted blend of two texels.
+        // Without `setSmooth(true)` (GL_NEAREST default) those fetches pick
+        // a single texel, which makes the kernel resemble several
+        // ghost-copies of the image instead of a Gaussian.
+        if (winSz.x > 0 && winSz.y > 0 &&
+            (!menuBgTexture.hasValue() || menuBgTexture->getSize() != winSz))
+        {
+            if (auto rt = sf::RenderTexture::create(winSz); rt.hasValue())
+            {
+                menuBgTexture          = SSVOH_MOVE(rt);
+                menuBgTexture->setSmooth(true);
+                hgMenuBg->renderTarget = &*menuBgTexture;
+            }
+        }
+        if (winSz.x > 0 && winSz.y > 0 &&
+            (!menuBgBlurTextureH.hasValue() || menuBgBlurTextureH->getSize() != winSz))
+        {
+            if (auto rt = sf::RenderTexture::create(winSz); rt.hasValue())
+            {
+                menuBgBlurTextureH = SSVOH_MOVE(rt);
+                menuBgBlurTextureH->setSmooth(true);
+            }
+        }
+
+        // Lazy-load the blur shader once. If the file's missing we fall
+        // back to a passthrough copy below.
+        if (!menuBgBlurShaderLoadAttempted)
+        {
+            menuBgBlurShaderLoadAttempted = true;
+            if (auto sh = sf::Shader::loadFromFile({.fragmentPath = "Assets/menuBackgroundBlur.frag"});
+                sh.hasValue())
+            {
+                menuBgBlurShader = SSVOH_MOVE(sh);
+            }
+        }
+
+        if (menuBgTexture.hasValue() && hgMenuBg->renderTarget == &*menuBgTexture)
+        {
+            menuBgTexture->clear(sf::Color::Black);
+            hgMenuBg->getGame().onDraw();
+            menuBgTexture->display();
+
+            // Helper for one separable pass: blits `srcTex` onto `dstTarget`
+            // running the shader with the chosen direction. When the shader
+            // is missing this becomes a plain copy.
+            const auto runPass = [&](const sf::Texture& srcTex, sf::RenderTarget& dstTarget,
+                                     sf::Glsl::Vec2 direction)
+            {
+                const sf::Vec2u sz = srcTex.getSize();
+                sf::RenderStates rs{};
+                rs.texture = &srcTex;
+                rs.view    = sf::View::fromScreenSize(sz.to<sf::Vec2f>());
+
+                if (menuBgBlurShader.hasValue())
+                {
+                    if (auto loc = menuBgBlurShader->getUniformLocation("u_resolution"); loc.hasValue())
+                    {
+                        menuBgBlurShader->setUniform(*loc,
+                                                     sf::Glsl::Vec2{static_cast<float>(sz.x),
+                                                                    static_cast<float>(sz.y)});
+                    }
+                    if (auto loc = menuBgBlurShader->getUniformLocation("u_blur"); loc.hasValue())
+                    {
+                        menuBgBlurShader->setUniform(*loc, ui_app.backDepthAnim);
+                    }
+                    if (auto loc = menuBgBlurShader->getUniformLocation("u_direction"); loc.hasValue())
+                    {
+                        menuBgBlurShader->setUniform(*loc, direction);
+                    }
+                    rs.shader = &*menuBgBlurShader;
+                }
+
+                dstTarget.draw(
+                    sf::Sprite{
+                        .position    = {0.f, 0.f},
+                        .textureRect = {{0.f, 0.f}, sz.to<sf::Vec2f>()},
+                    },
+                    rs);
+            };
+
+            if (menuBgBlurTextureH.hasValue())
+            {
+                // Pass 1: horizontal blur into the intermediate.
+                menuBgBlurTextureH->clear(sf::Color::Black);
+                runPass(menuBgTexture->getTexture(), *menuBgBlurTextureH, {1.f, 0.f});
+                menuBgBlurTextureH->display();
+
+                // Pass 2: vertical blur, into the window.
+                runPass(menuBgBlurTextureH->getTexture(), window.getRenderWindow(), {0.f, 1.f});
+            }
+            else
+            {
+                // Intermediate allocation failed — fall back to a single
+                // pass so the menu still draws (just no blur).
+                runPass(menuBgTexture->getTexture(), window.getRenderWindow(), {0.f, 0.f});
+            }
+        }
+        else
+        {
+            // Texture allocation failed — fall back to direct render so
+            // the menu still has a backdrop, just without the blur.
+            hgMenuBg->getGame().onDraw();
+        }
+
+        window.draw(sf::RectangleShapeData{
+            .size = window.getRenderWindow().getSize().toVec2f(),
+            .fillColor = sf::Color{0, 0, 0, 25},
+        });
+    }
+
+    // Refresh the level-preview render texture: hgPreview drew into its
+    // own `sf::RenderTexture` so the menu can later paint it as a sprite.
+    if (previewTexture.hasValue() && hgPreview != nullptr && !previewLoadedLevelId.empty())
+    {
+        previewTexture->clear(sf::Color::Black);
+        hgPreview->getGame().onDraw();
+
+        previewTexture->display();
+    }
+
+    // Only draw the legacy hexagon background past the loading screens —
+    // skipped when the new UI's background level is doing the same job.
+    if (mainOrAbove && (hgMenuBg == nullptr || !useNewUI))
     {
         menuBackgroundTris.clear();
 
@@ -5862,29 +6352,24 @@ void MenuGame::draw()
         drawBackground(menuBackgroundTris);
     }
 
-    // Draw the profile name.
+    // The legacy "CURRENT PROFILE: <name>" line has been removed (single-
+    // profile model — see `playLocally`). Missing-dependency warnings
+    // still surface if any packs need attention.
     if (mainOrAbove && state != States::LevelSelection)
     {
-        strBuf.clear();
-        strBuf += "CURRENT PROFILE: ";
-        strBuf += assets.pGetName();
-
         const auto& pwmd = assets.getPackIdsWithMissingDependencies();
-
         if (!pwmd.empty())
         {
-            strBuf += "\n\nWARNING - PACKS WITH MISSING DEPENDENCIES:";
-
+            strBuf.clear();
+            strBuf += "WARNING - PACKS WITH MISSING DEPENDENCIES:";
             for (const auto& p : pwmd)
             {
                 strBuf += "\n    ";
                 strBuf += p;
             }
-
             strBuf += "\nFORGOT TO DOWNLOAD THEM FROM THE STEAM WORKSHOP?";
+            renderText(strBuf, txtSelectionSmall.font, sf::Vec2f{20.f, titleBar.getGlobalBottom() + 8});
         }
-
-        renderText(strBuf, txtSelectionSmall.font, sf::Vec2f{20.f, titleBar.getGlobalBottom() + 8});
     }
 
     float indentBig{400.f}, indentSmall{540.f}, profileIndent{-100.f};
@@ -5898,32 +6383,19 @@ void MenuGame::draw()
 
     switch (state)
     {
-        case States::LoadingScreen:
-            drawLoadResults();
-            renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font, {txtProf.height, h - txtProf.height * 2.7f + 5.f});
-            return;
-
         case States::EpilepsyWarning:
             drawOverlay(epilepsyWarning, sf::RenderStates{.texture = &txEpilepsyWarning});
             renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font, {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
-
-        case States::ETLPNewBoot:
-            drawEnteringTextBoot();
-            drawGraphics();
-            break;
-
-        case States::SLPSelectBoot:
-            drawProfileSelectionBoot();
-            drawGraphics();
-            break;
 
         case States::SMain:
             // New immediate-mode UI takes over the main screen.
             if (useNewUI)
             {
                 drawNewMainMenu();
-                drawGraphics();
+                // Legacy `drawGraphics()` painted the title bar logo,
+                // version overlay and credits bars — all retired by the
+                // new UI. Only the online-status bar still belongs here.
                 drawOnlineStatus();
                 break;
             }
@@ -5986,18 +6458,6 @@ void MenuGame::draw()
             drawSubmenusSmall(onlineMenu.getCategories(), indentSmall);
             drawGraphics();
             drawOnlineStatus();
-            break;
-
-        case States::ETLPNew:
-            drawMainMenu(mainMenu.getCategoryByName("local profiles"), w - indentBig, false);
-            drawEnteringText(profileIndent, false);
-            drawGraphics();
-            break;
-
-        case States::SLPSelect:
-            drawMainMenu(mainMenu.getCategoryByName("local profiles"), w - indentBig, false);
-            drawProfileSelection(profileIndent, false);
-            drawGraphics();
             break;
 
         case States::LevelSelection:

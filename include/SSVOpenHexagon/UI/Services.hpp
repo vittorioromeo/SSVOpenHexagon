@@ -16,6 +16,11 @@
 #include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/StringView.hpp"
 
+namespace sf
+{
+class RenderTexture;
+} // namespace sf
+
 namespace sf::base
 {
 class String;
@@ -40,9 +45,18 @@ struct Services
     sf::base::FixedFunction<void(), 64> onExit;
     sf::base::FixedFunction<void(), 64> onPlayRequested;     //!< user clicked PLAY on main menu (legacy: opens old level select)
     sf::base::FixedFunction<void(), 64> onOptionsRequested;
-    sf::base::FixedFunction<void(), 64> onOnlineRequested;
+    sf::base::FixedFunction<void(), 64> onOnlineRequested;   //!< (deprecated) used by old fallback
     sf::base::FixedFunction<void(), 64> onProfileRequested;
     sf::base::FixedFunction<void(), 64> onWorkshopRequested;
+
+    // Online-screen actions. Each delegates to the legacy `HexagonClient`
+    // and dialog flow; the buttons in the new Online screen call the ones
+    // applicable to the current state (driven by `profileSnapshot.onlineStatus`).
+    sf::base::FixedFunction<void(), 64> onOnlineConnect;
+    sf::base::FixedFunction<void(), 64> onOnlineDisconnect;
+    sf::base::FixedFunction<void(), 64> onOnlineLogin;
+    sf::base::FixedFunction<void(), 64> onOnlineLogout;
+    sf::base::FixedFunction<void(), 64> onOnlineRegister;
 
     // Start a level. `levelId` is the LevelData id; `difficultyMult` picks
     // which difficulty index. Called by the new Level Select screen.
@@ -50,6 +64,13 @@ struct Services
                                   float /*difficultyMult*/),
                               128>
         onStartLevel;
+
+    // Notify the host that the LevelSelect cursor has moved to a different
+    // level. Lets the legacy backdrop refresh its style/colors/preview to
+    // match. `levelId` is the pack-prefixed asset key. Called at most once
+    // per change of `selectedIdx`.
+    sf::base::FixedFunction<void(const sf::base::String& /*levelId*/), 64>
+        onPreviewLevel;
 
     // Optional UX hook for sound feedback on selection moves; can be empty.
     sf::base::FixedFunction<void(sf::base::StringView), 64> playSound;
@@ -61,6 +82,12 @@ struct Services
     HGAssets*             assets{nullptr};
     ProfileData*          currentProfile{nullptr};
     Steam::steam_manager* steamManager{nullptr};
+
+    // Off-screen render target the host paints with the currently-selected
+    // level's running visuals. The LevelSelect screen samples it as a
+    // sprite to display a live preview of the level. Null when no preview
+    // is available (no level loaded yet, or running headless).
+    sf::RenderTexture*    previewTexture{nullptr};
 };
 
 } // namespace hg::ui

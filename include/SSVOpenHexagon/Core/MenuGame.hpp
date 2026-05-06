@@ -23,6 +23,8 @@
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/RectangleShape.hpp"
 #include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/RenderTexture.hpp"
+#include "SFML/Graphics/Shader.hpp"
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/Text.hpp"
 #include "SFML/Graphics/Texture.hpp"
@@ -194,12 +196,59 @@ private:
     // build-time flag once Phase 1+ migrate other screens.
     bool useNewUI{true};
 
+    // Optional `HexagonGame` instances used as menu visuals. Both run in
+    // `previewMode`. `hgMenuBg` plays a fixed backdrop level under the
+    // entire menu; `hgPreview` renders the currently-selected level into
+    // `previewTexture` for display in LevelSelect. Owned by `main.cpp`,
+    // installed via `setMenuPreviewGames`.
+    HexagonGame*      hgMenuBg{nullptr};
+    HexagonGame*      hgPreview{nullptr};
+    sf::base::Optional<sf::RenderTexture> previewTexture;
+    sf::base::String  previewLoadedLevelId; //!< prevents reloading on every frame
+
+    // Off-screen target the new UI renders into. Once filled each frame, a
+    // full-screen quad copies it back to the window through
+    // `menuAccentShader`, which replaces every magenta-saturated pixel with
+    // an animated noise gradient. That's how text outlines and selection
+    // pills get their colorful look without us having to compute per-pixel
+    // gradients in the immediate-mode UI itself.
+    sf::base::Optional<sf::RenderTexture> uiCompositeTexture;
+    sf::base::Optional<sf::Shader>        menuAccentShader;
+    bool                                  menuAccentShaderLoadAttempted{false};
+    float                                 menuAccentShaderTime{0.f};
+
+    // Off-screen target `hgMenuBg` paints into; composited back to the
+    // window through `menuBgBlurShader` with a `u_blur` uniform driven by
+    // `ui_app.backDepthAnim`. Result: the level visuals behind the menu
+    // start crisp on the main screen and ease into a soft gaussian blur
+    // as the user enters sub-screens.
+    sf::base::Optional<sf::RenderTexture> menuBgTexture;
+    // Intermediate ping-pong target between the horizontal and vertical
+    // passes of the separable gaussian blur.
+    sf::base::Optional<sf::RenderTexture> menuBgBlurTextureH;
+    sf::base::Optional<sf::Shader>        menuBgBlurShader;
+    bool                                  menuBgBlurShaderLoadAttempted{false};
+
+public:
+    // Installed once by the host (`main.cpp`) after both auxiliary HG
+    // instances have been constructed. Kicks off the menu-background level
+    // and prepares the preview render texture.
+    void setMenuPreviewGames(HexagonGame*       menuBackground,
+                             HexagonGame*       preview,
+                             sf::base::String   menuBackgroundPackId,
+                             sf::base::String   menuBackgroundLevelId);
+
     // True iff the new UI is the right place to handle this frame's input
     // for the given state. Used to short-circuit old `*Action()` cascades.
     [[nodiscard]] bool newUIActiveForCurrentState() const noexcept;
 
     void initNewUIServices();
     void drawNewMainMenu();
+
+    // Pushes the previewed level's `styleData` colors (plus a contrasting
+    // row backdrop) into the new UI's theme. Run each frame because pulsing
+    // styles can shift hue.
+    void applyLevelThemeToContext(hg::ui::Context& ctx) const;
 
     // Drains pending Steam Workshop events each frame: hot-installs newly-
     // downloaded packs, mirrors subscribe/unsubscribe state into the

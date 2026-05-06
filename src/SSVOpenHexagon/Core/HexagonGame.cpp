@@ -371,6 +371,11 @@ HexagonGame::HexagonGame(Steam::steam_manager*     mSteamManager,
 
     if (window != nullptr)
     {
+        // Default the render target to the game window. Callers running an
+        // off-screen preview (`previewMode = true`) override this with a
+        // pointer to their `sf::RenderTexture`.
+        renderTarget = &window->getRenderWindow();
+
         imguiCtx.emplace();
 
         const float width      = Config::getWidth();
@@ -578,12 +583,12 @@ void HexagonGame::updateRichPresenceCallbacks()
 
 [[nodiscard]] bool HexagonGame::shouldPlaySounds() const
 {
-    return window != nullptr && audio != nullptr && !Config::getNoSound();
+    return window != nullptr && audio != nullptr && !Config::getNoSound() && !previewMode;
 }
 
 [[nodiscard]] bool HexagonGame::shouldPlayMusic() const
 {
-    return window != nullptr && audio != nullptr && !Config::getNoMusic();
+    return window != nullptr && audio != nullptr && !Config::getNoMusic() && !previewMode;
 }
 
 void HexagonGame::playSoundOverride(const sf::base::String& mId)
@@ -705,8 +710,10 @@ void HexagonGame::newGame(const sf::base::String& mPackId,
     }
 
     // Audio cleanup
-    if (window != nullptr && audio != nullptr)
+    if (window != nullptr && audio != nullptr && !previewMode)
     {
+        // Audio is silenced when previewing — the menu doesn't want a
+        // level's music to fight with whatever the menu itself plays.
         audio->stopSounds();
         stopLevelMusic();
 
@@ -775,13 +782,22 @@ void HexagonGame::newGame(const sf::base::String& mPackId,
         SSVOH_ASSERT(overlayCamera.hasValue());
         SSVOH_ASSERT(backgroundCamera.hasValue());
 
+        // Use the actual render target's aspect ratio for the camera. For
+        // normal gameplay this is the window (matches Config dimensions);
+        // for preview-mode HG instances `renderTarget` is a fixed-size
+        // off-screen texture, so the hexagon visuals don't get stretched
+        // when the user runs the game in a non-16:9 window.
+        const sf::Vec2f targetSize =
+            (previewMode && renderTarget != nullptr)
+                ? renderTarget->getSize().to<sf::Vec2f>()
+                : sf::Vec2f{static_cast<float>(Config::getWidth()),
+                            static_cast<float>(Config::getHeight())};
+
         // Reset zoom
-        *overlayCamera = sf::View{.center = {Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                                  .size   = sf::Vec2f(Config::getWidth(), Config::getHeight())};
+        *overlayCamera = sf::View{.center = targetSize * 0.5f, .size = targetSize};
 
         *backgroundCamera = sf::View{.center = sf::Vec2f{0.f, 0.f},
-                                     .size   = {Config::getWidth() * Config::getZoomFactor(),
-                                              Config::getHeight() * Config::getZoomFactor()}};
+                                     .size   = targetSize * Config::getZoomFactor()};
 
         backgroundCamera->rotation = sf::degrees(0.f);
 
@@ -1004,6 +1020,14 @@ void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
 
 void HexagonGame::death(bool mForce)
 {
+    // Preview instances must never enter the death/score-save cascade —
+    // belt-and-suspenders alongside `performPlayerKill`'s early-return,
+    // since Lua / timeline can call `death()` directly.
+    if (previewMode)
+    {
+        return;
+    }
+
     if (status.hasDied)
     {
         return;
@@ -1712,6 +1736,14 @@ void HexagonGame::performPlayerSwap(const bool mPlaySound)
 
 void HexagonGame::performPlayerKill()
 {
+    // Menu/preview HG instances visualize a level in the background — they
+    // must never kill the player or trip the death cascade, regardless of
+    // what walls collide or what Lua scripts request.
+    if (previewMode)
+    {
+        return;
+    }
+
     const bool fatal = !Config::getInvincible() && !getLevelStatus().tutorialMode;
 
     player.kill(fatal);

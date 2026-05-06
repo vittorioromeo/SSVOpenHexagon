@@ -149,7 +149,7 @@
 	"server_port" : 50505,
 	"shaders_enabled" : true,
 	"show_fps" : true,
-	"show_key_icons" : false,
+	"show_key_icons" : true,
 	"show_level_info" : true,
 	"show_login_at_startup" : false,
 	"show_messages" : true,
@@ -263,10 +263,10 @@
 	"text_padding" : 8.0,
 	"text_scaling" : 1.0,
 	"timescale" : 1.0,
-	"use_lua_file_cache" : false,
+	"use_lua_file_cache" : true,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 886,
-	"windowed_width" : 2822,
-	"zoom_factor" : 0.8668171763420105
+	"windowed_height" : 836,
+	"windowed_width" : 1483,
+	"zoom_factor" : 0.9186602830886841
 }

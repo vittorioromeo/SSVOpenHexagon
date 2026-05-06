@@ -51,6 +51,11 @@
 
 struct ImGuiInputTextCallbackData;
 
+namespace sf
+{
+class RenderTarget;
+} // namespace sf
+
 namespace Json
 {
 class Value;
@@ -159,6 +164,24 @@ public:
     sf::base::Vector<CWall> walls;
     CCustomWallManager      cwManager;
     float                   timeUntilRichPresenceUpdate = 0.f;
+
+    // Preview / "menu background" mode. When true:
+    //   - input is ignored;
+    //   - wall collisions and player kill are skipped;
+    //   - score updates and state transitions (auto-restart, goToMenu)
+    //     are suppressed;
+    //   - the player isn't drawn;
+    //   - text overlays (level info / FPS / restart prompts) are skipped;
+    //   - music playback in `newGame` is silenced.
+    // The walls/style/3D/shaders still simulate and render normally.
+    bool previewMode{false};
+
+    // Override render target. When null (default), HG renders into the
+    // game window. Setting this to a `sf::RenderTexture*` redirects all
+    // draws — used to render a level preview into an off-screen texture.
+    // Caller is responsible for `clear()` / `display()` lifecycle on the
+    // texture; HG won't clear the target if `previewMode` is on.
+    sf::RenderTarget* renderTarget{nullptr};
 
 private:
     sf::base::Optional<sf::View> backgroundCamera;

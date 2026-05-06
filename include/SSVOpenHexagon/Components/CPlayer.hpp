@@ -65,11 +65,6 @@ private:
 
     float _currTiltedAngle;
 
-    void drawPivot(const unsigned int           sides,
-                   const sf::Color&             colorMain,
-                   Utils::FastVertexVectorTris& wallQuads,
-                   Utils::FastVertexVectorTris& capTris,
-                   const sf::Color&             capColor);
 
     void drawDeathEffect(Utils::FastVertexVectorTris& wallQuads);
 
@@ -128,6 +123,12 @@ public:
               const sf::Color&             capColor,
               const float                  angleTiltIntensity,
               const bool                   swapBlinkingEffect);
+
+    void drawPivot(const unsigned int           sides,
+                   const sf::Color&             colorMain,
+                   Utils::FastVertexVectorTris& wallQuads,
+                   Utils::FastVertexVectorTris& capTris,
+                   const sf::Color&             capColor);
 
     [[nodiscard]] bool push(const int       movementDir,
                             const float     radius,

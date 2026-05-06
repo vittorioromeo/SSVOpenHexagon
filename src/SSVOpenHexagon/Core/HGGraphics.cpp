@@ -42,35 +42,37 @@ static void setVisualCharacterSize(sf::Text& text, const float characterSize)
 template <typename TDrawable>
 void HexagonGame::renderWithView(const sf::View& view, TDrawable&& drawable)
 {
-    if (window == nullptr)
+    if (renderTarget == nullptr)
     {
-        hg::lo("hg::HexagonGame::renderWithView") << "Attempted to render without a game window\n";
+        hg::lo("hg::HexagonGame::renderWithView") << "Attempted to render without a target\n";
 
         return;
     }
 
     sf::RenderStates states;
     states.view = view;
-    window->getRenderWindow().draw(SSVOH_FWD(drawable), states);
+    renderTarget->draw(SSVOH_FWD(drawable), states);
 }
 
 template <typename TDrawable>
 void HexagonGame::renderWithView(const sf::View& view, TDrawable&& drawable, sf::RenderStates states)
 {
-    if (window == nullptr)
+    if (renderTarget == nullptr)
     {
-        hg::lo("hg::HexagonGame::renderWithView") << "Attempted to render without a game window\n";
+        hg::lo("hg::HexagonGame::renderWithView") << "Attempted to render without a target\n";
 
         return;
     }
 
     states.view = view;
-    window->getRenderWindow().draw(SSVOH_FWD(drawable), states);
+    renderTarget->draw(SSVOH_FWD(drawable), states);
 }
 
 void HexagonGame::draw()
 {
-    if (window == nullptr || Config::getDisableGameRendering())
+    // Window may be null when running headless. Render target may be null
+    // when no draw target is wired up — both forbid rendering.
+    if (window == nullptr || renderTarget == nullptr || Config::getDisableGameRendering())
     {
         return;
     }
@@ -96,7 +98,12 @@ void HexagonGame::draw()
     SSVOH_ASSERT(backgroundCamera.hasValue());
     SSVOH_ASSERT(overlayCamera.hasValue());
 
-    window->clear(sf::Color::Black);
+    // The caller owns the clear when previewing into a render texture
+    // (and the menu owns the clear when HG draws as a backdrop).
+    if (!previewMode)
+    {
+        renderTarget->clear(sf::Color::Black);
+    }
 
     if (!status.hasDied)
     {
@@ -160,15 +167,24 @@ void HexagonGame::draw()
 
     if (status.started)
     {
-        player.draw(getSides(),
-                    getColorMain(),
-                    getColorPlayer(),
-                    pivotQuads,
-                    capTris,
-                    playerTris,
-                    getColorCap(),
-                    Config::getAngleTiltIntensity(),
-                    Config::getShowSwapBlinkingEffect());
+        if (previewMode)
+        {
+            player.drawPivot(getSides(), getColorMain(), pivotQuads, capTris, getColorCap());
+        }
+        else
+        {
+            // Player isn't rendered in preview mode — the menu doesn't show
+            // a controllable player while a level animates as a backdrop.
+            player.draw(getSides(),
+                        getColorMain(),
+                        getColorPlayer(),
+                        pivotQuads,
+                        capTris,
+                        playerTris,
+                        getColorCap(),
+                        Config::getAngleTiltIntensity(),
+                        Config::getShowSwapBlinkingEffect());
+        }
     }
 
     if (Config::get3D())
@@ -287,39 +303,40 @@ void HexagonGame::draw()
     renderWithView(backgroundView, playerTris, getRenderStates(RenderStage::PlayerTris));
 
     drawParticles();
-    drawText(getRenderStates(RenderStage::Text));
 
-    // ------------------------------------------------------------------------
-    // Draw key icons.
-    if (Config::getShowKeyIcons() || mustShowReplayUI())
+    // Text overlays, key icons, level info, and flash effect belong to
+    // gameplay UI — not to the preview backdrop the menu wants.
+    if (!previewMode)
     {
-        drawKeyIcons();
-    }
+        drawText(getRenderStates(RenderStage::Text));
 
-    // ------------------------------------------------------------------------
-    // Draw level info.
-    if (Config::getShowLevelInfo() || mustShowReplayUI())
-    {
-        drawLevelInfo(getRenderStates(RenderStage::Text));
-    }
-
-    // ------------------------------------------------------------------------
-    if (Config::getFlash())
-    {
-        renderWithView(Utils::computeCameraView(*overlayCamera, overlayCameraTransform), flashPolygon);
-    }
-
-    if (mustTakeScreenshot)
-    {
-        if (window != nullptr)
+        if (Config::getShowKeyIcons() || mustShowReplayUI())
         {
-            window->saveScreenshot("screenshot.png");
+            drawKeyIcons();
         }
 
-        mustTakeScreenshot = false;
-    }
+        if (Config::getShowLevelInfo() || mustShowReplayUI())
+        {
+            drawLevelInfo(getRenderStates(RenderStage::Text));
+        }
 
-    drawImguiLuaConsole();
+        if (Config::getFlash())
+        {
+            renderWithView(Utils::computeCameraView(*overlayCamera, overlayCameraTransform), flashPolygon);
+        }
+
+        if (mustTakeScreenshot)
+        {
+            if (window != nullptr)
+            {
+                window->saveScreenshot("screenshot.png");
+            }
+
+            mustTakeScreenshot = false;
+        }
+
+        drawImguiLuaConsole();
+    }
 }
 
 void HexagonGame::drawImguiLuaConsole()

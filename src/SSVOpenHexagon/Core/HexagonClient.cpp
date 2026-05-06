@@ -803,7 +803,12 @@ bool HexagonClient::tryRegister(const sf::base::String& name, const sf::base::St
         return false;
     }
 
-    SSVOH_ASSERT(_ticketSteamID.hasValue());
+    if (!_ticketSteamID.hasValue())
+    {
+        addEvent(Event{ERegistrationFailure{"No Steam ticket - restart with Steam running"}});
+        return false;
+    }
+
     return sendRegister(_ticketSteamID.value(), name, saltAndHashPwd(password));
 }
 
@@ -820,7 +825,12 @@ bool HexagonClient::tryLogin(const sf::base::String& name, const sf::base::Strin
         return false;
     }
 
-    SSVOH_ASSERT(_ticketSteamID.hasValue());
+    if (!_ticketSteamID.hasValue())
+    {
+        addEvent(Event{ELoginFailure{"No Steam ticket - restart with Steam running"}});
+        return false;
+    }
+
     return sendLogin(_ticketSteamID.value(), name, saltAndHashPwd(password));
 }
 
@@ -835,7 +845,10 @@ bool HexagonClient::tryLogoutFromServer()
     _loginToken.reset();
     _loginName.reset();
 
-    SSVOH_ASSERT(_ticketSteamID.hasValue());
+    if (!_ticketSteamID.hasValue())
+    {
+        return false;
+    }
     return sendLogout(_ticketSteamID.value());
 }
 
@@ -846,7 +859,10 @@ bool HexagonClient::tryDeleteAccount(const sf::base::String& password)
         return fail();
     }
 
-    SSVOH_ASSERT(_ticketSteamID.hasValue());
+    if (!_ticketSteamID.hasValue())
+    {
+        return false;
+    }
     return sendDeleteAccount(_ticketSteamID.value(), saltAndHashPwd(password));
 }
 

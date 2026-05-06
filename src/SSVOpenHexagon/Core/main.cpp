@@ -140,7 +140,7 @@ struct ParsedArgs
 
 [[nodiscard]] sf::base::String makeWindowTitle()
 {
-    return hg::Utils::concat("Open Hexagon ", hg::GAME_VERSION_STR, " - by Vittorio Romeo - https://vittorioromeo.info");
+    return hg::Utils::concat("Open Hexagon ", hg::GAME_VERSION_STR, " - by Vittorio Romeo - https://vittorioromeo.com");
 }
 
 [[nodiscard]] sf::base::Optional<sf::base::String> getFirstCompressedReplayFilenameFromArgs(
@@ -415,6 +415,33 @@ struct ParsedArgs
     //
     //
     // ------------------------------------------------------------------------
+    // Two extra HexagonGame instances dedicated to menu visuals:
+    //   - `hgMenuBg` permanently runs a hand-crafted backdrop level behind
+    //     every menu screen, in `previewMode` so it never reacts to input
+    //     and never advances the user's score / state.
+    //   - `hgPreview` renders the currently-selected level into an
+    //     off-screen `sf::RenderTexture`, also in preview mode. The menu
+    //     draws that texture as a small "screen" inside LevelSelect.
+    sf::base::Optional<hg::HexagonGame> hgMenuBg;
+    sf::base::Optional<hg::HexagonGame> hgPreview;
+    if (!headless && window.hasValue())
+    {
+        hgMenuBg.emplace(
+            &steamManager,
+            (discordManager.hasValue() ? &*discordManager : nullptr),
+            assets, &audio, &*window, /*hexagonClient=*/nullptr);
+        hgMenuBg->previewMode = true;
+
+        hgPreview.emplace(
+            &steamManager,
+            (discordManager.hasValue() ? &*discordManager : nullptr),
+            assets, &audio, &*window, /*hexagonClient=*/nullptr);
+        hgPreview->previewMode = true;
+    }
+
+    //
+    //
+    // ------------------------------------------------------------------------
     // Initialize menu game and link to hexagon game
     sf::base::Optional<hg::MenuGame> mg;
 
@@ -451,6 +478,23 @@ struct ParsedArgs
 
             window->setGameState(mg->getGame());
         };
+
+        // Hand the menu the auxiliary HG instances so it can run a
+        // background level under all menus and a separate per-selection
+        // preview inside LevelSelect. The pack/level here is the
+        // "menu-background" level the user crafts; an empty/invalid id
+        // simply leaves the menu without an animated backdrop.
+        if (hgMenuBg.hasValue() && hgPreview.hasValue())
+        {
+            // "Shader Test" from the bundled `Artwork` pack — the only
+            // pack/level the menu backdrop ever runs. Pack id format is
+            // `<disambiguator>_<author>_<name>_<version>`; level id is
+            // `<packId>_<levelJsonId>`.
+            mg->setMenuPreviewGames(
+                &*hgMenuBg, &*hgPreview,
+                /*menuBgPackId=*/"thing_Synth_Morxemplum_Artwork_1",
+                /*menuBgLevelId=*/"thing_Synth_Morxemplum_Artwork_1_shadertest");
+        }
     }
 
     //
