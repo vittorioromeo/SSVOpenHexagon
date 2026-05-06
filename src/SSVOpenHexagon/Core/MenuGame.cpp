@@ -963,9 +963,12 @@ void MenuGame::initNewUIServices()
         playSoundOverride(buf);
     };
 
-    ui_services.assets         = &assets;
-    ui_services.currentProfile = &assets.getCurrentLocalProfile();
-    ui_services.steamManager   = &steamManager;
+    ui_services.assets       = &assets;
+    ui_services.steamManager = &steamManager;
+    // `currentProfile` is refreshed each frame in `drawNewMainMenu` because
+    // no profile is selected at construction time (it's chosen later via
+    // `SLPSelectBoot`/`SLPSelect`).
+    ui_services.currentProfile = nullptr;
 }
 
 void MenuGame::pumpWorkshopEvents()
@@ -1024,19 +1027,33 @@ void MenuGame::pumpWorkshopEvents()
 void MenuGame::drawNewMainMenu()
 {
     // Refresh per-frame snapshots the screens read from. Cheap; runs only
-    // when the new UI is active.
+    // when the new UI is active. Profile may be unset (no local profile
+    // chosen yet) — handle that case so the new UI doesn't crash on first
+    // boot before the user picks one.
     {
-        const auto& prof = assets.getCurrentLocalProfile();
+        const bool hasProfile = assets.pIsValidLocalProfile();
+        ui_services.currentProfile = hasProfile ? &assets.getCurrentLocalProfile() : nullptr;
 
-        const auto& name = assets.pGetName();
-        std::snprintf(ui_app.profileSnapshot.name,
-                      sizeof(ui_app.profileSnapshot.name),
-                      "%.*s",
-                      static_cast<int>(name.size()),
-                      name.cStr());
+        if (hasProfile)
+        {
+            const ProfileData& prof = assets.getCurrentLocalProfile();
 
-        ui_app.profileSnapshot.totalScored    = static_cast<int>(prof.getScores().size());
-        ui_app.profileSnapshot.totalFavorites = static_cast<int>(prof.getFavoriteLevelIds().size());
+            const auto& name = assets.pGetName();
+            std::snprintf(ui_app.profileSnapshot.name,
+                          sizeof(ui_app.profileSnapshot.name),
+                          "%.*s",
+                          static_cast<int>(name.size()),
+                          name.cStr());
+
+            ui_app.profileSnapshot.totalScored    = static_cast<int>(prof.getScores().size());
+            ui_app.profileSnapshot.totalFavorites = static_cast<int>(prof.getFavoriteLevelIds().size());
+        }
+        else
+        {
+            std::snprintf(ui_app.profileSnapshot.name, sizeof(ui_app.profileSnapshot.name), "(none)");
+            ui_app.profileSnapshot.totalScored    = 0;
+            ui_app.profileSnapshot.totalFavorites = 0;
+        }
 
         const char* statusStr = "OFFLINE";
         switch (hexagonClient.getState())
