@@ -40,12 +40,46 @@ void drawRect(Context& ctx, sf::Rect2f r, sf::Color fill)
     });
 }
 
+// Sanitize a UTF-8 input into a stack buffer of ASCII the menu font can
+// definitely render. Replaces every byte ≥ 0x80 (UTF-8 continuation /
+// multibyte) and every control char (< 0x20) with '?'. Workshop content,
+// player-typed names, etc. can contain arbitrary Unicode that the menu
+// font (Latin-only `OpenSquare`) doesn't carry glyphs for, and drawing
+// such chars asserts at the SFML level. KISS: strip them at the boundary
+// rather than swap fonts or use a font-fallback chain.
+constexpr sf::base::SizeT kTextSanitizeBufSize = 1024;
+
+void sanitizeForMenuFont(const char* in, char (&out)[kTextSanitizeBufSize])
+{
+    if (in == nullptr)
+    {
+        out[0] = '\0';
+        return;
+    }
+    sf::base::SizeT i = 0;
+    for (; i + 1 < kTextSanitizeBufSize && in[i] != '\0'; ++i)
+    {
+        const unsigned char c = static_cast<unsigned char>(in[i]);
+        if (c >= 0x20 && c < 0x80)
+        {
+            out[i] = static_cast<char>(c);
+        }
+        else
+        {
+            out[i] = '?';
+        }
+    }
+    out[i] = '\0';
+}
+
 void drawText(Context& ctx, sf::Vec2f pos, const char* s, sf::Color color, float sizeOverride = 0.f)
 {
+    char safe[kTextSanitizeBufSize];
+    sanitizeForMenuFont(s, safe);
     ctx.target->draw(*ctx.font,
                      sf::TextData{
                          .position      = pos,
-                         .string        = sf::UnicodeString{s},
+                         .string        = sf::UnicodeString{safe},
                          .characterSize = static_cast<unsigned int>(sizeOverride > 0.f ? sizeOverride : ctx.fontSize),
                          .fillColor     = color,
                      });
