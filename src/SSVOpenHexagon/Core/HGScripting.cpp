@@ -14,7 +14,6 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
@@ -26,6 +25,7 @@
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
@@ -43,7 +43,7 @@ template <typename F>
 Utils::LuaMetadataProxy addLuaFn(Lua::LuaContext& lua, const sf::base::String& name, F&& f)
 {
     // TODO (P2): reduce instantiations by using captureless lambdas
-    lua.writeVariable(name.cStr(), SSVOH_FWD(f));
+    lua.writeVariable(name.cStr(), SFML_BASE_FORWARD(f));
     return Utils::LuaMetadataProxy{Utils::TypeWrapper<F>{}, LuaScripting::getMetadata(), name};
 }
 

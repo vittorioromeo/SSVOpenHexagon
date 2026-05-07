@@ -13,7 +13,6 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
@@ -43,6 +42,7 @@
 
 #include "SFML/Base/Algorithm/Erase.hpp"
 #include "SFML/Base/Algorithm/Sort.hpp"
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
@@ -467,15 +467,15 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 
     packDatas.emplace(packIdStdString, //
                       PackData{
-                          .folderPath{sf::base::String(packPath.getStr())}, //
-                          .id{packIdStdString},                             //
-                          .disambiguator{SSVOH_MOVE(packDisambiguator)},    //
-                          .name{SSVOH_MOVE(packName)},                      //
-                          .author{SSVOH_MOVE(packAuthor)},                  //
-                          .description{SSVOH_MOVE(packDescription)},        //
-                          .version{packVersion},                            //
-                          .priority{packPriority},                          //
-                          .dependencies{getPackDependencies()}              //
+                          .folderPath{sf::base::String(packPath.getStr())},  //
+                          .id{packIdStdString},                              //
+                          .disambiguator{SFML_BASE_MOVE(packDisambiguator)}, //
+                          .name{SFML_BASE_MOVE(packName)},                   //
+                          .author{SFML_BASE_MOVE(packAuthor)},               //
+                          .description{SFML_BASE_MOVE(packDescription)},     //
+                          .version{packVersion},                             //
+                          .priority{packPriority},                           //
+                          .dependencies{getPackDependencies()}               //
                       });
 
     return true;
@@ -825,7 +825,7 @@ void HGAssets::HGAssetsImpl::addLocalProfile(ProfileData&& profileData)
     Utils::erase_if(profileData.getFavoriteLevelIds(),
                     [this](const sf::base::String& favId) { return levelDatas.find(favId) == levelDatas.end(); });
 
-    profileDataMap.emplace(profileData.getName(), SSVOH_MOVE(profileData));
+    profileDataMap.emplace(profileData.getName(), SFML_BASE_MOVE(profileData));
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::loadAllLocalProfiles()
@@ -845,7 +845,7 @@ void HGAssets::HGAssetsImpl::addLocalProfile(ProfileData&& profileData)
         loadInfo.addFormattedError(error);
 
         ProfileData profileData{Utils::loadProfileFromJson(object)};
-        addLocalProfile(SSVOH_MOVE(profileData));
+        addLocalProfile(SFML_BASE_MOVE(profileData));
     }
 
     return true;
@@ -937,18 +937,18 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadShaders(const sf::base::String& 
                 continue;
             }
 
-            auto shaderUptr = sf::base::makeUnique<sf::Shader>(*SSVOH_MOVE(shader));
+            auto shaderUptr = sf::base::makeUnique<sf::Shader>(*SFML_BASE_MOVE(shader));
 
             shadersById.pushBack(shaderUptr.get());
             SSVOH_ASSERT(shadersById.size() > 0);
             const sf::base::SizeT shaderId = shadersById.size() - 1;
 
-            LoadedShader ls{.shader{SSVOH_MOVE(shaderUptr)},
+            LoadedShader ls{.shader{SFML_BASE_MOVE(shaderUptr)},
                             .path{sf::base::String(p.getStr())},
                             .shaderType{shaderType},
                             .id{shaderId}};
 
-            shaders.emplace(concatIntoBuf(mPackId, '_', p.getFileName()), SSVOH_MOVE(ls));
+            shaders.emplace(concatIntoBuf(mPackId, '_', p.getFileName()), SFML_BASE_MOVE(ls));
 
             shadersPathToId.emplace(sf::base::String(p.getStr()), shaderId);
 
@@ -992,7 +992,7 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadMusicData(const sf::base::String
         loadInfo.addFormattedError(error);
 
         MusicData musicData{Utils::loadMusicFromJson(object)};
-        musicDataMap.emplace(concatIntoBuf(mPackId, '_', musicData.id), SSVOH_MOVE(musicData));
+        musicDataMap.emplace(concatIntoBuf(mPackId, '_', musicData.id), SFML_BASE_MOVE(musicData));
 
         ++loadInfo.assets;
     }
@@ -1006,7 +1006,7 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadStyleData(const sf::base::String
         loadInfo.addFormattedError(error);
 
         StyleData styleData{object};
-        styleDataMap.emplace(concatIntoBuf(mPackId, '_', styleData.id), SSVOH_MOVE(styleData));
+        styleDataMap.emplace(concatIntoBuf(mPackId, '_', styleData.id), SFML_BASE_MOVE(styleData));
 
         ++loadInfo.assets;
     }
@@ -1023,7 +1023,7 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadLevelData(const sf::base::String
         const sf::base::String& assetId = concatIntoBuf(mPackId, '_', levelData.id);
 
         levelDataIdsByPack[mPackId].emplaceBack(assetId);
-        levelDatas.emplace(assetId, SSVOH_MOVE(levelData));
+        levelDatas.emplace(assetId, SFML_BASE_MOVE(levelData));
 
         ++loadInfo.levels;
     }
@@ -1204,7 +1204,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
             continue;
         }
 
-        (*loadedShader.shader) = *SSVOH_MOVE(reloadedShader);
+        (*loadedShader.shader) = *SFML_BASE_MOVE(reloadedShader);
     }
 }
 
@@ -1227,7 +1227,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
         if (it == levelDatas.end())
         {
             levelDataIdsByPack[mPackId].emplaceBack(temp);
-            levelDatas.emplace(temp, SSVOH_MOVE(levelData));
+            levelDatas.emplace(temp, SFML_BASE_MOVE(levelData));
         }
         else
         {
@@ -1249,7 +1249,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
             StyleData styleData{ssvuj::getFromFile(p)};
             temp = mPackId + "_" + styleData.id;
 
-            styleDataMap[temp] = SSVOH_MOVE(styleData);
+            styleDataMap[temp] = SFML_BASE_MOVE(styleData);
         }
         output += "Styles successfully reloaded\n";
     }
@@ -1267,7 +1267,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
             MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
             temp = mPackId + "_" + musicData.id;
 
-            musicDataMap[temp] = SSVOH_MOVE(musicData);
+            musicDataMap[temp] = SFML_BASE_MOVE(musicData);
         }
         output += "Music data successfully reloaded\n";
     }
@@ -1344,7 +1344,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     if (it == levelDatas.end())
     {
         levelDataIdsByPack[mPackId].emplaceBack(temp);
-        levelDatas.emplace(temp, SSVOH_MOVE(levelData));
+        levelDatas.emplace(temp, SFML_BASE_MOVE(levelData));
     }
     else
     {
@@ -1371,7 +1371,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
             StyleData styleData{ssvuj::getFromFile(styleFile[0])};
             temp = mPackId + "_" + levelData.styleId;
 
-            styleDataMap[temp] = SSVOH_MOVE(styleData);
+            styleDataMap[temp] = SFML_BASE_MOVE(styleData);
 
             output += "style data " + levelData.styleId + ".json successfully loaded\n";
         }
@@ -1396,7 +1396,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
             MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(musicDataFile[0]))};
             temp = mPackId + "_" + levelData.musicId;
 
-            musicDataMap[temp] = SSVOH_MOVE(musicData);
+            musicDataMap[temp] = SFML_BASE_MOVE(musicData);
 
             output += "music data " + levelData.musicId + ".json successfully loaded\n";
         }
@@ -1933,7 +1933,7 @@ const std::unordered_set<sf::base::String>& HGAssets::getPackIdsWithMissingDepen
 
 void HGAssets::addLocalProfile(ProfileData&& profileData)
 {
-    return _impl->addLocalProfile(SSVOH_MOVE(profileData));
+    return _impl->addLocalProfile(SFML_BASE_MOVE(profileData));
 }
 
 std::unordered_map<sf::base::String, sf::base::String>& HGAssets::getLuaFileCache()

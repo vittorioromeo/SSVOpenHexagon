@@ -9,7 +9,6 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
@@ -37,6 +36,7 @@
 #include "SFML/System/Time.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/MiniPFR.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
@@ -298,7 +298,7 @@ template <typename T>
                          STCPReplayData{
                              .levelValidator = std::string(levelValidator.cStr()), //
                              .scoreTimestamp = scoreTimestamp,                     //
-                             .replay         = SSVOH_MOVE(replay)                  //
+                             .replay         = SFML_BASE_MOVE(replay)              //
                          });
 }
 
@@ -1443,7 +1443,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
             return sendReplayUnavailable(c, levelValidator, ctsp.scoreTimestamp, sf::base::String("not stored"));
         }
 
-        return sendReplayData(c, levelValidator, ctsp.scoreTimestamp, SSVOH_MOVE(crf));
+        return sendReplayData(c, levelValidator, ctsp.scoreTimestamp, SFML_BASE_MOVE(crf));
     }
 
         //

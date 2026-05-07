@@ -35,8 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
 #include "SFML/Base/Trait/IsFloatingPoint.hpp"
@@ -85,7 +85,7 @@ struct FnTupleWrapper<void(TArgs...)>
     template <typename T>
     [[nodiscard, gnu::always_inline]] static inline constexpr std::tuple<> call(T&& fn, ParamsType&& mTpl)
     {
-        std::apply(SSVOH_FWD(fn), SSVOH_MOVE(mTpl));
+        std::apply(SFML_BASE_FORWARD(fn), SFML_BASE_MOVE(mTpl));
         return {};
     }
 };
@@ -103,7 +103,7 @@ struct FnTupleWrapper<R(TArgs...)>
     template <typename T>
     [[nodiscard, gnu::always_inline]] static inline constexpr std::tuple<R> call(T&& fn, ParamsType&& mTpl)
     {
-        return std::tuple<R>{std::apply(SSVOH_FWD(fn), SSVOH_MOVE(mTpl))};
+        return std::tuple<R>{std::apply(SFML_BASE_FORWARD(fn), SFML_BASE_MOVE(mTpl))};
     }
 };
 
@@ -233,7 +233,7 @@ public:
     template <typename T>
     [[gnu::always_inline]] inline void registerFunction(std::string_view name, T&& fn, decltype(&T::operator())* = nullptr)
     {
-        _registerFunction(name, SSVOH_FWD(fn));
+        _registerFunction(name, SFML_BASE_FORWARD(fn));
     }
 
     /// \brief Inverse operation of registerFunction
@@ -252,7 +252,7 @@ public:
     [[nodiscard, gnu::always_inline]] inline R callLuaFunction(std::string_view mVarName, Args&&... args)
     {
         _getGlobal(mVarName);
-        return _call<R>(std::make_tuple(SSVOH_FWD(args)...));
+        return _call<R>(std::make_tuple(SFML_BASE_FORWARD(args)...));
     }
 
     /// \brief Returns true if the value of the variable is an array \param
@@ -327,7 +327,7 @@ public:
         static_assert(!SFML_BASE_IS_SAME(std::tuple<T>, T),
                       "Error: you can't use LuaContext::writeVariable with a tuple");
 
-        const int pushedElems = _push(SSVOH_FWD(data));
+        const int pushedElems = _push(SFML_BASE_FORWARD(data));
 
         try
         {
@@ -413,7 +413,7 @@ private:
 
         _registerFunctionImpl(name.data(), typeid(ObjectType));
 
-        _push(SSVOH_FWD(function));
+        _push(SFML_BASE_FORWARD(function));
         lua_settable(_state, -3);
         lua_pop(_state, 1);
     }
@@ -523,7 +523,7 @@ public:
         template <typename... Args>
         explicit Table(Args&&... args)
         {
-            insert(SSVOH_FWD(args)...);
+            insert(SFML_BASE_FORWARD(args)...);
         }
 
         friend void swap(Table& a, Table& b)
@@ -537,9 +537,9 @@ public:
             using RKey   = typename ToPushableType<SFML_BASE_DECAY(Key)>::type;
             using RValue = typename ToPushableType<SFML_BASE_DECAY(Value)>::type;
 
-            _elements.emplaceBack(new Element<RKey, RValue>(SSVOH_FWD(k), SSVOH_FWD(v)));
+            _elements.emplaceBack(new Element<RKey, RValue>(SFML_BASE_FORWARD(k), SFML_BASE_FORWARD(v)));
 
-            insert(SSVOH_FWD(args)...);
+            insert(SFML_BASE_FORWARD(args)...);
         }
 
         void insert()
@@ -588,7 +588,7 @@ public:
             Key   key;
             Value value;
 
-            Element(Key&& k, Value&& v) : key(SSVOH_FWD(k)), value(SSVOH_FWD(v))
+            Element(Key&& k, Value&& v) : key(SFML_BASE_FORWARD(k)), value(SFML_BASE_FORWARD(v))
             {
             }
 
@@ -693,7 +693,7 @@ private:
 
         try
         {
-            ((p += _push(SSVOH_FWD(xs))), ...);
+            ((p += _push(SFML_BASE_FORWARD(xs))), ...);
         } catch (...)
         {
             lua_pop(_state, p);
@@ -820,7 +820,7 @@ private:
         //   and that's what we do with placement-new
         auto* const functionLocation = (FunctionPushType*)lua_newuserdata(_state, sizeof(FunctionPushType));
 
-        new (functionLocation) FunctionPushType{._ctx = this, ._fn = SSVOH_FWD(fn)};
+        new (functionLocation) FunctionPushType{._ctx = this, ._fn = SFML_BASE_FORWARD(fn)};
 
         _pushFnImpl(&callbackCall<FunctionPushType>, &callbackGarbage<FunctionPushType>, typeid(T));
 
@@ -834,7 +834,7 @@ private:
     template <typename T>
     int _push(std::unique_ptr<T>&& mObj)
     {
-        return _push(std::shared_ptr<T>(SSVOH_MOVE(mObj)));
+        return _push(std::shared_ptr<T>(SFML_BASE_MOVE(mObj)));
     }
 
     void _pushSPtrImpl(int (*garbageCallback)(lua_State*), const std::type_info& tiSharedPtr, const std::type_info& tiObject);
@@ -873,7 +873,7 @@ private:
         //   and that's what we do with placement-new
         const auto pointerLocation = static_cast<std::shared_ptr<T>*>(lua_newuserdata(_state, sizeof(std::shared_ptr<T>)));
 
-        new (pointerLocation) std::shared_ptr<T>(SSVOH_MOVE(mObj));
+        new (pointerLocation) std::shared_ptr<T>(SFML_BASE_MOVE(mObj));
         _pushSPtrImpl(&Callback::garbage, typeid(std::shared_ptr<T>), typeid(T));
 
         return 1;

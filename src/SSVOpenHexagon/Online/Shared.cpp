@@ -4,7 +4,6 @@
 
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
@@ -17,6 +16,7 @@
 
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/MiniPFR.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
@@ -322,7 +322,7 @@ template <typename T>
         return sf::base::nullOpt;
     }
 
-    return sf::base::makeOptional<T>(SSVOH_MOVE(temp));
+    return sf::base::makeOptional<T>(SFML_BASE_MOVE(temp));
 }
 
 template <typename T>
@@ -401,7 +401,7 @@ public:
             return sf::base::nullOpt;
         }
 
-        return sf::base::makeOptional<T>(SSVOH_MOVE(temp));
+        return sf::base::makeOptional<T>(SFML_BASE_MOVE(temp));
     }
 
     template <typename T>
@@ -687,7 +687,9 @@ SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS, NOTHING)
 template <typename T>
 [[nodiscard]] bool makeClientToServerEncryptedPacket(const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
-    return makeEncryptedPacketImpl([](auto&&... xs) { makeClientToServerPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
+    return makeEncryptedPacketImpl([](auto&&... xs) {
+        makeClientToServerPacket(SFML_BASE_FORWARD(xs)...);
+    }, keyTransmit, p, data);
 }
 
 #define INSTANTIATE_MAKE_CTS_ENCRYPTED(mArg) \
@@ -877,7 +879,9 @@ SSVOH_STC_PACKETS_X(INSTANTIATE_MAKE_STC, NOTHING)
 template <typename T>
 [[nodiscard]] bool makeServerToClientEncryptedPacket(const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
-    return makeEncryptedPacketImpl([](auto&&... xs) { makeServerToClientPacket(SSVOH_FWD(xs)...); }, keyTransmit, p, data);
+    return makeEncryptedPacketImpl([](auto&&... xs) {
+        makeServerToClientPacket(SFML_BASE_FORWARD(xs)...);
+    }, keyTransmit, p, data);
 }
 
 #define INSTANTIATE_MAKE_STC_ENCRYPTED(mArg) \

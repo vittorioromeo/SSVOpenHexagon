@@ -51,7 +51,7 @@ void HexagonGame::renderWithView(const sf::View& view, TDrawable&& drawable)
 
     sf::RenderStates states;
     states.view = view;
-    renderTarget->draw(SSVOH_FWD(drawable), states);
+    renderTarget->draw(SFML_BASE_FORWARD(drawable), states);
 }
 
 template <typename TDrawable>
@@ -65,7 +65,7 @@ void HexagonGame::renderWithView(const sf::View& view, TDrawable&& drawable, sf:
     }
 
     states.view = view;
-    renderTarget->draw(SSVOH_FWD(drawable), states);
+    renderTarget->draw(SFML_BASE_FORWARD(drawable), states);
 }
 
 void HexagonGame::draw()

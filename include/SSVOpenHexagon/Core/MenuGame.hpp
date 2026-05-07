@@ -106,61 +106,26 @@ public:
     HostCallbacks hostCallbacks;
 
 private:
-    [[nodiscard]] sf::View getBackgroundView() const
-    {
-        return Utils::computeCameraView(backgroundCamera, backgroundCameraTransform);
-    }
-
     [[nodiscard]] sf::View getOverlayView() const
     {
         return Utils::computeCameraView(overlayCamera, overlayCameraTransform);
     }
 
     template <typename TDrawable>
-    void drawWithView(const sf::View& view, const TDrawable& drawable)
-    {
-        drawWithView(view, drawable, sf::RenderStates{});
-    }
-
-    template <typename TDrawable>
-    void drawWithView(const sf::View& view, const TDrawable& drawable, sf::RenderStates states)
+    void drawWithView(const sf::View& view, const TDrawable& drawable, sf::RenderStates states = {})
     {
         states.view = view;
         window.getRenderWindow().draw(drawable, states);
     }
 
     template <typename TDrawable>
-    void drawBackground(const TDrawable& drawable)
-    {
-        drawWithView(getBackgroundView(), drawable);
-    }
-
-    template <typename TDrawable>
-    void drawBackground(const TDrawable& drawable, sf::RenderStates states)
-    {
-        drawWithView(getBackgroundView(), drawable, states);
-    }
-
-    template <typename TDrawable>
-    void drawOverlay(const TDrawable& drawable)
-    {
-        drawWithView(getOverlayView(), drawable);
-    }
-
-    template <typename TDrawable>
-    void drawOverlay(const TDrawable& drawable, sf::RenderStates states)
+    void drawOverlay(const TDrawable& drawable, sf::RenderStates states = {})
     {
         drawWithView(getOverlayView(), drawable, states);
     }
 
     template <typename TDrawable>
-    void drawScreen(const TDrawable& drawable)
-    {
-        drawWithView(sf::View{.center = {0.f, 0.f}, .size = {getWindowWidth(), getWindowHeight()}}, drawable);
-    }
-
-    template <typename TDrawable>
-    void drawScreen(const TDrawable& drawable, sf::RenderStates states)
+    void drawScreen(const TDrawable& drawable, sf::RenderStates states = {})
     {
         drawWithView(sf::View{.center = {0.f, 0.f}, .size = {getWindowWidth(), getWindowHeight()}}, drawable, states);
     }

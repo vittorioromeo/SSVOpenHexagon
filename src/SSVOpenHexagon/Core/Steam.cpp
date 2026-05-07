@@ -4,12 +4,13 @@
 
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Io.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
+
+#include "SFML/Base/Macros.hpp"
 
 #include <stdint.h> // Steam API needs this.
 
@@ -263,7 +264,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
             // Write the path to an element in a JSON array.
             ssvuj::arch(cacheArray, _workshop_pack_folders.size(), folderBufStr);
 
-            _workshop_pack_folders.emplace(SSVOH_MOVE(folderBufStr));
+            _workshop_pack_folders.emplace(SFML_BASE_MOVE(folderBufStr));
         }
     }
 
@@ -801,14 +802,14 @@ void steam_manager::steam_manager_impl::on_query_completed(SteamUGCQueryComplete
             }
         }
 
-        ev.queryResults.emplaceBack(SSVOH_MOVE(item));
+        ev.queryResults.emplaceBack(SFML_BASE_MOVE(item));
     }
 
     SteamUGC()->ReleaseQueryUGCRequest(_pending_query);
     _pending_query            = k_UGCQueryHandleInvalid;
     _pending_query_is_details = false;
 
-    _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+    _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
 }
 
 void steam_manager::steam_manager_impl::query_workshop_details(const sf::base::Vector<sf::base::U64>& ids)
@@ -877,9 +878,9 @@ sf::base::Optional<WorkshopEvent> steam_manager::steam_manager_impl::poll_worksh
     {
         return sf::base::nullOpt;
     }
-    WorkshopEvent ev = SSVOH_MOVE(_workshop_events.front());
+    WorkshopEvent ev = SFML_BASE_MOVE(_workshop_events.front());
     _workshop_events.erase(_workshop_events.begin());
-    return sf::base::makeOptional(SSVOH_MOVE(ev));
+    return sf::base::makeOptional(SFML_BASE_MOVE(ev));
 }
 
 void steam_manager::steam_manager_impl::request_workshop_preview(sf::base::U64 publishedFileId, const sf::base::String& url)
@@ -961,8 +962,8 @@ void steam_manager::steam_manager_impl::pump_workshop_http()
                     WorkshopEvent ev;
                     ev.kind            = WorkshopEvent::Kind::PreviewDownloaded;
                     ev.publishedFileId = p.publishedFileId;
-                    ev.previewBytes    = SSVOH_MOVE(bytes);
-                    _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+                    ev.previewBytes    = SFML_BASE_MOVE(bytes);
+                    _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
                 }
             }
         }
@@ -987,7 +988,7 @@ void steam_manager::steam_manager_impl::on_item_installed(ItemInstalled_t* data)
         ev.kind            = WorkshopEvent::Kind::ItemInstalled;
         ev.publishedFileId = data->m_nPublishedFileId;
         ev.installFolder   = folderBuf;
-        _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+        _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
     }
 }
 
@@ -998,7 +999,7 @@ void steam_manager::steam_manager_impl::on_item_subscribed(RemoteStoragePublishe
     WorkshopEvent ev;
     ev.kind            = WorkshopEvent::Kind::ItemSubscribed;
     ev.publishedFileId = data->m_nPublishedFileId;
-    _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+    _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
 }
 
 void steam_manager::steam_manager_impl::on_item_unsubscribed(RemoteStoragePublishedFileUnsubscribed_t* data)
@@ -1008,7 +1009,7 @@ void steam_manager::steam_manager_impl::on_item_unsubscribed(RemoteStoragePublis
     WorkshopEvent ev;
     ev.kind            = WorkshopEvent::Kind::ItemUnsubscribed;
     ev.publishedFileId = data->m_nPublishedFileId;
-    _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+    _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
 }
 
 void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResult_t* data)
@@ -1021,7 +1022,7 @@ void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResu
         WorkshopEvent ev;
         ev.kind            = WorkshopEvent::Kind::DownloadProgress;
         ev.publishedFileId = data->m_nPublishedFileId;
-        _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+        _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
     }
 
     // On a successful download, also synthesize an `ItemInstalled` event.
@@ -1043,7 +1044,7 @@ void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResu
             ev.kind            = WorkshopEvent::Kind::ItemInstalled;
             ev.publishedFileId = data->m_nPublishedFileId;
             ev.installFolder   = folderBuf;
-            _workshop_events.emplaceBack(SSVOH_MOVE(ev));
+            _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
         }
     }
 }

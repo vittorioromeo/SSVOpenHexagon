@@ -15,88 +15,61 @@
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
-#include "SSVOpenHexagon/Data/LoadInfo.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
-#include "SSVOpenHexagon/Data/PackInfo.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Input/Bind.hpp"
 #include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/InputState.hpp"
 #include "SSVOpenHexagon/Input/Manager.hpp"
-#include "SSVOpenHexagon/Input/Trigger.hpp"
-#include "SSVOpenHexagon/Input/Utils.hpp"
-#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/Io.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
+#include "SSVOpenHexagon/UI/App.hpp"
 #include "SSVOpenHexagon/UI/Screens.hpp"
-#include "SSVOpenHexagon/Utils/Casts.hpp"
+#include "SSVOpenHexagon/UI/UI.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
-#include "SSVOpenHexagon/Utils/Geometry.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-#include "SSVOpenHexagon/Utils/Math.hpp"
-#include "SSVOpenHexagon/Utils/String.hpp"
-#include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVUtils/Core/Common/Casts.hpp"
-#include "SSVUtils/Core/String/Utils.hpp"
-#include "SSVUtils/Core/Utils/Math.hpp"
-#include "SSVUtils/Core/Utils/Rnd.hpp"
 
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/Priv/GlslFwd.hpp"
 #include "SFML/Graphics/RectangleShapeData.hpp"
 #include "SFML/Graphics/RenderStates.hpp"
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/Text.hpp"
 #include "SFML/Graphics/Texture.hpp"
+#include "SFML/Graphics/Transform.hpp"
 #include "SFML/Graphics/View.hpp"
 
 #include "SFML/Window/Event.hpp"
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
-#include "SFML/Window/VideoMode.hpp"
-#include "SFML/Window/VideoModeUtils.hpp"
 
-#include "SFML/System/Angle.hpp"
 #include "SFML/System/Priv/Vec2Base.hpp"
 #include "SFML/System/Rect2.hpp"
 
-#include "SFML/Base/Algorithm/Sort.hpp"
 #include "SFML/Base/Array.hpp"
 #include "SFML/Base/Builtin/Memcpy.hpp"
+#include "SFML/Base/Exchange.hpp"
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Macros.hpp"
+#include "SFML/Base/MinMaxMacros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/SizeT.hpp"
-#include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/StringStreamOp.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <SSVUtils/Core/String/ToStr.hpp>
-#include <algorithm>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <string_view>
 #include <tuple>
-#include <utility>
 
 #include <cstdio>
 #include <cstdlib>
@@ -684,7 +657,7 @@ void MenuGame::setMenuPreviewGames(HexagonGame*     menuBackground,
         constexpr sf::Vec2u previewSize{1280u, 720u};
         if (auto rt = sf::RenderTexture::create(previewSize); rt.hasValue())
         {
-            previewTexture          = SSVOH_MOVE(rt);
+            previewTexture          = SFML_BASE_MOVE(rt);
             hgPreview->renderTarget = &*previewTexture;
         }
     }
@@ -857,7 +830,7 @@ void MenuGame::pumpWorkshopEvents()
         {
             case EK::QueryComplete:
                 mergeIntoNameCache(evt->queryResults);
-                ui_app.workshop.items         = std::move(evt->queryResults);
+                ui_app.workshop.items         = SFML_BASE_MOVE(evt->queryResults);
                 ui_app.workshop.queryInFlight = false;
                 ui_app.workshop.totalMatching = evt->totalMatching;
                 std::snprintf(ui_app.workshop.statusMessage,
@@ -918,7 +891,7 @@ void MenuGame::pumpWorkshopEvents()
                         tex.hasValue())
                     {
                         tex->setSmooth(true);
-                        slot = SSVOH_MOVE(tex);
+                        slot = SFML_BASE_MOVE(tex);
                     }
                 }
                 break;
@@ -999,7 +972,7 @@ void MenuGame::drawNewMainMenu()
         {
             if (auto rt = sf::RenderTexture::create(winSz); rt.hasValue())
             {
-                uiCompositeTexture = SSVOH_MOVE(rt);
+                uiCompositeTexture = SFML_BASE_MOVE(rt);
             }
         }
     }
@@ -1011,7 +984,7 @@ void MenuGame::drawNewMainMenu()
         menuAccentShaderLoadAttempted = true;
         if (auto sh = sf::Shader::loadFromFile({.fragmentPath = "Assets/menuAccentGradient.frag"}); sh.hasValue())
         {
-            menuAccentShader = SSVOH_MOVE(sh);
+            menuAccentShader = SFML_BASE_MOVE(sh);
         }
     }
 
@@ -1175,7 +1148,7 @@ void MenuGame::changeStateTo(const States mState)
 
     if (state == States::SMain)
     {
-        if (std::exchange(mustShowLoginAtStartup, false) && Config::getShowLoginAtStartup())
+        if (sf::base::exchange(mustShowLoginAtStartup, false) && Config::getShowLoginAtStartup())
         {
             openLoginDialogBoxAndStartLoginProcess();
             setIgnoreAllInputs(2);
@@ -1188,7 +1161,7 @@ void MenuGame::changeStateTo(const States mState)
         return;
     }
 
-    if (state == States::SMain && std::exchange(mustShowFTTMainMenu, false))
+    if (state == States::SMain && sf::base::exchange(mustShowFTTMainMenu, false))
     {
         playSoundOverride("select.ogg");
         showDialogBox(
@@ -1545,7 +1518,7 @@ void MenuGame::refreshCamera()
 {
     const float fw{1024.f / getWindowWidth()};
     const float fh{768.f / getWindowHeight()};
-    const float fmax{std::max(fw, fh)};
+    const float fmax{SFML_BASE_MAX(fw, fh)};
 
     w = getWindowWidth() * fmax;
     h = getWindowHeight() * fmax;
@@ -1705,7 +1678,7 @@ void MenuGame::draw()
         {
             if (auto rt = sf::RenderTexture::create(winSz); rt.hasValue())
             {
-                menuBgTexture = SSVOH_MOVE(rt);
+                menuBgTexture = SFML_BASE_MOVE(rt);
                 menuBgTexture->setSmooth(true);
                 hgMenuBg->renderTarget = &*menuBgTexture;
             }
@@ -1714,7 +1687,7 @@ void MenuGame::draw()
         {
             if (auto rt = sf::RenderTexture::create(winSz); rt.hasValue())
             {
-                menuBgBlurTextureH = SSVOH_MOVE(rt);
+                menuBgBlurTextureH = SFML_BASE_MOVE(rt);
                 menuBgBlurTextureH->setSmooth(true);
             }
         }
@@ -1726,7 +1699,7 @@ void MenuGame::draw()
             menuBgBlurShaderLoadAttempted = true;
             if (auto sh = sf::Shader::loadFromFile({.fragmentPath = "Assets/menuBackgroundBlur.frag"}); sh.hasValue())
             {
-                menuBgBlurShader = SSVOH_MOVE(sh);
+                menuBgBlurShader = SFML_BASE_MOVE(sh);
             }
         }
 

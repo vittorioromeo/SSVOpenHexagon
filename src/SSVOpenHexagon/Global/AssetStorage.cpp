@@ -4,7 +4,6 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/StringHash.hpp"
 
 #include "SFML/Graphics/Font.hpp"
@@ -15,6 +14,7 @@
 
 #include "SFML/System/Path.hpp"
 
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 
@@ -47,7 +47,7 @@ public:
             return false;
         }
 
-        auto [it, inserted] = _textures.emplace(id, *SSVOH_MOVE(texture));
+        auto [it, inserted] = _textures.emplace(id, *SFML_BASE_MOVE(texture));
         return inserted;
     }
 
@@ -60,7 +60,7 @@ public:
             return false;
         }
 
-        auto [it, inserted] = _fonts.emplace(id, *SSVOH_MOVE(font));
+        auto [it, inserted] = _fonts.emplace(id, *SFML_BASE_MOVE(font));
         return inserted;
     }
 
@@ -73,7 +73,7 @@ public:
             return false;
         }
 
-        auto [it, inserted] = _soundBuffers.emplace(id, *SSVOH_MOVE(soundBuffer));
+        auto [it, inserted] = _soundBuffers.emplace(id, *SFML_BASE_MOVE(soundBuffer));
         return inserted;
     }
 

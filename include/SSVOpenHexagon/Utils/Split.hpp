@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Macros.hpp"
-
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Vector.hpp"
@@ -36,7 +35,7 @@ template <typename TSplitType = sf::base::StringView>
 {
     sf::base::Vector<TSplitType> result;
 
-    withSplit<TSplitType>([&](TSplitType&& piece) { result.emplaceBack(SSVOH_MOVE(piece)); }, str, delims);
+    withSplit<TSplitType>([&](TSplitType&& piece) { result.emplaceBack(SFML_BASE_MOVE(piece)); }, str, delims);
 
     return result;
 }

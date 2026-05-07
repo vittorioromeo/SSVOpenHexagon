@@ -5,7 +5,6 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtrArray.hpp"
 
 #include "SFML/Graphics/Color.hpp"
@@ -16,6 +15,7 @@
 
 #include "SFML/System/Priv/Vec2Base.hpp"
 
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/PlacementNew.hpp"
 #include "SFML/Base/SizeT.hpp"
 
@@ -71,7 +71,7 @@ public:
             SSVOH_ASSERT(_capacity == 0);
         }
 
-        _data     = SSVOH_MOVE(new_data);
+        _data     = SFML_BASE_MOVE(new_data);
         _capacity = n;
     }
 
@@ -108,7 +108,7 @@ public:
         SSVOH_ASSERT(_data != nullptr);
 
         SFML_BASE_PLACEMENT_NEW(&_data[_size++]._v)
-        sf::Vertex{SSVOH_FWD(xs)...};
+        sf::Vertex{SFML_BASE_FORWARD(xs)...};
     }
 
     template <typename... Ts>

@@ -36,7 +36,7 @@ try
     hg::HGAssets assets{nullptr /* steamManager */, true /* headless */};
 
     hg::ProfileData fakeProfile{hg::GAME_VERSION, "testProfile", {}, {}};
-    assets.addLocalProfile(SSVOH_MOVE(fakeProfile));
+    assets.addLocalProfile(SFML_BASE_MOVE(fakeProfile));
     assets.pSetCurrent("testProfile");
 
     const auto doTest = [&](int i, bool differentHG, ssvs::GameWindow* gw)

@@ -65,7 +65,7 @@ bool runLuaFileCached(HGAssets& assets, Lua::LuaContext& mLua, const sf::base::S
         t.seekg(0, std::ios::beg);
         t.read(buffer.data(), size);
 
-        auto res = cache.emplace(mFileName, SSVOH_MOVE(buffer));
+        auto res = cache.emplace(mFileName, SFML_BASE_MOVE(buffer));
         SSVOH_ASSERT(res.second);
         it = res.first;
     }

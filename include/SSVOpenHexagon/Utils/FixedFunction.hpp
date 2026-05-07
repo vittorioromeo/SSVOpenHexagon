@@ -5,7 +5,8 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
+
+#include "SFML/Base/Macros.hpp"
 
 namespace hg::Utils
 {
@@ -93,7 +94,7 @@ public:
         {
             if (o)
             {
-                new (s) unref_type(SSVOH_MOVE(*static_cast<unref_type*>(o)));
+                new (s) unref_type(SFML_BASE_MOVE(*static_cast<unref_type*>(o)));
             }
             else
             {
@@ -134,10 +135,10 @@ public:
     }
 
     template <typename... TFwdTs>
-    auto operator()(TFwdTs&&... xs) noexcept(noexcept(_method_ptr(_storage, _function_ptr, SSVOH_FWD(xs)...)))
+    auto operator()(TFwdTs&&... xs) noexcept(noexcept(_method_ptr(_storage, _function_ptr, SFML_BASE_FORWARD(xs)...)))
     {
         SSVOH_ASSERT(_method_ptr != nullptr);
-        return _method_ptr(_storage, _function_ptr, SSVOH_FWD(xs)...);
+        return _method_ptr(_storage, _function_ptr, SFML_BASE_FORWARD(xs)...);
     }
 };
 

@@ -21,7 +21,7 @@ int main()
     {
         int                                 i   = 10;
         hg::Utils::FixedFunction<int(), 64> ff0 = [i] { return i; };
-        auto                                ff1 = SSVOH_MOVE(ff0);
+        auto                                ff1 = SFML_BASE_MOVE(ff0);
         TEST_ASSERT_EQ(ff1(), 10);
     }
 
@@ -29,7 +29,7 @@ int main()
         int                                 i   = 10;
         int                                 j   = 5;
         hg::Utils::FixedFunction<int(), 64> ff0 = [i, &j] { return i + j; };
-        auto                                ff1 = SSVOH_MOVE(ff0);
+        auto                                ff1 = SFML_BASE_MOVE(ff0);
         TEST_ASSERT_EQ(ff1(), 10 + 5);
     }
 }

@@ -14,7 +14,6 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
@@ -32,6 +31,7 @@
 #include "SFML/System/IO.hpp"
 #include "SFML/System/Priv/Vec2Base.hpp"
 
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
@@ -54,7 +54,7 @@ Utils::LuaMetadataProxy addLuaFn(Lua::LuaContext& lua, const sf::base::String& n
     // TODO (P2): does this handle duplicates properly? Both menu and game call
     // the same thing.
 
-    lua.writeVariable(name.cStr(), SSVOH_FWD(f));
+    lua.writeVariable(name.cStr(), SFML_BASE_FORWARD(f));
     return Utils::LuaMetadataProxy{Utils::TypeWrapper<F>{}, getMetadata(), name};
 }
 

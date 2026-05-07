@@ -53,7 +53,7 @@ public:
     template <typename F>
     void append_do(F&& func)
     {
-        _actions.emplaceBack(sf::base::inPlaceType<action_do>, SSVOH_FWD(func));
+        _actions.emplaceBack(sf::base::inPlaceType<action_do>, SFML_BASE_FORWARD(func));
     }
 
     void append_wait_for(const duration d);
@@ -64,7 +64,7 @@ public:
     template <typename F>
     void append_wait_until_fn(F&& tp_fn)
     {
-        _actions.emplaceBack(sf::base::inPlaceType<action_wait_until_fn>, SSVOH_FWD(tp_fn));
+        _actions.emplaceBack(sf::base::inPlaceType<action_wait_until_fn>, SFML_BASE_FORWARD(tp_fn));
     }
 
     [[nodiscard]] sf::base::SizeT size() const noexcept;

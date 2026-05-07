@@ -3,9 +3,9 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
 
@@ -71,7 +71,7 @@ timeline2_runner::outcome timeline2_runner::update(timeline2& timeline, const ti
         // *then* invoke.
         if (a.is<timeline2::action_do>())
         {
-            auto fn = SSVOH_MOVE(a.as<timeline2::action_do>()._func);
+            auto fn = SFML_BASE_MOVE(a.as<timeline2::action_do>()._func);
             ++_current_idx;
             fn();
             continue;
