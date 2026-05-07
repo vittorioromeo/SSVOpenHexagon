@@ -177,12 +177,20 @@ struct LevelSelectScreenState
         Packs = 0,
         Levels,
         Actions,
+        Leaderboard, //!< online top-scores column on the far right
     };
     Pane pane{Pane::Levels};
 
     // Index inside the actions pane (FAVORITE, PLAY, DIFFICULTY, BACK).
     int   actionIdx{1}; //!< default to PLAY
     float actionSelectionY{0.f};
+
+    // Selection inside the leaderboard pane. Index into
+    // `Services::leaderboardScores` once it has data; otherwise the
+    // pane renders empty-state messages and the index is just held for
+    // continuity when scores arrive.
+    int   leaderboardIdx{0};
+    float leaderboardSelectionY{0.f};
 
     // 0..1 alpha for the live level-preview pane on the right. Eases in
     // when a preview becomes available, eases out when it's torn down,

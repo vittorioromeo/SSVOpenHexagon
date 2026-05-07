@@ -47,8 +47,7 @@ constexpr int kItemCount = static_cast<int>(sizeof(kItems) / sizeof(kItems[0]));
 
 void drawMainScreen(Context& ctx, App& app, Services& svc)
 {
-    const auto savedTransform = ctx.renderStates.transform;
-    ctx.renderStates.transform.scaleBy({1.35f, 1.35f}); // TODO: ok but need to fix mouse coords
+    const ScopedTransform tg{ctx, sf::Transform{}.scaleBy({1.35f, 1.35f})};
 
     MainScreenState& s = app.main;
 
@@ -145,8 +144,6 @@ void drawMainScreen(Context& ctx, App& app, Services& svc)
 
     ctx.colText      = textBefore;
     ctx.colHighlight = highlightBefore;
-
-    ctx.renderStates.transform = savedTransform;
 }
 
 } // namespace hg::ui

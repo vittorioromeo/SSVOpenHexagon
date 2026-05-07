@@ -19,6 +19,7 @@
 
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/RenderStates.hpp"
+#include "SFML/Graphics/Transform.hpp"
 
 #include "SFML/System/Rect2.hpp"
 #include "SFML/System/Vec2.hpp"
@@ -47,7 +48,18 @@ struct Services;
 
 struct Input
 {
+    // Mouse position in UI (model) space, i.e. with the host's view +
+    // transform already undone. Widgets hit-test against this. Updated
+    // automatically by `ScopedTransform` when a screen pushes a local
+    // transform on top of the host's.
     sf::Vec2f mousePos{};
+
+    // Mouse position in raw window pixels, untransformed. Set by the
+    // host once per frame; treated as immutable by screens. Used by
+    // `ScopedTransform` to re-derive `mousePos` whenever the active
+    // transform changes mid-frame, so the host doesn't have to thread
+    // a separate `pixelPos` argument through every screen.
+    sf::Vec2f mousePixelPos{};
 
     bool mousePressed{}; //!< edge: mouse button just pressed this frame
     bool mouseDown{};    //!< level: mouse button held this frame
@@ -140,6 +152,27 @@ struct Context
 //   ctx.input.mousePos = hg::ui::screenToUI(
 //       ctx, sf::Mouse::getPosition(window).to<sf::Vec2f>());
 [[nodiscard]] sf::Vec2f screenToUI(const Context& ctx, sf::Vec2f pixelPos) noexcept;
+
+// RAII helper for screens that need to draw under a local transform on top
+// of the host's. Multiplies `additional` onto `ctx.renderStates.transform`
+// for the lifetime of the object and re-derives `ctx.input.mousePos` from
+// the immutable raw pixel pos so widget hit-testing stays correct under the
+// nested transform. Restores both on destruction.
+//
+// Use over manual save/scaleBy/restore -- the manual form forgets to update
+// `mousePos`, so any clickable widget under the transform mis-hits.
+struct ScopedTransform
+{
+    Context&         ctx;
+    sf::Transform    savedTransform;
+    sf::Vec2f        savedMousePos;
+
+    ScopedTransform(Context& c, const sf::Transform& additional);
+    ~ScopedTransform();
+
+    ScopedTransform(const ScopedTransform&)            = delete;
+    ScopedTransform& operator=(const ScopedTransform&) = delete;
+};
 
 // Returns true if a step actually moved `current` (i.e. animation not yet at
 // target). `speed` is an inverse time constant; 12 ≈ "reach target in ~80 ms".
@@ -246,10 +279,19 @@ bool navigateList(Context& ctx, Services& svc, int& idx, int n);
 // "active-but-still-using-the-default-pill-color" bug; each helper here
 // collapses the per-screen boilerplate to one line.
 
-// Animates `pillY` toward `idx * ctx.rowHeight` and draws a row-height
-// selection pill at `topLeft + (0, pillY)`. The pill uses `colAccent`
-// when `active`, the desaturated accent otherwise.
-void animatedPill(Context& ctx, sf::Vec2f topLeft, float width, int idx, float& pillY, bool active);
+// Animates `pillY` toward `idx * effRowHeight` and draws a pill of
+// height `effRowHeight` at `topLeft + (0, pillY)`, where
+// `effRowHeight = (rowHeight > 0 ? rowHeight : ctx.rowHeight)`. The
+// custom `rowHeight` is for screens like the LevelSelect leaderboard
+// column whose rows are tighter than the standard widget cadence.
+// Pill color is `ctx.colAccent` when `active`, desaturated otherwise.
+void animatedPill(Context&  ctx,
+                  sf::Vec2f topLeft,
+                  float     width,
+                  int       idx,
+                  float&    pillY,
+                  bool      active,
+                  float     rowHeight = 0.f);
 
 // Active-aware list navigation. Identical to `navigateList(ctx, svc, idx, n)`
 // when `active` is true; a no-op when false (so multi-pane screens can
@@ -306,6 +348,11 @@ void playUiSound(const Context& ctx, sf::base::StringView name);
 // that don't fit the row-based widget cadence. Does not advance the
 // cursor -- callers position themselves manually.
 void text(Context& ctx, sf::Vec2f pos, const char* str, float charSize);
+
+// Same as `text()` but uses an explicit fill color and clips the visible
+// run to `maxWidth` (with ellipsis truncation). `maxWidth <= 0` disables
+// clipping. Pass color = `ctx.colAccent` to get the gradient sentinel.
+void text(Context& ctx, sf::Vec2f pos, const char* str, float charSize, sf::Color color, float maxWidth = 0.f);
 
 // Local bounds of the text `text()` would draw with the same arguments,
 // without rendering it. Use to align multi-line titles or to size

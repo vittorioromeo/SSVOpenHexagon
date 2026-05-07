@@ -14,22 +14,34 @@
 // `MenuGame.cpp` cleanly at the end of the rewrite.
 
 #include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/StringView.hpp"
+
+#include <unordered_set>
 
 namespace sf
 {
+class RenderTarget;
 class RenderTexture;
 } // namespace sf
 
 namespace sf::base
 {
 class String;
+
+template <typename>
+class Vector;
 } // namespace sf::base
 
 namespace hg
 {
 class HGAssets;
 class ProfileData;
+
+namespace Database
+{
+struct ProcessedScore;
+} // namespace Database
 
 namespace Steam
 {
@@ -83,6 +95,64 @@ struct Services
     // sprite to display a live preview of the level. Null when no preview
     // is available (no level loaded yet, or running headless).
     sf::RenderTexture*    previewTexture{nullptr};
+
+    // Render target screens should use to bypass the menu's accent-gradient
+    // shader pass. Points at the window when the host is compositing the
+    // UI through `menuAccentGradient.frag`; null otherwise (headless / no
+    // composite texture). Used by the LevelSelect preview, whose magenta
+    // pixels would otherwise be remapped by the shader. Drawing into this
+    // target uses the same view + transform as `ctx.renderStates`, so
+    // positions match the rest of the UI.
+    sf::RenderTarget*     rawTarget{nullptr};
+
+    // Notify the host that the LevelSelect cursor / difficulty changed.
+    // The host computes the level validator, requests fresh top scores
+    // from `HexagonClient` (rate-limited via `LeaderboardCache`), and
+    // surfaces the latest cached snapshot via `leaderboardScores` below.
+    // Called every frame the LevelSelect column is visible -- the host
+    // de-duplicates by validator, so polling is cheap.
+    sf::base::FixedFunction<void(const sf::base::String& /*levelId*/,
+                                  float /*difficultyMult*/),
+                              64>
+        onRequestLeaderboard;
+
+    // Request the server-stored replay for the leaderboard row at
+    // `scoreTimestamp`. The host already knows which (level, difficulty)
+    // is "current" because `onRequestLeaderboard` updates it every frame
+    // -- so we don't bother re-passing those args. The host fires
+    // `HexagonClient::tryRequestReplay`; when the reply arrives,
+    // `MenuGame` swaps the foreground gameplay HG into replay playback.
+    // No-op if the user isn't online or the replay isn't on the server's
+    // disk.
+    sf::base::FixedFunction<void(sf::base::U64 /*scoreTimestamp*/), 64> onWatchReplay;
+
+    // Latest cached top scores for whatever (level, difficulty) was last
+    // requested via `onRequestLeaderboard`. Null until data has arrived.
+    // Pointer stability is provided by `LeaderboardCache` (entries are
+    // never erased), so the screen can read this between frames safely.
+    const sf::base::Vector<Database::ProcessedScore>* leaderboardScores{nullptr};
+
+    // Per-(level, difficulty) set of score timestamps the server told us
+    // have no replay on disk. Drives the inline "(NO REPLAY)" markers
+    // next to leaderboard rows. Always non-null -- when no info exists
+    // the host points it at a static empty set so the screen can do
+    // unconditional `contains` lookups.
+    const std::unordered_set<sf::base::U64>* leaderboardUnavailable{nullptr};
+
+    // Where the leaderboard pipeline currently is. Drives the empty-state
+    // message in the LevelSelect leaderboard column. Distinguishing
+    // these states matters for diagnostics: "LOADING" used to be the
+    // catch-all and would mask hard failures (e.g. a request rejected
+    // because the client never reached `LoggedIn_Ready`).
+    enum class LeaderboardStatus : sf::base::U8
+    {
+        Offline = 0, //!< no TCP connection / Steam ticket / login token yet
+        Connecting,  //!< handshake in progress; can't issue requests yet
+        Loading,     //!< request sent to server, awaiting `EReceivedTopScores`
+        Ready,       //!< server has replied; `leaderboardScores` is populated (possibly empty)
+        Unsupported, //!< server doesn't have this validator on its whitelist
+    };
+    LeaderboardStatus leaderboardStatus{LeaderboardStatus::Offline};
 };
 
 } // namespace hg::ui

@@ -164,6 +164,22 @@ sf::Vec2f screenToUI(const Context& ctx, sf::Vec2f pixelPos) noexcept
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Scoped transform
+
+ScopedTransform::ScopedTransform(Context& c, const sf::Transform& additional)
+    : ctx{c}, savedTransform{c.renderStates.transform}, savedMousePos{c.input.mousePos}
+{
+    ctx.renderStates.transform = savedTransform * additional;
+    ctx.input.mousePos         = screenToUI(ctx, ctx.input.mousePixelPos);
+}
+
+ScopedTransform::~ScopedTransform()
+{
+    ctx.renderStates.transform = savedTransform;
+    ctx.input.mousePos         = savedMousePos;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Animation
 
 bool stepToward(float& current, float target, float dt, float speed)
@@ -576,10 +592,35 @@ bool navigateList(Context& ctx, Services& svc, int& idx, int n)
     return changed;
 }
 
-void animatedPill(Context& ctx, sf::Vec2f topLeft, float width, int idx, float& pillY, bool active)
+void animatedPill(Context&  ctx,
+                  sf::Vec2f topLeft,
+                  float     width,
+                  int       idx,
+                  float&    pillY,
+                  bool      active,
+                  float     rowHeight)
 {
-    stepToward(pillY, static_cast<float>(idx) * ctx.rowHeight, ctx.dt, 256.f);
+    const float     effRowHeight = (rowHeight > 0.f) ? rowHeight : ctx.rowHeight;
+    stepToward(pillY, static_cast<float>(idx) * effRowHeight, ctx.dt, 256.f);
     const sf::Color color = active ? ctx.colAccent : desaturate(ctx.colAccent);
+
+    // The default `pill(ctx, pos, width)` fills with the active color
+    // and uses `ctx.rowHeight` for its height. When the caller supplied
+    // a custom row height we draw a plain rectangle of that height
+    // instead -- `pill` doesn't take a height override and the visual
+    // is otherwise identical.
+    if (rowHeight > 0.f && rowHeight != ctx.rowHeight)
+    {
+        ctx.target->draw(
+            sf::RectangleShapeData{
+                .position  = {topLeft.x, topLeft.y + pillY},
+                .fillColor = color,
+                .size      = {width, effRowHeight},
+            },
+            ctx.renderStates);
+        return;
+    }
+
     pill(ctx, {topLeft.x, topLeft.y + pillY}, width, color);
 }
 
@@ -667,6 +708,11 @@ void playUiSound(const Context& ctx, sf::base::StringView name)
 void text(Context& ctx, sf::Vec2f pos, const char* str, float charSize)
 {
     drawText(ctx, pos, str, ctx.colHighlight, charSize);
+}
+
+void text(Context& ctx, sf::Vec2f pos, const char* str, float charSize, sf::Color color, float maxWidth)
+{
+    drawText(ctx, pos, str, color, charSize, maxWidth);
 }
 
 sf::Rect2f measureText(const Context& ctx, const char* str, float charSize)

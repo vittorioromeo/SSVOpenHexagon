@@ -74,6 +74,7 @@
 
 #include "SFML/Base/Algorithm/Sort.hpp"
 #include "SFML/Base/Array.hpp"
+#include "SFML/Base/Builtin/Memcpy.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
@@ -103,17 +104,6 @@
 
 namespace hg
 {
-
-[[nodiscard]] static float getTextScaleForCharacterSize(const sf::Text& text, const unsigned int characterSize)
-{
-    return static_cast<float>(characterSize) / static_cast<float>(text.getCharacterSize());
-}
-
-static void setVisualCharacterSize(sf::Text& text, const unsigned int characterSize)
-{
-    const float scale = getTextScaleForCharacterSize(text, characterSize);
-    text.scale        = {scale, scale};
-}
 
 void MenuGame::MenuFont::updateHeight()
 {
@@ -155,18 +145,13 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     execScriptPackPathContext{},
     currentPack{nullptr},
     txTitleBar{assets.getTexture("titleBar.png")},
-    txCreditsBar1{assets.getTexture("creditsBar1.png")},
-    txCreditsBar2{&assets.getTexture("creditsBar2.png")},
     txEpilepsyWarning{assets.getTexture("epilepsyWarning.png")},
     titleBar{.textureRect = txTitleBar.getRect()},
-    creditsBar1{.textureRect = txCreditsBar1.getRect()},
-    creditsBar2{.textureRect = txCreditsBar2->getRect()},
     epilepsyWarning{.textureRect = txEpilepsyWarning.getRect()},
     txSOnline{&assets.getTexture("onlineIconFail.png")},
     sOnline{.textureRect = txSOnline->getRect()},
     rsOnlineStatus{{.size = {128.f, 32.f}}},
     txtOnlineStatus{openSquare, {.string = "", .characterSize = 24}},
-    enteredChars{},
     backgroundCamera{
         sf::View{.center = sf::Vec2f{0.f, 0.f},
                  .size = {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}},
@@ -179,42 +164,11 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     ignoreInputs{0},
     w{0.f},
     h{0.f},
-    scrollbarOffset{0},
     fourByThree{false},
     levelData{},
     styleData{},
-    txtVersion{{openSquare, {.string = "", .characterSize = 40}}},
     txtProf{{openSquare, {.string = "", .characterSize = 18}}},
-    // For the loading screen
-    txtLoadBig{{openSquare, {.string = "", .characterSize = 70}}},
-    txtLoadSmall{{openSquareBold, {.string = "", .characterSize = 24}}},
-    txtRandomTip{{openSquare, {.string = "", .characterSize = 32}}},
-    // For the Main Menu
-    txtMenuBig{{openSquare, {.string = "", .characterSize = 36}}},
-    txtMenuSmall{{openSquare, {.string = "", .characterSize = 24}}},
-    txtMenuTiny{{openSquare, {.string = "", .characterSize = 14}}},
-    txtProfile{{openSquare, {.string = "", .characterSize = 32}}},
-    txtInstructionsBig{{openSquare, {.string = "", .characterSize = 46}}},
-    txtInstructionsMedium{{openSquare, {.string = ""}}},
-    txtInstructionsSmall{{openSquare, {.string = "", .characterSize = 20}}},
-    // Manual Input
-    txtEnteringText{{openSquare, {.string = "", .characterSize = 54}}},
-    // For the Level Selection Screen
-    txtSelectionBig{{openSquareBold, {.string = "", .characterSize = 28}}},
-    txtSelectionMedium{{openSquareBold, {.string = "", .characterSize = 19}}},
-    txtSelectionSmall{{openSquare, {.string = "", .characterSize = 14}}},
-    txtSelectionScore{{openSquare, {.string = "", .characterSize = 28}}},
-    txtSelectionRanked{{openSquareBold, {.string = "", .characterSize = 10}}},
-    menuTextColor{},
-    menuQuadColor{},
-    menuSelectionColor{},
-    dialogBoxTextColor{},
-    menuBackgroundTris{},
-    loadInfo(mAssets.getLoadResults()),
-    randomTip{},
-    hexagonRotation{0.f},
-    menuHalfHeight{0.f},
-    enteringTextOffset{0.f}
+    txtSelectionSmall{{openSquare, {.string = "", .characterSize = 14}}}
 {
     // Set cursor visible by default, will be disabled when using keyboard and
     // re-enabled when moving the mouse.
@@ -372,8 +326,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
 
             // Mirror printable text into the dialog-box input field when
             // one is open (used by the online login / register flow).
-            if (!dialogBox.empty() && dialogBox.isInputBox() &&
-                e->unicode >= 32 && e->unicode < 127)
+            if (!dialogBox.empty() && dialogBox.isInputBox() && e->unicode >= 32 && e->unicode < 127)
             {
                 sf::base::String& input = dialogBox.getInput();
                 if (input.size() < 32)
@@ -390,9 +343,28 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
                 setMouseCursorVisible(false);
             }
 
+            // Clear the input lock that `returnToLevelSelection` (and
+            // similar) sets on a *fresh* keypress. Without this the
+            // user has to press the key twice to start a second level:
+            // the first press is eaten while `ignoreAllInputs(true)` is
+            // armed, then the release clears the lock, and only the
+            // second press makes it through the trigger system.
+            //
+            // Held keys carrying over from gameplay don't produce a
+            // KeyPressed event (only a release-then-press transition
+            // does), so this path won't auto-fire e.g. PLAY just
+            // because the user came back from a level still holding
+            // Enter. Skipped during EpilepsyWarning (which deliberately
+            // requires a release to dismiss the splash) and while a
+            // dialog box is open (dialog has its own ignore-counter
+            // accounting on release).
+            if (ignoreInputs > 0 && state != States::EpilepsyWarning && dialogBox.empty())
+            {
+                setIgnoreAllInputs(0);
+            }
+
             // Backspace inside the legacy dialog input box.
-            if (!dialogBox.empty() && dialogBox.isInputBox() &&
-                e->code == sf::Keyboard::Key::Backspace)
+            if (!dialogBox.empty() && dialogBox.isInputBox() && e->code == sf::Keyboard::Key::Backspace)
             {
                 sf::base::String& input = dialogBox.getInput();
                 if (!input.empty())
@@ -407,6 +379,18 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
             if (window.hasFocus())
             {
                 setMouseCursorVisible(true);
+            }
+        }
+        else if (event.is<sf::Event::MouseButtonPressed>() || event.is<sf::Event::JoystickButtonPressed>())
+        {
+            // Same lock-clear as KeyPressed above, applied to the
+            // fresh-mouse-click path. Without it the first click after
+            // returning from gameplay does nothing because
+            // `drawNewMainMenu` gates `mouseDown` on `ignoreInputs == 0`
+            // (see the gate around `sf::Mouse::isButtonPressed`).
+            if (ignoreInputs > 0 && state != States::EpilepsyWarning && dialogBox.empty())
+            {
+                setIgnoreAllInputs(0);
             }
         }
         else if (const auto* e = event.getIf<sf::Event::KeyReleased>())
@@ -433,8 +417,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
             if (!dialogBox.empty())
             {
                 const sf::Keyboard::Key key{e->code};
-                if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown ||
-                    key == dialogBox.getKeyToClose())
+                if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown || key == dialogBox.getKeyToClose())
                 {
                     --ignoreInputs;
                 }
@@ -453,8 +436,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
             // No menus left to dispatch into -- just clear the lock.
             setIgnoreAllInputs(0);
         }
-        else if (event.is<sf::Event::MouseButtonReleased>() ||
-                 event.is<sf::Event::JoystickButtonReleased>())
+        else if (event.is<sf::Event::MouseButtonReleased>() || event.is<sf::Event::JoystickButtonReleased>())
         {
             if (ignoreInputs == 0)
             {
@@ -570,13 +552,13 @@ void MenuGame::initNewUIServices()
         // `levelDataIdsByPack` -- `LevelData::id` alone wouldn't pass
         // `isValidLevelId`. Direct call to the gameplay-launch hook, no
         // legacy menu state to populate.
-        if (!assets.isValidLevelId(levelId) || !fnHGNewGame)
+        if (!assets.isValidLevelId(levelId) || !hostCallbacks.newGame)
         {
             return;
         }
         const LevelData& ld = assets.getLevelData(levelId);
         setMouseCursorVisible(false);
-        fnHGNewGame(ld.packId, levelId, /*firstPlay=*/true, difficultyMult, /*executeLastReplay=*/false);
+        hostCallbacks.newGame(ld.packId, levelId, /*firstPlay=*/true, difficultyMult, /*executeLastReplay=*/false);
     };
 
     ui_services.onPreviewLevel = [this](const sf::base::String& levelId)
@@ -584,8 +566,7 @@ void MenuGame::initNewUIServices()
         // Reload the preview HG with the newly-selected level so its
         // walls / style / 3D animate inside the LevelSelect right-side
         // preview texture. Skipped if we're already showing this level.
-        if (!assets.isValidLevelId(levelId) || hgPreview == nullptr ||
-            previewLoadedLevelId == levelId)
+        if (!assets.isValidLevelId(levelId) || hgPreview == nullptr || previewLoadedLevelId == levelId)
         {
             return;
         }
@@ -599,16 +580,67 @@ void MenuGame::initNewUIServices()
         previewLoadedLevelId = levelId;
     };
 
+    ui_services.onRequestLeaderboard = [this](const sf::base::String& levelId, const float diffMult)
+    {
+        // Resolve `(levelId, diffMult)` to a validator on `this`, then
+        // (if the level is actually trackable) try to send a request.
+        // The per-frame refresh in `drawNewMainMenu` picks up the new
+        // validator + any cache changes on the next tick -- accepting
+        // a one-frame display lag in exchange for not paying for a
+        // refresh on every poll (the screen calls this every frame the
+        // leaderboard column is visible).
+        if (tryUpdateLeaderboardValidator(levelId, diffMult))
+        {
+            maybeIssueLeaderboardTopScoresRequest();
+        }
+    };
+
     ui_services.playSound = [this](sf::base::StringView s)
     {
         // Best-effort; small stack buffer keeps us null-terminated.
         char       buf[64] = {};
         const auto n       = s.size() < (sizeof(buf) - 1) ? s.size() : (sizeof(buf) - 1);
-        for (decltype(s.size()) i = 0; i < n; ++i)
-        {
-            buf[i] = s.data()[i];
-        }
+        SFML_BASE_MEMCPY(buf, s.data(), n);
         playSoundOverride(buf);
+    };
+
+    ui_services.onWatchReplay = [this](const sf::base::U64 scoreTimestamp)
+    {
+        // The validator is whatever `onRequestLeaderboard` last set --
+        // i.e. the (level, difficulty) the LevelSelect cursor is on.
+        // The screen polls `onRequestLeaderboard` every frame the
+        // leaderboard column is visible, so this is always fresh.
+        if (currentLeaderboardValidator.empty())
+        {
+            return;
+        }
+
+        // Dedup: if the user mashes Enter on the same row, we already
+        // have a request in flight (or just finished one). Re-sending
+        // wastes wire bandwidth and the server has its own throttle
+        // anyway -- but quieting the client side stops the request
+        // from looking distinct enough to slip through (e.g. across
+        // network jitter). Cleared on validator change below so a new
+        // selection always gets a fresh shot.
+        if (lastReplayRequestValidator == currentLeaderboardValidator &&
+            lastReplayRequestTimestamp == scoreTimestamp)
+        {
+            return;
+        }
+
+        if (!hexagonClient.tryRequestReplay(currentLeaderboardValidator, scoreTimestamp))
+        {
+            hg::lo("hg::MenuGame::onWatchReplay")
+                << "tryRequestReplay refused for validator='" << currentLeaderboardValidator
+                << "' (state=" << static_cast<int>(hexagonClient.getState()) << ")\n";
+            return;
+        }
+
+        lastReplayRequestValidator = currentLeaderboardValidator;
+        lastReplayRequestTimestamp = scoreTimestamp;
+
+        hg::lo("hg::MenuGame::onWatchReplay")
+            << "Requested replay for validator='" << currentLeaderboardValidator << "' ts=" << scoreTimestamp << '\n';
     };
 
     ui_services.assets       = &assets;
@@ -617,14 +649,6 @@ void MenuGame::initNewUIServices()
     // no profile is selected at construction time (it's chosen later via
     // `SLPSelectBoot`/`SLPSelect`).
     ui_services.currentProfile = nullptr;
-}
-
-void MenuGame::applyLevelThemeToContext(hg::ui::Context& /*ctx*/) const
-{
-    // Intentionally empty. The new UI uses a fixed white/black/magenta
-    // palette (see `Context` defaults) -- the magenta accent is a sentinel
-    // replaced by an animated gradient in the post-process shader pass.
-    // Per-level theming would fight the gradient and isn't wanted here.
 }
 
 void MenuGame::setMenuPreviewGames(HexagonGame*     menuBackground,
@@ -665,6 +689,140 @@ void MenuGame::setMenuPreviewGames(HexagonGame*     menuBackground,
             hgPreview->renderTarget = &*previewTexture;
         }
     }
+}
+
+[[nodiscard]] bool MenuGame::tryUpdateLeaderboardValidator(const sf::base::String& levelId, const float diffMult)
+{
+    // Invalid asset id: clear the validator + dedup. The per-frame
+    // snapshot will then publish `Connecting` / `Offline` based on the
+    // client state, since `haveValidator` is false.
+    if (!assets.isValidLevelId(levelId))
+    {
+        if (!currentLeaderboardValidator.empty())
+        {
+            currentLeaderboardValidator.clear();
+            lastReplayRequestValidator.clear();
+            lastReplayRequestTimestamp = 0;
+        }
+        return false;
+    }
+
+    const LevelData& ld           = assets.getLevelData(levelId);
+    const auto&      newValidator = ld.getValidator(diffMult);
+
+    const bool validatorChanged = (currentLeaderboardValidator != newValidator);
+    currentLeaderboardValidator = newValidator;
+
+    if (validatorChanged)
+    {
+        // Reset the watch-replay dedup so navigating away/back lets the
+        // user re-watch the same row.
+        lastReplayRequestValidator.clear();
+        lastReplayRequestTimestamp = 0;
+    }
+
+    // Skip the wire send entirely for levels the server doesn't track:
+    // it would never reply and the UI would sit on "LOADING..." forever.
+    // The server populates `_supportedLevelValidators` only after
+    // `LoggedIn_Ready`; pre-ready frames fall through and the per-frame
+    // snapshot still classifies them as `Connecting`.
+    const auto hcState = hexagonClient.getState();
+    if (hcState == HexagonClient::State::LoggedIn_Ready &&
+        !hexagonClient.isLevelSupportedByServer(currentLeaderboardValidator))
+    {
+        if (validatorChanged)
+        {
+            hg::lo("hg::MenuGame::onRequestLeaderboard")
+                << "validator='" << currentLeaderboardValidator << "' unsupported, skipping request\n";
+        }
+        return false;
+    }
+
+    return true;
+}
+
+void MenuGame::maybeIssueLeaderboardTopScoresRequest()
+{
+    // Cache rate-limit: refuses re-sends within 6s of the previous
+    // marker for the same validator.
+    if (!leaderboardCache->shouldRequestScores(currentLeaderboardValidator))
+    {
+        return;
+    }
+
+    const bool sent = hexagonClient.tryRequestTopScores(currentLeaderboardValidator);
+    if (sent)
+    {
+        // Mark only on success. A failed send (e.g. wrong state) doesn't
+        // poison the cache window -- otherwise a later retry from a
+        // healthy state would be silently rate-limited away for 6s.
+        leaderboardCache->requestedScores(currentLeaderboardValidator);
+    }
+
+    hg::lo("hg::MenuGame::onRequestLeaderboard")
+        << "validator='" << currentLeaderboardValidator
+        << "' sent=" << (sent ? "yes" : "no")
+        << " state=" << static_cast<int>(hexagonClient.getState()) << '\n';
+}
+
+void MenuGame::refreshLeaderboardSnapshot()
+{
+    using S   = HexagonClient::State;
+    using LBS = hg::ui::Services::LeaderboardStatus;
+
+    const S hcSt = hexagonClient.getState();
+
+    const bool haveValidator    = !currentLeaderboardValidator.empty();
+    const bool haveReceived     = haveValidator && leaderboardCache->hasReceivedScores(currentLeaderboardValidator);
+    const bool requestInFlight  = haveValidator && !haveReceived &&
+                                 leaderboardCache->hasInformation(currentLeaderboardValidator);
+    const bool readyToFetch     = (hcSt == S::LoggedIn_Ready);
+    const bool stillHandshaking = (hcSt == S::Connected || hcSt == S::Connecting || hcSt == S::LoggedIn);
+    const bool unsupportedHere  = readyToFetch && haveValidator &&
+                                 !hexagonClient.isLevelSupportedByServer(currentLeaderboardValidator);
+
+    if (haveReceived)
+    {
+        // Server replied. Vector may legitimately be empty; the screen
+        // renders that as "NO SCORES". Highest priority -- once a real
+        // reply has arrived, transient state changes shouldn't mask it.
+        ui_services.leaderboardScores = &leaderboardCache->getScores(currentLeaderboardValidator);
+        ui_services.leaderboardStatus = LBS::Ready;
+    }
+    else if (unsupportedHere)
+    {
+        // Connected, ready, level highlighted, but the server doesn't
+        // have this validator on its whitelist -- it would simply not
+        // reply if we asked. Surface that explicitly so the user
+        // doesn't watch a permanent spinner.
+        ui_services.leaderboardScores = nullptr;
+        ui_services.leaderboardStatus = LBS::Unsupported;
+    }
+    else if (requestInFlight && readyToFetch)
+    {
+        // We sent a request and are waiting on the server.
+        ui_services.leaderboardScores = nullptr;
+        ui_services.leaderboardStatus = LBS::Loading;
+    }
+    else if (stillHandshaking || (readyToFetch && !haveValidator))
+    {
+        // Either the client is still negotiating with the server, or we
+        // just haven't selected a level yet.
+        ui_services.leaderboardScores = nullptr;
+        ui_services.leaderboardStatus = LBS::Connecting;
+    }
+    else
+    {
+        // Disconnected / init error / connection error -- no path forward.
+        ui_services.leaderboardScores = nullptr;
+        ui_services.leaderboardStatus = LBS::Offline;
+    }
+
+    // Publish the per-validator "no replay" set. Always non-null (the
+    // cache returns a static empty set when no entry exists), so the
+    // screen can do unconditional `contains` lookups when annotating
+    // rows.
+    ui_services.leaderboardUnavailable = &leaderboardCache->getUnavailableTimestamps(currentLeaderboardValidator);
 }
 
 void MenuGame::pumpWorkshopEvents()
@@ -901,12 +1059,27 @@ void MenuGame::drawNewMainMenu()
     // `MenuGame::draw` from `hgPreview`) so LevelSelect can paint it.
     ui_services.previewTexture = previewTexture.hasValue() && !previewLoadedLevelId.empty() ? &*previewTexture : nullptr;
 
+    // Window-as-target for screens that need to draw outside the
+    // accent-gradient shader pass (e.g. the LevelSelect preview, whose
+    // magenta pixels would otherwise be remapped). Only meaningful when
+    // we're actually compositing through the UI texture; otherwise the
+    // shader isn't running and a null pointer tells screens to fall back
+    // to `ctx.target`.
+    ui_services.rawTarget = uiCompositeTexture.hasValue() ? static_cast<sf::RenderTarget*>(&window.getRenderWindow())
+                                                          : nullptr;
+
+    // Surface the latest cached leaderboard snapshot for whatever
+    // (level, difficulty) the LevelSelect screen last requested. The
+    // cache holds entries indefinitely, so reusing a stale pointer
+    // across frames is safe -- a fresh `EReceivedTopScores` event just
+    // overwrites the underlying vector in place.
+    refreshLeaderboardSnapshot();
+
     // Map raw pixel mouse → UI layout space, accounting for the view +
     // transform set on `renderStates`.
     const sf::Vec2f mousePixelPos = sf::Mouse::getPosition(window.getRenderWindow()).to<sf::Vec2f>();
+    ctx.input.mousePixelPos       = mousePixelPos;
     ctx.input.mousePos            = hg::ui::screenToUI(ctx, mousePixelPos);
-
-    applyLevelThemeToContext(ctx);
 
     // Clear the off-screen UI texture to fully transparent black so the
     // background level (rendered earlier into the window) shows through
@@ -917,6 +1090,22 @@ void MenuGame::drawNewMainMenu()
     }
 
     hg::ui::drawCurrentScreen(ctx, ui_app, ui_services);
+
+    // Draw the dialog box (login / register / first-time-tip flows) into
+    // the same off-screen UI texture so its magenta-sentinel frame goes
+    // through the accent gradient shader at composite time. Without this
+    // detour the dialog renders straight to the window after the shader
+    // pass, and the frame stays plain magenta. Uses the same overlay view
+    // the new UI uses so positions align with the rest of the layout.
+    if (!dialogBox.empty() && uiCompositeTexture.hasValue() && ctx.target == &*uiCompositeTexture)
+    {
+        dialogBox.setRenderTargetOverride(&*uiCompositeTexture);
+        dialogBox.draw(getOverlayView(),
+                       /*txtColor=*/sf::Color{255, 255, 255, 255},
+                       /*frameColor=*/sf::Color{255, 0, 255, 255},
+                       /*backdropColor=*/sf::Color{0, 0, 0, 255});
+        dialogBox.setRenderTargetOverride(nullptr);
+    }
 
     // Composite the UI back onto the window with the gradient shader. The
     // shader leaves white text and dark row backgrounds alone but maps
@@ -970,15 +1159,7 @@ void MenuGame::drawNewMainMenu()
 
 void MenuGame::initAssets()
 {
-    for (const auto& t :
-         {"titleBar.png",
-          "creditsBar1.png",
-          "creditsBar2.png",
-          "creditsBar2b.png",
-          "creditsBar2c.png",
-          "creditsBar2d.png",
-          "bottomBar.png",
-          "epilepsyWarning.png"})
+    for (const auto& t : {"titleBar.png", "epilepsyWarning.png"})
     {
         assets.getTexture(t).setSmooth(true);
     }
@@ -1034,12 +1215,12 @@ void MenuGame::initInput()
     // Each navigable key feeds the new UI's edge-triggered input snapshot
     // directly. `drawNewMainMenu` reads `ui_pendingInput` once per frame
     // and clears it; the immediate-mode screens dispatch from there.
-    game.addInput({{k::Up}},        [this](float) { ui_pendingInput.up = true; },        t::Once);
-    game.addInput({{k::Down}},      [this](float) { ui_pendingInput.down = true; },      t::Once);
-    game.addInput({{k::Left}},      [this](float) { ui_pendingInput.left = true; },      t::Once);
-    game.addInput({{k::Right}},     [this](float) { ui_pendingInput.right = true; },     t::Once);
-    game.addInput({{k::Enter}},     [this](float) { ui_pendingInput.enter = true; },     t::Once);
-    game.addInput({{k::Escape}},    [this](float) { ui_pendingInput.escape = true; },    t::Once);
+    game.addInput({{k::Up}}, [this](float) { ui_pendingInput.up = true; }, t::Once);
+    game.addInput({{k::Down}}, [this](float) { ui_pendingInput.down = true; }, t::Once);
+    game.addInput({{k::Left}}, [this](float) { ui_pendingInput.left = true; }, t::Once);
+    game.addInput({{k::Right}}, [this](float) { ui_pendingInput.right = true; }, t::Once);
+    game.addInput({{k::Enter}}, [this](float) { ui_pendingInput.enter = true; }, t::Once);
+    game.addInput({{k::Escape}}, [this](float) { ui_pendingInput.escape = true; }, t::Once);
     game.addInput({{k::Backspace}}, [this](float) { ui_pendingInput.backspace = true; }, t::Once);
 
     // Alt+Enter toggles fullscreen -- preserved through the legacy refactor
@@ -1050,7 +1231,8 @@ void MenuGame::initInput()
         Config::setFullscreen(window, !window.getFullscreen());
         game.ignoreNextInputs();
     },
-                  t::Once).setPriorityUser(-1000);
+                  t::Once)
+        .setPriorityUser(-1000);
 }
 
 void MenuGame::runLuaFile(const sf::base::String& mFileName)
@@ -1094,12 +1276,6 @@ void MenuGame::playSoundOverride(const sf::base::String& assetId)
 void MenuGame::setMouseCursorVisible(const bool x)
 {
     window.setMouseCursorVisible(x);
-    mouseCursorVisible = x;
-}
-
-[[nodiscard]] bool MenuGame::isMouseCursorVisible() const
-{
-    return mouseCursorVisible;
 }
 
 void MenuGame::playLocally()
@@ -1117,7 +1293,8 @@ void MenuGame::playLocally()
     else if (!assets.pIsValidLocalProfile())
     {
         const auto names = assets.getLocalProfileNames();
-        if (!names.empty()) assets.pSetCurrent(names[0]);
+        if (!names.empty())
+            assets.pSetCurrent(names[0]);
     }
 
     changeStateTo(States::SMain);
@@ -1256,7 +1433,6 @@ void MenuGame::initLua()
 }
 
 
-
 void MenuGame::update(float mFT)
 {
     // Capture frame time for the new UI's animations. `mFT` is in
@@ -1277,11 +1453,16 @@ void MenuGame::update(float mFT)
     const auto showHCEventDialogBox =
         [this](const bool error, const sf::base::String& msg, const sf::base::String& err = "")
     {
-        if (!dialogBox.empty()) return;
+        if (!dialogBox.empty())
+            return;
         playSoundOverride(error ? "error.ogg" : "select.ogg");
         strBuf.clear();
         strBuf += msg;
-        if (!err.empty()) { strBuf += "\n\n"; strBuf += err; }
+        if (!err.empty())
+        {
+            strBuf += "\n\n";
+            strBuf += err;
+        }
         strBuf += "\n";
         dialogBoxDelay = 16.f;
         showDialogBox(strBuf);
@@ -1292,13 +1473,11 @@ void MenuGame::update(float mFT)
     while ((hcEvent = hexagonClient.pollEvent()).hasValue())
     {
         hcEvent->linearMatch( //
-            [&](const HexagonClient::EConnectionSuccess&)
-        { showHCEventDialogBox(false, "CONNECTION SUCCESS"); },
+            [&](const HexagonClient::EConnectionSuccess&) { showHCEventDialogBox(false, "CONNECTION SUCCESS"); },
             [&](const HexagonClient::EConnectionFailure& e)
         { showHCEventDialogBox(true, "CONNECTION FAILURE", e.error); },
             [&](const HexagonClient::EKicked&) { showHCEventDialogBox(true, "DISCONNECTED FROM SERVER"); },
-            [&](const HexagonClient::ERegistrationSuccess&)
-        { showHCEventDialogBox(false, "REGISTRATION SUCCESS"); },
+            [&](const HexagonClient::ERegistrationSuccess&) { showHCEventDialogBox(false, "REGISTRATION SUCCESS"); },
             [&](const HexagonClient::ERegistrationFailure& e)
         { showHCEventDialogBox(true, "REGISTRATION FAILURE", e.error); },
             [&](const HexagonClient::ELoginSuccess&)
@@ -1306,12 +1485,10 @@ void MenuGame::update(float mFT)
             showHCEventDialogBox(false, "LOGIN SUCCESS");
             steamManager.unlock_achievement("a23_login");
         },
-            [&](const HexagonClient::ELoginFailure& e)
-        { showHCEventDialogBox(true, "LOGIN FAILURE", e.error); },
+            [&](const HexagonClient::ELoginFailure& e) { showHCEventDialogBox(true, "LOGIN FAILURE", e.error); },
             [&](const HexagonClient::ELogoutSuccess&) { showHCEventDialogBox(false, "LOGOUT SUCCESS"); },
             [&](const HexagonClient::ELogoutFailure&) { showHCEventDialogBox(true, "LOGOUT FAILURE"); },
-            [&](const HexagonClient::EDeleteAccountSuccess&)
-        { showHCEventDialogBox(false, "DELETE ACCOUNT SUCCESS"); },
+            [&](const HexagonClient::EDeleteAccountSuccess&) { showHCEventDialogBox(false, "DELETE ACCOUNT SUCCESS"); },
             [&](const HexagonClient::EDeleteAccountFailure& e)
         { showHCEventDialogBox(true, "DELETE ACCOUNT FAILURE", e.error); },
             [&](const HexagonClient::EReceivedTopScores& e)
@@ -1319,25 +1496,52 @@ void MenuGame::update(float mFT)
             [&](const HexagonClient::EReceivedOwnScore& e)
         { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); },
             [&](const HexagonClient::EGameVersionMismatch&)
+        { hg::lo("hg::MenuGame::update") << "Client/server game version mismatch, likely not a problem\n"; },
+            [&](const HexagonClient::EProtocolVersionMismatch&)
+        { showHCEventDialogBox(true, "CLIENT/SERVER PROTOCOL VERSION MISMATCH"); },
+            [&](const HexagonClient::EReceivedReplay& e)
         {
             hg::lo("hg::MenuGame::update")
-                << "Client/server game version mismatch, likely not a problem\n";
+                << "Received replay for validator='" << e.levelValidator << "' ts=" << e.scoreTimestamp << '\n';
+
+            if (!hostCallbacks.watchReplay)
+            {
+                hg::lo("hg::MenuGame::update") << "[ERROR] hostCallbacks.watchReplay not installed by host\n";
+                return;
+            }
+
+            // Hand off to `main.cpp`'s wiring -- it knows how to install
+            // the replay on the foreground gameplay HG and start playback.
+            setMouseCursorVisible(false);
+            hostCallbacks.watchReplay(e.replay);
         },
-            [&](const HexagonClient::EProtocolVersionMismatch&)
-        { showHCEventDialogBox(true, "CLIENT/SERVER PROTOCOL VERSION MISMATCH"); }
+            [&](const HexagonClient::EReplayUnavailable& e)
+        {
+            hg::lo("hg::MenuGame::update")
+                << "Replay unavailable for validator='" << e.levelValidator << "' ts=" << e.scoreTimestamp
+                << " reason='" << e.reason << "'\n";
+            // No modal dialog -- showed up too aggressively when
+            // walking through pre-feature scores. Mark the row so
+            // LevelSelect can render an inline "(NO REPLAY)" suffix
+            // and update the published snapshot pointer.
+            leaderboardCache->markReplayUnavailable(e.levelValidator, e.scoreTimestamp);
+            refreshLeaderboardSnapshot();
+        }
             //
         );
     }
 
-    if (fnHGUpdateRichPresenceCallbacks)
+    if (hostCallbacks.updateRichPresence)
     {
-        fnHGUpdateRichPresenceCallbacks();
+        hostCallbacks.updateRichPresence();
     }
 
     // ---- Misc per-frame ticks --------------------------------------------
     Joystick::update(Config::getJoystickDeadzone());
-    if (dialogBoxDelay > 0.f) dialogBoxDelay -= mFT;
-    if (Joystick::risingEdge(Joystick::Jid::Screenshot)) mustTakeScreenshot = true;
+    if (dialogBoxDelay > 0.f)
+        dialogBoxDelay -= mFT;
+    if (Joystick::risingEdge(Joystick::Jid::Screenshot))
+        mustTakeScreenshot = true;
 }
 
 void MenuGame::refreshCamera()
@@ -1374,96 +1578,6 @@ void MenuGame::renderText(const sf::base::String& mStr, sf::Text& mText, const s
     drawOverlay(mText);
 }
 
-void MenuGame::renderText(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor)
-{
-    const sf::Color prevColor = mText.getFillColor();
-    mText.setFillColor(mColor);
-    renderText(mStr, mText, mPos);
-    mText.setFillColor(prevColor);
-}
-
-void MenuGame::renderText(const sf::base::String& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos)
-{
-    const sf::Vec2f prevScale = mText.scale;
-    setVisualCharacterSize(mText, mSize);
-    renderText(mStr, mText, mPos);
-    mText.scale = prevScale;
-}
-
-void MenuGame::renderText(const sf::base::String& mStr,
-                          sf::Text&               mText,
-                          const unsigned int      mSize,
-                          const sf::Vec2f         mPos,
-                          const sf::Color&        mColor)
-{
-    const sf::Vec2f prevScale = mText.scale;
-    setVisualCharacterSize(mText, mSize);
-    const sf::Color prevColor = mText.getFillColor();
-    mText.setFillColor(mColor);
-    renderText(mStr, mText, mPos);
-    mText.setFillColor(prevColor);
-    mText.scale = prevScale;
-}
-
-// Text rendering centered
-void MenuGame::renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos)
-{
-    mText.setString(mStr);
-    mText.position = {mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
-    drawOverlay(mText);
-}
-
-void MenuGame::renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor)
-{
-    const sf::Color prevColor = mText.getFillColor();
-    mText.setFillColor(mColor);
-    renderTextCentered(mStr, mText, mPos);
-    mText.setFillColor(prevColor);
-}
-
-void MenuGame::renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos)
-{
-    const sf::Vec2f prevScale = mText.scale;
-    setVisualCharacterSize(mText, mSize);
-    renderTextCentered(mStr, mText, mPos);
-    mText.scale = prevScale;
-}
-
-void MenuGame::renderTextCentered(const sf::base::String& mStr,
-                                  sf::Text&               mText,
-                                  const unsigned int      mSize,
-                                  const sf::Vec2f         mPos,
-                                  const sf::Color&        mColor)
-{
-    const sf::Vec2f prevScale = mText.scale;
-    setVisualCharacterSize(mText, mSize);
-    const sf::Color prevColor = mText.getFillColor();
-    mText.setFillColor(mColor);
-    renderTextCentered(mStr, mText, mPos);
-    mText.setFillColor(prevColor);
-    mText.scale = prevScale;
-}
-
-// Text rendering centered with an offset
-void MenuGame::renderTextCenteredOffset(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const float xOffset)
-{
-    mText.setString(mStr);
-    mText.position = {xOffset + mPos.x - mText.getGlobalWidth() / 2.f, mPos.y};
-    drawOverlay(mText);
-}
-
-void MenuGame::renderTextCenteredOffset(const sf::base::String& mStr,
-                                        sf::Text&               mText,
-                                        const sf::Vec2f         mPos,
-                                        const float             xOffset,
-                                        const sf::Color&        mColor)
-{
-    const sf::Color prevColor = mText.getFillColor();
-    mText.setFillColor(mColor);
-    renderTextCenteredOffset(mStr, mText, mPos, xOffset);
-    mText.setFillColor(prevColor);
-}
-
 [[nodiscard]] float MenuGame::getWindowWidth() const noexcept
 {
     return window.getRenderWindow().getSize().x;
@@ -1490,6 +1604,20 @@ void MenuGame::returnToLevelSelection()
     // menu frame.
     ui_pendingInput = {};
 
+    // Drop any in-flight replay events. The user just exited gameplay
+    // -- if a `EReceivedReplay` arrives now (e.g. a request fired right
+    // before they hit ESC) we'd yank them straight back into another
+    // replay. Same for `EReplayUnavailable`: surfacing a "REPLAY
+    // UNAVAILABLE" dialog right after returning to the menu is jarring
+    // and usually for a request the user no longer cares about. The
+    // helper preserves login/score events.
+    hexagonClient.discardPendingReplayEvents();
+
+    // Reset the watch-replay dedup so the user can ask for a replay
+    // again after coming back to LevelSelect.
+    lastReplayRequestValidator.clear();
+    lastReplayRequestTimestamp = 0;
+
     // Steer the post-gameplay menu back to the LevelSelect screen.
     if (state != States::SMain)
     {
@@ -1508,9 +1636,9 @@ void MenuGame::refreshBinds()
     {
         game.refreshTrigger(Config::triggerGetters[i](), i);
 
-        if (fnHGTriggerRefresh)
+        if (hostCallbacks.triggerRefresh)
         {
-            fnHGTriggerRefresh(Config::triggerGetters[i](), i);
+            hostCallbacks.triggerRefresh(Config::triggerGetters[i](), i);
         }
     }
 
@@ -1542,7 +1670,6 @@ void MenuGame::setIgnoreAllInputs(const unsigned int presses)
 
 void MenuGame::draw()
 {
-    mouseHovering   = false;
     mouseWasPressed = mousePressed;
     mousePressed    = (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
@@ -1673,8 +1800,8 @@ void MenuGame::draw()
         }
 
         window.draw(sf::RectangleShapeData{
-            .size      = window.getRenderWindow().getSize().toVec2f(),
             .fillColor = sf::Color{0, 0, 0, 25},
+            .size      = window.getRenderWindow().getSize().toVec2f(),
         });
     }
 
@@ -1688,24 +1815,7 @@ void MenuGame::draw()
         previewTexture->display();
     }
 
-    // Fallback hexagon background -- only fires if the menu-bg HG instance
-    // wasn't allocated (texture creation failed at boot). With the
-    // standard new-UI flow `hgMenuBg` is always live.
-    if (mainOrAbove && hgMenuBg == nullptr)
-    {
-        menuBackgroundTris.clear();
-
-        styleData.drawBackgroundMenu(menuBackgroundTris,
-                                     sf::Vec2f{0.f, 0.f},
-                                     levelStatus.sides,
-                                     Config::getDarkenUnevenBackgroundChunk() && levelStatus.darkenUnevenBackgroundChunk,
-                                     Config::getBlackAndWhite(),
-                                     fourByThree);
-
-        drawBackground(menuBackgroundTris);
-    }
-
-    // The legacy "CURRENT PROFILE: <name>" line has been removed (single-
+// The legacy "CURRENT PROFILE: <name>" line has been removed (single-
     // profile model -- see `playLocally`). Missing-dependency warnings
     // still surface if any packs need attention.
     if (mainOrAbove)
@@ -1752,19 +1862,11 @@ void MenuGame::draw()
         mustTakeScreenshot = false;
     }
 
-    if (!dialogBox.empty())
-    {
-        dialogBox.draw(getOverlayView(), dialogBoxTextColor, styleData.getColor(0));
-    }
-
+    // The dialog box is now drawn inside `drawNewMainMenu` -- routed
+    // through the UI composite texture so its magenta-sentinel frame
+    // gets the same accent gradient as the rest of the new UI. The
+    // direct-to-window draw that used to live here has been removed.
 }
-
-[[nodiscard]] float MenuGame::getFPSMult() const
-{
-    // multiplier for FPS consistent drawing operations.
-    return 200.f / window.getFPS();
-}
-
 
 void MenuGame::drawOnlineStatus()
 {

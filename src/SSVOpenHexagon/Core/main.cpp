@@ -453,13 +453,13 @@ struct ParsedArgs
 
         mg.emplace(steamManager, *discordManager, assets, audio, *window, hc);
 
-        mg->fnHGTriggerRefresh = [&](const ssvs::Input::Trigger& trigger,
+        mg->hostCallbacks.triggerRefresh = [&](const ssvs::Input::Trigger& trigger,
                                      int                         bindId) //
         {
             hg.refreshTrigger(trigger, bindId); //
         };
 
-        mg->fnHGNewGame =
+        mg->hostCallbacks.newGame =
             [&](const sf::base::String& packId, const sf::base::String& levelId, bool firstPlay, float diffMult, bool executeLastReplay)
         {
             hg.newGame(packId, levelId, firstPlay, diffMult, executeLastReplay);
@@ -467,7 +467,20 @@ struct ParsedArgs
             window->setGameState(hg.getGame());
         };
 
-        mg->fnHGUpdateRichPresenceCallbacks = [&] //
+        mg->hostCallbacks.watchReplay = [&](const hg::replay_file& rf)
+        {
+            // Install the replay onto the foreground gameplay HG, then
+            // launch with `executeLastReplay=true` so `newGame` re-uses
+            // the now-active replay instead of starting a fresh run. The
+            // pack/level/diff come from the replay itself -- mirrors what
+            // a normal "play" would do, just with predetermined inputs.
+            hg.setLastReplay(rf);
+            hg.newGame(rf._pack_id, rf._level_id, rf._first_play, rf._difficulty_mult, /*executeLastReplay=*/true);
+
+            window->setGameState(hg.getGame());
+        };
+
+        mg->hostCallbacks.updateRichPresence = [&] //
         {                                         //
             hg.updateRichPresenceCallbacks();
         };

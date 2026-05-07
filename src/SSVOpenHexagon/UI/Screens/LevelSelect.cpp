@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Data/PackInfo.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/UI/App.hpp"
 #include "SSVOpenHexagon/UI/Screens.hpp"
 #include "SSVOpenHexagon/UI/Services.hpp"
@@ -284,11 +285,12 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     }
 
     // ---- Pane switching (left / right) ------------------------------------
-    // Pane indices: 0 = Packs, 1 = Levels, 2 = Actions. Non-wrapping
-    // left/right via the shared helper, matching Options + Workshop.
+    // Pane indices: 0 = Packs, 1 = Levels, 2 = Actions, 3 = Leaderboard.
+    // Non-wrapping left/right via the shared helper, matching Options +
+    // Workshop.
     using Pane     = LevelSelectScreenState::Pane;
     int activePane = static_cast<int>(s.pane);
-    paneSwitchLeftRight(ctx, svc, activePane, 3);
+    paneSwitchLeftRight(ctx, svc, activePane, 4);
     s.pane = static_cast<Pane>(activePane);
 
     // ---- Navigation within the current pane -------------------------------
@@ -315,12 +317,46 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     if (s.actionIdx < 0 || s.actionIdx >= actionCount)
         s.actionIdx = 0;
 
+    // Leaderboard pane navigation. Row count is dynamic -- it's the
+    // size of the currently-published score list, or 0 when the list
+    // isn't ready (offline / loading / unsupported). When 0,
+    // `navigatePane` clamps the index to 0; the column just shows the
+    // empty-state message. The actual rendering happens in the
+    // details-pane block below.
+    {
+        const int leaderboardCount = (svc.leaderboardScores != nullptr)
+                                         ? static_cast<int>(svc.leaderboardScores->size())
+                                         : 0;
+        navigatePane(ctx, svc, s.leaderboardIdx, leaderboardCount, s.pane == Pane::Leaderboard);
+        if (s.leaderboardIdx < 0)
+            s.leaderboardIdx = 0;
+        if (leaderboardCount > 0 && s.leaderboardIdx >= leaderboardCount)
+            s.leaderboardIdx = leaderboardCount - 1;
+    }
+
     if (s.pane == Pane::Levels && n > 0 && ctx.input.enter && svc.onStartLevel)
     {
         const LevelData& cur = assets.getLevelData(s.filteredLevelIds[s.levelIdx]);
         const int        dN  = static_cast<int>(cur.difficultyMults.size());
         const float      dm  = (dN > 0) ? cur.difficultyMults[s.difficultyIdx] : 1.f;
         svc.onStartLevel(s.filteredLevelIds[s.levelIdx], dm);
+        return;
+    }
+
+    // Enter on a leaderboard row: ask the host for that replay. Reply
+    // arrives asynchronously via `EReceivedReplay` -> `fnHGWatchReplay`.
+    // The host re-derives (level, difficulty) from its
+    // `currentLeaderboardValidator`, which our `onRequestLeaderboard`
+    // poll above keeps current -- so we only need to pass the row's
+    // timestamp.
+    if (s.pane == Pane::Leaderboard && n > 0 && ctx.input.enter && svc.onWatchReplay &&
+        svc.leaderboardScores != nullptr && !svc.leaderboardScores->empty())
+    {
+        const int idx = std::clamp(s.leaderboardIdx, 0,
+                                   static_cast<int>(svc.leaderboardScores->size()) - 1);
+        const sf::base::U64 ts = (*svc.leaderboardScores)[static_cast<sf::base::SizeT>(idx)].scoreTimestamp;
+
+        svc.onWatchReplay(ts);
         return;
     }
 
@@ -698,11 +734,22 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             const auto withCombinedAlpha = [&](sf::Color c)
             { return sf::Color{c.r, c.g, c.b, static_cast<sf::base::U8>(static_cast<float>(c.a) * combinedAlpha)}; };
 
+            // Draw the preview backdrop + sprite straight to the window,
+            // bypassing the UI composite texture. The accent-gradient
+            // shader runs over the composite and would remap any
+            // magenta-saturated pixel in a level's preview (e.g. styles
+            // that use pink/magenta). Drawing direct to the window skips
+            // that pass; the UI composite is alpha-blended on top
+            // afterwards, so any text/pills sitting over the preview
+            // still overlay correctly. Falls back to `ctx.target` when
+            // the host doesn't expose a raw target (headless).
+            sf::RenderTarget* const previewTarget = (svc.rawTarget != nullptr) ? svc.rawTarget : ctx.target;
+
             // Black backdrop framing -- `ctx.colRow` is opaque black in the
             // current theme, and we shrink the rendered sprite by
             // `kFrameInset` on every side so the bg shows through as a
             // visible border.
-            ctx.target->draw(
+            previewTarget->draw(
                 sf::RectangleShapeData{
                     .position  = previewTopLeft,
                     .fillColor = withAlpha(ctx.colRow),
@@ -719,7 +766,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
                 {
                     const float spriteW = kPreviewW - kFrameInset * 2.f;
                     const float spriteH = kPreviewH - kFrameInset * 2.f;
-                    ctx.target->draw(
+                    previewTarget->draw(
                         sf::Sprite{
                             .position = {previewTopLeft.x + kFrameInset, previewTopLeft.y + kFrameInset},
                             .scale = {spriteW / static_cast<float>(texSize.x), spriteH / static_cast<float>(texSize.y)},
@@ -753,6 +800,25 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             (!cur.difficultyMults.empty() && s.difficultyIdx >= static_cast<int>(cur.difficultyMults.size())))
         {
             s.difficultyIdx = 0;
+        }
+
+        // ---- Leaderboard request ----------------------------------------
+        // Fire `onRequestLeaderboard` every frame the LevelSelect column
+        // is visible. The host de-duplicates by validator and rate-limits
+        // wire sends through `LeaderboardCache::shouldRequestScores`, so
+        // calling every frame is cheap. Polling each frame is necessary
+        // because the client may not be in `LoggedIn_Ready` yet when the
+        // user arrives at this screen -- a one-shot fire on selection
+        // change would never retry once the handshake completes.
+        //
+        // We pass the pack-prefixed asset key (same one the preview hook
+        // uses), NOT `cur.id` -- the latter is the bare level id and
+        // wouldn't pass `HGAssets::isValidLevelId` on the host side.
+        if (svc.onRequestLeaderboard && !cur.difficultyMults.empty())
+        {
+            const sf::base::String& curAssetId = s.filteredLevelIds[s.levelIdx];
+            const float             curDM     = cur.difficultyMults[s.difficultyIdx];
+            svc.onRequestLeaderboard(curAssetId, curDM);
         }
 
         if (s.actionIdx < 0 || s.actionIdx >= actionCount)
@@ -979,6 +1045,159 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             byline("PACK:  ", pd.name.toStringView(), pd.author.toStringView());
         }
 #endif
+
+        // ---- Leaderboard column (far right) -----------------------------
+        // Sits to the right of the details column, top-aligned with the
+        // preview row. Reads `Services::leaderboardScores` /
+        // `Services::leaderboardStatus`, populated by the host from
+        // `LeaderboardCache` for the (level, difficulty) we requested
+        // above.
+        constexpr float kLeaderboardW    = 440.f;
+        constexpr float kLeaderboardGap  = 20.f;
+        const float     leaderboardLeft  = detailsLeft + kDetailsW + kLeaderboardGap;
+        const float     headerSize       = ctx.fontSize * 1.3f;
+        const float     headerHeight     = headerSize + 8.f;
+        const float     leaderboardTop   = previewTopLeft.y;
+        const float     rowHeightLB      = ctx.fontSize + 8.f;
+        constexpr int   kMaxLeaderboardRows = 12;
+
+        // Header row backdrop + title.
+        ctx.target->draw(
+            sf::RectangleShapeData{
+                .position  = {leaderboardLeft, leaderboardTop},
+                .fillColor = ctx.colRow,
+                .size      = {kLeaderboardW, headerHeight},
+            },
+            ctx.renderStates);
+        text(ctx, {leaderboardLeft + 12.f, leaderboardTop}, "LEADERBOARD", headerSize);
+
+        // Body backdrop -- one big rectangle behind all rows so empty-state
+        // labels land on the same canvas as score rows.
+        const float bodyTop    = leaderboardTop + headerHeight + 4.f;
+        const float bodyHeight = rowHeightLB * static_cast<float>(kMaxLeaderboardRows) + 8.f;
+        ctx.target->draw(
+            sf::RectangleShapeData{
+                .position  = {leaderboardLeft, bodyTop},
+                .fillColor = ctx.colRow,
+                .size      = {kLeaderboardW, bodyHeight},
+            },
+            ctx.renderStates);
+
+        const auto drawCenteredMessage = [&](const char* msg, sf::Color color)
+        {
+            const sf::Rect2f bounds = measureText(ctx, msg, ctx.fontSize);
+            const float      msgX   = leaderboardLeft + (kLeaderboardW - bounds.size.x) * 0.5f;
+            const float      msgY   = bodyTop + (bodyHeight - ctx.fontSize) * 0.5f;
+            text(ctx, {msgX, msgY}, msg, ctx.fontSize, color);
+        };
+
+        // Empty-state message keyed off the host's status enum. The host
+        // separates "offline / no path to fetch" from "still handshaking"
+        // from "server doesn't track this level" so the user knows
+        // whether waiting will help.
+        using LBS = Services::LeaderboardStatus;
+        if (svc.leaderboardStatus == LBS::Offline)
+        {
+            drawCenteredMessage("OFFLINE", ctx.colTextDim);
+        }
+        else if (svc.leaderboardStatus == LBS::Connecting)
+        {
+            drawCenteredMessage("CONNECTING...", ctx.colTextDim);
+        }
+        else if (svc.leaderboardStatus == LBS::Unsupported)
+        {
+            drawCenteredMessage("NOT TRACKED", ctx.colTextDim);
+        }
+        else if (svc.leaderboardStatus == LBS::Loading || svc.leaderboardScores == nullptr)
+        {
+            drawCenteredMessage("LOADING...", ctx.colTextDim);
+        }
+        else if (svc.leaderboardScores->empty())
+        {
+            drawCenteredMessage("NO SCORES", ctx.colTextDim);
+        }
+        else
+        {
+            // Column layout within `kLeaderboardW`:
+            //   [12px pad] [#rank 60] [name expands] [time right-aligned] [12px pad]
+            constexpr float kRankColW = 60.f;
+            constexpr float kPadX     = 12.f;
+            const float     nameLeft  = leaderboardLeft + kPadX + kRankColW;
+            const float     timeRight = leaderboardLeft + kLeaderboardW - kPadX;
+            const float     nameMaxW  = (timeRight - kPadX) - nameLeft;
+
+            const auto& scores = *svc.leaderboardScores;
+            const int   nRows  = static_cast<int>(std::min<sf::base::SizeT>(scores.size(), kMaxLeaderboardRows));
+
+            // Defensive: the upstream branches already rule out the
+            // empty-scores case, but keep a safety net so the
+            // `std::clamp(idx, 0, nRows - 1)` below isn't UB if a future
+            // refactor hoists this earlier.
+            if (nRows <= 0)
+            {
+                return;
+            }
+
+            // Focus pill: shared `animatedPill` helper, parameterised
+            // with our tighter `rowHeightLB` so the height matches
+            // leaderboard rows instead of `ctx.rowHeight`.
+            const int focusedClamped = std::clamp(s.leaderboardIdx, 0, nRows - 1);
+            animatedPill(ctx,
+                         {leaderboardLeft, bodyTop + 4.f},
+                         kLeaderboardW,
+                         focusedClamped,
+                         s.leaderboardSelectionY,
+                         s.pane == Pane::Leaderboard,
+                         rowHeightLB);
+
+            for (int i = 0; i < nRows; ++i)
+            {
+                const Database::ProcessedScore& ps = scores[static_cast<sf::base::SizeT>(i)];
+
+                const float rowY  = bodyTop + 4.f + rowHeightLB * static_cast<float>(i);
+                const float textY = rowY + (rowHeightLB - ctx.fontSize) * 0.5f;
+
+                // Rank (#1, #2, ...) -- accent so the gradient shader picks
+                // it up and the leaderboard column reads as "important".
+                char rankBuf[16];
+                std::snprintf(rankBuf, sizeof(rankBuf), "#%u", static_cast<unsigned>(ps.position));
+                text(ctx, {leaderboardLeft + kPadX, textY}, rankBuf, ctx.fontSize, ctx.colAccent);
+
+                // Name -- truncate to fit the available column width.
+                char nameBuf[64];
+                std::snprintf(nameBuf, sizeof(nameBuf), "%.*s",
+                              static_cast<int>(std::min<sf::base::SizeT>(ps.userName.size(), sizeof(nameBuf) - 1)),
+                              ps.userName.c_str());
+                text(ctx, {nameLeft, textY}, nameBuf, ctx.fontSize, ctx.colText, nameMaxW);
+
+                // Time -- right-aligned at the column edge.
+                char timeBuf[32];
+                std::snprintf(timeBuf, sizeof(timeBuf), "%.2fs", ps.scoreValue);
+                const sf::Rect2f tb = measureText(ctx, timeBuf, ctx.fontSize);
+                text(ctx, {timeRight - tb.size.x, textY}, timeBuf, ctx.fontSize, ctx.colText);
+
+                // "(NO REPLAY)" suffix for rows the server confirmed
+                // have no stored replay file. Drawn dim and
+                // overlapping the time column from the left so it's
+                // visible without expanding the row layout.
+                const bool noReplay = (svc.leaderboardUnavailable != nullptr) &&
+                                      svc.leaderboardUnavailable->contains(ps.scoreTimestamp);
+                if (noReplay)
+                {
+                    constexpr float  kNoReplayCharSize = 0.7f; // tiny relative to row text
+                    const float      labelSize         = ctx.fontSize * kNoReplayCharSize;
+                    const char*      labelStr          = "(NO REPLAY)";
+                    const sf::Rect2f lb                = measureText(ctx, labelStr, labelSize);
+                    // Place left of the time column, leaving a small
+                    // gap. If the name happens to be long enough to
+                    // overlap, the row's truncation kept it within
+                    // `nameMaxW` so the label still sits free.
+                    const float labelX = timeRight - tb.size.x - lb.size.x - 8.f;
+                    const float labelY = rowY + (rowHeightLB - labelSize) * 0.5f;
+                    text(ctx, {labelX, labelY}, labelStr, labelSize, ctx.colTextDim);
+                }
+            }
+        }
     }
 }
 

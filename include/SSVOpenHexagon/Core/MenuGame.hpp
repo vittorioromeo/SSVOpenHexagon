@@ -14,10 +14,8 @@
 #include "SSVOpenHexagon/UI/Services.hpp"
 #include "SSVOpenHexagon/UI/UI.hpp"
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
-#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
-#include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/RectangleShape.hpp"
 #include "SFML/Graphics/RenderStates.hpp"
@@ -30,15 +28,13 @@
 
 #include "SFML/System/Vec2.hpp"
 
-#include "SFML/Base/Array.hpp"
 #include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string_view>
-#include <utility>
+#include <SFML/Base/IntTypes.hpp>
 
 namespace ssvs::Input
 {
@@ -58,6 +54,7 @@ class ProfileData;
 struct PackData;
 struct PackInfo;
 struct LoadInfo;
+struct replay_file;
 
 namespace Steam
 {
@@ -79,12 +76,35 @@ class MenuGame
 {
 public:
     //---------------------------------------
-    // Hexagon game callbacks (to avoid physical dependency)
-    sf::base::FixedFunction<void(const ssvs::Input::Trigger&, int), 64> fnHGTriggerRefresh;
+    // Hexagon game callbacks (to avoid physical dependency on
+    // `HexagonGame`). All four are wired up by `main.cpp` once both
+    // the menu and the foreground gameplay HG have been constructed.
+    // Bundled into a single struct so the install block in `main.cpp`
+    // reads as one cohesive unit and adding a fifth callback later
+    // doesn't keep growing this header's public surface.
+    struct HostCallbacks
+    {
+        // Re-bind a single trigger/binding on the gameplay HG. Called
+        // when keyboard rebinds in the Options screen take effect.
+        sf::base::FixedFunction<void(const ssvs::Input::Trigger&, int), 64> triggerRefresh;
 
-    sf::base::FixedFunction<void(const sf::base::String&, const sf::base::String&, bool, float, bool), 64> fnHGNewGame;
+        // Start a fresh gameplay run on the foreground HG.
+        // Args: packId, levelId, firstPlay, difficultyMult, executeLastReplay.
+        sf::base::FixedFunction<void(const sf::base::String&, const sf::base::String&, bool, float, bool), 64> newGame;
 
-    sf::base::FixedFunction<void(), 64> fnHGUpdateRichPresenceCallbacks;
+        // Watch a server-streamed replay. Receives a fully decompressed
+        // `replay_file`. Wraps `setLastReplay + newGame(...,
+        // executeLastReplay=true)` so the foreground HG plays the
+        // replay back like a normal game.
+        sf::base::FixedFunction<void(const replay_file&), 96> watchReplay;
+
+        // Tick Discord/Steam rich-presence on the gameplay HG. Called
+        // each menu update so the "what's the player doing right now"
+        // reflects the current menu state.
+        sf::base::FixedFunction<void(), 64> updateRichPresence;
+    };
+
+    HostCallbacks hostCallbacks;
 
 private:
     [[nodiscard]] sf::View getBackgroundView() const
@@ -191,6 +211,34 @@ private:
     sf::base::Optional<sf::RenderTexture> previewTexture;
     sf::base::String                      previewLoadedLevelId; //!< prevents reloading on every frame
 
+    // Validator for the (level, difficulty) currently shown in the
+    // LevelSelect leaderboard pane. Set by `Services::onRequestLeaderboard`
+    // and consumed each frame to publish `Services::leaderboardScores` from
+    // `leaderboardCache`. Empty when no level is highlighted yet.
+    sf::base::String currentLeaderboardValidator;
+
+    // Last (validator, scoreTimestamp) pair we asked the server for.
+    // Used by `onWatchReplay` to suppress duplicate requests when the
+    // user mashes Enter on the same row -- the server already has a
+    // throttle on its side, but we save bandwidth by stopping the spam
+    // here. Cleared when the validator changes so re-watching a row
+    // after a navigation away/back works.
+    sf::base::String lastReplayRequestValidator;
+    sf::base::U64    lastReplayRequestTimestamp{0};
+
+    // Refresh `Services::{leaderboardScores,leaderboardStatus,leaderboardUnavailable}`
+    // from the current `HexagonClient` state + `leaderboardCache` contents.
+    // Called once per frame at the top of `drawNewMainMenu`. Selection
+    // changes during the frame (via `onRequestLeaderboard`) accept a
+    // one-frame display lag rather than re-publishing inline.
+    void refreshLeaderboardSnapshot();
+
+    // Helpers for `onRequestLeaderboard`, kept on the class so the
+    // public lambda stays a one-liner. See implementations for the
+    // detailed contracts.
+    [[nodiscard]] bool tryUpdateLeaderboardValidator(const sf::base::String& levelId, float diffMult);
+    void               maybeIssueLeaderboardTopScoresRequest();
+
     // Off-screen target the new UI renders into. Once filled each frame, a
     // full-screen quad copies it back to the window through
     // `menuAccentShader`, which replaces every magenta-saturated pixel with
@@ -230,11 +278,6 @@ public:
     void initNewUIServices();
     void drawNewMainMenu();
 
-    // Pushes the previewed level's `styleData` colors (plus a contrasting
-    // row backdrop) into the new UI's theme. Run each frame because pulsing
-    // styles can shift hue.
-    void applyLevelThemeToContext(hg::ui::Context& ctx) const;
-
     // Drains pending Steam Workshop events each frame: hot-installs newly-
     // downloaded packs, mirrors subscribe/unsubscribe state into the
     // browse-screen's cached item list, etc. No-op if Steam isn't running.
@@ -246,26 +289,15 @@ public:
     void initAssets();
     void initInput();
     void initLua();
-    void initMenus();
     void playLocally();
-
-    [[nodiscard]] std::pair<const unsigned int, const unsigned int> pickRandomMainMenuBackgroundStyle();
 
     //---------------------------------------
     // Assets
 
-    static constexpr sf::base::Array<const char*, 3> creditsIds{"creditsBar2.png",
-                                                                "creditsBar2b.png",
-                                                                "creditsBar2c.png"};
-
     sf::Texture& txTitleBar;
-    sf::Texture& txCreditsBar1;
-    sf::Texture* txCreditsBar2;
     sf::Texture& txEpilepsyWarning;
 
     sf::Sprite titleBar;
-    sf::Sprite creditsBar1;
-    sf::Sprite creditsBar2;
     sf::Sprite epilepsyWarning;
 
 
@@ -278,13 +310,6 @@ public:
     sf::Text           txtOnlineStatus;
 
     void initOnlineIcons();
-
-    //---------------------------------------
-    // Text Entering
-
-    sf::base::Vector<char> enteredChars;
-
-    [[nodiscard]] bool isEnteringText() const noexcept;
 
     //---------------------------------------
     // Cameras
@@ -322,7 +347,6 @@ public:
 
     float            w;
     float            h;
-    int              scrollbarOffset{0};
     bool             fourByThree{false};
     const LevelData* levelData;
     StyleData        styleData;
@@ -338,67 +362,24 @@ public:
         void updateHeight();
     };
 
-    MenuFont                    txtVersion;
-    MenuFont                    txtProf;
-    MenuFont                    txtLoadBig;
-    MenuFont                    txtLoadSmall;
-    MenuFont                    txtRandomTip;
-    MenuFont                    txtMenuBig;
-    MenuFont                    txtMenuSmall;
-    MenuFont                    txtMenuTiny;
-    MenuFont                    txtProfile;
-    MenuFont                    txtInstructionsBig;
-    MenuFont                    txtInstructionsMedium;
-    MenuFont                    txtInstructionsSmall;
-    MenuFont                    txtEnteringText;
-    MenuFont                    txtSelectionBig;
-    MenuFont                    txtSelectionMedium;
-    MenuFont                    txtSelectionSmall;
-    MenuFont                    txtSelectionScore;
-    MenuFont                    txtSelectionRanked;
-    sf::Color                   menuTextColor;
-    sf::Color                   menuQuadColor;
-    sf::Color                   menuSelectionColor;
-    sf::Color                   dialogBoxTextColor;
-    Utils::FastVertexVectorTris menuBackgroundTris;
+    // The two surviving labels: `txtProf` for the EpilepsyWarning splash,
+    // `txtSelectionSmall` for the missing-pack warning anchored under the
+    // (no longer drawn) title bar.
+    MenuFont txtProf;
+    MenuFont txtSelectionSmall;
 
-    // Mouse control
-    bool      mouseHovering{false};
-    bool      mouseWasPressed{false};
-    bool      mousePressed{false};
-    bool      mouseCursorVisible{true};
-    sf::Vec2i lastMouseMovedPosition{};
+    // Mouse state, latched at the start of `draw` and consumed by
+    // `drawNewMainMenu` to feed the new UI's input snapshot.
+    bool mouseWasPressed{false};
+    bool mousePressed{false};
 
     sf::base::String strBuf;
 
     void setMouseCursorVisible(const bool x);
 
-    [[nodiscard]] bool isMouseCursorVisible() const;
-
     void draw();
 
-    // Helper functions
-    [[nodiscard]] float getFPSMult() const;
-
     void drawOnlineStatus();
-
-    void adjustMenuOffset(const bool resetMenuOffset);
-
-    // Load menu data still surfaces missing-pack warnings on the main
-    // screen, so `loadInfo` and `randomTip` remain. The legacy boot-time
-    // load-results draw and its supporting graphics fields are gone.
-    LoadInfo&                            loadInfo;
-    sf::base::Array<std::string_view, 2> randomTip;
-    float                                hexagonRotation;
-
-    // Main menu
-    float menuHalfHeight;
-
-    // Profiles Menu
-    sf::base::String formatSurvivalTime(ProfileData* data);
-
-    // Entering text menu (legacy text-input dialog state)
-    float enteringTextOffset;
 
     // Login at startup
     bool mustShowLoginAtStartup{true};
@@ -409,85 +390,10 @@ public:
     bool  mustShowFTTMainMenu{true};
     float dialogBoxDelay{0.f};
 
-    // Visual effects
-    float                         difficultyBumpEffect{0.f};
-    static inline constexpr float difficultyBumpEffectMax{24.f};
-
-    void adjustLevelsOffset();
-    void updateLevelSelectionDrawingParameters();
-
-    [[nodiscard]] float getLevelSelectionHeight() const;
-    [[nodiscard]] float getLevelListHeight() const;
-
-    void calcScrollSpeed();
-    void calcLevelChangeScroll(const int dir);
-    void calcPackChangeScrollFold(const float mLevelListHeight);
-    void calcPackChangeScrollStretch(const float mLevelListHeight);
-    void quickPackFoldStretch();
-    void scrollLevelListToTargetY(float mFT);
-
-    void checkWindowTopScroll(const float scroll, sf::base::FixedFunction<void(const float), 64> action);
-    bool checkWindowTopScrollWithResult(const float scroll, sf::base::FixedFunction<void(const float), 64> action);
-
-    void checkWindowBottomScroll(const float scroll, sf::base::FixedFunction<void(const float), 64> action);
-    bool checkWindowBottomScrollWithResult(const float scroll, sf::base::FixedFunction<void(const float), 64> action);
-
-    void scrollName(sf::base::String& text, float& scroller);
-
-    void scrollNameRightBorder(sf::base::String& text, const sf::base::String key, sf::Text& font, float& scroller, float border);
-
-    void scrollNameRightBorder(sf::base::String& text, sf::Text& font, float& scroller, const float border);
-
-    void resetNamesScrolls();
-
-    void resetLevelNamesScrolls();
-
-    [[nodiscard]] float getMaximumTextWidth() const;
-
-    void formatLevelDescription();
-
-    // Text rendering
+    // Single-overload renderer used by the surviving text draws.
     void renderText(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos);
 
-    void renderText(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor);
-
-    void renderText(const sf::base::String& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos);
-
-    void renderText(const sf::base::String& mStr,
-                    sf::Text&               mText,
-                    const unsigned int      mSize,
-                    const sf::Vec2f         mPos,
-                    const sf::Color&        mColor);
-
-    // Text rendering centered
-    void renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos);
-
-    void renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const sf::Color& mColor);
-
-    void renderTextCentered(const sf::base::String& mStr, sf::Text& mText, const unsigned int mSize, const sf::Vec2f mPos);
-
-    void renderTextCentered(const sf::base::String& mStr,
-                            sf::Text&               mText,
-                            const unsigned int      mSize,
-                            const sf::Vec2f         mPos,
-                            const sf::Color&        mColor);
-
-    // Text rendering centered with an offset
-    void renderTextCenteredOffset(const sf::base::String& mStr, sf::Text& mText, const sf::Vec2f mPos, const float xOffset);
-
-    void renderTextCenteredOffset(const sf::base::String& mStr,
-                                  sf::Text&               mText,
-                                  const sf::Vec2f         mPos,
-                                  const float             xOffset,
-                                  const sf::Color&        mColor);
-
-    //---------------------------------------
-    // Misc / Unused
-
-    sf::base::String scoresMessage;
-    float            exitTimer{0}, currentCreditsId{0};
-    bool             mustTakeScreenshot{false};
-    sf::base::String currentLeaderboard, enteredStr, leaderboardString;
+    bool mustTakeScreenshot{false};
 
     void runLuaFile(const sf::base::String& mFileName);
     void changeResolutionTo(unsigned int mWidth, unsigned int mHeight);

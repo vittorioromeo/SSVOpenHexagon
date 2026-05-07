@@ -17,6 +17,7 @@
 namespace sf
 {
 class Font;
+class RenderTarget;
 }
 
 namespace ssvs
@@ -46,6 +47,14 @@ private:
 
     ssvs::GameWindow& window;
 
+    // Optional override for the actual draw target. When non-null, all
+    // dialog draws go here instead of `window.getRenderWindow()` -- the
+    // host uses this to route the dialog into the new UI's off-screen
+    // composite texture so its magenta-sentinel frame goes through the
+    // accent gradient shader at composite time. Set per-frame via
+    // `setRenderTargetOverride`.
+    sf::RenderTarget* renderTargetOverride{nullptr};
+
     DBoxDraw drawMode;
 
     sf::base::Vector<sf::base::String> dialogText;
@@ -73,9 +82,9 @@ private:
                  const float                  x2,
                  const float                  y1,
                  const float                  y2);
-    void drawCenter(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
-    void drawCenterUpperHalf(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
-    void drawTopLeft(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
+    void drawCenter(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
+    void drawCenterUpperHalf(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
+    void drawTopLeft(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
 
 public:
     explicit HexagonDialogBox(sf::Font& font, ssvs::GameWindow& window);
@@ -98,7 +107,12 @@ public:
 
     void createInput(const sf::base::String& output, const int charSize, const float mFrameSize, const DBoxDraw mDrawMode);
 
-    void draw(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor);
+    void draw(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
+
+    // Redirects subsequent draws to `target` instead of the window. Pass
+    // `nullptr` to restore the default. Reset isn't automatic, so callers
+    // are expected to set + clear bracketing each frame.
+    void setRenderTargetOverride(sf::RenderTarget* target) noexcept;
 
     void clearDialogBox();
 

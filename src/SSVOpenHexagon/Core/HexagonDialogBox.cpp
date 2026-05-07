@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 
 #include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/RenderTarget.hpp"
 
 #include "SFML/Base/String.hpp"
 
@@ -17,16 +18,24 @@ namespace hg
 {
 
 template <typename TDrawable>
-void drawWithView(ssvs::GameWindow& window, const sf::View& view, const TDrawable& drawable, sf::RenderStates states = {})
+void drawWithView(sf::RenderTarget&  target,
+                  const sf::View&    view,
+                  const TDrawable&   drawable,
+                  sf::RenderStates   states = {})
 {
     states.view = view;
-    window.getRenderWindow().draw(drawable, states);
+    target.draw(drawable, states);
 }
 
 [[nodiscard]] static Utils::FastVertexVectorTris& getDialogFrame()
 {
     thread_local Utils::FastVertexVectorTris result;
     return result;
+}
+
+[[nodiscard]] static sf::RenderTarget& effectiveTarget(sf::RenderTarget* override, ssvs::GameWindow& window) noexcept
+{
+    return (override != nullptr) ? *override : static_cast<sf::RenderTarget&>(window.getRenderWindow());
 }
 
 HexagonDialogBox::HexagonDialogBox(sf::Font& mFont, ssvs::GameWindow& mWindow) :
@@ -97,26 +106,29 @@ void HexagonDialogBox::createInput(const sf::base::String& output, const int cha
     keyToClose = KKey::Enter;
 }
 
-void HexagonDialogBox::draw(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor)
+void HexagonDialogBox::draw(const sf::View&  view,
+                            const sf::Color& txtColor,
+                            const sf::Color& frameColor,
+                            const sf::Color& backdropColor)
 {
     switch (drawMode)
     {
         case DBoxDraw::topLeft:
         {
-            drawTopLeft(view, txtColor, backdropColor);
+            drawTopLeft(view, txtColor, frameColor, backdropColor);
             break;
         }
 
         case DBoxDraw::center:
         {
-            drawCenter(view, txtColor, backdropColor);
+            drawCenter(view, txtColor, frameColor, backdropColor);
             break;
         }
 
         default:
         {
             SSVOH_ASSERT(drawMode == DBoxDraw::centerUpperHalf);
-            drawCenterUpperHalf(view, txtColor, backdropColor);
+            drawCenterUpperHalf(view, txtColor, frameColor, backdropColor);
             break;
         }
     }
@@ -149,7 +161,7 @@ void HexagonDialogBox::drawText(const sf::View& view, const sf::Color& txtColor,
         {
             txtDialog.setString(str);
             txtDialog.position = {xOffset - txtDialog.getGlobalWidth() / 2.f, yOffset + heightOffset + 5.f};
-            drawWithView(window, view, txtDialog);
+            drawWithView(effectiveTarget(renderTargetOverride, window), view, txtDialog);
         }
 
         heightOffset += interline;
@@ -169,20 +181,23 @@ void HexagonDialogBox::drawText(const sf::View& view, const sf::Color& txtColor,
         }
 
         txtDialog.position = {xOffset - txtDialog.getGlobalWidth() / 2.f, yOffset + heightOffset + 5.f};
-        drawWithView(window, view, txtDialog);
+        drawWithView(effectiveTarget(renderTargetOverride, window), view, txtDialog);
     }
 }
 
 inline constexpr float fontHeightDifferential = 0.9f;
 
-void HexagonDialogBox::drawTopLeft(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor)
+void HexagonDialogBox::drawTopLeft(const sf::View&  view,
+                                   const sf::Color& txtColor,
+                                   const sf::Color& frameColor,
+                                   const sf::Color& backdropColor)
 {
     Utils::FastVertexVectorTris& dialogFrame = getDialogFrame();
     dialogFrame.clear();
     dialogFrame.reserve_quad(2);
 
     // outer frame
-    drawBox(dialogFrame, txtColor, xPos, 2.f * doubleFrameSize + dialogWidth + xPos, yPos, totalHeight + yPos);
+    drawBox(dialogFrame, frameColor, xPos, 2.f * doubleFrameSize + dialogWidth + xPos, yPos, totalHeight + yPos);
 
     // text backdrop
     drawBox(dialogFrame,
@@ -192,7 +207,7 @@ void HexagonDialogBox::drawTopLeft(const sf::View& view, const sf::Color& txtCol
             frameSize + yPos,
             totalHeight - frameSize + yPos);
 
-    drawWithView(window, view, dialogFrame);
+    drawWithView(effectiveTarget(renderTargetOverride, window), view, dialogFrame);
 
     // Text
     drawText(view,
@@ -217,7 +232,10 @@ void HexagonDialogBox::drawTopLeft(const sf::View& view, const sf::Color& txtCol
     return {fmax, w, h};
 }
 
-void HexagonDialogBox::drawCenter(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor)
+void HexagonDialogBox::drawCenter(const sf::View&  view,
+                                  const sf::Color& txtColor,
+                                  const sf::Color& frameColor,
+                                  const sf::Color& backdropColor)
 {
     const auto [fmax, w, h] = calculateFMaxAndWAndH(Config::getWidth(), Config::getHeight(), yPos);
 
@@ -229,7 +247,7 @@ void HexagonDialogBox::drawCenter(const sf::View& view, const sf::Color& txtColo
     dialogFrame.reserve_quad(2);
 
     // outer frame
-    drawBox(dialogFrame, txtColor, leftBorder - doubleFrameSize, rightBorder + doubleFrameSize, h - halfHeight, h + halfHeight);
+    drawBox(dialogFrame, frameColor, leftBorder - doubleFrameSize, rightBorder + doubleFrameSize, h - halfHeight, h + halfHeight);
 
     // text backdrop
     drawBox(dialogFrame,
@@ -239,13 +257,16 @@ void HexagonDialogBox::drawCenter(const sf::View& view, const sf::Color& txtColo
             h - halfHeight + frameSize,
             h + halfHeight - frameSize);
 
-    drawWithView(window, view, dialogFrame);
+    drawWithView(effectiveTarget(renderTargetOverride, window), view, dialogFrame);
 
     // Text
     drawText(view, txtColor, w / 2.f, h - halfHeight - lineHeight * fontHeightDifferential + doubleFrameSize);
 }
 
-void HexagonDialogBox::drawCenterUpperHalf(const sf::View& view, const sf::Color& txtColor, const sf::Color& backdropColor)
+void HexagonDialogBox::drawCenterUpperHalf(const sf::View&  view,
+                                           const sf::Color& txtColor,
+                                           const sf::Color& frameColor,
+                                           const sf::Color& backdropColor)
 {
     const auto [fmax, w, h] = calculateFMaxAndWAndH(Config::getWidth(), Config::getHeight(), yPos);
 
@@ -256,15 +277,20 @@ void HexagonDialogBox::drawCenterUpperHalf(const sf::View& view, const sf::Color
     dialogFrame.reserve_quad(2);
 
     // outer frame
-    drawBox(dialogFrame, txtColor, leftBorder - doubleFrameSize, rightBorder + doubleFrameSize, h - totalHeight, h);
+    drawBox(dialogFrame, frameColor, leftBorder - doubleFrameSize, rightBorder + doubleFrameSize, h - totalHeight, h);
 
     // text backdrop
     drawBox(dialogFrame, backdropColor, leftBorder - frameSize, rightBorder + frameSize, h - totalHeight + frameSize, h - frameSize);
 
-    drawWithView(window, view, dialogFrame);
+    drawWithView(effectiveTarget(renderTargetOverride, window), view, dialogFrame);
 
     // Text
     drawText(view, txtColor, w / 2.f, h - totalHeight - lineHeight * fontHeightDifferential + doubleFrameSize);
+}
+
+void HexagonDialogBox::setRenderTargetOverride(sf::RenderTarget* target) noexcept
+{
+    renderTargetOverride = target;
 }
 
 void HexagonDialogBox::clearDialogBox()
