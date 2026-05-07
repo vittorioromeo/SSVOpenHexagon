@@ -3,7 +3,6 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/Replay.hpp"
-
 #include "TestUtils.hpp"
 
 #include "SFML/Network/Packet.hpp"
@@ -48,7 +47,7 @@ static void test_replay_data_serialization_to_buffer()
     TEST_ASSERT_EQ(rd.at(5), hg::input_bitset{"1001"});
 
     constexpr sf::base::SizeT buf_size{1024};
-    std::byte buf[buf_size];
+    std::byte                 buf[buf_size];
 
     TEST_ASSERT_NS(rd.serialize(buf, buf_size));
 
@@ -79,7 +78,7 @@ static void test_replay_data_serialization_to_buffer_too_small()
     TEST_ASSERT_EQ(rd.at(5), hg::input_bitset{"1001"});
 
     constexpr sf::base::SizeT buf_size{10};
-    std::byte buf[buf_size];
+    std::byte                 buf[buf_size];
 
     TEST_ASSERT_NS(!rd.serialize(buf, buf_size));
 }
@@ -141,20 +140,19 @@ static void test_replay_file_serialization_to_buffer()
 
     hg::replay_file rf{
         //
-        ._version{59832},
+        ._version{59'832},
         ._player_name{"hello world"},
-        ._seed{12345},
+        ._seed{12'345},
         ._data{rd},
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},
         ._first_play{false},
         ._difficulty_mult{2.5f},
-        ._played_score{100.f}
-        //
+        ._played_score{100.f} //
     };
 
     constexpr sf::base::SizeT buf_size{2048};
-    std::byte buf[buf_size];
+    std::byte                 buf[buf_size];
 
     TEST_ASSERT_NS(rf.serialize(buf, buf_size));
 
@@ -187,8 +185,7 @@ void test_impl_packet_serialization(hg::replay_file& rf)
 
 void test_impl_file_compressed_serialization(hg::replay_file& rf)
 {
-    sf::base::Optional<hg::compressed_replay_file> crf =
-        hg::compress_replay_file(rf);
+    sf::base::Optional<hg::compressed_replay_file> crf = hg::compress_replay_file(rf);
 
     TEST_ASSERT(crf.value().serialize_to_file("test.ohr"));
 
@@ -213,16 +210,15 @@ static void test_replay_file_serialization_to_file()
 
     hg::replay_file rf{
         //
-        ._version{59832},
+        ._version{59'832},
         ._player_name{"hello world"},
-        ._seed{1234512345},
+        ._seed{1'234'512'345},
         ._data{rd},
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},
         ._first_play{true},
         ._difficulty_mult{2.5f},
-        ._played_score{100.f}
-        //
+        ._played_score{100.f} //
     };
 
     test_impl_file_serialization(rf);
@@ -230,22 +226,21 @@ static void test_replay_file_serialization_to_file()
     test_impl_file_compressed_serialization(rf);
 }
 
-static void test_replay_file_serialization_to_file_randomized(
-    int minInputs, int maxInputs)
+static void test_replay_file_serialization_to_file_randomized(int minInputs, int maxInputs)
 {
     hg::replay_data rd;
 
     const int nInputs = getRndInt<int>(minInputs, maxInputs);
-    for(int i = 0; i < nInputs; ++i)
+    for (int i = 0; i < nInputs; ++i)
     {
         rd.record_input(getRndBool(), getRndBool(), getRndBool(), getRndBool());
     }
 
     hg::replay_file rf{
         //
-        ._version{getRndInt<sf::base::U32>(0, 1000000)},
+        ._version{getRndInt<sf::base::U32>(0, 1'000'000)},
         ._player_name{"hello world"},
-        ._seed{getRndInt<hg::replay_file::seed_type>(0, 1000000)},
+        ._seed{getRndInt<hg::replay_file::seed_type>(0, 1'000'000)},
         ._data{rd},
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},
@@ -273,15 +268,15 @@ int main()
     test_replay_file_serialization_to_file_randomized(0, 0);
     test_replay_file_serialization_to_file_randomized(0, 1);
 
-    for(int i = 0; i < 256; ++i)
+    for (int i = 0; i < 256; ++i)
     {
         test_replay_file_serialization_to_file_randomized(0, 4096);
     }
 
-    for(int i = 0; i < 16; ++i)
+    for (int i = 0; i < 16; ++i)
     {
-        test_replay_file_serialization_to_file_randomized(65000, 250000);
+        test_replay_file_serialization_to_file_randomized(65'000, 250'000);
     }
 
-    test_replay_file_serialization_to_file_randomized(250000, 250000);
+    test_replay_file_serialization_to_file_randomized(250'000, 250'000);
 }

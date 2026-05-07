@@ -324,9 +324,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     // empty-state message. The actual rendering happens in the
     // details-pane block below.
     {
-        const int leaderboardCount = (svc.leaderboardScores != nullptr)
-                                         ? static_cast<int>(svc.leaderboardScores->size())
-                                         : 0;
+        const int leaderboardCount = (svc.leaderboardScores != nullptr) ? static_cast<int>(svc.leaderboardScores->size()) : 0;
         navigatePane(ctx, svc, s.leaderboardIdx, leaderboardCount, s.pane == Pane::Leaderboard);
         if (s.leaderboardIdx < 0)
             s.leaderboardIdx = 0;
@@ -352,9 +350,8 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     if (s.pane == Pane::Leaderboard && n > 0 && ctx.input.enter && svc.onWatchReplay &&
         svc.leaderboardScores != nullptr && !svc.leaderboardScores->empty())
     {
-        const int idx = std::clamp(s.leaderboardIdx, 0,
-                                   static_cast<int>(svc.leaderboardScores->size()) - 1);
-        const sf::base::U64 ts = (*svc.leaderboardScores)[static_cast<sf::base::SizeT>(idx)].scoreTimestamp;
+        const int           idx = std::clamp(s.leaderboardIdx, 0, static_cast<int>(svc.leaderboardScores->size()) - 1);
+        const sf::base::U64 ts  = (*svc.leaderboardScores)[static_cast<sf::base::SizeT>(idx)].scoreTimestamp;
 
         svc.onWatchReplay(ts);
         return;
@@ -817,7 +814,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         if (svc.onRequestLeaderboard && !cur.difficultyMults.empty())
         {
             const sf::base::String& curAssetId = s.filteredLevelIds[s.levelIdx];
-            const float             curDM     = cur.difficultyMults[s.difficultyIdx];
+            const float             curDM      = cur.difficultyMults[s.difficultyIdx];
             svc.onRequestLeaderboard(curAssetId, curDM);
         }
 
@@ -1052,13 +1049,13 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
         // `Services::leaderboardStatus`, populated by the host from
         // `LeaderboardCache` for the (level, difficulty) we requested
         // above.
-        constexpr float kLeaderboardW    = 440.f;
-        constexpr float kLeaderboardGap  = 20.f;
-        const float     leaderboardLeft  = detailsLeft + kDetailsW + kLeaderboardGap;
-        const float     headerSize       = ctx.fontSize * 1.3f;
-        const float     headerHeight     = headerSize + 8.f;
-        const float     leaderboardTop   = previewTopLeft.y;
-        const float     rowHeightLB      = ctx.fontSize + 8.f;
+        constexpr float kLeaderboardW       = 440.f;
+        constexpr float kLeaderboardGap     = 20.f;
+        const float     leaderboardLeft     = detailsLeft + kDetailsW + kLeaderboardGap;
+        const float     headerSize          = ctx.fontSize * 1.3f;
+        const float     headerHeight        = headerSize + 8.f;
+        const float     leaderboardTop      = previewTopLeft.y;
+        const float     rowHeightLB         = ctx.fontSize + 8.f;
         constexpr int   kMaxLeaderboardRows = 12;
 
         // Header row backdrop + title.
@@ -1165,7 +1162,9 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
 
                 // Name -- truncate to fit the available column width.
                 char nameBuf[64];
-                std::snprintf(nameBuf, sizeof(nameBuf), "%.*s",
+                std::snprintf(nameBuf,
+                              sizeof(nameBuf),
+                              "%.*s",
                               static_cast<int>(std::min<sf::base::SizeT>(ps.userName.size(), sizeof(nameBuf) - 1)),
                               ps.userName.c_str());
                 text(ctx, {nameLeft, textY}, nameBuf, ctx.fontSize, ctx.colText, nameMaxW);

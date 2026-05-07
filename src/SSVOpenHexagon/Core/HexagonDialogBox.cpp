@@ -18,10 +18,7 @@ namespace hg
 {
 
 template <typename TDrawable>
-void drawWithView(sf::RenderTarget&  target,
-                  const sf::View&    view,
-                  const TDrawable&   drawable,
-                  sf::RenderStates   states = {})
+void drawWithView(sf::RenderTarget& target, const sf::View& view, const TDrawable& drawable, sf::RenderStates states = {})
 {
     states.view = view;
     target.draw(drawable, states);
@@ -106,10 +103,7 @@ void HexagonDialogBox::createInput(const sf::base::String& output, const int cha
     keyToClose = KKey::Enter;
 }
 
-void HexagonDialogBox::draw(const sf::View&  view,
-                            const sf::Color& txtColor,
-                            const sf::Color& frameColor,
-                            const sf::Color& backdropColor)
+void HexagonDialogBox::draw(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor)
 {
     switch (drawMode)
     {

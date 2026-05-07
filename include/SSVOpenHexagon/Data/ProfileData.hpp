@@ -32,10 +32,10 @@ struct PerLevelState
 class ProfileData
 {
 private:
-    GameVersion                                 version;
-    sf::base::String                            name;
-    std::unordered_map<sf::base::String, float> scores;
-    std::unordered_set<sf::base::String>        favoriteLevelsDataIDs;
+    GameVersion                                         version;
+    sf::base::String                                    name;
+    std::unordered_map<sf::base::String, float>         scores;
+    std::unordered_set<sf::base::String>                favoriteLevelsDataIDs;
     std::unordered_map<sf::base::String, PerLevelState> perLevelState;
 
 public:
@@ -63,8 +63,8 @@ public:
     // Per-level state -- never throws; missing entries are returned as
     // zero-initialised. Mutating accessor `getOrCreatePerLevelState` inserts
     // an empty entry on first access.
-    [[nodiscard]] PerLevelState        getPerLevelState   (const sf::base::String& mLevelId) const noexcept;
-    [[nodiscard]] PerLevelState&       getOrCreatePerLevelState(const sf::base::String& mLevelId);
+    [[nodiscard]] PerLevelState  getPerLevelState(const sf::base::String& mLevelId) const noexcept;
+    [[nodiscard]] PerLevelState& getOrCreatePerLevelState(const sf::base::String& mLevelId);
     [[nodiscard]] const std::unordered_map<sf::base::String, PerLevelState>& getPerLevelStates() const noexcept;
 };
 

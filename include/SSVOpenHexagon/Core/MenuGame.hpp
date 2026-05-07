@@ -29,12 +29,11 @@
 #include "SFML/System/Vec2.hpp"
 
 #include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <SFML/Base/IntTypes.hpp>
 
 namespace ssvs::Input
 {

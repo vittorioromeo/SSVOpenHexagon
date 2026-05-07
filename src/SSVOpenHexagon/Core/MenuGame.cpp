@@ -622,8 +622,7 @@ void MenuGame::initNewUIServices()
         // from looking distinct enough to slip through (e.g. across
         // network jitter). Cleared on validator change below so a new
         // selection always gets a fresh shot.
-        if (lastReplayRequestValidator == currentLeaderboardValidator &&
-            lastReplayRequestTimestamp == scoreTimestamp)
+        if (lastReplayRequestValidator == currentLeaderboardValidator && lastReplayRequestTimestamp == scoreTimestamp)
         {
             return;
         }
@@ -760,8 +759,7 @@ void MenuGame::maybeIssueLeaderboardTopScoresRequest()
     }
 
     hg::lo("hg::MenuGame::onRequestLeaderboard")
-        << "validator='" << currentLeaderboardValidator
-        << "' sent=" << (sent ? "yes" : "no")
+        << "validator='" << currentLeaderboardValidator << "' sent=" << (sent ? "yes" : "no")
         << " state=" << static_cast<int>(hexagonClient.getState()) << '\n';
 }
 
@@ -775,11 +773,11 @@ void MenuGame::refreshLeaderboardSnapshot()
     const bool haveValidator    = !currentLeaderboardValidator.empty();
     const bool haveReceived     = haveValidator && leaderboardCache->hasReceivedScores(currentLeaderboardValidator);
     const bool requestInFlight  = haveValidator && !haveReceived &&
-                                 leaderboardCache->hasInformation(currentLeaderboardValidator);
+                                  leaderboardCache->hasInformation(currentLeaderboardValidator);
     const bool readyToFetch     = (hcSt == S::LoggedIn_Ready);
     const bool stillHandshaking = (hcSt == S::Connected || hcSt == S::Connecting || hcSt == S::LoggedIn);
     const bool unsupportedHere  = readyToFetch && haveValidator &&
-                                 !hexagonClient.isLevelSupportedByServer(currentLeaderboardValidator);
+                                  !hexagonClient.isLevelSupportedByServer(currentLeaderboardValidator);
 
     if (haveReceived)
     {
@@ -1065,8 +1063,7 @@ void MenuGame::drawNewMainMenu()
     // we're actually compositing through the UI texture; otherwise the
     // shader isn't running and a null pointer tells screens to fall back
     // to `ctx.target`.
-    ui_services.rawTarget = uiCompositeTexture.hasValue() ? static_cast<sf::RenderTarget*>(&window.getRenderWindow())
-                                                          : nullptr;
+    ui_services.rawTarget = uiCompositeTexture.hasValue() ? static_cast<sf::RenderTarget*>(&window.getRenderWindow()) : nullptr;
 
     // Surface the latest cached leaderboard snapshot for whatever
     // (level, difficulty) the LevelSelect screen last requested. The
@@ -1815,7 +1812,7 @@ void MenuGame::draw()
         previewTexture->display();
     }
 
-// The legacy "CURRENT PROFILE: <name>" line has been removed (single-
+    // The legacy "CURRENT PROFILE: <name>" line has been removed (single-
     // profile model -- see `playLocally`). Missing-dependency warnings
     // still surface if any packs need attention.
     if (mainOrAbove)

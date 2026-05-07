@@ -2,10 +2,9 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/UI/Screens.hpp"
-
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/UI/App.hpp"
+#include "SSVOpenHexagon/UI/Screens.hpp"
 #include "SSVOpenHexagon/UI/Services.hpp"
 #include "SSVOpenHexagon/UI/UI.hpp"
 
@@ -30,33 +29,33 @@ namespace
 
 constexpr struct
 {
-    const char*               label;
-    Steam::WorkshopQueryMode  mode;
+    const char*              label;
+    Steam::WorkshopQueryMode mode;
 } kModeTabs[] = {
-    {"POPULAR",  Steam::WorkshopQueryMode::MostPopular},
-    {"NEWEST",   Steam::WorkshopQueryMode::Newest},
+    {"POPULAR", Steam::WorkshopQueryMode::MostPopular},
+    {"NEWEST", Steam::WorkshopQueryMode::Newest},
     {"TRENDING", Steam::WorkshopQueryMode::Trending},
-    {"ALL",      Steam::WorkshopQueryMode::All},
+    {"ALL", Steam::WorkshopQueryMode::All},
 };
 
 constexpr int kModeTabCount = static_cast<int>(sizeof(kModeTabs) / sizeof(*kModeTabs));
 
 void fireQuery(WorkshopBrowseScreenState& s, Services& svc)
 {
-    if (svc.steamManager == nullptr) return;
+    if (svc.steamManager == nullptr)
+        return;
     svc.steamManager->query_workshop_items(s.queryMode, s.page);
     s.queryInFlight = true;
     std::snprintf(s.statusMessage, sizeof(s.statusMessage), "Querying workshop...");
 }
 
-[[nodiscard]] bool itemPasses(const Steam::WorkshopItem& it,
-                              sf::base::StringView       search,
-                              bool                       downloadedOnly) noexcept
+[[nodiscard]] bool itemPasses(const Steam::WorkshopItem& it, sf::base::StringView search, bool downloadedOnly) noexcept
 {
-    if (downloadedOnly && !it.isInstalled) return false;
-    if (search.empty()) return true;
-    return containsCI(it.title.toStringView(), search) ||
-           containsCI(it.description.toStringView(), search);
+    if (downloadedOnly && !it.isInstalled)
+        return false;
+    if (search.empty())
+        return true;
+    return containsCI(it.title.toStringView(), search) || containsCI(it.description.toStringView(), search);
 }
 
 } // namespace
@@ -69,7 +68,8 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     {
         beginScreen(ctx, screenOrigin(ctx), "WORKSHOP");
         label(ctx, "(Steam is not initialized)");
-        if (button(ctx, "BACK", true)) goBack(app);
+        if (button(ctx, "BACK", true))
+            goBack(app);
         return;
     }
 
@@ -81,7 +81,8 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     }
 
     // ---- Input -----------------------------------------------------------
-    if (handleEscape(ctx, app)) return;
+    if (handleEscape(ctx, app))
+        return;
 
     // Build a filtered view of `s.items` according to the search box.
     // Indices are into `s.items`; `selectedIdx` is into this filtered list.
@@ -99,7 +100,8 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     }
 
     const int n = static_cast<int>(filtered.size());
-    if (s.selectedIdx < 0 || s.selectedIdx >= n) s.selectedIdx = 0;
+    if (s.selectedIdx < 0 || s.selectedIdx >= n)
+        s.selectedIdx = 0;
 
     // Three-pane keyboard navigation. Pane indices: 0 = sidebar,
     // 1 = list, 2 = actions. Left/right hop via `paneSwitchLeftRight`;
@@ -116,12 +118,13 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     // The actions pane is only meaningful when there's an item to act on.
     // Skip past it during pane-switching when the list is empty.
     const int paneCount = (n > 0) ? 3 : 2;
-    if (s.activePane >= paneCount) s.activePane = paneCount - 1;
+    if (s.activePane >= paneCount)
+        s.activePane = paneCount - 1;
     paneSwitchLeftRight(ctx, svc, s.activePane, paneCount);
 
-    navigatePane(ctx, svc, s.sidebarIdx,  kSidebarCount,   s.activePane == kPaneSidebar);
-    navigatePane(ctx, svc, s.selectedIdx, n,               s.activePane == kPaneList);
-    navigatePane(ctx, svc, s.actionIdx,   kActionRowCount, s.activePane == kPaneActions);
+    navigatePane(ctx, svc, s.sidebarIdx, kSidebarCount, s.activePane == kPaneSidebar);
+    navigatePane(ctx, svc, s.selectedIdx, n, s.activePane == kPaneList);
+    navigatePane(ctx, svc, s.actionIdx, kActionRowCount, s.activePane == kPaneActions);
 
     // Windowing index -- the pill animates inside the visible slice.
     // `animatedPill` (called below) drives the per-frame stepToward for us.
@@ -150,11 +153,10 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         // when querying. Falls back to "PAGE n" when no query has landed
         // (totalMatching = 0).
         constexpr sf::base::U32 kSteamPageSize = 50u;
-        char pageBuf[48];
+        char                    pageBuf[48];
         if (s.totalMatching > 0u)
         {
-            const auto totalPages =
-                static_cast<int>((s.totalMatching + kSteamPageSize - 1u) / kSteamPageSize);
+            const auto totalPages = static_cast<int>((s.totalMatching + kSteamPageSize - 1u) / kSteamPageSize);
             std::snprintf(pageBuf, sizeof(pageBuf), "PAGE %d/%d", s.page, totalPages);
         }
         else
@@ -175,8 +177,8 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     }
 
     // Three-column layout: sidebar (filters) | item list | details.
-    constexpr float kSidebarW = 200.f;
-    constexpr float kListW    = 420.f;
+    constexpr float kSidebarW   = 200.f;
+    constexpr float kListW      = 420.f;
     const float     listLeft    = left + kSidebarW + 20.f;
     const float     listTop     = ctx.cursor.y;
     const float     detailsLeft = listLeft + kListW + 20.f;
@@ -198,8 +200,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         {
             const bool active = (s.queryMode == kModeTabs[i].mode);
             const bool focRow = sbFocused(i);
-            if (button(ctx, kModeTabs[i].label, focRow || active, kSidebarW) ||
-                (focRow && ctx.input.enter))
+            if (button(ctx, kModeTabs[i].label, focRow || active, kSidebarW) || (focRow && ctx.input.enter))
             {
                 s.queryMode = kModeTabs[i].mode;
                 s.page      = 1;
@@ -211,7 +212,8 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         // the sidebar (next to the search bar) so it doesn't consume a
         // navigable row slot -- every button index here corresponds 1:1
         // to a visible row.
-        const auto sidebarButton = [&](const char* lbl, int idx, auto&& onActivate) {
+        const auto sidebarButton = [&](const char* lbl, int idx, auto&& onActivate)
+        {
             const bool foc = sbFocused(idx);
             if (button(ctx, lbl, foc, kSidebarW) || (foc && ctx.input.enter))
             {
@@ -219,15 +221,30 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
             }
         };
 
-        sidebarButton("PREV",    4, [&] { if (s.page > 1) { s.page -= 1; fireQuery(s, svc); } });
-        sidebarButton("NEXT",    5, [&] { s.page += 1; fireQuery(s, svc); });
+        sidebarButton("PREV",
+                      4,
+                      [&]
+        {
+            if (s.page > 1)
+            {
+                s.page -= 1;
+                fireQuery(s, svc);
+            }
+        });
+        sidebarButton("NEXT",
+                      5,
+                      [&]
+        {
+            s.page += 1;
+            fireQuery(s, svc);
+        });
         sidebarButton("REFRESH", 6, [&] { fireQuery(s, svc); });
 
         // DOWNLOADED-only toggle (row 7). Toggling resets the selected
         // item so it stays in-bounds of the new filtered view.
         {
             const bool foc = sbFocused(7);
-            bool dl = s.downloadedOnly;
+            bool       dl  = s.downloadedOnly;
             if (toggle(ctx, "DOWNLOADED", dl, foc, kSidebarW))
             {
                 s.downloadedOnly = dl;
@@ -266,10 +283,13 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         {
             const Steam::WorkshopItem& item = s.items[filtered[i]];
             char                       rowBuf[180];
-            std::snprintf(rowBuf, sizeof(rowBuf), "%c%c %.*s",
-                          item.isInstalled  ? '*' : ' ',
+            std::snprintf(rowBuf,
+                          sizeof(rowBuf),
+                          "%c%c %.*s",
+                          item.isInstalled ? '*' : ' ',
                           item.isSubscribed ? '+' : ' ',
-                          static_cast<int>(item.title.size()), item.title.cStr());
+                          static_cast<int>(item.title.size()),
+                          item.title.cStr());
             if (button(ctx, rowBuf, i == s.selectedIdx, 420.f))
             {
                 s.selectedIdx = i;
@@ -281,10 +301,13 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         {
             const Steam::WorkshopItem& item = s.items[filtered[end]];
             char                       buf[180];
-            std::snprintf(buf, sizeof(buf), "%c%c %.*s",
-                          item.isInstalled  ? '*' : ' ',
+            std::snprintf(buf,
+                          sizeof(buf),
+                          "%c%c %.*s",
+                          item.isInstalled ? '*' : ' ',
                           item.isSubscribed ? '+' : ' ',
-                          static_cast<int>(item.title.size()), item.title.cStr());
+                          static_cast<int>(item.title.size()),
+                          item.title.cStr());
             drawFadedPeekRow(ctx, buf, 420.f);
         }
     }
@@ -299,18 +322,18 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         // Routed through `text()` so the menu's case-folding sanitizer
         // upper-cases workshop titles (which arrive as user-typed casing
         // straight from Steam).
-        constexpr float kTitleW    = 420.f;
-        const float     titleSize  = ctx.fontSize * 1.3f;
+        constexpr float kTitleW     = 420.f;
+        const float     titleSize   = ctx.fontSize * 1.3f;
         const float     titleHeight = titleSize + 8.f;
-        ctx.target->draw(sf::RectangleShapeData{
-                             .position  = ctx.cursor,
-                             .fillColor = ctx.colRow,
-                             .size      = {kTitleW, titleHeight},
-                         },
-                         ctx.renderStates);
+        ctx.target->draw(
+            sf::RectangleShapeData{
+                .position  = ctx.cursor,
+                .fillColor = ctx.colRow,
+                .size      = {kTitleW, titleHeight},
+            },
+            ctx.renderStates);
         char titleBuf[160];
-        std::snprintf(titleBuf, sizeof(titleBuf), "%.*s",
-                      static_cast<int>(item.title.size()), item.title.cStr());
+        std::snprintf(titleBuf, sizeof(titleBuf), "%.*s", static_cast<int>(item.title.size()), item.title.cStr());
         truncateToFit(titleBuf, kTitleW - 24.f, titleSize);
         text(ctx, ctx.cursor + sf::Vec2f{12.f, 0.f}, titleBuf, titleSize);
         ctx.cursor.y += titleHeight + 6.f;
@@ -325,20 +348,21 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         constexpr float kPreviewH   = kPreviewW * (9.f / 16.f); // 236.25
         constexpr float kFrameInset = 6.f;
 
-        ctx.target->draw(sf::RectangleShapeData{
-                             .position  = ctx.cursor,
-                             .fillColor = ctx.colRow,
-                             .size      = {kPreviewW, kPreviewH},
-                         },
-                         ctx.renderStates);
+        ctx.target->draw(
+            sf::RectangleShapeData{
+                .position  = ctx.cursor,
+                .fillColor = ctx.colRow,
+                .size      = {kPreviewW, kPreviewH},
+            },
+            ctx.renderStates);
 
-        ctx.target->draw(sf::RectangleShapeData{
-                             .position  = {ctx.cursor.x + kFrameInset, ctx.cursor.y + kFrameInset},
-                             .fillColor = sf::Color{20, 20, 20, 255},
-                             .size      = {kPreviewW - kFrameInset * 2.f,
-                                           kPreviewH - kFrameInset * 2.f},
-                         },
-                         ctx.renderStates);
+        ctx.target->draw(
+            sf::RectangleShapeData{
+                .position  = {ctx.cursor.x + kFrameInset, ctx.cursor.y + kFrameInset},
+                .fillColor = sf::Color{20, 20, 20, 255},
+                .size      = {kPreviewW - kFrameInset * 2.f, kPreviewH - kFrameInset * 2.f},
+            },
+            ctx.renderStates);
 
         // First time we see this item, kick off the download. Inserting
         // the empty optional marks "in flight" so we don't re-request.
@@ -362,23 +386,20 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
                 // aspect ratio is preserved regardless of source size.
                 const float frameW = kPreviewW - kFrameInset * 2.f;
                 const float frameH = kPreviewH - kFrameInset * 2.f;
-                const float scale  = std::min(frameW / static_cast<float>(texSize.x),
-                                              frameH / static_cast<float>(texSize.y));
-                const float drawW  = static_cast<float>(texSize.x) * scale;
-                const float drawH  = static_cast<float>(texSize.y) * scale;
-                const float drawX  = ctx.cursor.x + kFrameInset + (frameW - drawW) * 0.5f;
-                const float drawY  = ctx.cursor.y + kFrameInset + (frameH - drawH) * 0.5f;
+                const float scale = std::min(frameW / static_cast<float>(texSize.x), frameH / static_cast<float>(texSize.y));
+                const float drawW = static_cast<float>(texSize.x) * scale;
+                const float drawH = static_cast<float>(texSize.y) * scale;
+                const float drawX = ctx.cursor.x + kFrameInset + (frameW - drawW) * 0.5f;
+                const float drawY = ctx.cursor.y + kFrameInset + (frameH - drawH) * 0.5f;
 
-                ctx.target->draw(sf::Sprite{
-                                     .position    = {drawX, drawY},
-                                     .scale       = {scale, scale},
-                                     .textureRect = {{0.f, 0.f}, texSize.to<sf::Vec2f>()},
-                                     .color       = sf::Color{255, 255, 255,
-                                                              static_cast<sf::base::U8>(255.f * ctx.screenAlpha)},
-                                 },
-                                 sf::RenderStates{.transform = ctx.renderStates.transform,
-                                                  .view      = ctx.renderStates.view,
-                                                  .texture   = &tex});
+                ctx.target->draw(
+                    sf::Sprite{
+                        .position    = {drawX, drawY},
+                        .scale       = {scale, scale},
+                        .textureRect = {{0.f, 0.f}, texSize.to<sf::Vec2f>()},
+                        .color       = sf::Color{255, 255, 255, static_cast<sf::base::U8>(255.f * ctx.screenAlpha)},
+                    },
+                    sf::RenderStates{.transform = ctx.renderStates.transform, .view = ctx.renderStates.view, .texture = &tex});
             }
         }
         else
@@ -386,8 +407,8 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
             // Placeholder text -- "(NO PREVIEW)" when there's no URL at
             // all, "(LOADING PREVIEW...)" while the HTTP fetch is in
             // flight or after a decode failure.
-            const char* placeholder = item.previewUrl.empty() ? "(NO PREVIEW)" : "(LOADING PREVIEW...)";
-            const sf::Rect2f phBounds = measureText(ctx, placeholder, ctx.fontSize);
+            const char*      placeholder = item.previewUrl.empty() ? "(NO PREVIEW)" : "(LOADING PREVIEW...)";
+            const sf::Rect2f phBounds    = measureText(ctx, placeholder, ctx.fontSize);
             text(ctx,
                  {ctx.cursor.x + (kPreviewW - phBounds.size.x) * 0.5f - phBounds.position.x,
                   ctx.cursor.y + (kPreviewH - phBounds.size.y) * 0.5f - phBounds.position.y},
@@ -397,11 +418,12 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
 
         ctx.cursor.y += kPreviewH + 8.f;
 
-        labelf(ctx, "ID:  %llu",      static_cast<unsigned long long>(item.publishedFileId));
+        labelf(ctx, "ID:  %llu", static_cast<unsigned long long>(item.publishedFileId));
         labelf(ctx, "SIZE:  %.2f MB", static_cast<double>(item.sizeBytes) / (1024.0 * 1024.0));
-        labelf(ctx, "STATE:  %s%s",
+        labelf(ctx,
+               "STATE:  %s%s",
                item.isSubscribed ? "subscribed " : "not subscribed ",
-               item.isInstalled  ? "/ installed" : "");
+               item.isInstalled ? "/ installed" : "");
 
         newLine(ctx, 4.f);
         separator(ctx);
@@ -433,8 +455,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         if (item.isSubscribed)
         {
             const bool foc = isActionFocused(0);
-            if (button(ctx, "DELETE", foc, kActionW) ||
-                (foc && ctx.input.enter))
+            if (button(ctx, "DELETE", foc, kActionW) || (foc && ctx.input.enter))
             {
                 svc.steamManager->unsubscribe_workshop_item(item.publishedFileId);
             }
@@ -442,8 +463,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         else
         {
             const bool foc = isActionFocused(0);
-            if (button(ctx, "DOWNLOAD", foc, kActionW) ||
-                (foc && ctx.input.enter))
+            if (button(ctx, "DOWNLOAD", foc, kActionW) || (foc && ctx.input.enter))
             {
                 // Subscribe to declared dependencies first so Steam queues
                 // their downloads before the parent. Skip any that are
@@ -461,8 +481,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
 
         {
             const bool foc = isActionFocused(1);
-            if (button(ctx, "BACK", foc, kActionW) ||
-                (foc && ctx.input.enter))
+            if (button(ctx, "BACK", foc, kActionW) || (foc && ctx.input.enter))
             {
                 goBack(app);
                 return;
@@ -475,17 +494,21 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         {
             // Linear scan of the host-populated name cache. Counts are
             // small (handful per item) so a map isn't worth it.
-            const auto findCachedTitle = [&](sf::base::U64 id) -> const sf::base::String* {
+            const auto findCachedTitle = [&](sf::base::U64 id) -> const sf::base::String*
+            {
                 for (const auto& e : s.nameCache)
                 {
-                    if (e.publishedFileId == id) return &e.title;
+                    if (e.publishedFileId == id)
+                        return &e.title;
                 }
                 return nullptr;
             };
-            const auto alreadyRequested = [&](sf::base::U64 id) {
+            const auto alreadyRequested = [&](sf::base::U64 id)
+            {
                 for (sf::base::U64 r : s.requestedNameLookups)
                 {
-                    if (r == id) return true;
+                    if (r == id)
+                        return true;
                 }
                 return false;
             };
@@ -495,7 +518,8 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
             sf::base::Vector<sf::base::U64> toLookUp;
             for (sf::base::U64 depId : item.dependencies)
             {
-                if (findCachedTitle(depId) || alreadyRequested(depId)) continue;
+                if (findCachedTitle(depId) || alreadyRequested(depId))
+                    continue;
                 s.requestedNameLookups.emplaceBack(depId);
                 toLookUp.emplaceBack(depId);
             }
@@ -516,30 +540,27 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
             // (since `label`/`labelf` derive their backdrop from those),
             // and refresh `textCenterOffsetY` so vertical centering stays
             // accurate at the smaller size.
-            const float       prevFontSize = ctx.fontSize;
-            const float       prevRowH     = ctx.rowHeight;
-            const float       prevCenterY  = ctx.textCenterOffsetY;
-            constexpr float   kSmallScale  = 0.25f;
-            ctx.fontSize  = prevFontSize * kSmallScale;
-            ctx.rowHeight = prevRowH * kSmallScale;
+            const float     prevFontSize = ctx.fontSize;
+            const float     prevRowH     = ctx.rowHeight;
+            const float     prevCenterY  = ctx.textCenterOffsetY;
+            constexpr float kSmallScale  = 0.25f;
+            ctx.fontSize                 = prevFontSize * kSmallScale;
+            ctx.rowHeight                = prevRowH * kSmallScale;
             recomputeTextMetrics(ctx);
 
             labelf(ctx, "REQUIRES (%d):", static_cast<int>(item.dependencies.size()));
 
             for (sf::base::U64 depId : item.dependencies)
             {
-                const char*             mark  = svc.steamManager->is_workshop_item_subscribed(depId)
-                                                    ? "[v]" : "[ ]";
+                const char*             mark  = svc.steamManager->is_workshop_item_subscribed(depId) ? "[v]" : "[ ]";
                 const sf::base::String* title = findCachedTitle(depId);
                 if (title)
                 {
-                    labelf(ctx, "  %s %.*s", mark,
-                           static_cast<int>(title->size()), title->cStr());
+                    labelf(ctx, "  %s %.*s", mark, static_cast<int>(title->size()), title->cStr());
                 }
                 else
                 {
-                    labelf(ctx, "  %s (loading...) %llu", mark,
-                           static_cast<unsigned long long>(depId));
+                    labelf(ctx, "  %s (loading...) %llu", mark, static_cast<unsigned long long>(depId));
                 }
             }
 

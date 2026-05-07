@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/UI/Services.hpp"
 #include "SSVOpenHexagon/UI/UI.hpp"
 
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/RectangleShapeData.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
@@ -17,8 +18,6 @@
 
 #include "SFML/Base/Math/Exp.hpp"
 #include "SFML/Base/String.hpp"
-
-#include <SFML/Graphics/Color.hpp>
 
 #include <cmath>
 #include <cstdarg>
@@ -166,8 +165,10 @@ sf::Vec2f screenToUI(const Context& ctx, sf::Vec2f pixelPos) noexcept
 ////////////////////////////////////////////////////////////////////////////////
 // Scoped transform
 
-ScopedTransform::ScopedTransform(Context& c, const sf::Transform& additional)
-    : ctx{c}, savedTransform{c.renderStates.transform}, savedMousePos{c.input.mousePos}
+ScopedTransform::ScopedTransform(Context& c, const sf::Transform& additional) :
+    ctx{c},
+    savedTransform{c.renderStates.transform},
+    savedMousePos{c.input.mousePos}
 {
     ctx.renderStates.transform = savedTransform * additional;
     ctx.input.mousePos         = screenToUI(ctx, ctx.input.mousePixelPos);
@@ -592,15 +593,9 @@ bool navigateList(Context& ctx, Services& svc, int& idx, int n)
     return changed;
 }
 
-void animatedPill(Context&  ctx,
-                  sf::Vec2f topLeft,
-                  float     width,
-                  int       idx,
-                  float&    pillY,
-                  bool      active,
-                  float     rowHeight)
+void animatedPill(Context& ctx, sf::Vec2f topLeft, float width, int idx, float& pillY, bool active, float rowHeight)
 {
-    const float     effRowHeight = (rowHeight > 0.f) ? rowHeight : ctx.rowHeight;
+    const float effRowHeight = (rowHeight > 0.f) ? rowHeight : ctx.rowHeight;
     stepToward(pillY, static_cast<float>(idx) * effRowHeight, ctx.dt, 256.f);
     const sf::Color color = active ? ctx.colAccent : desaturate(ctx.colAccent);
 

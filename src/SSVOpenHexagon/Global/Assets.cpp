@@ -39,6 +39,9 @@
 #include "SFML/Audio/Music.hpp"
 #include "SFML/Audio/SoundBuffer.hpp"
 
+#include "SFML/System/IO.hpp"
+
+#include "SFML/Base/Algorithm/Erase.hpp"
 #include "SFML/Base/Algorithm/Sort.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
@@ -48,8 +51,6 @@
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SFML/Base/Algorithm/Erase.hpp>
-#include <SFML/System/IO.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <exception>
 #include <iostream>

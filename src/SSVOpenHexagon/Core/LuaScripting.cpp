@@ -26,6 +26,7 @@
 
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Glsl.hpp"
+#include "SFML/Graphics/Priv/ShaderBase.hpp"
 #include "SFML/Graphics/Shader.hpp"
 
 #include "SFML/System/IO.hpp"
@@ -35,12 +36,11 @@
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringStreamOp.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/StringViewStreamOp.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SFML/Base/StringView.hpp>
-#include <SFML/Graphics/Priv/ShaderBase.hpp>
 #include <functional>
 #include <iostream>
 #include <tuple>

@@ -385,8 +385,7 @@ HexagonGame::HexagonGame(Steam::steam_manager*     mSteamManager,
         backgroundCamera.emplace(
             sf::View{.center = sf::Vec2f{0.f, 0.f}, .size = sf::Vec2f{width * zoomFactor, height * zoomFactor}});
 
-        overlayCamera.emplace(
-            sf::View{.center = sf::Vec2f{width / 2.f, height / 2.f}, .size = sf::Vec2f{width, height}});
+        overlayCamera.emplace(sf::View{.center = sf::Vec2f{width / 2.f, height / 2.f}, .size = sf::Vec2f{width, height}});
 
         txStarParticle = &getTextureOrNullTexture(assets, nullTexture, "starParticle.png");
         txSmallCircle  = &getTextureOrNullTexture(assets, nullTexture, "smallCircle.png");
@@ -787,17 +786,15 @@ void HexagonGame::newGame(const sf::base::String& mPackId,
         // for preview-mode HG instances `renderTarget` is a fixed-size
         // off-screen texture, so the hexagon visuals don't get stretched
         // when the user runs the game in a non-16:9 window.
-        const sf::Vec2f targetSize =
-            (previewMode && renderTarget != nullptr)
-                ? renderTarget->getSize().to<sf::Vec2f>()
-                : sf::Vec2f{static_cast<float>(Config::getWidth()),
-                            static_cast<float>(Config::getHeight())};
+        const sf::Vec2f targetSize = (previewMode && renderTarget != nullptr)
+                                         ? renderTarget->getSize().to<sf::Vec2f>()
+                                         : sf::Vec2f{static_cast<float>(Config::getWidth()),
+                                                     static_cast<float>(Config::getHeight())};
 
         // Reset zoom
         *overlayCamera = sf::View{.center = targetSize * 0.5f, .size = targetSize};
 
-        *backgroundCamera = sf::View{.center = sf::Vec2f{0.f, 0.f},
-                                     .size   = targetSize * Config::getZoomFactor()};
+        *backgroundCamera = sf::View{.center = sf::Vec2f{0.f, 0.f}, .size = targetSize * Config::getZoomFactor()};
 
         backgroundCamera->rotation = sf::degrees(0.f);
 

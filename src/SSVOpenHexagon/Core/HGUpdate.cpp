@@ -833,14 +833,12 @@ void HexagonGame::refreshPulse()
         // not bake the live window dimensions into the view -- otherwise
         // resizing the window would stretch the preview every frame as
         // soon as the next pulse tick fires.
-        const sf::Vec2f targetSize =
-            (previewMode && renderTarget != nullptr)
-                ? renderTarget->getSize().to<sf::Vec2f>()
-                : sf::Vec2f{static_cast<float>(Config::getWidth()),
-                            static_cast<float>(Config::getHeight())};
+        const sf::Vec2f targetSize = (previewMode && renderTarget != nullptr)
+                                         ? renderTarget->getSize().to<sf::Vec2f>()
+                                         : sf::Vec2f{static_cast<float>(Config::getWidth()),
+                                                     static_cast<float>(Config::getHeight())};
 
-        *backgroundCamera = sf::View{.center = sf::Vec2f{0.f, 0.f},
-                                     .size   = targetSize * Config::getZoomFactor() * p};
+        *backgroundCamera = sf::View{.center = sf::Vec2f{0.f, 0.f}, .size = targetSize * Config::getZoomFactor() * p};
 
         backgroundCamera->rotation = sf::degrees(rotation);
     }
@@ -950,7 +948,8 @@ void HexagonGame::updateFlash(float mFT)
     // called from Lua). Iterating with `begin()` on a never-reserved
     // vector trips an assert -- skip the alpha-update entirely until the
     // polygon has been initialised.
-    if (flashPolygon.size() == 0u) return;
+    if (flashPolygon.size() == 0u)
+        return;
 
     for (sf::Vertex& vertex : flashPolygon)
     {

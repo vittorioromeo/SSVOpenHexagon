@@ -189,13 +189,7 @@ void drawCurrentScreen(Context& ctx, App& app, Services& svc)
     if (hasSub)
     {
         const bool subIdle = (app.current == subScreen) && (t > 1.f - kInputIdleEpsilon);
-        drawScreenWithEffects(ctx,
-                              app,
-                              svc,
-                              subScreen,
-                              subSlideX,
-                              subAlpha,
-                              subIdle);
+        drawScreenWithEffects(ctx, app, svc, subScreen, subSlideX, subAlpha, subIdle);
     }
 }
 

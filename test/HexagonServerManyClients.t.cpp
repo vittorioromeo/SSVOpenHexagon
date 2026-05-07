@@ -14,7 +14,6 @@
 #include "SSVOpenHexagon/Core/HexagonServer.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
-
 #include "TestUtils.hpp"
 
 #include "SFML/Network/IpAddress.hpp"
@@ -28,11 +27,10 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <sodium.h>
-
 #include <atomic>
 #include <chrono>
 #include <latch>
+#include <sodium.h>
 #include <string>
 #include <thread>
 #include <unordered_set>
@@ -65,12 +63,8 @@ int main()
 
     const std::unordered_set<sf::base::String> emptyWhitelist;
 
-    hg::HexagonServer server{nullptr,
-                             nullptr,
-                             sf::IpAddress::LocalHost,
-                             sf::Socket::AnyPort,
-                             static_cast<unsigned short>(0),
-                             emptyWhitelist};
+    hg::HexagonServer
+        server{nullptr, nullptr, sf::IpAddress::LocalHost, sf::Socket::AnyPort, static_cast<unsigned short>(0), emptyWhitelist};
 
     const unsigned short port = server.getListenerPort();
     TEST_ASSERT_NE(port, 0);
@@ -109,8 +103,7 @@ int main()
 
     for (int i = 0; i < N; ++i)
     {
-        clientThreads.emplace_back(
-            [&, i]()
+        clientThreads.emplace_back([&, i]()
         {
             auto sockOpt = sf::TcpSocket::create(/* isBlocking */ true);
             if (!sockOpt.hasValue())
@@ -142,8 +135,7 @@ int main()
             sf::OutStringStream errOss;
             if (sockOpt->receive(inPacket) == Status::Done)
             {
-                const hg::PVServerToClient decoded =
-                    hg::decodeServerToClientPacket(nullptr, errOss, inPacket);
+                const hg::PVServerToClient decoded = hg::decodeServerToClientPacket(nullptr, errOss, inPacket);
                 if (decoded.is<hg::STCPPublicKey>())
                 {
                     successCount.fetch_add(1, std::memory_order_relaxed);

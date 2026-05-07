@@ -163,11 +163,11 @@ public:
     [[nodiscard]] sf::base::Optional<sf::base::U64> get_ticket_steam_id() const noexcept;
 
     // Workshop API additions (see `Steam.hpp`).
-    void                                    query_workshop_items(WorkshopQueryMode mode, int page);
-    void                                    query_workshop_details(const sf::base::Vector<sf::base::U64>& ids);
-    void                                    subscribe_workshop_item  (sf::base::U64 publishedFileId);
-    void                                    unsubscribe_workshop_item(sf::base::U64 publishedFileId);
-    [[nodiscard]] bool                      is_workshop_item_subscribed(sf::base::U64 publishedFileId) const noexcept;
+    void               query_workshop_items(WorkshopQueryMode mode, int page);
+    void               query_workshop_details(const sf::base::Vector<sf::base::U64>& ids);
+    void               subscribe_workshop_item(sf::base::U64 publishedFileId);
+    void               unsubscribe_workshop_item(sf::base::U64 publishedFileId);
+    [[nodiscard]] bool is_workshop_item_subscribed(sf::base::U64 publishedFileId) const noexcept;
     [[nodiscard]] sf::base::Optional<WorkshopEvent> poll_workshop_event();
 
     // Async HTTP preview fetches. See `Steam.hpp` for semantics.
@@ -175,10 +175,10 @@ public:
     void pump_workshop_http();
 
 private:
-    sf::base::Vector<WorkshopEvent>                                  _workshop_events;
-    UGCQueryHandle_t                                                 _pending_query{k_UGCQueryHandleInvalid};
-    bool                                                             _pending_query_is_details{false};
-    CCallResult<steam_manager_impl, SteamUGCQueryCompleted_t>        _query_call_result;
+    sf::base::Vector<WorkshopEvent>                           _workshop_events;
+    UGCQueryHandle_t                                          _pending_query{k_UGCQueryHandleInvalid};
+    bool                                                      _pending_query_is_details{false};
+    CCallResult<steam_manager_impl, SteamUGCQueryCompleted_t> _query_call_result;
 
     void on_query_completed(SteamUGCQueryCompleted_t* data, bool io_failure);
 
@@ -699,20 +699,27 @@ void steam_manager::steam_manager_impl::query_workshop_items(WorkshopQueryMode m
     EUGCQuery sortMode = k_EUGCQuery_RankedByVote;
     switch (mode)
     {
-        case WorkshopQueryMode::MostPopular: sortMode = k_EUGCQuery_RankedByVote; break;
-        case WorkshopQueryMode::Newest:      sortMode = k_EUGCQuery_RankedByPublicationDate; break;
-        case WorkshopQueryMode::Trending:    sortMode = k_EUGCQuery_RankedByTrend; break;
-        case WorkshopQueryMode::All:         sortMode = k_EUGCQuery_RankedByVote; break;
+        case WorkshopQueryMode::MostPopular:
+            sortMode = k_EUGCQuery_RankedByVote;
+            break;
+        case WorkshopQueryMode::Newest:
+            sortMode = k_EUGCQuery_RankedByPublicationDate;
+            break;
+        case WorkshopQueryMode::Trending:
+            sortMode = k_EUGCQuery_RankedByTrend;
+            break;
+        case WorkshopQueryMode::All:
+            sortMode = k_EUGCQuery_RankedByVote;
+            break;
     }
 
     const AppId_t appId = SteamUtils()->GetAppID();
 
-    UGCQueryHandle_t handle = SteamUGC()->CreateQueryAllUGCRequest(
-        sortMode,
-        k_EUGCMatchingUGCType_All,
-        appId,                  // creatorAppID
-        appId,                  // consumerAppID
-        page < 1 ? 1 : page);
+    UGCQueryHandle_t handle = SteamUGC()->CreateQueryAllUGCRequest(sortMode,
+                                                                   k_EUGCMatchingUGCType_All,
+                                                                   appId, // creatorAppID
+                                                                   appId, // consumerAppID
+                                                                   page < 1 ? 1 : page);
 
     if (handle == k_UGCQueryHandleInvalid)
     {
@@ -727,7 +734,7 @@ void steam_manager::steam_manager_impl::query_workshop_items(WorkshopQueryMode m
 
     _pending_query            = handle;
     _pending_query_is_details = false;
-    SteamAPICall_t call = SteamUGC()->SendQueryUGCRequest(handle);
+    SteamAPICall_t call       = SteamUGC()->SendQueryUGCRequest(handle);
     _query_call_result.Set(call, this, &steam_manager_impl::on_query_completed);
 }
 
@@ -746,8 +753,7 @@ void steam_manager::steam_manager_impl::on_query_completed(SteamUGCQueryComplete
     }
 
     WorkshopEvent ev;
-    ev.kind          = _pending_query_is_details ? WorkshopEvent::Kind::DetailsComplete
-                                                 : WorkshopEvent::Kind::QueryComplete;
+    ev.kind = _pending_query_is_details ? WorkshopEvent::Kind::DetailsComplete : WorkshopEvent::Kind::QueryComplete;
     ev.totalMatching = data->m_unTotalMatchingResults;
 
     for (uint32 i = 0; i < data->m_unNumResultsReturned; ++i)
@@ -766,7 +772,7 @@ void steam_manager::steam_manager_impl::on_query_completed(SteamUGCQueryComplete
         // Author and isSubscribed/isInstalled require separate calls; leave
         // as defaults for now. The browse UI shows what we have; expansion
         // can come later.
-        item.isInstalled = SteamUGC()->GetItemState(details.m_nPublishedFileId) & k_EItemStateInstalled;
+        item.isInstalled  = SteamUGC()->GetItemState(details.m_nPublishedFileId) & k_EItemStateInstalled;
         item.isSubscribed = SteamUGC()->GetItemState(details.m_nPublishedFileId) & k_EItemStateSubscribed;
 
         // Primary preview URL (the "main" Workshop screenshot). The UI
@@ -807,8 +813,10 @@ void steam_manager::steam_manager_impl::on_query_completed(SteamUGCQueryComplete
 
 void steam_manager::steam_manager_impl::query_workshop_details(const sf::base::Vector<sf::base::U64>& ids)
 {
-    if (!_initialized) return;
-    if (ids.empty()) return;
+    if (!_initialized)
+        return;
+    if (ids.empty())
+        return;
     if (_pending_query != k_UGCQueryHandleInvalid)
     {
         // A query is already in flight; KISS -- drop this details request.
@@ -823,9 +831,8 @@ void steam_manager::steam_manager_impl::query_workshop_details(const sf::base::V
         nativeIds.emplaceBack(static_cast<PublishedFileId_t>(id));
     }
 
-    UGCQueryHandle_t handle = SteamUGC()->CreateQueryUGCDetailsRequest(
-        nativeIds.data(),
-        static_cast<uint32>(nativeIds.size()));
+    UGCQueryHandle_t handle = SteamUGC()->CreateQueryUGCDetailsRequest(nativeIds.data(),
+                                                                       static_cast<uint32>(nativeIds.size()));
 
     if (handle == k_UGCQueryHandleInvalid)
     {
@@ -838,26 +845,29 @@ void steam_manager::steam_manager_impl::query_workshop_details(const sf::base::V
 
     _pending_query            = handle;
     _pending_query_is_details = true;
-    SteamAPICall_t call = SteamUGC()->SendQueryUGCRequest(handle);
+    SteamAPICall_t call       = SteamUGC()->SendQueryUGCRequest(handle);
     _query_call_result.Set(call, this, &steam_manager_impl::on_query_completed);
 }
 
 void steam_manager::steam_manager_impl::subscribe_workshop_item(sf::base::U64 publishedFileId)
 {
-    if (!_initialized) return;
+    if (!_initialized)
+        return;
     SteamUGC()->SubscribeItem(static_cast<PublishedFileId_t>(publishedFileId));
     SteamUGC()->DownloadItem(static_cast<PublishedFileId_t>(publishedFileId), /* highPriority */ true);
 }
 
 void steam_manager::steam_manager_impl::unsubscribe_workshop_item(sf::base::U64 publishedFileId)
 {
-    if (!_initialized) return;
+    if (!_initialized)
+        return;
     SteamUGC()->UnsubscribeItem(static_cast<PublishedFileId_t>(publishedFileId));
 }
 
 bool steam_manager::steam_manager_impl::is_workshop_item_subscribed(sf::base::U64 publishedFileId) const noexcept
 {
-    if (!_initialized) return false;
+    if (!_initialized)
+        return false;
     return (SteamUGC()->GetItemState(static_cast<PublishedFileId_t>(publishedFileId)) & k_EItemStateSubscribed) != 0;
 }
 
@@ -872,8 +882,7 @@ sf::base::Optional<WorkshopEvent> steam_manager::steam_manager_impl::poll_worksh
     return sf::base::makeOptional(SSVOH_MOVE(ev));
 }
 
-void steam_manager::steam_manager_impl::request_workshop_preview(sf::base::U64           publishedFileId,
-                                                                  const sf::base::String& url)
+void steam_manager::steam_manager_impl::request_workshop_preview(sf::base::U64 publishedFileId, const sf::base::String& url)
 {
     if (!_initialized || url.empty())
     {
@@ -919,9 +928,9 @@ void steam_manager::steam_manager_impl::pump_workshop_http()
     // we mutate the vector mid-loop (erase completed entries).
     for (sf::base::SizeT i = 0; i < _pending_previews.size();)
     {
-        PendingPreview& p          = _pending_previews[i];
-        bool            ioFailed   = false;
-        const bool      completed  = SteamUtils()->IsAPICallCompleted(p.apiCall, &ioFailed);
+        PendingPreview& p         = _pending_previews[i];
+        bool            ioFailed  = false;
+        const bool      completed = SteamUtils()->IsAPICallCompleted(p.apiCall, &ioFailed);
         if (!completed)
         {
             ++i;
@@ -933,12 +942,14 @@ void steam_manager::steam_manager_impl::pump_workshop_http()
         // pulling the body.
         HTTPRequestCompleted_t result{};
         bool                   pullFailed = false;
-        const bool             pulled =
-            SteamUtils()->GetAPICallResult(p.apiCall, &result, sizeof(result),
-                                           HTTPRequestCompleted_t::k_iCallback, &pullFailed);
+        const bool             pulled     = SteamUtils()->GetAPICallResult(p.apiCall,
+                                                                           &result,
+                                                                           sizeof(result),
+                                                                           HTTPRequestCompleted_t::k_iCallback,
+                                                                           &pullFailed);
 
-        if (pulled && !pullFailed && !ioFailed && result.m_bRequestSuccessful &&
-            result.m_eStatusCode >= 200 && result.m_eStatusCode < 300)
+        if (pulled && !pullFailed && !ioFailed && result.m_bRequestSuccessful && result.m_eStatusCode >= 200 &&
+            result.m_eStatusCode < 300)
         {
             uint32 bodySize = 0;
             if (SteamHTTP()->GetHTTPResponseBodySize(p.httpHandle, &bodySize) && bodySize > 0)
@@ -963,9 +974,10 @@ void steam_manager::steam_manager_impl::pump_workshop_http()
 
 void steam_manager::steam_manager_impl::on_item_installed(ItemInstalled_t* data)
 {
-    if (data == nullptr) return;
+    if (data == nullptr)
+        return;
 
-    constexpr sf::base::SizeT folderBufSize = 512;
+    constexpr sf::base::SizeT folderBufSize            = 512;
     char                      folderBuf[folderBufSize] = {};
     uint64                    diskSize{};
     uint32                    timestamp{};
@@ -981,7 +993,8 @@ void steam_manager::steam_manager_impl::on_item_installed(ItemInstalled_t* data)
 
 void steam_manager::steam_manager_impl::on_item_subscribed(RemoteStoragePublishedFileSubscribed_t* data)
 {
-    if (data == nullptr) return;
+    if (data == nullptr)
+        return;
     WorkshopEvent ev;
     ev.kind            = WorkshopEvent::Kind::ItemSubscribed;
     ev.publishedFileId = data->m_nPublishedFileId;
@@ -990,7 +1003,8 @@ void steam_manager::steam_manager_impl::on_item_subscribed(RemoteStoragePublishe
 
 void steam_manager::steam_manager_impl::on_item_unsubscribed(RemoteStoragePublishedFileUnsubscribed_t* data)
 {
-    if (data == nullptr) return;
+    if (data == nullptr)
+        return;
     WorkshopEvent ev;
     ev.kind            = WorkshopEvent::Kind::ItemUnsubscribed;
     ev.publishedFileId = data->m_nPublishedFileId;
@@ -999,7 +1013,8 @@ void steam_manager::steam_manager_impl::on_item_unsubscribed(RemoteStoragePublis
 
 void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResult_t* data)
 {
-    if (data == nullptr) return;
+    if (data == nullptr)
+        return;
 
     // Surface a progress tick at completion regardless of result.
     {
@@ -1018,12 +1033,11 @@ void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResu
     // for fresh subscriptions instead of forcing a game restart.
     if (data->m_eResult == k_EResultOK)
     {
-        constexpr sf::base::SizeT folderBufSize = 512;
+        constexpr sf::base::SizeT folderBufSize            = 512;
         char                      folderBuf[folderBufSize] = {};
         uint64                    diskSize{};
         uint32                    timestamp{};
-        if (SteamUGC()->GetItemInstallInfo(data->m_nPublishedFileId,
-                                           &diskSize, folderBuf, folderBufSize, &timestamp))
+        if (SteamUGC()->GetItemInstallInfo(data->m_nPublishedFileId, &diskSize, folderBuf, folderBufSize, &timestamp))
         {
             WorkshopEvent ev;
             ev.kind            = WorkshopEvent::Kind::ItemInstalled;
@@ -1465,7 +1479,7 @@ void steam_manager::unsubscribe_workshop_item([[maybe_unused]] sf::base::U64 pub
 }
 
 void steam_manager::request_workshop_preview([[maybe_unused]] sf::base::U64           publishedFileId,
-                                              [[maybe_unused]] const sf::base::String& url)
+                                             [[maybe_unused]] const sf::base::String& url)
 {
 }
 

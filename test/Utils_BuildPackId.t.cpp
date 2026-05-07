@@ -3,7 +3,6 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Utils/BuildPackId.hpp"
-
 #include "TestUtils.hpp"
 
 #include "SFML/Base/String.hpp"

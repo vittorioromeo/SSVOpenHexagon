@@ -18,7 +18,7 @@ namespace sf
 {
 class Font;
 class RenderTarget;
-}
+} // namespace sf
 
 namespace ssvs
 {
@@ -83,7 +83,10 @@ private:
                  const float                  y1,
                  const float                  y2);
     void drawCenter(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
-    void drawCenterUpperHalf(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
+    void drawCenterUpperHalf(const sf::View&  view,
+                             const sf::Color& txtColor,
+                             const sf::Color& frameColor,
+                             const sf::Color& backdropColor);
     void drawTopLeft(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
 
 public:

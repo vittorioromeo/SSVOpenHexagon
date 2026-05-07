@@ -7,12 +7,12 @@
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
 
+#include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SFML/Base/IntTypes.hpp>
 #include <unordered_map>
 #include <unordered_set>
 

@@ -141,7 +141,9 @@ private:
     [[nodiscard]] bool sendRequestTopScores(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
     [[nodiscard]] bool sendRequestOwnScore(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
     [[nodiscard]] bool sendRequestTopScoresAndOwnScore(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
-    [[nodiscard]] bool sendRequestReplay(const sf::base::U64 loginToken, const sf::base::String& levelValidator, const sf::base::U64 scoreTimestamp);
+    [[nodiscard]] bool sendRequestReplay(const sf::base::U64     loginToken,
+                                         const sf::base::String& levelValidator,
+                                         const sf::base::U64     scoreTimestamp);
     [[nodiscard]] bool sendStartedGame(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
     [[nodiscard]] bool sendCompressedReplay(const sf::base::U64           loginToken,
                                             const sf::base::String&       levelValidator,

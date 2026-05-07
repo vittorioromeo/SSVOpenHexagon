@@ -163,9 +163,9 @@ struct Context
 // `mousePos`, so any clickable widget under the transform mis-hits.
 struct ScopedTransform
 {
-    Context&         ctx;
-    sf::Transform    savedTransform;
-    sf::Vec2f        savedMousePos;
+    Context&      ctx;
+    sf::Transform savedTransform;
+    sf::Vec2f     savedMousePos;
 
     ScopedTransform(Context& c, const sf::Transform& additional);
     ~ScopedTransform();
@@ -285,13 +285,7 @@ bool navigateList(Context& ctx, Services& svc, int& idx, int n);
 // custom `rowHeight` is for screens like the LevelSelect leaderboard
 // column whose rows are tighter than the standard widget cadence.
 // Pill color is `ctx.colAccent` when `active`, desaturated otherwise.
-void animatedPill(Context&  ctx,
-                  sf::Vec2f topLeft,
-                  float     width,
-                  int       idx,
-                  float&    pillY,
-                  bool      active,
-                  float     rowHeight = 0.f);
+void animatedPill(Context& ctx, sf::Vec2f topLeft, float width, int idx, float& pillY, bool active, float rowHeight = 0.f);
 
 // Active-aware list navigation. Identical to `navigateList(ctx, svc, idx, n)`
 // when `active` is true; a no-op when false (so multi-pane screens can

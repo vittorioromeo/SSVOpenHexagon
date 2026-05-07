@@ -67,17 +67,13 @@ struct Services
 
     // Start a level. `levelId` is the LevelData id; `difficultyMult` picks
     // which difficulty index. Called by the new Level Select screen.
-    sf::base::FixedFunction<void(const sf::base::String& /*levelId*/,
-                                  float /*difficultyMult*/),
-                              128>
-        onStartLevel;
+    sf::base::FixedFunction<void(const sf::base::String& /*levelId*/, float /*difficultyMult*/), 128> onStartLevel;
 
     // Notify the host that the LevelSelect cursor has moved to a different
     // level. Lets the legacy backdrop refresh its style/colors/preview to
     // match. `levelId` is the pack-prefixed asset key. Called at most once
     // per change of `selectedIdx`.
-    sf::base::FixedFunction<void(const sf::base::String& /*levelId*/), 64>
-        onPreviewLevel;
+    sf::base::FixedFunction<void(const sf::base::String& /*levelId*/), 64> onPreviewLevel;
 
     // Optional UX hook for sound feedback on selection moves; can be empty.
     sf::base::FixedFunction<void(sf::base::StringView), 64> playSound;
@@ -94,7 +90,7 @@ struct Services
     // level's running visuals. The LevelSelect screen samples it as a
     // sprite to display a live preview of the level. Null when no preview
     // is available (no level loaded yet, or running headless).
-    sf::RenderTexture*    previewTexture{nullptr};
+    sf::RenderTexture* previewTexture{nullptr};
 
     // Render target screens should use to bypass the menu's accent-gradient
     // shader pass. Points at the window when the host is compositing the
@@ -103,7 +99,7 @@ struct Services
     // pixels would otherwise be remapped by the shader. Drawing into this
     // target uses the same view + transform as `ctx.renderStates`, so
     // positions match the rest of the UI.
-    sf::RenderTarget*     rawTarget{nullptr};
+    sf::RenderTarget* rawTarget{nullptr};
 
     // Notify the host that the LevelSelect cursor / difficulty changed.
     // The host computes the level validator, requests fresh top scores
@@ -111,10 +107,7 @@ struct Services
     // surfaces the latest cached snapshot via `leaderboardScores` below.
     // Called every frame the LevelSelect column is visible -- the host
     // de-duplicates by validator, so polling is cheap.
-    sf::base::FixedFunction<void(const sf::base::String& /*levelId*/,
-                                  float /*difficultyMult*/),
-                              64>
-        onRequestLeaderboard;
+    sf::base::FixedFunction<void(const sf::base::String& /*levelId*/, float /*difficultyMult*/), 64> onRequestLeaderboard;
 
     // Request the server-stored replay for the leaderboard row at
     // `scoreTimestamp`. The host already knows which (level, difficulty)

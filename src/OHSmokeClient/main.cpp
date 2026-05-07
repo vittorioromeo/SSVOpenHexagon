@@ -104,7 +104,9 @@ int main(int argc, char* argv[])
         {
             if (i + 1 >= argc || parseCount(argv[i + 1], count) != 0)
             {
-                std::fprintf(stderr, "[smoke-client] --count requires a positive integer (got '%s')\n", (i + 1 < argc) ? argv[i + 1] : "");
+                std::fprintf(stderr,
+                             "[smoke-client] --count requires a positive integer (got '%s')\n",
+                             (i + 1 < argc) ? argv[i + 1] : "");
                 usage(argv[0]);
                 return 2;
             }
@@ -192,7 +194,8 @@ int main(int argc, char* argv[])
         if (decoded.getIf<hg::STCPPublicKey>() == nullptr)
         {
             std::fprintf(stderr,
-                         "[smoke-client] expected STCPPublicKey on round-trip %d/%d, got something else (decode error: '%s')\n",
+                         "[smoke-client] expected STCPPublicKey on round-trip %d/%d, got something else (decode error: "
+                         "'%s')\n",
                          i + 1,
                          count,
                          errOss.getString().c_str());

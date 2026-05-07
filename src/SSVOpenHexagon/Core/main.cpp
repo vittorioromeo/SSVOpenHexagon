@@ -427,16 +427,20 @@ struct ParsedArgs
     sf::base::Optional<hg::HexagonGame> hgPreview;
     if (!headless && window.hasValue())
     {
-        hgMenuBg.emplace(
-            &steamManager,
-            (discordManager.hasValue() ? &*discordManager : nullptr),
-            assets, &audio, &*window, /*hexagonClient=*/nullptr);
+        hgMenuBg.emplace(&steamManager,
+                         (discordManager.hasValue() ? &*discordManager : nullptr),
+                         assets,
+                         &audio,
+                         &*window,
+                         /*hexagonClient=*/nullptr);
         hgMenuBg->previewMode = true;
 
-        hgPreview.emplace(
-            &steamManager,
-            (discordManager.hasValue() ? &*discordManager : nullptr),
-            assets, &audio, &*window, /*hexagonClient=*/nullptr);
+        hgPreview.emplace(&steamManager,
+                          (discordManager.hasValue() ? &*discordManager : nullptr),
+                          assets,
+                          &audio,
+                          &*window,
+                          /*hexagonClient=*/nullptr);
         hgPreview->previewMode = true;
     }
 
@@ -454,7 +458,7 @@ struct ParsedArgs
         mg.emplace(steamManager, *discordManager, assets, audio, *window, hc);
 
         mg->hostCallbacks.triggerRefresh = [&](const ssvs::Input::Trigger& trigger,
-                                     int                         bindId) //
+                                               int                         bindId) //
         {
             hg.refreshTrigger(trigger, bindId); //
         };
@@ -481,7 +485,7 @@ struct ParsedArgs
         };
 
         mg->hostCallbacks.updateRichPresence = [&] //
-        {                                         //
+        {                                          //
             hg.updateRichPresenceCallbacks();
         };
 
@@ -504,10 +508,10 @@ struct ParsedArgs
             // pack/level the menu backdrop ever runs. Pack id format is
             // `<disambiguator>_<author>_<name>_<version>`; level id is
             // `<packId>_<levelJsonId>`.
-            mg->setMenuPreviewGames(
-                &*hgMenuBg, &*hgPreview,
-                /*menuBgPackId=*/"thing_Synth_Morxemplum_Artwork_1",
-                /*menuBgLevelId=*/"thing_Synth_Morxemplum_Artwork_1_shadertest");
+            mg->setMenuPreviewGames(&*hgMenuBg,
+                                    &*hgPreview,
+                                    /*menuBgPackId=*/"thing_Synth_Morxemplum_Artwork_1",
+                                    /*menuBgLevelId=*/"thing_Synth_Morxemplum_Artwork_1_shadertest");
         }
     }
 

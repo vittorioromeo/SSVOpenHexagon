@@ -2,14 +2,11 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
-
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
-
 #include "TestUtils.hpp"
 
 #include "SFML/Base/Array.hpp"
@@ -64,19 +61,16 @@ try
 
         sf::base::Optional<hg::replay_file> rf;
 
-        hg.onDeathReplayCreated = [&](const hg::replay_file& newRf)
-        { rf.emplace(newRf); };
+        hg.onDeathReplayCreated = [&](const hg::replay_file& newRf) { rf.emplace(newRf); };
 
-        hg.newGame(packs[i % packs.size()], levels[i % levels.size()],
-            true /* firstPlay */, 1.f /* diffMult */,
-            /* mExecuteLastReplay */ false);
+        hg.newGame(packs[i % packs.size()],
+                   levels[i % levels.size()],
+                   true /* firstPlay */,
+                   1.f /* diffMult */,
+                   /* mExecuteLastReplay */ false);
 
         hg.setMustStart(true);
-        const double score =
-            hg.executeGameUntilDeath(
-                  1 /* maxProcessingSeconds */, 1.f /* timescale */)
-                .value()
-                .playedTimeSeconds;
+        const double score = hg.executeGameUntilDeath(1 /* maxProcessingSeconds */, 1.f /* timescale */).value().playedTimeSeconds;
 
         TEST_ASSERT(rf.hasValue());
 
@@ -92,13 +86,11 @@ try
                 nullptr /* client */          //
             };
 
-            score2 = hg2.runReplayUntilDeathAndGetScore(
-                rf.value(), 1 /* maxProcessingSeconds */, 1.f /* timescale */);
+            score2 = hg2.runReplayUntilDeathAndGetScore(rf.value(), 1 /* maxProcessingSeconds */, 1.f /* timescale */);
         }
         else
         {
-            score2 = hg.runReplayUntilDeathAndGetScore(
-                rf.value(), 1 /* maxProcessingSeconds */, 1.f /* timescale */);
+            score2 = hg.runReplayUntilDeathAndGetScore(rf.value(), 1 /* maxProcessingSeconds */, 1.f /* timescale */);
         }
 
         TEST_ASSERT(score2.hasValue());
@@ -116,12 +108,10 @@ try
     }
 
     return 0;
-}
-catch (const std::runtime_error& e)
+} catch (const std::runtime_error& e)
 {
     std::cerr << "EXCEPTION: " << e.what() << std::endl;
-}
-catch (...)
+} catch (...)
 {
     std::cerr << "EXCEPTION: unknown" << std::endl;
 }
