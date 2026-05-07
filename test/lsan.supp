@@ -1,0 +1,25 @@
+# LeakSanitizer suppressions for the unit tests.
+#
+# These ignore leaks reported in third-party libraries that we link
+# against transitively (via Steam, X11, etc.) and have no control over.
+# Each pattern matches anywhere in the leak's allocation stack.
+#
+# Format: `leak:<symbol-or-substring>`. See
+# https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer
+# for details.
+
+# D-Bus is initialized indirectly by the Steam runtime / X11 backend
+# during process startup. The library leaks ~5KB across a handful of
+# allocations inside `dbus_bus_register` and friends. Not our code,
+# not actionable from inside the game.
+leak:dbus_bus_register
+leak:dbus_pending_call_block
+leak:_dbus_connection_send_with_reply_and_block
+leak:libdbus-1
+
+# `dlopen`-loaded shared objects (Steam, GL drivers) report one-time
+# leaks for their internal globals. These are intentional and live for
+# the process lifetime.
+leak:libGL
+leak:libGLX
+leak:libsteam_api
