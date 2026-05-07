@@ -4,13 +4,17 @@
 
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
+#include "SSVOpenHexagon/Utils/Clock.hpp"
 
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
+#include <SFML/Base/IntTypes.hpp>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace hg
 {
@@ -21,6 +25,7 @@ void LeaderboardCache::receivedScores(const sf::base::String&                   
     CachedScores& cs = _levelValidatorToScores[levelValidator];
     cs._scores       = scores;
     cs._cacheTime    = HRClock::now();
+    cs._received     = true;
 }
 
 void LeaderboardCache::receivedOwnScore(const sf::base::String& levelValidator, const Database::ProcessedScore& score)
@@ -66,6 +71,26 @@ void LeaderboardCache::requestedScores(const sf::base::String& levelValidator)
 [[nodiscard]] bool LeaderboardCache::hasInformation(const sf::base::String& levelValidator) const
 {
     return _levelValidatorToScores.find(levelValidator) != _levelValidatorToScores.end();
+}
+
+[[nodiscard]] bool LeaderboardCache::hasReceivedScores(const sf::base::String& levelValidator) const
+{
+    const auto it = _levelValidatorToScores.find(levelValidator);
+    return it != _levelValidatorToScores.end() && it->second._received;
+}
+
+void LeaderboardCache::markReplayUnavailable(const sf::base::String& levelValidator, const sf::base::U64 scoreTimestamp)
+{
+    _levelValidatorToScores[levelValidator]._unavailableTimestamps.insert(scoreTimestamp);
+}
+
+const std::unordered_set<sf::base::U64> LeaderboardCache::kEmptyUnavailable;
+
+[[nodiscard]] const std::unordered_set<sf::base::U64>& LeaderboardCache::getUnavailableTimestamps(
+    const sf::base::String& levelValidator) const
+{
+    const auto it = _levelValidatorToScores.find(levelValidator);
+    return (it == _levelValidatorToScores.end()) ? kEmptyUnavailable : it->second._unavailableTimestamps;
 }
 
 } // namespace hg
