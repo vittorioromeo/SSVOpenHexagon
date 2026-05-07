@@ -35,6 +35,7 @@ class HGAssets;
 class HexagonGame;
 struct GameVersion;
 struct replay_file;
+struct compressed_replay_file;
 
 class HexagonServer
 {
@@ -96,6 +97,13 @@ private:
 
         sf::base::Optional<GameStatus> _gameStatus;
 
+        // Wall-clock instant of the last `CTSPRequestReplay` we honored
+        // for this client. Used to throttle replay requests -- the
+        // request handler refuses (and silently drops) any request that
+        // arrives within the cooldown window of the previous one. Default
+        // value (zero/epoch) means "no recent request".
+        Utils::SCTimePoint _lastReplayRequestAt{};
+
         ConnectedClient(const Utils::SCTimePoint lastActivity, sf::TcpSocket&& socket);
     };
 
@@ -142,6 +150,14 @@ private:
                                         const ProtocolVersion&                    protocolVersion,
                                         const GameVersion&                        gameVersion,
                                         const sf::base::Vector<sf::base::String>& supportedLevelValidators);
+    [[nodiscard]] bool sendReplayData(ConnectedClient&        c,
+                                      const sf::base::String& levelValidator,
+                                      const sf::base::U64     scoreTimestamp,
+                                      compressed_replay_file  replay);
+    [[nodiscard]] bool sendReplayUnavailable(ConnectedClient&        c,
+                                             const sf::base::String& levelValidator,
+                                             const sf::base::U64     scoreTimestamp,
+                                             const sf::base::String& reason);
 
     [[nodiscard]] bool kickAndRemoveClient(ConnectedClient& c);
 

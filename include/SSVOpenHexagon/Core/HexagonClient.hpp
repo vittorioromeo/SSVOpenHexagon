@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
@@ -65,6 +66,8 @@ public:
     struct EReceivedOwnScore        { sf::base::String levelValidator; Database::ProcessedScore score; };
     struct EGameVersionMismatch     { };
     struct EProtocolVersionMismatch { };
+    struct EReceivedReplay          { sf::base::String levelValidator; sf::base::U64 scoreTimestamp; replay_file replay; };
+    struct EReplayUnavailable       { sf::base::String levelValidator; sf::base::U64 scoreTimestamp; sf::base::String reason; };
     // clang-format on
 
     using Event = sf::base::Variant< //
@@ -82,7 +85,9 @@ public:
         EReceivedTopScores,          //
         EReceivedOwnScore,           //
         EGameVersionMismatch,        //
-        EProtocolVersionMismatch     //
+        EProtocolVersionMismatch,    //
+        EReceivedReplay,             //
+        EReplayUnavailable           //
         >;
 
 private:
@@ -136,6 +141,7 @@ private:
     [[nodiscard]] bool sendRequestTopScores(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
     [[nodiscard]] bool sendRequestOwnScore(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
     [[nodiscard]] bool sendRequestTopScoresAndOwnScore(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
+    [[nodiscard]] bool sendRequestReplay(const sf::base::U64 loginToken, const sf::base::String& levelValidator, const sf::base::U64 scoreTimestamp);
     [[nodiscard]] bool sendStartedGame(const sf::base::U64 loginToken, const sf::base::String& levelValidator);
     [[nodiscard]] bool sendCompressedReplay(const sf::base::U64           loginToken,
                                             const sf::base::String&       levelValidator,
@@ -181,6 +187,7 @@ public:
     bool tryRequestTopScores(const sf::base::String& levelValidator);
     bool tryRequestOwnScore(const sf::base::String& levelValidator);
     bool tryRequestTopScoresAndOwnScore(const sf::base::String& levelValidator);
+    bool tryRequestReplay(const sf::base::String& levelValidator, const sf::base::U64 scoreTimestamp);
     bool trySendStartedGame(const sf::base::String& levelValidator);
     bool trySendCompressedReplay(const sf::base::String& levelValidator, const compressed_replay_file& compressedReplayFile);
 
@@ -190,6 +197,13 @@ public:
     [[nodiscard]] const sf::base::Optional<sf::base::String>& getLoginName() const noexcept;
 
     [[nodiscard]] sf::base::Optional<Event> pollEvent();
+
+    // Removes any pending `EReceivedReplay`/`EReplayUnavailable` events
+    // from the queue without consuming the others. Used by the menu when
+    // the user exits gameplay back to the menu so a stale in-flight
+    // replay request (fired right before the user pressed ESC) doesn't
+    // yank them straight back into a replay or pop a confusing dialog.
+    void discardPendingReplayEvents() noexcept;
 
     [[nodiscard]] bool isLevelSupportedByServer(const sf::base::String& levelValidator) const noexcept;
 };

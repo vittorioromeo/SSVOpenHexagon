@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Macros.hpp"
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
@@ -45,6 +46,7 @@
 #include "SFML/Base/Trait/IsSame.hpp"
 #include "SFML/Base/Vector.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -285,6 +287,32 @@ template <typename T>
                              .ownScore       = ownScore                            //
                          } //
     );
+}
+
+[[nodiscard]] bool HexagonServer::sendReplayData(ConnectedClient&        c,
+                                                 const sf::base::String& levelValidator,
+                                                 const sf::base::U64     scoreTimestamp,
+                                                 compressed_replay_file  replay)
+{
+    return sendEncrypted(c, //
+                         STCPReplayData{
+                             .levelValidator = std::string(levelValidator.cStr()), //
+                             .scoreTimestamp = scoreTimestamp,                     //
+                             .replay         = SSVOH_MOVE(replay)                  //
+                         });
+}
+
+[[nodiscard]] bool HexagonServer::sendReplayUnavailable(ConnectedClient&        c,
+                                                        const sf::base::String& levelValidator,
+                                                        const sf::base::U64     scoreTimestamp,
+                                                        const sf::base::String& reason)
+{
+    return sendEncrypted(c, //
+                         STCPReplayUnavailable{
+                             .levelValidator = std::string(levelValidator.cStr()), //
+                             .scoreTimestamp = scoreTimestamp,                     //
+                             .reason         = std::string(reason.cStr())          //
+                         });
 }
 
 [[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient&                          c,
@@ -777,6 +805,17 @@ void HexagonServer::runIteration_FlushLogs()
     const double elapsedSecs = std::chrono::duration_cast<std::chrono::duration<double>>(receiveTime - c._gameStatus->_startTP)
                                    .count();
 
+    // Guard against `elapsedSecs == 0` -- can happen with clock skew, or
+    // a freshly-started game that died before its first tick. Without
+    // the guard the divide below produces inf/NaN, which then fails the
+    // "good ratio" check and discards the replay with a misleading
+    // reason. Treat zero-elapsed as an unprocessable request.
+    if (elapsedSecs <= 0.0)
+    {
+        SSVOH_SLOG << "Elapsed time non-positive (" << elapsedSecs << "), discarding\n";
+        return discard("non-positive elapsed time");
+    }
+
     const double difference = std::fabs(replayTotalTime - elapsedSecs);
     const double ratio      = replayTotalTime / elapsedSecs;
 
@@ -806,7 +845,44 @@ void HexagonServer::runIteration_FlushLogs()
 
     SSVOH_ASSERT(c._loginData.hasValue());
 
-    Database::addScore(levelValidator, Utils::nowTimestamp(), c._loginData->_steamId, replayPlayedTime);
+    const sf::base::U64 newScoreTimestamp = Utils::nowTimestamp();
+    const Database::AddScoreOutcome
+        outcome = Database::addScore(levelValidator, newScoreTimestamp, c._loginData->_steamId, replayPlayedTime);
+
+    // Persist the replay alongside any row that now points at this
+    // submission. `Inserted` and `Upserted` both write a row whose
+    // `(validator, timestamp)` matches `newScoreTimestamp` -- the lookup
+    // key the client uses later. `Skipped` means an existing better
+    // score wins, so we'd be writing an orphan file.
+    if (outcome != Database::AddScoreOutcome::Skipped)
+    {
+        // Persist the replay so a later `CTSPRequestReplay` for this
+        // (validator, scoreTimestamp) can stream it back.
+        //
+        // Note: orphan replay files (older `<timestamp>.ohr.z` for
+        // beaten scores) accumulate over time.
+        sf::base::Optional<compressed_replay_file> crfOpt = compress_replay_file(rf);
+
+        if (!crfOpt.hasValue())
+        {
+            SSVOH_SLOG << "[ERROR] Failed to compress replay for persistence\n";
+        }
+        else
+        {
+            const std::string dirPath = std::string("ServerReplays/") + levelValidator.cStr();
+            std::filesystem::create_directories(std::filesystem::path{dirPath});
+
+            const std::string filePath = dirPath + "/" + std::to_string(newScoreTimestamp) + ".ohr.z";
+            if (!crfOpt->serialize_to_file(sf::Path{filePath.c_str()}))
+            {
+                SSVOH_SLOG << "[ERROR] Failed to persist replay to '" << filePath << "'\n";
+            }
+            else
+            {
+                SSVOH_SLOG_VERBOSE << "Persisted replay to '" << filePath << "'\n";
+            }
+        }
+    }
 
     return true;
 }
@@ -1316,6 +1392,58 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
         c._state = ConnectedClient::State::LoggedIn_Ready;
         return true;
+    },
+
+        [&](const CTSPRequestReplay& ctsp)
+    {
+        printCTSPDataVerbose(c, "request replay", ctsp);
+
+        if (!checkState(ConnectedClient::State::LoggedIn_Ready) || !validateLogin(c, "request replay", ctsp.loginToken))
+        {
+            return true;
+        }
+
+        // Per-client throttle: silently drop anything arriving within the cooldown
+        // of the last honored request.
+        constexpr auto kReplayCooldown = std::chrono::milliseconds(1000);
+        const auto     now             = Utils::SCClock::now();
+
+        if (now - c._lastReplayRequestAt < kReplayCooldown)
+        {
+            SSVOH_SLOG_VERBOSE << "Replay request throttled (within cooldown)\n";
+            return true;
+        }
+
+        c._lastReplayRequestAt = now;
+
+        const sf::base::String levelValidator(ctsp.levelValidator);
+
+        // Reject any validator that isn't on the server's whitelist.
+        // This is a security boundary: without it, the client-supplied
+        // `levelValidator` becomes part of a filesystem path below and a
+        // malicious client could inject `..` segments.
+        if (!isLevelSupported(levelValidator))
+        {
+            SSVOH_SLOG_VERBOSE << "Replay request for unsupported validator '" << levelValidator << "', rejecting\n";
+            return sendReplayUnavailable(c, levelValidator, ctsp.scoreTimestamp, sf::base::String("unsupported level"));
+        }
+
+        // We persist replays at `ServerReplays/<validator>/<scoreTimestamp>.ohr.z`
+        // when `processReplay` upserts a new best score (see processReplay
+        // above). TODO: Older orphan files for beaten scores aren't cleaned up.
+        const std::string filePath = std::string("ServerReplays/") + ctsp.levelValidator + "/" +
+                                     std::to_string(ctsp.scoreTimestamp) + ".ohr.z";
+
+        compressed_replay_file crf;
+        if (!crf.deserialize_from_file(sf::Path{filePath.c_str()}))
+        {
+            SSVOH_SLOG_VERBOSE << "Replay request for '" << levelValidator << "' @ " << ctsp.scoreTimestamp
+                               << " missing on disk\n";
+
+            return sendReplayUnavailable(c, levelValidator, ctsp.scoreTimestamp, sf::base::String("not stored"));
+        }
+
+        return sendReplayData(c, levelValidator, ctsp.scoreTimestamp, SSVOH_MOVE(crf));
     }
 
         //

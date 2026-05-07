@@ -44,10 +44,20 @@ void                                       removeAllStaleLoginTokens();
 
 [[nodiscard]] bool isLoginTokenValid(sf::base::U64 token);
 
-void addScore(const sf::base::String& levelValidator,
-              const sf::base::U64     timestamp,
-              const sf::base::U64     userSteamId,
-              const double            value);
+// Callers (server-side replay persistence in particular) read this to
+// decide whether to write side data like the replay file -- on `Skipped`
+// the disk file would point at a row that's already been beaten.
+enum class AddScoreOutcome : sf::base::U8
+{
+    Inserted = 0, //!< no prior row for `(validator, steamId)`; new row written
+    Upserted = 1, //!< prior row existed but was beaten; row updated in place
+    Skipped  = 2, //!< existing score is >= new value; no DB write
+};
+
+[[nodiscard]] AddScoreOutcome addScore(const sf::base::String& levelValidator,
+                                       const sf::base::U64     timestamp,
+                                       const sf::base::U64     userSteamId,
+                                       const double            value);
 
 [[nodiscard]] sf::base::Optional<ProcessedScore> getScore(const sf::base::String& levelValidator,
                                                           const sf::base::U64     userSteamId);

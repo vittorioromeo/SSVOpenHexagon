@@ -21,6 +21,7 @@
 
 #include "SFML/System/Time.hpp"
 
+#include "SFML/Base/Algorithm/Erase.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
@@ -350,6 +351,20 @@ template <typename T>
             .levelValidator = std::string(levelValidator.cStr()) //
         } //
     );
+}
+
+[[nodiscard]] bool HexagonClient::sendRequestReplay(const sf::base::U64     loginToken,
+                                                    const sf::base::String& levelValidator,
+                                                    const sf::base::U64     scoreTimestamp)
+{
+    SSVOH_CLOG_VERBOSE << "Sending replay request to server...\n";
+
+    return sendEncrypted( //
+        CTSPRequestReplay{
+            .loginToken     = loginToken,                         //
+            .levelValidator = std::string(levelValidator.cStr()), //
+            .scoreTimestamp = scoreTimestamp                      //
+        });
 }
 
 [[nodiscard]] bool HexagonClient::sendStartedGame(const sf::base::U64 loginToken, const sf::base::String& levelValidator)
@@ -750,6 +765,50 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
         SSVOH_ASSERT(_loginToken.hasValue());
         return sendReady(_loginToken.value());
+    },
+
+        [&](const STCPReplayData& stcp)
+    {
+        SSVOH_CLOG << "Received replay from server, levelValidator: '" << stcp.levelValidator << "', scoreTimestamp: '"
+                   << stcp.scoreTimestamp << "'\n";
+
+        // Decompress here so the UI side gets a ready-to-play `replay_file`.
+        // Failure is rare (only if the bytes were corrupted on the wire)
+        // and is surfaced as `EReplayUnavailable` so the UI can show the
+        // same empty-state path as a missing-file response.
+        const sf::base::Optional<replay_file> rfOpt = decompress_replay_file(stcp.replay);
+        if (!rfOpt.hasValue())
+        {
+            addEvent(Event{EReplayUnavailable{
+                .levelValidator = sf::base::String(stcp.levelValidator),
+                .scoreTimestamp = stcp.scoreTimestamp,
+                .reason         = sf::base::String("decompression failed"),
+            }});
+
+            return true;
+        }
+
+        addEvent(Event{EReceivedReplay{
+            .levelValidator = sf::base::String(stcp.levelValidator),
+            .scoreTimestamp = stcp.scoreTimestamp,
+            .replay         = *rfOpt,
+        }});
+
+        return true;
+    },
+
+        [&](const STCPReplayUnavailable& stcp)
+    {
+        SSVOH_CLOG << "Replay unavailable from server, levelValidator: '" << stcp.levelValidator
+                   << "', scoreTimestamp: '" << stcp.scoreTimestamp << "', reason: '" << stcp.reason << "'\n";
+
+        addEvent(Event{EReplayUnavailable{
+            .levelValidator = sf::base::String(stcp.levelValidator),
+            .scoreTimestamp = stcp.scoreTimestamp,
+            .reason         = sf::base::String(stcp.reason),
+        }});
+
+        return true;
     }
 
         //
@@ -918,6 +977,17 @@ bool HexagonClient::tryRequestTopScoresAndOwnScore(const sf::base::String& level
     return sendRequestTopScoresAndOwnScore(_loginToken.value(), levelValidator);
 }
 
+bool HexagonClient::tryRequestReplay(const sf::base::String& levelValidator, const sf::base::U64 scoreTimestamp)
+{
+    if (!connectedAndInState(State::LoggedIn_Ready))
+    {
+        return fail();
+    }
+
+    SSVOH_ASSERT(_loginToken.hasValue());
+    return sendRequestReplay(_loginToken.value(), levelValidator, scoreTimestamp);
+}
+
 bool HexagonClient::trySendStartedGame(const sf::base::String& levelValidator)
 {
     if (!connectedAndInState(State::LoggedIn_Ready))
@@ -968,6 +1038,11 @@ void HexagonClient::addEvent(const Event& e)
 
     SFML_BASE_SCOPE_GUARD({ _events.pop_front(); });
     return sf::base::makeOptional(_events.front());
+}
+
+void HexagonClient::discardPendingReplayEvents() noexcept
+{
+    sf::base::vectorEraseIf(_events, [](const Event& e) { return e.is<EReceivedReplay>() || e.is<EReplayUnavailable>(); });
 }
 
 [[nodiscard]] bool HexagonClient::isLevelSupportedByServer(const sf::base::String& levelValidator) const noexcept

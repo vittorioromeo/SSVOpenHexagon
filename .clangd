@@ -3,3 +3,4 @@ Diagnostics:
   MissingIncludes: Strict
 CompileFlags:
   Add: [-D__CLANGD__]
+  CompilationDatabase: buildlx

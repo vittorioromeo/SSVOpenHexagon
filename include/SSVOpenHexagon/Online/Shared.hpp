@@ -71,6 +71,7 @@ struct CTSPStartedGame                 { sf::base::U64 loginToken; std::string l
 struct CTSPCompressedReplay            { sf::base::U64 loginToken; compressed_replay_file compressedReplayFile; };
 struct CTSPRequestServerStatus         { sf::base::U64 loginToken; };
 struct CTSPReady                       { sf::base::U64 loginToken; };
+struct CTSPRequestReplay               { sf::base::U64 loginToken; std::string levelValidator; sf::base::U64 scoreTimestamp; };
 // clang-format on
 
 #define SSVOH_IDENTITY(x) x
@@ -80,7 +81,7 @@ struct CTSPReady                       { sf::base::U64 loginToken; };
     x(CTSPHeartbeat) c() x(CTSPDisconnect) c() x(CTSPPublicKey) c() x(CTSPRegister) c() x(CTSPLogin) c() x(CTSPLogout) \
         c() x(CTSPDeleteAccount) c() x(CTSPRequestTopScores) c() x(CTSPReplay) c() x(CTSPRequestOwnScore) c()          \
             x(CTSPRequestTopScoresAndOwnScore) c() x(CTSPStartedGame) c() x(CTSPCompressedReplay) c()                  \
-                x(CTSPRequestServerStatus) c() x(CTSPReady)
+                x(CTSPRequestServerStatus) c() x(CTSPReady) c() x(CTSPRequestReplay)
 
 #define SSVOH_CTS_PACKETS SSVOH_CTS_PACKETS_X(SSVOH_IDENTITY, SSVOH_COMMA)
 
@@ -115,13 +116,15 @@ struct STCPTopScores              { std::string levelValidator; sf::base::Vector
 struct STCPOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
 struct STCPTopScoresAndOwnScore   { std::string levelValidator; sf::base::Vector<Database::ProcessedScore> scores; sf::base::Optional<Database::ProcessedScore> ownScore; };
 struct STCPServerStatus           { ProtocolVersion protocolVersion; GameVersion gameVersion; sf::base::Vector<std::string> supportedLevelValidators; };
+struct STCPReplayData             { std::string levelValidator; sf::base::U64 scoreTimestamp; compressed_replay_file replay; };
+struct STCPReplayUnavailable      { std::string levelValidator; sf::base::U64 scoreTimestamp; std::string reason; };
 // clang-format on
 
 #define SSVOH_STC_PACKETS_X(x, c)                                                                                    \
     x(STCPKick) c() x(STCPPublicKey) c() x(STCPRegistrationSuccess) c() x(STCPRegistrationFailure) c()               \
         x(STCPLoginSuccess) c() x(STCPLoginFailure) c() x(STCPLogoutSuccess) c() x(STCPLogoutFailure) c()            \
             x(STCPDeleteAccountSuccess) c() x(STCPDeleteAccountFailure) c() x(STCPTopScores) c() x(STCPOwnScore) c() \
-                x(STCPTopScoresAndOwnScore) c() x(STCPServerStatus)
+                x(STCPTopScoresAndOwnScore) c() x(STCPServerStatus) c() x(STCPReplayData) c() x(STCPReplayUnavailable)
 
 #define SSVOH_STC_PACKETS SSVOH_STC_PACKETS_X(SSVOH_IDENTITY, SSVOH_COMMA)
 

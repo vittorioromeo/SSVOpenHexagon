@@ -285,10 +285,10 @@ void removeAllStaleLoginTokens()
     return isLoginTokenTimestampValid(query.at(0));
 }
 
-void addScore(const sf::base::String& levelValidator,
-              const sf::base::U64     timestamp,
-              const sf::base::U64     userSteamId,
-              const double            value)
+[[nodiscard]] AddScoreOutcome addScore(const sf::base::String& levelValidator,
+                                       const sf::base::U64     timestamp,
+                                       const sf::base::U64     userSteamId,
+                                       const double            value)
 {
     using namespace sqlite_orm;
 
@@ -310,13 +310,13 @@ void addScore(const sf::base::String& levelValidator,
 
         SSVOH_DLOG << "Added score with id '" << id << "' to storage:\n" << Impl::getStorage().dump(score) << '\n';
 
-        return;
+        return AddScoreOutcome::Inserted;
     }
 
     const Score& existingScore = query.at(0);
     if (existingScore.value >= value)
     {
-        return;
+        return AddScoreOutcome::Skipped;
     }
 
     score.id = existingScore.id;
@@ -324,6 +324,7 @@ void addScore(const sf::base::String& levelValidator,
     Impl::getStorage().update(score);
 
     SSVOH_DLOG << "Updated score with id '" << score.id << "' to storage:\n" << Impl::getStorage().dump(score) << '\n';
+    return AddScoreOutcome::Upserted;
 }
 
 [[nodiscard]] sf::base::Optional<ProcessedScore> getScore(const sf::base::String& levelValidator, const sf::base::U64 userSteamId)
