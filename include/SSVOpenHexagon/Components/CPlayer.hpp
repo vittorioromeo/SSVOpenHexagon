@@ -80,7 +80,7 @@ public:
                      const float     speed,
                      const float     focusSpeed) noexcept;
 
-    [[nodiscard, gnu::always_inline]] const sf::Vec2f getPosition() const noexcept
+    [[nodiscard, gnu::always_inline]] const sf::Vec2f& getPosition() const noexcept
     {
         return _pos;
     }
