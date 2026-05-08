@@ -19,6 +19,8 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
+#include "SSVUtils/Core/FileSystem/Utils.hpp"
+#include "sodium/core.h"
 
 #include "SFML/Graphics/GraphicsContext.hpp"
 #include "SFML/Graphics/Image.hpp"
@@ -29,6 +31,7 @@
 #include "SFML/Network/IpAddress.hpp"
 #include "SFML/Network/IpAddressUtils.hpp"
 
+#include "SFML/System/IO.hpp"
 #include "SFML/System/Path.hpp"
 
 #include "SFML/Base/Optional.hpp"
@@ -38,12 +41,13 @@
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <filesystem>
-#include <iostream>
+#include <limits>
 #include <sodium.h>
 
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 //
 //
@@ -187,9 +191,9 @@ struct ParsedArgs
         nullptr /* client */ //
     };
 
-    std::cout << "\n\n\n\n\n";
+    sf::cOut() << "\n\n\n\n\n";
     hg.initLuaAndPrintDocs();
-    std::cout << "\n\n\n\n\n";
+    sf::cOut() << "\n\n\n\n\n";
 
     hg::lo("::mainPrintLuaDocs") << "Finished\n";
     return 0;
@@ -537,7 +541,7 @@ struct ParsedArgs
 
             if (!replayFileOpt.hasValue())
             {
-                std::cerr << "Could not decompress replay file\n";
+                sf::cErr() << "Could not decompress replay file\n";
                 return;
             }
 
@@ -590,7 +594,7 @@ struct ParsedArgs
         // TODO (P2): code repetition, cleanup
         if (!compressedReplayFilename.hasValue())
         {
-            std::cout << "Running in headless mode without replay...?\n";
+            sf::cOut() << "Running in headless mode without replay...?\n";
             return 1;
         }
 
@@ -600,7 +604,7 @@ struct ParsedArgs
 
             if (!replayFileOpt.hasValue())
             {
-                std::cerr << "Could not decompress replay file\n";
+                sf::cErr() << "Could not decompress replay file\n";
                 return 1;
             }
 
@@ -610,11 +614,11 @@ struct ParsedArgs
 
             // TODO (P2): check level validity
 
-            std::cout << "Player died.\nFinal time: "
-                      << hg.runReplayUntilDeathAndGetScore(replayFile, 1 /* maxProcessingSeconds */, 1.f /* timescale */)
-                             .value()
-                             .playedTimeSeconds
-                      << '\n';
+            sf::cOut() << "Player died.\nFinal time: "
+                       << hg.runReplayUntilDeathAndGetScore(replayFile, 1 /* maxProcessingSeconds */, 1.f /* timescale */)
+                              .value()
+                              .playedTimeSeconds
+                       << '\n';
         }
         else
         {
@@ -647,7 +651,7 @@ int main(int argc, char* argv[])
 {
     if (argc < 1)
     {
-        std::cerr << "Fatal error: no executable specified" << std::endl;
+        sf::cErr() << "Fatal error: no executable specified" << sf::endL;
         return -1;
     }
 

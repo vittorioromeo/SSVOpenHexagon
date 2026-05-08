@@ -85,7 +85,7 @@ include(cmake/CPM.cmake)
 
 set(BUILD_SHARED_LIBS false)
 set(SFML_STATIC_LIBRARIES true)
-set(SFML_ENABLE_PCH true)
+set(SFML_ENABLE_PCH false)
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../VRSFML/CMakeLists.txt")
     message(STATUS "Found local VRSFML dependency. Adding it from ../VRSFML.")
@@ -444,10 +444,10 @@ if(NOT SSVOH_ANDROID)
     )
 
     target_include_directories(
-        OHWorkshopUploader SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS}
+        OHWorkshopUploader SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS} ${SFML_SOURCE_DIR}/include
     )
 
-    target_link_libraries(OHWorkshopUploader ${STEAM_LIBRARIES})
+    target_link_libraries(OHWorkshopUploader sfml-system ${STEAM_LIBRARIES})
 
     if(UNIX AND NOT APPLE AND NOT SSVOH_ANDROID)
         target_link_libraries(OHWorkshopUploader pthread)

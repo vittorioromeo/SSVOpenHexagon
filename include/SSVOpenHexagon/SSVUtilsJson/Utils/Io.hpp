@@ -32,7 +32,7 @@ namespace Impl
         return true;
     }
 
-    std::cout << "ssvuj::logReadError:" << mReader.getFormattedErrorMessages() << "\nFrom: [" << mSrc << "]" << std::endl;
+    sf::cOut() << "ssvuj::logReadError:" << mReader.getFormattedErrorMessages() << "\nFrom: [" << mSrc << "]" << sf::endL;
 
     return false;
 }

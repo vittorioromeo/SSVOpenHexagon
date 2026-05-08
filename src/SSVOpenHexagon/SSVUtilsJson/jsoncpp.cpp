@@ -733,7 +733,7 @@ std::string Reader::getLocationLineAndColumn(Location location) const
 std::string Reader::getFormattedErrorMessages() const
 {
     std::string formattedMessage;
-    for (Errors::const_iterator itError = errors_.begin(); itError != errors_.end(); ++itError)
+    for (auto itError = errors_.begin(); itError != errors_.end(); ++itError)
     {
         const ErrorInfo& error = *itError;
         formattedMessage += "* " + getLocationLineAndColumn(error.token_.start_) + "\n";

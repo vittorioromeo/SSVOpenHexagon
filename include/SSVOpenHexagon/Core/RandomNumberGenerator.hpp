@@ -7,8 +7,7 @@
 #include "SSVOpenHexagon/Core/RandomNumberGeneratorTypes.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include <SSVUtils/Internal/PCG/PCG.hpp>
-#include <SSVUtils/Internal/PCG/pcg_random.hpp>
+#include <pcg/pcg_random.hpp>
 #include <random>
 
 #include <cstdint>

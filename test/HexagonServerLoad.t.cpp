@@ -26,9 +26,9 @@
 #include "SFML/System/Time.hpp"
 
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/StdChrono.hpp"
 
 #include <atomic>
-#include <chrono>
 #include <sodium.h>
 #include <thread>
 #include <unordered_set>

@@ -29,8 +29,8 @@
 
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/StdChrono.hpp"
 
-#include <chrono>
 #include <sodium.h>
 #include <thread>
 #include <unordered_set>

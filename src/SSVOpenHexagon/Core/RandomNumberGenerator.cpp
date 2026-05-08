@@ -5,8 +5,6 @@
 
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 
-#include <SSVUtils/Internal/PCG/PCG.hpp>
-
 namespace hg
 {
 

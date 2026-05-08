@@ -33,8 +33,8 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVUtils/Internal/PCG/pcg_extras.hpp"
-#include "SSVUtils/Internal/PCG/pcg_random.hpp"
+#include "pcg/pcg_extras.hpp"
+#include "pcg/pcg_random.hpp"
 
 #include "SFML/ImGui/ImGuiContext.hpp"
 
@@ -46,6 +46,7 @@
 #include "SFML/Window/Keyboard.hpp"
 
 #include "SFML/System/Angle.hpp"
+#include "SFML/System/IO.hpp"
 #include "SFML/System/Path.hpp"
 #include "SFML/System/Rect2.hpp"
 #include "SFML/System/Vec2.hpp"
@@ -57,8 +58,6 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <iostream>
-#include <ostream>
 #include <random>
 
 #include <cctype>
@@ -1365,7 +1364,7 @@ void HexagonGame::raiseWarning(const sf::base::String& mFunctionName, const sf::
                                                     "\") is deprecated. ",
                                                     mAdditionalInfo);
 
-    std::cout << errorMsg << std::endl;
+    sf::cOut() << errorMsg << sf::endL;
     ilcCmdLog.emplaceBack(Utils::concat("[warning]: ", errorMsg, '\n'));
 }
 

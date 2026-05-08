@@ -8,9 +8,7 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
-#include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
@@ -28,6 +26,7 @@
 #include "SFML/Network/IpAddressUtils.hpp"
 #include "SFML/Network/Packet.hpp"
 #include "SFML/Network/Socket.hpp"
+#include "SFML/Network/SocketSelector.hpp"
 #include "SFML/Network/TcpListener.hpp"
 #include "SFML/Network/TcpSocket.hpp"
 #include "SFML/Network/UdpSocket.hpp"
@@ -42,21 +41,16 @@
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <filesystem>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <unordered_set>
 #include <utility>
 
 #include <cmath>
-#include <csignal>
-#include <cstdio>
-#include <cstdlib>
 
 static auto& slog(const char* funcName)
 {
@@ -707,8 +701,8 @@ void HexagonServer::runIteration_FlushLogs()
         return;
     }
 
-    std::cout.flush();
-    std::cerr.flush();
+    sf::cOut().flush();
+    sf::cErr().flush();
     hg::lo().flush();
 }
 

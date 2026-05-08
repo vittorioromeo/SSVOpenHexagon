@@ -13,7 +13,6 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
@@ -31,31 +30,30 @@
 #include "SSVUtils/Core/FileSystem/Scan.hpp"
 
 #include "SFML/Graphics/Font.hpp"
-#include "SFML/Graphics/Image.hpp"
 #include "SFML/Graphics/Shader.hpp"
 #include "SFML/Graphics/Texture.hpp"
 
-#include "SFML/Audio/Music.hpp"
 #include "SFML/Audio/SoundBuffer.hpp"
 
 #include "SFML/System/IO.hpp"
 
 #include "SFML/Base/Algorithm/Erase.hpp"
 #include "SFML/Base/Algorithm/Sort.hpp"
+#include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <exception>
-#include <iostream>
 #include <map>
 #include <stdexcept>
+#include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -268,8 +266,7 @@ static void loadAssetsFromJson(AssetStorage& assetStorage, const ssvu::FileSyste
     return buffer;
 }
 
-[[nodiscard, gnu::no_dangling]] static const std::vector<ssvufs::Path>& scanSingleByExt(const ssvufs::Path& path,
-                                                                                        const sf::base::String& extension)
+[[nodiscard]] static const std::vector<ssvufs::Path>& scanSingleByExt(const ssvufs::Path& path, const sf::base::String& extension)
 {
     std::vector<ssvufs::Path>& buffer = getScanBuffer();
     buffer.clear();
@@ -279,8 +276,7 @@ static void loadAssetsFromJson(AssetStorage& assetStorage, const ssvu::FileSyste
     return buffer;
 }
 
-[[nodiscard, gnu::no_dangling]] static const std::vector<ssvufs::Path>& scanSingleByName(const ssvufs::Path&     path,
-                                                                                         const sf::base::String& name)
+[[nodiscard]] static const std::vector<ssvufs::Path>& scanSingleByName(const ssvufs::Path& path, const sf::base::String& name)
 {
     std::vector<ssvufs::Path>& buffer = getScanBuffer();
     buffer.clear();
@@ -290,7 +286,7 @@ static void loadAssetsFromJson(AssetStorage& assetStorage, const ssvu::FileSyste
     return buffer;
 }
 
-[[nodiscard, gnu::no_dangling]] static const std::vector<ssvufs::Path>& scanSingleFolderName(const ssvufs::Path& path)
+[[nodiscard]] static const std::vector<ssvufs::Path>& scanSingleFolderName(const ssvufs::Path& path)
 {
     std::vector<ssvufs::Path>& buffer = getScanBuffer();
     buffer.clear();
@@ -575,7 +571,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
         return *ptr;
     }
 
-    std::cerr << "Fatal error: missing font file '" << mId << '\'' << std::endl;
+    sf::cErr() << "Fatal error: missing font file '" << mId << '\'' << sf::endL;
     std::terminate();
 }
 

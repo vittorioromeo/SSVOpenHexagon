@@ -166,7 +166,7 @@
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <SSVUtils/Core/Utils/Rnd.hpp>
-#include <SSVUtils/Internal/PCG/PCG.hpp>
+#include <pcg/pcg_random.hpp>
 
 //
 //

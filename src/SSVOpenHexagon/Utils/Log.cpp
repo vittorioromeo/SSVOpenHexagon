@@ -6,6 +6,7 @@
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVUtils/Core/FileSystem/Path.hpp"
 
+#include "SFML/System/IO.hpp"
 #include "SFML/System/Path.hpp"
 
 #include "SFML/Base/String.hpp"
@@ -15,7 +16,6 @@
 
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <steam/steamclientpublic.h>
 
 
@@ -29,14 +29,14 @@ struct LogStream::Impl
 
 LogStream& LogStream::operator<<(const LogEndl&)
 {
-    std::cout << std::endl;
+    sf::cOut() << sf::endL;
     impl->logFileStream << std::endl;
     return *this;
 }
 
 LogStream& LogStream::operator<<(const sf::base::StringView& value)
 {
-    std::cout << value;
+    sf::cOut() << value;
     impl->logFileStream << value;
     return *this;
 }
@@ -44,7 +44,7 @@ LogStream& LogStream::operator<<(const sf::base::StringView& value)
 template <typename T>
 LogStream& LogStream::operator<<(const T& value)
 {
-    std::cout << value;
+    sf::cOut().getOStream() << value;
     impl->logFileStream << value;
     return *this;
 }
@@ -80,7 +80,7 @@ INSTANTIATE_LOGSTREAM_OPERATOR(sf::Path);
 
 void LogStream::flush()
 {
-    std::cout.flush();
+    sf::cOut().flush();
     impl->logFileStream.flush();
 }
 
@@ -97,7 +97,7 @@ LogStream& lo()
 
 LogStream& lo(sf::base::StringView title)
 {
-    std::cout << '[' << title << ']';
+    sf::cOut() << '[' << title << ']';
 
     auto& logStream = getLogStream();
     logStream.impl->logFileStream << '[' << title << ']';

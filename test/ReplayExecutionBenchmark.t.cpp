@@ -96,7 +96,7 @@ try
         TEST_ASSERT(score2.hasValue());
         const double replayPlayedTimeSeconds = score2.value().playedTimeSeconds;
 
-        // std::cerr << score << " == " << replayPlayedTimeSeconds << std::endl;
+        // sf::cErr() << score << " == " << replayPlayedTimeSeconds << sf::endL;
 
         TEST_ASSERT_EQ(score, replayPlayedTimeSeconds);
     };
@@ -110,8 +110,8 @@ try
     return 0;
 } catch (const std::runtime_error& e)
 {
-    std::cerr << "EXCEPTION: " << e.what() << std::endl;
+    sf::cErr() << "EXCEPTION: " << e.what() << sf::endL;
 } catch (...)
 {
-    std::cerr << "EXCEPTION: unknown" << std::endl;
+    sf::cErr() << "EXCEPTION: unknown" << sf::endL;
 }

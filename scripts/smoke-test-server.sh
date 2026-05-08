@@ -110,7 +110,7 @@ ok "pre-flight checks"
 ln -sf "$SERVER_BIN" "$SERVER_SYMLINK"
 log "starting server via symlink: $SERVER_SYMLINK -server"
 # `stdbuf -oL -eL` forces line-buffering on stdout/stderr — the server's
-# C++ `std::cout` is fully-buffered when redirected to a file, and the
+# C++ `sf::cOut()` is fully-buffered when redirected to a file, and the
 # periodic `runIteration_FlushLogs` only flushes once per second, which
 # makes "did the server log X" checks racy for a script.
 stdbuf -oL -eL "$SERVER_SYMLINK" -server > "$SERVER_LOG" 2>&1 &

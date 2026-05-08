@@ -9,23 +9,29 @@
 
 #include "SFML/Network/Packet.hpp"
 
+#include "SFML/System/IO.hpp"
 #include "SFML/System/Path.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Macros.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 
 #include <fstream>
-#include <iostream>
-#include <utility>
+#include <ios>
+#include <zconf.h>
 #include <zlib.h>
+
+#include <cstddef>
+#include <cstring>
 
 namespace hg
 {
 
 [[gnu::cold]] static void printTryFailure(const char* code)
 {
-    ::std::cerr << "Failed [de]serialization operation '" << code << "'\n";
+    ::sf::cErr() << "Failed [de]serialization operation '" << code << "'\n";
 }
 
 #define SSVOH_TRY(...)                     \
@@ -335,7 +341,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
     std::ifstream is(p.c_str(), std::ios::binary | std::ios::in);
     if (!static_cast<bool>(is))
     {
-        std::cerr << "Couldn't open replay path '" << p << "'\n";
+        sf::cErr() << "Couldn't open replay path '" << p << "'\n";
         return false;
     }
 
@@ -437,7 +443,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
     std::ifstream is(p.c_str(), std::ios::binary | std::ios::in);
     if (!static_cast<bool>(is))
     {
-        std::cerr << "Couldn't open compressed replay path '" << p << "'\n";
+        sf::cErr() << "Couldn't open compressed replay path '" << p << "'\n";
         return false;
     }
 
@@ -509,7 +515,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 
     if (rc != Z_OK)
     {
-        std::cerr << "Failed compression of replay file, error code: '" << rc << "'\n";
+        sf::cErr() << "Failed compression of replay file, error code: '" << rc << "'\n";
 
         return sf::base::nullOpt;
     }
@@ -534,7 +540,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 
     if (rc != Z_OK)
     {
-        std::cerr << "Failed compression of replay file, error code: '" << rc << "'\n";
+        sf::cErr() << "Failed compression of replay file, error code: '" << rc << "'\n";
 
         return sf::base::nullOpt;
     }

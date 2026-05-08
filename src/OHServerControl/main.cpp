@@ -3,7 +3,8 @@
 #include "SFML/Network/Socket.hpp"
 #include "SFML/Network/UdpSocket.hpp"
 
-#include <iostream>
+#include "SFML/System/IO.hpp"
+
 #include <string>
 
 namespace
@@ -11,7 +12,7 @@ namespace
 
 [[nodiscard]] bool cin_getline_string(std::string& result) noexcept
 {
-    return static_cast<bool>(std::getline(std::cin, result));
+    return sf::getLine(sf::cIn(), result);
 }
 
 } // namespace
@@ -20,13 +21,13 @@ int main(int argc, char* argv[])
 {
     if (argc < 1)
     {
-        std::cerr << "Fatal error: no executable specified" << std::endl;
+        sf::cErr() << "Fatal error: no executable specified" << sf::endL;
         return -1;
     }
 
     if (argc > 2)
     {
-        std::cerr << "Invalid number of arguments" << std::endl;
+        sf::cErr() << "Invalid number of arguments" << sf::endL;
         return -1;
     }
 
@@ -36,7 +37,7 @@ int main(int argc, char* argv[])
     auto controlSocketOpt = sf::UdpSocket::create(true /* isBlocking */);
     if (!controlSocketOpt.hasValue())
     {
-        std::cerr << "Failed to create UDP control socket\n";
+        sf::cErr() << "Failed to create UDP control socket\n";
         return -1;
     }
 
@@ -49,7 +50,7 @@ int main(int argc, char* argv[])
 
         if (controlSocket.send(packet, sf::IpAddress::LocalHost, 50'506) != sf::Socket::Status::Done)
         {
-            std::cerr << "Error sending control packet\n";
+            sf::cErr() << "Error sending control packet\n";
             return false;
         }
 
@@ -62,7 +63,7 @@ int main(int argc, char* argv[])
         {
             if (!cin_getline_string(stringBuf))
             {
-                std::cerr << "Error reading line from stdin\n";
+                sf::cErr() << "Error reading line from stdin\n";
                 continue;
             }
 

@@ -1,32 +1,36 @@
-// ----------------------------------------------------------------------------
-// Steam includes.
+
 #include "steam/steam_api.h"
 
-#include <inttypes.h> // Steam libs need this.
+#include "SFML/System/IO.hpp"
 
-// ----------------------------------------------------------------------------
-// C++ Standard includes.
+#include "SFML/Base/StdChrono.hpp"
+
 #include <atomic>
-#include <chrono>
 #include <filesystem>
 #include <functional>
-#include <iostream>
+#include <inttypes.h> // Steam libs need this.
+#include <ios>
 #include <limits>
 #include <optional>
+#include <steam/isteamremotestorage.h>
+#include <steam/isteamugc.h>
+#include <steam/steam_api_common.h>
+#include <steam/steamclientpublic.h>
+#include <steam/steamtypes.h>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 
-// ----------------------------------------------------------------------------
-// C Standard includes.
 #include <cassert>
+#include <cmath>
 
 // ----------------------------------------------------------------------------
 // Utilities.
-[[nodiscard]] std::ostream& log(const std::string_view category) noexcept
+[[nodiscard]] sf::IOStreamOutput& log(const std::string_view category) noexcept
 {
-    std::cout << "[" << category << "] ";
-    return std::cout;
+    sf::cOut() << "[" << category << "] ";
+    return sf::cOut();
 }
 
 template <typename F>
@@ -46,23 +50,23 @@ template <typename T>
 [[nodiscard]] T read_integer() noexcept
 {
     T result;
-    while (!(std::cin >> result))
+    while (!(sf::cIn() >> result))
     {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        sf::cIn().clear();
+        sf::cIn().ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-        std::cout << "Please insert an integer.\n";
+        sf::cOut() << "Please insert an integer.\n";
     }
 
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    sf::cIn().clear();
+    sf::cIn().ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     return result;
 }
 
 [[nodiscard]] bool cin_getline_string(std::string& result) noexcept
 {
-    return static_cast<bool>(std::getline(std::cin, result));
+    return sf::getLine(sf::cIn(), result);
 }
 
 [[nodiscard]] bool cin_getline_path(std::filesystem::path& result) noexcept
@@ -74,7 +78,7 @@ template <typename T>
         return false;
     }
 
-    std::cout << "Read '" << buf << "'\n";
+    sf::cOut() << "Read '" << buf << "'\n";
     result = buf;
 
     return true;
@@ -87,9 +91,9 @@ template <typename T>
 
     while (!cin_getline_path(result) || !std::filesystem::exists(result, ec) || !std::filesystem::is_directory(result, ec))
     {
-        std::cout << "Please insert a valid path to an existing directory. "
-                     "Error code: '"
-                  << ec << "'\n";
+        sf::cOut() << "Please insert a valid path to an existing directory. "
+                      "Error code: '"
+                   << ec.message() << "'\n";
     }
 
     return result;
@@ -103,7 +107,7 @@ template <typename T>
     while (!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
            !std::filesystem::is_regular_file(result, ec))
     {
-        std::cout << "Please insert a valid path to an existing file. Error code: '" << ec << "'\n";
+        sf::cOut() << "Please insert a valid path to an existing file. Error code: '" << ec.message() << "'\n";
     }
 
     return result;
@@ -112,10 +116,10 @@ template <typename T>
 [[nodiscard]] std::string read_string() noexcept
 {
     std::string result;
-    std::cin >> result;
+    sf::cIn() >> result;
 
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    sf::cIn().clear();
+    sf::cIn().ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     return result;
 }
@@ -496,12 +500,12 @@ private:
     void create_new_workshop_item()
     {
         _steam_helper.create_workshop_item([](const PublishedFileId_t item_id)
-        { std::cout << "Successfully created new workshop item: " << item_id << ".\n"; });
+        { sf::cOut() << "Successfully created new workshop item: " << item_id << ".\n"; });
     }
 
     void upload_contents_to_existing_workshop_item()
     {
-        std::cout << "Enter the workshop item id to upload contents to:\n";
+        sf::cOut() << "Enter the workshop item id to upload contents to:\n";
         const auto item_id = read_integer<PublishedFileId_t>();
 
         const std::optional<UGCUpdateHandle_t> update_handle = _steam_helper.start_workshop_item_update(item_id);
@@ -512,7 +516,7 @@ private:
             return;
         }
 
-        std::cout << "Enter the path to the folder containing the contents:\n";
+        sf::cOut() << "Enter the path to the folder containing the contents:\n";
         const std::filesystem::path directory_path = read_directory_path();
 
         if (!_steam_helper.set_workshop_item_content(update_handle.value(), directory_path))
@@ -521,25 +525,25 @@ private:
             return;
         }
 
-        std::cout << "Enter changelog note:\n";
+        sf::cOut() << "Enter changelog note:\n";
 
         std::string changelog_note;
         while (!cin_getline_string(changelog_note))
         {
-            std::cout << "Error reading changelog note, please try again\n";
+            sf::cOut() << "Error reading changelog note, please try again\n";
         }
 
         log("CLI") << "Uploading contents to Steam servers...\n";
 
         _steam_helper.submit_item_update(update_handle.value(), changelog_note.c_str(), [item_id] {
-            std::cout << "Successfully updated workshop item: " << item_id << ".\n";
+            sf::cOut() << "Successfully updated workshop item: " << item_id << ".\n";
         });
     }
 
     void set_preview_image_of_existing_workshop_item()
     {
-        std::cout << "Enter the workshop item id whose preview image will be "
-                     "changed:\n";
+        sf::cOut() << "Enter the workshop item id whose preview image will be "
+                      "changed:\n";
 
         const auto item_id = read_integer<PublishedFileId_t>();
 
@@ -551,7 +555,7 @@ private:
             return;
         }
 
-        std::cout << "Enter the path of the new preview image file:\n";
+        sf::cOut() << "Enter the path of the new preview image file:\n";
         const std::filesystem::path file_path = read_file_path();
 
         if (!_steam_helper.set_workshop_item_preview_image(update_handle.value(), file_path))
@@ -560,24 +564,24 @@ private:
             return;
         }
 
-        std::cout << "Enter changelog note:\n";
+        sf::cOut() << "Enter changelog note:\n";
 
         std::string changelog_note;
         while (!cin_getline_string(changelog_note))
         {
-            std::cout << "Error reading changelog note, please try again\n";
+            sf::cOut() << "Error reading changelog note, please try again\n";
         }
 
         log("CLI") << "Uploading preview image to Steam servers...\n";
 
         _steam_helper.submit_item_update(update_handle.value(), changelog_note.c_str(), [item_id] {
-            std::cout << "Successfully updated workshop item: " << item_id << ".\n";
+            sf::cOut() << "Successfully updated workshop item: " << item_id << ".\n";
         });
     }
 
     [[nodiscard]] bool main_menu() noexcept
     {
-        std::cout << R"(Welcome! Please visit the following webpage for more information:
+        sf::cOut() << R"(Welcome! Please visit the following webpage for more information:
 https://openhexagon.org/workshop
 
 Enter one of the following options:
@@ -612,7 +616,7 @@ Enter one of the following options:
             return false;
         }
 
-        std::cout << "Invalid choice.\n";
+        sf::cOut() << "Invalid choice.\n";
         return true;
     }
 

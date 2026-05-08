@@ -3,6 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
@@ -11,7 +12,10 @@
 
 #include "SFML/Graphics/GraphicsContext.hpp"
 
+#include "SFML/System/IO.hpp"
+
 #include "SFML/Base/Array.hpp"
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 
 #include <stdexcept>
@@ -98,7 +102,7 @@ try
         TEST_ASSERT(score2.hasValue());
         const double replayPlayedTimeSeconds = score2.value().playedTimeSeconds;
 
-        std::cerr << score << " == " << replayPlayedTimeSeconds << std::endl;
+        sf::cErr() << score << " == " << replayPlayedTimeSeconds << sf::endL;
 
         TEST_ASSERT_EQ(score, replayPlayedTimeSeconds);
     };
@@ -122,8 +126,8 @@ try
     return 0;
 } catch (const std::runtime_error& e)
 {
-    std::cerr << "EXCEPTION: " << e.what() << std::endl;
+    sf::cErr() << "EXCEPTION: " << e.what() << sf::endL;
 } catch (...)
 {
-    std::cerr << "EXCEPTION: unknown" << std::endl;
+    sf::cErr() << "EXCEPTION: unknown" << sf::endL;
 }

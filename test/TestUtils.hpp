@@ -2,11 +2,12 @@
 
 #include "SFML/System/IO.hpp"
 
+#include "SFML/Base/Abort.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Trait/CommonType.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
 
-#include <iostream>
+#include <ostream>
 #include <random>
 
 
@@ -36,8 +37,8 @@ inline auto& clear_and_get_ostringstream() noexcept
 
 [[noreturn]] inline void fail() noexcept
 {
-    std::cout << get_ostringstream().getString() << std::endl;
-    std::abort();
+    sf::cOut() << get_ostringstream().getString() << sf::endL;
+    sf::base::abort();
 }
 
 template <typename TStream>

@@ -14,7 +14,6 @@
 
 #include <bitset>
 
-#include <cstring>
 
 namespace sf
 {

@@ -25,10 +25,10 @@
 #include "SFML/System/Time.hpp"
 
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <atomic>
-#include <chrono>
 #include <latch>
 #include <sodium.h>
 #include <string>

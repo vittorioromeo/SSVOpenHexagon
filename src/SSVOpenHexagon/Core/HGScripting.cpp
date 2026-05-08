@@ -7,16 +7,14 @@
 #include "SSVOpenHexagon/Core/CustomTimeline.hpp"
 #include "SSVOpenHexagon/Core/CustomTimelineHandle.hpp"
 #include "SSVOpenHexagon/Core/CustomTimelineManager.hpp"
+#include "SSVOpenHexagon/Core/Frametime.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
-#include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
@@ -25,14 +23,16 @@
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 
+#include "SFML/System/Angle.hpp"
+#include "SFML/System/IO.hpp"
+
 #include "SFML/Base/Macros.hpp"
-#include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
 
-#include <iostream>
+#include <stdexcept>
+#include <string_view>
 
 #include <cmath>
 
@@ -654,10 +654,10 @@ void HexagonGame::initLua_LevelControl()
                                 .cStr());
         } catch (const std::runtime_error& mError)
         {
-            std::cout << "[l_overrideScore] Runtime error on overriding score "
-                      << "with level \"" << levelData->name << "\": \n"
-                      << mError.what() << '\n'
-                      << std::endl;
+            sf::cOut() << "[l_overrideScore] Runtime error on overriding score "
+                       << "with level \"" << levelData->name << "\": \n"
+                       << mError.what() << '\n'
+                       << sf::endL;
             if (!Config::getDebug())
             {
                 goToMenu(false /* mSendScores */, true /* mError */);
@@ -1174,9 +1174,9 @@ try
     throw;
 } catch (const std::runtime_error& mError)
 {
-    std::cout << "[runLuaFunctionIfExists] Runtime error on \"" << mName << "\" with level \"" << levelData->name << "\": \n"
-              << mError.what() << '\n'
-              << std::endl;
+    sf::cOut() << "[runLuaFunctionIfExists] Runtime error on \"" << mName << "\" with level \"" << levelData->name << "\": \n"
+               << mError.what() << '\n'
+               << sf::endL;
 
     if (!Config::getDebug())
     {
@@ -1184,10 +1184,10 @@ try
     }
 } catch (...)
 {
-    std::cout << "[runLuaFunctionIfExists] Unknown runtime error on \"" << mName << "\" with level \""
-              << levelData->name << "\": \n"
-              << '\n'
-              << std::endl;
+    sf::cOut() << "[runLuaFunctionIfExists] Unknown runtime error on \"" << mName << "\" with level \""
+               << levelData->name << "\": \n"
+               << '\n'
+               << sf::endL;
 
     if (!Config::getDebug())
     {

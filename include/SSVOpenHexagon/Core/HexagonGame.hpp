@@ -38,6 +38,7 @@
 #include "SFML/System/IO.hpp"
 #include "SFML/System/Vec2.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
@@ -47,7 +48,6 @@
 
 #include <string>
 #include <string_view>
-#include <unordered_set>
 
 struct ImGuiInputTextCallbackData;
 
@@ -199,8 +199,8 @@ private:
 
     const sf::Vec2f centerPos{0.f, 0.f};
 
-    Lua::LuaContext                      lua;
-    std::unordered_set<sf::base::String> calledDeprecatedFunctions;
+    Lua::LuaContext                                lua;
+    ankerl::unordered_dense::set<sf::base::String> calledDeprecatedFunctions;
 
     LevelStatus levelStatus;
     MusicData   musicData;

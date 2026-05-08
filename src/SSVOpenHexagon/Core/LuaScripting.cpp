@@ -35,14 +35,11 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/StringView.hpp"
-#include "SFML/Base/StringViewStreamOp.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <functional>
-#include <iostream>
 #include <tuple>
 
 namespace hg::LuaScripting
@@ -1787,13 +1784,13 @@ void printDocs()
 
     for (sf::base::SizeT i = 0; i < lm.getNumCategories(); ++i)
     {
-        std::cout << '\n' << lm.prefixHeaders[i] << "\n\n";
+        sf::cOut() << '\n' << lm.prefixHeaders[i] << "\n\n";
 
         lm.forFnEntries([](const sf::base::String& ret,
                            const sf::base::String& name,
                            const sf::base::String& args,
                            const sf::base::String& docs)
-        { std::cout << "* **`" << ret << " " << name << "(" << args << ")`**: " << docs << "\n\n"; },
+        { sf::cOut() << "* **`" << ret << " " << name << "(" << args << ")`**: " << docs << "\n\n"; },
                         i);
     }
 }
