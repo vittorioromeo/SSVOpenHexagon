@@ -452,7 +452,14 @@ bool HexagonClient::connect()
         return failEvent("sending public key");
     }
 
-    addEvent(Event{EConnectionSuccess{}});
+    // State transitions to `Connected` immediately so the host UI can
+    // reflect the TCP-level connection. The user-visible
+    // `EConnectionSuccess` event is held back until the server replies
+    // with its public key and we can derive RT keys -- only then is the
+    // connection actually usable for login/register. Without that gate,
+    // a non-responsive server (firewalled, stale, mismatched build)
+    // would surface "CONNECTION SUCCESS" while every encrypted send
+    // silently fails because RT keys never landed.
     _state = State::Connected;
     return true;
 }
@@ -620,7 +627,14 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                    << " - " << SSVOH_CLOG_VAR(keyReceive) << '\n'
                    << " - " << SSVOH_CLOG_VAR(keyTransmit) << '\n';
 
-        SSVOH_CLOG << "Replying with login attempt\n";
+        // Now that RT keys exist, the connection is actually usable for
+        // encrypted traffic -- this is the right moment to surface
+        // "connection succeeded" to the user. `connect()` only signals
+        // TCP-level success; old-style behaviour fired this event right
+        // after sending the client's public key, which gave the user a
+        // green-light before encryption was negotiated and made
+        // login/register silently no-op against unresponsive servers.
+        addEvent(Event{EConnectionSuccess{}});
 
         return true;
     },
@@ -868,6 +882,17 @@ bool HexagonClient::tryRegister(const sf::base::String& name, const sf::base::St
         return false;
     }
 
+    // The encrypted send path needs RT keys, which only land after the
+    // server replies to our public key. Without this check the call
+    // silently no-ops -- the user sees a connected server, clicks
+    // REGISTER, and gets nothing back. Surface it as an explicit failure
+    // so they know to wait or that the server is unresponsive.
+    if (!_clientRTKeys.hasValue())
+    {
+        addEvent(Event{ERegistrationFailure{"Key exchange with server not yet complete - wait a moment and retry"}});
+        return false;
+    }
+
     return sendRegister(_ticketSteamID.value(), name, saltAndHashPwd(password));
 }
 
@@ -887,6 +912,12 @@ bool HexagonClient::tryLogin(const sf::base::String& name, const sf::base::Strin
     if (!_ticketSteamID.hasValue())
     {
         addEvent(Event{ELoginFailure{"No Steam ticket - restart with Steam running"}});
+        return false;
+    }
+
+    if (!_clientRTKeys.hasValue())
+    {
+        addEvent(Event{ELoginFailure{"Key exchange with server not yet complete - wait a moment and retry"}});
         return false;
     }
 
@@ -920,8 +951,16 @@ bool HexagonClient::tryDeleteAccount(const sf::base::String& password)
 
     if (!_ticketSteamID.hasValue())
     {
+        addEvent(Event{EDeleteAccountFailure{"No Steam ticket - restart with Steam running"}});
         return false;
     }
+
+    if (!_clientRTKeys.hasValue())
+    {
+        addEvent(Event{EDeleteAccountFailure{"Key exchange with server not yet complete - wait a moment and retry"}});
+        return false;
+    }
+
     return sendDeleteAccount(_ticketSteamID.value(), saltAndHashPwd(password));
 }
 

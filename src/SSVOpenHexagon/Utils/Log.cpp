@@ -5,18 +5,19 @@
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVUtils/Core/FileSystem/Path.hpp"
+#include "steam/steamclientpublic.h"
 
 #include "SFML/System/IO.hpp"
-#include "SFML/System/Path.hpp"
+#include "SFML/System/Path.hpp"         // IWYU pragma: keep
+#include "SFML/System/PathStreamOp.hpp" // IWYU pragma: keep
 
-#include "SFML/Base/String.hpp"
+#include "SFML/Base/String.hpp" // IWYU pragma: keep
 #include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/StringViewStreamOp.hpp"
 
-#include <filesystem>
+#include <filesystem> // IWYU pragma: keep
 #include <fstream>
-#include <steam/steamclientpublic.h>
 
 
 namespace hg

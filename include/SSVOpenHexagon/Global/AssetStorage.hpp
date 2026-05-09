@@ -53,6 +53,17 @@ public:
     [[nodiscard]] bool hasTexture(const sf::base::String& id) noexcept;
     [[nodiscard]] bool hasFont(const sf::base::String& id) noexcept;
     [[nodiscard]] bool hasSoundBuffer(const sf::base::String& id) noexcept;
+
+    // Erases every texture / font / sound-buffer whose id starts with
+    // `packIdPrefix` (e.g. `"workshop_pack_abc_"`). Used by
+    // `HGAssets::removePackAtRuntime` to release all assets owned by a
+    // workshop pack the user just unsubscribed from.
+    //
+    // Caller is responsible for ensuring no live `sf::Sound` /
+    // `sf::Sprite` / `sf::Text` objects are still pointing at the data
+    // about to be erased -- once the underlying buffer/texture/font is
+    // gone, those drawables hold dangling pointers.
+    void removeByPackPrefix(const sf::base::String& packIdPrefix);
 };
 
 } // namespace hg

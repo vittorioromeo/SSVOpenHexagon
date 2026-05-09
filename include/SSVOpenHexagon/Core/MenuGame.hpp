@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
 #include "SSVOpenHexagon/UI/App.hpp"
+#include "SSVOpenHexagon/UI/Notifications.hpp"
 #include "SSVOpenHexagon/UI/Services.hpp"
 #include "SSVOpenHexagon/UI/UI.hpp"
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
@@ -34,6 +35,8 @@
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
+
+#include <unordered_map>
 
 namespace ssvs::Input
 {
@@ -165,6 +168,12 @@ private:
     // animation helpers read it via `Context::dt`.
     float ui_dt{1.f / 60.f};
 
+    // Bottom-right toast stack. Used for non-modal state-change feedback
+    // ("connected", "pack downloaded", etc.) -- routed in via
+    // `Services::pushNotification`. Ticked in `update()`, drawn near the
+    // end of `drawNewMainMenu` so it overlays whichever screen is up.
+    hg::ui::NotificationStack ui_notifications;
+
     // Optional `HexagonGame` instances used as menu visuals. Both run in
     // `previewMode`. `hgMenuBg` plays a fixed backdrop level under the
     // entire menu; `hgPreview` renders the currently-selected level into
@@ -174,6 +183,26 @@ private:
     HexagonGame*                          hgPreview{nullptr};
     sf::base::Optional<sf::RenderTexture> previewTexture;
     sf::base::String                      previewLoadedLevelId; //!< prevents reloading on every frame
+
+    // One-shot flag set by `returnToLevelSelection`. Each `Type::Once`
+    // input bind starts life with `released=true`, so when MenuGame's
+    // input manager activates while the user is still holding the ESC
+    // they pressed to exit gameplay, the bind sees a fresh down-edge
+    // and synthesizes `ui_pendingInput.escape = true` -- which, the
+    // very same frame, would pop LevelSelect back to Main. We drain
+    // `ui_pendingInput` once at the top of the next `update` (after
+    // the trigger callbacks have fired but before the screen reads
+    // them), then clear the flag. Subsequent frames behave normally.
+    bool consumeStaleInputsNextFrame{false};
+
+    // Steam-publishedFileId → HGAssets pack-id, populated when an
+    // `EK::ItemInstalled` event triggers `assets.installPackAtRuntime`
+    // (which returns the freshly-loaded pack id). On `EK::ItemUnsubscribed`
+    // we look up the pack id by published-file-id and call
+    // `assets.removePackAtRuntime`. Without this map, the unsubscribe
+    // callback only carries the published-file-id and we'd have no way to
+    // identify which pack to tear down.
+    std::unordered_map<sf::base::U64, sf::base::String> _workshopFileIdToPackId;
 
     // Validator for the (level, difficulty) currently shown in the
     // LevelSelect leaderboard pane. Set by `Services::onRequestLeaderboard`
@@ -289,8 +318,6 @@ public:
 
     States state;
 
-    void ignoreInputsAfterMenuExec();
-
     //---------------------------------------
     // State changes
 
@@ -300,11 +327,9 @@ public:
     // Update
 
     LevelStatus levelStatus;
-    int         ignoreInputs;
 
     void update(float mFT);
     void refreshCamera();
-    void setIgnoreAllInputs(const unsigned int presses);
 
     //---------------------------------------
     // Drawing

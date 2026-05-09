@@ -48,7 +48,6 @@
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <exception>
 #include <map>
 #include <stdexcept>
@@ -57,6 +56,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include <cstring>
 
 namespace hg
 {
@@ -152,7 +153,9 @@ public:
         ++_packListVersion;
     }
 
-    [[nodiscard]] bool installPackAtRuntime(const sf::base::String& folderPath);
+    [[nodiscard]] sf::base::Optional<sf::base::String> installPackAtRuntime(const sf::base::String& folderPath);
+
+    [[nodiscard]] bool removePackAtRuntime(const sf::base::String& packId);
 
     [[nodiscard]] bool         hasTexture(const sf::base::String& mId);
     [[nodiscard]] sf::Texture& getTexture(const sf::base::String& mId);
@@ -1474,14 +1477,55 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
 //**********************************************
 // HOT INSTALL
 
-[[nodiscard]] bool HGAssets::HGAssetsImpl::installPackAtRuntime(const sf::base::String& folderPath)
+[[nodiscard]] sf::base::Optional<sf::base::String> HGAssets::HGAssetsImpl::installPackAtRuntime(const sf::base::String& folderPath)
 {
     // Validate the folder has a `pack.json` we can parse.
     const ssvufs::Path packPath{folderPath.cStr()};
     if (!ssvufs::Path{packPath + "/pack.json"}.isFile())
     {
         hg::lo("HGAssets::installPackAtRuntime") << "No pack.json under '" << folderPath << "'\n";
-        return false;
+        return sf::base::nullOpt;
+    }
+
+    // Idempotency check. The Steam UGC subscribe path can deliver the
+    // same pack to us via more than one callback in a single session
+    // (e.g. `ItemInstalled_t` for the install + a synthesized event from
+    // `on_item_subscribed` for an already-on-disk re-subscribe). Without
+    // this guard, the second call appends duplicate entries to
+    // `packInfos` / `selectablePackInfos` / `levelDataIdsByPack[id]` --
+    // most of the underlying `unordered_map`s reject the duplicate
+    // `emplace` silently, but the vector-keyed indexes don't, so the
+    // pack ends up listed twice in the level select and every level
+    // shows up twice within it.
+    //
+    // Match by `folderPath` because that's the only identifier we have
+    // before the JSON parse runs. `PackData::folderPath` is set during
+    // initial / hot install; comparing tolerantly handles the case
+    // where one side carries a trailing `/` and the other doesn't.
+    {
+        const auto matchesFolder = [&](const sf::base::String& a, const sf::base::String& b)
+        {
+            if (a == b)
+                return true;
+
+            if (a.size() == b.size() + 1 && a.back() == '/' && std::memcmp(a.data(), b.data(), b.size()) == 0)
+                return true;
+
+            if (b.size() == a.size() + 1 && b.back() == '/' && std::memcmp(a.data(), b.data(), a.size()) == 0)
+                return true;
+
+            return false;
+        };
+
+        for (const auto& [pid, pdata] : packDatas)
+        {
+            if (matchesFolder(pdata.folderPath, folderPath))
+            {
+                hg::lo("HGAssets::installPackAtRuntime")
+                    << "Pack at folder '" << folderPath << "' already loaded as '" << pid << "'; no-op\n";
+                return sf::base::makeOptional(pid);
+            }
+        }
     }
 
     // Load metadata + assets. `loadPackData` populates `packDatas` and
@@ -1490,23 +1534,23 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     if (!loadPackData(packPath))
     {
         hg::lo("HGAssets::installPackAtRuntime") << "loadPackData failed for '" << folderPath << "'\n";
-        return false;
+        return sf::base::nullOpt;
     }
 
     // The pack id was just inserted as the last element of `packInfos`. Use
     // it to fetch the corresponding `PackData` for `loadPackAssets`.
-    const sf::base::String& newPackId = packInfos.back().id;
-    const auto              it        = packDatas.find(newPackId);
+    const sf::base::String newPackId = packInfos.back().id;
+    const auto             it        = packDatas.find(newPackId);
     if (it == packDatas.end())
     {
         hg::lo("HGAssets::installPackAtRuntime") << "PackData missing after loadPackData\n";
-        return false;
+        return sf::base::nullOpt;
     }
 
     if (!loadPackAssets(it->second, isHeadless()))
     {
         hg::lo("HGAssets::installPackAtRuntime") << "loadPackAssets failed for '" << newPackId << "'\n";
-        return false;
+        return sf::base::nullOpt;
     }
 
     // Re-validate dependencies so a freshly-installed pack is recognized
@@ -1521,6 +1565,151 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
 
     // Re-sort selectablePackInfos by priority. (Matches the initial-load
     // sort at the end of `loadAllPackAssets`.)
+    sf::base::quickSort(selectablePackInfos.begin(), selectablePackInfos.end(), [&](const PackInfo& a, const PackInfo& b) {
+        return packDatas.at(a.id).priority < packDatas.at(b.id).priority;
+    });
+
+    bumpPackListVersion();
+    return sf::base::makeOptional(newPackId);
+}
+
+[[nodiscard]] bool HGAssets::HGAssetsImpl::removePackAtRuntime(const sf::base::String& packId)
+{
+    // Mirror image of `installPackAtRuntime`: tear down every container
+    // that the install path touched, in roughly the reverse order, then
+    // run the same dependency-verification + selectable-list rebuild +
+    // version-bump that the install does.
+    //
+    // The pack must currently be loaded -- if it isn't, the caller has a
+    // stale id and we surface that as a bool failure rather than silent
+    // success.
+    if (packDatas.find(packId) == packDatas.end())
+    {
+        hg::lo("HGAssets::removePackAtRuntime") << "Unknown packId '" << packId << "'\n";
+        return false;
+    }
+
+    // Build a "starts with `packId_`" predicate once. Used to sweep every
+    // map keyed by `packId_<assetName>` (level/music/style/shader/etc.).
+    sf::base::String prefixBuf;
+    prefixBuf.reserve(packId.size() + 1);
+    prefixBuf += packId;
+    prefixBuf += '_';
+
+    const auto startsWithPrefix = [&prefixBuf](const sf::base::String& key) noexcept
+    { return key.size() >= prefixBuf.size() && std::memcmp(key.data(), prefixBuf.data(), prefixBuf.size()) == 0; };
+
+    const auto sweepMap = [&](auto& map)
+    {
+        for (auto it = map.begin(); it != map.end();)
+        {
+            if (startsWithPrefix(it->first))
+                it = map.erase(it);
+            else
+                ++it;
+        }
+    };
+
+    // ------------------------------------------------------------------------
+    // 1. Levels: erase every `levelDatas[packId_*]`, drop the per-pack index.
+    sweepMap(levelDatas);
+    levelDataIdsByPack.erase(packId);
+
+    // ------------------------------------------------------------------------
+    // 2. Music + style metadata.
+    sweepMap(musicPathMap);
+    sweepMap(musicDataMap);
+    sweepMap(styleDataMap);
+
+    // ------------------------------------------------------------------------
+    // 3. Shaders. The vector `shadersById` is append-only by design (its
+    //    indices are baked into LevelData / Lua scripts), so we null out
+    //    the slots rather than reclaim them. `getShaderByShaderId` returns
+    //    `nullptr` for a hole, which the rendering code already tolerates.
+    for (auto it = shaders.begin(); it != shaders.end();)
+    {
+        if (startsWithPrefix(it->first))
+        {
+            const sf::base::SizeT id = it->second.id;
+            if (id < shadersById.size())
+                shadersById[id] = nullptr;
+
+            // Wipe the path-to-id index entry that pointed at this shader.
+            // (We can't reverse-lookup by id efficiently, so we sweep
+            // `shadersPathToId` once at the end.)
+            it = shaders.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    // Drop any `shadersPathToId` entry whose id now points to a null slot.
+    for (auto it = shadersPathToId.begin(); it != shadersPathToId.end();)
+    {
+        const sf::base::SizeT id = it->second;
+        if (id < shadersById.size() && shadersById[id] == nullptr)
+            it = shadersPathToId.erase(it);
+        else
+            ++it;
+    }
+
+    // ------------------------------------------------------------------------
+    // 4. AssetStorage (textures / fonts / sound buffers). Custom-sound load
+    //    sites all key by `packId_*`; the global `Assets/` load uses bare
+    //    asset names (no underscore prefix at all), so this sweep can't
+    //    collide with them.
+    assetStorage->removeByPackPrefix(prefixBuf);
+
+    // ------------------------------------------------------------------------
+    // 5. Pack metadata.
+    packDatas.erase(packId);
+
+    sf::base::vectorEraseIf(packInfos, [&](const PackInfo& pi) { return pi.id == packId; });
+    sf::base::vectorEraseIf(selectablePackInfos, [&](const PackInfo& pi) { return pi.id == packId; });
+
+    // The pack we removed may have been keeping `packIdsWithMissingDependencies`
+    // up to date for itself; drop its entry so it doesn't shadow a later
+    // re-install. Other packs that *depended on* this one will get re-flagged
+    // by the upcoming `verifyAllPackDependencies` call.
+    packIdsWithMissingDependencies.erase(packId);
+
+    // ------------------------------------------------------------------------
+    // 6. Lua script cache. Keys are full filesystem paths under the pack
+    //    folder; sweep anything containing the pack id to be safe (paths
+    //    naturally include `packId` as a folder component, so this is
+    //    sufficient even if the user reinstalls under a different absolute
+    //    folder later).
+    auto& luaCache = getLuaFileCache();
+    for (auto it = luaCache.begin(); it != luaCache.end();)
+    {
+        if (it->first.find(packId.toStringView()) != sf::base::String::nPos)
+            it = luaCache.erase(it);
+        else
+            ++it;
+    }
+
+    // ------------------------------------------------------------------------
+    // 7. Active-profile favorites: drop ids that no longer resolve. (S3 in
+    //    the design doc.) We sweep every loaded profile so cleanup is
+    //    consistent regardless of which one is active.
+    for (auto& [profileName, profileData] : profileDataMap)
+    {
+        Utils::erase_if(profileData.getFavoriteLevelIds(),
+                        [this](const sf::base::String& favId) { return levelDatas.find(favId) == levelDatas.end(); });
+    }
+
+    // ------------------------------------------------------------------------
+    // 8. Re-validate dependencies and re-sort the selectable list -- same
+    //    final-pass the install path runs.
+    if (!verifyAllPackDependencies())
+    {
+        hg::lo("HGAssets::removePackAtRuntime") << "verifyAllPackDependencies reported issues\n";
+        // Same rationale as install: the function populates
+        // `packIdsWithMissingDependencies` for the UI to surface.
+    }
+
     sf::base::quickSort(selectablePackInfos.begin(), selectablePackInfos.end(), [&](const PackInfo& a, const PackInfo& b) {
         return packDatas.at(a.id).priority < packDatas.at(b.id).priority;
     });
@@ -1755,9 +1944,14 @@ sf::base::U64 HGAssets::packListVersion() const noexcept
     return _impl->getPackListVersion();
 }
 
-bool HGAssets::installPackAtRuntime(const sf::base::String& folderPath)
+sf::base::Optional<sf::base::String> HGAssets::installPackAtRuntime(const sf::base::String& folderPath)
 {
     return _impl->installPackAtRuntime(folderPath);
+}
+
+bool HGAssets::removePackAtRuntime(const sf::base::String& packId)
+{
+    return _impl->removePackAtRuntime(packId);
 }
 
 const PackData* HGAssets::findPackData(const sf::base::String& mPackDisambiguator,

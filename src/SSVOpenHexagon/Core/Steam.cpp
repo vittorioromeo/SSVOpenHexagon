@@ -5,31 +5,41 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp" // IWYU pragma: keep
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Io.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
-#include "SFML/Base/Macros.hpp"
-
 #include <stdint.h> // Steam API needs this.
 
 #ifndef SSVOH_ANDROID
+    #include "steam/isteamfriends.h"
+    #include "steam/isteamhttp.h"
+    #include "steam/isteamremotestorage.h"
+    #include "steam/isteamugc.h"
+    #include "steam/isteamuser.h"
+    #include "steam/isteamuserstats.h"
+    #include "steam/isteamutils.h"
     #include "steam/steam_api.h"
+    #include "steam/steam_api_common.h"
     #include "steam/steam_api_flat.h"
+    #include "steam/steamclientpublic.h"
     #include "steam/steamencryptedappticket.h"
+    #include "steam/steamhttpenums.h"
+    #include "steam/steamtypes.h"
 #endif
 
-#include "SSVOpenHexagon/Global/StringHash.hpp"
-
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
+#include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/UniquePtr.hpp"
+#include "SFML/Base/Vector.hpp"
 
-#include <functional>
 #include <string_view>
-#include <unordered_set>
 
 #include <cstring>
 
@@ -88,14 +98,24 @@ static void shutdown_steamworks()
 class steam_manager::steam_manager_impl
 {
 private:
-    bool                         _initialized;
-    bool                         _got_stats;
-    bool                         _got_ticket_response;
-    bool                         _got_ticket;
+    bool _initialized;
+    bool _got_stats;
+    bool _got_ticket_response;
+    bool _got_ticket;
+
     sf::base::Optional<CSteamID> _ticket_steam_id;
 
-    std::unordered_set<sf::base::String> _unlocked_achievements;
-    std::unordered_set<sf::base::String> _workshop_pack_folders;
+    ankerl::unordered_dense::set<sf::base::String> _unlocked_achievements;
+    ankerl::unordered_dense::set<sf::base::String> _workshop_pack_folders;
+
+    // Parallel record to `_workshop_pack_folders`: maps each currently
+    // subscribed-and-installed workshop item's `publishedFileId` to its
+    // on-disk folder. Built during `load_workshop_data` alongside
+    // `_workshop_pack_folders`. Lets callers (notably `MenuGame`) recover
+    // the file-id -> pack-id mapping for items that were already
+    // installed at boot, since `EK::ItemInstalled` only fires for
+    // *new* downloads.
+    ankerl::unordered_dense::map<sf::base::U64, sf::base::String> _workshop_file_id_to_folder;
 
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Winvalid-offsetof"
@@ -154,6 +174,8 @@ public:
     bool update_hardcoded_achievements();
 
     void for_workshop_pack_folders(sf::base::FixedFunction<void(const sf::base::String&), 64> f) const;
+
+    void for_workshop_subscribed_items(sf::base::FixedFunction<void(sf::base::U64, const sf::base::String&), 64> f) const;
 
     bool request_encrypted_app_ticket();
 
@@ -263,6 +285,11 @@ void steam_manager::steam_manager_impl::load_workshop_data()
 
             // Write the path to an element in a JSON array.
             ssvuj::arch(cacheArray, _workshop_pack_folders.size(), folderBufStr);
+
+            // Record the (publishedFileId, folder) pair so the host can
+            // bridge file-ids to pack-ids for items that were already
+            // installed at boot. (See `_workshop_file_id_to_folder` doc.)
+            _workshop_file_id_to_folder.emplace(static_cast<sf::base::U64>(id), folderBufStr);
 
             _workshop_pack_folders.emplace(SFML_BASE_MOVE(folderBufStr));
         }
@@ -687,6 +714,20 @@ void steam_manager::steam_manager_impl::for_workshop_pack_folders(
     }
 }
 
+void steam_manager::steam_manager_impl::for_workshop_subscribed_items(
+    sf::base::FixedFunction<void(sf::base::U64, const sf::base::String&), 64> f) const
+{
+    if (!_initialized)
+    {
+        return;
+    }
+
+    for (const auto& [fileId, folder] : _workshop_file_id_to_folder)
+    {
+        f(fileId, folder);
+    }
+}
+
 // ----------------------------------------------------------------------------
 // Workshop API impl
 
@@ -978,17 +1019,24 @@ void steam_manager::steam_manager_impl::on_item_installed(ItemInstalled_t* data)
     if (data == nullptr)
         return;
 
+    hg::lo("Steam") << "on_item_installed fileId=" << data->m_nPublishedFileId << '\n';
+
     constexpr sf::base::SizeT folderBufSize            = 512;
     char                      folderBuf[folderBufSize] = {};
     uint64                    diskSize{};
     uint32                    timestamp{};
     if (SteamUGC()->GetItemInstallInfo(data->m_nPublishedFileId, &diskSize, folderBuf, folderBufSize, &timestamp))
     {
+        hg::lo("Steam") << "  GetItemInstallInfo ok, folder='" << folderBuf << "'\n";
         WorkshopEvent ev;
         ev.kind            = WorkshopEvent::Kind::ItemInstalled;
         ev.publishedFileId = data->m_nPublishedFileId;
         ev.installFolder   = folderBuf;
         _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
+    }
+    else
+    {
+        hg::lo("Steam") << "  GetItemInstallInfo FAILED -- ItemInstalled event NOT enqueued\n";
     }
 }
 
@@ -996,16 +1044,59 @@ void steam_manager::steam_manager_impl::on_item_subscribed(RemoteStoragePublishe
 {
     if (data == nullptr)
         return;
-    WorkshopEvent ev;
-    ev.kind            = WorkshopEvent::Kind::ItemSubscribed;
-    ev.publishedFileId = data->m_nPublishedFileId;
-    _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
+
+    const auto fileId    = data->m_nPublishedFileId;
+    const auto stateBits = SteamUGC()->GetItemState(fileId);
+
+    hg::lo("Steam") << "on_item_subscribed fileId=" << fileId << " ItemState bits=" << stateBits << '\n';
+
+    {
+        WorkshopEvent ev;
+        ev.kind            = WorkshopEvent::Kind::ItemSubscribed;
+        ev.publishedFileId = fileId;
+        _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
+    }
+
+    // Re-subscribing to a pack whose files are already on disk (e.g.
+    // user unsubscribed earlier and the disk content was preserved, or
+    // the pack was already installed at boot and unsubscribed via the
+    // Steam overlay). Steam takes the fast path: no `DownloadItem` is
+    // queued, so `on_download_item_result` never fires. Without this
+    // synthesis, the host never sees `ItemInstalled` for this case and
+    // the LevelSelect screen doesn't refresh until the game restarts.
+    //
+    // Fresh subscribes (pack never on disk) won't have the install bit
+    // here -- they take the normal path through `on_download_item_result`,
+    // which itself synthesizes `ItemInstalled` once the bytes land.
+    if (stateBits & k_EItemStateInstalled)
+    {
+        constexpr sf::base::SizeT folderBufSize            = 512;
+        char                      folderBuf[folderBufSize] = {};
+        uint64                    diskSize{};
+        uint32                    timestamp{};
+        if (SteamUGC()->GetItemInstallInfo(fileId, &diskSize, folderBuf, folderBufSize, &timestamp))
+        {
+            hg::lo("Steam") << "  already installed, synthesizing ItemInstalled, folder='" << folderBuf << "'\n";
+            WorkshopEvent installed;
+            installed.kind            = WorkshopEvent::Kind::ItemInstalled;
+            installed.publishedFileId = fileId;
+            installed.installFolder   = folderBuf;
+            _workshop_events.emplaceBack(SFML_BASE_MOVE(installed));
+        }
+        else
+        {
+            hg::lo("Steam") << "  install bit set but GetItemInstallInfo failed; deferring to download path\n";
+        }
+    }
 }
 
 void steam_manager::steam_manager_impl::on_item_unsubscribed(RemoteStoragePublishedFileUnsubscribed_t* data)
 {
     if (data == nullptr)
         return;
+
+    hg::lo("Steam") << "on_item_unsubscribed fileId=" << data->m_nPublishedFileId << '\n';
+
     WorkshopEvent ev;
     ev.kind            = WorkshopEvent::Kind::ItemUnsubscribed;
     ev.publishedFileId = data->m_nPublishedFileId;
@@ -1017,6 +1108,9 @@ void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResu
     if (data == nullptr)
         return;
 
+    hg::lo("Steam") << "on_download_item_result fileId=" << data->m_nPublishedFileId << " result="
+                    << static_cast<int>(data->m_eResult) << " (k_EResultOK is " << static_cast<int>(k_EResultOK) << ")\n";
+
     // Surface a progress tick at completion regardless of result.
     {
         WorkshopEvent ev;
@@ -1025,13 +1119,24 @@ void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResu
         _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
     }
 
-    // On a successful download, also synthesize an `ItemInstalled` event.
-    // Steam's `ItemInstalled_t` callback is unreliable for first-time
-    // workshop downloads -- for items the user subscribed to via the
-    // overlay or the website, it sometimes never fires after the disk
-    // write completes. Driving the same install path off of
-    // `DownloadItemResult_t` makes the hot-install path deterministic
-    // for fresh subscriptions instead of forcing a game restart.
+    // On a successful download, ALSO synthesize an `ItemInstalled`
+    // event. Despite what `isteamugc.h` documents, `ItemInstalled_t`
+    // observably does not fire promptly (or at all) for first-time
+    // workshop subscribes in the field -- the fresh-subscribe path
+    // can complete the actual download but `ItemInstalled_t` either
+    // arrives much later (after several other Steam events) or never
+    // arrives within the user's patience. Without this fallback, a
+    // brand-new pack only shows up after a game restart.
+    //
+    // `DownloadItemResult_t` is the result of the explicit
+    // `DownloadItem()` call we make in `subscribe_workshop_item` for
+    // the high-priority hint, so it fires reliably whenever the bytes
+    // land. Treating it as a redundant install signal means we may
+    // dispatch `ItemInstalled` twice for the same pack (once from
+    // here, once from `on_item_installed` if it does fire). That's
+    // safe: `HGAssets::installPackAtRuntime` is idempotent -- a
+    // second call for the same folder finds the existing `PackData`
+    // and returns its id without touching state.
     if (data->m_eResult == k_EResultOK)
     {
         constexpr sf::base::SizeT folderBufSize            = 512;
@@ -1040,12 +1145,23 @@ void steam_manager::steam_manager_impl::on_download_item_result(DownloadItemResu
         uint32                    timestamp{};
         if (SteamUGC()->GetItemInstallInfo(data->m_nPublishedFileId, &diskSize, folderBuf, folderBufSize, &timestamp))
         {
+            hg::lo("Steam") << "  download ok + GetItemInstallInfo ok -> synthesize ItemInstalled, folder='"
+                            << folderBuf << "'\n";
             WorkshopEvent ev;
             ev.kind            = WorkshopEvent::Kind::ItemInstalled;
             ev.publishedFileId = data->m_nPublishedFileId;
             ev.installFolder   = folderBuf;
             _workshop_events.emplaceBack(SFML_BASE_MOVE(ev));
         }
+        else
+        {
+            hg::lo("Steam") << "  download ok but GetItemInstallInfo FAILED -- ItemState bits: "
+                            << SteamUGC()->GetItemState(data->m_nPublishedFileId) << '\n';
+        }
+    }
+    else
+    {
+        hg::lo("Steam") << "  download FAILED (result=" << static_cast<int>(data->m_eResult) << ")\n";
     }
 }
 
@@ -1295,6 +1411,11 @@ void steam_manager::for_workshop_pack_folders(sf::base::FixedFunction<void(const
     return impl().for_workshop_pack_folders(f);
 }
 
+void steam_manager::for_workshop_subscribed_items(sf::base::FixedFunction<void(sf::base::U64, const sf::base::String&), 64> f) const
+{
+    return impl().for_workshop_subscribed_items(f);
+}
+
 bool steam_manager::request_encrypted_app_ticket()
 {
     return impl().request_encrypted_app_ticket();
@@ -1430,6 +1551,11 @@ bool steam_manager::update_hardcoded_achievements()
 }
 
 void steam_manager::for_workshop_pack_folders([[maybe_unused]] sf::base::FixedFunction<void(const sf::base::String&), 64> f) const
+{
+}
+
+void steam_manager::for_workshop_subscribed_items(
+    [[maybe_unused]] sf::base::FixedFunction<void(sf::base::U64, const sf::base::String&), 64> f) const
 {
 }
 

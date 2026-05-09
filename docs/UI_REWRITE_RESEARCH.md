@@ -1,8 +1,8 @@
-# UI rewrite — research document
+# UI rewrite -- research document
 
 Status: **research only**, no design or code decisions yet.
 Audience: anyone designing or implementing the new UI.
-Goal: fully describe what's there today, what's wrong with it, and **why** at the implementation level — so the rewrite can address root causes rather than symptoms.
+Goal: fully describe what's there today, what's wrong with it, and **why** at the implementation level -- so the rewrite can address root causes rather than symptoms.
 
 ---
 
@@ -16,17 +16,17 @@ sitting on top of a small retained-OOP "menu system" library
 Every screen has its own bespoke render path with hard-coded coordinates;
 input is dispatched through long state-branching `*Action()` cascades; the
 "menu item" abstraction is OOP-heavy but does almost nothing useful (no
-rendering, no layout, no input — just `exec()`/`getName()`).
+rendering, no layout, no input -- just `exec()`/`getName()`).
 
 The user-visible flaws (no in-game workshop install, restart-to-load, no
 password recovery, stale local/online profile split, weak preview, no
 search/filter/sort, no favorites UI beyond a hidden hotkey toggle) are not
-*UI* problems alone — most of them are blocked by **backend invariants**:
+*UI* problems alone -- most of them are blocked by **backend invariants**:
 
 - `HGAssets` is a one-shot constructor: levels/packs/styles/music are
   loaded once at game start, baked into static maps, never re-scanned.
 - `Steam::steam_manager` exposes only read-only Workshop APIs
-  (`GetSubscribedItems` / `GetItemInstallInfo`) — there is no
+  (`GetSubscribedItems` / `GetItemInstallInfo`) -- there is no
   subscribe/unsubscribe/download-progress wiring at all.
 - Passwords are hashed client-side with `crypto_generichash` (BLAKE2b,
   unsalted, no work factor) and the database has no recovery columns.
@@ -34,7 +34,7 @@ search/filter/sort, no favorites UI beyond a hidden hotkey toggle) are not
   pointer assumed alive for the whole session, and there is no link
   between local profiles and online accounts.
 
-The rewrite needs to address both layers — UI *and* backend — together.
+The rewrite needs to address both layers -- UI *and* backend -- together.
 This document is the inventory; design follows.
 
 ---
@@ -72,16 +72,16 @@ responsibilities mixed in:
 
 It calls into `HGAssets`, `HexagonClient`, `Audio`, `LeaderboardCache`,
 `HexagonDialogBox`, `Lua::LuaContext`, the Steam manager, the Discord
-manager — there is no façade in front of any of these.
+manager -- there is no façade in front of any of these.
 
 ### 3.2 The `MenuSystem/` OOP wrapper
 
 The repo has **two copies** of `SSVMenuSystem`:
 
 - [extlibs/SSVMenuSystem/include/SSVMenuSystem/](../extlibs/SSVMenuSystem/include/SSVMenuSystem/)
-  — the upstream library (separate git submodule).
+  -- the upstream library (separate git submodule).
 - [include/SSVOpenHexagon/MenuSystem/](../include/SSVOpenHexagon/MenuSystem/)
-  — a vendored fork with a few local modifications
+  -- a vendored fork with a few local modifications
   ([`SSVMenuSystem.hpp`](../include/SSVOpenHexagon/MenuSystem/SSVMenuSystem.hpp)
   differs from the upstream copy and the `Global/` directory is dropped).
 
@@ -95,9 +95,9 @@ The hierarchy:
 | `Menu` | [Menu/Menu.hpp](../include/SSVOpenHexagon/MenuSystem/Menu/Menu.hpp) | Owns N `Category` and a stack of "previous categories" for back-navigation |
 | `Category` | [Menu/Category.hpp](../include/SSVOpenHexagon/MenuSystem/Menu/Category.hpp) | Owns N `ItemBase`, has `index` + `offset` for animation |
 | `ItemBase` | [Menu/ItemBase.hpp](../include/SSVOpenHexagon/MenuSystem/Menu/ItemBase.hpp) | Virtual base: `exec()`, `increase()`, `decrease()`, `getName()` |
-| `Single` | [Items/Single.hpp](../include/SSVOpenHexagon/MenuSystem/Items/Single.hpp) | Button — calls a `FixedFunction<void()>` on `exec()` |
-| `Toggle` | [Items/Toggle.hpp](../include/SSVOpenHexagon/MenuSystem/Items/Toggle.hpp) | On/off — `getName()` appends `: on`/`: off` |
-| `Slider` | [Items/Slider.hpp](../include/SSVOpenHexagon/MenuSystem/Items/Slider.hpp) | Numeric range — `increase()`/`decrease()` mutate |
+| `Single` | [Items/Single.hpp](../include/SSVOpenHexagon/MenuSystem/Items/Single.hpp) | Button -- calls a `FixedFunction<void()>` on `exec()` |
+| `Toggle` | [Items/Toggle.hpp](../include/SSVOpenHexagon/MenuSystem/Items/Toggle.hpp) | On/off -- `getName()` appends `: on`/`: off` |
+| `Slider` | [Items/Slider.hpp](../include/SSVOpenHexagon/MenuSystem/Items/Slider.hpp) | Numeric range -- `increase()`/`decrease()` mutate |
 | `Goto` | [Items/Goto.hpp](../include/SSVOpenHexagon/MenuSystem/Items/Goto.hpp) | Navigates to a sub-category |
 | `GoBack` | [Items/GoBack.hpp](../include/SSVOpenHexagon/MenuSystem/Items/GoBack.hpp) | Pops the navigation stack |
 | `KeyboardBindControl`, `JoystickBindControl` | [Core/BindControl.hpp](../include/SSVOpenHexagon/Core/BindControl.hpp) | Custom `ItemBase` subclasses for "press a key to bind" |
@@ -107,7 +107,7 @@ The hierarchy:
 no `getSize()`, no input handlers. The entire **rendering and layout
 happens in `MenuGame`**, which calls `items[i]->getName()` in a loop and
 draws strings at hand-computed coordinates. The OOP indirection buys
-almost nothing — five item types essentially encode "what `exec` does"
+almost nothing -- five item types essentially encode "what `exec` does"
 and "what string `getName` returns." A flat tagged union (or just plain
 data + a switch in the renderer) would express this with strictly less
 machinery.
@@ -134,7 +134,7 @@ synchronised via `dialogBoxDelay` and `ignoreInputs` counters.
 `getCurrentMenu()`
 ([MenuGame.cpp:170-190](../src/SSVOpenHexagon/Core/MenuGame.cpp#L170-L190))
 maps each state to one of `mainMenu` / `optionsMenu` / `onlineMenu` /
-`profileSelectionMenu` — except for level selection, loading, and
+`profileSelectionMenu` -- except for level selection, loading, and
 epilepsy, which are bespoke (no menu object backing them).
 
 ### 3.4 Rendering pipeline
@@ -177,7 +177,7 @@ Flow:
    `packChangeState`, `focusHeld`, `isInMenu()`.
 4. Mouse hover/click goes through deferred-action flags
    (`mustChangeIndexTo`, `mustFavorite`, `mustPlay`,
-   `mustChangePackIndexTo`, `mustUseMenuItem`) — set by hover detection,
+   `mustChangePackIndexTo`, `mustUseMenuItem`) -- set by hover detection,
    processed at top of next `update()`. There is no unified event queue;
    each feature has its own flag.
 5. `KeyboardBindControl` / `JoystickBindControl` enter "consume next
@@ -214,7 +214,7 @@ Loosely grouped (all from
   `mustShowLoginAtStartup`, `dialogBoxDelay`, `ignoreInputs`, `strBuf`,
   ~9 colors.
 
-This is an enormous accumulator of accidental state — the kind of class
+This is an enormous accumulator of accidental state -- the kind of class
 that signals the whole abstraction was wrong from the start.
 
 ---
@@ -224,7 +224,7 @@ that signals the whole abstraction was wrong from the start.
 Every user-visible flaw has a backend root cause. This section
 documents the backend layer; section 5 maps each flaw to its blocker.
 
-### 4.1 Steam Workshop integration — read-only and one-shot
+### 4.1 Steam Workshop integration -- read-only and one-shot
 
 [Steam.cpp](../src/SSVOpenHexagon/Core/Steam.cpp) /
 [Steam.hpp](../include/SSVOpenHexagon/Core/Steam.hpp) expose a tiny
@@ -245,7 +245,7 @@ read-only Workshop surface:
 Callbacks wired up
 ([Steam.cpp:105-107](../src/SSVOpenHexagon/Core/Steam.cpp#L105-L107)):
 only `UserStatsReceived_t`, `UserStatsStored_t`,
-`UserAchievementStored_t` — none of `ItemInstalled_t`,
+`UserAchievementStored_t` -- none of `ItemInstalled_t`,
 `SubscribedItemsListChanged_t`, `DownloadItemResult_t`.
 
 The CLI tool [src/OHWorkshopUploader/main.cpp](../src/OHWorkshopUploader/main.cpp)
@@ -259,7 +259,7 @@ Steam Client UI, **must** wait for Steam to download it externally, and
 **must then restart Open Hexagon** for it to show up in the level list.
 The "restart" requirement is enforced by the next bullet.
 
-### 4.2 Asset / level loading — one-shot and never re-scanned
+### 4.2 Asset / level loading -- one-shot and never re-scanned
 
 [`HGAssets`](../include/SSVOpenHexagon/Global/Assets.hpp) is constructed
 exactly once in `main.cpp` and lives until program exit.
@@ -275,21 +275,21 @@ After the constructor returns, **no code path re-scans the pack
 directory or re-invokes `loadAllPackDatas()`**. New `pack.json` files
 appearing on disk are invisible until the next process start.
 
-There *is* a per-pack reload helper —
+There *is* a per-pack reload helper --
 `HGAssets::reloadPack()`/`reloadLevel()`
-([Assets.cpp:1133+](../src/SSVOpenHexagon/Global/Assets.cpp#L1133)) —
+([Assets.cpp:1133+](../src/SSVOpenHexagon/Global/Assets.cpp#L1133)) --
 that updates `levelDatas`/`styleDataMap`/`musicDataMap` in place. It's
 used for development hot-reload (likely a Lua console hook), **not**
 called by the gameplay or Workshop paths.
 
 The other invariant baked at load time is **inter-pack dependencies**
 ([Assets.cpp:415-442](../src/SSVOpenHexagon/Global/Assets.cpp#L415-L442))
-— a pack referencing another pack is resolved at scan time. A new pack
+-- a pack referencing another pack is resolved at scan time. A new pack
 that depends on a not-yet-loaded pack would fail validation under any
 naïve runtime-add path; the rewrite has to handle the dependency graph
 explicitly.
 
-### 4.3 Password storage — weak hash, no recovery
+### 4.3 Password storage -- weak hash, no recovery
 
 Client-side: `HexagonClient::sendRegister`/`sendLogin`
 ([HexagonClient.cpp:270-297](../src/SSVOpenHexagon/Core/HexagonClient.cpp#L270-L297))
@@ -301,7 +301,7 @@ a password-hashing function:
 
 - No salt parameter (the surrounding `saltAndHashPwd` adds a single
   hard-coded salt, identical for every user).
-- No work factor — runs as fast as the CPU can.
+- No work factor -- runs as fast as the CPU can.
 - Identical inputs produce identical outputs across the user base, so a
   rainbow-table attack against the leaked hashes is trivial.
 
@@ -317,7 +317,7 @@ operator to run an SQL update against `ohdb.sqlite`. There is no UX
 path *and* no server endpoint *and* no schema column to support
 recovery.
 
-### 4.4 Profile system — filesystem-only, single-pointer, no sync
+### 4.4 Profile system -- filesystem-only, single-pointer, no sync
 
 [`ProfileData`](../include/SSVOpenHexagon/Data/ProfileData.hpp#L19-L48)
 is a `name` + `scores: unordered_map<levelId, float>` +
@@ -325,7 +325,7 @@ is a `name` + `scores: unordered_map<levelId, float>` +
 one `.json` per profile in `Profiles/`.
 
 `HGAssetsImpl` holds `profileDataMap: std::map<String, ProfileData>` of
-all loaded profiles plus `currentProfilePtr: ProfileData*` — a **single
+all loaded profiles plus `currentProfilePtr: ProfileData*` -- a **single
 raw pointer to whichever one is "active"**
 ([Assets.cpp:84-85](../src/SSVOpenHexagon/Global/Assets.cpp#L84)).
 
@@ -335,7 +335,7 @@ ID, **not by profile name**. Local-profile favorites and scores are
 *never* uploaded; remote scores are *never* downloaded into the local
 profile. The two namespaces are wholly independent.
 
-The "multiple local profiles" feature buys very little — they all run
+The "multiple local profiles" feature buys very little -- they all run
 on the same Steam ID, so they're effectively just labelled save slots
 on one machine. Collapsing them into a single offline namespace would
 lose: the ability to share one PC between roommates without overwriting
@@ -343,12 +343,12 @@ each other's offline scores. That's the entire feature.
 
 ---
 
-## 5. Catalogue of flaws — root causes
+## 5. Catalogue of flaws -- root causes
 
 For each user-stated flaw: where it shows up, what blocks it, what the
 rewrite has to change.
 
-### Flaw F1 — Cannot browse / download / install Workshop levels in-game
+### Flaw F1 -- Cannot browse / download / install Workshop levels in-game
 
 **Symptom:** the user must alt-tab to Steam, find the Open Hexagon
 Workshop page, click subscribe, wait, alt-tab back.
@@ -376,7 +376,7 @@ or `RequestUGCDetails` calls; no callbacks for `ItemInstalled_t` or
 **UI changes needed:** a Workshop-browse screen with thumbnail/description/
 size/subscribe button per item; a "downloading" progress indicator.
 
-### Flaw F2 — Must close/reopen game to load newly downloaded levels
+### Flaw F2 -- Must close/reopen game to load newly downloaded levels
 
 **Symptom:** even if the user does subscribe via the Steam Client and
 the pack downloads, it does not appear until the next game launch.
@@ -398,7 +398,7 @@ re-scan of already-loaded packs).
    relevant map, append to `selectablePackInfos`, sort).
 2. Mirror an `uninstallPack(packId)` that removes from every map and
    clears any references in profiles' favorites/scores carefully (or
-   leaves them as orphans the UI hides — design call).
+   leaves them as orphans the UI hides -- design call).
 3. Either a notification API `HGAssets::onPackInstalled(callback)` or a
    "dirty" flag the menu re-reads each frame.
 4. Audit Lua state: per-level Lua is parsed at `loadPackAssets`
@@ -407,7 +407,7 @@ re-scan of already-loaded packs).
    level gets its own context, but verify there are no globals shared
    across packs that need re-init.
 
-### Flaw F3 — No password recovery
+### Flaw F3 -- No password recovery
 
 **Symptom:** forgotten password = email the developer, who runs SQL
 manually.
@@ -419,7 +419,7 @@ manually.
 2. `HexagonServer` defines no recovery-related packet types in
    [Online/Shared.hpp](../include/SSVOpenHexagon/Online/Shared.hpp) and
    no token-issuance logic.
-3. Even the basic password handling is weak — `crypto_generichash` is
+3. Even the basic password handling is weak -- `crypto_generichash` is
    too fast for password hashing; the salt
    ([HexagonClient.cpp:saltAndHashPwd](../src/SSVOpenHexagon/Core/HexagonClient.cpp))
    is global rather than per-user. The rewrite is a good time to fix
@@ -441,10 +441,10 @@ manually.
 
 **Note:** because Steam ID is already the primary key on the user
 table, the simplest "recovery" channel is "log in via Steam ticket
-once, then set a new password" — no email needed if we trust Steam's
+once, then set a new password" -- no email needed if we trust Steam's
 auth.
 
-### Flaw F4 — Local/online profile dichotomy
+### Flaw F4 -- Local/online profile dichotomy
 
 **Symptom:** local progress and online progress are unrelated; the user
 maintains two separate sets of scores, and the local-profile picker
@@ -468,10 +468,10 @@ ID; nothing reconciles them.
    union for favorites; offer a one-time "I have multiple old
    profiles" import path that consolidates them.
 4. Decouple favorites from `ProfileData` (favorites are a player-level
-   concept, not a save-slot concept) — though storing them on the
+   concept, not a save-slot concept) -- though storing them on the
    single offline profile is fine if we keep one.
 
-### Flaw F5 — Level preview only shows colours, not patterns
+### Flaw F5 -- Level preview only shows colours, not patterns
 
 **Symptom:** the menu shows a rotating coloured hexagon but no clue
 whether the level is a slow pattern level, a fast bullet-hell, etc.
@@ -485,9 +485,9 @@ which draws **a fixed 6-sided polygon coloured by the level's
 StyleData**. It doesn't run the level's Lua, doesn't spawn walls,
 doesn't render any pattern.
 
-The gameplay engine *can* run a level headlessly —
+The gameplay engine *can* run a level headlessly --
 `HexagonGame::runReplayUntilDeathAndGetScore` is used by the server to
-validate replays — so the infrastructure for "run a level without a
+validate replays -- so the infrastructure for "run a level without a
 human" exists. There is no equivalent "render a few seconds of the
 level into a render-texture for preview."
 
@@ -502,7 +502,7 @@ level into a render-texture for preview."
 3. Decide whether to run preview "from t=0" (consistent) or from a
    pseudo-random offset (more representative for long levels).
 
-### Flaw F6 — No search / filter / sort on the level selection screen
+### Flaw F6 -- No search / filter / sort on the level selection screen
 
 **Symptom:** the only way to find a level is to pack-jump (FOCUS+up/down)
 and arrow through. With dozens of packs and hundreds of levels, this is
@@ -512,13 +512,13 @@ unworkable.
 
 - `LevelDrawer` holds `levelDataIds: const Vector<String>*`
   ([MenuGame.hpp:451-452](../include/SSVOpenHexagon/Core/MenuGame.hpp#L451))
-  — a *non-owning pointer* into `HGAssets::levelDataIdsByPack`.
+  -- a *non-owning pointer* into `HGAssets::levelDataIdsByPack`.
 - That source vector is fixed at load time, sorted by `menuPriority`
   ([Assets.cpp:348-350](../src/SSVOpenHexagon/Global/Assets.cpp#L348-L350)).
 - Pack ordering is fixed by `PackData::priority`
   ([Assets.cpp:357-359](../src/SSVOpenHexagon/Global/Assets.cpp#L357-L359)).
 - `LevelData` carries no tags, no completion flags, no last-played
-  timestamp, no estimated duration — only `name`/`author`/`description`
+  timestamp, no estimated duration -- only `name`/`author`/`description`
   /`difficultyMults`. Nothing to filter on except those four.
 - `ProfileData` has scores keyed by `levelValidator` (per-difficulty
   hash) but no per-level metadata (last-played, play count, completion
@@ -539,24 +539,24 @@ unworkable.
    (Levenshtein or trigram) is a v2 nice-to-have.
 5. Repurpose the existing `drawEnteringText()` UI for the search input
    ([MenuGame.cpp:4016-4064](../src/SSVOpenHexagon/Core/MenuGame.cpp#L4016-L4064))
-   — the text-entry plumbing already exists, we just need a different
+   -- the text-entry plumbing already exists, we just need a different
    target for the entered string.
 
-### Flaw F7 — No easy way to filter / sort levels
+### Flaw F7 -- No easy way to filter / sort levels
 
-Same root cause as F6 — covered above. To call out specifically what
+Same root cause as F6 -- covered above. To call out specifically what
 sort keys are *easy* to add (data already present):
 
-- By `LevelData::name` (alphabetical) — trivial.
-- By `LevelData::author` — trivial.
-- By min/max `LevelData::difficultyMults[]` — trivial.
-- By personal best score (`ProfileData::scores`) — trivial.
-- By "completed yes/no" — needs the new `is_completed` bit (cheap to
+- By `LevelData::name` (alphabetical) -- trivial.
+- By `LevelData::author` -- trivial.
+- By min/max `LevelData::difficultyMults[]` -- trivial.
+- By personal best score (`ProfileData::scores`) -- trivial.
+- By "completed yes/no" -- needs the new `is_completed` bit (cheap to
   derive from `score > 0` but a real flag is cleaner).
-- By "last played" — needs a new `last_played_ts` per level.
-- By "play count" — needs a new `play_count` per level.
+- By "last played" -- needs a new `last_played_ts` per level.
+- By "play count" -- needs a new `play_count` per level.
 
-### Flaw F8 — No easy way to favourite / unfavourite levels
+### Flaw F8 -- No easy way to favourite / unfavourite levels
 
 **Surprise: the favourites infrastructure already exists.**
 [`ProfileData::favoriteLevelDataIDs`](../include/SSVOpenHexagon/Data/ProfileData.hpp#L25)
@@ -580,7 +580,7 @@ The flaw is purely **discoverability and UI**:
 - Mouse interaction is a deferred-action flag (`mustFavorite`), which
   works but is an unusual idiom.
 
-The rewrite needs no backend changes for F8 — just a clear UI.
+The rewrite needs no backend changes for F8 -- just a clear UI.
 
 ---
 
@@ -588,32 +588,32 @@ The rewrite needs no backend changes for F8 — just a clear UI.
 
 These don't map 1:1 to a user flaw but make every change harder.
 
-1. **Five-thousand-line god class** — `MenuGame.cpp` is the entire UI.
-2. **OOP that adds no value** — `ItemBase` hierarchy with five subclasses
+1. **Five-thousand-line god class** -- `MenuGame.cpp` is the entire UI.
+2. **OOP that adds no value** -- `ItemBase` hierarchy with five subclasses
    that exist only to encode "what does `exec()` do." A flat enum +
    data + a switch in the renderer would be smaller and clearer.
-3. **Per-screen bespoke renderers** — no widget abstraction, no layout
+3. **Per-screen bespoke renderers** -- no widget abstraction, no layout
    primitives. Each new screen requires a fresh ~300-line
    `drawXxxScreen()` method with hand-tuned coordinates.
-4. **State fragmentation** — animation offsets live on `Category::offset`,
+4. **State fragmentation** -- animation offsets live on `Category::offset`,
    `ItemBase::offset`, `LevelDrawer::YOffset`, plus a half-dozen
    screen-specific `Offset`/`Offset_packChange`/`Offset_details`
    variables. No single source of truth for "what's animating."
-5. **Deferred-action mouse flags** — `mustChangeIndexTo`, `mustFavorite`,
+5. **Deferred-action mouse flags** -- `mustChangeIndexTo`, `mustFavorite`,
    `mustPlay`, `mustChangePackIndexTo`, `mustUseMenuItem` instead of an
    event queue. New mouse interactions add new flags.
-6. **`*Action()` cascades** — input dispatch is N parallel functions
+6. **`*Action()` cascades** -- input dispatch is N parallel functions
    each with a big `switch(state)`. New screens add cases to all of them.
-7. **Three view layers + manual coordinate conversion** — every draw
+7. **Three view layers + manual coordinate conversion** -- every draw
    call has to choose `drawBackground`/`drawOverlay`/`drawScreen` and
    the implicit transform.
-8. **Aspect-ratio special-casing** — `fourByThree` boolean branches
+8. **Aspect-ratio special-casing** -- `fourByThree` boolean branches
    instead of a unit-aware layout system.
-9. **No retained geometry** — vertex buffers are `clear()`'d and
+9. **No retained geometry** -- vertex buffers are `clear()`'d and
    re-filled every frame, even for screens whose content didn't change.
-10. **Two copies of `SSVMenuSystem`** — vendored fork in `include/` plus
+10. **Two copies of `SSVMenuSystem`** -- vendored fork in `include/` plus
     the unused upstream submodule in `extlibs/`.
-11. **Hidden hotkeys** — F1/F2 (favourites), FOCUS+arrows (pack jump)
+11. **Hidden hotkeys** -- F1/F2 (favourites), FOCUS+arrows (pack jump)
     only discoverable by reading docs or the small status-bar text. The
     UI doesn't surface its own shortcuts.
 
@@ -629,7 +629,7 @@ ecosystem are not negotiable:
    ImGui, no separate retained-mode widget tree.
 2. **Lua scripts and existing pack format stay.** The level metadata
    schema can grow (add tags, etc.) but `pack.json`/`level.json` files
-   shipped today by content creators must keep working — workshop
+   shipped today by content creators must keep working -- workshop
    packs can't be retroactively migrated.
 3. **The protocol stays compatible until everyone updates.** Adding
    new packet types is fine; renaming/removing old ones breaks running
@@ -644,15 +644,15 @@ ecosystem are not negotiable:
 
 ---
 
-## 8. File index — quick reference
+## 8. File index -- quick reference
 
 UI:
-- [`include/SSVOpenHexagon/Core/MenuGame.hpp`](../include/SSVOpenHexagon/Core/MenuGame.hpp) — 639 lines, state enum + ~80 members
-- [`src/SSVOpenHexagon/Core/MenuGame.cpp`](../src/SSVOpenHexagon/Core/MenuGame.cpp) — 5,903 lines
-- [`include/SSVOpenHexagon/Core/BindControl.hpp`](../include/SSVOpenHexagon/Core/BindControl.hpp) — keyboard/joystick bind items
+- [`include/SSVOpenHexagon/Core/MenuGame.hpp`](../include/SSVOpenHexagon/Core/MenuGame.hpp) -- 639 lines, state enum + ~80 members
+- [`src/SSVOpenHexagon/Core/MenuGame.cpp`](../src/SSVOpenHexagon/Core/MenuGame.cpp) -- 5,903 lines
+- [`include/SSVOpenHexagon/Core/BindControl.hpp`](../include/SSVOpenHexagon/Core/BindControl.hpp) -- keyboard/joystick bind items
 - [`src/SSVOpenHexagon/Core/BindControl.cpp`](../src/SSVOpenHexagon/Core/BindControl.cpp)
-- [`include/SSVOpenHexagon/MenuSystem/`](../include/SSVOpenHexagon/MenuSystem/) — vendored fork (used)
-- [`extlibs/SSVMenuSystem/`](../extlibs/SSVMenuSystem/) — upstream submodule (unused, can be removed)
+- [`include/SSVOpenHexagon/MenuSystem/`](../include/SSVOpenHexagon/MenuSystem/) -- vendored fork (used)
+- [`extlibs/SSVMenuSystem/`](../extlibs/SSVMenuSystem/) -- upstream submodule (unused, can be removed)
 
 Backend:
 - [`src/SSVOpenHexagon/Core/Steam.cpp`](../src/SSVOpenHexagon/Core/Steam.cpp) /
@@ -662,13 +662,13 @@ Backend:
 - [`include/SSVOpenHexagon/Data/LevelData.hpp`](../include/SSVOpenHexagon/Data/LevelData.hpp)
 - [`include/SSVOpenHexagon/Data/PackData.hpp`](../include/SSVOpenHexagon/Data/PackData.hpp)
 - [`include/SSVOpenHexagon/Data/ProfileData.hpp`](../include/SSVOpenHexagon/Data/ProfileData.hpp)
-- [`include/SSVOpenHexagon/Online/Shared.hpp`](../include/SSVOpenHexagon/Online/Shared.hpp) — packet types
-- [`include/SSVOpenHexagon/Online/DatabaseRecords.hpp`](../include/SSVOpenHexagon/Online/DatabaseRecords.hpp) — User schema
+- [`include/SSVOpenHexagon/Online/Shared.hpp`](../include/SSVOpenHexagon/Online/Shared.hpp) -- packet types
+- [`include/SSVOpenHexagon/Online/DatabaseRecords.hpp`](../include/SSVOpenHexagon/Online/DatabaseRecords.hpp) -- User schema
 - [`src/SSVOpenHexagon/Online/Database.cpp`](../src/SSVOpenHexagon/Online/Database.cpp)
-- [`src/SSVOpenHexagon/Online/Sodium.cpp`](../src/SSVOpenHexagon/Online/Sodium.cpp) — current (weak) password hash
+- [`src/SSVOpenHexagon/Online/Sodium.cpp`](../src/SSVOpenHexagon/Online/Sodium.cpp) -- current (weak) password hash
 - [`src/SSVOpenHexagon/Core/HexagonClient.cpp`](../src/SSVOpenHexagon/Core/HexagonClient.cpp)
 - [`src/SSVOpenHexagon/Core/HexagonServer.cpp`](../src/SSVOpenHexagon/Core/HexagonServer.cpp)
-- [`src/OHWorkshopUploader/main.cpp`](../src/OHWorkshopUploader/main.cpp) — content-creator CLI; not in-game
+- [`src/OHWorkshopUploader/main.cpp`](../src/OHWorkshopUploader/main.cpp) -- content-creator CLI; not in-game
 
 ---
 

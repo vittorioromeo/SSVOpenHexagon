@@ -121,6 +121,16 @@ public:
 
     void for_workshop_pack_folders(sf::base::FixedFunction<void(const sf::base::String&), 64> f) const;
 
+    // Iterates every workshop item that was subscribed *and* installed
+    // when the game booted, exposing both the published-file-id and
+    // the on-disk folder. Lets the host (`MenuGame`) populate the
+    // file-id <-> pack-id bridge for items that already existed at
+    // startup -- without it, deleting one of those packs at runtime
+    // can't be matched back to an `HGAssets` pack id (since
+    // `EK::ItemInstalled` only fires for *new* downloads in the
+    // current session).
+    void for_workshop_subscribed_items(sf::base::FixedFunction<void(sf::base::U64, const sf::base::String&), 64> f) const;
+
     bool request_encrypted_app_ticket();
 
     [[nodiscard]] bool got_encrypted_app_ticket_response() const noexcept;

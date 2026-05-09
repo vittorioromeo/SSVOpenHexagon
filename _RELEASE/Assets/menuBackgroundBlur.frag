@@ -4,7 +4,7 @@
 // horizontally into an intermediate texture, then once with
 // `u_direction = (0, 1)` to blur vertically into the final target.
 // Splitting the convolution along axes drops the cost from N*N to 2*N
-// samples — the only practical way to scale the radius without nuking
+// samples -- the only practical way to scale the radius without nuking
 // the fragment-shader budget.
 //
 // We use plain discrete sampling at multi-pixel offsets rather than the
@@ -18,7 +18,7 @@
 //
 // Weights are a normalized Gaussian with σ = 2.5 in tap-units:
 //   w_i = exp(-i² / (2σ²))   then renormalized so Σ w_i = 1.
-// `u_blur` (0..1) scales the per-tap pixel step — at 0 we early-out to
+// `u_blur` (0..1) scales the per-tap pixel step -- at 0 we early-out to
 // a passthrough copy.
 
 in vec4 sf_v_color;

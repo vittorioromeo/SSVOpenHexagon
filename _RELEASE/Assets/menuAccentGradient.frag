@@ -76,7 +76,7 @@ void main()
 
     // Detect magenta-saturated pixels: red & blue high, green low. The
     // metric is "min(R,B) − G" so a white-fill blend (1, 0.5, 1) and a
-    // pure-magenta pixel (1, 0, 1) score very differently — only the
+    // pure-magenta pixel (1, 0, 1) score very differently -- only the
     // latter qualifies as "magenta enough". The smoothstep lower bound is
     // intentionally low so that small-font outlines, whose pixels are
     // essentially all antialiased fringe (e.g. magenta at 30% alpha

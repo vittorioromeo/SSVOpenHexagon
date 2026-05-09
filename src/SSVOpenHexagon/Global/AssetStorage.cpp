@@ -17,8 +17,11 @@
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/UniquePtr.hpp"
 
 #include <unordered_map>
+
+#include <cstring>
 
 namespace hg
 {
@@ -106,6 +109,33 @@ public:
     {
         return _soundBuffers.find(id) != _soundBuffers.end();
     }
+
+    void removeByPackPrefix(const sf::base::String& packIdPrefix)
+    {
+        // Erase every key starting with `packIdPrefix` from a single map.
+        // We can't use `std::erase_if` directly on `unordered_map<sf::base::String, V>`
+        // because `sf::base::String` doesn't satisfy std's requirements
+        // for `erase_if` in all toolchains, so do it explicitly.
+        const auto sweep = [&](auto& map)
+        {
+            for (auto it = map.begin(); it != map.end();)
+            {
+                const sf::base::String& key = it->first;
+
+                const bool matches = key.size() >= packIdPrefix.size() &&
+                                     std::memcmp(key.data(), packIdPrefix.data(), packIdPrefix.size()) == 0;
+
+                if (matches)
+                    it = map.erase(it);
+                else
+                    ++it;
+            }
+        };
+
+        sweep(_textures);
+        sweep(_fonts);
+        sweep(_soundBuffers);
+    }
 };
 
 [[nodiscard]] const AssetStorage::AssetStorageImpl& AssetStorage::impl() const noexcept
@@ -169,6 +199,11 @@ AssetStorage::~AssetStorage() = default;
 [[nodiscard]] bool AssetStorage::hasSoundBuffer(const sf::base::String& id) noexcept
 {
     return impl().hasSoundBuffer(id);
+}
+
+void AssetStorage::removeByPackPrefix(const sf::base::String& packIdPrefix)
+{
+    impl().removeByPackPrefix(packIdPrefix);
 }
 
 } // namespace hg

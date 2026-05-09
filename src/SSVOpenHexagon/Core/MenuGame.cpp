@@ -4,6 +4,7 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/Frametime.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
@@ -28,6 +29,7 @@
 #include "SSVOpenHexagon/Input/InputState.hpp"
 #include "SSVOpenHexagon/Input/Manager.hpp"
 #include "SSVOpenHexagon/UI/App.hpp"
+#include "SSVOpenHexagon/UI/Notifications.hpp"
 #include "SSVOpenHexagon/UI/Screens.hpp"
 #include "SSVOpenHexagon/UI/UI.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
@@ -73,6 +75,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 
 namespace hg
@@ -134,7 +137,6 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     mustRefresh{false},
     state{States::EpilepsyWarning},
     levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
-    ignoreInputs{0},
     w{0.f},
     h{0.f},
     fourByThree{false},
@@ -161,68 +163,66 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
 
     game.onDraw += [this] { draw(); };
 
-    const auto checkCloseBootScreens = [this]
+    // Boot-screen splash (EpilepsyWarning) → main menu on any key release.
+    // We also wipe `ui_pendingInput` because the trigger system has been
+    // collecting key edges throughout the splash; without the wipe, the
+    // very first frame in `SMain` sees a stale `enter` / `escape` edge
+    // and immediately fires PLAY or pops back out.
+    const auto closeBootScreen = [this]
     {
-        if ((--ignoreInputs) == 0)
-        {
-            // EpilepsyWarning → SMain on any key press.
-            playLocally();
-            setIgnoreAllInputs(0);
-            playSoundOverride("select.ogg");
-        }
+        playLocally();
+        playSoundOverride("select.ogg");
+        ui_pendingInput = {};
     };
 
-    const auto checkCloseDialogBox = [this]
+    // Closes / advances the dialog box. For plain dialogs (CONNECTION
+    // SUCCESS, errors, FTT) it's a one-shot dismiss. For input-box
+    // dialogs (login / register / delete-account) it walks the
+    // `dialogInputState` machine: each Enter advances to the next field,
+    // and the final field calls into `HexagonClient`. `dialogBoxDelay`
+    // (set by callers) gates the dismissal so the keypress that opened
+    // the dialog can't immediately close it.
+    const auto closeDialog = [this]
     {
-        const auto closeBox = [this]
-        {
-            playSoundOverride("select.ogg");
-            dialogBox.clearDialogBox();
-            setIgnoreAllInputs(0);
-        };
+        playSoundOverride("select.ogg");
+        dialogBox.clearDialogBox();
+    };
 
-        const auto transitionInputSequence = [this, closeBox](const DialogInputState newState)
+    const auto advanceDialog = [this, closeDialog]
+    {
+        const auto transitionInputSequence = [this, closeDialog](const DialogInputState newState)
         {
             dialogInputState = newState;
-            SFML_BASE_SCOPE_GUARD({ closeBox(); });
+            SFML_BASE_SCOPE_GUARD({ closeDialog(); });
             return dialogBox.getInput();
         };
 
-        const auto endInputSequence = [this, closeBox]
+        const auto endInputSequence = [this, closeDialog]
         {
             dialogInputState = DialogInputState::Nothing;
-            SFML_BASE_SCOPE_GUARD({ closeBox(); });
+            SFML_BASE_SCOPE_GUARD({ closeDialog(); });
             return dialogBox.getInput();
         };
-
-        if (ignoreInputs != 0)
-        {
-            return;
-        }
 
         if (dialogInputState == DialogInputState::Nothing)
         {
-            closeBox();
+            closeDialog();
             return;
         }
 
         if (dialogInputState == DialogInputState::Registration_EnteringUsername)
         {
             registrationUsername = transitionInputSequence(DialogInputState::Registration_EnteringPassword);
-
             showInputDialogBoxNice("REGISTRATION", "PASSWORD");
             dialogBox.setInputBoxPassword(true);
-            setIgnoreAllInputs(1);
             return;
         }
 
         if (dialogInputState == DialogInputState::Registration_EnteringPassword)
         {
             registrationPassword = transitionInputSequence(DialogInputState::Registration_EnteringPasswordConfirm);
-
             showInputDialogBoxNice("REGISTRATION", "CONFIRM PASSWORD");
             dialogBox.setInputBoxPassword(true);
-            setIgnoreAllInputs(1);
             return;
         }
 
@@ -237,12 +237,10 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
             else
             {
                 playSoundOverride("error.ogg");
-
                 showDialogBox(
                     "PASSWORD MISMATCH\n\n"
                     "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
-
-                setIgnoreAllInputs(1);
+                dialogBoxDelay = 16.f;
             }
 
             return;
@@ -251,10 +249,8 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
         if (dialogInputState == DialogInputState::Login_EnteringUsername)
         {
             loginUsername = transitionInputSequence(DialogInputState::Login_EnteringPassword);
-
             showInputDialogBoxNice("LOGIN", "PASSWORD");
             dialogBox.setInputBoxPassword(true);
-            setIgnoreAllInputs(1);
             return;
         }
 
@@ -273,7 +269,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
         }
     };
 
-    game.onAnyEvent += [this, checkCloseBootScreens, checkCloseDialogBox](const sf::Event& event)
+    game.onAnyEvent += [this, closeBootScreen, closeDialog, advanceDialog](const sf::Event& event)
     {
         if (const auto* e = event.getIf<sf::Event::Resized>())
         {
@@ -316,26 +312,6 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
                 setMouseCursorVisible(false);
             }
 
-            // Clear the input lock that `returnToLevelSelection` (and
-            // similar) sets on a *fresh* keypress. Without this the
-            // user has to press the key twice to start a second level:
-            // the first press is eaten while `ignoreAllInputs(true)` is
-            // armed, then the release clears the lock, and only the
-            // second press makes it through the trigger system.
-            //
-            // Held keys carrying over from gameplay don't produce a
-            // KeyPressed event (only a release-then-press transition
-            // does), so this path won't auto-fire e.g. PLAY just
-            // because the user came back from a level still holding
-            // Enter. Skipped during EpilepsyWarning (which deliberately
-            // requires a release to dismiss the splash) and while a
-            // dialog box is open (dialog has its own ignore-counter
-            // accounting on release).
-            if (ignoreInputs > 0 && state != States::EpilepsyWarning && dialogBox.empty())
-            {
-                setIgnoreAllInputs(0);
-            }
-
             // Backspace inside the legacy dialog input box.
             if (!dialogBox.empty() && dialogBox.isInputBox() && e->code == sf::Keyboard::Key::Backspace)
             {
@@ -354,91 +330,68 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
                 setMouseCursorVisible(true);
             }
         }
-        else if (event.is<sf::Event::MouseButtonPressed>() || event.is<sf::Event::JoystickButtonPressed>())
-        {
-            // Same lock-clear as KeyPressed above, applied to the
-            // fresh-mouse-click path. Without it the first click after
-            // returning from gameplay does nothing because
-            // `drawNewMainMenu` gates `mouseDown` on `ignoreInputs == 0`
-            // (see the gate around `sf::Mouse::isButtonPressed`).
-            if (ignoreInputs > 0 && state != States::EpilepsyWarning && dialogBox.empty())
-            {
-                setIgnoreAllInputs(0);
-            }
-        }
         else if (const auto* e = event.getIf<sf::Event::KeyReleased>())
         {
-            if (ignoreInputs == 0)
-            {
-                return;
-            }
-
-            // Boot screen -- any key advances to the main menu.
+            // Boot screen: any key advances to the main menu.
             if (state == States::EpilepsyWarning)
             {
-                checkCloseBootScreens();
+                closeBootScreen();
                 return;
             }
 
-            // Dialog box (login / register flow). Any key (or the
-            // configured close key) ticks down `ignoreInputs`; once it
-            // reaches zero the dialog is dismissed.
+            // Dialog cooldown: prevents the keypress that opened the
+            // dialog from also closing it.
             if (dialogBoxDelay > 0.f)
-            {
                 return;
-            }
-            if (!dialogBox.empty())
+
+            if (dialogBox.empty())
+                return;
+
+            const sf::Keyboard::Key key{e->code};
+
+            // Input-box dialogs (login/register/delete-account) only
+            // respond to Enter (advance) and Escape (cancel).
+            if (dialogBox.isInputBox())
             {
-                const sf::Keyboard::Key key{e->code};
-                if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown || key == dialogBox.getKeyToClose())
+                if (key == sf::Keyboard::Key::Escape)
                 {
-                    --ignoreInputs;
-                }
-                if (dialogBox.isInputBox() && key == sf::Keyboard::Key::Escape)
-                {
-                    setIgnoreAllInputs(0);
                     dialogInputState = DialogInputState::Nothing;
-                    playSoundOverride("select.ogg");
-                    dialogBox.clearDialogBox();
-                    return;
+                    closeDialog();
                 }
-                checkCloseDialogBox();
+                else if (key == sf::Keyboard::Key::Enter)
+                {
+                    advanceDialog();
+                }
                 return;
             }
 
-            // No menus left to dispatch into -- just clear the lock.
-            setIgnoreAllInputs(0);
+            // Plain dialog: close on the dialog's chosen close key, or
+            // on any key when the dialog didn't pin one.
+            if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown || key == dialogBox.getKeyToClose())
+            {
+                closeDialog();
+            }
         }
         else if (event.is<sf::Event::MouseButtonReleased>() || event.is<sf::Event::JoystickButtonReleased>())
         {
-            if (ignoreInputs == 0)
-            {
-                return;
-            }
             if (state == States::EpilepsyWarning)
             {
-                checkCloseBootScreens();
+                closeBootScreen();
                 return;
             }
+
             if (dialogBoxDelay > 0.f)
-            {
                 return;
-            }
-            if (!dialogBox.empty())
+
+            // Mouse/joystick clicks dismiss only plain (non-input-box)
+            // dialogs that didn't ask for a specific keyboard key. Input
+            // dialogs require Enter/Escape from the keyboard.
+            if (!dialogBox.empty() && !dialogBox.isInputBox() && dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown)
             {
-                if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown)
-                {
-                    --ignoreInputs;
-                    checkCloseDialogBox();
-                }
-                return;
+                closeDialog();
             }
-            setIgnoreAllInputs(0);
         }
     };
-
-    // To close the load results with any key
-    setIgnoreAllInputs(1);
 
     window.onRecreation += [this]
     {
@@ -448,6 +401,38 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
 
     initInput();
     initNewUIServices();
+
+    // Populate the publishedFileId -> packId bridge for workshop items
+    // that were already installed when the game booted. The
+    // `EK::ItemInstalled` handler only runs for *new* downloads in the
+    // current session, so without this seed pass, deleting one of the
+    // pre-existing workshop packs at runtime would not be matchable to
+    // an `HGAssets` pack id (the lookup in the unsubscribe handler would
+    // miss and silently skip `removePackAtRuntime`).
+    //
+    // For each (fileId, folder) reported by Steam, find the `PackData`
+    // whose `folderPath` matches and remember its id.
+    steamManager.for_workshop_subscribed_items([this](sf::base::U64 fileId, const sf::base::String& folder)
+    {
+        for (const auto& [packId, packData] : assets.getPackDatas())
+        {
+            // Steam reports the folder without a trailing slash, while
+            // `loadPackData` stores `folderPath` with one (the path is
+            // built via `packPath.getStr()` which preserves whatever
+            // form `Path` chose). Compare leniently to tolerate that.
+            const sf::base::String& fp   = packData.folderPath;
+            const bool              same = fp == folder ||
+                                           (fp.size() == folder.size() + 1 && fp.back() == '/' &&
+                                            std::memcmp(fp.data(), folder.data(), folder.size()) == 0) ||
+                                           (folder.size() == fp.size() + 1 && folder.back() == '/' &&
+                                            std::memcmp(fp.data(), folder.data(), fp.size()) == 0);
+            if (same)
+            {
+                _workshopFileIdToPackId.insert_or_assign(fileId, packId);
+                break;
+            }
+        }
+    });
 }
 
 MenuGame::~MenuGame()
@@ -509,7 +494,7 @@ void MenuGame::initNewUIServices()
         if (dialogInputState != DialogInputState::Nothing)
             return;
         openLoginDialogBoxAndStartLoginProcess();
-        ignoreInputsAfterMenuExec();
+        dialogBoxDelay = 16.f;
     };
     ui_services.onOnlineRegister = [this]
     {
@@ -517,7 +502,7 @@ void MenuGame::initNewUIServices()
             return;
         dialogInputState = DialogInputState::Registration_EnteringUsername;
         showInputDialogBoxNice("REGISTRATION", "USERNAME");
-        ignoreInputsAfterMenuExec();
+        dialogBoxDelay = 16.f;
     };
     ui_services.onStartLevel = [this](const sf::base::String& levelId, float difficultyMult)
     {
@@ -575,6 +560,14 @@ void MenuGame::initNewUIServices()
         const auto n       = s.size() < (sizeof(buf) - 1) ? s.size() : (sizeof(buf) - 1);
         SFML_BASE_MEMCPY(buf, s.data(), n);
         playSoundOverride(buf);
+    };
+
+    ui_services.pushNotification = [this](sf::base::StringView text)
+    {
+        // Default lifetime (3 s) is set inside `pushNotification`. Callers
+        // that want a custom duration can drop `text` straight onto the
+        // stack via `ui_notifications.items.emplaceBack(...)` instead.
+        hg::ui::pushNotification(ui_notifications, text);
     };
 
     ui_services.onWatchReplay = [this](const sf::base::U64 scoreTimestamp)
@@ -731,9 +724,9 @@ void MenuGame::maybeIssueLeaderboardTopScoresRequest()
         leaderboardCache->requestedScores(currentLeaderboardValidator);
     }
 
-    hg::lo("hg::MenuGame::onRequestLeaderboard")
-        << "validator='" << currentLeaderboardValidator << "' sent=" << (sent ? "yes" : "no")
-        << " state=" << static_cast<int>(hexagonClient.getState()) << '\n';
+    // hg::lo("hg::MenuGame::onRequestLeaderboard")
+    //     << "validator='" << currentLeaderboardValidator << "' sent=" << (sent ? "yes" : "no")
+    //     << " state=" << static_cast<int>(hexagonClient.getState()) << '\n';
 }
 
 void MenuGame::refreshLeaderboardSnapshot()
@@ -800,6 +793,17 @@ void MenuGame::pumpWorkshopEvents()
 {
     using EK = hg::Steam::WorkshopEvent::Kind;
 
+    // Drive Steam's in-process callback dispatch first. Without this,
+    // `on_item_installed` / `on_item_unsubscribed` / `on_download_item_result`
+    // never run while the user is in the menu -- Steam queues callbacks
+    // internally and only delivers them when `run_callbacks()` is pumped.
+    // Gameplay (`HexagonGame::update`) and the online client's blocking
+    // wait already pump it; the menu path was the missing site, which
+    // is why hot-install / hot-uninstall events never reached our
+    // `_workshop_events` queue and the user saw "no log output, no UI
+    // refresh" no matter how many times they clicked DOWNLOAD/DELETE.
+    steamManager.run_callbacks();
+
     // Helper: stash {id, title} pairs into the screen's name cache so the
     // dependency list can render readable titles instead of raw 64-bit ids.
     const auto mergeIntoNameCache = [&](const auto& items)
@@ -846,9 +850,53 @@ void MenuGame::pumpWorkshopEvents()
                 break;
 
             case EK::ItemInstalled:
+                hg::lo("MenuGame::pumpWorkshopEvents")
+                    << "EK::ItemInstalled fileId=" << evt->publishedFileId << " folder='" << evt->installFolder << "'\n";
                 if (!evt->installFolder.empty())
                 {
-                    (void)assets.installPackAtRuntime(evt->installFolder);
+                    // Steam can deliver the same install via more than one
+                    // callback in one session (`ItemInstalled_t` plus the
+                    // synthesized fallback from `on_download_item_result`,
+                    // for instance). Treat the first event as authoritative
+                    // -- subsequent ones for the same `publishedFileId`
+                    // skip the install path entirely and never push a
+                    // duplicate toast. `installPackAtRuntime` is itself
+                    // idempotent as a second line of defense, but doing
+                    // the dedupe up here also avoids the redundant work.
+                    const bool alreadyKnown = _workshopFileIdToPackId.find(evt->publishedFileId) !=
+                                              _workshopFileIdToPackId.end();
+
+                    if (alreadyKnown)
+                    {
+                        hg::lo("MenuGame::pumpWorkshopEvents")
+                            << "  duplicate ItemInstalled for fileId=" << evt->publishedFileId << "; skipping\n";
+                    }
+                    else if (auto packId = assets.installPackAtRuntime(evt->installFolder); packId.hasValue())
+                    {
+                        hg::lo("MenuGame::pumpWorkshopEvents")
+                            << "  installPackAtRuntime succeeded -> packId='" << *packId << "' (packListVersion now "
+                            << assets.packListVersion() << ")\n";
+                        _workshopFileIdToPackId.insert_or_assign(evt->publishedFileId, *packId);
+
+                        // Toast the pack's display name (falls back to
+                        // the id if `getPackData` produced something
+                        // empty). Lifetime bumped so a hard-to-find
+                        // notification doesn't disappear before the
+                        // user notices the click took effect.
+                        sf::base::String toast{"DOWNLOADED "};
+                        const auto&      pd = assets.getPackData(*packId);
+                        toast += pd.name.empty() ? *packId : pd.name;
+                        hg::ui::pushNotification(ui_notifications, toast.toStringView(), /*lifetime=*/4.f);
+                    }
+                    else
+                    {
+                        hg::lo("MenuGame::pumpWorkshopEvents")
+                            << "  installPackAtRuntime FAILED for folder='" << evt->installFolder << "'\n";
+                    }
+                }
+                else
+                {
+                    hg::lo("MenuGame::pumpWorkshopEvents") << "  installFolder is empty, skipping install\n";
                 }
                 // Reflect install state in the UI's cached list.
                 for (auto& it : ui_app.workshop.items)
@@ -862,12 +910,103 @@ void MenuGame::pumpWorkshopEvents()
                 break;
 
             case EK::ItemSubscribed:
-            case EK::ItemUnsubscribed:
                 for (auto& it : ui_app.workshop.items)
                 {
                     if (it.publishedFileId == evt->publishedFileId)
                     {
-                        it.isSubscribed = (evt->kind == EK::ItemSubscribed);
+                        it.isSubscribed = true;
+                        break;
+                    }
+                }
+                break;
+
+            case EK::ItemUnsubscribed:
+                // Hot-uninstall the pack: drop every level/style/music/
+                // shader/asset-storage entry it contributed so the level
+                // select screen no longer shows its content. Without this,
+                // the user has to restart the game to see the change.
+                hg::lo("MenuGame::pumpWorkshopEvents") << "EK::ItemUnsubscribed fileId=" << evt->publishedFileId << '\n';
+                {
+                    const auto packIt = _workshopFileIdToPackId.find(evt->publishedFileId);
+                    if (packIt == _workshopFileIdToPackId.end())
+                    {
+                        hg::lo("MenuGame::pumpWorkshopEvents")
+                            << "  no pack mapping for fileId=" << evt->publishedFileId
+                            << " -- this should have been seeded at boot via for_workshop_subscribed_items\n";
+                    }
+                    else
+                    {
+                        const sf::base::String& packId = packIt->second;
+
+                        // Cache the human-readable pack name BEFORE the
+                        // teardown -- after `removePackAtRuntime` runs the
+                        // `PackData` is gone and `getPackData` would assert.
+                        sf::base::String toastName;
+                        if (assets.isValidPackId(packId))
+                            toastName = assets.getPackData(packId).name;
+                        if (toastName.empty())
+                            toastName = packId;
+
+                        // Invalidate any host-side pointer / cached id that
+                        // might reference content we're about to erase.
+                        // Done BEFORE the actual erase so dereferences
+                        // can't race with the teardown.
+                        if (currentPack != nullptr && currentPack->id == packId)
+                            currentPack = nullptr;
+                        if (levelData != nullptr && levelData->packId == packId)
+                            levelData = nullptr;
+                        if (!previewLoadedLevelId.empty() && !assets.isValidLevelId(previewLoadedLevelId))
+                        {
+                            // Will be cleared below; we recheck after erase
+                            // in case the id resolves into the removed pack.
+                        }
+
+                        const bool removed = assets.removePackAtRuntime(packId);
+                        hg::lo("MenuGame::pumpWorkshopEvents")
+                            << "  removePackAtRuntime('" << packId << "') -> " << (removed ? "ok" : "FAILED")
+                            << " (packListVersion now " << assets.packListVersion() << ")\n";
+                        _workshopFileIdToPackId.erase(packIt);
+
+                        if (removed)
+                        {
+                            sf::base::String toast{"DELETED "};
+                            toast += toastName;
+                            hg::ui::pushNotification(ui_notifications, toast.toStringView(), /*lifetime=*/3.f);
+                        }
+
+                        // Post-erase pass: anything keyed by level id is
+                        // now stale if its pack vanished. `isValidLevelId`
+                        // returns false for removed ids, so we use it as
+                        // the predicate without having to remember the
+                        // removed pack's prefix.
+                        if (!previewLoadedLevelId.empty() && !assets.isValidLevelId(previewLoadedLevelId))
+                        {
+                            previewLoadedLevelId.clear();
+                            // The next LevelSelect frame will see no
+                            // valid preview target and `hgPreview` will
+                            // be reset by the existing preview-load path.
+                        }
+                        if (!currentLeaderboardValidator.empty())
+                        {
+                            // The validator embeds the level id; if the
+                            // level is gone, drop it so the leaderboard
+                            // pane goes back to "no level highlighted"
+                            // until the user picks a still-loaded one.
+                            currentLeaderboardValidator.clear();
+                            lastReplayRequestValidator.clear();
+                            lastReplayRequestTimestamp = 0;
+                        }
+                    }
+                }
+
+                // Reflect subscribe state in the UI's cached list (also
+                // flip `isInstalled` since we just released the assets).
+                for (auto& it : ui_app.workshop.items)
+                {
+                    if (it.publishedFileId == evt->publishedFileId)
+                    {
+                        it.isSubscribed = false;
+                        it.isInstalled  = false;
                         break;
                     }
                 }
@@ -1008,8 +1147,9 @@ void MenuGame::drawNewMainMenu()
 
     // Mouse button state. Position is mapped *below*, after `renderStates`
     // has been set up -- so widget hit-testing matches the transformed
-    // render.
-    ctx.input.mouseDown    = (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    // render. Suppressed while a modal dialog is up so clicks meant to
+    // dismiss the dialog don't also activate widgets behind it.
+    ctx.input.mouseDown    = dialogBox.empty() && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
     ctx.input.mousePressed = ctx.input.mouseDown && !mouseWasPressed;
 
     // Render the new UI through the same overlay view used by the title
@@ -1060,6 +1200,12 @@ void MenuGame::drawNewMainMenu()
     }
 
     hg::ui::drawCurrentScreen(ctx, ui_app, ui_services);
+
+    // Toasts overlay every screen (and undercut the modal dialog -- the
+    // dialog draw below is on top). Drawn into the UI composite so the
+    // magenta-sentinel frame goes through the accent-gradient shader,
+    // matching the modal's look.
+    hg::ui::drawNotifications(ctx, ui_notifications);
 
     // Draw the dialog box (login / register / first-time-tip flows) into
     // the same off-screen UI texture so its magenta-sentinel frame goes
@@ -1151,7 +1297,7 @@ void MenuGame::changeStateTo(const States mState)
         if (sf::base::exchange(mustShowLoginAtStartup, false) && Config::getShowLoginAtStartup())
         {
             openLoginDialogBoxAndStartLoginProcess();
-            setIgnoreAllInputs(2);
+            dialogBoxDelay = 16.f;
         }
     }
 
@@ -1170,9 +1316,9 @@ void MenuGame::changeStateTo(const States mState)
             "OR THE DPAD/THUMBSTICK ON YOUR CONTROLLER\n\n"
             "REMEMBER TO CHECK OUT THE OPTIONS MENU\n\n"
             "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
-        setIgnoreAllInputs(1);
 
-        // Prevent dialog box from being closed immediately:
+        // Cooldown prevents the keypress that triggered this dialog from
+        // also dismissing it on its release.
         dialogBoxDelay = 64.f;
     }
 }
@@ -1268,11 +1414,6 @@ void MenuGame::playLocally()
     }
 
     changeStateTo(States::SMain);
-}
-
-void MenuGame::ignoreInputsAfterMenuExec()
-{
-    setIgnoreAllInputs(2);
 }
 
 bool MenuGame::loadCommandLineLevel(const sf::base::String& /*pack*/, const sf::base::String& /*level*/)
@@ -1409,6 +1550,39 @@ void MenuGame::update(float mFT)
     // milliseconds (engine convention); convert to seconds.
     ui_dt = mFT / 1000.f;
 
+    // One-shot drain after `returnToLevelSelection`. The trigger system
+    // already fired its `Type::Once` callbacks for any held keys before
+    // we got here this frame; wipe `ui_pendingInput` so screens don't
+    // see those stale edges on their first post-gameplay draw.
+    if (consumeStaleInputsNextFrame)
+    {
+        ui_pendingInput             = {};
+        consumeStaleInputsNextFrame = false;
+    }
+
+    // Age out toasts. `ui_dt` is in the engine's frametime unit which
+    // is ~17x compressed vs. real seconds (`secondsFTRatio = 60`,
+    // historical bug: `ui_dt = mFT / 1000.f` should be `/ 60.f`).
+    // Other UI animations are tuned to that compressed scale, so we
+    // can't fix `ui_dt` globally without retuning everything; instead
+    // we convert mFT to true seconds here for the toast timer so the
+    // lifetime values in `pushNotification` mean what they say.
+    hg::ui::tickNotifications(ui_notifications, mFT / hg::secondsFTRatio);
+
+    // Re-derive the SSVStart trigger gate from current state every frame.
+    // Triggers are silenced while the boot splash is up (so the keypress
+    // dismissing it doesn't also fire `ui_pendingInput.enter` and trip
+    // the new menu's PLAY button) and while a modal dialog is open (so
+    // dismissing the dialog doesn't double-fire as a navigation action).
+    // Replaces the old `ignoreInputs` counter entirely -- the gate is now
+    // a pure function of observable state, with no carried integer to
+    // get wedged above zero.
+    {
+        const bool blockTriggers = (state == States::EpilepsyWarning) || !dialogBox.empty();
+        game.ignoreAllInputs(blockTriggers);
+        Joystick::ignoreAllPresses(blockTriggers);
+    }
+
     // Tick the menu-background level (always) and the in-LevelSelect
     // preview (only when it has a level loaded). `previewMode` keeps
     // both from doing anything they shouldn't (input, scoring, audio).
@@ -1436,29 +1610,38 @@ void MenuGame::update(float mFT)
         strBuf += "\n";
         dialogBoxDelay = 16.f;
         showDialogBox(strBuf);
-        setIgnoreAllInputs(1);
     };
 
     sf::base::Optional<HexagonClient::Event> hcEvent;
     while ((hcEvent = hexagonClient.pollEvent()).hasValue())
     {
+        // Routine "X SUCCESS" feedback goes through the bottom-right
+        // toast stack -- it's a state-change confirmation, not something
+        // the user has to acknowledge. Failures stay modal because they
+        // carry actionable error text the user often needs to copy.
+        const auto pushToast = [this](sf::base::StringView t)
+        {
+            playSoundOverride("select.ogg");
+            hg::ui::pushNotification(ui_notifications, t);
+        };
+
         hcEvent->linearMatch( //
-            [&](const HexagonClient::EConnectionSuccess&) { showHCEventDialogBox(false, "CONNECTION SUCCESS"); },
+            [&](const HexagonClient::EConnectionSuccess&) { pushToast("CONNECTED"); },
             [&](const HexagonClient::EConnectionFailure& e)
         { showHCEventDialogBox(true, "CONNECTION FAILURE", e.error); },
             [&](const HexagonClient::EKicked&) { showHCEventDialogBox(true, "DISCONNECTED FROM SERVER"); },
-            [&](const HexagonClient::ERegistrationSuccess&) { showHCEventDialogBox(false, "REGISTRATION SUCCESS"); },
+            [&](const HexagonClient::ERegistrationSuccess&) { pushToast("REGISTERED"); },
             [&](const HexagonClient::ERegistrationFailure& e)
         { showHCEventDialogBox(true, "REGISTRATION FAILURE", e.error); },
             [&](const HexagonClient::ELoginSuccess&)
         {
-            showHCEventDialogBox(false, "LOGIN SUCCESS");
+            pushToast("LOGGED IN");
             steamManager.unlock_achievement("a23_login");
         },
             [&](const HexagonClient::ELoginFailure& e) { showHCEventDialogBox(true, "LOGIN FAILURE", e.error); },
-            [&](const HexagonClient::ELogoutSuccess&) { showHCEventDialogBox(false, "LOGOUT SUCCESS"); },
+            [&](const HexagonClient::ELogoutSuccess&) { pushToast("LOGGED OUT"); },
             [&](const HexagonClient::ELogoutFailure&) { showHCEventDialogBox(true, "LOGOUT FAILURE"); },
-            [&](const HexagonClient::EDeleteAccountSuccess&) { showHCEventDialogBox(false, "DELETE ACCOUNT SUCCESS"); },
+            [&](const HexagonClient::EDeleteAccountSuccess&) { pushToast("ACCOUNT DELETED"); },
             [&](const HexagonClient::EDeleteAccountFailure& e)
         { showHCEventDialogBox(true, "DELETE ACCOUNT FAILURE", e.error); },
             [&](const HexagonClient::EReceivedTopScores& e)
@@ -1565,14 +1748,21 @@ void MenuGame::renderText(const sf::base::String& mStr, sf::Text& mText, const s
 
 void MenuGame::returnToLevelSelection()
 {
-    setIgnoreAllInputs(1); // otherwise you go back to the main menu
-
     // The user pressed ESC inside gameplay; the trigger system can fire
     // the same hardcoded ESC binding once more on the menu side as the
     // GameState swaps. Clear `ui_pendingInput` so a stale `escape` edge
     // doesn't immediately pop LevelSelect back to Main on the very first
     // menu frame.
-    ui_pendingInput = {};
+    //
+    // The clear here isn't enough on its own: between this call and the
+    // next `update()` tick, MenuGame's `inputManager.update` runs first
+    // and re-fires the held ESC as a fresh `Type::Once` press (each bind
+    // starts life with `released=true`, so any held key looks like a new
+    // down-edge to the freshly-activated state). Arm a one-shot drain so
+    // the next `update()` wipes `ui_pendingInput` once more, after the
+    // callbacks have run and before any widget reads it.
+    ui_pendingInput             = {};
+    consumeStaleInputsNextFrame = true;
 
     // Drop any in-flight replay events. The user just exited gameplay
     // -- if a `EReceivedReplay` arrives now (e.g. a request fired right
@@ -1616,21 +1806,6 @@ void MenuGame::refreshBinds()
     Config::loadAllJoystickBinds();
 }
 
-void MenuGame::setIgnoreAllInputs(const unsigned int presses)
-{
-    ignoreInputs = presses;
-
-    if (ignoreInputs == 0)
-    {
-        game.ignoreAllInputs(false);
-        Joystick::ignoreAllPresses(false);
-        return;
-    }
-
-    game.ignoreAllInputs(true);
-    Joystick::ignoreAllPresses(true);
-}
-
 //*****************************************************
 //
 // DRAWING
@@ -1641,7 +1816,7 @@ void MenuGame::setIgnoreAllInputs(const unsigned int presses)
 void MenuGame::draw()
 {
     mouseWasPressed = mousePressed;
-    mousePressed    = (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    mousePressed    = dialogBox.empty() && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
     if (mustRefresh)
     {

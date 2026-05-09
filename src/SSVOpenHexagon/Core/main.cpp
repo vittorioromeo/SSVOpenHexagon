@@ -252,6 +252,17 @@ struct ParsedArgs
         globalServer.stop();
     });
 
+    if (!hs.initOk())
+    {
+        // Surface init failure (most commonly a bind-port-already-in-use)
+        // as a non-zero exit so `systemctl status` reports `failed`
+        // instead of `success`. With status 0 the unit's auto-restart
+        // cooldown hides the real reason and looks like a working
+        // service that just keeps shutting itself down.
+        hg::lo("::mainServer") << "Server failed to initialize, exiting\n";
+        return 1;
+    }
+
     hs.run();
 
     hg::lo("::mainServer") << "Finished\n";

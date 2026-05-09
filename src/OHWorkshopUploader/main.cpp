@@ -1,5 +1,10 @@
 
+#include "steam/isteamremotestorage.h"
+#include "steam/isteamugc.h"
 #include "steam/steam_api.h"
+#include "steam/steam_api_common.h"
+#include "steam/steamclientpublic.h"
+#include "steam/steamtypes.h"
 
 #include "SFML/System/IO.hpp"
 
@@ -12,11 +17,6 @@
 #include <ios>
 #include <limits>
 #include <optional>
-#include <steam/isteamremotestorage.h>
-#include <steam/isteamugc.h>
-#include <steam/steam_api_common.h>
-#include <steam/steamclientpublic.h>
-#include <steam/steamtypes.h>
 #include <string>
 #include <string_view>
 #include <system_error>

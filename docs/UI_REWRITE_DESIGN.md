@@ -1,4 +1,4 @@
-# UI rewrite — design
+# UI rewrite -- design
 
 Status: **proposal**, not yet implemented.
 Companion to: [UI_REWRITE_RESEARCH.md](UI_REWRITE_RESEARCH.md). Read that first; this
@@ -16,11 +16,11 @@ These are non-negotiable. They drive every decision below.
    directly with a fresh `sf::TextData{...}` / `sf::RectangleShape{...}`
    each frame. No vertex caches, no retained geometry, no dirty bits.
    If profiling later shows a real cost, we revisit the specific hot
-   spot — not the architecture.
+   spot -- not the architecture.
 2. **No widget hierarchy.** Widgets are free functions returning
    `bool` or a value. No `class Widget`, no virtual dispatch, no
    factory, no registry. The current `Menu`/`Category`/`ItemBase`
-   tree disappears — replaced by, at most, a `std::vector<MenuItem>`
+   tree disappears -- replaced by, at most, a `std::vector<MenuItem>`
    where `MenuItem` is a small tagged struct.
 3. **Each screen is one function.** `void drawMainMenu(UI&, App&)`.
    No state machine framework, no transition table. The screen the
@@ -28,7 +28,7 @@ These are non-negotiable. They drive every decision below.
    in one switch.
 4. **App owns all state.** A single `App` struct (with named, typed
    sub-structs per screen) replaces the ~80 ad-hoc members of
-   `MenuGame`. Widgets never own state — they're given a reference to
+   `MenuGame`. Widgets never own state -- they're given a reference to
    the field they edit.
 5. **No layout solver.** Layout is "draw the next thing below the
    previous thing, indented by N." A `cursor: sf::Vector2f` on the
@@ -61,7 +61,7 @@ namespace ohui
 {
 
 // Per-frame snapshot of the input state the UI cares about. Filled
-// once at the top of the menu's update tick — no SFML event polling
+// once at the top of the menu's update tick -- no SFML event polling
 // inside widgets.
 struct Input
 {
@@ -86,7 +86,7 @@ struct Context
     sf::Vector2f origin;   // where `newColumn()` resets to
     float        rowHeight = 28.f;
 
-    // Theme — fields, not virtual lookups.
+    // Theme -- fields, not virtual lookups.
     sf::Color colText      { 220, 220, 220 };
     sf::Color colTextDim   { 130, 130, 130 };
     sf::Color colHighlight { 255, 255, 255 };
@@ -134,7 +134,7 @@ bool textField(Context&, sf::base::StringView label, sf::base::String& out,
 // Returns true on click anywhere in `rect`.
 bool clickArea(Context&, sf::FloatRect rect);
 
-// Generic "rectangle with a label inside it" — used to build custom
+// Generic "rectangle with a label inside it" -- used to build custom
 // widgets like level-list rows without proliferating helper types.
 struct RowResult { bool clicked; bool hovered; };
 RowResult row    (Context&, sf::FloatRect rect, sf::base::StringView text, bool focused);
@@ -144,7 +144,7 @@ RowResult row    (Context&, sf::FloatRect rect, sf::base::StringView text, bool 
 
 - No window/panel/group containers. Screens position things directly.
 - No tab/treeview/combobox. If we need a combobox, it's a `button` that
-  pops a small list — written ad hoc when the first need arises.
+  pops a small list -- written ad hoc when the first need arises.
 - No animation framework. If a screen wants animation, it stores the
   float on its sub-struct and lerps it manually in its draw function.
 - No theme stack/push-pop. Theme is the `Context` field; mutate it
@@ -275,13 +275,13 @@ across hundreds of lines, four files, and a lot of indirection.
 These follow the [research document's catalogue](UI_REWRITE_RESEARCH.md#5-catalogue-of-flaws--root-causes)
 1-to-1. Each is the smallest viable change.
 
-### 5.1 F1 — Workshop in-game (Steam API expansion)
+### 5.1 F1 -- Workshop in-game (Steam API expansion)
 
 Add to
 [`Steam::steam_manager`](../include/SSVOpenHexagon/Core/Steam.hpp):
 
 ```cpp
-// Async query — wraps SteamUGC()->CreateQueryAllUGCRequest. Result is
+// Async query -- wraps SteamUGC()->CreateQueryAllUGCRequest. Result is
 // delivered via the event queue (below). Returns a `QueryHandle`
 // the caller can match against the result event.
 struct WorkshopItem
@@ -321,7 +321,7 @@ download/install happens asynchronously; when the
 `ItemInstalled` event arrives, the UI invokes the asset hot-install
 path (next bullet).
 
-### 5.2 F2 — Hot install (asset reload)
+### 5.2 F2 -- Hot install (asset reload)
 
 Add to [`HGAssets`](../include/SSVOpenHexagon/Global/Assets.hpp):
 
@@ -332,7 +332,7 @@ Add to [`HGAssets`](../include/SSVOpenHexagon/Global/Assets.hpp):
 
 [[nodiscard]] bool uninstallPack(const sf::base::String& packId);
 
-// Snapshot version counter — bumped whenever the pack/level lists
+// Snapshot version counter -- bumped whenever the pack/level lists
 // change. The UI compares against its cached version each frame and
 // rebuilds its filtered view when they differ. No callbacks needed.
 sf::base::U64 packListVersion() const noexcept;
@@ -342,7 +342,7 @@ sf::base::U64 packListVersion() const noexcept;
 [`loadPackAssets`](../src/SSVOpenHexagon/Global/Assets.cpp#L464-L527)
 plus the dependency check from
 [Assets.cpp:415-442](../src/SSVOpenHexagon/Global/Assets.cpp#L415-L442).
-Synchronous on the main thread — for a typical pack (a few levels +
+Synchronous on the main thread -- for a typical pack (a few levels +
 a handful of music tracks + Lua scripts) it should be tens of
 milliseconds, fine to stall a single frame in the menu. We don't
 build a worker thread until we measure the actual stall.
@@ -350,7 +350,7 @@ build a worker thread until we measure the actual stall.
 The `packListVersion()` counter lets the level-select screen
 re-derive its filtered/sorted list without ad-hoc callback wiring.
 
-### 5.3 F3 — Password recovery (Steam-ticket-based)
+### 5.3 F3 -- Password recovery (Steam-ticket-based)
 
 The simplest recovery channel is the one we already trust: **Steam
 itself**. The user is logged into Steam; their Steam ID is the
@@ -401,7 +401,7 @@ struct STCPPasswordResetResult
 
 Server flow: validate ticket against the supplied Steam ID, find the
 user row by steamId, replace its salt+hash. **No login token issued
-yet** — user logs in normally with the new password. The ticket
+yet** -- user logs in normally with the new password. The ticket
 validates "this is the real owner of that Steam ID at this moment."
 
 Migration of existing users: opportunistic. On successful login with
@@ -409,7 +409,7 @@ the old hash, re-hash with Argon2id and store. Old hashes co-exist
 during the transition (a `version` byte in `passwordHash` would be
 sufficient), and after a deprecation window we can refuse them.
 
-### 5.4 F4 — Profile collapse
+### 5.4 F4 -- Profile collapse
 
 Drop the "multiple local profiles" feature entirely. Replace
 [`HGAssetsImpl::profileDataMap`](../src/SSVOpenHexagon/Global/Assets.cpp#L84)
@@ -435,7 +435,7 @@ The "profile picker" screen disappears. The Main menu's "Profile"
 entry becomes a small status panel (offline name + login state +
 total play time) with no picker.
 
-### 5.5 F5 — Real level preview
+### 5.5 F5 -- Real level preview
 
 Add to [`HexagonGame`](../include/SSVOpenHexagon/Core/HexagonGame.hpp):
 
@@ -451,7 +451,7 @@ void renderPreviewSequence(const sf::base::String& levelId,
                            sf::base::FixedFunction<void(float t), 64> onFrame);
 ```
 
-The infrastructure exists — `runReplayUntilDeathAndGetScore`
+The infrastructure exists -- `runReplayUntilDeathAndGetScore`
 already drives the engine headlessly for replay validation. The
 preview helper reuses the same "run engine without a player" path
 but writes frames to a render texture instead of computing a score.
@@ -460,14 +460,14 @@ The level-select screen calls `renderPreviewSequence` once per
 focus change (so once per arrow-key press, not per frame), with
 `seconds = 4.f` and `onFrame` capturing every Nth frame into a
 small ring buffer of textures that the UI then plays back as a
-short looping clip. **No persistent cache** — when the user moves
+short looping clip. **No persistent cache** -- when the user moves
 focus, the previous textures are simply overwritten.
 
 If `renderPreviewSequence` turns out to be too slow on cold pack
 load (Lua compile etc.), we can pre-warm one level per pack on
 pack-list-version change. Premature; only do if measured.
 
-### 5.6 F6 / F7 — Search, filter, sort
+### 5.6 F6 / F7 -- Search, filter, sort
 
 Three small additions:
 
@@ -499,7 +499,7 @@ Three small additions:
 
 Search is plain `case-insensitive substring match` against
 `name + author + description`. We don't ship a fuzzy matcher in v1
-— if we measure that a real Steam-Workshop-scale catalogue makes
+-- if we measure that a real Steam-Workshop-scale catalogue makes
 substring search uncomfortable, we add trigrams later.
 
 Sort keys (small enum, plain switch in the comparator):
@@ -520,7 +520,7 @@ struct FilterSpec
 };
 ```
 
-### 5.7 F8 — Favourites discoverability
+### 5.7 F8 -- Favourites discoverability
 
 No backend change; the data already exists. The new level-select
 screen draws a star icon at the right edge of every level row
@@ -537,20 +537,20 @@ during the transition.
 
 ```
 include/SSVOpenHexagon/UI/
-  UI.hpp                  — primitives + Context (section 2)
-  App.hpp                 — App struct + Screen enum (section 3)
-  Screens.hpp             — declarations of drawXxxScreen() functions
+  UI.hpp                  -- primitives + Context (section 2)
+  App.hpp                 -- App struct + Screen enum (section 3)
+  Screens.hpp             -- declarations of drawXxxScreen() functions
 
 src/SSVOpenHexagon/UI/
-  UI.cpp                  — primitive implementations
+  UI.cpp                  -- primitive implementations
   Screens/
-    Main.cpp              — drawMainMenu
-    Options.cpp           — drawOptions
-    LevelSelect.cpp       — drawLevelSelect + rebuildFilteredLevels
-    WorkshopBrowse.cpp    — drawWorkshopBrowse + Steam event handling
-    Online.cpp            — login, registration, password recovery
-    Profile.cpp           — offline status panel
-    Loading.cpp / Epilepsy.cpp — trivial
+    Main.cpp              -- drawMainMenu
+    Options.cpp           -- drawOptions
+    LevelSelect.cpp       -- drawLevelSelect + rebuildFilteredLevels
+    WorkshopBrowse.cpp    -- drawWorkshopBrowse + Steam event handling
+    Online.cpp            -- login, registration, password recovery
+    Profile.cpp           -- offline status panel
+    Loading.cpp / Epilepsy.cpp -- trivial
 ```
 
 Backend additions go in their existing files
@@ -567,29 +567,29 @@ Backend additions go in their existing files
 
 We don't try to replace everything in one PR. The transition strategy:
 
-1. **Phase 0 — primitives + Main screen.**
+1. **Phase 0 -- primitives + Main screen.**
    Build `UI.hpp` / `UI.cpp` and `Main.cpp`. Add a build flag
    `SSVOH_NEW_UI=on` that, when set, routes the existing
    `States::SMain` to `drawMainMenu` instead of `MenuGame::drawMainMenu`.
    Both code paths exist; we can A/B by toggling the flag. Old code
    untouched.
-2. **Phase 1 — Options + Profile screens.**
+2. **Phase 1 -- Options + Profile screens.**
    Same pattern. `States::MOpts` and `States::SLPSelect` route to
    the new screens when the flag is on.
-3. **Phase 2 — Level Select.**
+3. **Phase 2 -- Level Select.**
    The hardest screen. Implement `drawLevelSelect` with search /
    filter / sort / favourites. Backend: ship the `LevelData::tags`
    and `ProfileData::perLevelState` extensions.
-4. **Phase 3 — Workshop Browse + hot install.**
+4. **Phase 3 -- Workshop Browse + hot install.**
    Backend: extend `Steam::steam_manager` (5.1), add
    `HGAssets::installPackAtRuntime` (5.2). UI: `WorkshopBrowse.cpp`.
-5. **Phase 4 — Online + password recovery.**
+5. **Phase 4 -- Online + password recovery.**
    Backend: schema migration (5.3), Argon2id, two new packet types,
    server endpoint. UI: replaces the existing online/login menu.
-6. **Phase 5 — preview engine.**
+6. **Phase 5 -- preview engine.**
    Backend: `HexagonGame::renderPreviewSequence` (5.5). UI: hook it
    into `drawLevelSelect`.
-7. **Phase 6 — delete the old code.**
+7. **Phase 6 -- delete the old code.**
    Once every state is routed through the new system, delete
    `MenuGame.cpp`, `MenuGame.hpp`, `BindControl.{hpp,cpp}`,
    `include/SSVOpenHexagon/MenuSystem/`, and remove
@@ -637,14 +637,14 @@ until we have a measured need.
 (Resolved by author 2026-04-26.)
 
 1. **Input primacy:** keyboard/joystick stays primary (reflex game).
-   Mouse must be supported much more cleanly than today — every
+   Mouse must be supported much more cleanly than today -- every
    selectable surface is hover-highlightable, every action has a
    click target, click-to-focus is consistent. No "mouse only as an
    afterthought" idiom (the current `mustChangeIndexTo` flag pattern
    in [MenuGame.cpp:2637-2690](../src/SSVOpenHexagon/Core/MenuGame.cpp#L2637-L2690)
    does not survive the rewrite).
 2. **Workshop browse:** Open Hexagon's Workshop catalogue is in the
-   hundreds — we don't need infinite scroll. Two preset views (most
+   hundreds -- we don't need infinite scroll. Two preset views (most
    popular, newest), a "browse all" pagination view, and a search-by-
    name input. Defaults to "most popular" on entry.
 3. **Profile merge:** silent union into `offline.json` on first run
@@ -658,7 +658,7 @@ until we have a measured need.
    the screen calls once per frame; v1 implementation is "draw the
    coloured hexagon"; v2 swap-in is "tick a hidden `HexagonGame`
    into a `RenderTexture` and blit." Try the full live render first
-   — it may be cheap enough to skip the v1 fallback entirely.
+   -- it may be cheap enough to skip the v1 fallback entirely.
 5. **Pack dependencies on hot install:** auto-subscribe missing
    dependencies. Workshop packs that declare dependencies trigger
    a recursive subscribe + install on the parent install path.
@@ -667,7 +667,7 @@ until we have a measured need.
 
 ## 10. Animations and smooth scrolling
 
-Glossed over in v1 of this doc — added on review. The current UI's
+Glossed over in v1 of this doc -- added on review. The current UI's
 fold/unfold/scroll polish is part of the game's identity and the
 rewrite has to preserve it without reintroducing the state-fragmentation
 mess
@@ -680,7 +680,7 @@ counts seven separate `*Offset` fields scattered across `Category`,
 Animations are **plain floats on App sub-structs**, lerped each frame
 by a small set of easing helpers. No animation framework, no
 `AnimatedFloat<>` template, no callbacks. The float lives where it
-"obviously belongs" — `App::MainScreen::selectionY` for the main
+"obviously belongs" -- `App::MainScreen::selectionY` for the main
 menu's selection cursor, `App::LevelSelectScreen::scrollY` for the
 level list scroll, `App::LevelSelectScreen::detailsOffset` for the
 right-panel slide-in.
@@ -699,7 +699,7 @@ bool stepToward(sf::Vector2f& current, sf::Vector2f target, float dt, float spee
 // Pure easing functions (operate on t in [0,1], return [0,1]).
 float easeOutCubic(float t);
 float easeInOutCubic(float t);
-float easeOutBack(float t);   // small overshoot — used for selection bumps
+float easeOutBack(float t);   // small overshoot -- used for selection bumps
 
 }
 ```
@@ -724,19 +724,19 @@ in the screen function.
   per-item alpha = `clamp(openProgress * N - i, 0, 1)`.
 - **No animation interruption logic.** If the user changes selection
   mid-animation, the target updates and the same `stepToward` keeps
-  going. No "cancel current tween, start new one" — exponential ease
+  going. No "cancel current tween, start new one" -- exponential ease
   handles target changes naturally.
 
 ### 10.4 Performance
 
-Per-frame animation cost is a handful of `stepToward` calls — single-
+Per-frame animation cost is a handful of `stepToward` calls -- single-
 digit operations, no allocations. We `clear()` and refill no buffers
 (immediate-mode), so animations don't introduce a separate per-frame
 cost beyond the lerps themselves.
 
 When all animations on a screen are settled (every `stepToward`
 returns false), the screen is in a "stable" state. We don't do
-anything special with this — we still redraw every frame, which is
+anything special with this -- we still redraw every frame, which is
 the immediate-mode philosophy. If profiling later shows menu redraw
 is wasteful, we revisit.
 

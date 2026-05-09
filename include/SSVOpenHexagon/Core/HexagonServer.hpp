@@ -196,8 +196,18 @@ public:
     HexagonServer(const HexagonServer&) = delete;
     HexagonServer(HexagonServer&&)      = delete;
 
+    // True iff the constructor's init steps (control socket bind, TCP
+    // listener bind, selector setup) all succeeded. The constructor
+    // doesn't throw on failure -- it logs and leaves the object in a
+    // degenerate state -- so callers must check this before `run()` and
+    // surface a non-zero exit code on failure. Without it, a port-bind
+    // failure under `systemd` exits 0/SUCCESS and the unit loops the
+    // restart-cooldown forever, which is what bit us in production.
+    [[nodiscard]] bool initOk() const noexcept;
+
     // Enters the event loop and returns only when `stop()` is called or the
     // listener is closed (e.g. by SIGINT if the caller installs a handler).
+    // No-op if `initOk()` returns false.
     void run();
 
     // Thread-safe. Requests `run()` to return; resets the listener to unblock

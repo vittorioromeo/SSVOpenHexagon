@@ -89,9 +89,23 @@ public:
 
     // Install (or refresh in place) a pack from a folder on disk at
     // runtime. Used by the Workshop browser when an `ItemInstalled_t`
-    // callback fires. Returns true on success, false on validation /
-    // dependency failure.
-    [[nodiscard]] bool installPackAtRuntime(const sf::base::String& folderPath);
+    // callback fires. On success, returns the freshly-loaded pack's id
+    // (so the caller can remember the `publishedFileId -> packId`
+    // mapping for later uninstall). On validation/dependency failure,
+    // returns `nullOpt`.
+    [[nodiscard]] sf::base::Optional<sf::base::String> installPackAtRuntime(const sf::base::String& folderPath);
+
+    // Tear down all in-memory state owned by `packId`: level / music /
+    // style / shader / asset-storage entries, the pack's index in
+    // `levelDataIdsByPack` and `selectablePackInfos`, and any favorite
+    // level ids the active profile had pinned to its levels. Bumps the
+    // pack-list version so the LevelSelect UI rebuilds. The caller is
+    // responsible for nulling host-side pointers / current-selection
+    // bookkeeping that referenced the removed pack -- this method only
+    // touches `HGAssets` state.
+    //
+    // Returns false if `packId` isn't currently loaded.
+    [[nodiscard]] bool removePackAtRuntime(const sf::base::String& packId);
 
     [[nodiscard]] const PackData* findPackData(const sf::base::String& mPackDisambiguator,
                                                const sf::base::String& mPackName,

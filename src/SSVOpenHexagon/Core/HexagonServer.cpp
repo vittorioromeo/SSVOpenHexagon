@@ -347,8 +347,25 @@ bool HexagonServer::kickAndRemoveClient(ConnectedClient& c)
     return true;
 }
 
+bool HexagonServer::initOk() const noexcept
+{
+    // Listener presence is the canonical "init succeeded" signal --
+    // the listener is the last thing the constructor sets up before
+    // returning, so any earlier failure leaves it empty.
+    return _listener.hasValue();
+}
+
 void HexagonServer::run()
 {
+    if (!initOk())
+    {
+        // Belt-and-suspenders: if a caller forgets to check `initOk()`,
+        // bail immediately rather than spin in a loop where every
+        // iteration's selector wait does nothing useful.
+        SSVOH_SLOG_ERROR << "run() called on a server that failed to initialize\n";
+        return;
+    }
+
     while (_running)
     {
         try

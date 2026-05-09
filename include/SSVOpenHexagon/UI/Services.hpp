@@ -78,6 +78,12 @@ struct Services
     // Optional UX hook for sound feedback on selection moves; can be empty.
     sf::base::FixedFunction<void(sf::base::StringView), 64> playSound;
 
+    // Push a transient toast into the bottom-right notification stack.
+    // Used for state changes that don't warrant a modal (connection
+    // success, pack downloaded, etc.). The host owns the actual stack;
+    // callers just push text. Empty when no host is wired in.
+    sf::base::FixedFunction<void(sf::base::StringView /*text*/), 64> pushNotification;
+
     // Direct pointers to backend systems screens read from. Phase 2's Level
     // Select reads pack/level metadata via these; Phase 3's Workshop browser
     // calls Steam UGC and `installPackAtRuntime` directly. Any of these may

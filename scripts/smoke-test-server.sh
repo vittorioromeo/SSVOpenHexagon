@@ -7,7 +7,7 @@
 #      so it finds its config and assets).
 #   3. Waits for the TCP listener to bind on the configured port.
 #   4. Opens a raw TCP connection to prove the listener accepts (and
-#      closes it — the server's selector should see the client show up
+#      closes it -- the server's selector should see the client show up
 #      and then go away without freezing).
 #   5. Sends a "verbose true" control message via `OHServerControl` and
 #      greps the server log to confirm the server actually processed it.
@@ -40,7 +40,7 @@ SERVER_LOG="$(mktemp -t ohw-smoke-server.XXXXXX.log)"
 
 # The server binary chdirs to its own `argv[0].parent_path()` on startup
 # (see `Core/main.cpp` near line 629), so we have to invoke it via a
-# symlink that lives inside `_RELEASE/` — that way `chdir` lands in the
+# symlink that lives inside `_RELEASE/` -- that way `chdir` lands in the
 # release directory where `config.json` and `Packs/` are.
 SERVER_SYMLINK="$RELEASE_DIR/SSVOpenHexagon.smoke-test.$$"
 
@@ -96,7 +96,7 @@ trap cleanup EXIT INT TERM
 [ -d "$RELEASE_DIR" ]      || { fail "release directory missing: $RELEASE_DIR"; exit 2; }
 [ -f "$RELEASE_DIR/config.json" ] || { fail "release config.json missing in $RELEASE_DIR"; exit 2; }
 
-# Refuse to run if the port is already in use — otherwise the spawned
+# Refuse to run if the port is already in use -- otherwise the spawned
 # server will fail to bind and the failure gets masked.
 if ss -tln 2>/dev/null | grep -q ":$SERVER_TCP_PORT[[:space:]]"; then
     fail "TCP port $SERVER_TCP_PORT is already in use; stop the other server first"
@@ -109,7 +109,7 @@ ok "pre-flight checks"
 # Step 1: start the server.
 ln -sf "$SERVER_BIN" "$SERVER_SYMLINK"
 log "starting server via symlink: $SERVER_SYMLINK -server"
-# `stdbuf -oL -eL` forces line-buffering on stdout/stderr — the server's
+# `stdbuf -oL -eL` forces line-buffering on stdout/stderr -- the server's
 # C++ `sf::cOut()` is fully-buffered when redirected to a file, and the
 # periodic `runIteration_FlushLogs` only flushes once per second, which
 # makes "did the server log X" checks racy for a script.
@@ -137,7 +137,7 @@ done
 ok "listener bound on :$SERVER_TCP_PORT"
 
 # -----------------------------------------------------------------------------
-# Step 3a: bare TCP probe — connect and close immediately. Proves the
+# Step 3a: bare TCP probe -- connect and close immediately. Proves the
 # accept path works and that an unceremonious disconnect doesn't freeze
 # the event loop.
 log "probing TCP accept path..."
@@ -169,7 +169,48 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# Step 3c: load phase — spawn several `OHSmokeClient` processes in
+# Step 3c: hang-resilience probe. Regression check for the server-hang
+# bug fixed in `04dc2e8f` (and covered in C++ by `HexagonServer.t.cpp`).
+# Old behaviour: an accepted client that wrote a partial 4-byte size
+# prefix and went silent would freeze the single-threaded event loop
+# inside the blocking `TcpSocket::receive(Packet&)`, so every later
+# client would never get a reply. With non-blocking accepted sockets
+# the server services other clients normally while the silent one
+# sits idle on its file descriptor.
+#
+# We open a raw TCP connection, push 3 of the 4 size-prefix bytes,
+# and HOLD the connection open. While that's stalled mid-packet we
+# expect a fresh `OHSmokeClient` round-trip to complete promptly --
+# `timeout 3` leaves comfortable slack for slow CI but still catches
+# a real hang (which would block until the server's own client-purge
+# timeout, dozens of seconds out).
+log "hang-resilience probe: partial-prefix client + concurrent normal client..."
+# Hold the partial connection open via a script-level FD; the kernel
+# delivers the 3 bytes immediately on localhost, so no extra sleep is
+# needed before launching the second client.
+if ! exec 9<>"/dev/tcp/127.0.0.1/$SERVER_TCP_PORT"; then
+    fail "hang-resilience: could not open partial-prefix connection"
+    exit 1
+fi
+printf '\x00\x00\x00' >&9 || { fail "hang-resilience: could not push partial size prefix"; exec 9<&- 9>&-; exit 1; }
+
+HANG_PROBE_OUT="$(mktemp -t ohw-smoke-hang.XXXXXX.log)"
+if timeout 3 "$SMOKE_CLIENT_BIN" 127.0.0.1 "$SERVER_TCP_PORT" > "$HANG_PROBE_OUT" 2>&1; then
+    ok "server stayed responsive while a peer was stalled mid-packet"
+    rm -f "$HANG_PROBE_OUT"
+else
+    rc=$?
+    fail "hang-resilience probe failed (rc=$rc) -- second client was blocked while first stalled mid-packet (server-hang regression?)"
+    echo "----- smoke-client output -----" >&2
+    cat "$HANG_PROBE_OUT" >&2
+    rm -f "$HANG_PROBE_OUT"
+    exec 9<&- 9>&-
+    exit 1
+fi
+exec 9<&- 9>&-
+
+# -----------------------------------------------------------------------------
+# Step 3d: load phase -- spawn several `OHSmokeClient` processes in
 # parallel, each performing many round-trips on its own connection.
 # This stresses the server with concurrent traffic from real OS
 # processes (separate from the in-process load test in `test/`).
@@ -208,7 +249,7 @@ if [ $load_failures -ne 0 ]; then
     exit 1
 fi
 
-# Throughput is wall-clock, includes process spawn overhead — useful as a
+# Throughput is wall-clock, includes process spawn overhead -- useful as a
 # sanity ceiling, not a benchmark figure.
 LOAD_RPS=0
 [ "$LOAD_MS" -gt 0 ] && LOAD_RPS=$(( LOAD_TOTAL * 1000 / LOAD_MS ))
