@@ -367,19 +367,6 @@ if(NOT SSVOH_ANDROID)
     target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${imgui_SOURCE_DIR})
 endif()
 
-macro(ssvoh_find_extlib_for_target target extlib)
-    list(APPEND CMAKE_MODULE_PATH
-        "${CMAKE_SOURCE_DIR}/../${extlib}/cmake/modules/"
-        "${CMAKE_SOURCE_DIR}/../${extlib}/cmake/"
-        "${CMAKE_SOURCE_DIR}/extlibs/${extlib}/cmake/modules/"
-        "${CMAKE_SOURCE_DIR}/extlibs/${extlib}/cmake/")
-
-    find_package("${extlib}" REQUIRED)
-    string(TOUPPER "${extlib}" ${extlib}_UPPER)
-
-    target_include_directories(${target} PUBLIC "${${${extlib}_UPPER}_INCLUDE_DIR}")
-endmacro()
-
 target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 
 if(SSVOH_BUILD_WIN32_CONSOLE)
