@@ -23,21 +23,6 @@ private:
     BtnBitset    btns;
 
 public:
-    [[nodiscard]] auto getFinger(const FingerID finger) noexcept
-    {
-        return getFingerBit(fingers, finger);
-    }
-
-    [[nodiscard]] auto operator[](const sf::Keyboard::Key key) noexcept
-    {
-        return getKeyBit(keys, key);
-    }
-
-    [[nodiscard]] auto operator[](const sf::Mouse::Button button) noexcept
-    {
-        return getBtnBit(btns, button);
-    }
-
     [[nodiscard]] bool getFinger(const FingerID finger) const noexcept
     {
         return getFingerBit(fingers, finger);
@@ -53,11 +38,27 @@ public:
         return getBtnBit(btns, button);
     }
 
+    // Mutating accessors used by GameWindow to record key/btn events.
+    void setFinger(const FingerID finger, const bool value) noexcept
+    {
+        setFingerBit(fingers, finger, value);
+    }
+
+    void setKey(const sf::Keyboard::Key key, const bool value) noexcept
+    {
+        setKeyBit(keys, key, value);
+    }
+
+    void setBtn(const sf::Mouse::Button button, const bool value) noexcept
+    {
+        setBtnBit(btns, button, value);
+    }
+
     void reset() noexcept
     {
-        fingers.reset();
-        keys.reset();
-        btns.reset();
+        fingers.resetAll();
+        keys.resetAll();
+        btns.resetAll();
     }
 
     [[nodiscard]] auto& getFingers() noexcept

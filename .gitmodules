@@ -1,6 +1,0 @@
-[submodule "extlibs/SSVUtils"]
-	path = extlibs/SSVUtils
-	url = https://github.com/SuperV1234/SSVUtils.git
-[submodule "extlibs/SFML"]
-	path = extlibs/SFML
-	url = https://github.com/LaurentGomila/SFML.git

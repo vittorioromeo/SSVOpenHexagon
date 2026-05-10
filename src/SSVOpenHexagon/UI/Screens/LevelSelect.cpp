@@ -24,9 +24,10 @@
 
 #include "SFML/System/UnicodeString.hpp"
 
+#include "SFML/Base/Algorithm/Sort.hpp"
+#include "SFML/Base/Clamp.hpp"
+#include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/String.hpp"
-
-#include <algorithm>
 
 #include <cstdio>
 #include <cstring>
@@ -97,26 +98,27 @@ void rebuildFilteredList(LevelSelectScreenState& s, const HGAssets& assets, cons
         switch (s.sortKey)
         {
             case LevelSortKey::Name:
-                std::sort(s.filteredLevelIds.begin(), s.filteredLevelIds.end(), [&getLD](const auto& a, const auto& b) {
-                    return getLD(a).name < getLD(b).name;
-                });
+                sf::base::quickSort(s.filteredLevelIds.begin(),
+                                    s.filteredLevelIds.end(),
+                                    [&getLD](const auto& a, const auto& b) { return getLD(a).name < getLD(b).name; });
                 break;
             case LevelSortKey::Author:
-                std::sort(s.filteredLevelIds.begin(), s.filteredLevelIds.end(), [&getLD](const auto& a, const auto& b) {
-                    return getLD(a).author < getLD(b).author;
-                });
+                sf::base::quickSort(s.filteredLevelIds.begin(),
+                                    s.filteredLevelIds.end(),
+                                    [&getLD](const auto& a, const auto& b) { return getLD(a).author < getLD(b).author; });
                 break;
             case LevelSortKey::MinDifficulty:
-                std::sort(s.filteredLevelIds.begin(), s.filteredLevelIds.end(), [&getLD](const auto& a, const auto& b) {
-                    return minDiff(getLD(a)) < minDiff(getLD(b));
-                });
+                sf::base::quickSort(s.filteredLevelIds.begin(),
+                                    s.filteredLevelIds.end(),
+                                    [&getLD](const auto& a, const auto& b)
+                { return minDiff(getLD(a)) < minDiff(getLD(b)); });
                 break;
             case LevelSortKey::PersonalBest:
                 if (profile != nullptr)
                 {
-                    std::sort(s.filteredLevelIds.begin(),
-                              s.filteredLevelIds.end(),
-                              [&getLD, profile](const auto& a, const auto& b)
+                    sf::base::quickSort(s.filteredLevelIds.begin(),
+                                        s.filteredLevelIds.end(),
+                                        [&getLD, profile](const auto& a, const auto& b)
                     {
                         // Use validator at first difficulty for a quick read.
                         const auto& la    = getLD(a);
@@ -134,17 +136,19 @@ void rebuildFilteredList(LevelSelectScreenState& s, const HGAssets& assets, cons
             case LevelSortKey::LastPlayed:
                 if (profile != nullptr)
                 {
-                    std::sort(s.filteredLevelIds.begin(), s.filteredLevelIds.end(), [profile](const auto& a, const auto& b) {
-                        return profile->getPerLevelState(a).lastPlayedTs > profile->getPerLevelState(b).lastPlayedTs;
-                    });
+                    sf::base::quickSort(s.filteredLevelIds.begin(),
+                                        s.filteredLevelIds.end(),
+                                        [profile](const auto& a, const auto& b)
+                    { return profile->getPerLevelState(a).lastPlayedTs > profile->getPerLevelState(b).lastPlayedTs; });
                 }
                 break;
             case LevelSortKey::PlayCount:
                 if (profile != nullptr)
                 {
-                    std::sort(s.filteredLevelIds.begin(), s.filteredLevelIds.end(), [profile](const auto& a, const auto& b) {
-                        return profile->getPerLevelState(a).playCount > profile->getPerLevelState(b).playCount;
-                    });
+                    sf::base::quickSort(s.filteredLevelIds.begin(),
+                                        s.filteredLevelIds.end(),
+                                        [profile](const auto& a, const auto& b)
+                    { return profile->getPerLevelState(a).playCount > profile->getPerLevelState(b).playCount; });
                 }
                 break;
             default:
@@ -350,8 +354,8 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     if (s.pane == Pane::Leaderboard && n > 0 && ctx.input.enter && svc.onWatchReplay &&
         svc.leaderboardScores != nullptr && !svc.leaderboardScores->empty())
     {
-        const int           idx = std::clamp(s.leaderboardIdx, 0, static_cast<int>(svc.leaderboardScores->size()) - 1);
-        const sf::base::U64 ts  = (*svc.leaderboardScores)[static_cast<sf::base::SizeT>(idx)].scoreTimestamp;
+        const int idx = sf::base::clamp(s.leaderboardIdx, 0, static_cast<int>(svc.leaderboardScores->size()) - 1);
+        const sf::base::U64 ts = (*svc.leaderboardScores)[static_cast<sf::base::SizeT>(idx)].scoreTimestamp;
 
         svc.onWatchReplay(ts);
         return;
@@ -401,7 +405,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             ++s.scrollStart;
         }
         if (s.scrollStart > n - 1)
-            s.scrollStart = std::max(0, n - 1);
+            s.scrollStart = sf::base::max(0, n - 1);
         if (s.scrollStart < 0)
             s.scrollStart = 0;
     }
@@ -504,7 +508,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
     // ---- Pack column (far left) -------------------------------------------
     {
         const int packStart = s.packScrollStart;
-        const int packEnd   = std::min(packCount, packStart + kMaxPackVisible);
+        const int packEnd   = sf::base::min(packCount, packStart + kMaxPackVisible);
 
         // Header label above the list -- offsets every pack row down by
         // one row so the pill animation also has to start below it.
@@ -991,7 +995,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
 
         if (!cur.description.empty())
         {
-            const auto descLen = std::min<sf::base::SizeT>(cur.description.size(), 280);
+            const auto descLen = sf::base::min(cur.description.size(), sf::base::SizeT{280});
             wlabel("%.*s", static_cast<int>(descLen), cur.description.cStr());
         }
 
@@ -1124,11 +1128,12 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             const float     nameMaxW  = (timeRight - kPadX) - nameLeft;
 
             const auto& scores = *svc.leaderboardScores;
-            const int   nRows  = static_cast<int>(std::min<sf::base::SizeT>(scores.size(), kMaxLeaderboardRows));
+            const int   nRows  = static_cast<int>(
+                sf::base::min(scores.size(), static_cast<sf::base::SizeT>(kMaxLeaderboardRows)));
 
             // Defensive: the upstream branches already rule out the
             // empty-scores case, but keep a safety net so the
-            // `std::clamp(idx, 0, nRows - 1)` below isn't UB if a future
+            // `sf::base::clamp(idx, 0, nRows - 1)` below isn't UB if a future
             // refactor hoists this earlier.
             if (nRows <= 0)
             {
@@ -1138,7 +1143,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             // Focus pill: shared `animatedPill` helper, parameterised
             // with our tighter `rowHeightLB` so the height matches
             // leaderboard rows instead of `ctx.rowHeight`.
-            const int focusedClamped = std::clamp(s.leaderboardIdx, 0, nRows - 1);
+            const int focusedClamped = sf::base::clamp(s.leaderboardIdx, 0, nRows - 1);
             animatedPill(ctx,
                          {leaderboardLeft, bodyTop + 4.f},
                          kLeaderboardW,
@@ -1165,8 +1170,8 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
                 std::snprintf(nameBuf,
                               sizeof(nameBuf),
                               "%.*s",
-                              static_cast<int>(std::min<sf::base::SizeT>(ps.userName.size(), sizeof(nameBuf) - 1)),
-                              ps.userName.c_str());
+                              static_cast<int>(sf::base::min(ps.userName.size(), sizeof(nameBuf) - 1)),
+                              ps.userName.cStr());
                 text(ctx, {nameLeft, textY}, nameBuf, ctx.fontSize, ctx.colText, nameMaxW);
 
                 // Time -- right-aligned at the column edge.

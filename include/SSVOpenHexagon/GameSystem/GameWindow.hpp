@@ -4,13 +4,13 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/GameSystem/Delegate.hpp"
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/GameSystem/Timers/TimerStatic.hpp"
 #include "SSVOpenHexagon/Input/Bind.hpp"
 #include "SSVOpenHexagon/Input/BitsetUtils.hpp"
 #include "SSVOpenHexagon/Input/Combo.hpp"
 #include "SSVOpenHexagon/Input/InputState.hpp"
-#include "SSVUtils/Delegate/Inc/Delegate.hpp"
 
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Image.hpp"
@@ -20,25 +20,21 @@
 #include "SFML/Window/ContextSettings.hpp"
 #include "SFML/Window/Event.hpp"
 #include "SFML/Window/Mouse.hpp"
-#include "SFML/Window/Touch.hpp"
-#include "SFML/Window/VideoMode.hpp"
 #include "SFML/Window/WindowSettings.hpp"
 
 #include "SFML/System/Path.hpp"
 #include "SFML/System/Priv/Vec2Base.hpp"
 
 #include "SFML/Base/Array.hpp"
+#include "SFML/Base/Assert.hpp"
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SSVUtils/Delegate/Delegate.hpp>
 #include <ratio>
-#include <utility>
-
-#include <cassert>
-#include <cstddef>
 
 namespace ssvs
 {
@@ -87,24 +83,24 @@ private:
             }
             else if (auto* e = event.getIf<sf::Event::KeyPressed>())
             {
-                inputState[e->code] = true;
+                inputState.setKey(e->code, true);
             }
             else if (auto* e = event.getIf<sf::Event::KeyReleased>())
             {
-                inputState[e->code] = false;
+                inputState.setKey(e->code, false);
             }
             else if (auto* e = event.getIf<sf::Event::MouseButtonPressed>())
             {
-                inputState[e->button] = true;
+                inputState.setBtn(e->button, true);
             }
             else if (auto* e = event.getIf<sf::Event::MouseButtonReleased>())
             {
-                inputState[e->button] = false;
+                inputState.setBtn(e->button, false);
             }
             else if (auto* e = event.getIf<sf::Event::TouchBegan>())
             {
-                inputState.getFinger(e->finger) = true;
-                fingerPositions[e->finger]      = e->position;
+                inputState.setFinger(e->finger, true);
+                fingerPositions[e->finger] = e->position;
             }
             else if (auto* e = event.getIf<sf::Event::TouchMoved>())
             {
@@ -112,8 +108,8 @@ private:
             }
             else if (auto* e = event.getIf<sf::Event::TouchEnded>())
             {
-                inputState.getFinger(e->finger) = false;
-                fingerPositions[e->finger]      = e->position;
+                inputState.setFinger(e->finger, false);
+                fingerPositions[e->finger] = e->position;
             }
 
             gameState->handleEvent(event);
@@ -142,7 +138,7 @@ private:
     }
 
 public:
-    ssvu::Delegate<void()> onRecreation;
+    hg::Delegate<void()> onRecreation;
 
     explicit GameWindow(const float timerStep, const float timerTimeSlice) : timer{timerStep, timerTimeSlice}
     {
@@ -158,7 +154,7 @@ public:
     {
         using FTDuration = std::chrono::duration<float, std::milli>;
 
-        assert(gameState != nullptr);
+        SFML_BASE_ASSERT(gameState != nullptr);
 
         while (running)
         {
@@ -201,7 +197,7 @@ public:
         running = false;
     }
 
-    void clear(const sf::Color& color = sf::Color::Transparent)
+    void clear(const sf::Color color = sf::Color::Transparent)
     {
         renderWindow->clear(color);
     }
@@ -209,7 +205,7 @@ public:
     template <typename... Ts>
     void draw(Ts&&... xs)
     {
-        renderWindow->draw(std::forward<Ts>(xs)...);
+        renderWindow->draw(SFML_BASE_FORWARD(xs)...);
     }
 
     void saveScreenshot(const sf::base::String& path) const
@@ -264,7 +260,7 @@ public:
 
     void setTitle(sf::base::String newTitle)
     {
-        title = std::move(newTitle);
+        title = SFML_BASE_MOVE(newTitle);
         renderWindow->setTitle(title);
     }
 
@@ -364,7 +360,7 @@ public:
     {
         sf::base::Vector<sf::Vec2i> result;
 
-        for (std::size_t i = 0; i < fingerCount; ++i)
+        for (sf::base::SizeT i = 0; i < fingerCount; ++i)
         {
             if (inputState.getFingers()[i])
             {

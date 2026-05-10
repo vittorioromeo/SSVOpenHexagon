@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SFML/System/Path.hpp"
+
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
@@ -24,7 +26,7 @@ namespace hg
 
 struct LevelData
 {
-    sf::base::String packPath;
+    sf::Path         packPath;
     sf::base::String packId;
 
     sf::base::String                            id;
@@ -43,7 +45,7 @@ struct LevelData
     std::unordered_map<float, sf::base::String> validators;
     std::unordered_map<float, sf::base::String> validatorsWithoutPackId;
 
-    LevelData(const ssvuj::Obj& mRoot, const sf::base::String& mPackPath, const sf::base::String& mPackId);
+    LevelData(const ssvuj::Obj& mRoot, const sf::Path& mPackPath, const sf::base::String& mPackId);
 
     [[nodiscard]] const sf::base::String& getValidator(const float diffMult) const;
 

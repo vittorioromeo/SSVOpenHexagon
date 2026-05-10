@@ -6,28 +6,26 @@
 #include "steam/steamclientpublic.h"
 #include "steam/steamtypes.h"
 
+#include "SFML/System/Atomic.hpp"
 #include "SFML/System/IO.hpp"
+#include "SFML/System/Path.hpp"
 
+#include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 
-#include <atomic>
-#include <filesystem>
-#include <functional>
 #include <inttypes.h> // Steam libs need this.
 #include <ios>
 #include <limits>
 #include <optional>
-#include <string>
-#include <string_view>
-#include <system_error>
-#include <utility>
 
 #include <cassert>
 #include <cmath>
 
 // ----------------------------------------------------------------------------
 // Utilities.
-[[nodiscard]] sf::IOStreamOutput& log(const std::string_view category) noexcept
+[[nodiscard]] sf::IOStreamOutput& log(const sf::base::StringView category) noexcept
 {
     sf::cOut() << "[" << category << "] ";
     return sf::cOut();
@@ -36,7 +34,7 @@
 template <typename F>
 struct scope_guard : F
 {
-    explicit scope_guard(F&& f) noexcept : F{std::move(f)}
+    explicit scope_guard(F&& f) noexcept : F{SFML_BASE_MOVE(f)}
     {
     }
 
@@ -64,14 +62,14 @@ template <typename T>
     return result;
 }
 
-[[nodiscard]] bool cin_getline_string(std::string& result) noexcept
+[[nodiscard]] bool cin_getline_string(sf::base::String& result) noexcept
 {
     return sf::getLine(sf::cIn(), result);
 }
 
-[[nodiscard]] bool cin_getline_path(std::filesystem::path& result) noexcept
+[[nodiscard]] bool cin_getline_path(sf::Path& result) noexcept
 {
-    std::string buf;
+    sf::base::String buf;
 
     if (!cin_getline_string(buf))
     {
@@ -79,47 +77,31 @@ template <typename T>
     }
 
     sf::cOut() << "Read '" << buf << "'\n";
-    result = buf;
+    result = sf::Path{buf.cStr()};
 
     return true;
 }
 
-[[nodiscard]] std::filesystem::path read_directory_path() noexcept
+[[nodiscard]] sf::Path read_directory_path() noexcept
 {
-    std::filesystem::path result;
-    std::error_code       ec;
+    sf::Path result;
 
-    while (!cin_getline_path(result) || !std::filesystem::exists(result, ec) || !std::filesystem::is_directory(result, ec))
+    while (!cin_getline_path(result) || !result.exists() || !result.isDirectory())
     {
-        sf::cOut() << "Please insert a valid path to an existing directory. "
-                      "Error code: '"
-                   << ec.message() << "'\n";
+        sf::cOut() << "Please insert a valid path to an existing directory.\n";
     }
 
     return result;
 }
 
-[[nodiscard]] std::filesystem::path read_file_path() noexcept
+[[nodiscard]] sf::Path read_file_path() noexcept
 {
-    std::filesystem::path result;
-    std::error_code       ec;
+    sf::Path result;
 
-    while (!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
-           !std::filesystem::is_regular_file(result, ec))
+    while (!cin_getline_path(result) || !result.exists() || !result.isRegularFile())
     {
-        sf::cOut() << "Please insert a valid path to an existing file. Error code: '" << ec.message() << "'\n";
+        sf::cOut() << "Please insert a valid path to an existing file.\n";
     }
-
-    return result;
-}
-
-[[nodiscard]] std::string read_string() noexcept
-{
-    std::string result;
-    sf::cIn() >> result;
-
-    sf::cIn().clear();
-    sf::cIn().ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     return result;
 }
@@ -135,13 +117,13 @@ private:
 
     // ------------------------------------------------------------------------
     // Type aliases.
-    using create_item_continuation = std::function<void(PublishedFileId_t)>;
-    using submit_item_continuation = std::function<void()>;
+    using create_item_continuation = sf::base::FixedFunction<void(PublishedFileId_t), 64>;
+    using submit_item_continuation = sf::base::FixedFunction<void(), 64>;
 
     // ------------------------------------------------------------------------
     // Data members.
-    bool             _initialized;
-    std::atomic<int> _pending_operations;
+    bool            _initialized;
+    sf::Atomic<int> _pending_operations;
 
     CCallResult<steam_helper, CreateItemResult_t> _create_item_result;
     create_item_continuation                      _create_item_continuation;
@@ -167,7 +149,7 @@ private:
 
     // ------------------------------------------------------------------------
     // Other utils.
-    [[nodiscard]] static constexpr std::string_view result_to_string(const EResult rc) noexcept
+    [[nodiscard]] static constexpr sf::base::StringView result_to_string(const EResult rc) noexcept
     {
 #define RETURN_IF_EQUALS(e) \
     do                      \
@@ -380,7 +362,7 @@ public:
         const SteamAPICall_t api_call = SteamUGC()->CreateItem(oh_app_id, EWorkshopFileType::k_EWorkshopFileTypeCommunity);
 
         _create_item_result.Set(api_call, this, &steam_helper::on_create_item);
-        _create_item_continuation = std::move(continuation);
+        _create_item_continuation = SFML_BASE_MOVE(continuation);
     }
 
     [[nodiscard]] std::optional<UGCUpdateHandle_t> start_workshop_item_update(const PublishedFileId_t item_id) noexcept
@@ -397,15 +379,13 @@ public:
         return {handle};
     }
 
-    [[nodiscard]] bool set_workshop_item_content(const UGCUpdateHandle_t      update_handle,
-                                                 const std::filesystem::path& directory_path) noexcept
+    [[nodiscard]] bool set_workshop_item_content(const UGCUpdateHandle_t update_handle, const sf::Path& directory_path) noexcept
     {
-        [[maybe_unused]] std::error_code ec;
+        assert(directory_path.exists());
+        assert(directory_path.isDirectory());
 
-        assert(std::filesystem::exists(directory_path, ec));
-        assert(std::filesystem::is_directory(directory_path, ec));
-
-        if (!SteamUGC()->SetItemContent(update_handle, directory_path.string().data()))
+        const sf::base::String s = directory_path.to<sf::base::String>();
+        if (!SteamUGC()->SetItemContent(update_handle, s.cStr()))
         {
             log("Steam") << "Failed to set workshop item contents from path '" << directory_path << "'\n";
 
@@ -415,15 +395,13 @@ public:
         return true;
     }
 
-    [[nodiscard]] bool set_workshop_item_preview_image(const UGCUpdateHandle_t      update_handle,
-                                                       const std::filesystem::path& file_path) noexcept
+    [[nodiscard]] bool set_workshop_item_preview_image(const UGCUpdateHandle_t update_handle, const sf::Path& file_path) noexcept
     {
-        [[maybe_unused]] std::error_code ec;
+        assert(file_path.exists());
+        assert(file_path.isRegularFile());
 
-        assert(std::filesystem::exists(file_path, ec));
-        assert(std::filesystem::is_regular_file(file_path, ec));
-
-        if (!SteamUGC()->SetItemPreview(update_handle, file_path.string().data()))
+        const sf::base::String s = file_path.to<sf::base::String>();
+        if (!SteamUGC()->SetItemPreview(update_handle, s.cStr()))
         {
             log("Steam") << "Failed to set workshop item preview image from path '" << file_path << "'\n";
 
@@ -441,7 +419,7 @@ public:
         const SteamAPICall_t api_call = SteamUGC()->SubmitItemUpdate(handle, change_note);
 
         _submit_item_result.Set(api_call, this, &steam_helper::on_submit_item);
-        _submit_item_continuation = std::move(continuation);
+        _submit_item_continuation = SFML_BASE_MOVE(continuation);
     }
 
     bool run_callbacks() noexcept
@@ -462,12 +440,12 @@ public:
 
     [[nodiscard]] bool any_pending_operation() const noexcept
     {
-        return _pending_operations.load() > 0;
+        return _pending_operations.loadRelaxed() > 0;
     }
 
     void add_pending_operation() noexcept
     {
-        _pending_operations.store(_pending_operations.load() + 1);
+        _pending_operations.fetchAddRelaxed(1);
         log("Steam") << "Added pending operation\n";
     }
 
@@ -475,7 +453,7 @@ public:
     {
         assert(any_pending_operation());
 
-        _pending_operations.store(_pending_operations.load() - 1);
+        _pending_operations.fetchSubRelaxed(1);
         log("Steam") << "Removed pending operation\n";
     }
 };
@@ -517,7 +495,7 @@ private:
         }
 
         sf::cOut() << "Enter the path to the folder containing the contents:\n";
-        const std::filesystem::path directory_path = read_directory_path();
+        const sf::Path directory_path = read_directory_path();
 
         if (!_steam_helper.set_workshop_item_content(update_handle.value(), directory_path))
         {
@@ -527,7 +505,7 @@ private:
 
         sf::cOut() << "Enter changelog note:\n";
 
-        std::string changelog_note;
+        sf::base::String changelog_note;
         while (!cin_getline_string(changelog_note))
         {
             sf::cOut() << "Error reading changelog note, please try again\n";
@@ -535,7 +513,7 @@ private:
 
         log("CLI") << "Uploading contents to Steam servers...\n";
 
-        _steam_helper.submit_item_update(update_handle.value(), changelog_note.c_str(), [item_id] {
+        _steam_helper.submit_item_update(update_handle.value(), changelog_note.cStr(), [item_id] {
             sf::cOut() << "Successfully updated workshop item: " << item_id << ".\n";
         });
     }
@@ -556,7 +534,7 @@ private:
         }
 
         sf::cOut() << "Enter the path of the new preview image file:\n";
-        const std::filesystem::path file_path = read_file_path();
+        const sf::Path file_path = read_file_path();
 
         if (!_steam_helper.set_workshop_item_preview_image(update_handle.value(), file_path))
         {
@@ -566,7 +544,7 @@ private:
 
         sf::cOut() << "Enter changelog note:\n";
 
-        std::string changelog_note;
+        sf::base::String changelog_note;
         while (!cin_getline_string(changelog_note))
         {
             sf::cOut() << "Error reading changelog note, please try again\n";
@@ -574,7 +552,7 @@ private:
 
         log("CLI") << "Uploading preview image to Steam servers...\n";
 
-        _steam_helper.submit_item_update(update_handle.value(), changelog_note.c_str(), [item_id] {
+        _steam_helper.submit_item_update(update_handle.value(), changelog_note.cStr(), [item_id] {
             sf::cOut() << "Successfully updated workshop item: " << item_id << ".\n";
         });
     }

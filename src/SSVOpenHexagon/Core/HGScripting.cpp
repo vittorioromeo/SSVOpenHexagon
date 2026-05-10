@@ -29,10 +29,10 @@
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
 
 #include <stdexcept>
-#include <string_view>
 
 #include <cmath>
 
@@ -1125,7 +1125,7 @@ void HexagonGame::initLua()
                        assets,
                        [this](const sf::base::String& filename) -> void { runLuaFile(filename); },
                        execScriptPackPathContext,
-                       [this]() -> const sf::base::String& { return levelData->packPath; },
+                       [this]() -> const sf::Path& { return levelData->packPath; },
                        [this]() -> const PackData& { return getPackData(); },
                        (window == nullptr) /* headless */);
 
@@ -1168,7 +1168,7 @@ void HexagonGame::initLuaAndPrintDocs()
     LuaScripting::printDocs();
 }
 
-void HexagonGame::luaExceptionLippincottHandler(std::string_view mName)
+void HexagonGame::luaExceptionLippincottHandler(sf::base::StringView mName)
 try
 {
     throw;

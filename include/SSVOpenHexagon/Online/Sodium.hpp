@@ -9,9 +9,9 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/ToString.hpp"
 
 #include <sodium.h>
-#include <string>
 
 namespace hg
 {
@@ -65,7 +65,7 @@ template <typename T>
 
     for (const unsigned char c : sodiumKey)
     {
-        result += std::to_string(static_cast<int>(c));
+        sf::base::appendToString(result, static_cast<int>(c));
     }
 
     return result;

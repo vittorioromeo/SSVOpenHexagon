@@ -75,6 +75,7 @@ ssvoh_add_test("FixedFunction.t.cpp")
 ssvoh_add_test("Replay.t.cpp")
 ssvoh_add_test("ReplayExecution.t.cpp" OPENS_WINDOW) # `sf::GraphicsContext::create()` -> libGL leaks
 ssvoh_add_test("ReplayExecutionBenchmark.t.cpp")
+ssvoh_add_test("PackLoading.t.cpp")
 ssvoh_add_test("Utils_BuildPackId.t.cpp")
 ssvoh_add_test("Utils_Split.t.cpp")
 ssvoh_add_test("NetworkNonBlockingReceive.t.cpp")

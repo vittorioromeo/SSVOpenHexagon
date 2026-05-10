@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SFML/System/Path.hpp"
+
 #include "SFML/Base/String.hpp"
 
 
@@ -13,7 +15,7 @@ namespace hg
 struct PackInfo
 {
     sf::base::String id;
-    sf::base::String path;
+    sf::Path         path;
 };
 
 } // namespace hg

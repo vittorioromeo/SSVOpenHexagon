@@ -27,7 +27,7 @@ namespace hg::Utils
     return mColor;
 }
 
-[[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Color transformHue(const sf::Color& in, const float H) noexcept
+[[nodiscard, gnu::always_inline, gnu::pure]] inline sf::Color transformHue(const sf::Color in, const float H) noexcept
 {
     const float u{SFML_BASE_MATH_COSF(H * 3.14f / 180.f)};
     const float w{SFML_BASE_MATH_SINF(H * 3.14f / 180.f)};

@@ -5,44 +5,22 @@
 #pragma once
 
 #include "SFML/Base/IntTypes.hpp"
-
-#include <string>
-#include <vector>
+#include "SFML/Base/String.hpp"
 
 namespace hg::Database
 {
 
-struct User
+// `ProcessedScore` is the only `DatabaseRecords` type referenced by public headers
+// (HexagonClient/HexagonServer). The sqlite_orm-bound `User`, `Score`, `LoginToken`
+// structs live in `DatabaseInternals.hpp`, which is included only by `Database.cpp`,
+// so the orm types and their `<string>` / `<vector>` dependencies stay out of the
+// public include graph.
+struct ProcessedScore
 {
-    sf::base::U32     id;
-    sf::base::U64     steamId;
-    std::string       name;
-    std::vector<char> passwordHash;
-};
-
-struct LoginToken
-{
-    sf::base::U32 id;
-    sf::base::U32 userId;
-    sf::base::U64 timestamp;
-    sf::base::U64 token;
-};
-
-struct Score
-{
-    sf::base::U32 id;
-    std::string   levelValidator;
-    sf::base::U64 timestamp;
-    sf::base::U64 userSteamId;
-    double        value;
-};
-
-struct ProcessedScore // not stored in database
-{
-    sf::base::U32 position;
-    std::string   userName;
-    sf::base::U64 scoreTimestamp;
-    double        scoreValue;
+    sf::base::U32    position;
+    sf::base::String userName;
+    sf::base::U64    scoreTimestamp;
+    double           scoreValue;
 };
 
 } // namespace hg::Database

@@ -380,8 +380,6 @@ macro(ssvoh_find_extlib_for_target target extlib)
     target_include_directories(${target} PUBLIC "${${${extlib}_UPPER}_INCLUDE_DIR}")
 endmacro()
 
-ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVUtils)
-
 target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 
 if(SSVOH_BUILD_WIN32_CONSOLE)

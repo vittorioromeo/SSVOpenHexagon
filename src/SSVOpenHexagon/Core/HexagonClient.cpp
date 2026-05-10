@@ -19,6 +19,7 @@
 #include "SFML/Network/Packet.hpp"
 #include "SFML/Network/Socket.hpp"
 
+#include "SFML/System/Thread.hpp"
 #include "SFML/System/Time.hpp"
 
 #include "SFML/Base/Algorithm/Erase.hpp"
@@ -29,8 +30,6 @@
 #include "SFML/Base/String.hpp"
 
 #include <stdexcept>
-#include <string>
-#include <thread>
 
 
 static auto& clog(const char* funcName)
@@ -74,7 +73,7 @@ template <typename... Ts>
     while (!_steamManager.got_encrypted_app_ticket_response())
     {
         _steamManager.run_callbacks();
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        sf::ThisThread::sleepFor(sf::milliseconds(50));
         ++tries;
 
         if (tries > 15)
@@ -276,9 +275,9 @@ template <typename T>
 
     return sendEncrypted( //
         CTSPRegister{
-            .steamId      = steamId,                         //
-            .name         = std::string(name.cStr()),        //
-            .passwordHash = std::string(passwordHash.cStr()) //
+            .steamId      = steamId,     //
+            .name         = name,        //
+            .passwordHash = passwordHash //
         } //
     );
 }
@@ -291,9 +290,9 @@ template <typename T>
 
     return sendEncrypted( //
         CTSPLogin{
-            .steamId      = steamId,                         //
-            .name         = std::string(name.cStr()),        //
-            .passwordHash = std::string(passwordHash.cStr()) //
+            .steamId      = steamId,     //
+            .name         = name,        //
+            .passwordHash = passwordHash //
         } //
     );
 }
@@ -310,8 +309,8 @@ template <typename T>
 
     return sendEncrypted( //
         CTSPDeleteAccount{
-            .steamId      = steamId,                         //
-            .passwordHash = std::string(passwordHash.cStr()) //
+            .steamId      = steamId,     //
+            .passwordHash = passwordHash //
         } //
     );
 }
@@ -322,8 +321,8 @@ template <typename T>
 
     return sendEncrypted( //
         CTSPRequestTopScores{
-            .loginToken     = loginToken,                        //
-            .levelValidator = std::string(levelValidator.cStr()) //
+            .loginToken     = loginToken,    //
+            .levelValidator = levelValidator //
         } //
     );
 }
@@ -334,8 +333,8 @@ template <typename T>
 
     return sendEncrypted( //
         CTSPRequestOwnScore{
-            .loginToken     = loginToken,                        //
-            .levelValidator = std::string(levelValidator.cStr()) //
+            .loginToken     = loginToken,    //
+            .levelValidator = levelValidator //
         } //
     );
 }
@@ -347,8 +346,8 @@ template <typename T>
 
     return sendEncrypted( //
         CTSPRequestTopScoresAndOwnScore{
-            .loginToken     = loginToken,                        //
-            .levelValidator = std::string(levelValidator.cStr()) //
+            .loginToken     = loginToken,    //
+            .levelValidator = levelValidator //
         } //
     );
 }
@@ -361,9 +360,9 @@ template <typename T>
 
     return sendEncrypted( //
         CTSPRequestReplay{
-            .loginToken     = loginToken,                         //
-            .levelValidator = std::string(levelValidator.cStr()), //
-            .scoreTimestamp = scoreTimestamp                      //
+            .loginToken     = loginToken,     //
+            .levelValidator = levelValidator, //
+            .scoreTimestamp = scoreTimestamp  //
         });
 }
 
@@ -373,8 +372,8 @@ template <typename T>
 
     return sendEncrypted( //
         CTSPStartedGame{
-            .loginToken     = loginToken,                        //
-            .levelValidator = std::string(levelValidator.cStr()) //
+            .loginToken     = loginToken,    //
+            .levelValidator = levelValidator //
         } //
     );
 }
@@ -1055,7 +1054,7 @@ bool HexagonClient::trySendStartedGame(const sf::base::String& levelValidator)
 
 void HexagonClient::addEvent(const Event& e)
 {
-    _events.push_back(e);
+    _events.pushBack(e);
 }
 
 [[nodiscard]] bool HexagonClient::connectedAndInState(const State s) const noexcept
@@ -1075,7 +1074,7 @@ void HexagonClient::addEvent(const Event& e)
         return sf::base::nullOpt;
     }
 
-    SFML_BASE_SCOPE_GUARD({ _events.pop_front(); });
+    SFML_BASE_SCOPE_GUARD({ _events.eraseAt(0); });
     return sf::base::makeOptional(_events.front());
 }
 

@@ -5,12 +5,12 @@
 
 #include "SFML/System/IO.hpp"
 
-#include <string>
+#include "SFML/Base/String.hpp"
 
 namespace
 {
 
-[[nodiscard]] bool cin_getline_string(std::string& result) noexcept
+[[nodiscard]] bool cin_getline_string(sf::base::String& result) noexcept
 {
     return sf::getLine(sf::cIn(), result);
 }
@@ -31,8 +31,8 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    std::string stringBuf;
-    sf::Packet  packet;
+    sf::base::String stringBuf;
+    sf::Packet       packet;
 
     auto controlSocketOpt = sf::UdpSocket::create(true /* isBlocking */);
     if (!controlSocketOpt.hasValue())

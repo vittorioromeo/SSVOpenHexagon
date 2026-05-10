@@ -11,7 +11,8 @@
 #include "SFML/Graphics/RectangleShapeData.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 
-#include <algorithm>
+#include "SFML/Base/Clamp.hpp"
+#include "SFML/Base/MinMax.hpp"
 
 namespace hg::ui
 {
@@ -78,7 +79,7 @@ void drawMainScreen(Context& ctx, App& app, Services& svc)
     constexpr float kVerGap  = 24.f; // horizontal gap "OPEN" → version
     constexpr float kLineGap = 4.f;  // vertical breathing room between lines
 
-    const float lineWidth   = std::max(openBounds.size.x + kVerGap + verBounds.size.x, hexBounds.size.x);
+    const float lineWidth   = sf::base::max(openBounds.size.x + kVerGap + verBounds.size.x, hexBounds.size.x);
     const float blockWidth  = lineWidth + kPad * 2.f;
     const float blockHeight = openBounds.size.y + kLineGap + hexBounds.size.y + kPad * 2.f;
 
@@ -128,7 +129,7 @@ void drawMainScreen(Context& ctx, App& app, Services& svc)
     for (int i = 0; i < kItemCount; ++i)
     {
         const float itemAlpha = easeOutCubic(
-            std::clamp(s.openProgress * static_cast<float>(kItemCount + 2) - static_cast<float>(i), 0.f, 1.f));
+            sf::base::clamp(s.openProgress * static_cast<float>(kItemCount + 2) - static_cast<float>(i), 0.f, 1.f));
 
         ctx.colText      = tintAlpha(textBefore, itemAlpha);
         ctx.colHighlight = tintAlpha(highlightBefore, itemAlpha);

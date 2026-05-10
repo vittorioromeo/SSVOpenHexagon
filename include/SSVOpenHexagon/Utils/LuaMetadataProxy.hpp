@@ -11,7 +11,6 @@
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/Trait/Decay.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <tuple>

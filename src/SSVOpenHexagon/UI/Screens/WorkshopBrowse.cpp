@@ -17,6 +17,7 @@
 
 #include "SFML/System/UnicodeString.hpp"
 
+#include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/String.hpp"
 
 #include <cstdio>
@@ -386,11 +387,12 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
                 // aspect ratio is preserved regardless of source size.
                 const float frameW = kPreviewW - kFrameInset * 2.f;
                 const float frameH = kPreviewH - kFrameInset * 2.f;
-                const float scale = std::min(frameW / static_cast<float>(texSize.x), frameH / static_cast<float>(texSize.y));
-                const float drawW = static_cast<float>(texSize.x) * scale;
-                const float drawH = static_cast<float>(texSize.y) * scale;
-                const float drawX = ctx.cursor.x + kFrameInset + (frameW - drawW) * 0.5f;
-                const float drawY = ctx.cursor.y + kFrameInset + (frameH - drawH) * 0.5f;
+                const float scale  = sf::base::min(frameW / static_cast<float>(texSize.x),
+                                                   frameH / static_cast<float>(texSize.y));
+                const float drawW  = static_cast<float>(texSize.x) * scale;
+                const float drawH  = static_cast<float>(texSize.y) * scale;
+                const float drawX  = ctx.cursor.x + kFrameInset + (frameW - drawW) * 0.5f;
+                const float drawY  = ctx.cursor.y + kFrameInset + (frameH - drawH) * 0.5f;
 
                 ctx.target->draw(
                     sf::Sprite{

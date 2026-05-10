@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
+#include "SSVOpenHexagon/Online/DatabaseInternals.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
@@ -44,11 +45,9 @@
 #include "SFML/Base/Trait/IsSame.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <unordered_set>
-#include <utility>
 
 #include <cmath>
 
@@ -73,7 +72,7 @@ namespace hg
 {
 
 HexagonServer::ConnectedClient::ConnectedClient(const Utils::SCTimePoint lastActivity, sf::TcpSocket&& socket) :
-    _socket{std::move(socket)},
+    _socket{SFML_BASE_MOVE(socket)},
     _lastActivity{lastActivity},
     _consecutiveFailures{0},
     _mustDisconnect{false},
@@ -204,7 +203,7 @@ template <typename T>
 
 [[nodiscard]] bool HexagonServer::sendRegistrationFailure(ConnectedClient& c, const sf::base::String& error)
 {
-    return sendEncrypted(c, STCPRegistrationFailure{.error = std::string(error.cStr())});
+    return sendEncrypted(c, STCPRegistrationFailure{.error = error});
 }
 
 [[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient&        c,
@@ -214,14 +213,14 @@ template <typename T>
     return sendEncrypted(c, //
                          STCPLoginSuccess{
                              .loginToken = static_cast<sf::base::U64>(loginToken), //
-                             .loginName  = std::string(loginName.cStr())           //
+                             .loginName  = loginName                               //
                          } //
     );
 }
 
 [[nodiscard]] bool HexagonServer::sendLoginFailure(ConnectedClient& c, const sf::base::String& error)
 {
-    return sendEncrypted(c, STCPLoginFailure{.error = std::string(error.cStr())});
+    return sendEncrypted(c, STCPLoginFailure{.error = error});
 }
 
 [[nodiscard]] bool HexagonServer::sendLogoutSuccess(ConnectedClient& c)
@@ -241,7 +240,7 @@ template <typename T>
 
 [[nodiscard]] bool HexagonServer::sendDeleteAccountFailure(ConnectedClient& c, const sf::base::String& error)
 {
-    return sendEncrypted(c, STCPDeleteAccountFailure{.error = std::string(error.cStr())});
+    return sendEncrypted(c, STCPDeleteAccountFailure{.error = error});
 }
 
 [[nodiscard]] bool HexagonServer::sendTopScores(ConnectedClient&                                  c,
@@ -250,8 +249,8 @@ template <typename T>
 {
     return sendEncrypted(c, //
                          STCPTopScores{
-                             .levelValidator = std::string(levelValidator.cStr()), //
-                             .scores         = scores                              //
+                             .levelValidator = levelValidator, //
+                             .scores         = scores          //
                          } //
     );
 }
@@ -262,8 +261,8 @@ template <typename T>
 {
     return sendEncrypted(c, //
                          STCPOwnScore{
-                             .levelValidator = std::string(levelValidator.cStr()), //
-                             .score          = score                               //
+                             .levelValidator = levelValidator, //
+                             .score          = score           //
                          } //
     );
 }
@@ -276,9 +275,9 @@ template <typename T>
 {
     return sendEncrypted(c, //
                          STCPTopScoresAndOwnScore{
-                             .levelValidator = std::string(levelValidator.cStr()), //
-                             .scores         = scores,                             //
-                             .ownScore       = ownScore                            //
+                             .levelValidator = levelValidator, //
+                             .scores         = scores,         //
+                             .ownScore       = ownScore        //
                          } //
     );
 }
@@ -290,9 +289,9 @@ template <typename T>
 {
     return sendEncrypted(c, //
                          STCPReplayData{
-                             .levelValidator = std::string(levelValidator.cStr()), //
-                             .scoreTimestamp = scoreTimestamp,                     //
-                             .replay         = SFML_BASE_MOVE(replay)              //
+                             .levelValidator = levelValidator,        //
+                             .scoreTimestamp = scoreTimestamp,        //
+                             .replay         = SFML_BASE_MOVE(replay) //
                          });
 }
 
@@ -303,9 +302,9 @@ template <typename T>
 {
     return sendEncrypted(c, //
                          STCPReplayUnavailable{
-                             .levelValidator = std::string(levelValidator.cStr()), //
-                             .scoreTimestamp = scoreTimestamp,                     //
-                             .reason         = std::string(reason.cStr())          //
+                             .levelValidator = levelValidator, //
+                             .scoreTimestamp = scoreTimestamp, //
+                             .reason         = reason          //
                          });
 }
 
@@ -314,18 +313,11 @@ template <typename T>
                                                    const GameVersion&                        gameVersion,
                                                    const sf::base::Vector<sf::base::String>& supportedLevelValidators)
 {
-    sf::base::Vector<std::string> convertedValidators;
-    convertedValidators.reserve(supportedLevelValidators.size());
-    for (const auto& s : supportedLevelValidators)
-    {
-        convertedValidators.emplaceBack(std::string(s.cStr()));
-    }
-
     return sendEncrypted(c, //
                          STCPServerStatus{
-                             .protocolVersion          = protocolVersion,    //
-                             .gameVersion              = gameVersion,        //
-                             .supportedLevelValidators = convertedValidators //
+                             .protocolVersion          = protocolVersion,         //
+                             .gameVersion              = gameVersion,             //
+                             .supportedLevelValidators = supportedLevelValidators //
                          } //
     );
 }
@@ -366,7 +358,7 @@ void HexagonServer::run()
         return;
     }
 
-    while (_running)
+    while (_running.loadRelaxed())
     {
         try
         {
@@ -385,7 +377,7 @@ void HexagonServer::runIteration()
 {
     SSVOH_SLOG_VERBOSE << "New iteration...\n";
 
-    if (_socketSelector.wait(sf::seconds(10)) && _running && _listener.hasValue())
+    if (_socketSelector.wait(sf::seconds(10)) && _running.loadRelaxed() && _listener.hasValue())
     {
         // A timeout is specified so that we can purge clients even if we didn't
         // receive anything.
@@ -532,7 +524,8 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
         return false;
     }
 
-    ConnectedClient& potentialClient = _connectedClients.emplace_back(Utils::SCClock::now(), std::move(*acceptResult.socket));
+    ConnectedClient& potentialClient = _connectedClients.emplace_back(Utils::SCClock::now(),
+                                                                      SFML_BASE_MOVE(*acceptResult.socket));
 
     // Non-blocking: receive() returns NotReady on partial packets instead of
     // hanging the single-threaded loop waiting for the rest of a packet whose
@@ -880,11 +873,11 @@ void HexagonServer::runIteration_FlushLogs()
         }
         else
         {
-            const std::string dirPath = std::string("ServerReplays/") + levelValidator.cStr();
-            std::filesystem::create_directories(std::filesystem::path{dirPath});
+            const sf::Path dirPath = sf::Path{"ServerReplays"} / levelValidator.cStr();
+            (void)dirPath.createDirectoryTree();
 
-            const std::string filePath = dirPath + "/" + std::to_string(newScoreTimestamp) + ".ohr.z";
-            if (!crfOpt->serialize_to_file(sf::Path{filePath.c_str()}))
+            const sf::Path filePath = dirPath / (std::to_string(newScoreTimestamp) + ".ohr.z").c_str();
+            if (!crfOpt->serialize_to_file(filePath))
             {
                 SSVOH_SLOG << "[ERROR] Failed to persist replay to '" << filePath << "'\n";
             }
@@ -1085,7 +1078,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
             return sendFail("User with steamId '", steamId, "' already registered");
         }
 
-        if (Database::anyUserWithName(sf::base::String(name)))
+        if (Database::anyUserWithName(name))
         {
             return sendFail("User with name '", name, "' already registered");
         }
@@ -1093,8 +1086,8 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
         Database::addUser( //
             Database::User{
                 .steamId      = steamId,
-                .name         = name,
-                .passwordHash = Utils::stringToCharVec(sf::base::String(passwordHash)) //
+                .name         = std::string(name.cStr()),
+                .passwordHash = Utils::stringToCharVec(passwordHash) //
             } //
         );
 
@@ -1442,11 +1435,11 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
         // We persist replays at `ServerReplays/<validator>/<scoreTimestamp>.ohr.z`
         // when `processReplay` upserts a new best score (see processReplay
         // above). TODO: Older orphan files for beaten scores aren't cleaned up.
-        const std::string filePath = std::string("ServerReplays/") + ctsp.levelValidator + "/" +
-                                     std::to_string(ctsp.scoreTimestamp) + ".ohr.z";
+        const sf::Path filePath = sf::Path{"ServerReplays"} / ctsp.levelValidator.cStr() /
+                                  (std::to_string(ctsp.scoreTimestamp) + ".ohr.z").c_str();
 
         compressed_replay_file crf;
-        if (!crf.deserialize_from_file(sf::Path{filePath.c_str()}))
+        if (!crf.deserialize_from_file(filePath))
         {
             SSVOH_SLOG_VERBOSE << "Replay request for '" << levelValidator << "' @ " << ctsp.scoreTimestamp
                                << " missing on disk\n";
@@ -1563,7 +1556,7 @@ HexagonServer::HexagonServer(HGAssets*                                   assets,
 
 void HexagonServer::stop()
 {
-    _running = false;
+    _running.storeRelaxed(false);
     _listener.reset();
 
     // Closing an FD does not unblock a `select()` already in progress on

@@ -4,18 +4,24 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/StringHash.hpp"
-
 #include "SFML/Base/String.hpp"
-
-#include <unordered_map>
+#include "SFML/Base/Vector.hpp"
 
 namespace hg
 {
 
+// Tracked variables map. Small (a handful of entries in practice), so a flat vector with linear
+// lookup beats `std::unordered_map` here -- and dodges the `<unordered_map>` include cost that
+// transitively reaches every TU including `HexagonGame.hpp`.
+struct TrackedVariable
+{
+    sf::base::String key;
+    sf::base::String value;
+};
+
 struct LevelStatus
 {
-    std::unordered_map<sf::base::String, sf::base::String> trackedVariables;
+    sf::base::Vector<TrackedVariable> trackedVariables;
 
     // Allows alternative scoring to be possible
     bool             scoreOverridden{false};

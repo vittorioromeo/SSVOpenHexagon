@@ -5,17 +5,16 @@
 #pragma once
 
 
+#include "SSVOpenHexagon/GameSystem/Delegate.hpp"
 #include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/InputState.hpp"
 #include "SSVOpenHexagon/Input/Manager.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
-#include "SSVUtils/Delegate/Inc/Delegate.hpp"
 
 #include "SFML/Window/Event.hpp"
 
-#include <SSVUtils/Delegate/Delegate.hpp>
-#include <functional>
-#include <utility>
+#include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/Macros.hpp"
 
 namespace ssvs
 {
@@ -30,7 +29,7 @@ private:
     using ITrigger = Input::Trigger;
     using IType    = Input::Type;
     using IMode    = Input::Mode;
-    using IFunc    = std::function<void(float)>;
+    using IFunc    = sf::base::FixedFunction<void(float), 64>;
 
     Input::Manager inputManager;
 
@@ -60,10 +59,10 @@ private:
     }
 
 public:
-    ssvu::Delegate<void()>                 onDraw;
-    ssvu::Delegate<void()>                 onPostUpdate;
-    ssvu::Delegate<void(float)>            onUpdate;
-    ssvu::Delegate<void(const sf::Event&)> onAnyEvent;
+    hg::Delegate<void()>                 onDraw;
+    hg::Delegate<void()>                 onPostUpdate;
+    hg::Delegate<void(float)>            onUpdate;
+    hg::Delegate<void(const sf::Event&)> onAnyEvent;
 
     GameState() = default;
 
@@ -77,7 +76,7 @@ public:
                    const int   triggerID = -1,
                    const IMode mode      = IMode::Overlap)
     {
-        return inputManager.emplace(std::move(trigger), type, mode, triggerID, on, off);
+        return inputManager.emplace(SFML_BASE_MOVE(trigger), type, mode, triggerID, on, off);
     }
 
     auto& addInput(ITrigger    trigger,
@@ -86,7 +85,7 @@ public:
                    const int   triggerID = -1,
                    const IMode mode      = IMode::Overlap)
     {
-        return addInput(std::move(trigger), on, [](float) {}, type, triggerID, mode);
+        return addInput(SFML_BASE_MOVE(trigger), on, [](float) {}, type, triggerID, mode);
     }
 
     void refreshTrigger(const Input::Trigger& trigger, const int bindID)

@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters_StdUnorderedMap.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
 

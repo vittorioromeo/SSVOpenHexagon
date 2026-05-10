@@ -8,8 +8,7 @@
 #include "SFML/Window/Joystick.hpp"
 
 #include "SFML/Base/Array.hpp"
-
-#include <utility>
+#include "SFML/Base/Exchange.hpp"
 
 /*
 
@@ -160,7 +159,7 @@ void update(const float deadzone)
     const auto yIs = [&](const AxisDir axisDir) { return dpadYIs(axisDir) || leftStickYIs(-axisDir); };
 
     const auto doDir = [&](const Jdir jdir, const bool check)
-    { s.dirWasPressed[SSVOH_TO_SIZET(jdir)] = std::exchange(s.dirPressed[SSVOH_TO_SIZET(jdir)], check); };
+    { s.dirWasPressed[SSVOH_TO_SIZET(jdir)] = sf::base::exchange(s.dirPressed[SSVOH_TO_SIZET(jdir)], check); };
 
     doDir(Jdir::Left, xIs(AxisDir::Left));
     doDir(Jdir::Right, xIs(AxisDir::Right));
@@ -169,8 +168,8 @@ void update(const float deadzone)
 
     const auto doButton = [&](const Jid jid)
     {
-        s.wasPressed[SSVOH_TO_SIZET(jid)] = std::exchange(s.pressed[SSVOH_TO_SIZET(jid)],
-                                                          query->isButtonPressed(s.joystickInputs[SSVOH_TO_SIZET(jid)]));
+        s.wasPressed[SSVOH_TO_SIZET(jid)] = sf::base::exchange(s.pressed[SSVOH_TO_SIZET(jid)],
+                                                               query->isButtonPressed(s.joystickInputs[SSVOH_TO_SIZET(jid)]));
     };
 
     doButton(Jid::Select);

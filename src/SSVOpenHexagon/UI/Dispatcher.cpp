@@ -8,7 +8,8 @@
 
 #include "SFML/Graphics/Transform.hpp"
 
-#include <algorithm>
+#include "SFML/Base/Clamp.hpp"
+#include "SFML/Base/MinMax.hpp"
 
 namespace hg::ui
 {
@@ -151,9 +152,9 @@ void drawCurrentScreen(Context& ctx, App& app, Services& svc)
     const float target = (app.current == Screen::Main) ? 0.f : 1.f;
     const float step   = ctx.dt / kTransitionSeconds;
     if (app.backDepthAnim < target)
-        app.backDepthAnim = std::min(target, app.backDepthAnim + step);
+        app.backDepthAnim = sf::base::min(target, app.backDepthAnim + step);
     else if (app.backDepthAnim > target)
-        app.backDepthAnim = std::max(target, app.backDepthAnim - step);
+        app.backDepthAnim = sf::base::max(target, app.backDepthAnim - step);
 
     const float t = app.backDepthAnim;
 

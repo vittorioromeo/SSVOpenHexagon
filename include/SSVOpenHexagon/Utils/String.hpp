@@ -6,6 +6,7 @@
 
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/ToString.hpp"
 
 #include <cctype>
 
@@ -82,6 +83,55 @@ inline void lowercasify(sf::base::String& s)
 {
     lowercasify(s);
     return s;
+}
+
+// Append `value` to `out` in the "minimal" floating-point format that
+// the pre-VRSFML codebase produced via `ssvu::toStr`:
+//
+//   `0.5f → "0.5"`, `1.0f → "1"`, `1.6f → "1.6"`, `12.345f → "12.345"`.
+//
+// `sf::base::appendToString` always uses fixed 6-decimal precision
+// (`"0.500000"`); we trim the trailing zeros and a dangling decimal
+// point. Required by anything keyed off the old format -- score
+// validators in `_RELEASE/config.json`, server `Database::Score::levelValidator`
+// rows, replay file names + their internal `_level_id_validator`.
+inline void appendMinimalFloat(sf::base::String& out, const float value)
+{
+    const sf::base::SizeT before = out.size();
+    sf::base::appendToString(out, value);
+
+    // Only trim the fractional tail. Integers (no '.') are already minimal.
+    bool hasDot = false;
+    for (sf::base::SizeT i = before; i < out.size(); ++i)
+    {
+        if (out[i] == '.')
+        {
+            hasDot = true;
+            break;
+        }
+    }
+
+    if (!hasDot)
+    {
+        return;
+    }
+
+    while (out.size() > before && out[out.size() - 1] == '0')
+    {
+        out.popBack();
+    }
+
+    if (out.size() > before && out[out.size() - 1] == '.')
+    {
+        out.popBack();
+    }
+}
+
+[[nodiscard]] inline sf::base::String toMinimalFloatString(const float value)
+{
+    sf::base::String out;
+    appendMinimalFloat(out, value);
+    return out;
 }
 
 } // namespace hg::Utils

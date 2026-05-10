@@ -14,8 +14,6 @@
 #include "SFML/Base/Trait/UnderlyingType.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <unordered_map>
-
 namespace ssvuj
 {
 // Convert enums
@@ -160,15 +158,20 @@ struct Converter<sf::base::Vector<TItem>>
     }
 };
 
-template <typename TKey, typename TValue, typename THash, typename TKeyEqual, typename TAlloc>
-struct Converter<std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>>
+// Generic key/value-pair container converter (works with std::unordered_map, ankerl maps, ...).
+// Pulled out of the std::unordered_map specialization to avoid pulling `<unordered_map>` into
+// every TU that includes `BasicConverters.hpp`. Specialize this for the actual map type at the
+// callsite via the SSVUJ_DEFINE_KV_CONVERTER macro below, OR include
+// `BasicConverters_StdUnorderedMap.hpp` for the legacy `std::unordered_map` specialization.
+template <typename TMap>
+struct KeyValueMapConverter
 {
-    using T = std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>;
+    using T = TMap;
     static void fromObj(const Obj& mObj, T& mValue)
     {
         for (const auto& id : mObj.getMemberNames())
         {
-            mValue.emplace(id, getExtr<TValue>(mObj[id]));
+            mValue.emplace(id, getExtr<typename T::mapped_type>(mObj[id]));
         }
     }
 

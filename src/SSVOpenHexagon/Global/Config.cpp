@@ -19,28 +19,24 @@
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
-#include "SSVUtils/Core/FileSystem/Enums.hpp"
-#include "SSVUtils/Core/FileSystem/Path.hpp"
-#include "SSVUtils/Core/FileSystem/Scan.hpp"
-#include "SSVUtils/Core/Utils/Containers.hpp"
 
 #include "SFML/Window/Joystick.hpp"
-#include "SFML/Window/JoystickIdentification.hpp"
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 #include "SFML/Window/VideoMode.hpp"
 #include "SFML/Window/VideoModeUtils.hpp"
 
+#include "SFML/System/Path.hpp"
 #include "SFML/System/Vec2.hpp"
 
+#include "SFML/Base/Algorithm/Find.hpp"
 #include "SFML/Base/Array.hpp"
+#include "SFML/Base/InitializerList.hpp"
+#include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/ToString.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <SSVUtils/Core/String/ToStr.hpp>
-#include <algorithm>
-#include <initializer_list>
 
 [[nodiscard]] static const sf::base::Vector<sf::base::String>& defaultServerLevelWhitelist()
 {
@@ -383,7 +379,7 @@ namespace hg::Config
 {
     static ssvuj::Obj res = []
     {
-        if (ssvufs::Path{"config.json"}.isFile())
+        if (sf::Path{"config.json"}.isRegularFile())
         {
             hg::lo("hg::Config::root()") << "User-defined `config.json` file found\n";
 
@@ -497,22 +493,28 @@ void loadConfig(const sf::base::Vector<sf::base::String>& mOverridesIds)
 {
     hg::lo("::loadConfig") << "loading config\n";
 
-    if (ssvufs::Path{"ConfigOverrides/"}.isFolder())
+    const sf::Path overridesDir{"ConfigOverrides"};
+    if (overridesDir.isDirectory())
     {
-        for (const ssvufs::Path& p :
-             ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File, ssvufs::Pick::ByExt>("ConfigOverrides/", ".json"))
+        (void)overridesDir.forEachEntry([&](const sf::Path& entry)
         {
-            if (ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
-            {
-                hg::lo("::loadConfig") << "applying config override '" << p.getFileNameNoExtensions() << "'\n";
+            if (!entry.isRegularFile() || !entry.extensionIs(".json"))
+                return;
 
-                const auto overrideRoot(ssvuj::getFromFile(p));
-                for (auto itr(std::begin(overrideRoot)); itr != std::end(overrideRoot); ++itr)
+            const sf::base::String filename = entry.getStem().to<sf::base::String>();
+            const auto             it       = sf::base::find(mOverridesIds.begin(), mOverridesIds.end(), filename);
+
+            if (it != mOverridesIds.end())
+            {
+                hg::lo("::loadConfig") << "applying config override '" << filename << "'\n";
+
+                const auto overrideRoot(ssvuj::getFromFile(entry));
+                for (auto itr(overrideRoot.begin()); itr != overrideRoot.end(); ++itr)
                 {
                     root()[ssvuj::getKey(itr).cStr()] = *itr;
                 }
             }
-        }
+        });
     }
 
     syncAllFromObj();
@@ -624,7 +626,7 @@ bool isEligibleForScore()
 
 void recalculateSizes()
 {
-    sizeX = sizeY = std::max(getWidth(), getHeight()) * 1.3f;
+    sizeX = sizeY = sf::base::max(getWidth(), getHeight()) * 1.3f;
 
     if (!getAutoZoomFactor())
     {
@@ -633,7 +635,7 @@ void recalculateSizes()
 
     const float factorX(1024.f / static_cast<float>(getWidth()));
     const float factorY(768.f / static_cast<float>(getHeight()));
-    zoomFactor() = std::max(factorX, factorY);
+    zoomFactor() = sf::base::max(factorX, factorY);
 }
 
 void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen)
@@ -1592,8 +1594,6 @@ sf::base::String getJoystickBindName(const Joystick::Jid bindID)
     auto               query = sf::Joystick::query(0);
     const unsigned int vendorId{query.hasValue() ? query->getVendorId() : 0};
 
-    using namespace std::string_literals;
-
     if (vendorId == msVendorId)
     {
         return value >= 12 ? "" : buttonsNames[value][0];
@@ -1604,7 +1604,7 @@ sf::base::String getJoystickBindName(const Joystick::Jid bindID)
         return value >= 12 ? "" : buttonsNames[value][1];
     }
 
-    return sf::base::String(ssvu::toStr(value));
+    return sf::base::toString(value);
 }
 
 //**********************************************

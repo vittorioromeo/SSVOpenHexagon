@@ -12,19 +12,33 @@
 #include "SFML/System/IO.hpp"
 #include "SFML/System/Path.hpp"
 
+#include "SFML/Base/Bitset.hpp"
+#include "SFML/Base/Builtin/Memcpy.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 
-#include <fstream>
-#include <ios>
 #include <zconf.h>
 #include <zlib.h>
 
-#include <cstddef>
-#include <cstring>
+
+namespace sf::base
+{
+template <::sf::base::SizeT N>
+OutStringStream& operator<<(OutStringStream& os, const Bitset<N>& b)
+{
+    for (SizeT i = N; i-- != 0u;)
+        os << (b[i] ? '1' : '0');
+    return os;
+}
+
+template OutStringStream& operator<< <static_cast<::sf::base::SizeT>(::hg::input_bit::k_count)>(
+    OutStringStream&,
+    const Bitset<static_cast<::sf::base::SizeT>(::hg::input_bit::k_count)>&);
+
+} // namespace sf::base
 
 namespace hg
 {
@@ -46,7 +60,7 @@ namespace hg
         }                                  \
     } while (false)
 
-static auto make_write(serialization_result& result, std::byte*& buffer, const std::byte* const buffer_end)
+static auto make_write(serialization_result& result, byte*& buffer, const byte* const buffer_end)
 {
     return [&result, &buffer, buffer_end](const auto& datum)
     {
@@ -56,13 +70,13 @@ static auto make_write(serialization_result& result, std::byte*& buffer, const s
             return;
         }
 
-        std::memcpy(buffer, &datum, sizeof(datum));
+        SFML_BASE_MEMCPY(buffer, &datum, sizeof(datum));
         buffer += sizeof(datum);
         result._written_bytes += sizeof(datum);
     };
 }
 
-static auto make_read(deserialization_result& result, const std::byte*& buffer, const std::byte* const buffer_end)
+static auto make_read(deserialization_result& result, const byte*& buffer, const byte* const buffer_end)
 {
     return [&result, &buffer, buffer_end](auto& target)
     {
@@ -72,7 +86,7 @@ static auto make_read(deserialization_result& result, const std::byte*& buffer, 
             return;
         }
 
-        std::memcpy(&target, buffer, sizeof(target));
+        SFML_BASE_MEMCPY(&target, buffer, sizeof(target));
         buffer += sizeof(target);
         result._read_bytes += sizeof(target);
     };
@@ -80,11 +94,11 @@ static auto make_read(deserialization_result& result, const std::byte*& buffer, 
 
 void replay_data::record_input(const bool left, const bool right, const bool swap, const bool focus) noexcept
 {
-    input_bitset& ib                                = _inputs.emplaceBack();
-    ib[static_cast<unsigned int>(input_bit::left)]  = left;
-    ib[static_cast<unsigned int>(input_bit::right)] = right;
-    ib[static_cast<unsigned int>(input_bit::swap)]  = swap;
-    ib[static_cast<unsigned int>(input_bit::focus)] = focus;
+    input_bitset& ib = _inputs.emplaceBack();
+    ib.setBit(static_cast<sf::base::SizeT>(input_bit::left), left);
+    ib.setBit(static_cast<sf::base::SizeT>(input_bit::right), right);
+    ib.setBit(static_cast<sf::base::SizeT>(input_bit::swap), swap);
+    ib.setBit(static_cast<sf::base::SizeT>(input_bit::focus), focus);
 }
 
 [[nodiscard]] input_bitset replay_data::at(const sf::base::SizeT index) const noexcept
@@ -108,17 +122,17 @@ void replay_data::record_input(const bool left, const bool right, const bool swa
     return !(*this == rhs);
 }
 
-[[nodiscard]] serialization_result replay_data::serialize(std::byte* buffer, const sf::base::SizeT buffer_size) const
+[[nodiscard]] serialization_result replay_data::serialize(byte* buffer, const sf::base::SizeT buffer_size) const
 {
     return serialize(buffer, buffer + buffer_size);
 }
 
-[[nodiscard]] deserialization_result replay_data::deserialize(const std::byte* buffer, const sf::base::SizeT buffer_size)
+[[nodiscard]] deserialization_result replay_data::deserialize(const byte* buffer, const sf::base::SizeT buffer_size)
 {
     return deserialize(buffer, buffer + buffer_size);
 }
 
-[[nodiscard]] serialization_result replay_data::serialize(std::byte* buffer, const std::byte* const buffer_end) const
+[[nodiscard]] serialization_result replay_data::serialize(byte* buffer, const byte* const buffer_end) const
 {
     serialization_result result;
     const auto           write = make_write(result, buffer, buffer_end);
@@ -128,14 +142,14 @@ void replay_data::record_input(const bool left, const bool right, const bool swa
 
     for (const input_bitset& ib : _inputs)
     {
-        const sf::base::U8 ib_byte = ib.to_ulong();
+        const sf::base::U8 ib_byte = static_cast<sf::base::U8>(ib.toU64());
         SSVOH_TRY(write(ib_byte));
     }
 
     return result;
 }
 
-[[nodiscard]] deserialization_result replay_data::deserialize(const std::byte* buffer, const std::byte* const buffer_end)
+[[nodiscard]] deserialization_result replay_data::deserialize(const byte* buffer, const byte* const buffer_end)
 {
     deserialization_result result;
     const auto             read = make_read(result, buffer, buffer_end);
@@ -154,7 +168,7 @@ void replay_data::record_input(const bool left, const bool right, const bool swa
         sf::base::U8 ib_byte;
         SSVOH_TRY(read(ib_byte));
 
-        _inputs[i] = input_bitset{static_cast<unsigned long>(ib_byte)};
+        _inputs[i] = input_bitset{static_cast<sf::base::U64>(ib_byte)};
     }
 #if defined(__GNUC__) && !defined(__clang__)
     #pragma GCC diagnostic pop
@@ -206,17 +220,17 @@ void replay_player::reset() noexcept
     return !(*this == rhs);
 }
 
-[[nodiscard]] serialization_result replay_file::serialize(std::byte* buffer, const sf::base::SizeT buffer_size) const
+[[nodiscard]] serialization_result replay_file::serialize(byte* buffer, const sf::base::SizeT buffer_size) const
 {
     return serialize(buffer, buffer + buffer_size);
 }
 
-[[nodiscard]] deserialization_result replay_file::deserialize(const std::byte* buffer, const sf::base::SizeT buffer_size)
+[[nodiscard]] deserialization_result replay_file::deserialize(const byte* buffer, const sf::base::SizeT buffer_size)
 {
     return deserialize(buffer, buffer + buffer_size);
 }
 
-[[nodiscard]] serialization_result replay_file::serialize(std::byte* buffer, const std::byte* const buffer_end) const
+[[nodiscard]] serialization_result replay_file::serialize(byte* buffer, const byte* const buffer_end) const
 {
     serialization_result result;
     const auto           write = make_write(result, buffer, buffer_end);
@@ -257,7 +271,7 @@ void replay_player::reset() noexcept
     return result;
 }
 
-[[nodiscard]] deserialization_result replay_file::deserialize(const std::byte* buffer, const std::byte* const buffer_end)
+[[nodiscard]] deserialization_result replay_file::deserialize(const byte* buffer, const byte* const buffer_end)
 {
     deserialization_result result;
     const auto             read = make_read(result, buffer, buffer_end);
@@ -313,15 +327,15 @@ void replay_player::reset() noexcept
 
 static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 
-[[nodiscard]] static std::byte* get_static_buf()
+[[nodiscard]] static byte* get_static_buf()
 {
-    thread_local std::byte buf[buf_size];
+    thread_local byte buf[buf_size];
     return buf;
 }
 
 [[nodiscard]] bool replay_file::serialize_to_file(const sf::Path& p) const
 {
-    std::byte* buf = get_static_buf();
+    byte* buf = get_static_buf();
 
     const serialization_result sr = serialize(buf, buf_size);
     if (!static_cast<bool>(sr))
@@ -329,34 +343,23 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
         return false;
     }
 
-    std::ofstream os(p.c_str(), std::ios::binary | std::ios::out);
-    os.write(reinterpret_cast<const char*>(buf), sr.written_bytes());
-    os.flush();
-
-    return static_cast<bool>(os);
+    return sf::writeToFile(p, sf::base::StringView{reinterpret_cast<const char*>(buf), sr.written_bytes()});
 }
 
 [[nodiscard]] bool replay_file::deserialize_from_file(const sf::Path& p)
 {
-    std::ifstream is(p.c_str(), std::ios::binary | std::ios::in);
-    if (!static_cast<bool>(is))
+    sf::base::Vector<char>& fileBuf = sf::getThreadLocalScratchCharBuffer();
+    fileBuf.clear();
+    if (!sf::readFromFile(p, fileBuf))
     {
         sf::cErr() << "Couldn't open replay path '" << p << "'\n";
         return false;
     }
 
-    is.seekg(0, std::ios::end);
-    const sf::base::SizeT bytes_to_read = is.tellg();
-    is.seekg(0, std::ios::beg);
+    const sf::base::SizeT bytes_to_read = fileBuf.size();
 
-    std::byte* buf = get_static_buf();
-
-    is.read(reinterpret_cast<char*>(buf), bytes_to_read);
-
-    if (!static_cast<bool>(is))
-    {
-        return false;
-    }
+    byte* buf = get_static_buf();
+    SFML_BASE_MEMCPY(buf, fileBuf.data(), bytes_to_read);
 
     const deserialization_result dr = deserialize(buf, bytes_to_read);
     return static_cast<bool>(dr);
@@ -364,7 +367,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 
 [[nodiscard]] bool replay_file::serialize_to_packet(sf::Packet& p) const
 {
-    std::byte* buf = get_static_buf();
+    byte* buf = get_static_buf();
 
     const serialization_result sr = serialize(buf, buf_size);
     if (!static_cast<bool>(sr))
@@ -381,8 +384,8 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 
 [[nodiscard]] bool replay_file::deserialize_from_packet(sf::Packet& p)
 {
-    static_assert(sizeof(sf::base::U8) == sizeof(std::byte));
-    static_assert(alignof(sf::base::U8) == alignof(std::byte));
+    static_assert(sizeof(sf::base::U8) == sizeof(byte));
+    static_assert(alignof(sf::base::U8) == alignof(byte));
 
     sf::base::U64 bytes_to_read;
     if (!(p >> bytes_to_read))
@@ -390,7 +393,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
         return false;
     }
 
-    std::byte* buf = get_static_buf();
+    byte* buf = get_static_buf();
 
     for (sf::base::U64 i = 0; i < bytes_to_read; ++i)
     {
@@ -431,30 +434,19 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 
 [[nodiscard]] bool compressed_replay_file::serialize_to_file(const sf::Path& p) const
 {
-    std::ofstream os(p.c_str(), std::ios::binary | std::ios::out);
-    os.write(_data.data(), _data.size());
-    os.flush();
-
-    return static_cast<bool>(os);
+    return sf::writeToFile(p, sf::base::StringView{_data.data(), _data.size()});
 }
 
 [[nodiscard]] bool compressed_replay_file::deserialize_from_file(const sf::Path& p)
 {
-    std::ifstream is(p.c_str(), std::ios::binary | std::ios::in);
-    if (!static_cast<bool>(is))
+    _data.clear();
+    if (!sf::readFromFile(p, _data))
     {
         sf::cErr() << "Couldn't open compressed replay path '" << p << "'\n";
         return false;
     }
 
-    is.seekg(0, std::ios::end);
-    const sf::base::SizeT bytes_to_read = is.tellg();
-    is.seekg(0, std::ios::beg);
-
-    _data.resize(bytes_to_read);
-    is.read(_data.data(), bytes_to_read);
-
-    return static_cast<bool>(is);
+    return true;
 }
 
 [[nodiscard]] bool compressed_replay_file::serialize_to_packet(sf::Packet& p) const
@@ -488,15 +480,15 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
     return true;
 }
 
-[[nodiscard]] static std::byte* get_static_compression_buf()
+[[nodiscard]] static byte* get_static_compression_buf()
 {
-    thread_local std::byte buf[buf_size];
+    thread_local byte buf[buf_size];
     return buf;
 }
 
 [[nodiscard]] sf::base::Optional<compressed_replay_file> compress_replay_file(const replay_file& rf)
 {
-    std::byte* buf = get_static_buf();
+    byte* buf = get_static_buf();
 
     const serialization_result sr = rf.serialize(buf, buf_size);
     if (!static_cast<bool>(sr))
@@ -504,7 +496,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
         return sf::base::nullOpt;
     }
 
-    std::byte* compression_buf = get_static_compression_buf();
+    byte* compression_buf = get_static_compression_buf();
 
     uLongf    in_out_dest_len = buf_size;
     const int rc              = compress2(reinterpret_cast<Bytef*>(compression_buf),
@@ -523,14 +515,14 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
     compressed_replay_file result;
     result._data.resize(in_out_dest_len);
 
-    std::memcpy(static_cast<void*>(result._data.data()), static_cast<const void*>(compression_buf), result._data.size());
+    SFML_BASE_MEMCPY(static_cast<void*>(result._data.data()), static_cast<const void*>(compression_buf), result._data.size());
 
     return sf::base::makeOptional(SFML_BASE_MOVE(result));
 }
 
 [[nodiscard]] sf::base::Optional<replay_file> decompress_replay_file(const compressed_replay_file& crf)
 {
-    std::byte* buf = get_static_buf();
+    byte* buf = get_static_buf();
 
     uLongf    in_out_dest_len = buf_size;
     const int rc              = uncompress(reinterpret_cast<Bytef*>(buf),

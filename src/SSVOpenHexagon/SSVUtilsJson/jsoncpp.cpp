@@ -3,25 +3,162 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/JsonStream.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
+
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/String.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <iomanip>
 #include <ios>
 #include <istream>
 #include <ostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
-#include <utility>
 
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
+#define JSON_FAIL_MESSAGE(message) throw std::runtime_error(message);
+#define JSON_ASSERT_MESSAGE(condition, message) \
+    if (!(condition))                           \
+    {                                           \
+        JSON_FAIL_MESSAGE(message)              \
+    }
 #define JSON_ASSERT_UNREACHABLE SSVOH_ASSERT(false)
 
 namespace Json
 {
+
+////////////////////////////////////////////////////////////
+// Hash and equality for CZString
+////////////////////////////////////////////////////////////
+
+struct CZStringHash
+{
+    using is_avalanching = void;
+
+    sf::base::SizeT operator()(const Value::CZString& cz) const noexcept
+    {
+        if (const char* c = cz.c_str())
+        {
+            // FNV-1a (good distribution, fits the avalanching contract reasonably)
+            sf::base::SizeT h = 14'695'981'039'346'656'037ULL;
+            for (; *c; ++c)
+            {
+                h ^= static_cast<unsigned char>(*c);
+                h *= 1'099'511'628'211ULL;
+            }
+            return h;
+        }
+
+        // Mix the index; bias with a sentinel so it doesn't collide with empty-string keys.
+        return ankerl::unordered_dense::detail::wyhash::hash(
+            static_cast<sf::base::SizeT>(cz.index()) ^ 0x9E'37'79'B9'7F'4A'7C'15ULL);
+    }
+};
+
+////////////////////////////////////////////////////////////
+// Pimpl storage type
+////////////////////////////////////////////////////////////
+
+// Note: non-segmented map. Pointer-stability is not required by the parser/users:
+//   the parser only pushes a freshly-returned reference onto its node stack, recurses into the
+//   *child*, and pops before inserting any sibling. Container resizes that follow only invalidate
+//   already-popped pointers. Iteration order is insertion order (matches segmented_map's, which is
+//   what the writers depend on for object key order).
+class ObjectValuesImpl : public ankerl::unordered_dense::map<Value::CZString, Value, CZStringHash>
+{
+public:
+    using base = ankerl::unordered_dense::map<Value::CZString, Value, CZStringHash>;
+    using base::base;
+};
+
+struct ObjectValuesIteratorImpl
+{
+    using underlying = ObjectValuesImpl::iterator;
+    underlying it{};
+
+    ObjectValuesIteratorImpl() noexcept = default;
+    explicit ObjectValuesIteratorImpl(underlying i) noexcept : it{i}
+    {
+    }
+};
+
+////////////////////////////////////////////////////////////
+// Internal helpers
+////////////////////////////////////////////////////////////
+
+namespace
+{
+enum
+{
+    uintToStringBufferSize = 3 * sizeof(LargestUInt) + 1
+};
+
+using UIntToStringBuffer = char[uintToStringBufferSize];
+
+void uintToString(LargestUInt value, char*& current)
+{
+    *--current = 0;
+    do
+    {
+        *--current = char(value % 10) + '0';
+        value /= 10;
+    } while (value != 0);
+}
+
+bool containsControlCharacter(const char* str)
+{
+    while (*str)
+        if (isControlCharacter(*(str++)))
+            return true;
+    return false;
+}
+
+const unsigned int unknown = (unsigned)-1;
+template <typename T, typename U>
+bool InRange(double d, T min, U max)
+{
+    return d >= min && d <= max;
+}
+
+char* duplicateStringValue(const char* value, unsigned int length = unknown)
+{
+    if (length == unknown)
+        length = (unsigned int)strlen(value);
+    if (length >= (unsigned)Value::maxInt)
+        length = Value::maxInt - 1;
+    char* newString = static_cast<char*>(malloc(length + 1));
+    JSON_ASSERT_MESSAGE(newString != nullptr, "Failed to allocate string value buffer");
+    memcpy(newString, value, length);
+    newString[length] = 0;
+    return newString;
+}
+
+void releaseStringValue(char* value)
+{
+    if (value)
+        free(value);
+}
+
+bool IsIntegral(double d)
+{
+    double integral_part;
+    return modf(d, &integral_part) == 0.0;
+}
+
+#ifdef JSON_HAS_INT64
+const double maxUInt64AsDouble = 18446744073709551615.0;
+#endif
+
+} // namespace
+
 std::string codePointToUTF8(unsigned int cp)
 {
     std::string result;
@@ -54,22 +191,6 @@ std::string codePointToUTF8(unsigned int cp)
     return result;
 }
 
-enum
-{
-    uintToStringBufferSize = 3 * sizeof(LargestUInt) + 1
-};
-typedef char UIntToStringBuffer[uintToStringBufferSize];
-void         uintToString(LargestUInt value, char*& current)
-{
-    *--current = 0;
-    do
-    {
-        *--current = char(value % 10) + '0';
-        value /= 10;
-    } while (value != 0);
-}
-
-
 bool containsNewLine(Reader::Location begin, Reader::Location end)
 {
     for (; begin < end; ++begin)
@@ -77,169 +198,199 @@ bool containsNewLine(Reader::Location begin, Reader::Location end)
             return true;
     return false;
 }
-Reader::Reader() :
-    errors_(),
-    document_(),
-    begin_(),
-    end_(),
-    current_(),
-    lastValueEnd_(),
-    lastValue_(),
-    commentsBefore_(),
-    features_(Features::all()),
-    collectComments_()
+
+////////////////////////////////////////////////////////////
+// Reader::Impl
+////////////////////////////////////////////////////////////
+
+struct Reader::Impl
 {
-}
-Reader::Reader(const Features& features) :
-    errors_(),
-    document_(),
-    begin_(),
-    end_(),
-    current_(),
-    lastValueEnd_(),
-    lastValue_(),
-    commentsBefore_(),
-    features_(features),
-    collectComments_()
-{
-}
-bool Reader::parse(const std::string& document, Value& root, bool collectComments)
-{
-    document_         = document;
-    const char* begin = document_.c_str();
-    const char* end   = begin + document_.size();
-    return parse(begin, end, root, collectComments);
-}
-bool Reader::parse(std::istream& sin, Value& root, bool collectComments)
-{
-    std::string doc;
-    std::getline(sin, doc, (char)EOF);
-    return parse(doc, root, collectComments);
-}
-bool Reader::parse(const char* beginDoc, const char* endDoc, Value& root, bool collectComments)
-{
-    if (!features_.allowComments_)
-        collectComments = false;
-    begin_           = beginDoc;
-    end_             = endDoc;
-    collectComments_ = collectComments;
-    current_         = begin_;
-    lastValueEnd_    = nullptr;
-    lastValue_       = nullptr;
-    commentsBefore_  = "";
-    errors_.clear();
-    while (!nodes_.empty())
-        nodes_.pop();
-    nodes_.push(&root);
-    bool  successful = readValue();
-    Token token;
-    skipCommentTokens(token);
-    if (collectComments_ && !commentsBefore_.empty())
-        root.setComment(commentsBefore_, commentAfter);
-    if (features_.strictRoot_)
+    enum TokenType
     {
-        if (!root.isArray() && !root.isObject())
-        {
-            token.type_  = tokenError;
-            token.start_ = beginDoc;
-            token.end_   = endDoc;
-            addError(
-                "A valid JSON document must be either an array or an "
-                "object value.",
-                token);
-            return false;
-        }
-    }
-    return successful;
-}
-bool Reader::readValue()
+        tokenEndOfStream = 0,
+        tokenObjectBegin,
+        tokenObjectEnd,
+        tokenArrayBegin,
+        tokenArrayEnd,
+        tokenString,
+        tokenNumber,
+        tokenTrue,
+        tokenFalse,
+        tokenNull,
+        tokenArraySeparator,
+        tokenMemberSeparator,
+        tokenComment,
+        tokenError
+    };
+
+    struct Token
+    {
+        TokenType        type_;
+        Reader::Location start_, end_;
+    };
+
+    struct ErrorInfo
+    {
+        Token            token_;
+        sf::base::String message_;
+        Reader::Location extra_;
+    };
+
+    sf::base::Vector<Value*>    nodes_;
+    sf::base::Vector<ErrorInfo> errors_;
+    sf::base::String            document_;
+    Reader::Location            begin_{}, end_{}, current_{}, lastValueEnd_{};
+    Value*                      lastValue_{};
+    sf::base::String            commentsBefore_;
+    Features                    features_{Features::all()};
+    bool                        collectComments_{};
+};
+
+////////////////////////////////////////////////////////////
+// Reader
+////////////////////////////////////////////////////////////
+
+Reader::Reader() : impl_{}
 {
-    Token token;
+}
+
+Reader::Reader(const Features& features) : impl_{}
+{
+    impl_->features_ = features;
+}
+
+Reader::~Reader() = default;
+
+Reader::Reader(Reader&&) noexcept            = default;
+Reader& Reader::operator=(Reader&&) noexcept = default;
+
+namespace
+{
+struct ParseState
+{
+    Reader::Impl& impl;
+
+    bool readValue();
+    bool readToken(Reader::Impl::Token& token);
+    void skipSpaces();
+    bool match(Reader::Location pattern, int patternLength);
+    bool readComment();
+    bool readCStyleComment();
+    bool readCppStyleComment();
+    bool readString();
+    void readNumber();
+    bool readObject(Reader::Impl::Token&);
+    bool readArray(Reader::Impl::Token&);
+    bool decodeNumber(Reader::Impl::Token& token);
+    bool decodeString(Reader::Impl::Token& token);
+    bool decodeString(Reader::Impl::Token& token, sf::base::String& decoded);
+    bool decodeDouble(Reader::Impl::Token& token);
+    bool decodeUnicodeCodePoint(Reader::Impl::Token& token, Reader::Location& current, Reader::Location end, unsigned int& unicode);
+    bool decodeUnicodeEscapeSequence(Reader::Impl::Token& token,
+                                     Reader::Location&    current,
+                                     Reader::Location     end,
+                                     unsigned int&        unicode);
+    bool addError(const sf::base::String& message, Reader::Impl::Token& token, Reader::Location extra = nullptr);
+    bool recoverFromError(Reader::Impl::TokenType skipUntilToken);
+    bool addErrorAndRecover(const sf::base::String& message, Reader::Impl::Token& token, Reader::Impl::TokenType skipUntilToken);
+    Value& currentValue();
+    char   getNextChar();
+    bool   expectToken(Reader::Impl::TokenType type, Reader::Impl::Token& token, const char* message);
+    void   skipCommentTokens(Reader::Impl::Token& token);
+    void   addComment(Reader::Location begin, Reader::Location end, CommentPlacement placement);
+};
+
+bool ParseState::readValue()
+{
+    Reader::Impl::Token token;
     skipCommentTokens(token);
     bool successful{true};
-    if (collectComments_ && !commentsBefore_.empty())
+    if (impl.collectComments_ && !impl.commentsBefore_.empty())
     {
-        currentValue().setComment(commentsBefore_, commentBefore);
-        commentsBefore_ = "";
+        currentValue().setComment(impl.commentsBefore_, commentBefore);
+        impl.commentsBefore_ = "";
     }
     switch (token.type_)
     {
-        case tokenObjectBegin:
+        case Reader::Impl::tokenObjectBegin:
             successful = readObject(token);
             break;
-        case tokenArrayBegin:
+        case Reader::Impl::tokenArrayBegin:
             successful = readArray(token);
             break;
-        case tokenNumber:
+        case Reader::Impl::tokenNumber:
             successful = decodeNumber(token);
             break;
-        case tokenString:
+        case Reader::Impl::tokenString:
             successful = decodeString(token);
             break;
-        case tokenTrue:
+        case Reader::Impl::tokenTrue:
             currentValue() = true;
             break;
-        case tokenFalse:
+        case Reader::Impl::tokenFalse:
             currentValue() = false;
             break;
-        case tokenNull:
+        case Reader::Impl::tokenNull:
             currentValue() = Value();
             break;
         default:
             return addError("Syntax error: value, object or array expected.", token);
     }
-    if (collectComments_)
+    if (impl.collectComments_)
     {
-        lastValueEnd_ = current_;
-        lastValue_    = &currentValue();
+        impl.lastValueEnd_ = impl.current_;
+        impl.lastValue_    = &currentValue();
     }
     return successful;
 }
-void Reader::skipCommentTokens(Token& token)
+
+void ParseState::skipCommentTokens(Reader::Impl::Token& token)
 {
-    if (features_.allowComments_)
+    if (impl.features_.allowComments_)
     {
         do
         {
             readToken(token);
-        } while (token.type_ == tokenComment);
+        } while (token.type_ == Reader::Impl::tokenComment);
     }
     else
         readToken(token);
 }
-bool Reader::expectToken(TokenType type, Token& token, const char* message)
+
+bool ParseState::expectToken(Reader::Impl::TokenType type, Reader::Impl::Token& token, const char* message)
 {
     readToken(token);
     if (token.type_ != type)
         return addError(message, token);
     return true;
 }
-bool Reader::readToken(Token& token)
+
+bool ParseState::readToken(Reader::Impl::Token& token)
 {
     skipSpaces();
-    token.start_ = current_;
+    token.start_ = impl.current_;
     char c{getNextChar()};
     bool ok{true};
     switch (c)
     {
         case '{':
-            token.type_ = tokenObjectBegin;
+            token.type_ = Reader::Impl::tokenObjectBegin;
             break;
         case '}':
-            token.type_ = tokenObjectEnd;
+            token.type_ = Reader::Impl::tokenObjectEnd;
             break;
         case '[':
-            token.type_ = tokenArrayBegin;
+            token.type_ = Reader::Impl::tokenArrayBegin;
             break;
         case ']':
-            token.type_ = tokenArrayEnd;
+            token.type_ = Reader::Impl::tokenArrayEnd;
             break;
         case '"':
-            token.type_ = tokenString;
+            token.type_ = Reader::Impl::tokenString;
             ok          = readString();
             break;
         case '/':
-            token.type_ = tokenComment;
+            token.type_ = Reader::Impl::tokenComment;
             ok          = readComment();
             break;
         case '0':
@@ -253,110 +404,116 @@ bool Reader::readToken(Token& token)
         case '8':
         case '9':
         case '-':
-            token.type_ = tokenNumber;
+            token.type_ = Reader::Impl::tokenNumber;
             readNumber();
             break;
         case 't':
-            token.type_ = tokenTrue;
+            token.type_ = Reader::Impl::tokenTrue;
             ok          = match("rue", 3);
             break;
         case 'f':
-            token.type_ = tokenFalse;
+            token.type_ = Reader::Impl::tokenFalse;
             ok          = match("alse", 4);
             break;
         case 'n':
-            token.type_ = tokenNull;
+            token.type_ = Reader::Impl::tokenNull;
             ok          = match("ull", 3);
             break;
         case ',':
-            token.type_ = tokenArraySeparator;
+            token.type_ = Reader::Impl::tokenArraySeparator;
             break;
         case ':':
-            token.type_ = tokenMemberSeparator;
+            token.type_ = Reader::Impl::tokenMemberSeparator;
             break;
         case 0:
-            token.type_ = tokenEndOfStream;
+            token.type_ = Reader::Impl::tokenEndOfStream;
             break;
         default:
             ok = false;
             break;
     }
     if (!ok)
-        token.type_ = tokenError;
-    token.end_ = current_;
+        token.type_ = Reader::Impl::tokenError;
+    token.end_ = impl.current_;
     return true;
 }
-void Reader::skipSpaces()
+
+void ParseState::skipSpaces()
 {
-    while (current_ != end_)
+    while (impl.current_ != impl.end_)
     {
-        char c{*current_};
+        char c{*impl.current_};
         if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
-            ++current_;
+            ++impl.current_;
         else
             break;
     }
 }
-bool Reader::match(Location pattern, int patternLength)
+
+bool ParseState::match(Reader::Location pattern, int patternLength)
 {
-    if (end_ - current_ < patternLength)
+    if (impl.end_ - impl.current_ < patternLength)
         return false;
     int index = patternLength;
     while (index--)
-        if (current_[index] != pattern[index])
+        if (impl.current_[index] != pattern[index])
             return false;
-    current_ += patternLength;
+    impl.current_ += patternLength;
     return true;
 }
-bool Reader::readComment()
+
+bool ParseState::readComment()
 {
-    Location commentBegin = current_ - 1;
-    char     c            = getNextChar();
-    bool     successful   = false;
+    Reader::Location commentBegin = impl.current_ - 1;
+    char             c            = getNextChar();
+    bool             successful   = false;
     if (c == '*')
         successful = readCStyleComment();
     else if (c == '/')
         successful = readCppStyleComment();
     if (!successful)
         return false;
-    if (collectComments_)
+    if (impl.collectComments_)
     {
         CommentPlacement placement = commentBefore;
-        if (lastValueEnd_ && !containsNewLine(lastValueEnd_, commentBegin))
-            if (c != '*' || !containsNewLine(commentBegin, current_))
+        if (impl.lastValueEnd_ && !containsNewLine(impl.lastValueEnd_, commentBegin))
+            if (c != '*' || !containsNewLine(commentBegin, impl.current_))
                 placement = commentAfterOnSameLine;
-        addComment(commentBegin, current_, placement);
+        addComment(commentBegin, impl.current_, placement);
     }
     return true;
 }
-void Reader::addComment(Location begin, Location end, CommentPlacement placement)
+
+void ParseState::addComment(Reader::Location begin, Reader::Location end, CommentPlacement placement)
 {
-    SSVOH_ASSERT(collectComments_);
+    SSVOH_ASSERT(impl.collectComments_);
     if (placement == commentAfterOnSameLine)
     {
-        SSVOH_ASSERT(lastValue_ != 0);
-        lastValue_->setComment(std::string(begin, end), placement);
+        SSVOH_ASSERT(impl.lastValue_ != 0);
+        impl.lastValue_->setComment(sf::base::String(begin, static_cast<sf::base::SizeT>(end - begin)), placement);
     }
     else
     {
-        if (!commentsBefore_.empty())
-            commentsBefore_ += "\n";
-        commentsBefore_ += std::string(begin, end);
+        if (!impl.commentsBefore_.empty())
+            impl.commentsBefore_ += "\n";
+        impl.commentsBefore_ += sf::base::String(begin, static_cast<sf::base::SizeT>(end - begin));
     }
 }
-bool Reader::readCStyleComment()
+
+bool ParseState::readCStyleComment()
 {
-    while (current_ != end_)
+    while (impl.current_ != impl.end_)
     {
         char c = getNextChar();
-        if (c == '*' && *current_ == '/')
+        if (c == '*' && *impl.current_ == '/')
             break;
     }
     return getNextChar() == '/';
 }
-bool Reader::readCppStyleComment()
+
+bool ParseState::readCppStyleComment()
 {
-    while (current_ != end_)
+    while (impl.current_ != impl.end_)
     {
         char c = getNextChar();
         if (c == '\r' || c == '\n')
@@ -364,19 +521,21 @@ bool Reader::readCppStyleComment()
     }
     return true;
 }
-void Reader::readNumber()
+
+void ParseState::readNumber()
 {
-    while (current_ != end_)
+    while (impl.current_ != impl.end_)
     {
-        if (!(*current_ >= '0' && *current_ <= '9') && !in(*current_, '.', 'e', 'E', '+', '-'))
+        if (!(*impl.current_ >= '0' && *impl.current_ <= '9') && !in(*impl.current_, '.', 'e', 'E', '+', '-'))
             break;
-        ++current_;
+        ++impl.current_;
     }
 }
-bool Reader::readString()
+
+bool ParseState::readString()
 {
     char c = 0;
-    while (current_ != end_)
+    while (impl.current_ != impl.end_)
     {
         c = getNextChar();
         if (c == '\\')
@@ -386,57 +545,60 @@ bool Reader::readString()
     }
     return c == '"';
 }
-bool Reader::readObject(Token&)
+
+bool ParseState::readObject(Reader::Impl::Token&)
 {
-    Token       tokenName;
-    std::string name;
+    Reader::Impl::Token tokenName;
+    sf::base::String    name;
     currentValue() = Value(objectValue);
     while (readToken(tokenName))
     {
         bool initialTokenOk = true;
-        while (tokenName.type_ == tokenComment && initialTokenOk)
+        while (tokenName.type_ == Reader::Impl::tokenComment && initialTokenOk)
             initialTokenOk = readToken(tokenName);
         if (!initialTokenOk)
             break;
-        if (tokenName.type_ == tokenObjectEnd && name.empty())
+        if (tokenName.type_ == Reader::Impl::tokenObjectEnd && name.empty())
             return true;
-        if (tokenName.type_ != tokenString)
+        if (tokenName.type_ != Reader::Impl::tokenString)
             break;
         name = "";
         if (!decodeString(tokenName, name))
-            return recoverFromError(tokenObjectEnd);
-        Token colon;
-        if (!readToken(colon) || colon.type_ != tokenMemberSeparator)
+            return recoverFromError(Reader::Impl::tokenObjectEnd);
+        Reader::Impl::Token colon;
+        if (!readToken(colon) || colon.type_ != Reader::Impl::tokenMemberSeparator)
         {
-            return addErrorAndRecover("Missing ':' after object member name", colon, tokenObjectEnd);
+            return addErrorAndRecover("Missing ':' after object member name", colon, Reader::Impl::tokenObjectEnd);
         }
         Value& value = currentValue()[name];
-        nodes_.push(&value);
+        impl.nodes_.emplaceBack(&value);
         bool ok = readValue();
-        nodes_.pop();
+        impl.nodes_.popBack();
         if (!ok)
-            return recoverFromError(tokenObjectEnd);
-        Token comma;
+            return recoverFromError(Reader::Impl::tokenObjectEnd);
+        Reader::Impl::Token comma;
         if (!readToken(comma) ||
-            (comma.type_ != tokenObjectEnd && comma.type_ != tokenArraySeparator && comma.type_ != tokenComment))
+            (comma.type_ != Reader::Impl::tokenObjectEnd && comma.type_ != Reader::Impl::tokenArraySeparator &&
+             comma.type_ != Reader::Impl::tokenComment))
         {
-            return addErrorAndRecover("Missing ',' or '}' in object declaration", comma, tokenObjectEnd);
+            return addErrorAndRecover("Missing ',' or '}' in object declaration", comma, Reader::Impl::tokenObjectEnd);
         }
         bool finalizeTokenOk = true;
-        while (comma.type_ == tokenComment && finalizeTokenOk)
+        while (comma.type_ == Reader::Impl::tokenComment && finalizeTokenOk)
             finalizeTokenOk = readToken(comma);
-        if (comma.type_ == tokenObjectEnd)
+        if (comma.type_ == Reader::Impl::tokenObjectEnd)
             return true;
     }
-    return addErrorAndRecover("Missing '}' or object member name", tokenName, tokenObjectEnd);
+    return addErrorAndRecover("Missing '}' or object member name", tokenName, Reader::Impl::tokenObjectEnd);
 }
-bool Reader::readArray(Token&)
+
+bool ParseState::readArray(Reader::Impl::Token&)
 {
     currentValue() = Value(arrayValue);
     skipSpaces();
-    if (*current_ == ']')
+    if (*impl.current_ == ']')
     {
-        Token endArray;
+        Reader::Impl::Token endArray;
         readToken(endArray);
         return true;
     }
@@ -444,38 +606,39 @@ bool Reader::readArray(Token&)
     while (true)
     {
         Value& value = currentValue()[index++];
-        nodes_.push(&value);
+        impl.nodes_.emplaceBack(&value);
         bool ok = readValue();
-        nodes_.pop();
+        impl.nodes_.popBack();
         if (!ok)
-            return recoverFromError(tokenArrayEnd);
-        Token token;
+            return recoverFromError(Reader::Impl::tokenArrayEnd);
+        Reader::Impl::Token token;
         ok = readToken(token);
-        while (token.type_ == tokenComment && ok)
+        while (token.type_ == Reader::Impl::tokenComment && ok)
         {
             ok = readToken(token);
         }
-        bool badTokenType = (token.type_ != tokenArraySeparator && token.type_ != tokenArrayEnd);
+        bool badTokenType = (token.type_ != Reader::Impl::tokenArraySeparator && token.type_ != Reader::Impl::tokenArrayEnd);
         if (!ok || badTokenType)
         {
-            return addErrorAndRecover("Missing ',' or ']' in array declaration", token, tokenArrayEnd);
+            return addErrorAndRecover("Missing ',' or ']' in array declaration", token, Reader::Impl::tokenArrayEnd);
         }
-        if (token.type_ == tokenArrayEnd)
+        if (token.type_ == Reader::Impl::tokenArrayEnd)
             break;
     }
     return true;
 }
-bool Reader::decodeNumber(Token& token)
+
+bool ParseState::decodeNumber(Reader::Impl::Token& token)
 {
     bool isDouble = false;
-    for (Location inspect = token.start_; inspect != token.end_; ++inspect)
+    for (Reader::Location inspect = token.start_; inspect != token.end_; ++inspect)
     {
         isDouble = isDouble || in(*inspect, '.', 'e', 'E', '+') || (*inspect == '-' && inspect != token.start_);
     }
     if (isDouble)
         return decodeDouble(token);
-    Location current    = token.start_;
-    bool     isNegative = *current == '-';
+    Reader::Location current    = token.start_;
+    bool             isNegative = *current == '-';
     if (isNegative)
         ++current;
     LargestUInt maxIntegerValue = isNegative ? LargestUInt(Value::minLargestInt) : Value::maxLargestUInt;
@@ -485,7 +648,10 @@ bool Reader::decodeNumber(Token& token)
     {
         char c = *current++;
         if (c < '0' || c > '9')
-            return addError("'" + std::string(token.start_, token.end_) + "' is not a number.", token);
+            return addError(sf::base::String("'") +
+                                sf::base::String(token.start_, static_cast<sf::base::SizeT>(token.end_ - token.start_)) +
+                                "' is not a number.",
+                            token);
         UInt digit(c - '0');
         if (value >= threshold)
         {
@@ -502,7 +668,8 @@ bool Reader::decodeNumber(Token& token)
         currentValue() = value;
     return true;
 }
-bool Reader::decodeDouble(Token& token)
+
+bool ParseState::decodeDouble(Reader::Impl::Token& token)
 {
     double    value      = 0;
     const int bufferSize = 32;
@@ -526,23 +693,28 @@ bool Reader::decodeDouble(Token& token)
         count = sscanf(buffer.c_str(), format, &value);
     }
     if (count != 1)
-        return addError("'" + std::string(token.start_, token.end_) + "' is not a number.", token);
+        return addError(sf::base::String("'") +
+                            sf::base::String(token.start_, static_cast<sf::base::SizeT>(token.end_ - token.start_)) +
+                            "' is not a number.",
+                        token);
     currentValue() = value;
     return true;
 }
-bool Reader::decodeString(Token& token)
+
+bool ParseState::decodeString(Reader::Impl::Token& token)
 {
-    std::string decoded;
+    sf::base::String decoded;
     if (!decodeString(token, decoded))
         return false;
     currentValue() = decoded;
     return true;
 }
-bool Reader::decodeString(Token& token, std::string& decoded)
+
+bool ParseState::decodeString(Reader::Impl::Token& token, sf::base::String& decoded)
 {
-    decoded.reserve(token.end_ - token.start_ - 2);
-    Location current = token.start_ + 1;
-    Location end     = token.end_ - 1;
+    decoded.reserve(static_cast<sf::base::SizeT>(token.end_ - token.start_ - 2));
+    Reader::Location current = token.start_ + 1;
+    Reader::Location end     = token.end_ - 1;
     while (current != end)
     {
         char c = *current++;
@@ -551,7 +723,7 @@ bool Reader::decodeString(Token& token, std::string& decoded)
         else if (c == '\\')
         {
             if (current == end)
-                return addError("Empty escape sequence in std::string", token, current);
+                return addError("Empty escape sequence in string", token, current);
             char escape = *current++;
             switch (escape)
             {
@@ -584,11 +756,12 @@ bool Reader::decodeString(Token& token, std::string& decoded)
                     unsigned int unicode{0u};
                     if (!decodeUnicodeCodePoint(token, current, end, unicode))
                         return false;
-                    decoded += codePointToUTF8(unicode);
+                    const std::string utf8 = codePointToUTF8(unicode);
+                    decoded.append(utf8.data(), utf8.size());
                 }
                 break;
                 default:
-                    return addError("Bad escape sequence in std::string", token, current);
+                    return addError("Bad escape sequence in string", token, current);
             }
         }
         else
@@ -598,19 +771,18 @@ bool Reader::decodeString(Token& token, std::string& decoded)
     }
     return true;
 }
-bool Reader::decodeUnicodeCodePoint(Token& token, Location& current, Location end, unsigned int& unicode)
+
+bool ParseState::decodeUnicodeCodePoint(Reader::Impl::Token& token,
+                                        Reader::Location&    current,
+                                        Reader::Location     end,
+                                        unsigned int&        unicode)
 {
     if (!decodeUnicodeEscapeSequence(token, current, end, unicode))
         return false;
     if (unicode >= 0xD8'00 && unicode <= 0xDB'FF)
     {
         if (end - current < 6)
-            return addError(
-                "additional six characters expected to parse unicode "
-                "surrogate "
-                "pair.",
-                token,
-                current);
+            return addError("additional six characters expected to parse unicode surrogate pair.", token, current);
         unsigned int surrogatePair{};
         if (*(current++) == '\\' && *(current++) == 'u')
         {
@@ -622,23 +794,18 @@ bool Reader::decodeUnicodeCodePoint(Token& token, Location& current, Location en
                 return false;
         }
         else
-            return addError(
-                "expecting another \\u token to begin the second half of a "
-                "unicode "
-                "surrogate pair",
-                token,
-                current);
+            return addError("expecting another \\u token to begin the second half of a unicode surrogate pair", token, current);
     }
     return true;
 }
-bool Reader::decodeUnicodeEscapeSequence(Token& token, Location& current, Location end, unsigned int& unicode)
+
+bool ParseState::decodeUnicodeEscapeSequence(Reader::Impl::Token& token,
+                                             Reader::Location&    current,
+                                             Reader::Location     end,
+                                             unsigned int&        unicode)
 {
     if (end - current < 4)
-        return addError(
-            "Bad unicode escape sequence in std::string: four digits "
-            "expected.",
-            token,
-            current);
+        return addError("Bad unicode escape sequence in string: four digits expected.", token, current);
     unicode = 0;
     for (int index = 0; index < 4; ++index)
     {
@@ -651,59 +818,60 @@ bool Reader::decodeUnicodeEscapeSequence(Token& token, Location& current, Locati
         else if (c >= 'A' && c <= 'F')
             unicode += c - 'A' + 10;
         else
-            return addError(
-                "Bad unicode escape sequence in std::string: hexadecimal "
-                "digit "
-                "expected.",
-                token,
-                current);
+            return addError("Bad unicode escape sequence in string: hexadecimal digit expected.", token, current);
     }
     return true;
 }
-bool Reader::addError(const std::string& message, Token& token, Location extra)
+
+bool ParseState::addError(const sf::base::String& message, Reader::Impl::Token& token, Reader::Location extra)
 {
-    ErrorInfo info;
+    Reader::Impl::ErrorInfo info;
     info.token_   = token;
     info.message_ = message;
     info.extra_   = extra;
-    errors_.emplace_back(info);
+    impl.errors_.emplaceBack(info);
     return false;
 }
-bool Reader::recoverFromError(TokenType skipUntilToken)
+
+bool ParseState::recoverFromError(Reader::Impl::TokenType skipUntilToken)
 {
-    int   errorCount = int(errors_.size());
-    Token skip;
+    int                 errorCount = int(impl.errors_.size());
+    Reader::Impl::Token skip;
     while (true)
     {
         if (!readToken(skip))
-            errors_.resize(errorCount);
-        if (skip.type_ == skipUntilToken || skip.type_ == tokenEndOfStream)
+            impl.errors_.resize(errorCount);
+        if (skip.type_ == skipUntilToken || skip.type_ == Reader::Impl::tokenEndOfStream)
             break;
     }
-    errors_.resize(errorCount);
+    impl.errors_.resize(errorCount);
     return false;
 }
-bool Reader::addErrorAndRecover(const std::string& message, Token& token, TokenType skipUntilToken)
+
+bool ParseState::addErrorAndRecover(const sf::base::String& message, Reader::Impl::Token& token, Reader::Impl::TokenType skipUntilToken)
 {
     addError(message, token);
     return recoverFromError(skipUntilToken);
 }
-Value& Reader::currentValue()
+
+Value& ParseState::currentValue()
 {
-    return *(nodes_.top());
+    return *impl.nodes_.back();
 }
-char Reader::getNextChar()
+
+char ParseState::getNextChar()
 {
-    if (current_ == end_)
+    if (impl.current_ == impl.end_)
         return 0;
-    return *current_++;
+    return *impl.current_++;
 }
-void Reader::getLocationLineAndColumn(Location location, int& line, int& column) const
+
+void getLocationLineAndColumn(Reader::Location begin, Reader::Location end, Reader::Location location, int& line, int& column)
 {
-    Location current       = begin_;
-    Location lastLineStart = current;
-    line                   = 0;
-    while (current < location && current != end_)
+    Reader::Location current       = begin;
+    Reader::Location lastLineStart = current;
+    line                           = 0;
+    while (current < location && current != end)
     {
         char c = *current++;
         if (c == '\r')
@@ -722,155 +890,161 @@ void Reader::getLocationLineAndColumn(Location location, int& line, int& column)
     column = int(location - lastLineStart) + 1;
     ++line;
 }
-std::string Reader::getLocationLineAndColumn(Location location) const
+
+sf::base::String formatLocationLineAndColumn(Reader::Location begin, Reader::Location end, Reader::Location location)
 {
     int line, column;
-    getLocationLineAndColumn(location, line, column);
+    getLocationLineAndColumn(begin, end, location, line, column);
     char buffer[18 + 16 + 16 + 1];
     sprintf(buffer, "Line %d, Column %d", line, column);
-    return buffer;
+    return sf::base::String(buffer);
 }
-std::string Reader::getFormattedErrorMessages() const
+
+} // namespace
+
+bool Reader::parse(const sf::base::String& document, Value& root, bool collectComments)
 {
-    std::string formattedMessage;
-    for (auto itError = errors_.begin(); itError != errors_.end(); ++itError)
+    impl_->document_  = document;
+    const char* begin = impl_->document_.data();
+    const char* end   = begin + impl_->document_.size();
+    return parse(begin, end, root, collectComments);
+}
+
+bool Reader::parse(const char* beginDoc, const char* endDoc, Value& root, bool collectComments)
+{
+    if (!impl_->features_.allowComments_)
+        collectComments = false;
+    impl_->begin_           = beginDoc;
+    impl_->end_             = endDoc;
+    impl_->collectComments_ = collectComments;
+    impl_->current_         = impl_->begin_;
+    impl_->lastValueEnd_    = nullptr;
+    impl_->lastValue_       = nullptr;
+    impl_->commentsBefore_  = "";
+    impl_->errors_.clear();
+    impl_->nodes_.clear();
+    impl_->nodes_.emplaceBack(&root);
+    ParseState  st{*impl_};
+    bool        successful = st.readValue();
+    Impl::Token token;
+    st.skipCommentTokens(token);
+    if (impl_->collectComments_ && !impl_->commentsBefore_.empty())
+        root.setComment(impl_->commentsBefore_, commentAfter);
+    if (impl_->features_.strictRoot_)
     {
-        const ErrorInfo& error = *itError;
-        formattedMessage += "* " + getLocationLineAndColumn(error.token_.start_) + "\n";
+        if (!root.isArray() && !root.isObject())
+        {
+            token.type_  = Impl::tokenError;
+            token.start_ = beginDoc;
+            token.end_   = endDoc;
+            st.addError("A valid JSON document must be either an array or an object value.", token);
+            return false;
+        }
+    }
+    return successful;
+}
+
+sf::base::String Reader::getFormattedErrorMessages() const
+{
+    sf::base::String formattedMessage;
+    for (const auto& error : impl_->errors_)
+    {
+        formattedMessage += "* " + formatLocationLineAndColumn(impl_->begin_, impl_->end_, error.token_.start_) + "\n";
         formattedMessage += "  " + error.message_ + "\n";
         if (error.extra_)
-            formattedMessage += "See " + getLocationLineAndColumn(error.extra_) + " for detail.\n";
+            formattedMessage += "See " + formatLocationLineAndColumn(impl_->begin_, impl_->end_, error.extra_) +
+                                " for detail.\n";
     }
     return formattedMessage;
 }
+
+////////////////////////////////////////////////////////////
+// JsonStream support
+////////////////////////////////////////////////////////////
+
+bool parse(Reader& reader, std::istream& sin, Value& root, bool collectComments)
+{
+    std::string doc;
+    std::getline(sin, doc, (char)EOF);
+    return reader.parse(sf::base::String(doc), root, collectComments);
+}
+
 std::istream& operator>>(std::istream& sin, Value& root)
 {
     Json::Reader reader;
-    bool         ok = reader.parse(sin, root, true);
+    bool         ok = parse(reader, sin, root, true);
     if (!ok)
     {
-        fprintf(stderr, "Error from reader: %s", reader.getFormattedErrorMessages().c_str());
+        const sf::base::String msg = reader.getFormattedErrorMessages();
+        fprintf(stderr, "Error from reader: %.*s", static_cast<int>(msg.size()), msg.data());
         JSON_FAIL_MESSAGE("reader error");
     }
     return sin;
 }
 
-template <typename AllocatedType, const unsigned int objectPerAllocation>
-class BatchAllocator
-{
-public:
-    inline BatchAllocator(unsigned int objectsPerPage = 255) : freeHead_(0), objectsPerPage_(objectsPerPage)
-    {
-        SSVOH_ASSERT(sizeof(AllocatedType) * objectPerAllocation >= sizeof(AllocatedType*));
-        SSVOH_ASSERT(objectsPerPage >= 16);
-        batches_      = allocateBatch(0);
-        currentBatch_ = batches_;
-    }
-    inline ~BatchAllocator()
-    {
-        for (BatchInfo* batch = batches_; batch;)
-        {
-            BatchInfo* nextBatch = batch->next_;
-            free(batch);
-            batch = nextBatch;
-        }
-    }
-    inline AllocatedType* allocate()
-    {
-        if (freeHead_)
-        {
-            AllocatedType* object = freeHead_;
-            freeHead_             = *(AllocatedType**)object;
-            return object;
-        }
-        if (currentBatch_->used_ == currentBatch_->end_)
-        {
-            currentBatch_ = currentBatch_->next_;
-            while (currentBatch_ && currentBatch_->used_ == currentBatch_->end_)
-                currentBatch_ = currentBatch_->next_;
-            if (!currentBatch_)
-            {
-                currentBatch_        = allocateBatch(objectsPerPage_);
-                currentBatch_->next_ = batches_;
-                batches_             = currentBatch_;
-            }
-        }
-        AllocatedType* allocated = currentBatch_->used_;
-        currentBatch_->used_ += objectPerAllocation;
-        return allocated;
-    }
-    inline void release(AllocatedType* object)
-    {
-        SSVOH_ASSERT(object != 0);
-        *(AllocatedType**)object = freeHead_;
-        freeHead_                = object;
-    }
+////////////////////////////////////////////////////////////
+// ValueIteratorBase
+////////////////////////////////////////////////////////////
 
-private:
-    struct BatchInfo
-    {
-        BatchInfo*     next_;
-        AllocatedType* used_;
-        AllocatedType* end_;
-        AllocatedType  buffer_[objectPerAllocation];
-    };
-    inline BatchAllocator(const BatchAllocator&);
-    inline void              operator=(const BatchAllocator&);
-    static inline BatchInfo* allocateBatch(unsigned int objectsPerPage)
-    {
-        const unsigned int mallocSize = sizeof(BatchInfo) - sizeof(AllocatedType) * objectPerAllocation +
-                                        sizeof(AllocatedType) * objectPerAllocation * objectsPerPage;
-        BatchInfo*         batch      = static_cast<BatchInfo*>(malloc(mallocSize));
-        batch->next_                  = 0;
-        batch->used_                  = batch->buffer_;
-        batch->end_                   = batch->buffer_ + objectsPerPage;
-        return batch;
-    }
-    BatchInfo*     batches_;
-    BatchInfo*     currentBatch_;
-    AllocatedType* freeHead_;
-    unsigned int   objectsPerPage_;
-};
-
-ValueIteratorBase::ValueIteratorBase() : current_(), isNull_(true)
+ValueIteratorBase::ValueIteratorBase() : current_{}, isNull_(true)
 {
 }
-ValueIteratorBase::ValueIteratorBase(const Value::ObjectValues::iterator& current) : current_(current), isNull_(false)
+
+ValueIteratorBase::ValueIteratorBase(const ObjectValuesIteratorImpl& current) : current_{current}, isNull_(false)
 {
 }
+
+ValueIteratorBase::ValueIteratorBase(const ValueIteratorBase&)                = default;
+ValueIteratorBase::ValueIteratorBase(ValueIteratorBase&&) noexcept            = default;
+ValueIteratorBase& ValueIteratorBase::operator=(const ValueIteratorBase&)     = default;
+ValueIteratorBase& ValueIteratorBase::operator=(ValueIteratorBase&&) noexcept = default;
+ValueIteratorBase::~ValueIteratorBase()                                       = default;
 
 Value& ValueIteratorBase::deref() const
 {
-    return current_->second;
+    return current_->it->second;
 }
+
 void ValueIteratorBase::increment()
 {
-    ++current_;
+    ++current_->it;
 }
+
 void ValueIteratorBase::decrement()
 {
-    --current_;
+    // segmented_vector iterator does not provide operator--, synthesize via offset.
+    current_->it = current_->it + (-1);
 }
+
 ValueIteratorBase::difference_type ValueIteratorBase::computeDistance(const SelfType& other) const
 {
     if (isNull_ && other.isNull_)
         return 0;
-    difference_type myDistance = 0;
-    for (Value::ObjectValues::iterator it = current_; it != other.current_; ++it)
-        ++myDistance;
-    return myDistance;
+    return static_cast<difference_type>(other.current_->it - current_->it);
 }
+
 bool ValueIteratorBase::isEqual(const SelfType& other) const
 {
-    return isNull_ ? other.isNull_ : current_ == other.current_;
+    if (isNull_)
+        return other.isNull_;
+    if (other.isNull_)
+        return false;
+    // Take non-const copies so we can call the iterator's operator== (which is templated and
+    // can confuse some compilers when invoked on const-qualified instances).
+    ObjectValuesIteratorImpl::underlying a = current_->it;
+    ObjectValuesIteratorImpl::underlying b = other.current_->it;
+    return a == b;
 }
+
 void ValueIteratorBase::copy(const SelfType& other)
 {
-    current_ = other.current_;
+    *current_ = *other.current_;
+    isNull_   = other.isNull_;
 }
+
 Value ValueIteratorBase::key() const
 {
-    const Value::CZString czstring = (*current_).first;
+    const Value::CZString& czstring = current_->it->first;
     if (czstring.c_str())
     {
         if (czstring.isStaticString())
@@ -879,22 +1053,25 @@ Value ValueIteratorBase::key() const
     }
     return Value(czstring.index());
 }
+
 UInt ValueIteratorBase::index() const
 {
-    const Value::CZString czstring = (*current_).first;
+    const Value::CZString& czstring = current_->it->first;
     if (!czstring.c_str())
         return czstring.index();
     return UInt(-1);
 }
+
 const char* ValueIteratorBase::memberName() const
 {
-    const char* name = (*current_).first.c_str();
+    const char* name = current_->it->first.c_str();
     return name ? name : "";
 }
+
 ValueConstIterator::ValueConstIterator()
 {
 }
-ValueConstIterator::ValueConstIterator(const Value::ObjectValues::iterator& current) : ValueIteratorBase(current)
+ValueConstIterator::ValueConstIterator(const ObjectValuesIteratorImpl& current) : ValueIteratorBase(current)
 {
 }
 
@@ -906,7 +1083,7 @@ ValueConstIterator& ValueConstIterator::operator=(const ValueIteratorBase& other
 ValueIterator::ValueIterator()
 {
 }
-ValueIterator::ValueIterator(const Value::ObjectValues::iterator& current) : ValueIteratorBase(current)
+ValueIterator::ValueIterator(const ObjectValuesIteratorImpl& current) : ValueIteratorBase(current)
 {
 }
 
@@ -922,35 +1099,9 @@ ValueIterator& ValueIterator::operator=(const SelfType& other)
     return *this;
 }
 
-
-#ifdef JSON_HAS_INT64
-
-static const double maxUInt64AsDouble = 18446744073709551615.0;
-#endif
-
-static const unsigned int unknown = (unsigned)-1;
-template <typename T, typename U>
-bool InRange(double d, T min, U max)
-{
-    return d >= min && d <= max;
-}
-char* duplicateStringValue(const char* value, unsigned int length = unknown)
-{
-    if (length == unknown)
-        length = (unsigned int)strlen(value);
-    if (length >= (unsigned)Value::maxInt)
-        length = Value::maxInt - 1;
-    char* newString = static_cast<char*>(malloc(length + 1));
-    JSON_ASSERT_MESSAGE(newString != nullptr, "Failed to allocate std::string value buffer");
-    memcpy(newString, value, length);
-    newString[length] = 0;
-    return newString;
-}
-void releaseStringValue(char* value)
-{
-    if (value)
-        free(value);
-}
+////////////////////////////////////////////////////////////
+// CommentInfo / CZString / Value
+////////////////////////////////////////////////////////////
 
 Value::CommentInfo::~CommentInfo()
 {
@@ -965,14 +1116,17 @@ void Value::CommentInfo::setComment(const char* text)
     JSON_ASSERT_MESSAGE(text[0] == '\0' || text[0] == '/', "Comments must start with /");
     comment_ = duplicateStringValue(text);
 }
+
 Value::CZString::CZString(ArrayIndex mIdx) : cstr_(nullptr), index_(mIdx)
 {
 }
+
 Value::CZString::CZString(const char* cstr, DuplicationPolicy allocate) :
     cstr_(allocate == duplicate ? duplicateStringValue(cstr) : cstr),
     index_(allocate)
 {
 }
+
 Value::CZString::CZString(const CZString& other) :
     cstr_(other.index_ != noDuplication && other.cstr_ != nullptr ? duplicateStringValue(other.cstr_) : other.cstr_),
     index_(other.cstr_ ? (other.index_ == static_cast<unsigned int>(noDuplication)
@@ -981,22 +1135,50 @@ Value::CZString::CZString(const CZString& other) :
                        : other.index_)
 {
 }
+
+Value::CZString::CZString(CZString&& other) noexcept : cstr_(other.cstr_), index_(other.index_)
+{
+    other.cstr_  = nullptr;
+    other.index_ = 0;
+}
+
 Value::CZString::~CZString()
 {
     if (cstr_ != nullptr && index_ == duplicate)
         releaseStringValue(const_cast<char*>(cstr_));
 }
+
 void Value::CZString::swap(CZString& other)
 {
-    std::swap(cstr_, other.cstr_);
-    std::swap(index_, other.index_);
+    auto* tmpStr = cstr_;
+    auto  tmpIdx = index_;
+    cstr_        = other.cstr_;
+    index_       = other.index_;
+    other.cstr_  = tmpStr;
+    other.index_ = tmpIdx;
 }
+
 Value::CZString& Value::CZString::operator=(const CZString& other)
 {
     CZString temp(other);
     swap(temp);
     return *this;
 }
+
+Value::CZString& Value::CZString::operator=(CZString&& other) noexcept
+{
+    if (this != &other)
+    {
+        if (cstr_ != nullptr && index_ == duplicate)
+            releaseStringValue(const_cast<char*>(cstr_));
+        cstr_        = other.cstr_;
+        index_       = other.index_;
+        other.cstr_  = nullptr;
+        other.index_ = 0;
+    }
+    return *this;
+}
+
 bool Value::CZString::operator<(const CZString& other) const
 {
     if (cstr_ != nullptr && other.cstr_ != nullptr)
@@ -1004,13 +1186,16 @@ bool Value::CZString::operator<(const CZString& other) const
 
     return index_ < other.index_;
 }
+
 bool Value::CZString::operator==(const CZString& other) const
 {
     if (cstr_ != nullptr && other.cstr_ != nullptr)
         return std::strcmp(cstr_, other.cstr_) == 0;
-
-    return index_ == other.index_;
+    if (cstr_ == nullptr && other.cstr_ == nullptr)
+        return index_ == other.index_;
+    return false;
 }
+
 ArrayIndex Value::CZString::index() const
 {
     return index_;
@@ -1042,7 +1227,7 @@ Value::Value(ValueType mType) : type_(mType), allocated_(false)
             break;
         case arrayValue:
         case objectValue:
-            value_.map_ = new ObjectValues();
+            value_.map_ = new ObjectValuesImpl();
             break;
         case booleanValue:
             value_.bool_ = false;
@@ -1051,6 +1236,7 @@ Value::Value(ValueType mType) : type_(mType), allocated_(false)
             JSON_ASSERT_UNREACHABLE;
     }
 }
+
 Value::Value(UInt value) : type_(uintValue), allocated_(false)
 {
     value_.uint_ = value;
@@ -1081,9 +1267,9 @@ Value::Value(const char* beginValue, const char* endValue) : type_(stringValue),
 {
     value_.string_ = duplicateStringValue(beginValue, (unsigned int)(endValue - beginValue));
 }
-Value::Value(const std::string& value) : type_(stringValue), allocated_(true)
+Value::Value(const sf::base::String& value) : type_(stringValue), allocated_(true)
 {
-    value_.string_ = duplicateStringValue(value.c_str(), (unsigned int)value.size());
+    value_.string_ = duplicateStringValue(value.data(), (unsigned int)value.size());
 }
 Value::Value(const StaticString& value) : type_(stringValue), allocated_(false)
 {
@@ -1113,7 +1299,7 @@ Value::Value(const Value& other) : type_(other.type_), allocated_(false)
                     allocated_     = true;
                 }
                 else
-                    value_.string_ = 0;
+                    value_.string_ = nullptr;
             }
             else
             {
@@ -1124,7 +1310,7 @@ Value::Value(const Value& other) : type_(other.type_), allocated_(false)
             break;
         case arrayValue:
         case objectValue:
-            value_.map_ = new ObjectValues(*other.value_.map_);
+            value_.map_ = new ObjectValuesImpl(*other.value_.map_);
             break;
         default:
             JSON_ASSERT_UNREACHABLE;
@@ -1167,13 +1353,15 @@ Value::~Value()
 
 void Value::swap(Value& other)
 {
-    ValueType temp = type_;
-    type_          = other.type_;
-    other.type_    = temp;
-    std::swap(value_, other.value_);
-    int temp2        = allocated_;
-    allocated_       = other.allocated_;
-    other.allocated_ = temp2;
+    ValueType temp        = type_;
+    type_                 = other.type_;
+    other.type_           = temp;
+    ValueHolder valueTemp = value_;
+    value_                = other.value_;
+    other.value_          = valueTemp;
+    int temp2             = allocated_;
+    allocated_            = other.allocated_;
+    other.allocated_      = temp2;
 }
 
 bool Value::operator<(const Value& other) const
@@ -1202,7 +1390,25 @@ bool Value::operator<(const Value& other) const
             int delta = int(value_.map_->size() - other.value_.map_->size());
             if (delta)
                 return delta < 0;
-            return (*value_.map_) < (*other.value_.map_);
+            // Lexicographic compare in insertion order. Loses the ordered semantics of std::map but
+            // matches the original size-then-content shape closely enough for the project's use.
+            auto       it      = value_.map_->begin();
+            auto       itOther = other.value_.map_->begin();
+            const auto end     = value_.map_->end();
+            while (it != end)
+            {
+                if (it->first < itOther->first)
+                    return true;
+                if (itOther->first < it->first)
+                    return false;
+                if (it->second < itOther->second)
+                    return true;
+                if (itOther->second < it->second)
+                    return false;
+                ++it;
+                ++itOther;
+            }
+            return false;
         }
 
         default:
@@ -1210,6 +1416,7 @@ bool Value::operator<(const Value& other) const
     }
     return false;
 }
+
 bool Value::operator==(const Value& other) const
 {
     int temp = other.type_;
@@ -1232,29 +1439,32 @@ bool Value::operator==(const Value& other) const
                    (other.value_.string_ && value_.string_ && std::strcmp(value_.string_, other.value_.string_) == 0);
         case arrayValue:
         case objectValue:
-            return value_.map_->size() == other.value_.map_->size() && (*value_.map_) == (*other.value_.map_);
+            return *value_.map_ == *other.value_.map_;
         default:
             JSON_ASSERT_UNREACHABLE;
     }
     return false;
 }
+
 bool Value::operator!=(const Value& other) const
 {
     return !(*this == other);
 }
+
 const char* Value::asCString() const
 {
     SSVOH_ASSERT(type_ == stringValue);
     return value_.string_;
 }
-std::string Value::asString() const
+
+sf::base::String Value::asString() const
 {
     switch (type_)
     {
         case nullValue:
             return "";
         case stringValue:
-            return value_.string_ ? value_.string_ : "";
+            return value_.string_ ? sf::base::String(value_.string_) : sf::base::String("");
         case booleanValue:
             return value_.bool_ ? "true" : "false";
         case intValue:
@@ -1264,7 +1474,7 @@ std::string Value::asString() const
         case realValue:
             return valueToString(value_.real_);
         default:
-            JSON_FAIL_MESSAGE("Type is not convertible to std::string");
+            JSON_FAIL_MESSAGE("Type is not convertible to string");
     }
 }
 
@@ -1290,6 +1500,7 @@ int Value::asInt() const
     }
     JSON_FAIL_MESSAGE("Value is not convertible to int.");
 }
+
 UInt Value::asUInt() const
 {
     switch (type_)
@@ -1311,6 +1522,7 @@ UInt Value::asUInt() const
             JSON_FAIL_MESSAGE("Value is not convertible to UInt.");
     }
 }
+
 #ifdef JSON_HAS_INT64
 Int64 Value::asInt64() const
 {
@@ -1428,6 +1640,7 @@ bool Value::asBool() const
     }
     JSON_FAIL_MESSAGE("Value is not convertible to bool.");
 }
+
 bool Value::isConvertibleTo(ValueType other) const
 {
     switch (other)
@@ -1456,6 +1669,7 @@ bool Value::isConvertibleTo(ValueType other) const
     JSON_ASSERT_UNREACHABLE;
     return false;
 }
+
 ArrayIndex Value::size() const
 {
     switch (type_)
@@ -1471,17 +1685,23 @@ ArrayIndex Value::size() const
             return ArrayIndex(value_.map_->size());
 
         case arrayValue:
-            if (!value_.map_->empty())
+        {
+            ArrayIndex maxIndex = 0;
+            bool       any      = false;
+            for (const auto& kv : *value_.map_)
             {
-                auto itLast = value_.map_->end();
-                --itLast;
-                return (*itLast).first.index() + 1;
+                const ArrayIndex idx = kv.first.index() + 1;
+                if (!any || idx > maxIndex)
+                    maxIndex = idx;
+                any = true;
             }
-            return 0;
+            return any ? maxIndex : 0;
+        }
     }
     JSON_ASSERT_UNREACHABLE;
     return 0;
 }
+
 bool Value::empty() const
 {
     if (isNull() || isArray() || isObject())
@@ -1505,6 +1725,7 @@ void Value::clear()
             break;
     }
 }
+
 void Value::resize(ArrayIndex newSize)
 {
     SSVOH_ASSERT(type_ == nullValue || type_ == arrayValue);
@@ -1518,28 +1739,30 @@ void Value::resize(ArrayIndex newSize)
     else
     {
         for (ArrayIndex index = newSize; index < oldSize; ++index)
-            value_.map_->erase(index);
+            value_.map_->erase(CZString(index));
         SSVOH_ASSERT(size() == newSize);
     }
 }
+
 Value& Value::operator[](ArrayIndex index)
 {
     SSVOH_ASSERT(type_ == nullValue || type_ == arrayValue);
     if (type_ == nullValue)
         *this = Value(arrayValue);
-    CZString               key(index);
-    ObjectValues::iterator it = value_.map_->lower_bound(key);
-    if (it != value_.map_->end() && (*it).first == key)
-        return (*it).second;
-    ObjectValues::value_type defaultValue(key, nullJsonValue);
-    it = value_.map_->insert(it, defaultValue);
-    return (*it).second;
+    CZString key(index);
+    auto     it = value_.map_->find(key);
+    if (it != value_.map_->end())
+        return it->second;
+    auto inserted = value_.map_->try_emplace(key, nullJsonValue);
+    return inserted.first->second;
 }
+
 Value& Value::operator[](int index)
 {
     SSVOH_ASSERT(index >= 0);
     return (*this)[ArrayIndex(index)];
 }
+
 const Value& Value::operator[](ArrayIndex index) const
 {
     SSVOH_ASSERT(type_ == nullValue || type_ == arrayValue);
@@ -1549,39 +1772,44 @@ const Value& Value::operator[](ArrayIndex index) const
     auto     it = value_.map_->find(key);
     if (it == value_.map_->end())
         return nullJsonValue;
-    return (*it).second;
+    return it->second;
 }
+
 const Value& Value::operator[](int index) const
 {
     SSVOH_ASSERT(index >= 0);
     return (*this)[ArrayIndex(index)];
 }
+
 Value& Value::operator[](const char* key)
 {
     return resolveReference(key, false);
 }
+
 Value& Value::resolveReference(const char* key, bool isStatic)
 {
     SSVOH_ASSERT(type_ == nullValue || type_ == objectValue);
     if (type_ == nullValue)
         *this = Value(objectValue);
-    CZString               actualKey(key, isStatic ? CZString::noDuplication : CZString::duplicateOnCopy);
-    ObjectValues::iterator it = value_.map_->lower_bound(actualKey);
-    if (it != value_.map_->end() && (*it).first == actualKey)
-        return (*it).second;
-    ObjectValues::value_type defaultValue(actualKey, nullJsonValue);
-    it = value_.map_->insert(it, defaultValue);
-    return (*it).second;
+    CZString actualKey(key, isStatic ? CZString::noDuplication : CZString::duplicateOnCopy);
+    auto     it = value_.map_->find(actualKey);
+    if (it != value_.map_->end())
+        return it->second;
+    auto inserted = value_.map_->try_emplace(actualKey, nullJsonValue);
+    return inserted.first->second;
 }
+
 Value Value::get(ArrayIndex index, const Value& defaultValue) const
 {
     const Value* value = &((*this)[index]);
     return value == &nullJsonValue ? defaultValue : *value;
 }
+
 bool Value::isValidIndex(ArrayIndex index) const
 {
     return index < size();
 }
+
 const Value& Value::operator[](const char* key) const
 {
     SSVOH_ASSERT(type_ == nullValue || type_ == objectValue);
@@ -1593,13 +1821,14 @@ const Value& Value::operator[](const char* key) const
         return it->second;
     return nullJsonValue;
 }
-Value& Value::operator[](const std::string& key)
+
+Value& Value::operator[](const sf::base::String& key)
 {
-    return (*this)[key.c_str()];
+    return (*this)[key.cStr()];
 }
-const Value& Value::operator[](const std::string& key) const
+const Value& Value::operator[](const sf::base::String& key) const
 {
-    return (*this)[key.c_str()];
+    return (*this)[key.cStr()];
 }
 Value& Value::operator[](const StaticString& key)
 {
@@ -1615,37 +1844,39 @@ Value Value::get(const char* key, const Value& defaultValue) const
     const Value* value = &((*this)[key]);
     return value == &nullJsonValue ? defaultValue : *value;
 }
-Value Value::get(const std::string& key, const Value& defaultValue) const
+Value Value::get(const sf::base::String& key, const Value& defaultValue) const
 {
-    return get(key.c_str(), defaultValue);
+    return get(key.cStr(), defaultValue);
 }
 Value Value::removeMember(const char* key)
 {
     SSVOH_ASSERT(type_ == nullValue || type_ == objectValue);
     if (type_ == nullValue)
         return nullJsonValue;
-    CZString               actualKey(key, CZString::noDuplication);
-    ObjectValues::iterator it = value_.map_->find(actualKey);
+    CZString actualKey(key, CZString::noDuplication);
+    auto     it = value_.map_->find(actualKey);
     if (it == value_.map_->end())
         return nullJsonValue;
     Value old(it->second);
     value_.map_->erase(it);
     return old;
 }
-Value Value::removeMember(const std::string& key)
+Value Value::removeMember(const sf::base::String& key)
 {
-    return removeMember(key.c_str());
+    return removeMember(key.cStr());
 }
 
 bool Value::isMember(const char* key) const
 {
+    if (type_ == nullValue)
+        return false;
     CZString actualKey(key, CZString::noDuplication);
     auto     it = value_.map_->find(actualKey);
     return it != value_.map_->end();
 }
-bool Value::isMember(const std::string& key) const
+bool Value::isMember(const sf::base::String& key) const
 {
-    return isMember(key.c_str());
+    return isMember(key.cStr());
 }
 
 Value::Members Value::getMemberNames() const
@@ -1654,19 +1885,12 @@ Value::Members Value::getMemberNames() const
     if (type_ == nullValue)
         return Value::Members();
     Members members;
-    members.reserve(value_.map_->size());
-    auto it    = value_.map_->begin();
-    auto itEnd = value_.map_->end();
-    for (; it != itEnd; ++it)
-        members.emplaceBack(std::string((*it).first.c_str()));
-
+    members.reserve(static_cast<sf::base::SizeT>(value_.map_->size()));
+    for (const auto& kv : *value_.map_)
+        members.emplaceBack(sf::base::String(kv.first.c_str()));
     return members;
 }
-bool IsIntegral(double d)
-{
-    double integral_part;
-    return modf(d, &integral_part) == 0.0;
-}
+
 bool Value::isNull() const
 {
     return type_ == nullValue;
@@ -1773,21 +1997,21 @@ void Value::setComment(const char* comment, CommentPlacement placement)
         comments_ = new CommentInfo[numberOfCommentPlacement];
     comments_[placement].setComment(comment);
 }
-void Value::setComment(const std::string& comment, CommentPlacement placement)
+void Value::setComment(const sf::base::String& comment, CommentPlacement placement)
 {
-    setComment(comment.c_str(), placement);
+    setComment(comment.cStr(), placement);
 }
 bool Value::hasComment(CommentPlacement placement) const
 {
     return comments_ != nullptr && comments_[placement].comment_ != nullptr;
 }
-std::string Value::getComment(CommentPlacement placement) const
+sf::base::String Value::getComment(CommentPlacement placement) const
 {
     if (hasComment(placement))
-        return comments_[placement].comment_;
+        return sf::base::String(comments_[placement].comment_);
     return "";
 }
-std::string Value::toStyledString() const
+sf::base::String Value::toStyledString() const
 {
     StyledWriter writer;
     return writer.write(*this);
@@ -1799,7 +2023,7 @@ Value::const_iterator Value::begin() const
         case arrayValue:
         case objectValue:
             if (value_.map_)
-                return const_iterator(value_.map_->begin());
+                return const_iterator(ObjectValuesIteratorImpl(const_cast<ObjectValuesImpl*>(value_.map_)->begin()));
             break;
         default:
             break;
@@ -1813,7 +2037,7 @@ Value::const_iterator Value::end() const
         case arrayValue:
         case objectValue:
             if (value_.map_)
-                return const_iterator(value_.map_->end());
+                return const_iterator(ObjectValuesIteratorImpl(const_cast<ObjectValuesImpl*>(value_.map_)->end()));
             break;
         default:
             break;
@@ -1827,7 +2051,7 @@ Value::iterator Value::begin()
         case arrayValue:
         case objectValue:
             if (value_.map_)
-                return iterator(value_.map_->begin());
+                return iterator(ObjectValuesIteratorImpl(value_.map_->begin()));
             break;
         default:
             break;
@@ -1841,13 +2065,18 @@ Value::iterator Value::end()
         case arrayValue:
         case objectValue:
             if (value_.map_)
-                return iterator(value_.map_->end());
+                return iterator(ObjectValuesIteratorImpl(value_.map_->end()));
             break;
         default:
             break;
     }
     return iterator();
 }
+
+////////////////////////////////////////////////////////////
+// PathArgument / Path
+////////////////////////////////////////////////////////////
+
 PathArgument::PathArgument() : key_(), index_(), kind_(kindNone)
 {
 }
@@ -1857,15 +2086,15 @@ PathArgument::PathArgument(ArrayIndex index) : key_(), index_(index), kind_(kind
 PathArgument::PathArgument(const char* key) : key_(key), index_(), kind_(kindKey)
 {
 }
-PathArgument::PathArgument(const std::string& key) : key_(key.c_str()), index_(), kind_(kindKey)
+PathArgument::PathArgument(const sf::base::String& key) : key_(key.cStr()), index_(), kind_(kindKey)
 {
 }
-Path::Path(const std::string&  path,
-           const PathArgument& a1,
-           const PathArgument& a2,
-           const PathArgument& a3,
-           const PathArgument& a4,
-           const PathArgument& a5)
+Path::Path(const sf::base::String& path,
+           const PathArgument&     a1,
+           const PathArgument&     a2,
+           const PathArgument&     a3,
+           const PathArgument&     a4,
+           const PathArgument&     a5)
 {
     InArgs in;
     in.emplaceBack(&a1);
@@ -1875,9 +2104,10 @@ Path::Path(const std::string&  path,
     in.emplaceBack(&a5);
     makePath(path, in);
 }
-void Path::makePath(const std::string& path, const InArgs& in)
+
+void Path::makePath(const sf::base::String& path, const InArgs& in)
 {
-    const char*            current = path.c_str();
+    const char*            current = path.cStr();
     const char*            end     = current + path.size();
     InArgs::const_iterator itInArg = in.begin();
     while (current != end)
@@ -1895,7 +2125,7 @@ void Path::makePath(const std::string& path, const InArgs& in)
                 args_.emplaceBack(index);
             }
             if (current == end || *current++ != ']')
-                invalidPath(path, int(current - path.c_str()));
+                invalidPath(path, int(current - path.cStr()));
         }
         else if (*current == '%')
         {
@@ -1909,11 +2139,12 @@ void Path::makePath(const std::string& path, const InArgs& in)
             const char* beginName = current;
             while (current != end && !strchr("[.", *current))
                 ++current;
-            args_.emplaceBack(std::string(beginName, current));
+            args_.emplaceBack(sf::base::String(beginName, static_cast<sf::base::SizeT>(current - beginName)));
         }
     }
 }
-void Path::addPathInArg(const std::string&, const InArgs& in, InArgs::const_iterator& itInArg, PathArgument::Kind kind)
+
+void Path::addPathInArg(const sf::base::String&, const InArgs& in, InArgs::const_iterator& itInArg, PathArgument::Kind kind)
 {
     if (itInArg == in.end())
     {
@@ -1924,13 +2155,15 @@ void Path::addPathInArg(const std::string&, const InArgs& in, InArgs::const_iter
     else
         args_.emplaceBack(**itInArg);
 }
-void Path::invalidPath(const std::string&, int)
+
+void Path::invalidPath(const sf::base::String&, int)
 {
 }
+
 const Value& Path::resolve(const Value& root) const
 {
     const Value* node = &root;
-    for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it)
+    for (auto it = args_.begin(); it != args_.end(); ++it)
     {
         const PathArgument& arg = *it;
         if (arg.kind_ == PathArgument::kindIndex)
@@ -1940,10 +2173,11 @@ const Value& Path::resolve(const Value& root) const
     }
     return *node;
 }
+
 Value Path::resolve(const Value& root, const Value& defaultValue) const
 {
     const Value* node = &root;
-    for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it)
+    for (auto it = args_.begin(); it != args_.end(); ++it)
     {
         const PathArgument& arg = *it;
         if (arg.kind_ == PathArgument::kindIndex)
@@ -1963,10 +2197,11 @@ Value Path::resolve(const Value& root, const Value& defaultValue) const
     }
     return *node;
 }
+
 Value& Path::make(Value& root) const
 {
     Value* node = &root;
-    for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it)
+    for (auto it = args_.begin(); it != args_.end(); ++it)
     {
         const PathArgument& arg = *it;
         if (arg.kind_ == PathArgument::kindIndex)
@@ -1977,14 +2212,11 @@ Value& Path::make(Value& root) const
     return *node;
 }
 
-bool containsControlCharacter(const char* str)
-{
-    while (*str)
-        if (isControlCharacter(*(str++)))
-            return true;
-    return false;
-}
-std::string valueToString(LargestInt value)
+////////////////////////////////////////////////////////////
+// valueTo* helpers
+////////////////////////////////////////////////////////////
+
+sf::base::String valueToString(LargestInt value)
 {
     UIntToStringBuffer buffer;
     char*              current    = buffer + sizeof(buffer);
@@ -1995,33 +2227,36 @@ std::string valueToString(LargestInt value)
     if (isNegative)
         *--current = '-';
     SSVOH_ASSERT(current >= buffer);
-    return current;
+    return sf::base::String(current);
 }
-std::string valueToString(LargestUInt value)
+
+sf::base::String valueToString(LargestUInt value)
 {
     UIntToStringBuffer buffer;
     char*              current = buffer + sizeof(buffer);
     uintToString(value, current);
     SSVOH_ASSERT(current >= buffer);
-    return current;
+    return sf::base::String(current);
 }
+
 #ifdef JSON_HAS_INT64
-std::string valueToString(int value)
+sf::base::String valueToString(int value)
 {
     return valueToString(LargestInt(value));
 }
-std::string valueToString(UInt value)
+sf::base::String valueToString(UInt value)
 {
     return valueToString(LargestUInt(value));
 }
 #endif
-std::string valueToString(double value)
+
+sf::base::String valueToString(double value)
 {
     char buffer[32];
     sprintf(buffer, "%#.16g", value);
     char* ch = buffer + strlen(buffer) - 1;
     if (*ch != '0')
-        return buffer;
+        return sf::base::String(buffer);
     while (ch > buffer && *ch == '0')
         --ch;
     char* last_nonzero = ch;
@@ -2043,26 +2278,29 @@ std::string valueToString(double value)
                 continue;
             case '.':
                 *(last_nonzero + 2) = '\0';
-                return buffer;
+                return sf::base::String(buffer);
             default:
-                return buffer;
+                return sf::base::String(buffer);
         }
     }
-    return buffer;
+    return sf::base::String(buffer);
 }
-std::string valueToString(bool value)
+
+sf::base::String valueToString(bool value)
 {
     return value ? "true" : "false";
 }
-std::string valueToQuotedString(const char* value)
+
+sf::base::String valueToQuotedString(const char* value)
 {
     if (value == nullptr)
         return "";
     if (strpbrk(value, "\"\\\b\f\n\r\t") == nullptr && !containsControlCharacter(value))
-        return std::string("\"") + value + "\"";
-    std::string::size_type maxsize = strlen(value) * 2 + 3;
-    std::string            result;
-    result.reserve(maxsize);
+        return sf::base::String("\"") + value + "\"";
+
+    sf::base::SizeT  maxsize = strlen(value) * 2 + 3;
+    sf::base::String result;
+    result.reserve(static_cast<sf::base::SizeT>(maxsize));
     result += "\"";
     for (const char* c = value; *c != 0; ++c)
     {
@@ -2095,7 +2333,8 @@ std::string valueToQuotedString(const char* value)
                     std::ostringstream oss;
                     oss << "\\u" << std::hex << std::uppercase << std::setfill('0') << std::setw(4)
                         << static_cast<int>(*c);
-                    result += oss.str();
+                    const std::string s = oss.str();
+                    result.append(s.data(), s.size());
                 }
                 else
                     result += *c;
@@ -2105,27 +2344,35 @@ std::string valueToQuotedString(const char* value)
     result += "\"";
     return result;
 }
-Writer::~Writer()
-{
-}
+
+////////////////////////////////////////////////////////////
+// Writer / FastWriter / StyledWriter
+////////////////////////////////////////////////////////////
+
+Writer::~Writer() = default;
+
 FastWriter::FastWriter() : yamlCompatiblityEnabled_(false), dropNullPlaceholders_(false)
 {
 }
+
 void FastWriter::enableYAMLCompatibility()
 {
     yamlCompatiblityEnabled_ = true;
 }
+
 void FastWriter::dropNullPlaceholders()
 {
     dropNullPlaceholders_ = true;
 }
-std::string FastWriter::write(const Value& root)
+
+sf::base::String FastWriter::write(const Value& root)
 {
     document_ = "";
     writeValue(root);
     document_ += "\n";
     return document_;
 }
+
 void FastWriter::writeValue(const Value& value)
 {
     switch (value.type())
@@ -2152,8 +2399,8 @@ void FastWriter::writeValue(const Value& value)
         case arrayValue:
         {
             document_ += "[";
-            int size = value.size();
-            for (int index = 0; index < size; ++index)
+            int sz = value.size();
+            for (int index = 0; index < sz; ++index)
             {
                 if (index > 0)
                     document_ += ",";
@@ -2166,12 +2413,12 @@ void FastWriter::writeValue(const Value& value)
         {
             Value::Members members(value.getMemberNames());
             document_ += "{";
-            for (Value::Members::iterator it = members.begin(); it != members.end(); ++it)
+            for (auto it = members.begin(); it != members.end(); ++it)
             {
-                const std::string& name = *it;
+                const sf::base::String& name = *it;
                 if (it != members.begin())
                     document_ += ",";
-                document_ += valueToQuotedString(name.c_str());
+                document_ += valueToQuotedString(name.cStr());
                 document_ += yamlCompatiblityEnabled_ ? ": " : ":";
                 writeValue(value[name]);
             }
@@ -2180,10 +2427,12 @@ void FastWriter::writeValue(const Value& value)
         break;
     }
 }
+
 StyledWriter::StyledWriter() : rightMargin_(74), indentSize_(3), addChildValues_()
 {
 }
-std::string StyledWriter::write(const Value& root)
+
+sf::base::String StyledWriter::write(const Value& root)
 {
     document_       = "";
     addChildValues_ = false;
@@ -2194,6 +2443,7 @@ std::string StyledWriter::write(const Value& root)
     document_ += "\n";
     return document_;
 }
+
 void StyledWriter::writeValue(const Value& value)
 {
     switch (value.type())
@@ -2228,13 +2478,13 @@ void StyledWriter::writeValue(const Value& value)
             {
                 writeWithIndent("{");
                 indent();
-                Value::Members::iterator it = members.begin();
+                auto it = members.begin();
                 while (true)
                 {
-                    const std::string& name       = *it;
-                    const Value&       childValue = value[name];
+                    const sf::base::String& name       = *it;
+                    const Value&            childValue = value[name];
                     writeCommentBeforeValue(childValue);
-                    writeWithIndent(valueToQuotedString(name.c_str()));
+                    writeWithIndent(valueToQuotedString(name.cStr()));
                     document_ += " : ";
                     writeValue(childValue);
                     if (++it == members.end())
@@ -2252,10 +2502,11 @@ void StyledWriter::writeValue(const Value& value)
         break;
     }
 }
+
 void StyledWriter::writeArrayValue(const Value& value)
 {
-    unsigned size = value.size();
-    if (size == 0)
+    unsigned sz = value.size();
+    if (sz == 0)
         pushValue("[]");
     else
     {
@@ -2277,7 +2528,7 @@ void StyledWriter::writeArrayValue(const Value& value)
                     writeIndent();
                     writeValue(childValue);
                 }
-                if (++index == size)
+                if (++index == sz)
                 {
                     writeCommentAfterValueOnSameLine(childValue);
                     break;
@@ -2290,9 +2541,9 @@ void StyledWriter::writeArrayValue(const Value& value)
         }
         else
         {
-            SSVOH_ASSERT(childValues_.size() == size);
+            SSVOH_ASSERT(childValues_.size() == sz);
             document_ += "[ ";
-            for (unsigned index = 0; index < size; ++index)
+            for (unsigned index = 0; index < sz; ++index)
             {
                 if (index > 0)
                     document_ += ", ";
@@ -2302,22 +2553,23 @@ void StyledWriter::writeArrayValue(const Value& value)
         }
     }
 }
+
 bool StyledWriter::isMultineArray(const Value& value)
 {
-    int  size        = value.size();
-    bool isMultiLine = size * 3 >= rightMargin_;
+    int  sz          = value.size();
+    bool isMultiLine = sz * 3 >= rightMargin_;
     childValues_.clear();
-    for (int index = 0; index < size && !isMultiLine; ++index)
+    for (int index = 0; index < sz && !isMultiLine; ++index)
     {
         const Value& childValue = value[index];
         isMultiLine = isMultiLine || ((childValue.isArray() || childValue.isObject()) && childValue.size() > 0);
     }
     if (!isMultiLine)
     {
-        childValues_.reserve(size);
+        childValues_.reserve(sz);
         addChildValues_ = true;
-        int lineLength  = 4 + (size - 1) * 2;
-        for (int index = 0; index < size && !isMultiLine; ++index)
+        int lineLength  = 4 + (sz - 1) * 2;
+        for (int index = 0; index < sz && !isMultiLine; ++index)
         {
             writeValue(value[index]);
             lineLength += int(childValues_[index].size());
@@ -2328,13 +2580,15 @@ bool StyledWriter::isMultineArray(const Value& value)
     }
     return isMultiLine;
 }
-void StyledWriter::pushValue(const std::string& value)
+
+void StyledWriter::pushValue(const sf::base::String& value)
 {
     if (addChildValues_)
         childValues_.emplaceBack(value);
     else
         document_ += value;
 }
+
 void StyledWriter::writeIndent()
 {
     if (!document_.empty())
@@ -2347,20 +2601,24 @@ void StyledWriter::writeIndent()
     }
     document_ += indentString_;
 }
-void StyledWriter::writeWithIndent(const std::string& value)
+
+void StyledWriter::writeWithIndent(const sf::base::String& value)
 {
     writeIndent();
     document_ += value;
 }
+
 void StyledWriter::indent()
 {
-    indentString_ += std::string(indentSize_, ' ');
+    indentString_ += sf::base::String(std::string(indentSize_, ' '));
 }
+
 void StyledWriter::unindent()
 {
     SSVOH_ASSERT(int(indentString_.size()) >= indentSize_);
     indentString_.resize(indentString_.size() - indentSize_);
 }
+
 void StyledWriter::writeCommentBeforeValue(const Value& root)
 {
     if (!root.hasComment(commentBefore))
@@ -2368,10 +2626,11 @@ void StyledWriter::writeCommentBeforeValue(const Value& root)
     document_ += normalizeEOL(root.getComment(commentBefore));
     document_ += "\n";
 }
+
 void StyledWriter::writeCommentAfterValueOnSameLine(const Value& root)
 {
     if (root.hasComment(commentAfterOnSameLine))
-        document_ += " " + normalizeEOL(root.getComment(commentAfterOnSameLine));
+        document_ += sf::base::String(" ") + normalizeEOL(root.getComment(commentAfterOnSameLine));
     if (root.hasComment(commentAfter))
     {
         document_ += "\n";
@@ -2379,15 +2638,17 @@ void StyledWriter::writeCommentAfterValueOnSameLine(const Value& root)
         document_ += "\n";
     }
 }
+
 bool StyledWriter::hasCommentForValue(const Value& value)
 {
     return value.hasComment(commentBefore) || value.hasComment(commentAfterOnSameLine) || value.hasComment(commentAfter);
 }
-std::string StyledWriter::normalizeEOL(const std::string& text)
+
+sf::base::String StyledWriter::normalizeEOL(const sf::base::String& text)
 {
-    std::string normalized;
+    sf::base::String normalized;
     normalized.reserve(text.size());
-    const char* begin   = text.c_str();
+    const char* begin   = text.cStr();
     const char* end     = begin + text.size();
     const char* current = begin;
     while (current != end)
@@ -2404,13 +2665,19 @@ std::string StyledWriter::normalizeEOL(const std::string& text)
     }
     return normalized;
 }
-StyledStreamWriter::StyledStreamWriter(std::string indentation) :
+
+////////////////////////////////////////////////////////////
+// StyledStreamWriter (in JsonStream.hpp)
+////////////////////////////////////////////////////////////
+
+StyledStreamWriter::StyledStreamWriter(sf::base::String indentation) :
     document_(nullptr),
     rightMargin_(74),
     indentation_(indentation),
     addChildValues_()
 {
 }
+
 void StyledStreamWriter::write(std::ostream& out, const Value& root)
 {
     document_       = &out;
@@ -2422,6 +2689,15 @@ void StyledStreamWriter::write(std::ostream& out, const Value& root)
     *document_ << '\n';
     document_ = nullptr;
 }
+
+namespace
+{
+inline std::ostream& writeStr(std::ostream& os, const sf::base::String& s)
+{
+    return os.write(s.data(), static_cast<std::streamsize>(s.size()));
+}
+} // namespace
+
 void StyledStreamWriter::writeValue(const Value& value)
 {
     switch (value.type())
@@ -2456,13 +2732,13 @@ void StyledStreamWriter::writeValue(const Value& value)
             {
                 writeWithIndent("{");
                 indent();
-                Value::Members::iterator it = members.begin();
+                auto it = members.begin();
                 while (true)
                 {
-                    const std::string& name       = *it;
-                    const Value&       childValue = value[name];
+                    const sf::base::String& name       = *it;
+                    const Value&            childValue = value[name];
                     writeCommentBeforeValue(childValue);
-                    writeWithIndent(valueToQuotedString(name.c_str()));
+                    writeWithIndent(valueToQuotedString(name.cStr()));
                     *document_ << " : ";
                     writeValue(childValue);
                     if (++it == members.end())
@@ -2480,10 +2756,11 @@ void StyledStreamWriter::writeValue(const Value& value)
         break;
     }
 }
+
 void StyledStreamWriter::writeArrayValue(const Value& value)
 {
-    unsigned size = value.size();
-    if (size == 0)
+    unsigned sz = value.size();
+    if (sz == 0)
         pushValue("[]");
     else
     {
@@ -2505,7 +2782,7 @@ void StyledStreamWriter::writeArrayValue(const Value& value)
                     writeIndent();
                     writeValue(childValue);
                 }
-                if (++index == size)
+                if (++index == sz)
                 {
                     writeCommentAfterValueOnSameLine(childValue);
                     break;
@@ -2518,34 +2795,35 @@ void StyledStreamWriter::writeArrayValue(const Value& value)
         }
         else
         {
-            SSVOH_ASSERT(childValues_.size() == size);
+            SSVOH_ASSERT(childValues_.size() == sz);
             *document_ << "[ ";
-            for (unsigned index = 0; index < size; ++index)
+            for (unsigned index = 0; index < sz; ++index)
             {
                 if (index > 0)
                     *document_ << ", ";
-                *document_ << childValues_[index];
+                writeStr(*document_, childValues_[index]);
             }
             *document_ << " ]";
         }
     }
 }
+
 bool StyledStreamWriter::isMultineArray(const Value& value)
 {
-    int  size        = value.size();
-    bool isMultiLine = size * 3 >= rightMargin_;
+    int  sz          = value.size();
+    bool isMultiLine = sz * 3 >= rightMargin_;
     childValues_.clear();
-    for (int index = 0; index < size && !isMultiLine; ++index)
+    for (int index = 0; index < sz && !isMultiLine; ++index)
     {
         const Value& childValue = value[index];
         isMultiLine = isMultiLine || ((childValue.isArray() || childValue.isObject()) && childValue.size() > 0);
     }
     if (!isMultiLine)
     {
-        childValues_.reserve(size);
+        childValues_.reserve(sz);
         addChildValues_ = true;
-        int lineLength  = 4 + (size - 1) * 2;
-        for (int index = 0; index < size && !isMultiLine; ++index)
+        int lineLength  = 4 + (sz - 1) * 2;
+        for (int index = 0; index < sz && !isMultiLine; ++index)
         {
             writeValue(value[index]);
             lineLength += int(childValues_[index].size());
@@ -2556,58 +2834,71 @@ bool StyledStreamWriter::isMultineArray(const Value& value)
     }
     return isMultiLine;
 }
-void StyledStreamWriter::pushValue(const std::string& value)
+
+void StyledStreamWriter::pushValue(const sf::base::String& value)
 {
     if (addChildValues_)
         childValues_.emplaceBack(value);
     else
-        *document_ << value;
+        writeStr(*document_, value);
 }
+
 void StyledStreamWriter::writeIndent()
 {
-    *document_ << '\n' << indentString_;
+    *document_ << '\n';
+    writeStr(*document_, indentString_);
 }
-void StyledStreamWriter::writeWithIndent(const std::string& value)
+
+void StyledStreamWriter::writeWithIndent(const sf::base::String& value)
 {
     writeIndent();
-    *document_ << value;
+    writeStr(*document_, value);
 }
+
 void StyledStreamWriter::indent()
 {
     indentString_ += indentation_;
 }
+
 void StyledStreamWriter::unindent()
 {
     SSVOH_ASSERT(indentString_.size() >= indentation_.size());
     indentString_.resize(indentString_.size() - indentation_.size());
 }
+
 void StyledStreamWriter::writeCommentBeforeValue(const Value& root)
 {
     if (!root.hasComment(commentBefore))
         return;
-    *document_ << normalizeEOL(root.getComment(commentBefore));
+    writeStr(*document_, normalizeEOL(root.getComment(commentBefore)));
     *document_ << '\n';
 }
+
 void StyledStreamWriter::writeCommentAfterValueOnSameLine(const Value& root)
 {
     if (root.hasComment(commentAfterOnSameLine))
-        *document_ << " " + normalizeEOL(root.getComment(commentAfterOnSameLine));
+    {
+        *document_ << ' ';
+        writeStr(*document_, normalizeEOL(root.getComment(commentAfterOnSameLine)));
+    }
     if (root.hasComment(commentAfter))
     {
         *document_ << '\n';
-        *document_ << normalizeEOL(root.getComment(commentAfter));
+        writeStr(*document_, normalizeEOL(root.getComment(commentAfter)));
         *document_ << '\n';
     }
 }
+
 bool StyledStreamWriter::hasCommentForValue(const Value& value)
 {
     return value.hasComment(commentBefore) || value.hasComment(commentAfterOnSameLine) || value.hasComment(commentAfter);
 }
-std::string StyledStreamWriter::normalizeEOL(const std::string& text)
+
+sf::base::String StyledStreamWriter::normalizeEOL(const sf::base::String& text)
 {
-    std::string normalized;
+    sf::base::String normalized;
     normalized.reserve(text.size());
-    const char* begin   = text.c_str();
+    const char* begin   = text.cStr();
     const char* end     = begin + text.size();
     const char* current = begin;
     while (current != end)
@@ -2624,10 +2915,12 @@ std::string StyledStreamWriter::normalizeEOL(const std::string& text)
     }
     return normalized;
 }
+
 std::ostream& operator<<(std::ostream& sout, const Value& root)
 {
     Json::StyledStreamWriter writer;
     writer.write(sout, root);
     return sout;
 }
+
 } // namespace Json

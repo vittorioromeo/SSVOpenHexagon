@@ -23,6 +23,7 @@
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/MoveTowards.hpp"
+#include "SSVOpenHexagon/Utils/Random.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
@@ -36,31 +37,30 @@
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SSVUtils/Core/Utils/Rnd.hpp>
 #include <random>
-#include <string>
 
 #include <cctype>
+#include <cerrno>
+#include <climits>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 
 #ifndef SSVOH_ANDROID
     #include "SFML/ImGui/ImGuiContext.hpp"
-
-    #include <imgui.h>
-
-    #include <misc/cpp/imgui_stdlib.h>
+    #include "SFML/ImGui/IncludeImGui.hpp"
 #endif
 
 #include "SFML/Graphics/Color.hpp"
 
 #include "SFML/System/Vec2.hpp"
 
+#include "SFML/Base/Algorithm/Remove.hpp"
+#include "SFML/Base/Clamp.hpp"
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/Optional.hpp"
 
-#include <algorithm>
 #include <stdexcept>
 
 #include <cstring>
@@ -71,7 +71,7 @@ namespace
 template <typename TC, typename TP>
 [[gnu::always_inline]] inline void eraseRemoveIf(TC& mContainer, TP mPredicate)
 {
-    mContainer.erase(std::remove_if(mContainer.begin(), mContainer.end(), mPredicate), std::end(mContainer));
+    mContainer.erase(sf::base::removeIf(mContainer.begin(), mContainer.end(), mPredicate), mContainer.end());
 }
 
 } // namespace
@@ -927,7 +927,7 @@ void HexagonGame::updateCameraShake(float mFT)
         // zero on a frame where `mFT` exceeds the remaining shake, which
         // would make `rng->get_real(-i, i)` see `min > max` and assert.
         // The next frame's early-out resets `preShakeCenters`.
-        const float i = std::max(0.f, status.cameraShake);
+        const float i = sf::base::max(0.f, status.cameraShake);
         return sf::Vec2f(rng->get_real(-i, i), rng->get_real(-i, i));
     };
 
@@ -942,7 +942,7 @@ void HexagonGame::updateFlash(float mFT)
         status.flashEffect -= 3 * mFT;
     }
 
-    status.flashEffect = std::clamp(status.flashEffect, 0.f, 255.f);
+    status.flashEffect = sf::base::clamp(status.flashEffect, 0.f, 255.f);
 
     // `flashPolygon` is allocated lazily by `initFlashEffect` (typically
     // called from Lua). Iterating with `begin()` on a never-reserved
@@ -989,18 +989,18 @@ void HexagonGame::updateParticles(float mFT)
         SSVOH_ASSERT(txStarParticle != nullptr);
         Particle p{sf::Sprite{.textureRect = txStarParticle->getRect()}};
 
-        p.sprite.position = {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f};
-        p.sprite.rotation = sf::degrees(ssvu::getRndR(0.f, 360.f));
+        p.sprite.position = {hg::Utils::getRndR(-64.f, Config::getWidth() + 64.f), -64.f};
+        p.sprite.rotation = sf::degrees(hg::Utils::getRndR(0.f, 360.f));
 
-        const float scale = ssvu::getRndR(0.75f, 1.35f);
+        const float scale = hg::Utils::getRndR(0.75f, 1.35f);
         p.sprite.scale    = {scale, scale};
 
         sf::Color c    = getColorMain();
-        c.a            = ssvu::getRndI(90, 145);
+        c.a            = hg::Utils::getRndI(90, 145);
         p.sprite.color = c;
 
-        p.velocity        = {ssvu::getRndR(-12.f, 12.f), ssvu::getRndR(4.f, 18.f)};
-        p.angularVelocity = ssvu::getRndR(-6.f, 6.f);
+        p.velocity        = {hg::Utils::getRndR(-12.f, 12.f), hg::Utils::getRndR(4.f, 18.f)};
+        p.angularVelocity = hg::Utils::getRndR(-6.f, 6.f);
 
         return p;
     };
@@ -1089,7 +1089,7 @@ void HexagonGame::updateSwapParticles(float mFT)
         p.sprite.position = si.position;
         p.sprite.origin   = txSmallCircle->getSize().to<sf::Vec2f>() / 2.f;
 
-        const float scale = ssvu::getRndR(0.65f, 1.35f) * scaleMult;
+        const float scale = hg::Utils::getRndR(0.65f, 1.35f) * scaleMult;
         p.sprite.scale    = {scale, scale};
 
         sf::Color c = getColorPlayerTrail();
@@ -1097,8 +1097,8 @@ void HexagonGame::updateSwapParticles(float mFT)
         c.a            = alpha;
         p.sprite.color = c;
 
-        p.velocity = sf::Vec2f::fromAngle(ssvu::getRndR(0.1f, 10.f) * speedMult,
-                                          sf::radians(si.angle + ssvu::getRndR(-expand, expand)));
+        p.velocity = sf::Vec2f::fromAngle(hg::Utils::getRndR(0.1f, 10.f) * speedMult,
+                                          sf::radians(si.angle + hg::Utils::getRndR(-expand, expand)));
 
         return p;
     };
@@ -1453,10 +1453,10 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue |
                                            ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
 
-    if (ImGui::InputText("Command", &ilcCmdBuffer, input_text_flags, &ilcTextEditCallbackStub, (void*)this))
+    if (ImGui::InputText("Command", ilcCmdBuffer, sizeof(ilcCmdBuffer), input_text_flags, &ilcTextEditCallbackStub, (void*)this))
     {
         const sf::base::String cmdString = sf::base::String(ilcCmdBuffer);
-        ilcCmdBuffer.clear();
+        ilcCmdBuffer[0]                  = '\0';
 
         ilcCmdLog.emplaceBack(Utils::concat("# ", cmdString, '\n'));
 
@@ -1490,38 +1490,47 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
         }
         else if (cmdSplit.size() > 1 && cmdSplit[0] == "!ff")
         {
-            try
-            {
-                const sf::base::String& secondsStr = cmdSplit[1];
-                const double            seconds    = std::stod(std::string(secondsStr.cStr()));
+            // `std::strtod` lives in `<cstdlib>` and operates on `const char*`, so it doesn't drag
+            // `<string>` in the way `std::stod` would.
+            const sf::base::String& secondsStr = cmdSplit[1];
+            char*                   end        = nullptr;
+            errno                              = 0;
+            const double seconds               = std::strtod(secondsStr.cStr(), &end);
 
-                ilcCmdLog.emplaceBack(Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
-
-                fastForwardTarget.emplace(seconds);
-            } catch (const std::invalid_argument&)
+            if (end == secondsStr.cStr())
             {
                 ilcCmdLog.emplaceBack("[error]: invalid argument for <seconds>\n");
-            } catch (const std::out_of_range&)
+            }
+            else if (errno == ERANGE)
             {
                 ilcCmdLog.emplaceBack("[error]: out of range for <seconds>\n");
+            }
+            else
+            {
+                ilcCmdLog.emplaceBack(Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
+                fastForwardTarget.emplace(seconds);
             }
         }
         else if (cmdSplit.size() > 1 && cmdSplit[0] == "!advt")
         {
-            try
-            {
-                const sf::base::String& ticksStr = cmdSplit[1];
-                const int               ticks    = std::stoi(std::string(ticksStr.cStr()));
+            const sf::base::String& ticksStr = cmdSplit[1];
+            char*                   end      = nullptr;
+            errno                            = 0;
+            const long parsed                = std::strtol(ticksStr.cStr(), &end, 10);
 
-                ilcCmdLog.emplaceBack(Utils::concat("[advt]: advancing simulation by ", ticks, " ticks\n"));
-
-                advanceTickCount.emplace(ticks >= 0 ? ticks : 0);
-            } catch (const std::invalid_argument&)
+            if (end == ticksStr.cStr())
             {
                 ilcCmdLog.emplaceBack("[error]: invalid argument for <seconds>\n");
-            } catch (const std::out_of_range&)
+            }
+            else if (errno == ERANGE || parsed > INT_MAX || parsed < INT_MIN)
             {
                 ilcCmdLog.emplaceBack("[error]: out of range for <seconds>\n");
+            }
+            else
+            {
+                const int ticks = static_cast<int>(parsed);
+                ilcCmdLog.emplaceBack(Utils::concat("[advt]: advancing simulation by ", ticks, " ticks\n"));
+                advanceTickCount.emplace(ticks >= 0 ? ticks : 0);
             }
         }
         else if (cmdString[0] == '?')
@@ -1577,13 +1586,13 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     ImGui::Separator();
 
     {
-        if (ImGui::InputText("Track", &ilcTrackBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
+        if (ImGui::InputText("Track", ilcTrackBuffer, sizeof(ilcTrackBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
         {
             const sf::base::String codeToTrack = Utils::getLRTrim(sf::base::String(ilcTrackBuffer));
             ilcLuaTracked.emplaceBack(Utils::concat("u_impl_addTrackedResult(", codeToTrack, ")\n"));
             ilcLuaTrackedNames.emplaceBack(codeToTrack);
 
-            ilcTrackBuffer.clear();
+            ilcTrackBuffer[0] = '\0';
             ImGui::SetItemDefaultFocus();
             ImGui::SetKeyboardFocusHere(-1);
         }

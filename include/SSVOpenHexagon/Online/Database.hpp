@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Online/DatabaseInternals.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
 #include "SFML/Base/IntTypes.hpp"

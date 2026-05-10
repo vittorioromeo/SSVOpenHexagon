@@ -8,10 +8,9 @@
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <string_view>
 
 namespace hg::Steam
 {
@@ -106,16 +105,16 @@ public:
     bool run_callbacks();
 
     bool store_stats();
-    bool unlock_achievement(std::string_view name);
+    bool unlock_achievement(sf::base::StringView name);
 
     bool set_rich_presence_in_menu();
-    bool set_rich_presence_in_game(std::string_view level_name_format,
-                                   std::string_view difficulty_mult_format,
-                                   std::string_view time_format);
+    bool set_rich_presence_in_game(sf::base::StringView level_name_format,
+                                   sf::base::StringView difficulty_mult_format,
+                                   sf::base::StringView time_format);
 
-    bool               set_and_store_stat(std::string_view name, int data);
-    [[nodiscard]] bool get_achievement(bool* out, std::string_view name);
-    [[nodiscard]] bool get_stat(int* out, std::string_view name);
+    bool               set_and_store_stat(sf::base::StringView name, int data);
+    [[nodiscard]] bool get_achievement(bool* out, sf::base::StringView name);
+    [[nodiscard]] bool get_stat(int* out, sf::base::StringView name);
 
     bool update_hardcoded_achievements();
 

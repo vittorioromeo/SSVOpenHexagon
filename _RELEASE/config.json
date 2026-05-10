@@ -266,7 +266,7 @@
 	"use_lua_file_cache" : true,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 1372,
-	"windowed_width" : 3440,
-	"zoom_factor" : 0.5597667694091797
+	"windowed_height" : 887,
+	"windowed_width" : 2050,
+	"zoom_factor" : 0.8658398985862732
 }

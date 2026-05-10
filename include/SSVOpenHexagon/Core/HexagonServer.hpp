@@ -17,6 +17,7 @@
 #include "SFML/Network/TcpSocket.hpp"
 #include "SFML/Network/UdpSocket.hpp"
 
+#include "SFML/System/Atomic.hpp"
 #include "SFML/System/IO.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
@@ -24,7 +25,6 @@
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <atomic>
 #include <list>
 #include <unordered_set>
 
@@ -54,7 +54,7 @@ private:
 
     sf::base::Optional<sf::TcpListener> _listener;
     sf::SocketSelector                  _socketSelector;
-    std::atomic<bool>                   _running;
+    sf::Atomic<bool>                    _running;
 
     sf::Packet          _packetBuffer;
     sf::OutStringStream _errorOss;

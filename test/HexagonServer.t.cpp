@@ -25,6 +25,7 @@
 #include "SFML/Network/TcpSocket.hpp"
 
 #include "SFML/System/IO.hpp"
+#include "SFML/System/Thread.hpp"
 #include "SFML/System/Time.hpp"
 
 #include "SFML/Base/Optional.hpp"
@@ -32,7 +33,6 @@
 #include "SFML/Base/StdChrono.hpp"
 
 #include <sodium.h>
-#include <thread>
 #include <unordered_set>
 
 namespace
@@ -58,7 +58,7 @@ void connectWithRetry(sf::TcpSocket& socket, const unsigned short port, const st
         {
             return;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        sf::ThisThread::sleepFor(sf::milliseconds(10));
     }
     TEST_ASSERT(false && "connectWithRetry timed out");
 }
@@ -74,7 +74,7 @@ Status receivePacketWithRetry(sf::TcpSocket& socket, sf::Packet& packet, const s
         {
             return s;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        sf::ThisThread::sleepFor(sf::milliseconds(10));
     }
     return Status::NotReady;
 }
@@ -102,7 +102,7 @@ int main()
     const unsigned short port = server.getListenerPort();
     TEST_ASSERT_NE(port, 0);
 
-    std::thread serverThread{[&server] { server.run(); }};
+    sf::Thread serverThread{[&server] { server.run(); }};
 
     // ------------------------------------------------------------------------
     // Client #1 -- complete a CTSPPublicKey round trip.
@@ -146,7 +146,7 @@ int main()
     TEST_ASSERT_EQ(partialSent, static_cast<sf::base::SizeT>(3));
 
     // Brief yield so the server actually sees the partial bytes.
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    sf::ThisThread::sleepFor(sf::milliseconds(50));
 
     // ------------------------------------------------------------------------
     // Client #1 -- send a second request. If the server is alive, we get a

@@ -4,10 +4,14 @@
 
 #pragma once
 
+#include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <functional>
+namespace sf
+{
+class Path;
+}
 
 namespace Lua
 {
@@ -35,19 +39,19 @@ namespace hg::LuaScripting
 
 [[nodiscard]] Utils::LuaMetadata& getMetadata();
 
-void init(Lua::LuaContext&                                    lua,
-          random_number_generator&                            rng,
-          const bool                                          inMenu,
-          CCustomWallManager&                                 cwManager,
-          LevelStatus&                                        levelStatus,
-          HexagonGameStatus&                                  hexagonGameStatus,
-          StyleData&                                          styleData,
-          HGAssets&                                           assets,
-          const std::function<void(const sf::base::String&)>& fRunLuaFile,
-          sf::base::Vector<sf::base::String>&                 execScriptPackPathContext,
-          const std::function<const sf::base::String&()>&     fPackPathGetter,
-          const std::function<const PackData&()>&             fGetPackData,
-          const bool                                          headless);
+void init(Lua::LuaContext&                                                  lua,
+          random_number_generator&                                          rng,
+          const bool                                                        inMenu,
+          CCustomWallManager&                                               cwManager,
+          LevelStatus&                                                      levelStatus,
+          HexagonGameStatus&                                                hexagonGameStatus,
+          StyleData&                                                        styleData,
+          HGAssets&                                                         assets,
+          const sf::base::FixedFunction<void(const sf::base::String&), 64>& fRunLuaFile,
+          sf::base::Vector<sf::Path>&                                       execScriptPackPathContext,
+          const sf::base::FixedFunction<const sf::Path&(), 64>&             fPackPathGetter,
+          const sf::base::FixedFunction<const PackData&(), 64>&             fGetPackData,
+          const bool                                                        headless);
 
 void printDocs();
 

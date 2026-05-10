@@ -3,21 +3,28 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/PackData.hpp"
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include "SFML/System/Vec2.hpp"
+#include "SFML/System/IO.hpp"
+#include "SFML/System/Path.hpp"
 
 #include "SFML/Base/Algorithm/Find.hpp"
+#include "SFML/Base/Builtin/Memcpy.hpp"
+#include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/Macros.hpp"
+#include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
+#include "SFML/Base/Vector.hpp"
 
-#include <fstream>
 #include <stdexcept>
+#include <string_view>
 #include <tuple>
 #include <unordered_map>
 
@@ -49,21 +56,18 @@ bool runLuaFileCached(HGAssets& assets, Lua::LuaContext& mLua, const sf::base::S
 {
     std::unordered_map<sf::base::String, sf::base::String>& cache = assets.getLuaFileCache();
 
-    static sf::base::String buffer;
-
     auto       it    = cache.find(mFileName);
     const bool found = it != cache.end();
 
     if (!found)
     {
-        std::ifstream t(mFileName.cStr(), std::ios::binary | std::ios::in);
+        sf::base::Vector<char>& fileBuf = sf::getThreadLocalScratchCharBuffer();
+        fileBuf.clear();
+        (void)sf::readFromFile(sf::Path{mFileName.cStr()}, fileBuf);
 
-        t.seekg(0, std::ios::end);
-        const std::streamsize size = t.tellg();
-        buffer.resize(size);
-
-        t.seekg(0, std::ios::beg);
-        t.read(buffer.data(), size);
+        sf::base::String buffer;
+        buffer.resize(fileBuf.size());
+        SFML_BASE_MEMCPY(buffer.data(), fileBuf.data(), fileBuf.size());
 
         auto res = cache.emplace(mFileName, SFML_BASE_MOVE(buffer));
         SSVOH_ASSERT(res.second);
@@ -76,9 +80,10 @@ bool runLuaFileCached(HGAssets& assets, Lua::LuaContext& mLua, const sf::base::S
 
 void runLuaFile(Lua::LuaContext& mLua, const sf::base::String& mFileName)
 {
-    std::ifstream s{mFileName.cStr()};
+    sf::base::Vector<char>& fileBuf = sf::getThreadLocalScratchCharBuffer();
+    fileBuf.clear();
 
-    if (!s)
+    if (!sf::readFromFile(sf::Path{mFileName.cStr()}, fileBuf))
     {
         const sf::base::String errorStr = concat("Fatal Lua error\n", "Could not open file: ", mFileName, '\n');
 
@@ -88,7 +93,7 @@ void runLuaFile(Lua::LuaContext& mLua, const sf::base::String& mFileName)
 
     try
     {
-        mLua.executeCode(s);
+        mLua.executeCode(sf::base::StringView{fileBuf.data(), fileBuf.size()});
     } catch (std::runtime_error& mError)
     {
         hg::lo("hg::Utils::runLuaFile") << "Fatal Lua error\n"
@@ -180,26 +185,26 @@ const PackData& findDependencyPackDataOrThrow(
 }
 
 [[nodiscard]] static sf::base::String getDependentAssetFilename(
-    const char*                         assetSubfolder,
-    sf::base::Vector<sf::base::String>& execScriptPackPathContext,
-    const sf::base::String&             currentPackPath,
-    const sf::base::String&             mAssetName)
+    const char*                 assetSubfolder,
+    sf::base::Vector<sf::Path>& execScriptPackPathContext,
+    const sf::Path&             currentPackPath,
+    const sf::base::String&     mAssetName)
 {
-    const sf::base::String& context = execScriptPackPathContext.empty() ? currentPackPath : execScriptPackPathContext.back();
+    const sf::Path& context = execScriptPackPathContext.empty() ? currentPackPath : execScriptPackPathContext.back();
 
-    return concat(context, assetSubfolder, '/', mAssetName);
+    return (context / assetSubfolder / mAssetName.cStr()).to<sf::base::String>();
 }
 
 static void withDependencyAssetFilename(
-    const char*                                        assetSubfolder,
-    const std::function<void(const sf::base::String&)> f,
-    sf::base::Vector<sf::base::String>&                execScriptPackPathContext,
-    HGAssets&                                          assets,
-    const PackData&                                    currentPack,
-    const sf::base::String&                            mPackDisambiguator,
-    const sf::base::String&                            mPackName,
-    const sf::base::String&                            mPackAuthor,
-    const sf::base::String&                            mAssetName)
+    const char*                                                       assetSubfolder,
+    const sf::base::FixedFunction<void(const sf::base::String&), 64>& f,
+    sf::base::Vector<sf::Path>&                                       execScriptPackPathContext,
+    HGAssets&                                                         assets,
+    const PackData&                                                   currentPack,
+    const sf::base::String&                                           mPackDisambiguator,
+    const sf::base::String&                                           mPackName,
+    const sf::base::String&                                           mPackAuthor,
+    const sf::base::String&                                           mAssetName)
 try
 {
     const PackData& dependencyData = findDependencyPackDataOrThrow(assets, currentPack, mPackDisambiguator, mPackName, mPackAuthor);
@@ -207,7 +212,7 @@ try
     execScriptPackPathContext.emplaceBack(dependencyData.folderPath);
     SFML_BASE_SCOPE_GUARD({ execScriptPackPathContext.popBack(); });
 
-    return f(concat(dependencyData.folderPath, assetSubfolder, '/', mAssetName));
+    return f((dependencyData.folderPath / assetSubfolder / mAssetName.cStr()).to<sf::base::String>());
 } catch (const std::runtime_error& err)
 {
     hg::lo("hg::Utils::withDependencyAssetFilename")
@@ -222,14 +227,14 @@ try
 }
 
 void withDependencyScriptFilename(
-    const std::function<void(const sf::base::String&)> f,
-    sf::base::Vector<sf::base::String>&                execScriptPackPathContext,
-    HGAssets&                                          assets,
-    const PackData&                                    currentPack,
-    const sf::base::String&                            mPackDisambiguator,
-    const sf::base::String&                            mPackName,
-    const sf::base::String&                            mPackAuthor,
-    const sf::base::String&                            mScriptName)
+    const sf::base::FixedFunction<void(const sf::base::String&), 64>& f,
+    sf::base::Vector<sf::Path>&                                       execScriptPackPathContext,
+    HGAssets&                                                         assets,
+    const PackData&                                                   currentPack,
+    const sf::base::String&                                           mPackDisambiguator,
+    const sf::base::String&                                           mPackName,
+    const sf::base::String&                                           mPackAuthor,
+    const sf::base::String&                                           mScriptName)
 {
     withDependencyAssetFilename("Scripts",
                                 f,
@@ -242,22 +247,22 @@ void withDependencyScriptFilename(
                                 mScriptName);
 }
 
-[[nodiscard]] sf::base::String getDependentScriptFilename(sf::base::Vector<sf::base::String>& execScriptPackPathContext,
-                                                          const sf::base::String&             currentPackPath,
-                                                          const sf::base::String&             mScriptName)
+[[nodiscard]] sf::base::String getDependentScriptFilename(sf::base::Vector<sf::Path>& execScriptPackPathContext,
+                                                          const sf::Path&             currentPackPath,
+                                                          const sf::base::String&     mScriptName)
 {
     return getDependentAssetFilename("Scripts", execScriptPackPathContext, currentPackPath, mScriptName);
 }
 
 void withDependencyShaderFilename(
-    const std::function<void(const sf::base::String&)> f,
-    sf::base::Vector<sf::base::String>&                execScriptPackPathContext,
-    HGAssets&                                          assets,
-    const PackData&                                    currentPack,
-    const sf::base::String&                            mPackDisambiguator,
-    const sf::base::String&                            mPackName,
-    const sf::base::String&                            mPackAuthor,
-    const sf::base::String&                            mShaderName)
+    const sf::base::FixedFunction<void(const sf::base::String&), 64>& f,
+    sf::base::Vector<sf::Path>&                                       execScriptPackPathContext,
+    HGAssets&                                                         assets,
+    const PackData&                                                   currentPack,
+    const sf::base::String&                                           mPackDisambiguator,
+    const sf::base::String&                                           mPackName,
+    const sf::base::String&                                           mPackAuthor,
+    const sf::base::String&                                           mShaderName)
 {
     withDependencyAssetFilename("Shaders",
                                 f,
@@ -270,25 +275,33 @@ void withDependencyShaderFilename(
                                 mShaderName);
 }
 
-[[nodiscard]] sf::base::String getDependentShaderFilename(sf::base::Vector<sf::base::String>& execScriptPackPathContext,
-                                                          const sf::base::String&             currentPackPath,
-                                                          const sf::base::String&             mShaderName)
+[[nodiscard]] sf::base::String getDependentShaderFilename(sf::base::Vector<sf::Path>& execScriptPackPathContext,
+                                                          const sf::Path&             currentPackPath,
+                                                          const sf::base::String&     mShaderName)
 {
     return getDependentAssetFilename("Shaders", execScriptPackPathContext, currentPackPath, mShaderName);
 }
 
-template <typename T, typename... TArgs>
-T runLuaFunction(Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
+namespace
 {
-    return mLua.callLuaFunction<T>(mName, std::make_tuple(mArgs...));
+[[nodiscard]] inline std::string_view toStdSv(sf::base::StringView sv) noexcept
+{
+    return std::string_view{sv.data(), sv.size()};
+}
+} // namespace
+
+template <typename T, typename... TArgs>
+T runLuaFunction(Lua::LuaContext& mLua, sf::base::StringView mName, const TArgs&... mArgs)
+{
+    return mLua.callLuaFunction<T>(toStdSv(mName), std::make_tuple(mArgs...));
 }
 
 template <typename T, typename... TArgs>
-sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
+sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(Lua::LuaContext& mLua, sf::base::StringView mName, const TArgs&... mArgs)
 {
     using Ret = sf::base::Optional<VoidToNothing<T>>;
 
-    if (!mLua.doesVariableExist(mName))
+    if (!mLua.doesVariableExist(toStdSv(mName)))
     {
         return Ret{};
     }
@@ -304,24 +317,24 @@ sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(Lua::LuaContext& mLu
     }
 }
 
-template void runLuaFunction<void>(Lua::LuaContext&, std::string_view);
+template void runLuaFunction<void>(Lua::LuaContext&, sf::base::StringView);
 
-template sf::base::Optional<VoidToNothing<void>> runLuaFunctionIfExists<void>(Lua::LuaContext&, std::string_view);
+template sf::base::Optional<VoidToNothing<void>> runLuaFunctionIfExists<void>(Lua::LuaContext&, sf::base::StringView);
 
 template sf::base::Optional<VoidToNothing<float>> runLuaFunctionIfExists<float, float>(
     Lua::LuaContext&,
-    std::string_view,
+    sf::base::StringView,
     const float&);
 
 template sf::base::Optional<VoidToNothing<int>> runLuaFunctionIfExists<int, float, float>(
     Lua::LuaContext&,
-    std::string_view,
+    sf::base::StringView,
     const float&,
     const float&);
 
 template sf::base::Optional<VoidToNothing<bool>> runLuaFunctionIfExists<bool, float, int, bool, bool>(
     Lua::LuaContext&,
-    std::string_view,
+    sf::base::StringView,
     const float&,
     const int&,
     const bool&,

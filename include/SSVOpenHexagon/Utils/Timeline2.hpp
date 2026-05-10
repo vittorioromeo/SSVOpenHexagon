@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Utils/FixedFunction.hpp"
 
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"

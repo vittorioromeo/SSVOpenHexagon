@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
+#include "SFML/Base/Algorithm/Remove.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
@@ -179,7 +180,7 @@ void addLoginToken(const LoginToken& loginToken)
     sf::base::Vector<User> result;
     result.reserve(query.size());
     for (auto& u : query)
-        result.emplaceBack(std::move(u));
+        result.emplaceBack(SFML_BASE_MOVE(u));
     return result;
 }
 
@@ -218,15 +219,15 @@ constexpr int tokenValiditySeconds = 3600;
 
     auto query = Impl::getStorage().get_all<LoginToken>();
 
-    query.erase(std::remove_if(query.begin(),
-                               query.end(),
-                               [&](const LoginToken& lt) { return isLoginTokenTimestampValid(lt); }),
-                std::end(query));
+    query.erase(sf::base::removeIf(query.begin(),
+                                   query.end(),
+                                   [&](const LoginToken& lt) { return isLoginTokenTimestampValid(lt); }),
+                query.end());
 
     sf::base::Vector<LoginToken> result;
     result.reserve(query.size());
     for (auto& lt : query)
-        result.emplaceBack(std::move(lt));
+        result.emplaceBack(SFML_BASE_MOVE(lt));
     return result;
 }
 
@@ -259,10 +260,10 @@ void removeAllStaleLoginTokens()
     {
         result.pushBack( //
             ProcessedScore{
-                .position       = index,            //
-                .userName       = std::get<0>(row), //
-                .scoreTimestamp = std::get<1>(row), //
-                .scoreValue     = std::get<2>(row), //
+                .position       = index,                                      //
+                .userName       = sf::base::String(std::get<0>(row).c_str()), //
+                .scoreTimestamp = std::get<1>(row),                           //
+                .scoreValue     = std::get<2>(row),                           //
             });
 
         ++index;
@@ -348,10 +349,10 @@ void removeAllStaleLoginTokens()
         if (std::get<3>(row) == userSteamId)
         {
             return sf::base::makeOptional(ProcessedScore{
-                .position       = index,            //
-                .userName       = std::get<0>(row), //
-                .scoreTimestamp = std::get<1>(row), //
-                .scoreValue     = std::get<2>(row), //
+                .position       = index,                                      //
+                .userName       = sf::base::String(std::get<0>(row).c_str()), //
+                .scoreTimestamp = std::get<1>(row),                           //
+                .scoreValue     = std::get<2>(row),                           //
             });
         }
 

@@ -5,7 +5,6 @@
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <functional>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -21,7 +20,3 @@ template class std::unordered_map<float, sf::base::String>;
 template class std::unordered_map<sf::base::String, sf::base::String>;
 
 template class std::unordered_set<sf::base::String>;
-
-template class std::function<void()>;
-template class std::function<bool()>;
-template class std::function<sf::base::String()>;

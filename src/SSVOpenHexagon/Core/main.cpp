@@ -19,7 +19,6 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
-#include "SSVUtils/Core/FileSystem/Utils.hpp"
 #include "sodium/core.h"
 
 #include "SFML/Graphics/GraphicsContext.hpp"
@@ -39,8 +38,6 @@
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-#include <filesystem>
 #include <limits>
 #include <sodium.h>
 
@@ -72,16 +69,16 @@ namespace
 
 void createFolderIfNonExistant(const sf::base::String& folderName)
 {
-    const ssvu::FileSystem::Path path{folderName.cStr()};
+    const sf::Path path{folderName.cStr()};
 
-    if (path.isFolder())
+    if (path.isDirectory())
     {
         return;
     }
 
     hg::lo("::createFolderIfNonExistant") << "'" << folderName << "' folder does not exist, creating\n";
 
-    createFolder(path);
+    (void)path.createLeafDirectory();
 }
 
 struct ParsedArgs
@@ -703,7 +700,7 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Set working directory to current executable location
-    std::filesystem::current_path(std::filesystem::path{argv[0]}.parent_path());
+    (void)sf::Path::setCurrentDirectory(sf::Path{static_cast<const char*>(argv[0])}.getParent());
 
     //
     //

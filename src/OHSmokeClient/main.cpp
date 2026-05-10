@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
                          "'%s')\n",
                          i + 1,
                          count,
-                         errOss.getString().c_str());
+                         errOss.to<sf::base::String>().cStr());
             return 1;
         }
     }

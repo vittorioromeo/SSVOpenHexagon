@@ -132,15 +132,15 @@ public:
 
     void setCapColor(const CapColor& mCapColor);
 
-    [[nodiscard]] const sf::Color&                   getMainColor() const noexcept;
-    [[nodiscard]] const sf::Color&                   getPlayerColor() const noexcept;
-    [[nodiscard]] const sf::Color&                   getTextColor() const noexcept;
-    [[nodiscard]] const sf::Color&                   getWallColor() const noexcept;
+    [[nodiscard]] const sf::Color                    getMainColor() const noexcept;
+    [[nodiscard]] const sf::Color                    getPlayerColor() const noexcept;
+    [[nodiscard]] const sf::Color                    getTextColor() const noexcept;
+    [[nodiscard]] const sf::Color                    getWallColor() const noexcept;
     [[nodiscard]] const sf::base::Vector<sf::Color>& getColors() const noexcept;
-    [[nodiscard]] const sf::Color&                   getColor(const sf::base::SizeT mIdx) const noexcept;
+    [[nodiscard]] const sf::Color                    getColor(const sf::base::SizeT mIdx) const noexcept;
     [[nodiscard]] float                              getCurrentHue() const noexcept;
     [[nodiscard]] float                              getCurrentSwapTime() const noexcept;
-    [[nodiscard]] const sf::Color&                   get3DOverrideColor() const noexcept;
+    [[nodiscard]] const sf::Color                    get3DOverrideColor() const noexcept;
     [[nodiscard]] sf::Color                          getCapColorResult() const noexcept;
 };
 

@@ -17,7 +17,6 @@ struct Converter;
 using Obj           = Json::Value;
 using Key           = sf::base::String;
 using Idx           = unsigned int;
-using Writer        = Json::StyledStreamWriter;
 using Reader        = Json::Reader;
 using Iterator      = typename Json::Value::iterator;
 using ConstIterator = typename Json::Value::const_iterator;

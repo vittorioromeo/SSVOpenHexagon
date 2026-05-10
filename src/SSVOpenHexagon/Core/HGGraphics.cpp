@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
+#include "SSVOpenHexagon/Utils/Random.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
 #include "SFML/Graphics/RenderStates.hpp"
@@ -21,15 +22,12 @@
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringStreamOp.hpp"
 
-#include <SSVUtils/Core/String/ToStr.hpp>
-#include <SSVUtils/Core/Utils/Rnd.hpp>
-
 namespace hg
 {
 
 [[nodiscard]] static sf::base::String formatTime(const double x)
 {
-    return sf::base::String(ssvu::toStr(std::floor(x * 1000) / 1000.f));
+    return Utils::toMinimalFloatString(std::floor(x * 1000) / 1000.f);
 }
 
 static void setVisualCharacterSize(sf::Text& text, const float characterSize)
@@ -109,8 +107,8 @@ void HexagonGame::draw()
     {
         if (levelStatus.cameraShake > 0.f)
         {
-            const sf::Vec2f shake(ssvu::getRndR(-levelStatus.cameraShake, levelStatus.cameraShake),
-                                  ssvu::getRndR(-levelStatus.cameraShake, levelStatus.cameraShake));
+            const sf::Vec2f shake(Utils::getRndR(-levelStatus.cameraShake, levelStatus.cameraShake),
+                                  Utils::getRndR(-levelStatus.cameraShake, levelStatus.cameraShake));
 
             backgroundCamera->center = shake;
             overlayCamera->center    = shake + sf::Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f};
@@ -534,16 +532,16 @@ void HexagonGame::updateText(float mFT)
         if (Config::getShowTrackedVariables() && !trackedVariables.empty())
         {
             os << '\n';
-            for (const auto& [variableName, display] : trackedVariables)
+            for (const auto& tv : trackedVariables)
             {
-                if (!lua.doesVariableExist(variableName.cStr()))
+                if (!lua.doesVariableExist(tv.key.cStr()))
                 {
                     continue;
                 }
 
-                const sf::base::String value{lua.readVariable<sf::base::String>(variableName.cStr())};
+                const sf::base::String value{lua.readVariable<sf::base::String>(tv.key.cStr())};
 
-                os << Utils::toUppercase(display) << ": " << Utils::toUppercase(value) << '\n';
+                os << Utils::toUppercase(tv.value) << ": " << Utils::toUppercase(value) << '\n';
             }
         }
     }
@@ -587,7 +585,7 @@ void HexagonGame::updateText(float mFT)
     // Set FPS Text, if option is enabled.
     if (Config::getShowFPS())
     {
-        textUI->fpsText.setString(ssvu::toStr(window->getFPS()));
+        textUI->fpsText.setString(sf::base::toString(window->getFPS()));
         setVisualCharacterSize(textUI->fpsText, getScaledCharacterSize(20.f));
     }
 
@@ -628,7 +626,7 @@ void HexagonGame::updateText(float mFT)
     }
 }
 
-void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates)
+void HexagonGame::drawText_TimeAndStatus(const sf::Color offsetColor, const sf::RenderStates& mStates)
 {
     if (!textUI.hasValue())
     {
@@ -710,12 +708,12 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor, const sf:
 }
 
 template <typename FRender>
-static void drawTextMessagePBImpl(sf::Text&        text,
-                                  const sf::Color& offsetColor,
-                                  const sf::Vec2f  pos,
-                                  const sf::Color& color,
-                                  float            outlineThickness,
-                                  FRender&&        fRender)
+static void drawTextMessagePBImpl(sf::Text&       text,
+                                  const sf::Color offsetColor,
+                                  const sf::Vec2f pos,
+                                  const sf::Color color,
+                                  float           outlineThickness,
+                                  FRender&&       fRender)
 {
     if (text.getString().isEmpty())
     {
@@ -738,7 +736,7 @@ static void drawTextMessagePBImpl(sf::Text&        text,
     fRender(text);
 }
 
-void HexagonGame::drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates)
+void HexagonGame::drawText_Message(const sf::Color offsetColor, const sf::RenderStates& mStates)
 {
     const sf::View overlayView = Utils::computeCameraView(*overlayCamera, overlayCameraTransform);
 
@@ -750,7 +748,7 @@ void HexagonGame::drawText_Message(const sf::Color& offsetColor, const sf::Rende
                           [this, &mStates, overlayView](sf::Text& t) { renderWithView(overlayView, t, mStates); });
 }
 
-void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates)
+void HexagonGame::drawText_PersonalBest(const sf::Color offsetColor, const sf::RenderStates& mStates)
 {
     const sf::View overlayView = Utils::computeCameraView(*overlayCamera, overlayCameraTransform);
 

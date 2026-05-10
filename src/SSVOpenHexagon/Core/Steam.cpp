@@ -36,10 +36,9 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <string_view>
 
 #include <cstring>
 
@@ -159,16 +158,16 @@ public:
     bool run_callbacks();
 
     bool store_stats();
-    bool unlock_achievement(std::string_view name);
+    bool unlock_achievement(sf::base::StringView name);
 
     bool set_rich_presence_in_menu();
-    bool set_rich_presence_in_game(std::string_view level_name_format,
-                                   std::string_view difficulty_mult_format,
-                                   std::string_view time_format);
+    bool set_rich_presence_in_game(sf::base::StringView level_name_format,
+                                   sf::base::StringView difficulty_mult_format,
+                                   sf::base::StringView time_format);
 
-    bool                                   set_and_store_stat(std::string_view name, int data);
-    [[nodiscard]] bool                     get_achievement(bool* out, std::string_view name);
-    [[nodiscard]] bool                     get_stat(int* out, std::string_view name);
+    bool                                   set_and_store_stat(sf::base::StringView name, int data);
+    [[nodiscard]] bool                     get_achievement(bool* out, sf::base::StringView name);
+    [[nodiscard]] bool                     get_stat(int* out, sf::base::StringView name);
     [[nodiscard]] sf::base::Optional<bool> is_achievement_unlocked(const char* name);
 
     bool update_hardcoded_achievements();
@@ -387,7 +386,7 @@ bool steam_manager::steam_manager_impl::store_stats()
     return true;
 }
 
-bool steam_manager::steam_manager_impl::unlock_achievement(std::string_view name)
+bool steam_manager::steam_manager_impl::unlock_achievement(sf::base::StringView name)
 {
     if (!_initialized)
     {
@@ -426,9 +425,9 @@ bool steam_manager::steam_manager_impl::set_rich_presence_in_menu()
     return SteamFriends()->SetRichPresence("steam_display", "#InMenu");
 }
 
-bool steam_manager::steam_manager_impl::set_rich_presence_in_game(std::string_view level_name_format,
-                                                                  std::string_view difficulty_mult_format,
-                                                                  std::string_view time_format)
+bool steam_manager::steam_manager_impl::set_rich_presence_in_game(sf::base::StringView level_name_format,
+                                                                  sf::base::StringView difficulty_mult_format,
+                                                                  sf::base::StringView time_format)
 {
     if (!_initialized)
     {
@@ -441,7 +440,7 @@ bool steam_manager::steam_manager_impl::set_rich_presence_in_game(std::string_vi
            SteamFriends()->SetRichPresence("steam_display", "#InGame");
 }
 
-bool steam_manager::steam_manager_impl::set_and_store_stat(std::string_view name, int data)
+bool steam_manager::steam_manager_impl::set_and_store_stat(sf::base::StringView name, int data)
 {
     if (!_initialized)
     {
@@ -462,7 +461,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(std::string_view name
     return store_stats();
 }
 
-[[nodiscard]] bool steam_manager::steam_manager_impl::get_achievement(bool* out, std::string_view name)
+[[nodiscard]] bool steam_manager::steam_manager_impl::get_achievement(bool* out, sf::base::StringView name)
 {
     if (!_initialized || !_got_stats)
     {
@@ -478,7 +477,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(std::string_view name
     return true;
 }
 
-[[nodiscard]] bool steam_manager::steam_manager_impl::get_stat(int* out, std::string_view name)
+[[nodiscard]] bool steam_manager::steam_manager_impl::get_stat(int* out, sf::base::StringView name)
 {
     if (!_initialized || !_got_stats)
     {
@@ -1369,7 +1368,7 @@ bool steam_manager::store_stats()
     return impl().store_stats();
 }
 
-bool steam_manager::unlock_achievement(std::string_view name)
+bool steam_manager::unlock_achievement(sf::base::StringView name)
 {
     return impl().unlock_achievement(name);
 }
@@ -1379,24 +1378,24 @@ bool steam_manager::set_rich_presence_in_menu()
     return impl().set_rich_presence_in_menu();
 }
 
-bool steam_manager::set_rich_presence_in_game(std::string_view level_name_format,
-                                              std::string_view difficulty_mult_format,
-                                              std::string_view time_format)
+bool steam_manager::set_rich_presence_in_game(sf::base::StringView level_name_format,
+                                              sf::base::StringView difficulty_mult_format,
+                                              sf::base::StringView time_format)
 {
     return impl().set_rich_presence_in_game(level_name_format, difficulty_mult_format, time_format);
 }
 
-bool steam_manager::set_and_store_stat(std::string_view name, int data)
+bool steam_manager::set_and_store_stat(sf::base::StringView name, int data)
 {
     return impl().set_and_store_stat(name, data);
 }
 
-[[nodiscard]] bool steam_manager::get_achievement(bool* out, std::string_view name)
+[[nodiscard]] bool steam_manager::get_achievement(bool* out, sf::base::StringView name)
 {
     return impl().get_achievement(out, name);
 }
 
-[[nodiscard]] bool steam_manager::get_stat(int* out, std::string_view name)
+[[nodiscard]] bool steam_manager::get_stat(int* out, sf::base::StringView name)
 {
     return impl().get_stat(out, name);
 }
@@ -1513,7 +1512,7 @@ bool steam_manager::store_stats()
     return false;
 }
 
-bool steam_manager::unlock_achievement([[maybe_unused]] std::string_view name)
+bool steam_manager::unlock_achievement([[maybe_unused]] sf::base::StringView name)
 {
     return false;
 }
@@ -1523,24 +1522,24 @@ bool steam_manager::set_rich_presence_in_menu()
     return false;
 }
 
-bool steam_manager::set_rich_presence_in_game([[maybe_unused]] std::string_view level_name_format,
-                                              [[maybe_unused]] std::string_view difficulty_mult_format,
-                                              [[maybe_unused]] std::string_view time_format)
+bool steam_manager::set_rich_presence_in_game([[maybe_unused]] sf::base::StringView level_name_format,
+                                              [[maybe_unused]] sf::base::StringView difficulty_mult_format,
+                                              [[maybe_unused]] sf::base::StringView time_format)
 {
     return false;
 }
 
-bool steam_manager::set_and_store_stat([[maybe_unused]] std::string_view name, [[maybe_unused]] int data)
+bool steam_manager::set_and_store_stat([[maybe_unused]] sf::base::StringView name, [[maybe_unused]] int data)
 {
     return false;
 }
 
-[[nodiscard]] bool steam_manager::get_achievement([[maybe_unused]] bool* out, [[maybe_unused]] std::string_view name)
+[[nodiscard]] bool steam_manager::get_achievement([[maybe_unused]] bool* out, [[maybe_unused]] sf::base::StringView name)
 {
     return false;
 }
 
-[[nodiscard]] bool steam_manager::get_stat([[maybe_unused]] int* out, [[maybe_unused]] std::string_view name)
+[[nodiscard]] bool steam_manager::get_stat([[maybe_unused]] int* out, [[maybe_unused]] sf::base::StringView name)
 {
     return false;
 }

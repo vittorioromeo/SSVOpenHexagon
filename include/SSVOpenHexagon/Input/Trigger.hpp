@@ -6,9 +6,8 @@
 
 #include "SSVOpenHexagon/Input/Combo.hpp"
 
+#include "SFML/Base/InitializerList.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <initializer_list>
 
 namespace ssvs::Input
 {

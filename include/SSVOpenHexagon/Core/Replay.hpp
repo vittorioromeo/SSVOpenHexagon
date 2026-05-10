@@ -6,13 +6,12 @@
 
 #include "SSVOpenHexagon/Core/RandomNumberGeneratorTypes.hpp"
 
+#include "SFML/Base/Bitset.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <bitset>
 
 
 namespace sf
@@ -26,6 +25,8 @@ class Path;
 namespace hg
 {
 
+using byte = unsigned char;
+
 enum class input_bit : unsigned int
 {
     left  = 0,
@@ -36,7 +37,27 @@ enum class input_bit : unsigned int
     k_count
 };
 
-using input_bitset = std::bitset<static_cast<unsigned int>(input_bit::k_count)>;
+using input_bitset = sf::base::Bitset<static_cast<sf::base::SizeT>(input_bit::k_count)>;
+
+} // namespace hg
+
+// Test harness diagnostics use `sf::OutStringStream`. Forward-declare it here and
+// provide an overload for it; this avoids pulling `<ostream>` into this header.
+namespace sf
+{
+class OutStringStream;
+} // namespace sf
+
+// Lives in `sf::base` so that ADL on `sf::base::Bitset<N>` (the underlying type of
+// `hg::input_bitset`) finds it.
+namespace sf::base
+{
+template <::sf::base::SizeT N>
+OutStringStream& operator<<(OutStringStream& os, const Bitset<N>& b);
+} // namespace sf::base
+
+namespace hg
+{
 
 struct serialization_result
 {
@@ -84,13 +105,13 @@ public:
     [[nodiscard]] bool operator==(const replay_data& rhs) const noexcept;
     [[nodiscard]] bool operator!=(const replay_data& rhs) const noexcept;
 
-    [[nodiscard]] serialization_result serialize(std::byte* buffer, const sf::base::SizeT buffer_size) const;
+    [[nodiscard]] serialization_result serialize(byte* buffer, const sf::base::SizeT buffer_size) const;
 
-    [[nodiscard]] deserialization_result deserialize(const std::byte* buffer, const sf::base::SizeT buffer_size);
+    [[nodiscard]] deserialization_result deserialize(const byte* buffer, const sf::base::SizeT buffer_size);
 
-    [[nodiscard]] serialization_result serialize(std::byte* buffer, const std::byte* const buffer_end) const;
+    [[nodiscard]] serialization_result serialize(byte* buffer, const byte* const buffer_end) const;
 
-    [[nodiscard]] deserialization_result deserialize(const std::byte* buffer, const std::byte* const buffer_end);
+    [[nodiscard]] deserialization_result deserialize(const byte* buffer, const byte* const buffer_end);
 };
 
 class replay_player
@@ -125,13 +146,13 @@ struct replay_file
     [[nodiscard]] bool operator==(const replay_file& rhs) const noexcept;
     [[nodiscard]] bool operator!=(const replay_file& rhs) const noexcept;
 
-    [[nodiscard]] serialization_result serialize(std::byte* buffer, const sf::base::SizeT buffer_size) const;
+    [[nodiscard]] serialization_result serialize(byte* buffer, const sf::base::SizeT buffer_size) const;
 
-    [[nodiscard]] deserialization_result deserialize(const std::byte* buffer, const sf::base::SizeT buffer_size);
+    [[nodiscard]] deserialization_result deserialize(const byte* buffer, const sf::base::SizeT buffer_size);
 
-    [[nodiscard]] serialization_result serialize(std::byte* buffer, const std::byte* const buffer_end) const;
+    [[nodiscard]] serialization_result serialize(byte* buffer, const byte* const buffer_end) const;
 
-    [[nodiscard]] deserialization_result deserialize(const std::byte* buffer, const std::byte* const buffer_end);
+    [[nodiscard]] deserialization_result deserialize(const byte* buffer, const byte* const buffer_end);
 
     [[nodiscard]] bool serialize_to_file(const sf::Path& p) const;
     [[nodiscard]] bool deserialize_from_file(const sf::Path& p);

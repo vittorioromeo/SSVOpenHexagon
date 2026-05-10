@@ -60,7 +60,7 @@ public:
 
     void setKillingSide(const CCustomWallHandle cwHandle, const sf::base::U8 killingSide);
 
-    void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIdx, const sf::Color& color);
+    void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIdx, const sf::Color color);
 
     void setVertexPos4(const CCustomWallHandle cwHandle,
                        const sf::Vec2f         p0,
@@ -69,12 +69,12 @@ public:
                        const sf::Vec2f         p3);
 
     void setVertexColor4(const CCustomWallHandle cwHandle,
-                         const sf::Color&        c0,
-                         const sf::Color&        c1,
-                         const sf::Color&        c2,
-                         const sf::Color&        c3);
+                         const sf::Color         c0,
+                         const sf::Color         c1,
+                         const sf::Color         c2,
+                         const sf::Color         c3);
 
-    void setVertexColor4Same(const CCustomWallHandle cwHandle, const sf::Color& color);
+    void setVertexColor4Same(const CCustomWallHandle cwHandle, const sf::Color color);
 
     [[nodiscard]] sf::Vec2f getVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx);
 

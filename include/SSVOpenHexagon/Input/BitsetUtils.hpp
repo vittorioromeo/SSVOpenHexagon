@@ -7,32 +7,26 @@
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 
-#include <bitset>
-#include <type_traits>
-
-#include <cstddef>
+#include "SFML/Base/Bitset.hpp"
+#include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Trait/UnderlyingType.hpp"
 
 namespace ssvs
 {
 
-inline constexpr std::size_t inputBitOffset{1};
-inline constexpr std::size_t fingerCount{16};
+inline constexpr sf::base::SizeT inputBitOffset{1};
+inline constexpr sf::base::SizeT fingerCount{16};
 
-using FingerID     = unsigned int;
-using FingerBitset = std::bitset<fingerCount>;
-using KeyBitset    = std::bitset<sf::Keyboard::KeyCount + inputBitOffset>;
-using BtnBitset    = std::bitset<sf::Mouse::ButtonCount + inputBitOffset>;
+using FingerID = unsigned int;
+
+using FingerBitset = sf::base::Bitset<fingerCount>;
+using KeyBitset    = sf::base::Bitset<sf::Keyboard::KeyCount + inputBitOffset>;
+using BtnBitset    = sf::base::Bitset<sf::Mouse::ButtonCount + inputBitOffset>;
 
 template <typename TEnum>
 [[nodiscard]] constexpr int toIndex(const TEnum value) noexcept
 {
-    using Underlying = std::underlying_type_t<TEnum>;
-    return static_cast<int>(static_cast<Underlying>(value) + inputBitOffset);
-}
-
-[[nodiscard]] inline FingerBitset::reference getFingerBit(FingerBitset& bitset, const FingerID finger) noexcept
-{
-    return bitset[finger];
+    return static_cast<int>(static_cast<SFML_BASE_UNDERLYING_TYPE(TEnum)>(value) + inputBitOffset);
 }
 
 [[nodiscard]] inline constexpr bool getFingerBit(const FingerBitset& bitset, const FingerID finger) noexcept
@@ -40,24 +34,29 @@ template <typename TEnum>
     return bitset[finger];
 }
 
-[[nodiscard]] inline KeyBitset::reference getKeyBit(KeyBitset& bitset, const sf::Keyboard::Key key) noexcept
-{
-    return bitset[toIndex(key)];
-}
-
-[[nodiscard]] inline BtnBitset::reference getBtnBit(BtnBitset& bitset, const sf::Mouse::Button button) noexcept
-{
-    return bitset[toIndex(button)];
-}
-
 [[nodiscard]] inline constexpr bool getKeyBit(const KeyBitset& bitset, const sf::Keyboard::Key key) noexcept
 {
-    return bitset[toIndex(key)];
+    return bitset[static_cast<sf::base::SizeT>(toIndex(key))];
 }
 
 [[nodiscard]] inline constexpr bool getBtnBit(const BtnBitset& bitset, const sf::Mouse::Button button) noexcept
 {
-    return bitset[toIndex(button)];
+    return bitset[static_cast<sf::base::SizeT>(toIndex(button))];
+}
+
+[[gnu::always_inline]] inline constexpr void setFingerBit(FingerBitset& bitset, const FingerID finger, const bool value) noexcept
+{
+    bitset.setBit(finger, value);
+}
+
+[[gnu::always_inline]] inline constexpr void setKeyBit(KeyBitset& bitset, const sf::Keyboard::Key key, const bool value) noexcept
+{
+    bitset.setBit(static_cast<sf::base::SizeT>(toIndex(key)), value);
+}
+
+[[gnu::always_inline]] inline constexpr void setBtnBit(BtnBitset& bitset, const sf::Mouse::Button button, const bool value) noexcept
+{
+    bitset.setBit(static_cast<sf::base::SizeT>(toIndex(button)), value);
 }
 
 } // namespace ssvs

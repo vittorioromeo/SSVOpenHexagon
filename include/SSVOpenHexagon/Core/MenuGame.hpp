@@ -148,9 +148,8 @@ private:
     HexagonDialogBox                      dialogBox;
     sf::base::UniquePtr<LeaderboardCache> leaderboardCache;
 
-    Lua::LuaContext                    lua;
-    sf::base::Vector<sf::base::String> execScriptPackPathContext;
-    const PackData*                    currentPack;
+    sf::base::Vector<sf::Path> execScriptPackPathContext;
+    const PackData*            currentPack;
 
     //---------------------------------------
     // New immediate-mode UI (see `docs/UI_REWRITE_DESIGN.md`).
@@ -281,7 +280,6 @@ public:
 
     void initAssets();
     void initInput();
-    void initLua();
     void playLocally();
 
     //---------------------------------------
@@ -384,7 +382,6 @@ public:
 
     bool mustTakeScreenshot{false};
 
-    void runLuaFile(const sf::base::String& mFileName);
     void changeResolutionTo(unsigned int mWidth, unsigned int mHeight);
     void playSoundOverride(const sf::base::String& assetId);
 

@@ -5,7 +5,6 @@
 #pragma once
 
 #include "SSVOpenHexagon/Core/Replay.hpp"
-#include "SSVOpenHexagon/Global/StringHash.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Utils/Clock.hpp"
@@ -16,14 +15,12 @@
 
 #include "SFML/System/IO.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Variant.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <deque>
-#include <unordered_set>
 
 namespace hg::Steam
 {
@@ -116,9 +113,9 @@ private:
     sf::base::Optional<sf::base::U64>    _loginToken;
     sf::base::Optional<sf::base::String> _loginName;
 
-    std::deque<Event> _events;
+    sf::base::Vector<Event> _events;
 
-    std::unordered_set<sf::base::String> _levelValidatorsSupportedByServer;
+    ankerl::unordered_dense::set<sf::base::String> _levelValidatorsSupportedByServer;
 
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();

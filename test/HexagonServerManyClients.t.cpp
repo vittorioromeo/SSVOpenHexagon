@@ -15,26 +15,26 @@
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "TestUtils.hpp"
+#include "sodium/core.h"
 
 #include "SFML/Network/IpAddress.hpp"
 #include "SFML/Network/Packet.hpp"
 #include "SFML/Network/Socket.hpp"
 #include "SFML/Network/TcpSocket.hpp"
 
+#include "SFML/System/Atomic.hpp"
 #include "SFML/System/IO.hpp"
+#include "SFML/System/Thread.hpp"
 #include "SFML/System/Time.hpp"
 
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <atomic>
 #include <latch>
 #include <sodium.h>
-#include <string>
-#include <thread>
 #include <unordered_set>
-#include <vector>
 
 namespace
 {
@@ -50,7 +50,7 @@ void connectWithRetry(sf::TcpSocket& socket, const unsigned short port, const st
         {
             return;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        sf::ThisThread::sleepFor(sf::milliseconds(10));
     }
     TEST_ASSERT(false && "connectWithRetry timed out");
 }
@@ -69,7 +69,7 @@ int main()
     const unsigned short port = server.getListenerPort();
     TEST_ASSERT_NE(port, 0);
 
-    std::thread serverThread{[&server] { server.run(); }};
+    sf::Thread serverThread{[&server] { server.run(); }};
 
     // ------------------------------------------------------------------------
     // Workload: N concurrent clients, each sending a unique public key.
@@ -78,16 +78,17 @@ int main()
     constexpr int N = 100;
 
     // Pre-generate unique keypairs so the test owns the expected values.
-    std::vector<hg::SodiumPSKeys> clientKeys;
+    sf::base::Vector<hg::SodiumPSKeys> clientKeys;
     clientKeys.reserve(N);
     for (int i = 0; i < N; ++i)
     {
-        clientKeys.emplace_back(hg::generateSodiumPSKeys());
+        clientKeys.emplaceBack(hg::generateSodiumPSKeys());
     }
 
     // Clients are kept alive in this vector so the TCP connections persist
     // until we have queried the server's stored state.
-    std::vector<sf::base::Optional<sf::TcpSocket>> clientSockets(N);
+    sf::base::Vector<sf::base::Optional<sf::TcpSocket>> clientSockets;
+    clientSockets.resize(N);
 
     // Every thread counts down once it has opened its TCP connection; nobody
     // proceeds to send until all N are connected. This guarantees that the
@@ -96,14 +97,14 @@ int main()
     // the listener's accept backlog, but the kernel has them).
     std::latch allConnected{N};
 
-    std::atomic<int> successCount{0};
+    sf::Atomic<int> successCount{0};
 
-    std::vector<std::thread> clientThreads;
+    sf::base::Vector<sf::Thread> clientThreads;
     clientThreads.reserve(N);
 
     for (int i = 0; i < N; ++i)
     {
-        clientThreads.emplace_back([&, i]()
+        clientThreads.emplaceBack([&, i]()
         {
             auto sockOpt = sf::TcpSocket::create(/* isBlocking */ true);
             if (!sockOpt.hasValue())
@@ -124,7 +125,7 @@ int main()
 
             if (sockOpt->send(outPacket) != Status::Done)
             {
-                clientSockets[i] = std::move(sockOpt);
+                clientSockets[i] = SFML_BASE_MOVE(sockOpt);
                 return;
             }
 
@@ -138,24 +139,24 @@ int main()
                 const hg::PVServerToClient decoded = hg::decodeServerToClientPacket(nullptr, errOss, inPacket);
                 if (decoded.is<hg::STCPPublicKey>())
                 {
-                    successCount.fetch_add(1, std::memory_order_relaxed);
+                    successCount.fetchAddRelaxed(1);
                 }
             }
 
             // Don't disconnect -- keep the socket alive past thread exit so
             // the server still has us in `_connectedClients` when we query it.
-            clientSockets[i] = std::move(sockOpt);
+            clientSockets[i] = SFML_BASE_MOVE(sockOpt);
         });
     }
 
-    for (std::thread& t : clientThreads)
+    for (sf::Thread& t : clientThreads)
     {
         t.join();
     }
 
     // ------------------------------------------------------------------------
     // Every client must have got its round trip back.
-    TEST_ASSERT_EQ(successCount.load(), N);
+    TEST_ASSERT_EQ(successCount.loadRelaxed(), N);
 
     // ------------------------------------------------------------------------
     // Stop the server so it's safe to read `_connectedClients`, then verify
@@ -167,17 +168,17 @@ int main()
     TEST_ASSERT_EQ(storedKeys.size(), static_cast<sf::base::SizeT>(N));
 
     // Build an unordered set of the stored keys (stringified for hashing).
-    std::unordered_set<std::string> storedKeySet;
+    std::unordered_set<sf::base::String> storedKeySet;
     storedKeySet.reserve(N);
     for (const hg::SodiumPublicKeyArray& k : storedKeys)
     {
-        storedKeySet.emplace(std::string(hg::sodiumKeyToString(k).cStr()));
+        storedKeySet.emplace(hg::sodiumKeyToString(k));
     }
 
     // Every client's generated key must be present in the server's view.
     for (const hg::SodiumPSKeys& ck : clientKeys)
     {
-        const std::string asStr(hg::sodiumKeyToString(ck.keyPublic).cStr());
+        const sf::base::String asStr = hg::sodiumKeyToString(ck.keyPublic);
         TEST_ASSERT(storedKeySet.count(asStr) == 1u);
     }
 

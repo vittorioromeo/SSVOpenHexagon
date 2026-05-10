@@ -5,16 +5,15 @@
 #pragma once
 
 #include "SFML/Base/FwdStdHash.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 
 #include <string_view>
 
-#include <cstddef>
-
 template <>
 struct std::hash<sf::base::String>
 {
-    [[nodiscard]] std::size_t operator()(const sf::base::String& s) const noexcept
+    [[nodiscard]] sf::base::SizeT operator()(const sf::base::String& s) const noexcept
     {
         return std::hash<std::string_view>{}(std::string_view{s.data(), s.size()});
     }

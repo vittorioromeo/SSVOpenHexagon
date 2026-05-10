@@ -9,9 +9,9 @@
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 
+#include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/String.hpp"
 
-#include <string>
 #include <tuple>
 
 namespace hg
@@ -103,7 +103,7 @@ void HexagonDialogBox::createInput(const sf::base::String& output, const int cha
     keyToClose = KKey::Enter;
 }
 
-void HexagonDialogBox::draw(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor)
+void HexagonDialogBox::draw(const sf::View& view, const sf::Color txtColor, const sf::Color frameColor, const sf::Color backdropColor)
 {
     switch (drawMode)
     {
@@ -129,7 +129,7 @@ void HexagonDialogBox::draw(const sf::View& view, const sf::Color& txtColor, con
 }
 
 void HexagonDialogBox::drawBox(Utils::FastVertexVectorTris& quads,
-                               const sf::Color&             frameColor,
+                               const sf::Color              frameColor,
                                const float                  x1,
                                const float                  x2,
                                const float                  y1,
@@ -143,7 +143,7 @@ void HexagonDialogBox::drawBox(Utils::FastVertexVectorTris& quads,
     quads.batch_unsafe_emplace_back_quad(frameColor, nw, sw, se, ne);
 }
 
-void HexagonDialogBox::drawText(const sf::View& view, const sf::Color& txtColor, const float xOffset, const float yOffset)
+void HexagonDialogBox::drawText(const sf::View& view, const sf::Color txtColor, const float xOffset, const float yOffset)
 {
     float       heightOffset = 0.f;
     const float interline    = lineHeight * 1.5f;
@@ -167,7 +167,11 @@ void HexagonDialogBox::drawText(const sf::View& view, const sf::Color& txtColor,
 
         if (inputBoxPassword)
         {
-            txtDialog.setString(sf::base::String(std::string(input.size(), '*')));
+            sf::base::String masked;
+            masked.reserve(input.size());
+            for (sf::base::SizeT i = 0; i < input.size(); ++i)
+                masked += '*';
+            txtDialog.setString(masked);
         }
         else
         {
@@ -181,10 +185,7 @@ void HexagonDialogBox::drawText(const sf::View& view, const sf::Color& txtColor,
 
 inline constexpr float fontHeightDifferential = 0.9f;
 
-void HexagonDialogBox::drawTopLeft(const sf::View&  view,
-                                   const sf::Color& txtColor,
-                                   const sf::Color& frameColor,
-                                   const sf::Color& backdropColor)
+void HexagonDialogBox::drawTopLeft(const sf::View& view, const sf::Color txtColor, const sf::Color frameColor, const sf::Color backdropColor)
 {
     Utils::FastVertexVectorTris& dialogFrame = getDialogFrame();
     dialogFrame.clear();
@@ -212,7 +213,7 @@ void HexagonDialogBox::drawTopLeft(const sf::View&  view,
 
 [[nodiscard]] static float calculateFMax(const float configWidth, const float configHeight)
 {
-    return std::max(1024.f / configWidth, 768.f / configHeight);
+    return sf::base::max(1024.f / configWidth, 768.f / configHeight);
 }
 
 [[nodiscard]] static std::tuple<float, float, float> calculateFMaxAndWAndH(const float configWidth,
@@ -226,10 +227,7 @@ void HexagonDialogBox::drawTopLeft(const sf::View&  view,
     return {fmax, w, h};
 }
 
-void HexagonDialogBox::drawCenter(const sf::View&  view,
-                                  const sf::Color& txtColor,
-                                  const sf::Color& frameColor,
-                                  const sf::Color& backdropColor)
+void HexagonDialogBox::drawCenter(const sf::View& view, const sf::Color txtColor, const sf::Color frameColor, const sf::Color backdropColor)
 {
     const auto [fmax, w, h] = calculateFMaxAndWAndH(Config::getWidth(), Config::getHeight(), yPos);
 
@@ -257,10 +255,10 @@ void HexagonDialogBox::drawCenter(const sf::View&  view,
     drawText(view, txtColor, w / 2.f, h - halfHeight - lineHeight * fontHeightDifferential + doubleFrameSize);
 }
 
-void HexagonDialogBox::drawCenterUpperHalf(const sf::View&  view,
-                                           const sf::Color& txtColor,
-                                           const sf::Color& frameColor,
-                                           const sf::Color& backdropColor)
+void HexagonDialogBox::drawCenterUpperHalf(const sf::View& view,
+                                           const sf::Color txtColor,
+                                           const sf::Color frameColor,
+                                           const sf::Color backdropColor)
 {
     const auto [fmax, w, h] = calculateFMaxAndWAndH(Config::getWidth(), Config::getHeight(), yPos);
 

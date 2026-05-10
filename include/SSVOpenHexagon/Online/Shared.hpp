@@ -14,11 +14,11 @@
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Variant.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <sodium.h>
-#include <string>
 
 namespace sf
 {
@@ -42,7 +42,7 @@ struct CiphertextVectorPtr
 
 struct PInvalid
 {
-    std::string error;
+    sf::base::String error;
 };
 
 struct PEncryptedMsg
@@ -59,19 +59,19 @@ struct PEncryptedMsg
 struct CTSPHeartbeat                   { };
 struct CTSPDisconnect                  { };
 struct CTSPPublicKey                   { SodiumPublicKeyArray key; };
-struct CTSPRegister                    { sf::base::U64 steamId; std::string name; std::string passwordHash; };
-struct CTSPLogin                       { sf::base::U64 steamId; std::string name; std::string passwordHash; };
+struct CTSPRegister                    { sf::base::U64 steamId; sf::base::String name; sf::base::String passwordHash; };
+struct CTSPLogin                       { sf::base::U64 steamId; sf::base::String name; sf::base::String passwordHash; };
 struct CTSPLogout                      { sf::base::U64 steamId; };
-struct CTSPDeleteAccount               { sf::base::U64 steamId; std::string passwordHash; };
-struct CTSPRequestTopScores            { sf::base::U64 loginToken; std::string levelValidator; };
+struct CTSPDeleteAccount               { sf::base::U64 steamId; sf::base::String passwordHash; };
+struct CTSPRequestTopScores            { sf::base::U64 loginToken; sf::base::String levelValidator; };
 struct CTSPReplay                      { sf::base::U64 loginToken; replay_file replayFile; };
-struct CTSPRequestOwnScore             { sf::base::U64 loginToken; std::string levelValidator; };
-struct CTSPRequestTopScoresAndOwnScore { sf::base::U64 loginToken; std::string levelValidator; };
-struct CTSPStartedGame                 { sf::base::U64 loginToken; std::string levelValidator; };
+struct CTSPRequestOwnScore             { sf::base::U64 loginToken; sf::base::String levelValidator; };
+struct CTSPRequestTopScoresAndOwnScore { sf::base::U64 loginToken; sf::base::String levelValidator; };
+struct CTSPStartedGame                 { sf::base::U64 loginToken; sf::base::String levelValidator; };
 struct CTSPCompressedReplay            { sf::base::U64 loginToken; compressed_replay_file compressedReplayFile; };
 struct CTSPRequestServerStatus         { sf::base::U64 loginToken; };
 struct CTSPReady                       { sf::base::U64 loginToken; };
-struct CTSPRequestReplay               { sf::base::U64 loginToken; std::string levelValidator; sf::base::U64 scoreTimestamp; };
+struct CTSPRequestReplay               { sf::base::U64 loginToken; sf::base::String levelValidator; sf::base::U64 scoreTimestamp; };
 // clang-format on
 
 #define SSVOH_IDENTITY(x) x
@@ -105,19 +105,19 @@ template <typename T>
 struct STCPKick                   { };
 struct STCPPublicKey              { SodiumPublicKeyArray key; };
 struct STCPRegistrationSuccess    { };
-struct STCPRegistrationFailure    { std::string error; };
-struct STCPLoginSuccess           { sf::base::U64 loginToken; std::string loginName; };
-struct STCPLoginFailure           { std::string error; };
+struct STCPRegistrationFailure    { sf::base::String error; };
+struct STCPLoginSuccess           { sf::base::U64 loginToken; sf::base::String loginName; };
+struct STCPLoginFailure           { sf::base::String error; };
 struct STCPLogoutSuccess          { };
 struct STCPLogoutFailure          { };
 struct STCPDeleteAccountSuccess   { };
-struct STCPDeleteAccountFailure   { std::string error; };
-struct STCPTopScores              { std::string levelValidator; sf::base::Vector<Database::ProcessedScore> scores; };
-struct STCPOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
-struct STCPTopScoresAndOwnScore   { std::string levelValidator; sf::base::Vector<Database::ProcessedScore> scores; sf::base::Optional<Database::ProcessedScore> ownScore; };
-struct STCPServerStatus           { ProtocolVersion protocolVersion; GameVersion gameVersion; sf::base::Vector<std::string> supportedLevelValidators; };
-struct STCPReplayData             { std::string levelValidator; sf::base::U64 scoreTimestamp; compressed_replay_file replay; };
-struct STCPReplayUnavailable      { std::string levelValidator; sf::base::U64 scoreTimestamp; std::string reason; };
+struct STCPDeleteAccountFailure   { sf::base::String error; };
+struct STCPTopScores              { sf::base::String levelValidator; sf::base::Vector<Database::ProcessedScore> scores; };
+struct STCPOwnScore               { sf::base::String levelValidator; Database::ProcessedScore score; };
+struct STCPTopScoresAndOwnScore   { sf::base::String levelValidator; sf::base::Vector<Database::ProcessedScore> scores; sf::base::Optional<Database::ProcessedScore> ownScore; };
+struct STCPServerStatus           { ProtocolVersion protocolVersion; GameVersion gameVersion; sf::base::Vector<sf::base::String> supportedLevelValidators; };
+struct STCPReplayData             { sf::base::String levelValidator; sf::base::U64 scoreTimestamp; compressed_replay_file replay; };
+struct STCPReplayUnavailable      { sf::base::String levelValidator; sf::base::U64 scoreTimestamp; sf::base::String reason; };
 // clang-format on
 
 #define SSVOH_STC_PACKETS_X(x, c)                                                                                    \

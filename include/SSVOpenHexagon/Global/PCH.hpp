@@ -37,29 +37,20 @@
 #include "SFML/Base/Vector.hpp"
 
 #include <array>
-#include <atomic>
 #include <bitset>
 #include <deque>
 #include <exception>
-#include <filesystem>
-#include <fstream>
-#include <functional>
-#include <iostream>
 #include <list>
 #include <map>
 #include <memory>
 #include <random>
-#include <sstream>
 #include <stdexcept>
-#include <string>
 #include <string_view>
-#include <thread>
 #include <tuple>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
-#include <vector>
 
 //
 //
@@ -156,16 +147,6 @@
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 
-//
-//
-// ----------------------------------------------------------------------------
-// SSVUtils
-// ----------------------------------------------------------------------------
-
-#include "SSVOpenHexagon/Utils/Log.hpp"
-
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-#include <SSVUtils/Core/Utils/Rnd.hpp>
 #include <pcg/pcg_random.hpp>
 
 //
@@ -178,6 +159,7 @@
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 #include "SSVOpenHexagon/Input/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Log.hpp"
 
 //
 //
@@ -188,25 +170,3 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
-
-//
-//
-// ----------------------------------------------------------------------------
-// Explicit instantiation declarations (defined in `Instantiations.cpp`)
-// ----------------------------------------------------------------------------
-
-extern template class sf::base::Vector<sf::base::String>;
-
-extern template class sf::base::Optional<int>;
-extern template class sf::base::Optional<sf::base::SizeT>;
-extern template class sf::base::Optional<sf::base::String>;
-
-extern template class std::unordered_map<sf::base::String, float>;
-extern template class std::unordered_map<float, sf::base::String>;
-extern template class std::unordered_map<sf::base::String, sf::base::String>;
-
-extern template class std::unordered_set<sf::base::String>;
-
-extern template class std::function<void()>;
-extern template class std::function<bool()>;
-extern template class std::function<sf::base::String()>;

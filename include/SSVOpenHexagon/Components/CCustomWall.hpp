@@ -86,7 +86,7 @@ public:
         }
     }
 
-    [[gnu::always_inline]] void setVertexColor(const int vertexIndex, const sf::Color& color) noexcept
+    [[gnu::always_inline]] void setVertexColor(const int vertexIndex, const sf::Color color) noexcept
     {
         _vertexColors[vertexIndex] = color;
     }

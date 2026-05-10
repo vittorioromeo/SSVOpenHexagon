@@ -4,10 +4,9 @@
 
 #pragma once
 
+#include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
-
-#include <functional>
 
 namespace sf
 {
@@ -21,9 +20,9 @@ namespace hg
 class Audio
 {
 public:
-    using SoundBufferGetter = std::function<sf::SoundBuffer*(const sf::base::String&)>;
+    using SoundBufferGetter = sf::base::FixedFunction<sf::SoundBuffer*(const sf::base::String&), 64>;
 
-    using MusicPathGetter = std::function<const sf::base::String*(const sf::base::String&)>;
+    using MusicPathGetter = sf::base::FixedFunction<const sf::base::String*(const sf::base::String&), 64>;
 
 private:
     class AudioImpl;

@@ -172,6 +172,21 @@ struct Extractor<sf::base::Array<T, N>>
 };
 
 
+// Mirror of the `encodeField(... const sf::base::String&)` overload above.
+template <>
+struct Extractor<sf::base::String>
+{
+    [[nodiscard]] static bool doExtractInto(sf::base::String& result, sf::OutStringStream& errorOss, sf::Packet& p)
+    {
+        if (!(p >> result))
+        {
+            errorOss << "Error extracting sf::base::String\n";
+            return false;
+        }
+        return true;
+    }
+};
+
 template <typename T>
 struct Extractor<sf::base::Vector<T>>
 {
@@ -485,6 +500,14 @@ sf::Packet& getStaticPacketBuffer()
 template <typename TData, typename TField>
 auto encodeField(sf::Packet& p, const TData& data, const TField& field);
 
+// Forward declaration so that recursive calls through the generic template
+// can find this overload during phase-2 lookup. Required because
+// `sf::base::String` would otherwise be picked up by the generic
+// `encodeFieldImpl(... long)` and forwarded to `minipfr::tieAsTuple`, which
+// fails since `String` isn't an aggregate.
+template <typename TData>
+void encodeField(sf::Packet& p, const TData& data, const sf::base::String& s);
+
 template <typename TData, typename TField>
 void encodeFieldImpl(sf::Packet& p, const TData& data, const TField& field, long)
 {
@@ -535,6 +558,13 @@ void encodeField(sf::Packet& p, const TData& data, const sf::base::Optional<T>& 
     {
         encodeField(p, data, *opt);
     }
+}
+
+template <typename TData>
+void encodeField(sf::Packet& p, const TData& data, const sf::base::String& s)
+{
+    (void)data;
+    p << s;
 }
 
 template <typename TData>
@@ -700,40 +730,40 @@ SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS_ENCRYPTED, NOTHING)
 
 // ----------------------------------------------------------------------------
 
-#define HANDLE_PACKET(type)                                                  \
-    do                                                                       \
-    {                                                                        \
-        if (*pt == getPacketType<type>())                                    \
-        {                                                                    \
-            type result;                                                     \
-                                                                             \
-            if (!extractAllMembers(result))                                  \
-            {                                                                \
-                return VariantType{PInvalid{.error = errorOss.getString()}}; \
-            }                                                                \
-                                                                             \
-            return VariantType{result};                                      \
-        }                                                                    \
+#define HANDLE_PACKET(type)                                                             \
+    do                                                                                  \
+    {                                                                                   \
+        if (*pt == getPacketType<type>())                                               \
+        {                                                                               \
+            type result;                                                                \
+                                                                                        \
+            if (!extractAllMembers(result))                                             \
+            {                                                                           \
+                return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}}; \
+            }                                                                           \
+                                                                                        \
+            return VariantType{result};                                                 \
+        }                                                                               \
     } while (false)
 
-#define INJECT_COMMON_PACKET_HANDLING_CODE(function)                          \
-    const sf::base::Optional<PacketType> pt = extractPacketType(errorOss, p); \
-                                                                              \
-    if (!pt.hasValue())                                                       \
-    {                                                                         \
-        return VariantType{PInvalid{.error = errorOss.getString()}};          \
-    }                                                                         \
-                                                                              \
-    if (*pt == getPacketType<PEncryptedMsg>())                                \
-    {                                                                         \
-        if (!decodeEncryptedPacket(keyReceive, errorOss, p))                  \
-        {                                                                     \
-            return VariantType{PInvalid{.error = errorOss.getString()}};      \
-        }                                                                     \
-                                                                              \
-        return function(keyReceive, errorOss, getStaticPacketBuffer());       \
-    }                                                                         \
-                                                                              \
+#define INJECT_COMMON_PACKET_HANDLING_CODE(function)                                \
+    const sf::base::Optional<PacketType> pt = extractPacketType(errorOss, p);       \
+                                                                                    \
+    if (!pt.hasValue())                                                             \
+    {                                                                               \
+        return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};     \
+    }                                                                               \
+                                                                                    \
+    if (*pt == getPacketType<PEncryptedMsg>())                                      \
+    {                                                                               \
+        if (!decodeEncryptedPacket(keyReceive, errorOss, p))                        \
+        {                                                                           \
+            return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}}; \
+        }                                                                           \
+                                                                                    \
+        return function(keyReceive, errorOss, getStaticPacketBuffer());             \
+    }                                                                               \
+                                                                                    \
     const auto extractAllMembers = makeExtractAllMembers(errorOss, p)
 
 
@@ -793,14 +823,14 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::OutSt
 
     if (!pt.hasValue())
     {
-        return VariantType{PInvalid{.error = errorOss.getString()}};
+        return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};
     }
 
     if (*pt == getPacketType<PEncryptedMsg>())
     {
         if (!decodeEncryptedPacket(keyReceive, errorOss, p))
         {
-            return VariantType{PInvalid{.error = errorOss.getString()}};
+            return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};
         }
 
         return func(keyReceive, errorOss, getStaticPacketBuffer());
@@ -822,7 +852,7 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::OutSt
 
             if (!extractAllMembers(result))
             {
-                variantResult = VariantType{PInvalid{.error = errorOss.getString()}};
+                variantResult = VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};
             }
 
             variantResult = VariantType{result};
@@ -832,7 +862,7 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::OutSt
     if (!found)
     {
         errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
-        return VariantType{PInvalid{.error = errorOss.getString()}};
+        return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};
     }
 
     return variantResult;
@@ -853,7 +883,7 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::OutSt
 {
     if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(errorOss, p))
     {
-        return PVClientToServer{PInvalid{.error = errorOss.getString()}};
+        return PVClientToServer{PInvalid{.error = errorOss.to<sf::base::String>()}};
     }
 
     return decodeClientToServerPacketInner(keyReceive, errorOss, p);
@@ -904,7 +934,7 @@ SSVOH_STC_PACKETS_X(INSTANTIATE_MAKE_STC_ENCRYPTED, NOTHING)
 {
     if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(errorOss, p))
     {
-        return PVServerToClient{PInvalid{.error = errorOss.getString()}};
+        return PVServerToClient{PInvalid{.error = errorOss.to<sf::base::String>()}};
     }
 
     return decodeServerToClientPacketInner(keyReceive, errorOss, p);

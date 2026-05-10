@@ -15,11 +15,11 @@
 
 #include "SFML/System/Priv/Vec2Base.hpp"
 
+#include "SFML/Base/Builtin/Memcpy.hpp"
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/PlacementNew.hpp"
 #include "SFML/Base/SizeT.hpp"
 
-#include <cstring>
 
 namespace hg::Utils
 {
@@ -63,7 +63,7 @@ public:
 
         if (_data != nullptr) [[unlikely]]
         {
-            std::memcpy(new_data.get(), _data.get(), sizeof(sf::Vertex) * _size);
+            SFML_BASE_MEMCPY(new_data.get(), _data.get(), sizeof(sf::Vertex) * _size);
         }
         else
         {
@@ -86,7 +86,7 @@ public:
 
         SSVOH_ASSERT(_data != nullptr);
 
-        std::memcpy(_data.get() + _size, rhs._data.get(), sizeof(sf::Vertex) * rhs._size);
+        SFML_BASE_MEMCPY(_data.get() + _size, rhs._data.get(), sizeof(sf::Vertex) * rhs._size);
 
         _size += rhs._size;
     }
@@ -112,7 +112,7 @@ public:
     }
 
     template <typename... Ts>
-    [[gnu::always_inline, gnu::flatten]] void batch_unsafe_emplace_back(const sf::Color& color, Ts&&... positions)
+    [[gnu::always_inline, gnu::flatten]] void batch_unsafe_emplace_back(const sf::Color color, Ts&&... positions)
     {
         SSVOH_ASSERT(_size + sizeof...(positions) <= _capacity);
         SSVOH_ASSERT(_data != nullptr);
@@ -180,11 +180,11 @@ class FastVertexVectorTris : public FastVertexVector<sf::PrimitiveType::Triangle
 {
 public:
     [[gnu::always_inline, gnu::flatten]] void batch_unsafe_emplace_back_quad(
-        const sf::Color& color,
-        const sf::Vec2f  nw,
-        const sf::Vec2f  sw,
-        const sf::Vec2f  se,
-        const sf::Vec2f  ne)
+        const sf::Color color,
+        const sf::Vec2f nw,
+        const sf::Vec2f sw,
+        const sf::Vec2f se,
+        const sf::Vec2f ne)
     {
         batch_unsafe_emplace_back(color, //
                                   nw,
@@ -196,14 +196,14 @@ public:
     }
 
     [[gnu::always_inline, gnu::flatten]] void unsafe_emplace_back_quad( //
-        const sf::Vec2f  nw,
-        const sf::Color& colorNW, //
-        const sf::Vec2f  sw,
-        const sf::Color& colorSW, //
-        const sf::Vec2f  se,
-        const sf::Color& colorSE, //
-        const sf::Vec2f  ne,
-        const sf::Color& colorNE)
+        const sf::Vec2f nw,
+        const sf::Color colorNW, //
+        const sf::Vec2f sw,
+        const sf::Color colorSW, //
+        const sf::Vec2f se,
+        const sf::Color colorSE, //
+        const sf::Vec2f ne,
+        const sf::Color colorNE)
     {
         unsafe_emplace_back(nw, colorNW);
         unsafe_emplace_back(sw, colorSW);

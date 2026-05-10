@@ -7,6 +7,8 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include "SFML/Base/Macros.hpp"
+#include "SFML/Base/PlacementNew.hpp"
+#include "SFML/Base/Trait/RemoveReference.hpp"
 
 namespace hg::Utils
 {
@@ -94,7 +96,7 @@ public:
         {
             if (o)
             {
-                new (s) unref_type(SFML_BASE_MOVE(*static_cast<unref_type*>(o)));
+                SFML_BASE_PLACEMENT_NEW(s) unref_type(SFML_BASE_MOVE(*static_cast<unref_type*>(o)));
             }
             else
             {

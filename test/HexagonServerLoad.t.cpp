@@ -22,17 +22,17 @@
 #include "SFML/Network/Socket.hpp"
 #include "SFML/Network/TcpSocket.hpp"
 
+#include "SFML/System/Atomic.hpp"
 #include "SFML/System/IO.hpp"
+#include "SFML/System/Thread.hpp"
 #include "SFML/System/Time.hpp"
 
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/Vector.hpp"
 
-#include <atomic>
 #include <sodium.h>
-#include <thread>
 #include <unordered_set>
-#include <vector>
 
 namespace
 {
@@ -53,7 +53,7 @@ void connectWithRetry(sf::TcpSocket& socket, const unsigned short port, const st
         {
             return;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        sf::ThisThread::sleepFor(sf::milliseconds(10));
     }
     TEST_ASSERT(false && "connectWithRetry timed out");
 }
@@ -68,14 +68,14 @@ Status receivePacketWithRetry(sf::TcpSocket& socket, sf::Packet& packet, const s
         {
             return s;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        sf::ThisThread::sleepFor(sf::milliseconds(1));
     }
     return Status::NotReady;
 }
 
 // One client worker: connect, perform `messagesPerClient` round trips against
 // the server, disconnect. Every successful round trip increments `successes`.
-void clientWorker(const unsigned short port, const int messagesPerClient, std::atomic<int>& successes)
+void clientWorker(const unsigned short port, const int messagesPerClient, sf::Atomic<int>& successes)
 {
     auto socketOpt = sf::TcpSocket::create(/* isBlocking */ true);
     if (!socketOpt.hasValue())
@@ -110,7 +110,7 @@ void clientWorker(const unsigned short port, const int messagesPerClient, std::a
                 break;
             }
             // Partial or NotReady -- brief yield and retry.
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            sf::ThisThread::sleepFor(sf::milliseconds(1));
         }
         if (sendStatus != Status::Done)
         {
@@ -127,7 +127,7 @@ void clientWorker(const unsigned short port, const int messagesPerClient, std::a
 
         if (decoded.is<hg::STCPPublicKey>())
         {
-            successes.fetch_add(1, std::memory_order_relaxed);
+            successes.fetchAddRelaxed(1);
         }
     }
 
@@ -150,7 +150,7 @@ int main()
     const unsigned short port = server.getListenerPort();
     TEST_ASSERT_NE(port, 0);
 
-    std::thread serverThread{[&server] { server.run(); }};
+    sf::Thread serverThread{[&server] { server.run(); }};
 
     // ------------------------------------------------------------------------
     // Workload sizing: chosen to push the event loop without blowing past
@@ -160,17 +160,17 @@ int main()
     constexpr int messagesPerClient = 100;
     constexpr int expectedSuccesses = nClients * messagesPerClient;
 
-    std::atomic<int> successes{0};
+    sf::Atomic<int> successes{0};
 
     const auto startTime = std::chrono::steady_clock::now();
 
-    std::vector<std::thread> clientThreads;
+    sf::base::Vector<sf::Thread> clientThreads;
     clientThreads.reserve(nClients);
     for (int i = 0; i < nClients; ++i)
     {
-        clientThreads.emplace_back(clientWorker, port, messagesPerClient, std::ref(successes));
+        clientThreads.emplaceBack([port, &successes] { clientWorker(port, messagesPerClient, successes); });
     }
-    for (std::thread& t : clientThreads)
+    for (sf::Thread& t : clientThreads)
     {
         t.join();
     }
@@ -179,7 +179,7 @@ int main()
 
     // ------------------------------------------------------------------------
     // Every request must have produced a response.
-    TEST_ASSERT_EQ(successes.load(), expectedSuccesses);
+    TEST_ASSERT_EQ(successes.loadRelaxed(), expectedSuccesses);
 
     // ------------------------------------------------------------------------
     // Server must still be alive and responsive after the storm -- exercise it

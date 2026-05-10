@@ -23,4 +23,12 @@ template <typename T>
     return (T(0) < mX) - (mX < T(0));
 }
 
+// Mathematically correct (always non-negative) `mVal % mUB` for signed
+// `mVal`. Requires `mUB > 0`.
+template <typename T1, typename T2>
+[[gnu::always_inline]] inline constexpr auto getMod(const T1 mVal, const T2 mUB) noexcept
+{
+    return ((mVal % mUB) + mUB) % mUB;
+}
+
 } // namespace hg::Utils

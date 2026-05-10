@@ -16,15 +16,13 @@
 
 #include "SFML/System/Angle.hpp"
 
+#include "SFML/Base/Math/Fmod.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SSVUtils/Core/Utils/Containers.hpp>
-#include <SSVUtils/Core/Utils/Math.hpp>
 #include <algorithm>
 
-#include <cmath>
 
 namespace hg
 {
@@ -90,7 +88,7 @@ sf::Color StyleData::calculateColor(const float mCurrentHue, const float mPulseF
 
     if (mColorData.dynamic)
     {
-        const float hue = std::fmod(mCurrentHue + mColorData.hueShift, 360.f) / 360.f;
+        const float hue = SFML_BASE_MATH_FMODF(mCurrentHue + mColorData.hueShift, 360.f) / 360.f;
 
         const sf::Color dynamicColor = Utils::getColorFromHue(hue);
 
@@ -195,7 +193,7 @@ void StyleData::computeColors()
         const unsigned int rotation = currentSwapTime / (maxSwapTime / 2.f);
 
         std::rotate(currentColors.begin(),
-                    currentColors.begin() + ssvu::getMod(rotation + BGColorOffset, currentColors.size()),
+                    currentColors.begin() + Utils::getMod(rotation + BGColorOffset, currentColors.size()),
                     currentColors.end());
     }
 }
@@ -219,7 +217,7 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
     for (auto i(0u); i < sides; ++i)
     {
         const float angle{Utils::toRad(BGRotOff) + div * i};
-        sf::Color   currentColor{colors[ssvu::getMod(i, colors.size())]};
+        sf::Color   currentColor{colors[Utils::getMod(i, colors.size())]};
 
         const bool mustDarkenUnevenBackgroundChunk = (i % 2 == 0 && i == sides - 1) && darkenUnevenBackgroundChunk;
 
@@ -250,8 +248,8 @@ void StyleData::drawBackgroundMenuHexagonImpl(
     const float halfDiv{div / 2.f};
     const float hexagonRadius{fourByThree ? 75.f : 100.f};
 
-    const sf::Color& colorMain{blackAndWhite ? sf::Color::White : getMainColor()};
-    const sf::Color  colorCap{blackAndWhite ? sf::Color::Black : getCapColorResult()};
+    const sf::Color colorMain{blackAndWhite ? sf::Color::White : getMainColor()};
+    const sf::Color colorCap{blackAndWhite ? sf::Color::Black : getCapColorResult()};
 
     for (auto i(0u); i < sides; ++i)
     {
@@ -298,22 +296,22 @@ void StyleData::setCapColor(const CapColor& mCapColor)
     capColor = mCapColor;
 }
 
-[[nodiscard]] const sf::Color& StyleData::getMainColor() const noexcept
+[[nodiscard]] const sf::Color StyleData::getMainColor() const noexcept
 {
     return currentMainColor;
 }
 
-[[nodiscard]] const sf::Color& StyleData::getPlayerColor() const noexcept
+[[nodiscard]] const sf::Color StyleData::getPlayerColor() const noexcept
 {
     return currentPlayerColor;
 }
 
-[[nodiscard]] const sf::Color& StyleData::getTextColor() const noexcept
+[[nodiscard]] const sf::Color StyleData::getTextColor() const noexcept
 {
     return currentTextColor;
 }
 
-[[nodiscard]] const sf::Color& StyleData::getWallColor() const noexcept
+[[nodiscard]] const sf::Color StyleData::getWallColor() const noexcept
 {
     return currentWallColor;
 }
@@ -323,10 +321,10 @@ void StyleData::setCapColor(const CapColor& mCapColor)
     return currentColors;
 }
 
-[[nodiscard]] const sf::Color& StyleData::getColor(const sf::base::SizeT mIdx) const noexcept
+[[nodiscard]] const sf::Color StyleData::getColor(const sf::base::SizeT mIdx) const noexcept
 {
     SSVOH_ASSERT(!currentColors.empty());
-    return currentColors[ssvu::getMod(mIdx, currentColors.size())];
+    return currentColors[Utils::getMod(mIdx, currentColors.size())];
 }
 
 [[nodiscard]] float StyleData::getCurrentHue() const noexcept
@@ -339,7 +337,7 @@ void StyleData::setCapColor(const CapColor& mCapColor)
     return currentSwapTime;
 }
 
-[[nodiscard]] const sf::Color& StyleData::get3DOverrideColor() const noexcept
+[[nodiscard]] const sf::Color StyleData::get3DOverrideColor() const noexcept
 {
     return current3DOverrideColor;
 }

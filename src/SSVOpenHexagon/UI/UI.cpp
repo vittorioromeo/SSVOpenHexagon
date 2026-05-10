@@ -6,7 +6,6 @@
 #include "SSVOpenHexagon/UI/UI.hpp"
 
 #include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/RectangleShapeData.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 #include "SFML/Graphics/TextData.hpp"
@@ -14,10 +13,15 @@
 #include "SFML/Graphics/Transform.hpp"
 #include "SFML/Graphics/View.hpp"
 
+#include "SFML/System/Priv/Vec2Base.hpp"
+#include "SFML/System/Rect2.hpp"
 #include "SFML/System/UnicodeString.hpp"
 
+#include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Math/Exp.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 
 #include <cmath>
 #include <cstdarg>
@@ -327,7 +331,7 @@ void separator(Context& ctx)
 // feedback on both ends of the theme range.
 void drawHoverOverlay(Context& ctx, sf::Rect2f r)
 {
-    const sf::Color& bg = ctx.colRow;
+    const sf::Color bg = ctx.colRow;
     const int bgLuma = (static_cast<int>(bg.r) * 299 + static_cast<int>(bg.g) * 587 + static_cast<int>(bg.b) * 114) / 1000;
     drawRect(ctx,
              r,
@@ -523,7 +527,7 @@ bool textField(Context& ctx, const char* labelText, sf::base::String& buf, bool 
     {
         if (ctx.input.backspace && buf.size() > 0)
         {
-            buf.erase(buf.size() - 1, 1);
+            buf.popBack();
             changed = true;
         }
         if (ctx.input.typedChars[0] != '\0')

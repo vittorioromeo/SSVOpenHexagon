@@ -4,23 +4,20 @@
 
 #pragma once
 
+#include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <functional>
-#include <string_view>
+namespace sf
+{
+class Path;
+}
 
 namespace Lua
 {
 class LuaContext;
-}
-
-namespace ssvu
-{
-
-class TimelineManager;
-
 }
 
 namespace hg
@@ -64,13 +61,15 @@ template <typename T>
 inline constexpr bool isSameType<T, T> = true;
 
 template <typename T, typename... TArgs>
-T runLuaFunction(Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs);
+T runLuaFunction(Lua::LuaContext& mLua, sf::base::StringView mName, const TArgs&... mArgs);
 
 template <typename T, typename... TArgs>
-sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs);
+sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(Lua::LuaContext&     mLua,
+                                                            sf::base::StringView mName,
+                                                            const TArgs&... mArgs);
 
 template <typename... TArgs>
-void runVoidLuaFunctionIfExists(Lua::LuaContext& mLua, std::string_view mName, const TArgs&... mArgs)
+void runVoidLuaFunctionIfExists(Lua::LuaContext& mLua, sf::base::StringView mName, const TArgs&... mArgs)
 {
     (void)runLuaFunctionIfExists<void>(mLua, mName, mArgs...);
 }
@@ -83,31 +82,31 @@ const PackData& findDependencyPackDataOrThrow(
     const sf::base::String& mPackAuthor);
 
 void withDependencyScriptFilename(
-    const std::function<void(const sf::base::String&)> f,
-    sf::base::Vector<sf::base::String>&                execScriptPackPathContext,
-    HGAssets&                                          assets,
-    const PackData&                                    currentPack,
-    const sf::base::String&                            mPackDisambiguator,
-    const sf::base::String&                            mPackName,
-    const sf::base::String&                            mPackAuthor,
-    const sf::base::String&                            mScriptName);
+    const sf::base::FixedFunction<void(const sf::base::String&), 64>& f,
+    sf::base::Vector<sf::Path>&                                       execScriptPackPathContext,
+    HGAssets&                                                         assets,
+    const PackData&                                                   currentPack,
+    const sf::base::String&                                           mPackDisambiguator,
+    const sf::base::String&                                           mPackName,
+    const sf::base::String&                                           mPackAuthor,
+    const sf::base::String&                                           mScriptName);
 
-[[nodiscard]] sf::base::String getDependentScriptFilename(sf::base::Vector<sf::base::String>& execScriptPackPathContext,
-                                                          const sf::base::String&             currentPackPath,
-                                                          const sf::base::String&             mScriptName);
+[[nodiscard]] sf::base::String getDependentScriptFilename(sf::base::Vector<sf::Path>& execScriptPackPathContext,
+                                                          const sf::Path&             currentPackPath,
+                                                          const sf::base::String&     mScriptName);
 
 void withDependencyShaderFilename(
-    const std::function<void(const sf::base::String&)> f,
-    sf::base::Vector<sf::base::String>&                execScriptPackPathContext,
-    HGAssets&                                          assets,
-    const PackData&                                    currentPack,
-    const sf::base::String&                            mPackDisambiguator,
-    const sf::base::String&                            mPackName,
-    const sf::base::String&                            mPackAuthor,
-    const sf::base::String&                            mShaderName);
+    const sf::base::FixedFunction<void(const sf::base::String&), 64>& f,
+    sf::base::Vector<sf::Path>&                                       execScriptPackPathContext,
+    HGAssets&                                                         assets,
+    const PackData&                                                   currentPack,
+    const sf::base::String&                                           mPackDisambiguator,
+    const sf::base::String&                                           mPackName,
+    const sf::base::String&                                           mPackAuthor,
+    const sf::base::String&                                           mShaderName);
 
-[[nodiscard]] sf::base::String getDependentShaderFilename(sf::base::Vector<sf::base::String>& execScriptPackPathContext,
-                                                          const sf::base::String&             currentPackPath,
-                                                          const sf::base::String&             mShaderName);
+[[nodiscard]] sf::base::String getDependentShaderFilename(sf::base::Vector<sf::Path>& execScriptPackPathContext,
+                                                          const sf::Path&             currentPackPath,
+                                                          const sf::base::String&     mShaderName);
 
 } // namespace hg::Utils

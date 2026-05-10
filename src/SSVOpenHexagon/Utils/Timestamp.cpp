@@ -4,10 +4,14 @@
 
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 
 #include <iomanip>
 #include <sstream>
+
+#include <ctime>
 
 namespace hg::Utils
 {

@@ -3,12 +3,10 @@
 #include "SFML/System/IO.hpp"
 
 #include "SFML/Base/Abort.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Trait/CommonType.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
-
-#include <ostream>
-#include <random>
 
 
 #define TEST_MAIN(...) int __attribute__((const)) main(__VA_ARGS__)
@@ -37,7 +35,7 @@ inline auto& clear_and_get_ostringstream() noexcept
 
 [[noreturn]] inline void fail() noexcept
 {
-    sf::cOut() << get_ostringstream().getString() << sf::endL;
+    sf::cOut() << get_ostringstream().to<sf::base::String>() << sf::endL;
     sf::base::abort();
 }
 
@@ -86,9 +84,8 @@ void do_test(bool x, TF&& f)
         return;
     }
 
-    auto&        oss = impl::clear_and_get_ostringstream();
-    std::ostream error{oss.rdbuf()};
-    f(error);
+    auto& oss = impl::clear_and_get_ostringstream();
+    f(oss);
     impl::fail();
 }
 
@@ -202,29 +199,3 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
 #define TEST_ASSERT_NS_LE(lhs, rhs) TEST_ASSERT_NS_OP(lhs, <=, rhs)
 #define TEST_ASSERT_NS_GT(lhs, rhs) TEST_ASSERT_NS_OP(lhs, >, rhs)
 #define TEST_ASSERT_NS_GE(lhs, rhs) TEST_ASSERT_NS_OP(lhs, >=, rhs)
-
-// ----------------------------------------------------------------------------
-
-[[nodiscard]] auto& getRng()
-{
-    static std::random_device rd;
-    static std::mt19937       rng(rd());
-
-    return rng;
-}
-
-[[nodiscard]] float getRndFloat(float min, float max)
-{
-    return std::uniform_real_distribution<float>{min, max}(getRng());
-}
-
-template <typename T>
-[[nodiscard]] T getRndInt(T min, T max)
-{
-    return std::uniform_int_distribution<T>{min, max}(getRng());
-}
-
-[[nodiscard]] bool getRndBool()
-{
-    return getRndInt<int>(0, 10) > 5;
-}

@@ -3,13 +3,16 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/Replay.hpp"
+#include "TestRandom.hpp"
 #include "TestUtils.hpp"
 
 #include "SFML/Network/Packet.hpp"
 
 #include "SFML/System/Path.hpp"
 
-#include <random>
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/SizeT.hpp"
 
 static void test_replay_data_basic()
 {
@@ -23,7 +26,7 @@ static void test_replay_data_basic()
     rd.record_input(true, false, true, false);
     TEST_ASSERT_EQ(rd.size(), 2);
     TEST_ASSERT_EQ(rd.at(0), hg::input_bitset{});
-    TEST_ASSERT_EQ(rd.at(1), hg::input_bitset{"0101"});
+    TEST_ASSERT_EQ(rd.at(1), hg::input_bitset{0b0101});
 }
 
 static void test_replay_data_serialization_to_buffer()
@@ -39,15 +42,15 @@ static void test_replay_data_serialization_to_buffer()
     rd.record_input(true, false, false, true);
 
     TEST_ASSERT_EQ(rd.size(), 6);
-    TEST_ASSERT_EQ(rd.at(0), hg::input_bitset{"0000"});
-    TEST_ASSERT_EQ(rd.at(1), hg::input_bitset{"0010"});
-    TEST_ASSERT_EQ(rd.at(2), hg::input_bitset{"0101"});
-    TEST_ASSERT_EQ(rd.at(3), hg::input_bitset{"0000"});
-    TEST_ASSERT_EQ(rd.at(4), hg::input_bitset{"0010"});
-    TEST_ASSERT_EQ(rd.at(5), hg::input_bitset{"1001"});
+    TEST_ASSERT_EQ(rd.at(0), hg::input_bitset{0b0000});
+    TEST_ASSERT_EQ(rd.at(1), hg::input_bitset{0b0010});
+    TEST_ASSERT_EQ(rd.at(2), hg::input_bitset{0b0101});
+    TEST_ASSERT_EQ(rd.at(3), hg::input_bitset{0b0000});
+    TEST_ASSERT_EQ(rd.at(4), hg::input_bitset{0b0010});
+    TEST_ASSERT_EQ(rd.at(5), hg::input_bitset{0b1001});
 
     constexpr sf::base::SizeT buf_size{1024};
-    std::byte                 buf[buf_size];
+    hg::byte                  buf[buf_size];
 
     TEST_ASSERT_NS(rd.serialize(buf, buf_size));
 
@@ -70,15 +73,15 @@ static void test_replay_data_serialization_to_buffer_too_small()
     rd.record_input(true, false, false, true);
 
     TEST_ASSERT_EQ(rd.size(), 6);
-    TEST_ASSERT_EQ(rd.at(0), hg::input_bitset{"0000"});
-    TEST_ASSERT_EQ(rd.at(1), hg::input_bitset{"0010"});
-    TEST_ASSERT_EQ(rd.at(2), hg::input_bitset{"0101"});
-    TEST_ASSERT_EQ(rd.at(3), hg::input_bitset{"0000"});
-    TEST_ASSERT_EQ(rd.at(4), hg::input_bitset{"0010"});
-    TEST_ASSERT_EQ(rd.at(5), hg::input_bitset{"1001"});
+    TEST_ASSERT_EQ(rd.at(0), hg::input_bitset{0b0000});
+    TEST_ASSERT_EQ(rd.at(1), hg::input_bitset{0b0010});
+    TEST_ASSERT_EQ(rd.at(2), hg::input_bitset{0b0101});
+    TEST_ASSERT_EQ(rd.at(3), hg::input_bitset{0b0000});
+    TEST_ASSERT_EQ(rd.at(4), hg::input_bitset{0b0010});
+    TEST_ASSERT_EQ(rd.at(5), hg::input_bitset{0b1001});
 
     constexpr sf::base::SizeT buf_size{10};
-    std::byte                 buf[buf_size];
+    hg::byte                  buf[buf_size];
 
     TEST_ASSERT_NS(!rd.serialize(buf, buf_size));
 }
@@ -96,22 +99,22 @@ static void test_replay_player_basic()
 
     hg::replay_player rp{rd};
 
-    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{"0000"});
+    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{0b0000});
     TEST_ASSERT(!rp.done());
 
-    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{"0010"});
+    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{0b0010});
     TEST_ASSERT(!rp.done());
 
-    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{"0101"});
+    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{0b0101});
     TEST_ASSERT(!rp.done());
 
-    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{"0000"});
+    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{0b0000});
     TEST_ASSERT(!rp.done());
 
-    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{"0010"});
+    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{0b0010});
     TEST_ASSERT(!rp.done());
 
-    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{"1001"});
+    TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{0b1001});
     TEST_ASSERT(rp.done());
 
     TEST_ASSERT_EQ(rp.get_current_and_move_forward(), hg::input_bitset{});
@@ -152,7 +155,7 @@ static void test_replay_file_serialization_to_buffer()
     };
 
     constexpr sf::base::SizeT buf_size{2048};
-    std::byte                 buf[buf_size];
+    hg::byte                  buf[buf_size];
 
     TEST_ASSERT_NS(rf.serialize(buf, buf_size));
 

@@ -4,17 +4,14 @@
 
 #pragma once
 
-#include <unordered_set>
-
 namespace hg::Utils
 {
 
-// From:
-// https://en.cppreference.com/w/cpp/container/unordered_set/erase_if
-
-template <class Key, class Hash, class KeyEqual, class Alloc, class Pred>
-typename std::unordered_set<Key, Hash, KeyEqual, Alloc>::size_type erase_if(std::unordered_set<Key, Hash, KeyEqual, Alloc>& c,
-                                                                            Pred pred)
+// Generic `erase_if` over any associative container with `begin/end/erase`.
+// Works for `std::unordered_set` / `std::unordered_map` and the
+// `ankerl::unordered_dense` equivalents.
+template <typename Container, typename Pred>
+auto erase_if(Container& c, Pred pred) -> decltype(c.size())
 {
     auto old_size = c.size();
     for (auto i = c.begin(), last = c.end(); i != last;)

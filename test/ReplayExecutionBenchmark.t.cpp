@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
+#include "TestRandom.hpp"
 #include "TestUtils.hpp"
 
 #include "SFML/Base/Array.hpp"

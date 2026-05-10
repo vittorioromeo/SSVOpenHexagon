@@ -9,8 +9,6 @@
 
 #include "SFML/Base/String.hpp"
 
-#include <SSVUtils/Core/String/Utils.hpp>
-#include <unordered_set>
 
 namespace hg
 {

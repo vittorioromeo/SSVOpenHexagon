@@ -6,11 +6,10 @@
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
+#include "SSVOpenHexagon/Utils/Random.hpp"
 
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
-
-#include <SSVUtils/Core/Utils/Rnd.hpp>
 
 
 namespace hg
@@ -49,7 +48,7 @@ void MusicData::addSegment(float mSeconds, float mBeatPulseDelayOffset)
         return playSegment(mPackId, mAudio, 0);
     }
 
-    const sf::base::SizeT rndIdx = ssvu::getRndI(sf::base::SizeT(0), segments.size());
+    const sf::base::SizeT rndIdx = hg::Utils::getRndI(sf::base::SizeT(0), segments.size());
     return playSegment(mPackId, mAudio, rndIdx);
 }
 

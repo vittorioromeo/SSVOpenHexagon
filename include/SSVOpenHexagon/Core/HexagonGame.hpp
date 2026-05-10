@@ -16,6 +16,7 @@
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
+#include "SSVOpenHexagon/Global/StringHash.hpp" // IWYU pragma: keep -- must precede AnkerlUnorderedDense
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
@@ -43,16 +44,16 @@
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <string>
-#include <string_view>
 
 struct ImGuiInputTextCallbackData;
 
 namespace sf
 {
+class Path;
 class RenderTarget;
 } // namespace sf
 
@@ -145,8 +146,12 @@ private:
     sf::base::Vector<sf::base::String> ilcCmdLog;
     sf::base::Vector<sf::base::String> ilcHistory;
     int                                ilcHistoryPos{-1};
-    std::string                        ilcCmdBuffer;
-    std::string                        ilcTrackBuffer;
+    // Plain `char` buffers paired with the C-style `ImGui::InputText(label, buf, size)` overload,
+    // so neither ImGui's `<string>` adapter (`misc/cpp/imgui_stdlib.h`) nor `std::string` itself
+    // need to be visible in this header.
+    static constexpr unsigned int      ilcBufferSize = 1024;
+    char                               ilcCmdBuffer[ilcBufferSize]{};
+    char                               ilcTrackBuffer[ilcBufferSize]{};
     bool                               ilcShowConsole{false};
     bool                               ilcShowConsoleNext{false};
     sf::base::Vector<sf::base::String> ilcLuaTracked;
@@ -154,7 +159,7 @@ private:
     sf::base::Vector<sf::base::String> ilcLuaTrackedResults;
     bool                               debugPause{false};
 
-    sf::base::Vector<sf::base::String> execScriptPackPathContext;
+    sf::base::Vector<sf::Path> execScriptPackPathContext;
 
 public:
     int ilcTextEditCallback(ImGuiInputTextCallbackData* data);
@@ -353,10 +358,10 @@ public:
 
     void initLuaAndPrintDocs();
 
-    void luaExceptionLippincottHandler(std::string_view mName);
+    void luaExceptionLippincottHandler(sf::base::StringView mName);
 
     template <typename T, typename... TArgs>
-    auto runLuaFunctionIfExists(std::string_view mName, const TArgs&... mArgs)
+    auto runLuaFunctionIfExists(sf::base::StringView mName, const TArgs&... mArgs)
     try
     {
         return Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
@@ -367,7 +372,7 @@ public:
     }
 
     template <typename... TArgs>
-    void runVoidLuaFunctionIfExists(std::string_view mName, const TArgs&... mArgs)
+    void runVoidLuaFunctionIfExists(sf::base::StringView mName, const TArgs&... mArgs)
     {
         (void)runLuaFunctionIfExists<void>(mName, mArgs...);
     }
@@ -430,9 +435,9 @@ private:
     void sideChange(unsigned int mSideNumber);
 
     // Draw methods
-    void drawText_TimeAndStatus(const sf::Color& offsetColor, const sf::RenderStates& mStates);
-    void drawText_Message(const sf::Color& offsetColor, const sf::RenderStates& mStates);
-    void drawText_PersonalBest(const sf::Color& offsetColor, const sf::RenderStates& mStates);
+    void drawText_TimeAndStatus(const sf::Color offsetColor, const sf::RenderStates& mStates);
+    void drawText_Message(const sf::Color offsetColor, const sf::RenderStates& mStates);
+    void drawText_PersonalBest(const sf::Color offsetColor, const sf::RenderStates& mStates);
     void drawText(const sf::RenderStates& mStates);
     void drawKeyIcons();
     void drawLevelInfo(const sf::RenderStates& mStates);
@@ -567,7 +572,7 @@ public:
     // Getters
     [[nodiscard]] ssvs::GameState&         getGame() noexcept;
     [[nodiscard]] float                    getRadius() const noexcept;
-    [[nodiscard]] const sf::Color&         getColor(int mIdx) const noexcept;
+    [[nodiscard]] const sf::Color          getColor(int mIdx) const noexcept;
     [[nodiscard]] float                    getSpeedMultDM() const noexcept;
     [[nodiscard]] float                    getDelayMultDM() const noexcept;
     [[nodiscard]] float                    getRotationSpeed() const noexcept;

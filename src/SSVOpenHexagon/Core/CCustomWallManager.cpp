@@ -3,12 +3,21 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
+#include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 
+#include "SFML/Graphics/Color.hpp"
+
+#include "SFML/System/Priv/Vec2Base.hpp"
+
 #include "SFML/Base/Algorithm/Find.hpp"
+#include "SFML/Base/Array.hpp"
+#include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/SizeT.hpp"
 
 
 namespace
@@ -244,7 +253,7 @@ static const sf::base::Array<sf::Vec2f, 4>
     return _customWalls[cwHandle].getKillingSide();
 }
 
-void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle, const int vertexIdx, const sf::Color& color)
+void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle, const int vertexIdx, const sf::Color color)
 {
     if (!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "set vertex color"))
     {
@@ -273,10 +282,10 @@ void CCustomWallManager::setVertexPos4(const CCustomWallHandle cwHandle,
 }
 
 void CCustomWallManager::setVertexColor4(const CCustomWallHandle cwHandle,
-                                         const sf::Color&        c0,
-                                         const sf::Color&        c1,
-                                         const sf::Color&        c2,
-                                         const sf::Color&        c3)
+                                         const sf::Color         c0,
+                                         const sf::Color         c1,
+                                         const sf::Color         c2,
+                                         const sf::Color         c3)
 {
     if (!checkValidHandle(cwHandle, "set four vertex color"))
     {
@@ -290,7 +299,7 @@ void CCustomWallManager::setVertexColor4(const CCustomWallHandle cwHandle,
     customWall.setVertexColor(3, c3);
 }
 
-void CCustomWallManager::setVertexColor4Same(const CCustomWallHandle cwHandle, const sf::Color& color)
+void CCustomWallManager::setVertexColor4Same(const CCustomWallHandle cwHandle, const sf::Color color)
 {
     if (!checkValidHandle(cwHandle, "set four vertex color same"))
     {

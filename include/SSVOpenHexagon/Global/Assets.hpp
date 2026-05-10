@@ -19,15 +19,11 @@
 namespace sf
 {
 class Font;
+class Path;
 class Shader;
 class SoundBuffer;
 class Texture;
 } // namespace sf
-
-namespace ssvu::FileSystem
-{
-class Path;
-}
 
 namespace hg
 {
@@ -93,7 +89,7 @@ public:
     // (so the caller can remember the `publishedFileId -> packId`
     // mapping for later uninstall). On validation/dependency failure,
     // returns `nullOpt`.
-    [[nodiscard]] sf::base::Optional<sf::base::String> installPackAtRuntime(const sf::base::String& folderPath);
+    [[nodiscard]] sf::base::Optional<sf::base::String> installPackAtRuntime(const sf::Path& folderPath);
 
     // Tear down all in-memory state owned by `packId`: level / music /
     // style / shader / asset-storage entries, the pack's index in
@@ -122,9 +118,9 @@ public:
     [[nodiscard]] bool                                isValidShaderId(const sf::base::SizeT mShaderId) const;
 
     void                           reloadAllShaders();
-    [[nodiscard]] sf::base::String reloadPack(const sf::base::String& mPackId, const sf::base::String& mPath);
+    [[nodiscard]] sf::base::String reloadPack(const sf::base::String& mPackId, const sf::Path& mPath);
     [[nodiscard]] sf::base::String reloadLevel(const sf::base::String& mPackId,
-                                               const sf::base::String& mPath,
+                                               const sf::Path&         mPath,
                                                const sf::base::String& mId);
 
     [[nodiscard]] float getLocalScore(const sf::base::String& mId);

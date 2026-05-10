@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SFML/System/Path.hpp"
+
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
@@ -21,7 +23,7 @@ struct PackDependency
 
 struct PackData
 {
-    sf::base::String                 folderPath;
+    sf::Path                         folderPath;
     sf::base::String                 id;
     sf::base::String                 disambiguator;
     sf::base::String                 name;

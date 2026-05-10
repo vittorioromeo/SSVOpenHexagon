@@ -8,11 +8,10 @@
 #include "SSVOpenHexagon/Input/Trigger.hpp"
 
 #include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/Macros.hpp"
+#include "SFML/Base/MinMax.hpp"
+#include "SFML/Base/SizeT.hpp"
 
-#include <algorithm>
-#include <utility>
-
-#include <cstddef>
 
 namespace ssvs::Input
 {
@@ -25,16 +24,16 @@ class Bind
 private:
     using InputFunc = sf::base::FixedFunction<void(float), 64>;
 
-    Manager&    manager;
-    Trigger     trigger;
-    InputFunc   on;
-    InputFunc   off;
-    std::size_t priorityCombo{0u};
-    std::size_t priorityUser{0u};
-    Type        type{Type::Always};
-    Mode        mode{Mode::Overlap};
-    bool        released{true};
-    int         triggerID{-1};
+    Manager&        manager;
+    Trigger         trigger;
+    InputFunc       on;
+    InputFunc       off;
+    sf::base::SizeT priorityCombo{0u};
+    sf::base::SizeT priorityUser{0u};
+    Type            type{Type::Always};
+    Mode            mode{Mode::Overlap};
+    bool            released{true};
+    int             triggerID{-1};
 
     [[nodiscard]] bool isDown(InputState& inputState) const
     {
@@ -51,11 +50,11 @@ private:
 
     void recalculatePriorityCombo()
     {
-        std::size_t maxPriority{0u};
+        sf::base::SizeT maxPriority{0u};
 
         for (const auto& combo : trigger.getCombos())
         {
-            maxPriority = std::max(combo.getKeys().count() + combo.getBtns().count(), maxPriority);
+            maxPriority = sf::base::max(combo.getKeys().count() + combo.getBtns().count(), maxPriority);
         }
 
         priorityCombo = maxPriority;
@@ -70,7 +69,7 @@ public:
          const InputFunc& on  = [](float) {},
          const InputFunc& off = [](float) {}) :
         manager{manager},
-        trigger{std::move(trigger)},
+        trigger{SFML_BASE_MOVE(trigger)},
         on{on},
         off{off},
         type{type},
@@ -145,7 +144,7 @@ public:
         return priorityUser < rhs.priorityUser;
     }
 
-    void setPriorityUser(const std::size_t value) noexcept;
+    void setPriorityUser(const sf::base::SizeT value) noexcept;
 };
 
 } // namespace ssvs::Input

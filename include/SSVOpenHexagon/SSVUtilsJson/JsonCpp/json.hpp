@@ -9,19 +9,10 @@
 // Include as system header to suppress dependency warnings.
 #pragma GCC system_header
 
+#include "SFML/Base/InPlacePImpl.hpp"
+#include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <deque>
-#include <map>
-#include <stack>
-#include <string>
-
-#define JSON_FAIL_MESSAGE(message) throw std::runtime_error(message);
-#define JSON_ASSERT_MESSAGE(condition, message) \
-    if (!(condition))                           \
-    {                                           \
-        JSON_FAIL_MESSAGE(message)              \
-    }
 #define JSON_HAS_INT64
 
 namespace Json
@@ -45,6 +36,7 @@ using UInt64      = unsigned long long int;
 using LargestInt  = Int64;
 using LargestUInt = UInt64;
 using ArrayIndex  = unsigned int;
+
 class FastWriter;
 class StyledWriter;
 class Reader;
@@ -56,6 +48,11 @@ class Value;
 class ValueIteratorBase;
 class ValueIterator;
 class ValueConstIterator;
+
+// Opaque types defined in jsoncpp.cpp.
+class ObjectValuesImpl;
+struct ObjectValuesIteratorImpl;
+
 struct Features
 {
     bool allowComments_{true}, strictRoot_{false};
@@ -115,9 +112,10 @@ class Value
     friend class ValueIteratorBase;
 
 public:
-    using Members        = sf::base::Vector<std::string>;
+    using Members        = sf::base::Vector<sf::base::String>;
     using iterator       = ValueIterator;
     using const_iterator = ValueConstIterator;
+    using ObjectValues   = ObjectValuesImpl;
 
     static constexpr LargestInt  minLargestInt{LargestInt(~(LargestUInt(-1) / 2))};
     static constexpr LargestInt  maxLargestInt{LargestInt(LargestUInt(-1) / 2)};
@@ -131,7 +129,7 @@ public:
     static constexpr UInt64 maxUInt64{UInt64(-1)};
 #endif
 
-private:
+public:
     class CZString
     {
     public:
@@ -144,8 +142,10 @@ private:
         CZString(ArrayIndex index);
         CZString(const char* cstr, DuplicationPolicy allocate);
         CZString(const CZString& other);
+        CZString(CZString&& other) noexcept;
         ~CZString();
         CZString&   operator=(const CZString& other);
+        CZString&   operator=(CZString&& other) noexcept;
         bool        operator<(const CZString& other) const;
         bool        operator==(const CZString& other) const;
         ArrayIndex  index() const;
@@ -159,7 +159,6 @@ private:
     };
 
 public:
-    using ObjectValues = std::map<CZString, Value>;
     Value(ValueType type = nullValue);
     Value(int value);
     Value(UInt value);
@@ -171,7 +170,7 @@ public:
     Value(const char* value);
     Value(const char* beginValue, const char* endValue);
     Value(const StaticString& value);
-    Value(const std::string& value);
+    Value(const sf::base::String& value);
     Value(bool value);
     Value(const Value& other);
     ~Value();
@@ -208,12 +207,12 @@ public:
     {
         return other < *this;
     }
-    bool        operator==(const Value& other) const;
-    bool        operator!=(const Value& other) const;
-    const char* asCString() const;
-    std::string asString() const;
-    int         asInt() const;
-    UInt        asUInt() const;
+    bool             operator==(const Value& other) const;
+    bool             operator!=(const Value& other) const;
+    const char*      asCString() const;
+    sf::base::String asString() const;
+    int              asInt() const;
+    UInt             asUInt() const;
 #ifdef JSON_HAS_INT64
     Int64  asInt64() const;
     UInt64 asUInt64() const;
@@ -250,28 +249,28 @@ public:
     Value&       append(const Value& value);
     Value&       operator[](const char* key);
     const Value& operator[](const char* key) const;
-    Value&       operator[](const std::string& key);
-    const Value& operator[](const std::string& key) const;
+    Value&       operator[](const sf::base::String& key);
+    const Value& operator[](const sf::base::String& key) const;
     Value&       operator[](const StaticString& key);
 
     Value get(const char* key, const Value& defaultValue) const;
-    Value get(const std::string& key, const Value& defaultValue) const;
+    Value get(const sf::base::String& key, const Value& defaultValue) const;
 
     Value removeMember(const char* key);
-    Value removeMember(const std::string& key);
+    Value removeMember(const sf::base::String& key);
     bool  isMember(const char* key) const;
-    bool  isMember(const std::string& key) const;
+    bool  isMember(const sf::base::String& key) const;
 
-    Members        getMemberNames() const;
-    void           setComment(const char* comment, CommentPlacement placement);
-    void           setComment(const std::string& comment, CommentPlacement placement);
-    bool           hasComment(CommentPlacement placement) const;
-    std::string    getComment(CommentPlacement placement) const;
-    std::string    toStyledString() const;
-    const_iterator begin() const;
-    const_iterator end() const;
-    iterator       begin();
-    iterator       end();
+    Members          getMemberNames() const;
+    void             setComment(const char* comment, CommentPlacement placement);
+    void             setComment(const sf::base::String& comment, CommentPlacement placement);
+    bool             hasComment(CommentPlacement placement) const;
+    sf::base::String getComment(CommentPlacement placement) const;
+    sf::base::String toStyledString() const;
+    const_iterator   begin() const;
+    const_iterator   end() const;
+    iterator         begin();
+    iterator         end();
 
 private:
     Value& resolveReference(const char* key, bool isStatic);
@@ -284,17 +283,18 @@ private:
     };
     union ValueHolder
     {
-        LargestInt    int_;
-        LargestUInt   uint_;
-        double        real_;
-        bool          bool_;
-        char*         string_;
-        ObjectValues* map_;
+        LargestInt        int_;
+        LargestUInt       uint_;
+        double            real_;
+        bool              bool_;
+        char*             string_;
+        ObjectValuesImpl* map_;
     } value_;
     ValueType    type_      : 8;
     bool         allocated_ : 1;
     CommentInfo* comments_{nullptr};
 };
+
 class PathArgument
 {
 private:
@@ -304,38 +304,40 @@ private:
         kindIndex,
         kindKey
     };
-    std::string key_;
-    ArrayIndex  index_;
-    Kind        kind_;
+    sf::base::String key_;
+    ArrayIndex       index_;
+    Kind             kind_;
 
 public:
     friend class Path;
     PathArgument();
     PathArgument(ArrayIndex index);
     PathArgument(const char* key);
-    PathArgument(const std::string& key);
+    PathArgument(const sf::base::String& key);
 };
+
 class Path
 {
 private:
-    typedef sf::base::Vector<const PathArgument*> InArgs;
-    typedef sf::base::Vector<PathArgument>        Args;
-    void                                          makePath(const std::string& path, const InArgs& in);
-    void addPathInArg(const std::string& path, const InArgs& in, InArgs::const_iterator& itInArg, PathArgument::Kind kind);
-    void invalidPath(const std::string& path, int location);
+    using InArgs = sf::base::Vector<const PathArgument*>;
+    using Args   = sf::base::Vector<PathArgument>;
+    void                                          makePath(const sf::base::String& path, const InArgs& in);
+    void addPathInArg(const sf::base::String& path, const InArgs& in, InArgs::const_iterator& itInArg, PathArgument::Kind kind);
+    void invalidPath(const sf::base::String& path, int location);
     Args args_;
 
 public:
-    Path(const std::string&  path,
-         const PathArgument& a1 = PathArgument(),
-         const PathArgument& a2 = PathArgument(),
-         const PathArgument& a3 = PathArgument(),
-         const PathArgument& a4 = PathArgument(),
-         const PathArgument& a5 = PathArgument());
+    Path(const sf::base::String& path,
+         const PathArgument&     a1 = PathArgument(),
+         const PathArgument&     a2 = PathArgument(),
+         const PathArgument&     a3 = PathArgument(),
+         const PathArgument&     a4 = PathArgument(),
+         const PathArgument&     a5 = PathArgument());
     const Value& resolve(const Value& root) const;
     Value        resolve(const Value& root, const Value& defaultValue) const;
     Value&       make(Value& root) const;
 };
+
 class ValueIteratorBase
 {
 public:
@@ -343,9 +345,11 @@ public:
     using difference_type = int;
     using SelfType        = ValueIteratorBase;
 
-private:
-    Value::ObjectValues::iterator current_;
-    bool                          isNull_;
+protected:
+    // Buffer is large enough to hold the underlying segmented_map iterator
+    // (ankerl::unordered_dense segmented_map iterator is 16 bytes; 32 is a safe upper bound).
+    sf::base::InPlacePImpl<ObjectValuesIteratorImpl, 32> current_;
+    bool                                                 isNull_;
 
 protected:
     Value&          deref() const;
@@ -357,7 +361,13 @@ protected:
 
 public:
     ValueIteratorBase();
-    explicit ValueIteratorBase(const Value::ObjectValues::iterator& current);
+    explicit ValueIteratorBase(const ObjectValuesIteratorImpl& current);
+    ValueIteratorBase(const ValueIteratorBase& other);
+    ValueIteratorBase(ValueIteratorBase&& other) noexcept;
+    ValueIteratorBase& operator=(const ValueIteratorBase& other);
+    ValueIteratorBase& operator=(ValueIteratorBase&& other) noexcept;
+    ~ValueIteratorBase();
+
     inline bool operator==(const SelfType& other) const
     {
         return isEqual(other);
@@ -374,12 +384,13 @@ public:
     UInt        index() const;
     const char* memberName() const;
 };
+
 class ValueConstIterator final : public ValueIteratorBase
 {
     friend class Value;
 
 private:
-    explicit ValueConstIterator(const Value::ObjectValues::iterator& current);
+    explicit ValueConstIterator(const ObjectValuesIteratorImpl& current);
 
 public:
     using size_t          = unsigned int;
@@ -421,7 +432,7 @@ class ValueIterator final : public ValueIteratorBase
     friend class Value;
 
 private:
-    explicit ValueIterator(const Value::ObjectValues::iterator& current);
+    explicit ValueIterator(const ObjectValuesIteratorImpl& current);
 
 public:
     using size_t          = unsigned int;
@@ -465,87 +476,30 @@ class Reader
 {
 public:
     using Location = const char*;
+
     Reader();
-    Reader(const Features& features);
-    bool        parse(const std::string& document, Value& root, bool collectComments = true);
-    bool        parse(const char* beginDoc, const char* endDoc, Value& root, bool collectComments = true);
-    bool        parse(std::istream& is, Value& root, bool collectComments = true);
-    std::string getFormattedErrorMessages() const;
+    explicit Reader(const Features& features);
+    ~Reader();
+
+    Reader(const Reader&)            = delete;
+    Reader& operator=(const Reader&) = delete;
+    Reader(Reader&&) noexcept;
+    Reader& operator=(Reader&&) noexcept;
+
+    bool             parse(const sf::base::String& document, Value& root, bool collectComments = true);
+    bool             parse(const char* beginDoc, const char* endDoc, Value& root, bool collectComments = true);
+    sf::base::String getFormattedErrorMessages() const;
+
+    struct Impl;
 
 private:
-    enum TokenType
-    {
-        tokenEndOfStream = 0,
-        tokenObjectBegin,
-        tokenObjectEnd,
-        tokenArrayBegin,
-        tokenArrayEnd,
-        tokenString,
-        tokenNumber,
-        tokenTrue,
-        tokenFalse,
-        tokenNull,
-        tokenArraySeparator,
-        tokenMemberSeparator,
-        tokenComment,
-        tokenError
-    };
-    struct Token
-    {
-        TokenType type_;
-        Location  start_, end_;
-    };
-    struct ErrorInfo
-    {
-        Token       token_;
-        std::string message_;
-        Location    extra_;
-    };
-
-    bool        expectToken(TokenType type, Token& token, const char* message);
-    bool        readToken(Token& token);
-    void        skipSpaces();
-    bool        match(Location pattern, int patternLength);
-    bool        readComment();
-    bool        readCStyleComment();
-    bool        readCppStyleComment();
-    bool        readString();
-    void        readNumber();
-    bool        readValue();
-    bool        readObject(Token& token);
-    bool        readArray(Token& token);
-    bool        decodeNumber(Token& token);
-    bool        decodeString(Token& token);
-    bool        decodeString(Token& token, std::string& decoded);
-    bool        decodeDouble(Token& token);
-    bool        decodeUnicodeCodePoint(Token& token, Location& current, Location end, unsigned int& unicode);
-    bool        decodeUnicodeEscapeSequence(Token& token, Location& current, Location end, unsigned int& unicode);
-    bool        addError(const std::string& message, Token& token, Location extra = 0);
-    bool        recoverFromError(TokenType skipUntilToken);
-    bool        addErrorAndRecover(const std::string& message, Token& token, TokenType skipUntilToken);
-    void        skipUntilSpace();
-    Value&      currentValue();
-    char        getNextChar();
-    void        getLocationLineAndColumn(Location location, int& line, int& column) const;
-    std::string getLocationLineAndColumn(Location location) const;
-    void        addComment(Location begin, Location end, CommentPlacement placement);
-    void        skipCommentTokens(Token& token);
-    std::stack<Value*>    nodes_;
-    std::deque<ErrorInfo> errors_;
-    std::string           document_;
-    Location              begin_, end_, current_, lastValueEnd_;
-    Value*                lastValue_;
-    std::string           commentsBefore_;
-    Features              features_;
-    bool                  collectComments_;
+    sf::base::InPlacePImpl<Impl, 256> impl_;
 };
-std::istream& operator>>(std::istream&, Value&);
 
-class Value;
 struct Writer
 {
     virtual ~Writer();
-    virtual std::string write(const Value& root) = 0;
+    virtual sf::base::String write(const Value& root) = 0;
 };
 class FastWriter final : public Writer
 {
@@ -554,15 +508,15 @@ public:
     virtual ~FastWriter()
     {
     }
-    void                enableYAMLCompatibility();
-    void                dropNullPlaceholders();
-    virtual std::string write(const Value& root);
+    void                     enableYAMLCompatibility();
+    void                     dropNullPlaceholders();
+    virtual sf::base::String write(const Value& root);
 
 private:
-    void        writeValue(const Value& value);
-    std::string document_;
-    bool        yamlCompatiblityEnabled_;
-    bool        dropNullPlaceholders_;
+    void             writeValue(const Value& value);
+    sf::base::String document_;
+    bool             yamlCompatiblityEnabled_;
+    bool             dropNullPlaceholders_;
 };
 class StyledWriter final : public Writer
 {
@@ -571,70 +525,42 @@ public:
     virtual ~StyledWriter()
     {
     }
-    virtual std::string write(const Value& root);
+    virtual sf::base::String write(const Value& root);
 
 private:
-    void                                  writeValue(const Value& value);
-    void                                  writeArrayValue(const Value& value);
-    bool                                  isMultineArray(const Value& value);
-    void                                  pushValue(const std::string& value);
-    void                                  writeIndent();
-    void                                  writeWithIndent(const std::string& value);
-    void                                  indent();
-    void                                  unindent();
-    void                                  writeCommentBeforeValue(const Value& root);
-    void                                  writeCommentAfterValueOnSameLine(const Value& root);
-    bool                                  hasCommentForValue(const Value& value);
-    static std::string                    normalizeEOL(const std::string& text);
-    typedef sf::base::Vector<std::string> ChildValues;
-    ChildValues                           childValues_;
-    std::string                           document_;
-    std::string                           indentString_;
-    int                                   rightMargin_;
-    int                                   indentSize_;
-    bool                                  addChildValues_;
+    void                                      writeValue(const Value& value);
+    void                                      writeArrayValue(const Value& value);
+    bool                                      isMultineArray(const Value& value);
+    void                                      pushValue(const sf::base::String& value);
+    void                                      writeIndent();
+    void                                      writeWithIndent(const sf::base::String& value);
+    void                                      indent();
+    void                                      unindent();
+    void                                      writeCommentBeforeValue(const Value& root);
+    void                                      writeCommentAfterValueOnSameLine(const Value& root);
+    bool                                      hasCommentForValue(const Value& value);
+    static sf::base::String                   normalizeEOL(const sf::base::String& text);
+    using ChildValues                         = sf::base::Vector<sf::base::String>;
+    ChildValues                               childValues_;
+    sf::base::String                          document_;
+    sf::base::String                          indentString_;
+    int                                       rightMargin_;
+    int                                       indentSize_;
+    bool                                      addChildValues_;
 };
-class StyledStreamWriter
-{
-public:
-    StyledStreamWriter(std::string indentation = "\t");
-    ~StyledStreamWriter()
-    {
-    }
-    void write(std::ostream& out, const Value& root);
 
-private:
-    void                                  writeValue(const Value& value);
-    void                                  writeArrayValue(const Value& value);
-    bool                                  isMultineArray(const Value& value);
-    void                                  pushValue(const std::string& value);
-    void                                  writeIndent();
-    void                                  writeWithIndent(const std::string& value);
-    void                                  indent();
-    void                                  unindent();
-    void                                  writeCommentBeforeValue(const Value& root);
-    void                                  writeCommentAfterValueOnSameLine(const Value& root);
-    bool                                  hasCommentForValue(const Value& value);
-    static std::string                    normalizeEOL(const std::string& text);
-    typedef sf::base::Vector<std::string> ChildValues;
-    ChildValues                           childValues_;
-    std::ostream*                         document_;
-    std::string                           indentString_;
-    int                                   rightMargin_;
-    std::string                           indentation_;
-    bool                                  addChildValues_;
-};
-static const Value nullJsonValue{};
+inline const Value nullJsonValue{};
+
 #ifdef JSON_HAS_INT64
-std::string valueToString(int value);
-std::string valueToString(UInt value);
+sf::base::String valueToString(int value);
+sf::base::String valueToString(UInt value);
 #endif
-std::string   valueToString(LargestInt value);
-std::string   valueToString(LargestUInt value);
-std::string   valueToString(double value);
-std::string   valueToString(bool value);
-std::string   valueToQuotedString(const char* value);
-std::ostream& operator<<(std::ostream&, const Value& root);
+sf::base::String valueToString(LargestInt value);
+sf::base::String valueToString(LargestUInt value);
+sf::base::String valueToString(double value);
+sf::base::String valueToString(bool value);
+sf::base::String valueToQuotedString(const char* value);
+
 } // namespace Json
 
 #endif

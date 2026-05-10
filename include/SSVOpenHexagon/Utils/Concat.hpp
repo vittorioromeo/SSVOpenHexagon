@@ -13,8 +13,6 @@
 #include "SFML/Base/Trait/IsConvertible.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
 
-#include <string_view>
-
 namespace hg::Utils
 {
 
@@ -22,33 +20,37 @@ namespace Impl
 {
 
 template <typename T>
-struct IsCharArray : std::false_type
+struct IsCharArray
 {
+    static constexpr bool value = false;
 };
 
 template <sf::base::SizeT N>
-struct IsCharArray<char[N]> : std::true_type
+struct IsCharArray<char[N]>
 {
+    static constexpr bool value = true;
 };
 
 template <sf::base::SizeT N>
-struct IsCharArray<const char[N]> : std::true_type
+struct IsCharArray<const char[N]>
 {
+    static constexpr bool value = true;
 };
 
 template <sf::base::SizeT N>
-struct IsCharArray<char (&)[N]> : std::true_type
+struct IsCharArray<char (&)[N]>
 {
+    static constexpr bool value = true;
 };
 
 template <sf::base::SizeT N>
-struct IsCharArray<const char (&)[N]> : std::true_type
+struct IsCharArray<const char (&)[N]>
 {
+    static constexpr bool value = true;
 };
 
 template <typename... Ts>
-inline constexpr bool AllConvertibleToStringView = ((SFML_BASE_IS_CONVERTIBLE(Ts, std::string_view) ||
-                                                     SFML_BASE_IS_CONVERTIBLE(Ts, sf::base::StringView) ||
+inline constexpr bool AllConvertibleToStringView = ((SFML_BASE_IS_CONVERTIBLE(Ts, sf::base::StringView) ||
                                                      IsCharArray<Ts>::value || SFML_BASE_IS_SAME(Ts, char)) &&
                                                     ...);
 
@@ -83,7 +85,7 @@ template <sf::base::SizeT N>
     return s.size();
 }
 
-[[nodiscard, gnu::always_inline]] inline constexpr sf::base::SizeT getSize(const std::string_view& s) noexcept
+[[nodiscard, gnu::always_inline]] inline constexpr sf::base::SizeT getSize(sf::base::StringView s) noexcept
 {
     return s.size();
 }

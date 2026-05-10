@@ -56,12 +56,12 @@ CPlayer::CPlayer(const sf::Vec2f pos, const float swapCooldown, const float size
 {
 }
 
-[[nodiscard]] sf::Color CPlayer::getColor(const sf::Color& colorPlayer) const
+[[nodiscard]] sf::Color CPlayer::getColor(const sf::Color colorPlayer) const
 {
     return !_deadEffectTimer.isRunning() ? colorPlayer : Utils::getColorFromHue(_hue / 360.f);
 }
 
-[[nodiscard]] sf::Color CPlayer::getColorAdjustedForSwap(const sf::Color& colorPlayer) const
+[[nodiscard]] sf::Color CPlayer::getColorAdjustedForSwap(const sf::Color colorPlayer) const
 {
     if (!_swapTimer.isRunning() && !_dead)
     {
@@ -72,12 +72,12 @@ CPlayer::CPlayer(const sf::Vec2f pos, const float swapCooldown, const float size
 }
 
 void CPlayer::draw(const unsigned int           sides,
-                   const sf::Color&             colorMain,
-                   const sf::Color&             colorPlayer,
+                   const sf::Color              colorMain,
+                   const sf::Color              colorPlayer,
                    Utils::FastVertexVectorTris& wallQuads,
                    Utils::FastVertexVectorTris& capTris,
                    Utils::FastVertexVectorTris& playerTris,
-                   const sf::Color&             capColor,
+                   const sf::Color              capColor,
                    const float                  angleTiltIntensity,
                    const bool                   swapBlinkingEffect)
 {
@@ -102,10 +102,10 @@ void CPlayer::draw(const unsigned int           sides,
 }
 
 void CPlayer::drawPivot(const unsigned int           sides,
-                        const sf::Color&             colorMain,
+                        const sf::Color              colorMain,
                         Utils::FastVertexVectorTris& wallQuads,
                         Utils::FastVertexVectorTris& capTris,
-                        const sf::Color&             capColor)
+                        const sf::Color              capColor)
 {
     const float div{Utils::tau / sides * 0.5f};
     const float pRadius{_radius * 0.75f};

@@ -10,7 +10,7 @@
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 
-#include <initializer_list>
+#include "SFML/Base/InitializerList.hpp"
 
 namespace ssvs::Input
 {
@@ -59,25 +59,25 @@ public:
 
     void addKey(const sf::Keyboard::Key key) noexcept
     {
-        getKeyBit(keys, key) = true;
+        setKeyBit(keys, key, true);
 
         if (key != sf::Keyboard::Key::Unknown)
         {
-            getKeyBit(keys, sf::Keyboard::Key::Unknown) = false;
+            setKeyBit(keys, sf::Keyboard::Key::Unknown, false);
         }
     }
 
     void addBtn(const sf::Mouse::Button button) noexcept
     {
-        getBtnBit(btns, button)                     = true;
-        getKeyBit(keys, sf::Keyboard::Key::Unknown) = false;
+        setBtnBit(btns, button, true);
+        setKeyBit(keys, sf::Keyboard::Key::Unknown, false);
     }
 
     void clearBind()
     {
-        keys.reset();
-        btns.reset();
-        getKeyBit(keys, sf::Keyboard::Key::Unknown) = true;
+        keys.resetAll();
+        btns.resetAll();
+        setKeyBit(keys, sf::Keyboard::Key::Unknown, true);
     }
 
     [[nodiscard]] bool isUnbound() const

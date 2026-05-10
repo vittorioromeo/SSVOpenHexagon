@@ -31,6 +31,7 @@
 #include "SFML/System/IO.hpp"
 #include "SFML/System/Priv/Vec2Base.hpp"
 
+#include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
@@ -39,7 +40,6 @@
 #include "SFML/Base/Trait/Decay.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <functional>
 #include <tuple>
 
 namespace hg::LuaScripting
@@ -959,7 +959,17 @@ static void initLevelControl(Lua::LuaContext& lua, LevelStatus& levelStatus, Hex
     addLuaFn(lua,
              "l_addTracked", //
              [&levelStatus](const sf::base::String& mVar, const sf::base::String& mName)
-    { levelStatus.trackedVariables[mVar] = mName; })
+    {
+        for (auto& tv : levelStatus.trackedVariables)
+        {
+            if (tv.key == mVar)
+            {
+                tv.value = mName;
+                return;
+            }
+        }
+        levelStatus.trackedVariables.emplaceBack(mVar, mName);
+    })
         .arg("variable")
         .arg("name")
         .doc(
@@ -970,7 +980,20 @@ static void initLevelControl(Lua::LuaContext& lua, LevelStatus& levelStatus, Hex
 
     addLuaFn(lua,
              "l_removeTracked", //
-             [&levelStatus](const sf::base::String& mVar) { levelStatus.trackedVariables.erase(mVar); })
+             [&levelStatus](const sf::base::String& mVar)
+    {
+        auto& tvs = levelStatus.trackedVariables;
+        for (sf::base::SizeT i = 0; i < tvs.size(); ++i)
+        {
+            if (tvs[i].key == mVar)
+            {
+                // Erase by swap-with-back; tracking order is not user-visible.
+                tvs[i] = SFML_BASE_MOVE(tvs.back());
+                tvs.popBack();
+                return;
+            }
+        }
+    })
         .arg("variable")
         .doc("Remove the variable `$0` from the list of tracked variables");
 
@@ -1260,7 +1283,7 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
             "Set the color of the center polygon to match the style color with "
             "index `$0`.");
 
-    const auto colorToTuple = [](const sf::Color& c) { return std::tuple<int, int, int, int>{c.r, c.g, c.b, c.a}; };
+    const auto colorToTuple = [](const sf::Color c) { return std::tuple<int, int, int, int>{c.r, c.g, c.b, c.a}; };
 
     const auto sdColorGetter = [&lua, &styleData, &colorToTuple](const char* name, const char* docName, auto pmf)
     {
@@ -1294,12 +1317,12 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
             "style.");
 }
 
-static void initExecScript(Lua::LuaContext&                                    lua,
-                           HGAssets&                                           assets,
-                           const std::function<void(const sf::base::String&)>& fRunLuaFile,
-                           sf::base::Vector<sf::base::String>&                 execScriptPackPathContext,
-                           const std::function<const sf::base::String&()>&     fPackPathGetter,
-                           const std::function<const PackData&()>&             fGetPackData)
+static void initExecScript(Lua::LuaContext&                                                  lua,
+                           HGAssets&                                                         assets,
+                           const sf::base::FixedFunction<void(const sf::base::String&), 64>& fRunLuaFile,
+                           sf::base::Vector<sf::Path>&                                       execScriptPackPathContext,
+                           const sf::base::FixedFunction<const sf::Path&(), 64>&             fPackPathGetter,
+                           const sf::base::FixedFunction<const PackData&(), 64>&             fGetPackData)
 {
     addLuaFn(lua,
              "u_execScript", //
@@ -1334,13 +1357,13 @@ static void initExecScript(Lua::LuaContext&                                    l
             "`<dependeePack>/Scripts/$3`.");
 }
 
-static void initShaders(Lua::LuaContext&                                lua,
-                        HGAssets&                                       assets,
-                        sf::base::Vector<sf::base::String>&             execScriptPackPathContext,
-                        const std::function<const sf::base::String&()>& fPackPathGetter,
-                        const std::function<const PackData&()>&         fGetPackData,
-                        HexagonGameStatus&                              hexagonGameStatus,
-                        const bool                                      headless)
+static void initShaders(Lua::LuaContext&                                      lua,
+                        HGAssets&                                             assets,
+                        sf::base::Vector<sf::Path>&                           execScriptPackPathContext,
+                        const sf::base::FixedFunction<const sf::Path&(), 64>& fPackPathGetter,
+                        const sf::base::FixedFunction<const PackData&(), 64>& fGetPackData,
+                        HexagonGameStatus&                                    hexagonGameStatus,
+                        const bool                                            headless)
 {
     // ------------------------------------------------------------------------
     // Shader id retrieval
@@ -1747,19 +1770,19 @@ static void initConfig(Lua::LuaContext& lua)
     return lm;
 }
 
-void init(Lua::LuaContext&                                    lua,
-          random_number_generator&                            rng,
-          const bool                                          inMenu,
-          CCustomWallManager&                                 cwManager,
-          LevelStatus&                                        levelStatus,
-          HexagonGameStatus&                                  hexagonGameStatus,
-          StyleData&                                          styleData,
-          HGAssets&                                           assets,
-          const std::function<void(const sf::base::String&)>& fRunLuaFile,
-          sf::base::Vector<sf::base::String>&                 execScriptPackPathContext,
-          const std::function<const sf::base::String&()>&     fPackPathGetter,
-          const std::function<const PackData&()>&             fGetPackData,
-          const bool                                          headless)
+void init(Lua::LuaContext&                                                  lua,
+          random_number_generator&                                          rng,
+          const bool                                                        inMenu,
+          CCustomWallManager&                                               cwManager,
+          LevelStatus&                                                      levelStatus,
+          HexagonGameStatus&                                                hexagonGameStatus,
+          StyleData&                                                        styleData,
+          HGAssets&                                                         assets,
+          const sf::base::FixedFunction<void(const sf::base::String&), 64>& fRunLuaFile,
+          sf::base::Vector<sf::Path>&                                       execScriptPackPathContext,
+          const sf::base::FixedFunction<const sf::Path&(), 64>&             fPackPathGetter,
+          const sf::base::FixedFunction<const PackData&(), 64>&             fGetPackData,
+          const bool                                                        headless)
 {
     initRandom(lua, rng);
     redefineIoOpen(lua);

@@ -2,9 +2,9 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/JsonStream.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
-#include "SSVUtils/Core/FileSystem/Path.hpp"
 #include "steam/steamclientpublic.h"
 
 #include "SFML/System/IO.hpp"
@@ -16,7 +16,6 @@
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/StringViewStreamOp.hpp"
 
-#include <filesystem> // IWYU pragma: keep
 #include <fstream>
 
 
@@ -75,8 +74,6 @@ INSTANTIATE_LOGSTREAM_OPERATOR(void*);
 INSTANTIATE_LOGSTREAM_OPERATOR(const void*);
 INSTANTIATE_LOGSTREAM_OPERATOR(Json::Value);
 INSTANTIATE_LOGSTREAM_OPERATOR(EResult);
-INSTANTIATE_LOGSTREAM_OPERATOR(ssvu::FileSystem::Path);
-INSTANTIATE_LOGSTREAM_OPERATOR(std::filesystem::path);
 INSTANTIATE_LOGSTREAM_OPERATOR(sf::Path);
 
 void LogStream::flush()

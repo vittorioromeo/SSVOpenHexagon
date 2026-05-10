@@ -7,11 +7,11 @@
 #include "SSVOpenHexagon/Input/Bind.hpp"
 #include "SSVOpenHexagon/Input/InputState.hpp"
 
+#include "SFML/Base/Algorithm/Sort.hpp"
+#include "SFML/Base/Macros.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <algorithm>
-#include <utility>
 
 namespace ssvs::Input
 {
@@ -54,7 +54,7 @@ public:
     {
         if (mustSort)
         {
-            std::sort(std::begin(binds), std::end(binds), [](const auto& a, const auto& b) { return *a < *b; });
+            sf::base::quickSort(binds.begin(), binds.end(), [](const auto& a, const auto& b) { return *a < *b; });
             mustSort = false;
         }
 
@@ -70,7 +70,7 @@ public:
     template <typename... TArgs>
     Bind& emplace(TArgs&&... args)
     {
-        auto& result = binds.emplaceBack(sf::base::makeUnique<Bind>(*this, std::forward<TArgs>(args)...));
+        auto& result = binds.emplaceBack(sf::base::makeUnique<Bind>(*this, SFML_BASE_FORWARD(args)...));
         mustSort     = true;
         return *result;
     }
@@ -133,7 +133,7 @@ inline bool Combo::isDown(Manager& manager, InputState& inputState, const Mode m
     return true;
 }
 
-inline void Bind::setPriorityUser(const std::size_t value) noexcept
+inline void Bind::setPriorityUser(const sf::base::SizeT value) noexcept
 {
     priorityUser     = value;
     manager.mustSort = true;

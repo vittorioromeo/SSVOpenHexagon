@@ -51,13 +51,13 @@
 #include "SFML/System/Rect2.hpp"
 #include "SFML/System/Vec2.hpp"
 
+#include "SFML/Base/Clamp.hpp"
+#include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 
-#include <algorithm>
-#include <filesystem>
 #include <random>
 
 #include <cctype>
@@ -1144,16 +1144,21 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
     sf::base::String dirPath = "Replays/" + levelId + "/" + diffFormat(difficultyMult) + "x/";
 
     // Replace invalid characters for Windows file paths.
-    for (const char c : {':', '*', '?', '"', '<', '>', '|'})
+    const auto replaceInvalid = [](sf::base::String& s)
     {
-        std::replace(dirPath.begin(), dirPath.end(), c, '_');
-        std::replace(filename.begin(), filename.end(), c, '_');
-    }
+        for (auto& ch : s)
+        {
+            if (ch == ':' || ch == '*' || ch == '?' || ch == '"' || ch == '<' || ch == '>' || ch == '|')
+                ch = '_';
+        }
+    };
+    replaceInvalid(dirPath);
+    replaceInvalid(filename);
 
-    std::filesystem::create_directories(dirPath.cStr());
-    sf::Path p;
-    p /= dirPath.cStr();
-    p /= filename.cStr();
+    const sf::Path dirPathP{dirPath.cStr()};
+    (void)dirPathP.createDirectoryTree();
+
+    sf::Path p = dirPathP / filename.cStr();
 
     if (!crf.serialize_to_file(p))
     {
@@ -1600,7 +1605,7 @@ void HexagonGame::setSides(unsigned int mSides)
     return status.radius;
 }
 
-[[nodiscard]] const sf::Color& HexagonGame::getColor(int mIdx) const noexcept
+[[nodiscard]] const sf::Color HexagonGame::getColor(int mIdx) const noexcept
 {
     return styleData.getColor(mIdx);
 }
@@ -1716,7 +1721,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] float HexagonGame::getSwapCooldown() const noexcept
 {
-    return std::max(36.f * levelStatus.swapCooldownMult, 8.f);
+    return sf::base::max(36.f * levelStatus.swapCooldownMult, 8.f);
 }
 
 void HexagonGame::performPlayerSwap(const bool mPlaySound)

@@ -3,8 +3,6 @@
 OH_VBOX_ROOT="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon"
 OH_SERVER_ROOT="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon"
 
-(cd /home/vittorioromeo/OHWorkspace/SSVUtils; git pull)
-
 git pull
 
 echo "Building server release..." && \

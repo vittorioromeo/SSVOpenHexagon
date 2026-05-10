@@ -11,11 +11,11 @@
 #include "SFML/Window/Keyboard.hpp"
 #include "SFML/Window/Mouse.hpp"
 
+#include "SFML/Base/Assert.hpp"
 #include "SFML/Base/String.hpp"
 
 #include <map>
 
-#include <cassert>
 
 namespace ssvs
 {
@@ -175,13 +175,13 @@ inline const auto& getStrMBtnMap() noexcept
 
 [[nodiscard]] inline sf::Keyboard::Key getKKey(const sf::base::String& id) noexcept
 {
-    assert(isKKeyNameValid(id));
+    SFML_BASE_ASSERT(isKKeyNameValid(id));
     return Impl::getStrKKeyMap().at(id);
 }
 
 [[nodiscard]] inline sf::Mouse::Button getMBtn(const sf::base::String& id) noexcept
 {
-    assert(isMBtnNameValid(id));
+    SFML_BASE_ASSERT(isMBtnNameValid(id));
     return Impl::getStrMBtnMap().at(id);
 }
 

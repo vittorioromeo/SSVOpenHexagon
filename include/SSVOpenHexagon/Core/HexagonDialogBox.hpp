@@ -75,19 +75,19 @@ private:
     bool             inputBoxPassword{false};
     sf::base::String input;
 
-    void drawText(const sf::View& view, const sf::Color& txtColor, const float xOffset, const float yOffset);
+    void drawText(const sf::View& view, const sf::Color txtColor, const float xOffset, const float yOffset);
     void drawBox(Utils::FastVertexVectorTris& quads,
-                 const sf::Color&             frameColor,
+                 const sf::Color              frameColor,
                  const float                  x1,
                  const float                  x2,
                  const float                  y1,
                  const float                  y2);
-    void drawCenter(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
-    void drawCenterUpperHalf(const sf::View&  view,
-                             const sf::Color& txtColor,
-                             const sf::Color& frameColor,
-                             const sf::Color& backdropColor);
-    void drawTopLeft(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
+    void drawCenter(const sf::View& view, const sf::Color txtColor, const sf::Color frameColor, const sf::Color backdropColor);
+    void drawCenterUpperHalf(const sf::View& view,
+                             const sf::Color txtColor,
+                             const sf::Color frameColor,
+                             const sf::Color backdropColor);
+    void drawTopLeft(const sf::View& view, const sf::Color txtColor, const sf::Color frameColor, const sf::Color backdropColor);
 
 public:
     explicit HexagonDialogBox(sf::Font& font, ssvs::GameWindow& window);
@@ -110,7 +110,7 @@ public:
 
     void createInput(const sf::base::String& output, const int charSize, const float mFrameSize, const DBoxDraw mDrawMode);
 
-    void draw(const sf::View& view, const sf::Color& txtColor, const sf::Color& frameColor, const sf::Color& backdropColor);
+    void draw(const sf::View& view, const sf::Color txtColor, const sf::Color frameColor, const sf::Color backdropColor);
 
     // Redirects subsequent draws to `target` instead of the window. Pass
     // `nullptr` to restore the default. Reset isn't automatic, so callers

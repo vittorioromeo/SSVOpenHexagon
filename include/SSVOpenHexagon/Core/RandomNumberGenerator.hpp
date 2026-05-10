@@ -7,10 +7,11 @@
 #include "SSVOpenHexagon/Core/RandomNumberGeneratorTypes.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
+#include "SFML/Base/IntTypes.hpp"
+
 #include <pcg/pcg_random.hpp>
 #include <random>
 
-#include <cstdint>
 
 namespace hg
 {
@@ -19,7 +20,7 @@ class random_number_generator
 {
 public:
     using seed_type  = random_number_generator_seed_type;
-    using state_type = std::uint64_t;
+    using state_type = sf::base::U64;
 
 private:
     seed_type  _seed;

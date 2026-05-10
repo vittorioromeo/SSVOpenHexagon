@@ -2,10 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/Frametime.hpp"
-#include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
@@ -13,7 +11,6 @@
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
-#include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
@@ -35,7 +32,6 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include "SFML/Graphics/Color.hpp"
@@ -70,7 +66,6 @@
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <SSVUtils/Core/String/ToStr.hpp>
 #include <tuple>
 
 #include <cstdio>
@@ -117,7 +112,6 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     hexagonClient{mHexagonClient},
     dialogBox(openSquare, mGameWindow),
     leaderboardCache{sf::base::makeUnique<LeaderboardCache>()},
-    lua{},
     execScriptPackPathContext{},
     currentPack{nullptr},
     txTitleBar{assets.getTexture("titleBar.png")},
@@ -269,18 +263,50 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
         }
     };
 
+    // Single event-driven input pipeline. Every relevant SFML event flows
+    // through here; whichever sub-handler matches first *consumes* the
+    // event by `return`-ing, so a single keystroke can never trigger more
+    // than one of: dismissing the boot screen, advancing/closing a
+    // dialog, toggling fullscreen, or feeding the new UI's input snapshot.
+    //
+    // This replaces the previous split design (`onAnyEvent` + a parallel
+    // set of `game.addInput` triggers feeding `ui_pendingInput`), which
+    // could fire both paths for the same key -- e.g. pressing Enter to
+    // close a dialog also advanced the new UI.
     game.onAnyEvent += [this, closeBootScreen, closeDialog, advanceDialog](const sf::Event& event)
     {
         if (const auto* e = event.getIf<sf::Event::Resized>())
         {
             changeResolutionTo(e->size.x, e->size.y);
+            return;
         }
-        else if (const auto* e = event.getIf<sf::Event::TextEntered>())
+
+        if (const auto* e = event.getIf<sf::Event::TextEntered>())
         {
-            // Feed printable ASCII into the new UI's typedChars buffer so
-            // text fields can read it. The buffer is NUL-terminated, max
-            // 7 chars per frame; excess bytes are dropped.
-            if (newUIActiveForCurrentState() && e->unicode >= 32 && e->unicode < 127)
+            // Filter to printable ASCII; the dialog input fields and the
+            // new UI text buffer both expect 7-bit characters.
+            if (e->unicode < 32 || e->unicode >= 127)
+                return;
+
+            const char ch = static_cast<char>(e->unicode);
+
+            // Open input-box dialog absorbs printable text first; the new
+            // UI mustn't also see it (otherwise typing into a login field
+            // would leak chars into a focused UI text field underneath).
+            if (!dialogBox.empty() && dialogBox.isInputBox())
+            {
+                sf::base::String& input = dialogBox.getInput();
+                if (input.size() < 32)
+                {
+                    playSoundOverride("beep.ogg");
+                    input.pushBack(ch);
+                }
+                return;
+            }
+
+            // No dialog: route into the new UI's typedChars buffer for
+            // the current frame (NUL-terminated, max 7 chars; excess drops).
+            if (newUIActiveForCurrentState())
             {
                 hg::ui::Input&  uin = ui_pendingInput;
                 sf::base::SizeT len = 0;
@@ -288,91 +314,130 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
                     ++len;
                 if (len < 7)
                 {
-                    uin.typedChars[len]     = static_cast<char>(e->unicode);
+                    uin.typedChars[len]     = ch;
                     uin.typedChars[len + 1] = '\0';
                 }
             }
-
-            // Mirror printable text into the dialog-box input field when
-            // one is open (used by the online login / register flow).
-            if (!dialogBox.empty() && dialogBox.isInputBox() && e->unicode >= 32 && e->unicode < 127)
-            {
-                sf::base::String& input = dialogBox.getInput();
-                if (input.size() < 32)
-                {
-                    playSoundOverride("beep.ogg");
-                    input.pushBack(static_cast<char>(e->unicode));
-                }
-            }
+            return;
         }
-        else if (const auto* e = event.getIf<sf::Event::KeyPressed>())
+
+        if (const auto* e = event.getIf<sf::Event::KeyPressed>())
         {
             if (window.hasFocus())
             {
                 setMouseCursorVisible(false);
             }
 
-            // Backspace inside the legacy dialog input box.
-            if (!dialogBox.empty() && dialogBox.isInputBox() && e->code == sf::Keyboard::Key::Backspace)
-            {
-                sf::base::String& input = dialogBox.getInput();
-                if (!input.empty())
-                {
-                    playSoundOverride("beep.ogg");
-                    input.erase(input.size() - 1, 1);
-                }
-            }
-        }
-        else if (event.is<sf::Event::MouseMoved>())
-        {
-            if (window.hasFocus())
-            {
-                setMouseCursorVisible(true);
-            }
-        }
-        else if (const auto* e = event.getIf<sf::Event::KeyReleased>())
-        {
-            // Boot screen: any key advances to the main menu.
+            const sf::Keyboard::Key key{e->code};
+
+            // Boot screen: any key advances to the main menu and consumes
+            // the press -- without the early return, the same keystroke
+            // would also feed `ui_pendingInput` and trip a menu action on
+            // the very first SMain frame.
             if (state == States::EpilepsyWarning)
             {
                 closeBootScreen();
                 return;
             }
 
-            // Dialog cooldown: prevents the keypress that opened the
-            // dialog from also closing it.
+            // Dialog-open cooldown: ignore the keystroke entirely while
+            // the cooldown is ticking down. Set by callers that opened
+            // the dialog so the same keypress can't dismiss it.
             if (dialogBoxDelay > 0.f)
                 return;
 
-            if (dialogBox.empty())
-                return;
-
-            const sf::Keyboard::Key key{e->code};
-
-            // Input-box dialogs (login/register/delete-account) only
-            // respond to Enter (advance) and Escape (cancel).
-            if (dialogBox.isInputBox())
+            // Open dialog absorbs every key.
+            if (!dialogBox.empty())
             {
-                if (key == sf::Keyboard::Key::Escape)
+                if (dialogBox.isInputBox())
                 {
-                    dialogInputState = DialogInputState::Nothing;
+                    // Backspace edits the input-box buffer.
+                    if (key == sf::Keyboard::Key::Backspace)
+                    {
+                        sf::base::String& input = dialogBox.getInput();
+                        if (!input.empty())
+                        {
+                            playSoundOverride("beep.ogg");
+                            input.popBack();
+                        }
+                        return;
+                    }
+
+                    // Enter advances the input-sequence state machine,
+                    // Escape cancels; all other keys are absorbed.
+                    if (key == sf::Keyboard::Key::Escape)
+                    {
+                        dialogInputState = DialogInputState::Nothing;
+                        closeDialog();
+                    }
+                    else if (key == sf::Keyboard::Key::Enter)
+                    {
+                        advanceDialog();
+                    }
+                    return;
+                }
+
+                // Plain dialog: close on the dialog's chosen close key,
+                // or on any key when the dialog didn't pin one.
+                if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown || key == dialogBox.getKeyToClose())
+                {
                     closeDialog();
                 }
-                else if (key == sf::Keyboard::Key::Enter)
-                {
-                    advanceDialog();
-                }
                 return;
             }
 
-            // Plain dialog: close on the dialog's chosen close key, or
-            // on any key when the dialog didn't pin one.
-            if (dialogBox.getKeyToClose() == sf::Keyboard::Key::Unknown || key == dialogBox.getKeyToClose())
+            // Global Alt+Enter shortcut: toggle fullscreen.
+            if (e->alt && key == sf::Keyboard::Key::Enter)
             {
-                closeDialog();
+                Config::setFullscreen(window, !window.getFullscreen());
+                return;
             }
+
+            // No dialog open: feed the key into the new UI's edge-triggered
+            // input snapshot. `drawNewMainMenu` reads `ui_pendingInput`
+            // once per frame and clears it.
+            if (newUIActiveForCurrentState())
+            {
+                switch (key)
+                {
+                    case sf::Keyboard::Key::Up:
+                        ui_pendingInput.up = true;
+                        break;
+                    case sf::Keyboard::Key::Down:
+                        ui_pendingInput.down = true;
+                        break;
+                    case sf::Keyboard::Key::Left:
+                        ui_pendingInput.left = true;
+                        break;
+                    case sf::Keyboard::Key::Right:
+                        ui_pendingInput.right = true;
+                        break;
+                    case sf::Keyboard::Key::Enter:
+                        ui_pendingInput.enter = true;
+                        break;
+                    case sf::Keyboard::Key::Escape:
+                        ui_pendingInput.escape = true;
+                        break;
+                    case sf::Keyboard::Key::Backspace:
+                        ui_pendingInput.backspace = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return;
         }
-        else if (event.is<sf::Event::MouseButtonReleased>() || event.is<sf::Event::JoystickButtonReleased>())
+
+        if (event.is<sf::Event::MouseMoved>())
+        {
+            if (window.hasFocus())
+            {
+                setMouseCursorVisible(true);
+            }
+            return;
+        }
+
+        if (event.is<sf::Event::MouseButtonReleased>() || event.is<sf::Event::JoystickButtonReleased>())
         {
             if (state == States::EpilepsyWarning)
             {
@@ -411,22 +476,15 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
     // miss and silently skip `removePackAtRuntime`).
     //
     // For each (fileId, folder) reported by Steam, find the `PackData`
-    // whose `folderPath` matches and remember its id.
+    // whose `folderPath` matches and remember its id. `sf::Path::operator==`
+    // does canonical comparison, so trailing-separator differences in either
+    // representation don't matter.
     steamManager.for_workshop_subscribed_items([this](sf::base::U64 fileId, const sf::base::String& folder)
     {
+        const sf::Path folderPath{folder.cStr()};
         for (const auto& [packId, packData] : assets.getPackDatas())
         {
-            // Steam reports the folder without a trailing slash, while
-            // `loadPackData` stores `folderPath` with one (the path is
-            // built via `packPath.getStr()` which preserves whatever
-            // form `Path` chose). Compare leniently to tolerate that.
-            const sf::base::String& fp   = packData.folderPath;
-            const bool              same = fp == folder ||
-                                           (fp.size() == folder.size() + 1 && fp.back() == '/' &&
-                                            std::memcmp(fp.data(), folder.data(), folder.size()) == 0) ||
-                                           (folder.size() == fp.size() + 1 && folder.back() == '/' &&
-                                            std::memcmp(fp.data(), folder.data(), fp.size()) == 0);
-            if (same)
+            if (packData.folderPath == folderPath)
             {
                 _workshopFileIdToPackId.insert_or_assign(fileId, packId);
                 break;
@@ -840,7 +898,7 @@ void MenuGame::pumpWorkshopEvents()
                 std::snprintf(ui_app.workshop.statusMessage,
                               sizeof(ui_app.workshop.statusMessage),
                               "%zu items received",
-                              static_cast<std::size_t>(ui_app.workshop.items.size()));
+                              static_cast<sf::base::SizeT>(ui_app.workshop.items.size()));
                 break;
 
             case EK::DetailsComplete:
@@ -1323,49 +1381,13 @@ void MenuGame::changeStateTo(const States mState)
     }
 }
 
+// Menu input is fully event-driven (see the `game.onAnyEvent` block in the
+// constructor). No `addInput` / SSVStart triggers are registered here --
+// that path used to coexist with the event handler and could fire both
+// for the same keystroke (e.g. Enter closing a dialog *and* advancing
+// the new UI on the same frame).
 void MenuGame::initInput()
 {
-    using k = sf::Keyboard::Key;
-    using t = ssvs::Input::Type;
-
-    // Each navigable key feeds the new UI's edge-triggered input snapshot
-    // directly. `drawNewMainMenu` reads `ui_pendingInput` once per frame
-    // and clears it; the immediate-mode screens dispatch from there.
-    game.addInput({{k::Up}}, [this](float) { ui_pendingInput.up = true; }, t::Once);
-    game.addInput({{k::Down}}, [this](float) { ui_pendingInput.down = true; }, t::Once);
-    game.addInput({{k::Left}}, [this](float) { ui_pendingInput.left = true; }, t::Once);
-    game.addInput({{k::Right}}, [this](float) { ui_pendingInput.right = true; }, t::Once);
-    game.addInput({{k::Enter}}, [this](float) { ui_pendingInput.enter = true; }, t::Once);
-    game.addInput({{k::Escape}}, [this](float) { ui_pendingInput.escape = true; }, t::Once);
-    game.addInput({{k::Backspace}}, [this](float) { ui_pendingInput.backspace = true; }, t::Once);
-
-    // Alt+Enter toggles fullscreen -- preserved through the legacy refactor
-    // because it's a global shortcut, not a menu action.
-    game.addInput({{k::LAlt, k::Enter}},
-                  [this](float)
-    {
-        Config::setFullscreen(window, !window.getFullscreen());
-        game.ignoreNextInputs();
-    },
-                  t::Once)
-        .setPriorityUser(-1000);
-}
-
-void MenuGame::runLuaFile(const sf::base::String& mFileName)
-try
-{
-    if (Config::getUseLuaFileCache())
-    {
-        Utils::runLuaFileCached(assets, lua, mFileName);
-    }
-    else
-    {
-        Utils::runLuaFile(lua, mFileName);
-    }
-} catch (...)
-{
-    playSoundOverride("error.ogg");
-    hg::lo("hg::MenuGame::initLua") << "Fatal error in menu for Lua file '" << mFileName << '\'' << logEndl;
 }
 
 void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
@@ -1424,125 +1446,6 @@ bool MenuGame::loadCommandLineLevel(const sf::base::String& /*pack*/, const sf::
     // than crashing.
     return false;
 }
-
-void MenuGame::initLua()
-{
-    static CCustomWallManager      cwManager;
-    static random_number_generator rng{0};
-    static HexagonGameStatus       hexagonGameStatus;
-
-    LuaScripting::init(lua,
-                       rng,
-                       true /* inMenu */,
-                       cwManager,
-                       levelStatus,
-                       hexagonGameStatus,
-                       styleData,
-                       assets,
-                       [this](const sf::base::String& filename) { runLuaFile(filename); },
-                       execScriptPackPathContext,
-                       [this]() -> const sf::base::String& { return levelData->packPath; },
-                       [this]() -> const PackData& { return *currentPack; },
-                       false /* headless */);
-
-    lua.writeVariable("u_log", [](const sf::base::String& mLog) { hg::lo("lua-menu") << mLog << '\n'; });
-
-    lua.writeVariable("u_getDifficultyMult", [] { return 1; });
-
-    lua.writeVariable("u_getSpeedMultDM", [] { return 1; });
-
-    lua.writeVariable("u_getDelayMultDM", [] { return 1; });
-
-    lua.writeVariable("u_getPlayerAngle", [] { return 0; });
-
-    // Unused functions
-    for (const auto& un :
-         {"u_isKeyPressed",
-          "u_isMouseButtonPressed",
-          "u_isFastSpinning",
-          "u_setPlayerAngle",
-          "u_forceIncrement",
-          "u_haltTime",
-          "u_timelineWait",
-          "u_clearWalls",
-          "u_setFlashEffect",
-
-          "a_setMusic",
-          "a_setMusicSegment",
-          "a_setMusicSeconds",
-          "a_playSound",
-          "a_playPackSound",
-          "a_syncMusicToDM",
-          "a_setMusicPitch",
-          "a_overrideBeepSound",
-          "a_overrideIncrementSound",
-          "a_overrideSwapSound",
-          "a_overrideDeathSound",
-
-          "t_eval",
-          "t_kill",
-          "t_clear",
-          "t_wait",
-          "t_waitS",
-          "t_waitUntilS",
-
-          "e_eval",
-          "e_kill",
-          "e_stopTime",
-          "e_stopTimeS",
-          "e_wait",
-          "e_waitS",
-          "e_waitUntilS",
-          "e_messageAdd",
-          "e_messageAddImportant",
-          "e_messageAddImportantSilent",
-          "e_clearMessages",
-
-          "ct_create",
-          "ct_eval",
-          "ct_kill",
-          "ct_stopTime",
-          "ct_stopTimeS",
-          "ct_wait",
-          "ct_waitS",
-          "ct_waitUntilS",
-
-          "l_overrideScore",
-          "l_setRotation",
-          "l_getRotation",
-          "l_getOfficial",
-
-          "s_setStyle",
-
-          "w_wall",
-          "w_wallAdj",
-          "w_wallAcc",
-          "w_wallHModSpeedData",
-          "w_wallHModCurveData",
-
-          "steam_unlockAchievement",
-
-          "u_kill",
-          "u_eventKill",
-          "u_playSound",
-          "u_playPackSound",
-          "u_setFlashEffect",
-          "u_setFlashColor",
-
-          "e_eventStopTime",
-          "e_eventStopTimeS",
-          "e_eventWait",
-          "e_eventWaitS",
-          "e_eventWaitUntilS",
-          "m_messageAdd",
-          "m_messageAddImportant",
-          "m_messageAddImportantSilent",
-          "m_clearMessages"})
-    {
-        lua.writeVariable(un, [] {});
-    }
-}
-
 
 void MenuGame::update(float mFT)
 {

@@ -110,25 +110,25 @@ public:
 
     void updatePosition(const float radius);
 
-    [[nodiscard]] sf::Color getColor(const sf::Color& colorPlayer) const;
+    [[nodiscard]] sf::Color getColor(const sf::Color colorPlayer) const;
 
-    [[nodiscard]] sf::Color getColorAdjustedForSwap(const sf::Color& colorPlayer) const;
+    [[nodiscard]] sf::Color getColorAdjustedForSwap(const sf::Color colorPlayer) const;
 
     void draw(const unsigned int           sides,
-              const sf::Color&             colorMain,
-              const sf::Color&             colorPlayer,
+              const sf::Color              colorMain,
+              const sf::Color              colorPlayer,
               Utils::FastVertexVectorTris& wallQuads,
               Utils::FastVertexVectorTris& capTris,
               Utils::FastVertexVectorTris& playerTris,
-              const sf::Color&             capColor,
+              const sf::Color              capColor,
               const float                  angleTiltIntensity,
               const bool                   swapBlinkingEffect);
 
     void drawPivot(const unsigned int           sides,
-                   const sf::Color&             colorMain,
+                   const sf::Color              colorMain,
                    Utils::FastVertexVectorTris& wallQuads,
                    Utils::FastVertexVectorTris& capTris,
-                   const sf::Color&             capColor);
+                   const sf::Color              capColor);
 
     [[nodiscard]] bool push(const int       movementDir,
                             const float     radius,

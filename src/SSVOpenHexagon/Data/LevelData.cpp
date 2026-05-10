@@ -10,6 +10,8 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 
+#include "SFML/System/Path.hpp"
+
 #include "SFML/Base/Algorithm/Sort.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
@@ -18,7 +20,7 @@
 namespace hg
 {
 
-LevelData::LevelData(const ssvuj::Obj& mRoot, const sf::base::String& mPackPath, const sf::base::String& mPackId) :
+LevelData::LevelData(const ssvuj::Obj& mRoot, const sf::Path& mPackPath, const sf::base::String& mPackId) :
     packPath{mPackPath},
     packId{mPackId},
     id{ssvuj::getExtr<sf::base::String>(mRoot, "id", "nullId")},
@@ -30,7 +32,8 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const sf::base::String& mPackPath,
     musicId{ssvuj::getExtr<sf::base::String>(mRoot, "musicId", "nullMusicId")},
     soundId{ssvuj::getExtr<sf::base::String>(mRoot, "soundId", "nullSoundId")},
     styleId{ssvuj::getExtr<sf::base::String>(mRoot, "styleId", "nullStyleId")},
-    luaScriptPath{packPath + ssvuj::getExtr<sf::base::String>(mRoot, "luaFile", "nullLuaPath")},
+    luaScriptPath{
+        (packPath / ssvuj::getExtr<sf::base::String>(mRoot, "luaFile", "nullLuaPath").cStr()).to<sf::base::String>()},
     difficultyMults{ssvuj::getExtr<sf::base::Vector<float>>(mRoot, "difficultyMults", {})},
     unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)},
     tags{ssvuj::getExtr<sf::base::Vector<sf::base::String>>(mRoot, "tags", {})}
