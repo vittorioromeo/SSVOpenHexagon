@@ -15,7 +15,7 @@
 
 #include "SFML/System/Priv/Vec2Base.hpp"
 #include "SFML/System/Rect2.hpp"
-#include "SFML/System/UnicodeString.hpp"
+#include "SFML/System/Utf8String.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Math/Exp.hpp"
@@ -124,7 +124,7 @@ void drawText(Context& ctx, sf::Vec2f pos, const char* s, sf::Color color, float
     ctx.target->draw(*ctx.font,
                      sf::TextData{
                          .position         = pos,
-                         .string           = sf::UnicodeString{safe},
+                         .string           = sf::Utf8String{safe},
                          .characterSize    = static_cast<unsigned int>(effSize),
                          .fillColor        = color,
                          .outlineColor     = ctx.colAccent,
@@ -726,7 +726,7 @@ sf::Rect2f measureText(const Context& ctx, const char* str, float charSize)
 
     return sf::TextUtils::precomputeTextLocalBounds(*ctx.font,
                                                     sf::TextData{
-                                                        .string           = sf::UnicodeString{safe},
+                                                        .string           = sf::Utf8String{safe},
                                                         .characterSize    = static_cast<unsigned int>(charSize),
                                                         .outlineThickness = charSize * kOutlineFactor,
                                                     });

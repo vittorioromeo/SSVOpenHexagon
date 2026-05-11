@@ -15,8 +15,6 @@
 #include "SFML/Graphics/TextData.hpp"
 #include "SFML/Graphics/Texture.hpp"
 
-#include "SFML/System/UnicodeString.hpp"
-
 #include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/String.hpp"
 

@@ -14,23 +14,29 @@
 #include "SSVOpenHexagon/UI/Services.hpp"
 #include "SSVOpenHexagon/UI/UI.hpp"
 
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/RectangleShapeData.hpp"
+#include "SFML/Graphics/RenderStates.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 #include "SFML/Graphics/RenderTexture.hpp"
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/TextData.hpp"
 #include "SFML/Graphics/Texture.hpp"
 
-#include "SFML/System/UnicodeString.hpp"
+#include "SFML/System/Priv/Vec2Base.hpp"
+#include "SFML/System/Rect2.hpp"
+#include "SFML/System/Utf8String.hpp"
 
 #include "SFML/Base/Algorithm/Sort.hpp"
 #include "SFML/Base/Clamp.hpp"
+#include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/MinMax.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 
 #include <cstdio>
-#include <cstring>
 
 namespace hg::ui
 {
@@ -638,7 +644,7 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
                     ctx.target->draw(*ctx.font,
                                      sf::TextData{
                                          .position      = ctx.cursor + sf::Vec2f{12.f, 4.f},
-                                         .string        = sf::UnicodeString{headerBuf},
+                                         .string        = sf::Utf8String{headerBuf},
                                          .characterSize = static_cast<unsigned int>(ctx.fontSize * 0.95f),
                                          .fillColor     = ctx.colAccent,
                                      },

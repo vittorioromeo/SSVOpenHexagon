@@ -715,7 +715,7 @@ static void drawTextMessagePBImpl(sf::Text&       text,
                                   float           outlineThickness,
                                   FRender&&       fRender)
 {
-    if (text.getString().isEmpty())
+    if (text.getString().empty())
     {
         return;
     }
