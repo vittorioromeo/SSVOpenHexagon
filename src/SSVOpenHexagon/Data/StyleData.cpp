@@ -16,12 +16,11 @@
 
 #include "SFML/System/Angle.hpp"
 
+#include "SFML/Base/Algorithm/Rotate.hpp"
 #include "SFML/Base/Math/Fmod.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <algorithm>
 
 
 namespace hg
@@ -192,9 +191,9 @@ void StyleData::computeColors()
     {
         const unsigned int rotation = currentSwapTime / (maxSwapTime / 2.f);
 
-        std::rotate(currentColors.begin(),
-                    currentColors.begin() + Utils::getMod(rotation + BGColorOffset, currentColors.size()),
-                    currentColors.end());
+        sf::base::rotate(currentColors.begin(),
+                         currentColors.begin() + Utils::getMod(rotation + BGColorOffset, currentColors.size()),
+                         currentColors.end());
     }
 }
 
@@ -231,9 +230,9 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
         }
 
         vertices.batchUnsafeEmplaceBack(currentColor,
-                                           mCenterPos,
-                                           mCenterPos.movedTowards(distance, sf::radians(angle + halfDiv)),
-                                           mCenterPos.movedTowards(distance, sf::radians(angle - halfDiv)));
+                                        mCenterPos,
+                                        mCenterPos.movedTowards(distance, sf::radians(angle + halfDiv)),
+                                        mCenterPos.movedTowards(distance, sf::radians(angle - halfDiv)));
     }
 }
 
@@ -256,14 +255,14 @@ void StyleData::drawBackgroundMenuHexagonImpl(
         const float angle{Utils::toRad(BGRotOff) + div * i};
 
         vertices.batchUnsafeEmplaceBack(colorMain,
-                                           mCenterPos,
-                                           mCenterPos.movedTowards(hexagonRadius + 10.f, sf::radians(angle + halfDiv)),
-                                           mCenterPos.movedTowards(hexagonRadius + 10.f, sf::radians(angle - halfDiv)));
+                                        mCenterPos,
+                                        mCenterPos.movedTowards(hexagonRadius + 10.f, sf::radians(angle + halfDiv)),
+                                        mCenterPos.movedTowards(hexagonRadius + 10.f, sf::radians(angle - halfDiv)));
 
         vertices.batchUnsafeEmplaceBack(colorCap,
-                                           mCenterPos,
-                                           mCenterPos.movedTowards(hexagonRadius, sf::radians(angle + halfDiv)),
-                                           mCenterPos.movedTowards(hexagonRadius, sf::radians(angle - halfDiv)));
+                                        mCenterPos,
+                                        mCenterPos.movedTowards(hexagonRadius, sf::radians(angle + halfDiv)),
+                                        mCenterPos.movedTowards(hexagonRadius, sf::radians(angle - halfDiv)));
     }
 }
 

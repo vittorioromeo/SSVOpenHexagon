@@ -21,10 +21,7 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Input/Bind.hpp"
-#include "SSVOpenHexagon/Input/Enums.hpp"
 #include "SSVOpenHexagon/Input/InputState.hpp"
-#include "SSVOpenHexagon/Input/Manager.hpp"
 #include "SSVOpenHexagon/UI/App.hpp"
 #include "SSVOpenHexagon/UI/Notifications.hpp"
 #include "SSVOpenHexagon/UI/Screens.hpp"
@@ -66,11 +63,7 @@
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <tuple>
-
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 
 
 namespace hg
@@ -1928,7 +1921,13 @@ void MenuGame::drawOnlineStatus()
 
     const HexagonClient::State state = hexagonClient.getState();
 
-    const auto [stateGood, stateString] = [&]() -> std::tuple<bool, sf::base::String>
+    struct OnlineStateResult
+    {
+        bool             good;
+        sf::base::String str;
+    };
+
+    const auto [stateGood, stateString] = [&]() -> OnlineStateResult
     {
         switch (state)
         {

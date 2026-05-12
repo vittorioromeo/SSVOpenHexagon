@@ -2,13 +2,10 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Utils/Log.hpp"
-#include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
+#include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
-#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/Trait/IsSame.hpp"
 
 #include <tuple>
 

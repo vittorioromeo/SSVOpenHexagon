@@ -21,7 +21,6 @@
 #include "SFML/Base/Vector.hpp"
 
 #include <stdexcept>
-#include <string_view>
 #include <tuple>
 
 namespace hg::Utils
@@ -252,18 +251,10 @@ void withDependencyShaderFilename(
     return getDependentAssetFilename("Shaders", execScriptPackPathContext, currentPackPath, mShaderName);
 }
 
-namespace
-{
-[[nodiscard]] inline std::string_view toStdSv(sf::base::StringView sv) noexcept
-{
-    return std::string_view{sv.data(), sv.size()};
-}
-} // namespace
-
 template <typename T, typename... TArgs>
 T runLuaFunction(Lua::LuaContext& mLua, sf::base::StringView mName, const TArgs&... mArgs)
 {
-    return mLua.callLuaFunction<T>(toStdSv(mName), std::make_tuple(mArgs...));
+    return mLua.callLuaFunction<T>(mName, std::make_tuple(mArgs...));
 }
 
 template <typename T, typename... TArgs>
@@ -271,7 +262,7 @@ sf::base::Optional<VoidToNothing<T>> runLuaFunctionIfExists(Lua::LuaContext& mLu
 {
     using Ret = sf::base::Optional<VoidToNothing<T>>;
 
-    if (!mLua.doesVariableExist(toStdSv(mName)))
+    if (!mLua.doesVariableExist(mName))
     {
         return Ret{};
     }
