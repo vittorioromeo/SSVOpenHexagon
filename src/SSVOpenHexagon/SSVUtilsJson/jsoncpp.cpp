@@ -7,19 +7,17 @@
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 
 #include "SFML/Base/AnkerlUnorderedDense.hpp"
+#include "SFML/Base/Math/Floor.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <iomanip>
 #include <ios>
 #include <istream>
 #include <ostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 
-#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -149,8 +147,7 @@ void releaseStringValue(char* value)
 
 bool IsIntegral(double d)
 {
-    double integral_part;
-    return modf(d, &integral_part) == 0.0;
+    return d == SFML_BASE_MATH_FLOOR(d);
 }
 
 #ifdef JSON_HAS_INT64
@@ -2330,11 +2327,11 @@ sf::base::String valueToQuotedString(const char* value)
             default:
                 if (isControlCharacter(*c))
                 {
-                    std::ostringstream oss;
-                    oss << "\\u" << std::hex << std::uppercase << std::setfill('0') << std::setw(4)
-                        << static_cast<int>(*c);
-                    const std::string s = oss.str();
-                    result.append(s.data(), s.size());
+                    static constexpr char kHex[] = "0123456789ABCDEF";
+                    const unsigned int    v      = static_cast<unsigned char>(*c);
+                    char                  buf[6] = {'\\', 'u', kHex[(v >> 12) & 0xF], kHex[(v >> 8) & 0xF],
+                                                    kHex[(v >> 4) & 0xF], kHex[v & 0xF]};
+                    result.append(buf, sizeof(buf));
                 }
                 else
                     result += *c;

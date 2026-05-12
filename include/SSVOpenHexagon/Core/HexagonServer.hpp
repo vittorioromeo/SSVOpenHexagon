@@ -5,7 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
-#include "SSVOpenHexagon/Global/StringHash.hpp"
+
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
@@ -20,13 +20,13 @@
 #include "SFML/System/Atomic.hpp"
 #include "SFML/System/IO.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <list>
-#include <unordered_set>
 
 namespace hg
 {
@@ -43,7 +43,7 @@ private:
     HGAssets*    _assets;      //!< may be `nullptr` in test builds that do not exercise replay handling
     HexagonGame* _hexagonGame; //!< may be `nullptr` in test builds that do not exercise replay handling
 
-    const std::unordered_set<sf::base::String> _supportedLevelValidators;
+    const ankerl::unordered_dense::set<sf::base::String> _supportedLevelValidators;
     const sf::base::Vector<sf::base::String>   _supportedLevelValidatorsVector;
 
     const sf::IpAddress  _serverIp;
@@ -189,7 +189,7 @@ public:
                            const sf::IpAddress&                        serverIp,
                            const unsigned short                        serverPort,
                            const unsigned short                        serverControlPort,
-                           const std::unordered_set<sf::base::String>& serverLevelWhitelist);
+                           const ankerl::unordered_dense::set<sf::base::String>& serverLevelWhitelist);
 
     ~HexagonServer();
 

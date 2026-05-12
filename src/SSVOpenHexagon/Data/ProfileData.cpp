@@ -3,7 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-#include "SSVOpenHexagon/Global/StringHash.hpp"
+
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 
@@ -15,7 +15,7 @@ namespace hg
 
 ProfileData::ProfileData(const GameVersion                                  mVersion,
                          const sf::base::String&                            mName,
-                         const std::unordered_map<sf::base::String, float>& mScores,
+                         const ankerl::unordered_dense::map<sf::base::String, float>& mScores,
                          const sf::base::Vector<sf::base::String>&          mFavorites) :
     version{mVersion},
     name{mName},
@@ -34,17 +34,17 @@ ProfileData::ProfileData(const GameVersion                                  mVer
     return name;
 }
 
-[[nodiscard]] const std::unordered_map<sf::base::String, float>& ProfileData::getScores() const noexcept
+[[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, float>& ProfileData::getScores() const noexcept
 {
     return scores;
 }
 
-[[nodiscard]] std::unordered_set<sf::base::String>& ProfileData::getFavoriteLevelIds() noexcept
+[[nodiscard]] ankerl::unordered_dense::set<sf::base::String>& ProfileData::getFavoriteLevelIds() noexcept
 {
     return favoriteLevelsDataIDs;
 }
 
-[[nodiscard]] const std::unordered_set<sf::base::String>& ProfileData::getFavoriteLevelIds() const noexcept
+[[nodiscard]] const ankerl::unordered_dense::set<sf::base::String>& ProfileData::getFavoriteLevelIds() const noexcept
 {
     return favoriteLevelsDataIDs;
 }
@@ -96,7 +96,7 @@ void ProfileData::removeFavoriteLevel(const sf::base::String& mLevelID)
     return perLevelState[mLevelId];
 }
 
-[[nodiscard]] const std::unordered_map<sf::base::String, PerLevelState>& ProfileData::getPerLevelStates() const noexcept
+[[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, PerLevelState>& ProfileData::getPerLevelStates() const noexcept
 {
     return perLevelState;
 }

@@ -158,32 +158,6 @@ struct Converter<sf::base::Vector<TItem>>
     }
 };
 
-// Generic key/value-pair container converter (works with std::unordered_map, ankerl maps, ...).
-// Pulled out of the std::unordered_map specialization to avoid pulling `<unordered_map>` into
-// every TU that includes `BasicConverters.hpp`. Specialize this for the actual map type at the
-// callsite via the SSVUJ_DEFINE_KV_CONVERTER macro below, OR include
-// `BasicConverters_StdUnorderedMap.hpp` for the legacy `std::unordered_map` specialization.
-template <typename TMap>
-struct KeyValueMapConverter
-{
-    using T = TMap;
-    static void fromObj(const Obj& mObj, T& mValue)
-    {
-        for (const auto& id : mObj.getMemberNames())
-        {
-            mValue.emplace(id, getExtr<typename T::mapped_type>(mObj[id]));
-        }
-    }
-
-    static void toObj(Obj& mObj, const T& mValue)
-    {
-        for (const auto& [k, v] : mValue)
-        {
-            arch(mObj, k, v);
-        }
-    }
-};
-
 template <typename TItem, sf::base::SizeT TN>
 struct Converter<TItem[TN]>
 {

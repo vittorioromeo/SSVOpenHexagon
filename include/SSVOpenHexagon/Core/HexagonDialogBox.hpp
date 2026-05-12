@@ -27,7 +27,7 @@ class GameWindow;
 
 namespace hg::Utils
 {
-class FastVertexVectorTris;
+class FastVertexVectorQuads;
 } // namespace hg::Utils
 
 namespace hg
@@ -76,12 +76,12 @@ private:
     sf::base::String input;
 
     void drawText(const sf::View& view, const sf::Color txtColor, const float xOffset, const float yOffset);
-    void drawBox(Utils::FastVertexVectorTris& quads,
-                 const sf::Color              frameColor,
-                 const float                  x1,
-                 const float                  x2,
-                 const float                  y1,
-                 const float                  y2);
+    void drawBox(Utils::FastVertexVectorQuads& quads,
+                 const sf::Color               frameColor,
+                 const float                   x1,
+                 const float                   x2,
+                 const float                   y1,
+                 const float                   y2);
     void drawCenter(const sf::View& view, const sf::Color txtColor, const sf::Color frameColor, const sf::Color backdropColor);
     void drawCenterUpperHalf(const sf::View& view,
                              const sf::Color txtColor,

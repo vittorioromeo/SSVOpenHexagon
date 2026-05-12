@@ -36,21 +36,9 @@
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <array>
-#include <bitset>
-#include <deque>
-#include <exception>
-#include <list>
-#include <map>
-#include <memory>
 #include <random>
 #include <stdexcept>
-#include <string_view>
 #include <tuple>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
 
 //
 //
@@ -59,8 +47,6 @@
 // ----------------------------------------------------------------------------
 
 #include <cctype>
-#include <cmath>
-#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 
@@ -109,7 +95,6 @@
 // SFML
 // ----------------------------------------------------------------------------
 
-#include "SSVOpenHexagon/Global/StringHash.hpp"
 
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/Font.hpp"

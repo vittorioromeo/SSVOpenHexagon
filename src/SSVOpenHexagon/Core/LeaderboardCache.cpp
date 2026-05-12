@@ -11,18 +11,24 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <unordered_map>
-#include <unordered_set>
 
 namespace hg
 {
 
+LeaderboardCache::CachedScores& LeaderboardCache::getOrCreate(const sf::base::String& levelValidator)
+{
+    auto& slot = _levelValidatorToScores[levelValidator];
+    if (!slot)
+        slot = sf::base::makeUnique<CachedScores>();
+    return *slot;
+}
+
 void LeaderboardCache::receivedScores(const sf::base::String&                           levelValidator,
                                       const sf::base::Vector<Database::ProcessedScore>& scores)
 {
-    CachedScores& cs = _levelValidatorToScores[levelValidator];
+    CachedScores& cs = getOrCreate(levelValidator);
     cs._scores       = scores;
     cs._cacheTime    = HRClock::now();
     cs._received     = true;
@@ -30,14 +36,14 @@ void LeaderboardCache::receivedScores(const sf::base::String&                   
 
 void LeaderboardCache::receivedOwnScore(const sf::base::String& levelValidator, const Database::ProcessedScore& score)
 {
-    CachedScores& cs = _levelValidatorToScores[levelValidator];
+    CachedScores& cs = getOrCreate(levelValidator);
     cs._ownScore.emplace(score);
     cs._cacheTime = HRClock::now();
 }
 
 void LeaderboardCache::requestedScores(const sf::base::String& levelValidator)
 {
-    _levelValidatorToScores[levelValidator]._cacheTime = HRClock::now();
+    getOrCreate(levelValidator)._cacheTime = HRClock::now();
 }
 
 [[nodiscard]] bool LeaderboardCache::shouldRequestScores(const sf::base::String& levelValidator) const
@@ -48,7 +54,7 @@ void LeaderboardCache::requestedScores(const sf::base::String& levelValidator)
         return true;
     }
 
-    const CachedScores& cs = it->second;
+    const CachedScores& cs = *it->second;
 
     return (HRClock::now() - cs._cacheTime) > std::chrono::seconds(6);
 }
@@ -57,14 +63,14 @@ void LeaderboardCache::requestedScores(const sf::base::String& levelValidator)
     const sf::base::String& levelValidator) const
 {
     SSVOH_ASSERT(hasInformation(levelValidator));
-    return _levelValidatorToScores.at(levelValidator)._scores;
+    return _levelValidatorToScores.at(levelValidator)->_scores;
 }
 
 [[nodiscard]] const Database::ProcessedScore* LeaderboardCache::getOwnScore(const sf::base::String& levelValidator) const
 {
     SSVOH_ASSERT(hasInformation(levelValidator));
 
-    const auto& os = _levelValidatorToScores.at(levelValidator)._ownScore;
+    const auto& os = _levelValidatorToScores.at(levelValidator)->_ownScore;
     return os.hasValue() ? &*os : nullptr;
 }
 
@@ -76,21 +82,21 @@ void LeaderboardCache::requestedScores(const sf::base::String& levelValidator)
 [[nodiscard]] bool LeaderboardCache::hasReceivedScores(const sf::base::String& levelValidator) const
 {
     const auto it = _levelValidatorToScores.find(levelValidator);
-    return it != _levelValidatorToScores.end() && it->second._received;
+    return it != _levelValidatorToScores.end() && it->second->_received;
 }
 
 void LeaderboardCache::markReplayUnavailable(const sf::base::String& levelValidator, const sf::base::U64 scoreTimestamp)
 {
-    _levelValidatorToScores[levelValidator]._unavailableTimestamps.insert(scoreTimestamp);
+    getOrCreate(levelValidator)._unavailableTimestamps.insert(scoreTimestamp);
 }
 
-const std::unordered_set<sf::base::U64> LeaderboardCache::kEmptyUnavailable;
+const ankerl::unordered_dense::set<sf::base::U64> LeaderboardCache::kEmptyUnavailable;
 
-[[nodiscard]] const std::unordered_set<sf::base::U64>& LeaderboardCache::getUnavailableTimestamps(
+[[nodiscard]] const ankerl::unordered_dense::set<sf::base::U64>& LeaderboardCache::getUnavailableTimestamps(
     const sf::base::String& levelValidator) const
 {
     const auto it = _levelValidatorToScores.find(levelValidator);
-    return (it == _levelValidatorToScores.end()) ? kEmptyUnavailable : it->second._unavailableTimestamps;
+    return (it == _levelValidatorToScores.end()) ? kEmptyUnavailable : it->second->_unavailableTimestamps;
 }
 
 } // namespace hg

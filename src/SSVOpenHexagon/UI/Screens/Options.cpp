@@ -96,7 +96,6 @@ constexpr int kGraphicsSliderCount = static_cast<int>(sizeof(kGraphicsSliders) /
 // ADVANCED
 
 constexpr ToggleItem kAdvancedToggles[] = {
-    {"USE LUA FILE CACHE", &Config::getUseLuaFileCache, &Config::setUseLuaFileCache},
     // {"DISABLE GAME RENDERING", &Config::getDisableGameRendering, &Config::setDisableGameRendering},
     {"OFFICIAL MODE", &Config::getOfficial, &Config::setOfficial},
     {"DEBUG MODE", &Config::getDebug, &Config::setDebug, unofficialOnly},

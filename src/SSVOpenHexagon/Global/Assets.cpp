@@ -18,7 +18,7 @@
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/JsonCpp.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters_StdUnorderedMap.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters_AnkerlUnorderedDense.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Io.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/BuildPackId.hpp"
@@ -40,6 +40,7 @@
 #include "SFML/Base/Algorithm/Erase.hpp"
 #include "SFML/Base/Algorithm/Remove.hpp"
 #include "SFML/Base/Algorithm/Sort.hpp"
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
@@ -50,10 +51,7 @@
 #include "SFML/Base/Vector.hpp"
 
 #include <exception>
-#include <map>
 #include <stdexcept>
-#include <unordered_map>
-#include <unordered_set>
 
 #include <cstring>
 
@@ -70,21 +68,26 @@ private:
 
     sf::base::UniquePtr<AssetStorage> assetStorage;
 
-    std::unordered_map<sf::base::String, LevelData>                          levelDatas;
-    std::unordered_map<sf::base::String, sf::base::Vector<sf::base::String>> levelDataIdsByPack;
+    // `UniquePtr` indirection gives address stability: `HexagonGame::levelData`
+    // (set via `setLevelData(&...)`) and `MenuGame::currentPack` hold long-lived
+    // pointers into the per-entry payloads, which must survive map rehashes.
+    ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<LevelData>>     levelDatas;
+    ankerl::unordered_dense::map<sf::base::String, sf::base::Vector<sf::base::String>> levelDataIdsByPack;
 
-    std::unordered_map<sf::base::String, PackData> packDatas;
+    ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<PackData>> packDatas;
 
     sf::base::Vector<PackInfo> packInfos;
     sf::base::Vector<PackInfo> selectablePackInfos;
 
-    std::unordered_map<sf::base::String, sf::base::String> musicPathMap;
-    std::map<sf::base::String, MusicData>                  musicDataMap;
-    std::map<sf::base::String, StyleData>                  styleDataMap;
-    std::map<sf::base::String, ProfileData>                profileDataMap;
-    ProfileData*                                           currentProfilePtr{nullptr};
+    ankerl::unordered_dense::map<sf::base::String, sf::base::String>                 musicPathMap;
+    ankerl::unordered_dense::map<sf::base::String, MusicData>                        musicDataMap;
+    ankerl::unordered_dense::map<sf::base::String, StyleData>                        styleDataMap;
+    // `UniquePtr` indirection: `currentProfilePtr` / `Services::currentProfile`
+    // hold long-lived `ProfileData*` into this map.
+    ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<ProfileData>> profileDataMap;
+    ProfileData*                                                                     currentProfilePtr{nullptr};
 
-    std::unordered_set<sf::base::String> packIdsWithMissingDependencies;
+    ankerl::unordered_dense::set<sf::base::String> packIdsWithMissingDependencies;
 
     // Bumped any time the level/pack list changes; surfaced via
     // `HGAssets::packListVersion()`.
@@ -98,18 +101,17 @@ private:
         sf::base::SizeT                 id;
     };
 
-    std::unordered_map<sf::base::String, LoadedShader>    shaders;
-    std::unordered_map<sf::base::String, sf::base::SizeT> shadersPathToId;
-    sf::base::Vector<sf::Shader*>                         shadersById;
+    ankerl::unordered_dense::map<sf::base::String, LoadedShader>    shaders;
+    ankerl::unordered_dense::map<sf::base::String, sf::base::SizeT> shadersPathToId;
+    sf::base::Vector<sf::Shader*>                                   shadersById;
 
     sf::base::String buf;
 
-    std::unordered_map<sf::base::String, sf::base::String> luaFileCache;
-    LoadInfo                                               loadInfo;
+    LoadInfo loadInfo;
 
     // When the Steam API can not be retrieved, this set holds pack ids
     // retrieved from the cache to try and load the workshop packs installed
-    std::unordered_set<sf::base::String> cachedWorkshopPackIds;
+    ankerl::unordered_dense::set<sf::base::String> cachedWorkshopPackIds;
 
     template <typename... Ts>
     [[nodiscard]] sf::base::String& concatIntoBuf(const Ts&...);
@@ -168,7 +170,7 @@ public:
 
     [[nodiscard]] const sf::base::Vector<sf::base::String>& getLevelIdsByPack(const sf::base::String& mPackId);
 
-    [[nodiscard]] const std::unordered_map<sf::base::String, PackData>& getPackDatas();
+    [[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<PackData>>& getPackDatas();
 
     [[nodiscard]] bool isValidPackId(const sf::base::String& mPackId) const noexcept;
 
@@ -223,15 +225,11 @@ public:
 
     [[nodiscard]] const sf::base::String* getMusicPath(const sf::base::String& assetId) const;
 
-    [[nodiscard]] const std::unordered_map<sf::base::String, LevelData>& getLevelDatas() const noexcept;
+    [[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<LevelData>>& getLevelDatas() const noexcept;
 
-    [[nodiscard]] const std::unordered_set<sf::base::String>& getPackIdsWithMissingDependencies() const noexcept;
+    [[nodiscard]] const ankerl::unordered_dense::set<sf::base::String>& getPackIdsWithMissingDependencies() const noexcept;
 
     void addLocalProfile(ProfileData&& profileData);
-
-    [[nodiscard]] std::unordered_map<sf::base::String, sf::base::String>& getLuaFileCache();
-
-    [[nodiscard]] const std::unordered_map<sf::base::String, sf::base::String>& getLuaFileCache() const;
 };
 
 static void loadAssetsFromJson(AssetStorage& assetStorage, const sf::base::String& mRootPath, const ssvuj::Obj& mObj)
@@ -386,7 +384,7 @@ HGAssets::HGAssetsImpl::HGAssetsImpl(Steam::steam_manager* mSteamManager, bool m
     for (auto& v : levelDataIdsByPack)
     {
         sf::base::quickSort(v.second.begin(), v.second.end(), [&](const sf::base::String& mA, const sf::base::String& mB) {
-            return levelDatas.at(mA).menuPriority < levelDatas.at(mB).menuPriority;
+            return levelDatas.at(mA)->menuPriority < levelDatas.at(mB)->menuPriority;
         });
     }
 
@@ -488,7 +486,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
     packInfos.emplaceBack(PackInfo{packIdStdString, packPath});
 
     packDatas.emplace(packIdStdString, //
-                      PackData{
+                      sf::base::makeUnique<PackData>(PackData{
                           .folderPath{packPath},                             //
                           .id{packIdStdString},                              //
                           .disambiguator{SFML_BASE_MOVE(packDisambiguator)}, //
@@ -498,7 +496,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
                           .version{packVersion},                             //
                           .priority{packPriority},                           //
                           .dependencies{getPackDependencies()}               //
-                      });
+                      }));
 
     return true;
 }
@@ -609,7 +607,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 [[nodiscard]] const LevelData& HGAssets::HGAssetsImpl::getLevelData(const sf::base::String& mAssetId) const
 {
     SSVOH_ASSERT(isValidLevelId(mAssetId));
-    return levelDatas.at(mAssetId);
+    return *levelDatas.at(mAssetId);
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::packHasLevels(const sf::base::String& mPackId)
@@ -623,7 +621,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
     return levelDataIdsByPack.at(mPackId);
 }
 
-[[nodiscard]] const std::unordered_map<sf::base::String, PackData>& HGAssets::HGAssetsImpl::getPackDatas()
+[[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<PackData>>& HGAssets::HGAssetsImpl::getPackDatas()
 {
     return packDatas;
 }
@@ -636,7 +634,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 [[nodiscard]] const PackData& HGAssets::HGAssetsImpl::getPackData(const sf::base::String& mPackId)
 {
     SSVOH_ASSERT(isValidPackId(mPackId));
-    return packDatas.at(mPackId);
+    return *packDatas.at(mPackId);
 }
 
 [[nodiscard]] const sf::base::Vector<PackInfo>& HGAssets::HGAssetsImpl::getSelectablePackInfos() const noexcept
@@ -650,11 +648,11 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 {
     for (const auto& [packId, packData] : packDatas)
     {
-        if (packData.disambiguator == mPackDisambiguator && //
-            packData.name == mPackName &&                   //
-            packData.author == mPackAuthor)
+        if (packData->disambiguator == mPackDisambiguator && //
+            packData->name == mPackName &&                   //
+            packData->author == mPackAuthor)
         {
-            return &packData;
+            return packData.get();
         }
     }
 
@@ -769,7 +767,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 {
     for (const auto& [packId, packData] : packDatas)
     {
-        if (loadPackAssets(packData, headless))
+        if (loadPackAssets(*packData, headless))
         {
             continue;
         }
@@ -793,11 +791,11 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
     {
         for (const auto& [packId, packData] : packDatas)
         {
-            if (                                                //
-                (packData.disambiguator == pd.disambiguator) && //
-                (packData.name == pd.name) &&                   //
-                (packData.author == pd.author) &&               //
-                (packData.version >= pd.minVersion))
+            if (                                                 //
+                (packData->disambiguator == pd.disambiguator) && //
+                (packData->name == pd.name) &&                   //
+                (packData->author == pd.author) &&               //
+                (packData->version >= pd.minVersion))
             {
                 return true;
             }
@@ -808,7 +806,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
 
     for (const auto& [packId, packData] : packDatas)
     {
-        for (const PackDependency& pd : packData.dependencies)
+        for (const PackDependency& pd : packData->dependencies)
         {
             if (dependencyExists(pd))
             {
@@ -816,7 +814,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
             }
 
             const sf::base::String&
-                errorMessage = concatIntoBuf("Missing pack dependency '", pd.name, "' for pack '", packData.name, "'\n");
+                errorMessage = concatIntoBuf("Missing pack dependency '", pd.name, "' for pack '", packData->name, "'\n");
 
             loadInfo.errorMessages.emplaceBack(errorMessage);
             hg::lo("::loadAssets") << errorMessage;
@@ -839,7 +837,8 @@ void HGAssets::HGAssetsImpl::addLocalProfile(ProfileData&& profileData)
     Utils::erase_if(profileData.getFavoriteLevelIds(),
                     [this](const sf::base::String& favId) { return levelDatas.find(favId) == levelDatas.end(); });
 
-    profileDataMap.emplace(profileData.getName(), SFML_BASE_MOVE(profileData));
+    sf::base::String name = profileData.getName();
+    profileDataMap.emplace(SFML_BASE_MOVE(name), sf::base::makeUnique<ProfileData>(SFML_BASE_MOVE(profileData)));
 }
 
 [[nodiscard]] bool HGAssets::HGAssetsImpl::loadAllLocalProfiles()
@@ -1036,7 +1035,7 @@ void HGAssets::HGAssetsImpl::loadPackAssets_loadLevelData(const sf::base::String
         const sf::base::String& assetId = concatIntoBuf(mPackId, '_', levelData.id);
 
         levelDataIdsByPack[mPackId].emplaceBack(assetId);
-        levelDatas.emplace(assetId, SFML_BASE_MOVE(levelData));
+        levelDatas.emplace(assetId, sf::base::makeUnique<LevelData>(SFML_BASE_MOVE(levelData)));
 
         ++loadInfo.levels;
     }
@@ -1087,18 +1086,18 @@ void HGAssets::HGAssetsImpl::saveAllProfiles()
     {
         ssvuj::Obj profileRoot;
         ssvuj::arch(profileRoot, "version", currentVersion);
-        ssvuj::arch(profileRoot, "name", profileData.getName());
-        ssvuj::arch(profileRoot, "scores", profileData.getScores());
+        ssvuj::arch(profileRoot, "name", profileData->getName());
+        ssvuj::arch(profileRoot, "scores", profileData->getScores());
 
         favorites.clear();
-        for (const sf::base::String& favID : profileData.getFavoriteLevelIds())
+        for (const sf::base::String& favID : profileData->getFavoriteLevelIds())
         {
             favorites.emplaceBack(favID);
         }
 
         ssvuj::arch(profileRoot, "favorites", favorites);
 
-        ssvuj::writeToFile(profileRoot, sf::Path{("Profiles/" + profileData.getName() + ".json").cStr()});
+        ssvuj::writeToFile(profileRoot, sf::Path{("Profiles/" + profileData->getName() + ".json").cStr()});
     }
 }
 
@@ -1239,11 +1238,11 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
         if (it == levelDatas.end())
         {
             levelDataIdsByPack[mPackId].emplaceBack(temp);
-            levelDatas.emplace(temp, SFML_BASE_MOVE(levelData));
+            levelDatas.emplace(temp, sf::base::makeUnique<LevelData>(SFML_BASE_MOVE(levelData)));
         }
         else
         {
-            it->second = levelData;
+            *it->second = SFML_BASE_MOVE(levelData);
         }
     }
     output += "Levels successfully reloaded\n";
@@ -1349,11 +1348,11 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     if (it == levelDatas.end())
     {
         levelDataIdsByPack[mPackId].emplaceBack(temp);
-        levelDatas.emplace(temp, SFML_BASE_MOVE(levelData));
+        levelDatas.emplace(temp, sf::base::makeUnique<LevelData>(SFML_BASE_MOVE(levelData)));
     }
     else
     {
-        it->second = levelData;
+        *it->second = levelData;
     }
     output = "level data " + mId + ".json successfully loaded\n";
 
@@ -1494,7 +1493,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     // `on_item_subscribed` for an already-on-disk re-subscribe). Without
     // this guard, the second call appends duplicate entries to
     // `packInfos` / `selectablePackInfos` / `levelDataIdsByPack[id]` --
-    // most of the underlying `unordered_map`s reject the duplicate
+    // most of the underlying maps reject the duplicate
     // `emplace` silently, but the vector-keyed indexes don't, so the
     // pack ends up listed twice in the level select and every level
     // shows up twice within it.
@@ -1504,7 +1503,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     // comparison, so trailing-separator differences don't matter.
     for (const auto& [pid, pdata] : packDatas)
     {
-        if (pdata.folderPath == folderPath)
+        if (pdata->folderPath == folderPath)
         {
             hg::lo("HGAssets::installPackAtRuntime")
                 << "Pack at folder '" << folderPath << "' already loaded as '" << pid << "'; no-op\n";
@@ -1531,7 +1530,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
         return sf::base::nullOpt;
     }
 
-    if (!loadPackAssets(it->second, isHeadless()))
+    if (!loadPackAssets(*it->second, isHeadless()))
     {
         hg::lo("HGAssets::installPackAtRuntime") << "loadPackAssets failed for '" << newPackId << "'\n";
         return sf::base::nullOpt;
@@ -1550,7 +1549,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     // Re-sort selectablePackInfos by priority. (Matches the initial-load
     // sort at the end of `loadAllPackAssets`.)
     sf::base::quickSort(selectablePackInfos.begin(), selectablePackInfos.end(), [&](const PackInfo& a, const PackInfo& b) {
-        return packDatas.at(a.id).priority < packDatas.at(b.id).priority;
+        return packDatas.at(a.id)->priority < packDatas.at(b.id)->priority;
     });
 
     bumpPackListVersion();
@@ -1660,27 +1659,12 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     packIdsWithMissingDependencies.erase(packId);
 
     // ------------------------------------------------------------------------
-    // 6. Lua script cache. Keys are full filesystem paths under the pack
-    //    folder; sweep anything containing the pack id to be safe (paths
-    //    naturally include `packId` as a folder component, so this is
-    //    sufficient even if the user reinstalls under a different absolute
-    //    folder later).
-    auto& luaCache = getLuaFileCache();
-    for (auto it = luaCache.begin(); it != luaCache.end();)
-    {
-        if (it->first.find(packId.toStringView()) != sf::base::String::nPos)
-            it = luaCache.erase(it);
-        else
-            ++it;
-    }
-
-    // ------------------------------------------------------------------------
-    // 7. Active-profile favorites: drop ids that no longer resolve. (S3 in
+    // 6. Active-profile favorites: drop ids that no longer resolve. (S3 in
     //    the design doc.) We sweep every loaded profile so cleanup is
     //    consistent regardless of which one is active.
     for (auto& [profileName, profileData] : profileDataMap)
     {
-        Utils::erase_if(profileData.getFavoriteLevelIds(),
+        Utils::erase_if(profileData->getFavoriteLevelIds(),
                         [this](const sf::base::String& favId) { return levelDatas.find(favId) == levelDatas.end(); });
     }
 
@@ -1695,7 +1679,7 @@ void HGAssets::HGAssetsImpl::reloadAllShaders()
     }
 
     sf::base::quickSort(selectablePackInfos.begin(), selectablePackInfos.end(), [&](const PackInfo& a, const PackInfo& b) {
-        return packDatas.at(a.id).priority < packDatas.at(b.id).priority;
+        return packDatas.at(a.id)->priority < packDatas.at(b.id)->priority;
     });
 
     bumpPackListVersion();
@@ -1732,7 +1716,7 @@ ProfileData& HGAssets::HGAssetsImpl::getCurrentLocalProfile()
 ProfileData* HGAssets::HGAssetsImpl::getLocalProfileByName(const sf::base::String& mName)
 {
     SSVOH_ASSERT(profileDataMap.contains(mName));
-    return &profileDataMap.find(mName)->second;
+    return profileDataMap.find(mName)->second.get();
 }
 
 const ProfileData& HGAssets::HGAssetsImpl::getCurrentLocalProfile() const
@@ -1744,7 +1728,7 @@ const ProfileData& HGAssets::HGAssetsImpl::getCurrentLocalProfile() const
 const ProfileData* HGAssets::HGAssetsImpl::getLocalProfileByName(const sf::base::String& mName) const
 {
     SSVOH_ASSERT(profileDataMap.contains(mName));
-    return &profileDataMap.find(mName)->second;
+    return profileDataMap.find(mName)->second.get();
 }
 
 [[nodiscard]] sf::base::String HGAssets::HGAssetsImpl::getCurrentLocalProfileFilePath()
@@ -1765,7 +1749,7 @@ const ProfileData* HGAssets::HGAssetsImpl::getLocalProfileByName(const sf::base:
 
     for (auto& pair : profileDataMap)
     {
-        result.emplaceBack(pair.second.getName());
+        result.emplaceBack(pair.second->getName());
     }
 
     return result;
@@ -1797,7 +1781,7 @@ void HGAssets::HGAssetsImpl::pSetCurrent(const sf::base::String& mName)
     const auto it = profileDataMap.find(mName);
 
     SSVOH_ASSERT(it != profileDataMap.end());
-    currentProfilePtr = &it->second;
+    currentProfilePtr = it->second.get();
 }
 
 void HGAssets::HGAssetsImpl::pCreate(const sf::base::String& mName)
@@ -1834,24 +1818,14 @@ void HGAssets::HGAssetsImpl::pRemove(const sf::base::String& mName)
     return it == musicPathMap.end() ? nullptr : &it->second;
 }
 
-[[nodiscard]] const std::unordered_map<sf::base::String, LevelData>& HGAssets::HGAssetsImpl::getLevelDatas() const noexcept
+[[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<LevelData>>& HGAssets::HGAssetsImpl::getLevelDatas() const noexcept
 {
     return levelDatas;
 }
 
-[[nodiscard]] const std::unordered_set<sf::base::String>& HGAssets::HGAssetsImpl::getPackIdsWithMissingDependencies() const noexcept
+[[nodiscard]] const ankerl::unordered_dense::set<sf::base::String>& HGAssets::HGAssetsImpl::getPackIdsWithMissingDependencies() const noexcept
 {
     return packIdsWithMissingDependencies;
-}
-
-[[nodiscard]] std::unordered_map<sf::base::String, sf::base::String>& HGAssets::HGAssetsImpl::getLuaFileCache()
-{
-    return luaFileCache;
-}
-
-[[nodiscard]] const std::unordered_map<sf::base::String, sf::base::String>& HGAssets::HGAssetsImpl::getLuaFileCache() const
-{
-    return luaFileCache;
 }
 
 // ----------------------------------------------------------------------------
@@ -1903,7 +1877,7 @@ const sf::base::Vector<sf::base::String>& HGAssets::getLevelIdsByPack(const sf::
     return _impl->getLevelIdsByPack(mPackId);
 }
 
-const std::unordered_map<sf::base::String, PackData>& HGAssets::getPackDatas()
+const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<PackData>>& HGAssets::getPackDatas()
 {
     return _impl->getPackDatas();
 }
@@ -2095,12 +2069,12 @@ const sf::base::String* HGAssets::getMusicPath(const sf::base::String& assetId) 
     return _impl->getMusicPath(assetId);
 }
 
-const std::unordered_map<sf::base::String, LevelData>& HGAssets::getLevelDatas() const noexcept
+const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<LevelData>>& HGAssets::getLevelDatas() const noexcept
 {
     return _impl->getLevelDatas();
 }
 
-const std::unordered_set<sf::base::String>& HGAssets::getPackIdsWithMissingDependencies() const noexcept
+const ankerl::unordered_dense::set<sf::base::String>& HGAssets::getPackIdsWithMissingDependencies() const noexcept
 {
     return _impl->getPackIdsWithMissingDependencies();
 }
@@ -2109,16 +2083,5 @@ void HGAssets::addLocalProfile(ProfileData&& profileData)
 {
     return _impl->addLocalProfile(SFML_BASE_MOVE(profileData));
 }
-
-std::unordered_map<sf::base::String, sf::base::String>& HGAssets::getLuaFileCache()
-{
-    return _impl->getLuaFileCache();
-}
-
-const std::unordered_map<sf::base::String, sf::base::String>& HGAssets::getLuaFileCache() const
-{
-    return _impl->getLuaFileCache();
-}
-
 
 } // namespace hg

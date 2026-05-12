@@ -207,7 +207,6 @@ struct ParsedArgs
     hg::Steam::steam_manager steamManager;
 
     hg::Config::loadConfig({} /* overrideIds */);
-    hg::Config::setUseLuaFileCache(true);
 
     SFML_BASE_SCOPE_GUARD({
         hg::lo("::main") << "Saving config...\n";

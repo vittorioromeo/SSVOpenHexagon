@@ -366,11 +366,9 @@ using cil = std::initializer_list<cmb>;
     X(showSwapParticles, bool, "show_swap_particles", true)                                                              \
     X(playSwapReadySound, bool, "play_swap_ready_sound", true)                                                           \
     X(showSwapBlinkingEffect, bool, "show_swap_blinking_effect", true)                                                   \
-    X(useLuaFileCache, bool, "use_lua_file_cache", false)                                                                \
     X(disableGameRendering, bool, "disable_game_rendering", false)                                                       \
     X_LINKEDVALUES_BINDS
 
-// TODO: enable cache on server
 
 namespace hg::Config
 {
@@ -951,11 +949,6 @@ void setShowSwapBlinkingEffect(bool x)
     showSwapBlinkingEffect() = x;
 }
 
-void setUseLuaFileCache(bool x)
-{
-    useLuaFileCache() = x;
-}
-
 void setDisableGameRendering(bool x)
 {
     disableGameRendering() = x;
@@ -1339,11 +1332,6 @@ void setDisableGameRendering(bool x)
 [[nodiscard]] bool getShowSwapBlinkingEffect()
 {
     return showSwapBlinkingEffect();
-}
-
-[[nodiscard]] bool getUseLuaFileCache()
-{
-    return useLuaFileCache();
 }
 
 [[nodiscard]] bool getDisableGameRendering()

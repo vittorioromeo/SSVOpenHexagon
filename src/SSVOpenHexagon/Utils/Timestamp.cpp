@@ -8,9 +8,6 @@
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 
-#include <iomanip>
-#include <sstream>
-
 #include <ctime>
 
 namespace hg::Utils
@@ -36,9 +33,9 @@ namespace hg::Utils
     const std::time_t tt = std::chrono::system_clock::to_time_t(time);
     const std::tm     tm = *std::gmtime(&tt); // GMT (UTC)
 
-    std::stringstream ss;
-    ss << std::put_time(&tm, format.cStr());
-    return sf::base::String(ss.str());
+    char         buf[128];
+    const size_t n = std::strftime(buf, sizeof(buf), format.cStr(), &tm);
+    return sf::base::String(buf, n);
 }
 
 } // namespace hg::Utils

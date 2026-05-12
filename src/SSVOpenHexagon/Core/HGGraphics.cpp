@@ -3,31 +3,43 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
+#include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Imgui.hpp"
+#include "SSVOpenHexagon/Utils/CameraView.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/Random.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/RenderStates.hpp"
-#include "SFML/Graphics/RenderTexture.hpp"
 #include "SFML/Graphics/Shader.hpp"
+#include "SFML/Graphics/Text.hpp"
+#include "SFML/Graphics/View.hpp"
+
+#include "SFML/System/Priv/Vec2Base.hpp"
 
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Macros.hpp"
+#include "SFML/Base/Math/Cos.hpp"
+#include "SFML/Base/Math/Floor.hpp"
+#include "SFML/Base/Math/Sin.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/StringStreamOp.hpp"
+#include "SFML/Base/ToString.hpp"
 
 namespace hg
 {
 
 [[nodiscard]] static sf::base::String formatTime(const double x)
 {
-    return Utils::toMinimalFloatString(std::floor(x * 1000) / 1000.f);
+    return Utils::toMinimalFloatString(SFML_BASE_MATH_FLOOR(x * 1000) / 1000.f);
 }
 
 static void setVisualCharacterSize(sf::Text& text, const float characterSize)
@@ -89,7 +101,7 @@ void HexagonGame::draw()
             return sf::RenderStates{};
         }
 
-        runLuaFunctionIfExists<int, float>("onRenderStage", static_cast<int>(rs), 60.f / window->getFPS());
+        (void)runLuaFunctionIfExists<int, float>("onRenderStage", static_cast<int>(rs), 60.f / window->getFPS());
         return sf::RenderStates{.shader = assets.getShaderByShaderId(*fragmentShaderId)};
     };
 
@@ -154,7 +166,7 @@ void HexagonGame::draw()
     capTris.clear();
 
     // Reserve right amount of memory for all walls and custom walls
-    wallQuads.reserve_more_quad(walls.size() + cwManager.count());
+    wallQuads.reserveMoreQuad(walls.size() + cwManager.count());
 
     for (CWall& w : walls)
     {
@@ -187,27 +199,23 @@ void HexagonGame::draw()
 
     if (Config::get3D())
     {
-        const float           depth(styleData._3dDepth);
+        // `_3dDepth` is exposed as a `float` (Lua reflection), but everything
+        // downstream wants integral loop / slice counts. Resolve once here so
+        // append, modify, and reserve all agree.
+        const sf::base::SizeT depthInt(static_cast<sf::base::SizeT>(styleData._3dDepth));
         const sf::base::SizeT numWallQuads(wallQuads.size());
         const sf::base::SizeT numPivotQuads(pivotQuads.size());
         const sf::base::SizeT numPlayerTris(playerTris.size());
 
-        wallQuads3D.reserve(numWallQuads * depth);
-        pivotQuads3D.reserve(numPivotQuads * depth);
-        playerTris3D.reserve(numPlayerTris * depth);
+        wallQuads3D.reserve(numWallQuads * depthInt);
+        pivotQuads3D.reserve(numPivotQuads * depthInt);
+        playerTris3D.reserve(numPlayerTris * depthInt);
 
         const float effect{styleData._3dSkew * Config::get3DMultiplier() * (Config::getNoPulse() ? 1.f : status.pulse3D)};
 
         const float radRot(Utils::toRad(backgroundCamera->rotation.asDegrees()) + (Utils::pi / 2.f));
-        const float sinRot(std::sin(radRot));
-        const float cosRot(std::cos(radRot));
-
-        for (sf::base::SizeT i = 0; i < depth; ++i)
-        {
-            wallQuads3D.unsafe_emplace_other(wallQuads);
-            pivotQuads3D.unsafe_emplace_other(pivotQuads);
-            playerTris3D.unsafe_emplace_other(playerTris);
-        }
+        const float sinRot(SFML_BASE_MATH_SINF(radRot));
+        const float cosRot(SFML_BASE_MATH_COSF(radRot));
 
         const auto adjustAlpha = [&](sf::Color& c, const float i)
         {
@@ -221,63 +229,62 @@ void HexagonGame::draw()
             c.a = Utils::componentClamp(newAlpha);
         };
 
-        for (int j(0); j < static_cast<int>(depth); ++j)
+        // Wall and player layers only diverge from the pivot layer's color
+        // when the 3D override is the same as the main color (otherwise the
+        // override applies uniformly).
+        const bool overrideIsMain = styleData.get3DOverrideColor() == styleData.getMainColor();
+
+        // Fused per-layer pass: append the layer's slice, then offset and
+        // recolor the just-appended vertices in place. Layer ordering is
+        // back-to-front so alpha blending stacks correctly.
+        for (sf::base::SizeT j = 0; j < depthInt; ++j)
         {
-            const float i(depth - j - 1);
+            const float i = static_cast<float>(depthInt - j - 1);
 
             const float offset(
-                styleData._3dSpacing * (float(i + 1.f) * styleData._3dPerspectiveMult) * (effect * 3.6f) * 1.4f);
+                styleData._3dSpacing * ((i + 1.f) * styleData._3dPerspectiveMult) * (effect * 3.6f) * 1.4f);
 
             const sf::Vec2f newPos(offset * cosRot, offset * sinRot);
 
-            sf::Color overrideColor;
+            // Pivot color: 3D override (or white in B&W) darkened + alpha-adjusted.
+            sf::Color pivotColor = Config::getBlackAndWhite()
+                                       ? Utils::getColorDarkened(sf::Color(255, 255, 255, styleData.getMainColor().a),
+                                                                 styleData._3dDarkenMult)
+                                       : Utils::getColorDarkened(styleData.get3DOverrideColor(), styleData._3dDarkenMult);
+            adjustAlpha(pivotColor, i);
 
-            if (!Config::getBlackAndWhite())
-            {
-                overrideColor = Utils::getColorDarkened(styleData.get3DOverrideColor(), styleData._3dDarkenMult);
-            }
-            else
-            {
-                overrideColor = Utils::getColorDarkened(sf::Color(255, 255, 255, styleData.getMainColor().a),
-                                                        styleData._3dDarkenMult);
-            }
-            adjustAlpha(overrideColor, i);
+            sf::Color wallColor   = pivotColor;
+            sf::Color playerColor = pivotColor;
 
-            // Draw pivot layers
-            for (sf::base::SizeT k = j * numPivotQuads; k < (j + 1) * numPivotQuads; ++k)
+            if (overrideIsMain)
             {
-                pivotQuads3D[k].position += newPos;
-                pivotQuads3D[k].color = overrideColor;
-            }
+                wallColor = Utils::getColorDarkened(getColorWall(), styleData._3dDarkenMult);
+                adjustAlpha(wallColor, i);
 
-            if (styleData.get3DOverrideColor() == styleData.getMainColor())
-            {
-                overrideColor = Utils::getColorDarkened(getColorWall(), styleData._3dDarkenMult);
-
-                adjustAlpha(overrideColor, i);
+                playerColor = Utils::getColorDarkened(getColorPlayer(), styleData._3dDarkenMult);
+                adjustAlpha(playerColor, i);
             }
 
-            // Draw wall layers
-            for (sf::base::SizeT k = j * numWallQuads; k < (j + 1) * numWallQuads; ++k)
+            const auto offsetAndColor = [&newPos](auto& buf, const sf::base::SizeT begin, const sf::base::SizeT end, const sf::Color color)
             {
-                wallQuads3D[k].position += newPos;
-                wallQuads3D[k].color = overrideColor;
-            }
+                for (sf::base::SizeT k = begin; k < end; ++k)
+                {
+                    buf[k].position += newPos;
+                    buf[k].color = color;
+                }
+            };
 
-            // Apply player color if no 3D override is present.
-            if (styleData.get3DOverrideColor() == styleData.getMainColor())
-            {
-                overrideColor = Utils::getColorDarkened(getColorPlayer(), styleData._3dDarkenMult);
+            const sf::base::SizeT pivotBegin  = pivotQuads3D.size();
+            const sf::base::SizeT wallBegin   = wallQuads3D.size();
+            const sf::base::SizeT playerBegin = playerTris3D.size();
 
-                adjustAlpha(overrideColor, i);
-            }
+            pivotQuads3D.unsafeAppend(pivotQuads);
+            wallQuads3D.unsafeAppend(wallQuads);
+            playerTris3D.unsafeAppend(playerTris);
 
-            // Draw player layers
-            for (sf::base::SizeT k = j * numPlayerTris; k < (j + 1) * numPlayerTris; ++k)
-            {
-                playerTris3D[k].position += newPos;
-                playerTris3D[k].color = overrideColor;
-            }
+            offsetAndColor(pivotQuads3D, pivotBegin, pivotBegin + numPivotQuads, pivotColor);
+            offsetAndColor(wallQuads3D, wallBegin, wallBegin + numWallQuads, wallColor);
+            offsetAndColor(playerTris3D, playerBegin, playerBegin + numPlayerTris, playerColor);
         }
     }
 
@@ -360,7 +367,7 @@ void HexagonGame::drawImguiLuaConsole()
 void HexagonGame::initFlashEffect(int r, int g, int b)
 {
     flashPolygon.clear();
-    flashPolygon.reserve(6);
+    flashPolygon.reserveQuad(1);
 
     const sf::Color color{static_cast<sf::base::U8>(r), static_cast<sf::base::U8>(g), static_cast<sf::base::U8>(b), 0};
 
@@ -373,7 +380,7 @@ void HexagonGame::initFlashEffect(int r, int g, int b)
     const sf::Vec2f se{width + offset, height + offset};
     const sf::Vec2f ne{width + offset, -offset};
 
-    flashPolygon.batch_unsafe_emplace_back_quad(color, nw, sw, se, ne);
+    flashPolygon.batchUnsafeEmplaceBackQuad(color, nw, sw, se, ne);
 }
 
 void HexagonGame::drawKeyIcons()
@@ -592,7 +599,7 @@ void HexagonGame::updateText(float mFT)
     setVisualCharacterSize(textUI->messageText, getScaledCharacterSize(32.f));
     textUI->messageText.origin = {textUI->messageText.getGlobalWidth() / 2.f, 0.f};
 
-    const float growth = std::sin(pbTextGrowth);
+    const float growth = SFML_BASE_MATH_SINF(pbTextGrowth);
     setVisualCharacterSize(textUI->pbText, getScaledCharacterSize(64.f) + growth * 10.f);
     textUI->pbText.origin = textUI->pbText.getLocalCenter();
 

@@ -28,12 +28,12 @@
 #include "SFML/System/Thread.hpp"
 #include "SFML/System/Time.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
 
 #include <sodium.h>
-#include <unordered_set>
 
 namespace
 {
@@ -90,7 +90,7 @@ int main()
     // ------------------------------------------------------------------------
     // Spin up the server on an ephemeral port. Control port: 0 too (whatever).
     // Stub-out assets/game -- this test never sends replay packets.
-    const std::unordered_set<sf::base::String> emptyWhitelist;
+    const ankerl::unordered_dense::set<sf::base::String> emptyWhitelist;
 
     hg::HexagonServer server{nullptr /* assets */,
                              nullptr /* hexagonGame */,

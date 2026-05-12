@@ -27,12 +27,12 @@
 #include "SFML/System/Thread.hpp"
 #include "SFML/System/Time.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #include <sodium.h>
-#include <unordered_set>
 
 namespace
 {
@@ -142,7 +142,7 @@ int main()
 
     // ------------------------------------------------------------------------
     // Start the server.
-    const std::unordered_set<sf::base::String> emptyWhitelist;
+    const ankerl::unordered_dense::set<sf::base::String> emptyWhitelist;
 
     hg::HexagonServer
         server{nullptr, nullptr, sf::IpAddress::LocalHost, sf::Socket::AnyPort, static_cast<unsigned short>(0), emptyWhitelist};

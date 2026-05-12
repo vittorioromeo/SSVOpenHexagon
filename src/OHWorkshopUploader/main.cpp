@@ -21,7 +21,6 @@
 #include <optional>
 
 #include <cassert>
-#include <cmath>
 
 // ----------------------------------------------------------------------------
 // Utilities.

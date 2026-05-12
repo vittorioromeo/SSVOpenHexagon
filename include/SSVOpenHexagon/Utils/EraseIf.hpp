@@ -8,8 +8,6 @@ namespace hg::Utils
 {
 
 // Generic `erase_if` over any associative container with `begin/end/erase`.
-// Works for `std::unordered_set` / `std::unordered_map` and the
-// `ankerl::unordered_dense` equivalents.
 template <typename Container, typename Pred>
 auto erase_if(Container& c, Pred pred) -> decltype(c.size())
 {

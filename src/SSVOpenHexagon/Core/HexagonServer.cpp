@@ -37,6 +37,7 @@
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Macros.hpp"
+#include "SFML/Base/Math/Fabs.hpp"
 #include "SFML/Base/MiniPFR.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
@@ -47,9 +48,6 @@
 
 #include <stdexcept>
 #include <string>
-#include <unordered_set>
-
-#include <cmath>
 
 static auto& slog(const char* funcName)
 {
@@ -820,7 +818,7 @@ void HexagonServer::runIteration_FlushLogs()
         return discard("non-positive elapsed time");
     }
 
-    const double difference = std::fabs(replayTotalTime - elapsedSecs);
+    const double difference = SFML_BASE_MATH_FABS(replayTotalTime - elapsedSecs);
     const double ratio      = replayTotalTime / elapsedSecs;
 
     const bool goodDifference = difference < 5.0;
@@ -1454,11 +1452,11 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
     );
 }
 
-[[nodiscard]] static std::unordered_set<sf::base::String> makeSupportedLevelValidators(
-    HGAssets*                                   assets,
-    const std::unordered_set<sf::base::String>& levelValidatorWhitelist)
+[[nodiscard]] static ankerl::unordered_dense::set<sf::base::String> makeSupportedLevelValidators(
+    HGAssets*                                             assets,
+    const ankerl::unordered_dense::set<sf::base::String>& levelValidatorWhitelist)
 {
-    std::unordered_set<sf::base::String> result;
+    ankerl::unordered_dense::set<sf::base::String> result;
 
     if (assets == nullptr)
     {
@@ -1467,14 +1465,14 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
     for (const auto& [assetId, ld] : assets->getLevelDatas())
     {
-        if (ld.unscored)
+        if (ld->unscored)
         {
             continue;
         }
 
-        for (const float dm : ld.difficultyMults)
+        for (const float dm : ld->difficultyMults)
         {
-            if (const sf::base::String& validator = ld.getValidator(dm); levelValidatorWhitelist.contains(validator))
+            if (const sf::base::String& validator = ld->getValidator(dm); levelValidatorWhitelist.contains(validator))
             {
                 result.emplace(validator);
             }
@@ -1484,12 +1482,12 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
     return result;
 }
 
-HexagonServer::HexagonServer(HGAssets*                                   assets,
-                             HexagonGame*                                hexagonGame,
-                             const sf::IpAddress&                        serverIp,
-                             const unsigned short                        serverPort,
-                             const unsigned short                        serverControlPort,
-                             const std::unordered_set<sf::base::String>& serverLevelWhitelist) :
+HexagonServer::HexagonServer(HGAssets*                                             assets,
+                             HexagonGame*                                          hexagonGame,
+                             const sf::IpAddress&                                  serverIp,
+                             const unsigned short                                  serverPort,
+                             const unsigned short                                  serverControlPort,
+                             const ankerl::unordered_dense::set<sf::base::String>& serverLevelWhitelist) :
     _assets{assets},
     _hexagonGame{hexagonGame},
     _supportedLevelValidators{makeSupportedLevelValidators(assets, serverLevelWhitelist)},

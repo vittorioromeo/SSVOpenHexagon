@@ -3,7 +3,6 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/PackData.hpp"
-#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
@@ -14,9 +13,7 @@
 #include "SFML/System/Path.hpp"
 
 #include "SFML/Base/Algorithm/Find.hpp"
-#include "SFML/Base/Builtin/Memcpy.hpp"
 #include "SFML/Base/FixedFunction.hpp"
-#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/String.hpp"
@@ -26,7 +23,6 @@
 #include <stdexcept>
 #include <string_view>
 #include <tuple>
-#include <unordered_map>
 
 namespace hg::Utils
 {
@@ -50,32 +46,6 @@ try
                                     << logEndl;
 
     throw;
-}
-
-bool runLuaFileCached(HGAssets& assets, Lua::LuaContext& mLua, const sf::base::String& mFileName)
-{
-    std::unordered_map<sf::base::String, sf::base::String>& cache = assets.getLuaFileCache();
-
-    auto       it    = cache.find(mFileName);
-    const bool found = it != cache.end();
-
-    if (!found)
-    {
-        sf::base::Vector<char>& fileBuf = sf::getThreadLocalScratchCharBuffer();
-        fileBuf.clear();
-        (void)sf::readFromFile(sf::Path{mFileName.cStr()}, fileBuf);
-
-        sf::base::String buffer;
-        buffer.resize(fileBuf.size());
-        SFML_BASE_MEMCPY(buffer.data(), fileBuf.data(), fileBuf.size());
-
-        auto res = cache.emplace(mFileName, SFML_BASE_MOVE(buffer));
-        SSVOH_ASSERT(res.second);
-        it = res.first;
-    }
-
-    runLuaCode(mLua, it->second);
-    return found;
 }
 
 void runLuaFile(Lua::LuaContext& mLua, const sf::base::String& mFileName)

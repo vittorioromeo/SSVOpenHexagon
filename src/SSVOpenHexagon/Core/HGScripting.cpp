@@ -20,21 +20,17 @@
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include "SFML/Window/Keyboard.hpp"
-#include "SFML/Window/Mouse.hpp"
-
 #include "SFML/System/Angle.hpp"
 #include "SFML/System/IO.hpp"
 
 #include "SFML/Base/Macros.hpp"
+#include "SFML/Base/Math/Pow.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
 
 #include <stdexcept>
-
-#include <cmath>
 
 namespace hg
 {
@@ -86,24 +82,6 @@ void HexagonGame::initLua_Utils()
         .doc("Print out `$0` to the console.");
 
     addLuaFn(lua,
-             "u_isKeyPressed",
-             [this](int mKey)
-    {
-        raiseWarning("u_isKeyPressed",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace uses of this function with the "
-                     "`onInput` callback.");
-
-        return window != nullptr && window->getInputState()[sf::Keyboard::Key(mKey)];
-    })
-        .arg("keyCode")
-        .doc(
-            "Return `true` if the keyboard key with code `$0` is being "
-            "pressed, `false` otherwise. The key code must match the "
-            "definition of the SFML `sf::Keyboard::Key` enumeration. **This "
-            "function is deprecated and will be removed in a future version.");
-
-    addLuaFn(lua,
              "u_haltTime", //
              [this](double mDuration) { status.pauseTime(getFTToSeconds(mDuration)); })
         .arg("duration")
@@ -126,25 +104,6 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_setPlayerAngle", [this](float newAng) { player.setPlayerAngle(newAng); })
         .arg("angle")
         .doc("Set the current angle of the player to `$0`, in radians.");
-
-    addLuaFn(lua,
-             "u_isMouseButtonPressed",
-             [this](int mKey)
-    {
-        raiseWarning("u_isMouseButtonPressed",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace uses of this function with the "
-                     "`onInput` callback.");
-
-        return window != nullptr && window->getInputState()[sf::Mouse::Button(mKey)];
-    })
-        .arg("buttonCode")
-        .doc(
-            "Return `true` if the mouse button with code `$0` is being "
-            "pressed, `false` otherwise. The button code must match the "
-            "definition of the SFML `sf::Mouse::Button` enumeration. **This "
-            "function is deprecated and will be removed in a future "
-            "version.");
 
     addLuaFn(lua,
              "u_isFastSpinning", //
@@ -280,7 +239,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_overrideBeepSound", //
-             [this](const sf::base::String& mId) { levelStatus.beepSound = getPackId() + "_" + mId; })
+             [this](const sf::base::String& mId) { levelStatus.beepSound = qualifyPackAsset(mId); })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -289,7 +248,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_overrideIncrementSound", //
-             [this](const sf::base::String& mId) { levelStatus.levelUpSound = getPackId() + "_" + mId; })
+             [this](const sf::base::String& mId) { levelStatus.levelUpSound = qualifyPackAsset(mId); })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -299,7 +258,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_overrideSwapSound", //
-             [this](const sf::base::String& mId) { levelStatus.swapSound = getPackId() + "_" + mId; })
+             [this](const sf::base::String& mId) { levelStatus.swapSound = qualifyPackAsset(mId); })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -308,7 +267,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua,
              "a_overrideDeathSound", //
-             [this](const sf::base::String& mId) { levelStatus.deathSound = getPackId() + "_" + mId; })
+             [this](const sf::base::String& mId) { levelStatus.deathSound = qualifyPackAsset(mId); })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -759,7 +718,7 @@ void HexagonGame::initLua_WallCreation()
             createWall(mSide,
                        mThickness,
                        SpeedData{mSpeedAdj * getSpeedMultDM(),
-                                 mAcceleration / (std::pow(difficultyMult, 0.65f)),
+                                 mAcceleration / (SFML_BASE_MATH_POWF(difficultyMult, 0.65f)),
                                  mMinSpeed * getSpeedMultDM(),
                                  mMaxSpeed * getSpeedMultDM()},
                        SpeedData{} /* curve */,
@@ -862,257 +821,6 @@ void HexagonGame::initLua_Steam()
         .doc("Unlock the Steam achievement with id `$0`.");
 }
 
-// These are all deprecated functions that are only being kept for the sake of
-// lessening the impact of incompatibility. Pack Developers have time to change
-// to the new functions before they get removed permanently
-void HexagonGame::initLua_Deprecated()
-{
-    addLuaFn(lua,
-             "u_kill", //
-             [this]
-    {
-        raiseWarning("u_kill",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"t_kill\" in your level files.");
-        timeline.append_do([this] { death(true); });
-    })
-        .doc(
-            "*Add to the main timeline*: kill the player. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use t_kill instead!**");
-
-    addLuaFn(lua,
-             "u_eventKill", //
-             [this]
-    {
-        raiseWarning("u_eventKill",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_kill\" in your level files.");
-        eventTimeline.append_do([this] { death(true); });
-    })
-        .doc(
-            "*Add to the event timeline*: kill the player. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_kill instead!**");
-
-    addLuaFn(lua,
-             "u_playSound", //
-             [this](const sf::base::String& mId)
-    {
-        raiseWarning("u_playSound",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"a_playSound\" in your level files.");
-        playSoundOverride(mId);
-    })
-        .arg("soundId")
-        .doc(
-            "Play the sound with id `$0`. The id must be registered in "
-            "`assets.json`, under `\"soundBuffers\"`. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use a_playSound instead!**");
-
-    addLuaFn(lua,
-             "u_playPackSound", //
-             [this](const sf::base::String& fileName)
-    {
-        raiseWarning("u_playPackSound",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"a_playPackSound\" in your level files.");
-        playPackSoundOverride(getPackId(), fileName);
-    })
-        .arg("fileName")
-        .doc(
-            "Dives into the `Sounds` folder of the current level pack and "
-            "plays the specified file `$0`. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use a_playPackSound instead!**");
-
-    addLuaFn(lua,
-             "e_eventStopTime", //
-             [this](double mDuration)
-    {
-        raiseWarning("e_eventStopTime",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_stopTime\" in your level files.");
-        eventTimeline.append_do([this, mDuration] { status.pauseTime(getFTToSeconds(mDuration)); });
-    })
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: pause the game timer for `$0` frames "
-            "(under the assumption of a 60 FPS frame rate). "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_stopTime instead!**");
-
-    addLuaFn(lua,
-             "e_eventStopTimeS", //
-             [this](double mDuration)
-    {
-        raiseWarning("e_eventStopTimeS",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_stopTimeS\" in your level files.");
-        eventTimeline.append_do([this, mDuration] { status.pauseTime(mDuration); });
-    })
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: pause the game timer for `$0` "
-            "seconds. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_stopTimeS instead!**");
-
-    addLuaFn(lua,
-             "e_eventWait",
-             [this](double mDuration)
-    {
-        raiseWarning("e_eventWait",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_wait\" in your level files.");
-        eventTimeline.append_wait_for_sixths(mDuration);
-    })
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: wait for `$0` frames (under the "
-            "assumption of a 60 FPS frame rate). "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_wait instead!**");
-
-    addLuaFn(lua,
-             "e_eventWaitS", //
-             [this](double mDuration)
-    {
-        raiseWarning("e_eventWaitS",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_waitS\" in your level files.");
-        eventTimeline.append_wait_for_seconds(mDuration);
-    })
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: wait for `$0` seconds. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_waitS instead!**");
-
-    addLuaFn(lua,
-             "e_eventWaitUntilS", //
-             [this](double mDuration)
-    {
-        raiseWarning("e_eventWaitUntilS",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_waitUntilS\" in your level files.");
-        eventTimeline.append_wait_until_fn([this, mDuration]
-        { return status.getLevelStartTP() + std::chrono::milliseconds(static_cast<int>(mDuration * 1000.0)); });
-    })
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: wait until the timer reaches `$0` "
-            "seconds. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_waitUntilS instead!**");
-
-    addLuaFn(lua,
-             "m_messageAdd", //
-             [this](const sf::base::String& mMsg, double mDuration)
-    {
-        raiseWarning("m_messageAdd",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_messageAdd\" in your level files and common.lua.");
-        eventTimeline.append_do([this, mMsg, mDuration]
-        {
-            if (firstPlay)
-            {
-                addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-            }
-        });
-    })
-        .arg("message")
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will only be printed during the first "
-            "run of the level. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_messageAdd instead!**");
-
-    addLuaFn(lua,
-             "m_messageAddImportant", //
-             [this](const sf::base::String& mMsg, double mDuration)
-    {
-        raiseWarning("m_messageAddImportant",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_messageAddImportant\" in your level files and "
-                     "common.lua.");
-        eventTimeline.append_do([this, mMsg, mDuration] { addMessage(mMsg, mDuration, /* mSoundToggle */ true); });
-    })
-        .arg("message")
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will be printed during every run of the "
-            "level. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_messageAddImportant instead!**");
-
-    addLuaFn(lua,
-             "m_messageAddImportantSilent",
-             [this](const sf::base::String& mMsg, double mDuration)
-    {
-        raiseWarning("m_messageAddImportantSilent",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_messageAddImportantSilent\" in your level files.");
-        eventTimeline.append_do([this, mMsg, mDuration] { addMessage(mMsg, mDuration, /* mSoundToggle */ false); });
-    })
-        .arg("message")
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will only be printed during every "
-            "run of the level, and will not produce any sound. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_messageAddImportantSilent instead!**");
-
-    addLuaFn(lua,
-             "m_clearMessages", //
-             [this]
-    {
-        raiseWarning("m_clearMessages",
-                     "This function will be removed in a future version of Open "
-                     "Hexagon. Please replace all occurrences of this function with "
-                     "\"e_clearMessages\" in your level files.");
-        clearMessages();
-    })
-        .doc(
-            "Remove all previously scheduled messages. "
-            "**This function is deprecated and will be removed in a future "
-            "version. Please use e_clearMessages instead!**");
-
-    addLuaFn(lua,
-             "l_forceSetPulse",
-             [this](const float mValue)
-    {
-        status.pulse = mValue;
-        refreshPulse();
-    }).doc("Immediately sets the current pulse value to `$0`.");
-
-    addLuaFn(lua,
-             "l_forceSetBeatPulse",
-             [this](const float mValue)
-    {
-        status.beatPulse = mValue;
-        refreshBeatPulse();
-        player.updatePosition(status.radius);
-    }).doc("Immediately sets the current beat pulse value to `$0`.");
-}
-
 void HexagonGame::initLua()
 {
     LuaScripting::init(lua,
@@ -1138,22 +846,12 @@ void HexagonGame::initLua()
     initLua_StyleControl();
     initLua_WallCreation();
     initLua_Steam();
-    initLua_Deprecated();
 }
 
 void HexagonGame::runLuaFile(const sf::base::String& mFileName)
 try
 {
-    const bool headless = window == nullptr;
-
-    if (headless || Config::getUseLuaFileCache())
-    {
-        Utils::runLuaFileCached(assets, lua, mFileName);
-    }
-    else
-    {
-        Utils::runLuaFile(lua, mFileName);
-    }
+    Utils::runLuaFile(lua, mFileName);
 } catch (...)
 {
     if (!Config::getDebug())

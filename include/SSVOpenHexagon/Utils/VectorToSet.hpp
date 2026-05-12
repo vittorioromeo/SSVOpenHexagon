@@ -4,21 +4,20 @@
 
 #pragma once
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <unordered_set>
 
 namespace hg::Utils
 {
 
 template <typename T>
-[[nodiscard]] std::unordered_set<T> toUnorderedSet(const sf::base::Vector<T>& v)
+[[nodiscard]] ankerl::unordered_dense::set<T> toUnorderedSet(const sf::base::Vector<T>& v)
 {
-    return std::unordered_set<T>(v.begin(), v.end());
+    return ankerl::unordered_dense::set<T>(v.begin(), v.end());
 }
 
 template <typename T>
-[[nodiscard]] sf::base::Vector<T> toVector(const std::unordered_set<T>& s)
+[[nodiscard]] sf::base::Vector<T> toVector(const ankerl::unordered_dense::set<T>& s)
 {
     sf::base::Vector<T> result;
     result.reserve(s.size());

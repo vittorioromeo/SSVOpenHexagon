@@ -73,7 +73,7 @@ public:
         moveVertexAlongCurveImpl(vertex, centerPos, sf::base::sin(rad), sf::base::cos(rad));
     }
 
-    void draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads);
+    void draw(sf::Color color, Utils::FastVertexVectorQuads& wallQuads);
 
     void setHueMod(float hueMod) noexcept;
 

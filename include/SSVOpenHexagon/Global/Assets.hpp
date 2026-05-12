@@ -4,17 +4,15 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/StringHash.hpp"
 
+
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <unordered_map>
-#include <unordered_set>
 
 namespace sf
 {
@@ -70,7 +68,7 @@ public:
 
     [[nodiscard]] const sf::base::Vector<sf::base::String>& getLevelIdsByPack(const sf::base::String& mPackId);
 
-    [[nodiscard]] const std::unordered_map<sf::base::String, PackData>& getPackDatas();
+    [[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<PackData>>& getPackDatas();
 
     [[nodiscard]] bool isValidPackId(const sf::base::String& mPackId) const noexcept;
 
@@ -150,15 +148,11 @@ public:
 
     [[nodiscard]] const sf::base::String* getMusicPath(const sf::base::String& assetId) const;
 
-    [[nodiscard]] const std::unordered_map<sf::base::String, LevelData>& getLevelDatas() const noexcept;
+    [[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<LevelData>>& getLevelDatas() const noexcept;
 
-    [[nodiscard]] const std::unordered_set<sf::base::String>& getPackIdsWithMissingDependencies() const noexcept;
+    [[nodiscard]] const ankerl::unordered_dense::set<sf::base::String>& getPackIdsWithMissingDependencies() const noexcept;
 
     void addLocalProfile(ProfileData&& profileData);
-
-    [[nodiscard]] std::unordered_map<sf::base::String, sf::base::String>& getLuaFileCache();
-
-    [[nodiscard]] const std::unordered_map<sf::base::String, sf::base::String>& getLuaFileCache() const;
 };
 
 } // namespace hg

@@ -484,7 +484,7 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
         const sf::Path folderPath{folder.cStr()};
         for (const auto& [packId, packData] : assets.getPackDatas())
         {
-            if (packData.folderPath == folderPath)
+            if (packData->folderPath == folderPath)
             {
                 _workshopFileIdToPackId.insert_or_assign(fileId, packId);
                 break;

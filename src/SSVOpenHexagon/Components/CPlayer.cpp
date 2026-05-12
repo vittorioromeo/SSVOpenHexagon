@@ -5,8 +5,10 @@
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
+#include "SSVOpenHexagon/Components/SpeedData.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
 #include "SSVOpenHexagon/Utils/Math.hpp"
 #include "SSVOpenHexagon/Utils/MoveTowards.hpp"
@@ -18,6 +20,7 @@
 #include "SFML/System/Angle.hpp"
 #include "SFML/System/Vec2.hpp"
 
+#include "SFML/Base/Array.hpp"
 #include "SFML/Base/Math/Fabs.hpp"
 #include "SFML/Base/Math/Fmod.hpp"
 
@@ -71,15 +74,15 @@ CPlayer::CPlayer(const sf::Vec2f pos, const float swapCooldown, const float size
     return getColor(colorPlayer);
 }
 
-void CPlayer::draw(const unsigned int           sides,
-                   const sf::Color              colorMain,
-                   const sf::Color              colorPlayer,
-                   Utils::FastVertexVectorTris& wallQuads,
-                   Utils::FastVertexVectorTris& capTris,
-                   Utils::FastVertexVectorTris& playerTris,
-                   const sf::Color              capColor,
-                   const float                  angleTiltIntensity,
-                   const bool                   swapBlinkingEffect)
+void CPlayer::draw(const unsigned int            sides,
+                   const sf::Color               colorMain,
+                   const sf::Color               colorPlayer,
+                   Utils::FastVertexVectorQuads& wallQuads,
+                   Utils::FastVertexVectorTris&  capTris,
+                   Utils::FastVertexVectorTris&  playerTris,
+                   const sf::Color               capColor,
+                   const float                   angleTiltIntensity,
+                   const bool                    swapBlinkingEffect)
 {
     drawPivot(sides, colorMain, wallQuads, capTris, capColor);
 
@@ -94,24 +97,24 @@ void CPlayer::draw(const unsigned int           sides,
 
     const sf::Vec2f pRight = _pos.movedTowards(_size + _triangleWidth, sf::radians(tiltedAngle + Utils::toRad(100.f)));
 
-    playerTris.reserve_more(3);
-    playerTris.batch_unsafe_emplace_back(swapBlinkingEffect ? getColorAdjustedForSwap(colorPlayer) : getColor(colorPlayer),
+    playerTris.reserveMore(3);
+    playerTris.batchUnsafeEmplaceBack(swapBlinkingEffect ? getColorAdjustedForSwap(colorPlayer) : getColor(colorPlayer),
                                          _pos.movedTowards(_size, sf::radians(tiltedAngle)),
                                          pLeft,
                                          pRight);
 }
 
-void CPlayer::drawPivot(const unsigned int           sides,
-                        const sf::Color              colorMain,
-                        Utils::FastVertexVectorTris& wallQuads,
-                        Utils::FastVertexVectorTris& capTris,
-                        const sf::Color              capColor)
+void CPlayer::drawPivot(const unsigned int            sides,
+                        const sf::Color               colorMain,
+                        Utils::FastVertexVectorQuads& wallQuads,
+                        Utils::FastVertexVectorTris&  capTris,
+                        const sf::Color               capColor)
 {
     const float div{Utils::tau / sides * 0.5f};
     const float pRadius{_radius * 0.75f};
 
-    wallQuads.reserve_more_quad(sides * 1);
-    capTris.reserve_more(sides * 3);
+    wallQuads.reserveMoreQuad(sides * 1);
+    capTris.reserveMore(sides * 3);
 
     for (auto i(0u); i < sides; ++i)
     {
@@ -122,12 +125,12 @@ void CPlayer::drawPivot(const unsigned int           sides,
         const sf::Vec2f p3{_startPos.movedTowards(pRadius + baseThickness, sf::radians(sAngle + div))};
         const sf::Vec2f p4{_startPos.movedTowards(pRadius + baseThickness, sf::radians(sAngle - div))};
 
-        wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
-        capTris.batch_unsafe_emplace_back(capColor, p1, p2, _startPos);
+        wallQuads.batchUnsafeEmplaceBackQuad(colorMain, p1, p2, p3, p4);
+        capTris.batchUnsafeEmplaceBack(capColor, p1, p2, _startPos);
     }
 }
 
-void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
+void CPlayer::drawDeathEffect(Utils::FastVertexVectorQuads& wallQuads)
 {
     const float div{Utils::tau / 6 * 0.5f};
     const float dRadius{_hue / 8.f};
@@ -135,7 +138,7 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
 
     const sf::Color colorMain{Utils::getColorFromHue((360.f - _hue) / 360.f)};
 
-    wallQuads.reserve_more_quad(6);
+    wallQuads.reserveMoreQuad(6);
 
     for (auto i(0u); i < 6; ++i)
     {
@@ -146,7 +149,7 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorTris& wallQuads)
         const sf::Vec2f p3{_pos.movedTowards(dRadius + thickness, sf::radians(sAngle + div))};
         const sf::Vec2f p4{_pos.movedTowards(dRadius + thickness, sf::radians(sAngle - div))};
 
-        wallQuads.batch_unsafe_emplace_back_quad(colorMain, p1, p2, p3, p4);
+        wallQuads.batchUnsafeEmplaceBackQuad(colorMain, p1, p2, p3, p4);
     }
 }
 
@@ -175,6 +178,17 @@ void CPlayer::kill(const bool fatal)
 }
 
 inline constexpr float collisionPadding{0.5f};
+
+// `Vec2::normalized()` asserts on the zero vector in VRSFML; pre-VRSFML it
+// silently produced `(NaN, NaN)`, which downstream multiplications then
+// dragged into `_pos`. This helper returns `(0, 0)` for a zero input -- the
+// same outcome as the old `(NaN, NaN) * anything = (NaN, NaN)` arithmetic
+// in the cases where the result was added to a position vector (any NaN
+// frame would have already poisoned the gameplay state in practice).
+[[nodiscard, gnu::always_inline, gnu::pure]] static sf::Vec2f safeNormalize(const sf::Vec2f v) noexcept
+{
+    return v == sf::Vec2f{0.f, 0.f} ? v : v.normalized();
+}
 
 template <typename Wall>
 [[nodiscard]] bool CPlayer::checkWallCollisionEscape(const Wall& wall, sf::Vec2f& pos, const float radiusSquared)
@@ -273,7 +287,7 @@ template <typename Wall>
     if (!movementDir && !_forcedMove)
     {
         const sf::Vec2f posDiff           = testPos - _prePushPos;
-        const sf::Vec2f posDiffNormalized = posDiff == sf::Vec2f{0.f, 0.f} ? posDiff : posDiff.normalized();
+        const sf::Vec2f posDiffNormalized = safeNormalize(posDiff);
 
         _pos   = testPos + posDiffNormalized * (2.f * collisionPadding);
         _angle = _pos.angle().asRadians();
@@ -297,17 +311,24 @@ template <typename Wall>
     //  |       | *****     |*****  |    it is the other one that is closer
     //  |       |           |       |
     testPos = _lastPos + pushVel;
-    if (wall.isOverlapping(testPos) || !checkWallCollisionEscape(wall, testPos, radiusSquared))
+
     {
-        return true;
+        const sf::Vec2f posDiff           = testPos - _prePushPos;
+        const sf::Vec2f posDiffNormalized = safeNormalize(posDiff);
+
+        if (wall.isOverlapping(testPos) || !checkWallCollisionEscape(wall, testPos, radiusSquared))
+        {
+            return true;
+        }
+
+        // If player survived assign it the saving testPos, but displace it further
+        // out the wall border, otherwise player would be lying right on top of the
+        // border.
+        _pos   = testPos + posDiffNormalized * collisionPadding;
+        _angle = _pos.angle().asRadians();
+        updatePosition(radius);
     }
 
-    // If player survived assign it the saving testPos, but displace it further
-    // out the wall border, otherwise player would be lying right on top of the
-    // border.
-    _pos   = testPos + (testPos - _prePushPos).normalized() * collisionPadding;
-    _angle = _pos.angle().asRadians();
-    updatePosition(radius);
     return false;
 }
 
@@ -353,7 +374,15 @@ template <typename Wall>
                 Utils::getLineCircleClosestIntersection(i2, _lastPos, wVertexes[i], wVertexes[j], radiusSquared))
             {
                 pushVel = i2 - i1;
-                if (sf::base::fabs(pushVel.normalized().dot(_lastPos.normalized())) > pushDotThreshold)
+
+                // `safeNormalize` returns `(0, 0)` for a zero input -- the dot
+                // is then `0`, `fabs(0) > threshold` is false, and `pushVel`
+                // is not reset. That matches the pre-VRSFML behavior where
+                // `(0,0).normalized()` yielded `(NaN, NaN)`, `dot` was `NaN`,
+                // and `fabs(NaN) > anything` was always `false`. (`pushVel`
+                // is zero when the wall side didn't move between frames,
+                // i.e. `i1 == i2`.)
+                if (sf::base::fabs(safeNormalize(pushVel).dot(safeNormalize(_lastPos))) > pushDotThreshold)
                 {
                     pushVel = {0.f, 0.f};
                 }
@@ -366,7 +395,11 @@ template <typename Wall>
     if (!movementDir && !_forcedMove)
     {
         _pos += pushVel;
-        _pos += (_pos - _prePushPos).normalized() * (2.f * collisionPadding);
+
+        const sf::Vec2f posDiff           = _pos - _prePushPos;
+        const sf::Vec2f posDiffNormalized = safeNormalize(posDiff);
+
+        _pos += posDiffNormalized * (2.f * collisionPadding);
         _angle = _pos.angle().asRadians();
         updatePosition(radius);
         return wall.isOverlapping(_pos);
@@ -382,7 +415,10 @@ template <typename Wall>
     // If player survived assign it the saving testPos, but displace it further
     // out the wall border, otherwise player would be lying right on top of the
     // border.
-    _pos   = testPos + (testPos - _prePushPos).normalized() * collisionPadding;
+    const sf::Vec2f posDiff           = testPos - _prePushPos;
+    const sf::Vec2f posDiffNormalized = safeNormalize(posDiff);
+
+    _pos   = testPos + posDiffNormalized * collisionPadding;
     _angle = _pos.angle().asRadians();
     updatePosition(radius);
 

@@ -27,6 +27,7 @@
 #include "SFML/System/Thread.hpp"
 #include "SFML/System/Time.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
@@ -34,7 +35,6 @@
 
 #include <latch>
 #include <sodium.h>
-#include <unordered_set>
 
 namespace
 {
@@ -61,7 +61,7 @@ int main()
 {
     TEST_ASSERT_EQ(sodium_init() >= 0, true);
 
-    const std::unordered_set<sf::base::String> emptyWhitelist;
+    const ankerl::unordered_dense::set<sf::base::String> emptyWhitelist;
 
     hg::HexagonServer
         server{nullptr, nullptr, sf::IpAddress::LocalHost, sf::Socket::AnyPort, static_cast<unsigned short>(0), emptyWhitelist};
@@ -168,7 +168,7 @@ int main()
     TEST_ASSERT_EQ(storedKeys.size(), static_cast<sf::base::SizeT>(N));
 
     // Build an unordered set of the stored keys (stringified for hashing).
-    std::unordered_set<sf::base::String> storedKeySet;
+    ankerl::unordered_dense::set<sf::base::String> storedKeySet;
     storedKeySet.reserve(N);
     for (const hg::SodiumPublicKeyArray& k : storedKeys)
     {

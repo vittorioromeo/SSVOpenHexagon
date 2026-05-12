@@ -74,9 +74,9 @@ int main()
 
         for (const auto& [id, pd] : packDatas)
         {
-            assertScriptsSubdirResolves(pd.folderPath);
+            assertScriptsSubdirResolves(pd->folderPath);
 
-            if ((pd.folderPath / "Levels").isDirectory())
+            if ((pd->folderPath / "Levels").isDirectory())
             {
                 sawAnyLevelsSubdir = true;
             }
@@ -95,7 +95,7 @@ int main()
         // path coverage) `Levels/` -- `cube` qualifies.
         const sf::base::String victimId{"ohvrvanilla_vittorio_romeo_cube_1"};
 
-        const sf::Path                     origFolderPath = assets.getPackDatas().at(victimId).folderPath;
+        const sf::Path                     origFolderPath = assets.getPackDatas().at(victimId)->folderPath;
         const sf::base::Optional<sf::Path> absFolder      = origFolderPath.getAbsolute();
         TEST_ASSERT(absFolder.hasValue());
 
@@ -113,11 +113,11 @@ int main()
         // workshop path (no trailing slash) silently broke every subdir
         // lookup.
         const auto& reloaded = assets.getPackDatas().at(victimId);
-        assertScriptsSubdirResolves(reloaded.folderPath);
+        assertScriptsSubdirResolves(reloaded->folderPath);
 
         // The `Levels/` subdir must resolve via the stored path -- this
         // is the exact failure mode of the "newly downloaded workshop
         // pack doesn't show up" bug.
-        TEST_ASSERT((reloaded.folderPath / "Levels").isDirectory());
+        TEST_ASSERT((reloaded->folderPath / "Levels").isDirectory());
     }
 }

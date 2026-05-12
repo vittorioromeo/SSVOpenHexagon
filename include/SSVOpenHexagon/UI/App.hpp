@@ -12,12 +12,11 @@
 
 #include "SFML/Graphics/Texture.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <unordered_map>
 
 namespace hg::ui
 {
@@ -137,7 +136,7 @@ struct WorkshopBrowseScreenState
     //      texture it's drawn, otherwise the placeholder shows.
     // Persisting across screen visits avoids re-downloading every time
     // the user returns to the workshop browser.
-    std::unordered_map<sf::base::U64, sf::base::Optional<sf::Texture>> previewTextures;
+    ankerl::unordered_dense::map<sf::base::U64, sf::base::Optional<sf::Texture>> previewTextures;
 
     char statusMessage[128] = {};
 };

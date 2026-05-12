@@ -52,6 +52,8 @@
 #include "SFML/System/Vec2.hpp"
 
 #include "SFML/Base/Clamp.hpp"
+#include "SFML/Base/Math/Fabs.hpp"
+#include "SFML/Base/Math/Pow.hpp"
 #include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
@@ -61,7 +63,6 @@
 #include <random>
 
 #include <cctype>
-#include <cmath>
 #include <cstdio>
 
 namespace hg
@@ -1227,7 +1228,7 @@ void HexagonGame::incrementDifficulty()
     levelStatus.rotationSpeed += levelStatus.rotationSpeedInc * signMult;
 
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
-    if (std::abs(levelStatus.rotationSpeed) > rotationSpeedMax)
+    if (SFML_BASE_MATH_FABSF(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed = rotationSpeedMax * signMult;
     }
@@ -1428,6 +1429,11 @@ void HexagonGame::setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay
     return levelData->packId;
 }
 
+[[nodiscard]] sf::base::String HexagonGame::qualifyPackAsset(const sf::base::String& mAssetName) const
+{
+    return getPackId() + "_" + mAssetName;
+}
+
 [[nodiscard]] const PackData& HexagonGame::getPackData() const noexcept
 {
     return assets.getPackData(getPackId());
@@ -1567,7 +1573,7 @@ auto HexagonGame::getColorWall() const -> sf::Color
 
 [[nodiscard]] float HexagonGame::getMusicDMSyncFactor() const
 {
-    return std::pow(difficultyMult, 0.12f);
+    return SFML_BASE_MATH_POWF(difficultyMult, 0.12f);
 }
 
 [[nodiscard]] float HexagonGame::getOptionalMusicDMSyncFactor() const
@@ -1612,7 +1618,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] float HexagonGame::getSpeedMultDM() const noexcept
 {
-    const auto res = levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
+    const auto res = levelStatus.speedMult * (SFML_BASE_MATH_POWF(difficultyMult, 0.65f));
 
     if (!levelStatus.hasSpeedMaxLimit())
     {
@@ -1624,7 +1630,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] float HexagonGame::getDelayMultDM() const noexcept
 {
-    const auto res = levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
+    const auto res = levelStatus.delayMult / (SFML_BASE_MATH_POWF(difficultyMult, 0.10f));
 
     if (!levelStatus.hasDelayMaxLimit())
     {

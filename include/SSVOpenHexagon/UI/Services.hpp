@@ -13,11 +13,10 @@
 // Keeping screens dependency-free of `MenuGame` is what lets us delete
 // `MenuGame.cpp` cleanly at the end of the rewrite.
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/StringView.hpp"
-
-#include <unordered_set>
 
 namespace sf
 {
@@ -136,7 +135,7 @@ struct Services
     // next to leaderboard rows. Always non-null -- when no info exists
     // the host points it at a static empty set so the screen can do
     // unconditional `contains` lookups.
-    const std::unordered_set<sf::base::U64>* leaderboardUnavailable{nullptr};
+    const ankerl::unordered_dense::set<sf::base::U64>* leaderboardUnavailable{nullptr};
 
     // Where the leaderboard pipeline currently is. Drives the empty-state
     // message in the LevelSelect leaderboard column. Distinguishing

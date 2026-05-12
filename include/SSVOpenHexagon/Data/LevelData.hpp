@@ -6,10 +6,9 @@
 
 #include "SFML/System/Path.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <unordered_map>
 
 namespace Json
 {
@@ -42,8 +41,8 @@ struct LevelData
     sf::base::Vector<float>                     difficultyMults;
     bool                                        unscored;
     sf::base::Vector<sf::base::String>          tags; //!< optional, parsed from `level.json` "tags" array
-    std::unordered_map<float, sf::base::String> validators;
-    std::unordered_map<float, sf::base::String> validatorsWithoutPackId;
+    ankerl::unordered_dense::map<float, sf::base::String> validators;
+    ankerl::unordered_dense::map<float, sf::base::String> validatorsWithoutPackId;
 
     LevelData(const ssvuj::Obj& mRoot, const sf::Path& mPackPath, const sf::base::String& mPackId);
 

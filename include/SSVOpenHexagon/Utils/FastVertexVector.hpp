@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Utils/UniquePtrArray.hpp"
-
 #include "SFML/Graphics/Color.hpp"
+#include "SFML/Graphics/DrawQuadsSettings.hpp"
+#include "SFML/Graphics/DrawVerticesSettings.hpp"
 #include "SFML/Graphics/PrimitiveType.hpp"
 #include "SFML/Graphics/RenderStates.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
@@ -15,187 +14,95 @@
 
 #include "SFML/System/Priv/Vec2Base.hpp"
 
-#include "SFML/Base/Builtin/Memcpy.hpp"
-#include "SFML/Base/Macros.hpp"
-#include "SFML/Base/PlacementNew.hpp"
+#include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Vector.hpp"
 
 
 namespace hg::Utils
 {
 
-template <sf::PrimitiveType TPrimitive>
-struct FastVertexVector
+// `sf::Vertex` buffer for individual triangles. Drawn via `drawVertices` with
+// `PrimitiveType::Triangles`, so callers must emit 3 vertices per triangle.
+//
+// Inherits from `sf::base::Vector<sf::Vertex>` and only adds the helpers that
+// build on top of it (shared-color batch emit, append-from-other guarded
+// against empty source, and the `draw()` shortcut).
+class FastVertexVectorTris : public sf::base::Vector<sf::Vertex>
 {
-private:
-    union VertexUnion
-    {
-        // To avoid invoking the default constructor of `sf::Vertex` when
-        // resizing the dynamic array.
-        sf::Vertex _v;
-
-        VertexUnion()
-        {
-        }
-    };
-
-    static_assert(sizeof(VertexUnion) == sizeof(sf::Vertex));
-    static_assert(alignof(VertexUnion) == alignof(sf::Vertex));
-
-    Utils::UniquePtrArray<VertexUnion> _data{nullptr};
-    sf::base::SizeT                    _size{};
-    sf::base::SizeT                    _capacity{};
-
 public:
-    [[gnu::always_inline, gnu::flatten]] void reserve_more(const sf::base::SizeT n)
-    {
-        reserve(_size * 2 + n);
-    }
-
-    void reserve(const sf::base::SizeT n)
-    {
-        if (_capacity >= n) [[likely]]
-        {
-            return;
-        }
-
-        auto new_data = Utils::makeUniqueArray<VertexUnion>(n);
-
-        if (_data != nullptr) [[unlikely]]
-        {
-            SFML_BASE_MEMCPY(new_data.get(), _data.get(), sizeof(sf::Vertex) * _size);
-        }
-        else
-        {
-            SSVOH_ASSERT(_size == 0);
-            SSVOH_ASSERT(_capacity == 0);
-        }
-
-        _data     = SFML_BASE_MOVE(new_data);
-        _capacity = n;
-    }
-
-    [[gnu::always_inline, gnu::flatten]] void unsafe_emplace_other(const FastVertexVector& rhs) noexcept
-    {
-        SSVOH_ASSERT(_size + rhs._size <= _capacity);
-
-        if (rhs.size() == 0) [[unlikely]]
-        {
-            return;
-        }
-
-        SSVOH_ASSERT(_data != nullptr);
-
-        SFML_BASE_MEMCPY(_data.get() + _size, rhs._data.get(), sizeof(sf::Vertex) * rhs._size);
-
-        _size += rhs._size;
-    }
-
-    [[gnu::always_inline]] void clear() noexcept
-    {
-        _size = 0;
-    }
-
-    [[nodiscard, gnu::always_inline]] sf::base::SizeT size() const noexcept
-    {
-        return _size;
-    }
+    using Base = sf::base::Vector<sf::Vertex>;
+    using Base::Base;
 
     template <typename... Ts>
-    [[gnu::always_inline, gnu::flatten]] void unsafe_emplace_back(Ts&&... xs)
+    [[gnu::always_inline, gnu::flatten]] void batchUnsafeEmplaceBack(const sf::Color color, Ts&&... positions)
     {
-        SSVOH_ASSERT(_size <= _capacity);
-        SSVOH_ASSERT(_data != nullptr);
-
-        SFML_BASE_PLACEMENT_NEW(&_data[_size++]._v)
-        sf::Vertex{SFML_BASE_FORWARD(xs)...};
+        unsafePushBackMultiple(sf::Vertex{positions, color}...);
     }
 
-    template <typename... Ts>
-    [[gnu::always_inline, gnu::flatten]] void batch_unsafe_emplace_back(const sf::Color color, Ts&&... positions)
+    [[gnu::always_inline, gnu::flatten]] void unsafeAppend(const FastVertexVectorTris& other) noexcept
     {
-        SSVOH_ASSERT(_size + sizeof...(positions) <= _capacity);
-        SSVOH_ASSERT(_data != nullptr);
-
-        ((SFML_BASE_PLACEMENT_NEW(&_data[_size++]._v) sf::Vertex{positions, color}), ...);
-    }
-
-    void draw(sf::RenderTarget& mRenderTarget, sf::RenderStates mRenderStates) const
-    {
-        if (_data == nullptr) [[unlikely]]
+        if (other.size() == 0u) [[unlikely]]
         {
-            SSVOH_ASSERT(_size == 0);
-            SSVOH_ASSERT(_capacity == 0);
             return;
         }
 
-        mRenderTarget.drawVertices(
+        unsafeEmplaceBackRange(other.data(), other.size());
+    }
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const
+    {
+        if (size() == 0u) [[unlikely]]
+        {
+            return;
+        }
+
+        target.drawVertices(
             {
-                .vertexSpan    = {reinterpret_cast<const sf::Vertex*>(_data.get()), _size},
-                .primitiveType = TPrimitive,
+                .vertexSpan    = {data(), size()},
+                .primitiveType = sf::PrimitiveType::Triangles,
             },
-            mRenderStates);
-    }
-
-    [[nodiscard, gnu::always_inline]] sf::Vertex& operator[](const sf::base::SizeT i) noexcept
-    {
-        SSVOH_ASSERT(i < _size);
-        SSVOH_ASSERT(_data != nullptr);
-
-        return _data[i]._v;
-    }
-
-    [[nodiscard, gnu::always_inline]] const sf::Vertex& operator[](const sf::base::SizeT i) const noexcept
-    {
-        SSVOH_ASSERT(i < _size);
-        SSVOH_ASSERT(_data != nullptr);
-
-        return _data[i]._v;
-    }
-
-    [[nodiscard, gnu::always_inline]] sf::Vertex* begin() noexcept
-    {
-        SSVOH_ASSERT(_data != nullptr);
-        return &(_data[0]._v);
-    }
-
-    [[nodiscard, gnu::always_inline]] const sf::Vertex* begin() const noexcept
-    {
-        SSVOH_ASSERT(_data != nullptr);
-        return &(_data[0]._v);
-    }
-
-    [[nodiscard, gnu::always_inline]] sf::Vertex* end() noexcept
-    {
-        return begin() + _size;
-    }
-
-    [[nodiscard, gnu::always_inline]] const sf::Vertex* end() const noexcept
-    {
-        return begin() + _size;
+            states);
     }
 };
 
-class FastVertexVectorTris : public FastVertexVector<sf::PrimitiveType::Triangles>
+// `sf::Vertex` buffer for quads. Stores 4 vertices per quad in the order
+// expected by `RenderTarget::drawQuads` (precomputed index pattern
+// `0,1,2,1,2,3`): the second and third vertex of each group of four form
+// the shared diagonal. Quad-emit helpers take corners labeled
+// (nw, sw, se, ne) and reorder them to (sw, nw, se, ne) so the rendered
+// diagonal goes between `nw` and `se` -- matching what the old 6-vertex
+// emit produced.
+class FastVertexVectorQuads : public sf::base::Vector<sf::Vertex>
 {
 public:
-    [[gnu::always_inline, gnu::flatten]] void batch_unsafe_emplace_back_quad(
+    using Base = sf::base::Vector<sf::Vertex>;
+    using Base::Base;
+
+    [[gnu::always_inline]] void reserveQuad(const sf::base::SizeT n)
+    {
+        reserve(n * 4u);
+    }
+
+    [[gnu::always_inline, gnu::flatten]] void reserveMoreQuad(const sf::base::SizeT n)
+    {
+        reserveMore(n * 4u);
+    }
+
+    [[gnu::always_inline, gnu::flatten]] void batchUnsafeEmplaceBackQuad(
         const sf::Color color,
         const sf::Vec2f nw,
         const sf::Vec2f sw,
         const sf::Vec2f se,
         const sf::Vec2f ne)
     {
-        batch_unsafe_emplace_back(color, //
-                                  nw,
-                                  sw,
-                                  se, //
-                                  nw,
-                                  se,
-                                  ne);
+        // Emit order: sw, nw, se, ne. With the `drawQuads` index pattern
+        // `0,1,2,1,2,3`, this produces triangles (sw, nw, se) and
+        // (nw, se, ne) -- same NW-SE diagonal as the legacy 6-vertex emit.
+        unsafePushBackMultiple(sf::Vertex{sw, color}, sf::Vertex{nw, color}, sf::Vertex{se, color}, sf::Vertex{ne, color});
     }
 
-    [[gnu::always_inline, gnu::flatten]] void unsafe_emplace_back_quad( //
+    [[gnu::always_inline, gnu::flatten]] void unsafeEmplaceBackQuad( //
         const sf::Vec2f nw,
         const sf::Color colorNW, //
         const sf::Vec2f sw,
@@ -205,22 +112,48 @@ public:
         const sf::Vec2f ne,
         const sf::Color colorNE)
     {
-        unsafe_emplace_back(nw, colorNW);
-        unsafe_emplace_back(sw, colorSW);
-        unsafe_emplace_back(se, colorSE);
-        unsafe_emplace_back(nw, colorNW);
-        unsafe_emplace_back(se, colorSE);
-        unsafe_emplace_back(ne, colorNE);
+        unsafeEmplaceBack(sw, colorSW);
+        unsafeEmplaceBack(nw, colorNW);
+        unsafeEmplaceBack(se, colorSE);
+        unsafeEmplaceBack(ne, colorNE);
     }
 
-    [[gnu::always_inline, gnu::flatten]] void reserve_more_quad(const sf::base::SizeT n)
+    // See `FastVertexVectorTris::unsafeAppend` for the empty-source rationale.
+    [[gnu::always_inline, gnu::flatten]] void unsafeAppend(const FastVertexVectorQuads& other) noexcept
     {
-        reserve_more(n * 6);
+        if (other.size() == 0u) [[unlikely]]
+        {
+            return;
+        }
+
+        unsafeEmplaceBackRange(other.data(), other.size());
     }
 
-    [[gnu::always_inline]] void reserve_quad(const sf::base::SizeT n)
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        reserve(n * 6);
+        const sf::base::SizeT totalSize = size();
+        if (totalSize == 0u) [[unlikely]]
+        {
+            return;
+        }
+
+        // `RenderTarget::drawQuads` is bounded by the size of its
+        // precomputed quad-index array. Chunk the draw so we never
+        // exceed that, regardless of buffer size.
+        for (sf::base::SizeT offset = 0u; offset < totalSize;)
+        {
+            const sf::base::SizeT chunkSize = sf::base::min(totalSize - offset,
+                                                            +sf::RenderTarget::drawQuadsMaxVerticesPerCall);
+
+            target.drawQuads(
+                {
+                    .vertexSpan    = {data() + offset, chunkSize},
+                    .primitiveType = sf::PrimitiveType::Triangles,
+                },
+                states);
+
+            offset += chunkSize;
+        }
     }
 };
 

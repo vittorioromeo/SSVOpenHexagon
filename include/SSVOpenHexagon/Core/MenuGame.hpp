@@ -15,7 +15,6 @@
 #include "SSVOpenHexagon/UI/Services.hpp"
 #include "SSVOpenHexagon/UI/UI.hpp"
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/RectangleShape.hpp"
@@ -29,14 +28,13 @@
 
 #include "SFML/System/Vec2.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/FixedFunction.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
-
-#include <unordered_map>
 
 namespace ssvs::Input
 {
@@ -201,7 +199,7 @@ private:
     // `assets.removePackAtRuntime`. Without this map, the unsubscribe
     // callback only carries the published-file-id and we'd have no way to
     // identify which pack to tear down.
-    std::unordered_map<sf::base::U64, sf::base::String> _workshopFileIdToPackId;
+    ankerl::unordered_dense::map<sf::base::U64, sf::base::String> _workshopFileIdToPackId;
 
     // Validator for the (level, difficulty) currently shown in the
     // LevelSelect leaderboard pane. Set by `Services::onRequestLeaderboard`

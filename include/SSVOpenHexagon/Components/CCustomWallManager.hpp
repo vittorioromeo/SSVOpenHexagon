@@ -87,7 +87,7 @@ public:
     [[nodiscard]] sf::base::U8 getKillingSide(const CCustomWallHandle cwHandle);
 
     void clear();
-    void draw(Utils::FastVertexVectorTris& wallQuads);
+    void draw(Utils::FastVertexVectorQuads& wallQuads);
 
     [[nodiscard]] bool handleCollision(const int movement, const float radius, CPlayer& mPlayer, float mFT);
 

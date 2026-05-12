@@ -10,9 +10,6 @@
 namespace hg
 {
 
-// Tracked variables map. Small (a handful of entries in practice), so a flat vector with linear
-// lookup beats `std::unordered_map` here -- and dodges the `<unordered_map>` include cost that
-// transitively reaches every TU including `HexagonGame.hpp`.
 struct TrackedVariable
 {
     sf::base::String key;

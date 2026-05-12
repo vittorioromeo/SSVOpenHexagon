@@ -19,11 +19,12 @@
 
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Math/Exp.hpp"
+#include "SFML/Base/Math/Fabs.hpp"
+#include "SFML/Base/Math/Round.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 
-#include <cmath>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
@@ -190,7 +191,7 @@ ScopedTransform::~ScopedTransform()
 bool stepToward(float& current, float target, float dt, float speed)
 {
     const float diff = target - current;
-    if (std::fabs(diff) <= kStepEpsilon)
+    if (SFML_BASE_MATH_FABSF(diff) <= kStepEpsilon)
     {
         if (current != target)
         {
@@ -209,7 +210,7 @@ bool stepToward(float& current, float target, float dt, float speed)
     // decay, so the cursor doesn't crawl through the last few pixels.
     const float floor = kMinStepPerSecond * dt;
     float       step  = expStep;
-    if (std::fabs(step) < floor)
+    if (SFML_BASE_MATH_FABSF(step) < floor)
     {
         step = (diff > 0.f) ? floor : -floor;
     }
@@ -473,7 +474,7 @@ bool slider(Context& ctx, const char* text, float& value, float min, float max, 
         const float rawValue = min + clamped * (max - min);
 
         // Quantize to the requested step.
-        const float quant = (step > 0.f) ? min + std::round((rawValue - min) / step) * step : rawValue;
+        const float quant = (step > 0.f) ? min + SFML_BASE_MATH_ROUNDF((rawValue - min) / step) * step : rawValue;
         if (quant != value)
         {
             value   = quant;

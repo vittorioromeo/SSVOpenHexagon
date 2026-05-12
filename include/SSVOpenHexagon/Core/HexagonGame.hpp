@@ -16,7 +16,6 @@
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/GameSystem/GameState.hpp"
 #include "SSVOpenHexagon/GameSystem/GameWindow.hpp"
-#include "SSVOpenHexagon/Global/StringHash.hpp" // IWYU pragma: keep -- must precede AnkerlUnorderedDense
 #include "SSVOpenHexagon/Utils/CameraView.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
@@ -223,7 +222,7 @@ private:
     CustomTimelineManager _customTimelineManager;
 
 
-    Utils::FastVertexVectorTris flashPolygon;
+    Utils::FastVertexVectorQuads flashPolygon;
 
     struct Particle
     {
@@ -335,7 +334,6 @@ private:
     void initLua_WallCreation();
     void initLua_Steam();
     void initLua_CustomWalls();
-    void initLua_Deprecated();
 
     void initLua();
     void runLuaFile(const sf::base::String& mFileName);
@@ -400,7 +398,6 @@ private:
     void updateInput();
     void updateInput_UpdateJoystickControls();
     void updateInput_UpdateTouchControls();
-    void updateInput_ResolveInputImplToInputMovement();
     void updateInput_RecordCurrentInputToLastReplayData();
     void updateWalls(float mFT);
     void updateIncrement();
@@ -484,14 +481,14 @@ private:
     void performPlayerKill();
     void saveReplay();
 
-    Utils::FastVertexVectorTris backgroundTris;
-    Utils::FastVertexVectorTris wallQuads;
-    Utils::FastVertexVectorTris pivotQuads;
-    Utils::FastVertexVectorTris playerTris;
-    Utils::FastVertexVectorTris capTris;
-    Utils::FastVertexVectorTris wallQuads3D;
-    Utils::FastVertexVectorTris pivotQuads3D;
-    Utils::FastVertexVectorTris playerTris3D;
+    Utils::FastVertexVectorTris  backgroundTris;
+    Utils::FastVertexVectorQuads wallQuads;
+    Utils::FastVertexVectorQuads pivotQuads;
+    Utils::FastVertexVectorTris  playerTris;
+    Utils::FastVertexVectorTris  capTris;
+    Utils::FastVertexVectorQuads wallQuads3D;
+    Utils::FastVertexVectorQuads pivotQuads3D;
+    Utils::FastVertexVectorTris  playerTris3D;
 
 public:
     sf::base::FixedFunction<void(const bool), 64> fnGoToMenu;
@@ -606,6 +603,11 @@ public:
     // Pack information
     [[nodiscard]] const PackData&         getPackData() const noexcept;
     [[nodiscard]] const sf::base::String& getPackId() const noexcept;
+
+    // Build the "<packId>_<assetName>" key the asset maps use for
+    // pack-local sounds, levels, etc.
+    [[nodiscard]] sf::base::String qualifyPackAsset(const sf::base::String& mAssetName) const;
+
     [[nodiscard]] const sf::base::String& getPackDisambiguator() const noexcept;
     [[nodiscard]] const sf::base::String& getPackAuthor() const noexcept;
     [[nodiscard]] const sf::base::String& getPackName() const noexcept;

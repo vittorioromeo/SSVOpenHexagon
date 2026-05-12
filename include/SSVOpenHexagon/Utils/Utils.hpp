@@ -33,7 +33,6 @@ namespace hg::Utils
 
 void runLuaCode(Lua::LuaContext& mLua, const sf::base::String& mCode);
 void runLuaFile(Lua::LuaContext& mLua, const sf::base::String& mFileName);
-bool runLuaFileCached(HGAssets& assets, Lua::LuaContext& mLua, const sf::base::String& mFileName);
 
 struct Nothing
 {

@@ -5,10 +5,10 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-#include "SSVOpenHexagon/Global/StringHash.hpp"
+
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters_StdUnorderedMap.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters_AnkerlUnorderedDense.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
 
@@ -48,7 +48,7 @@ namespace hg::Utils
 
     return {version,
             ssvuj::getExtr<sf::base::String>(mRoot, "name"),
-            ssvuj::getExtr<std::unordered_map<sf::base::String, float>>(mRoot, "scores"),
+            ssvuj::getExtr<ankerl::unordered_dense::map<sf::base::String, float>>(mRoot, "scores"),
             ssvuj::getExtr<sf::base::Vector<sf::base::String>>(mRoot, "favorites", {})};
 }
 

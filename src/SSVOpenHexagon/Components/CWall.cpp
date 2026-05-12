@@ -48,14 +48,14 @@ CWall::CWall(const unsigned int sides,
     _vertexPositions[3] = centerPos.movedTowards(distance + thickness + wallSkewRight, sf::radians(angleN + wallAngleRight));
 }
 
-void CWall::draw(sf::Color color, Utils::FastVertexVectorTris& wallQuads)
+void CWall::draw(sf::Color color, Utils::FastVertexVectorQuads& wallQuads)
 {
     if (_hueMod != 0)
     {
         color = Utils::transformHue(color, _hueMod);
     }
 
-    wallQuads.batch_unsafe_emplace_back_quad(color,
+    wallQuads.batchUnsafeEmplaceBackQuad(color,
                                              _vertexPositions[0],
                                              _vertexPositions[1],
                                              _vertexPositions[2],

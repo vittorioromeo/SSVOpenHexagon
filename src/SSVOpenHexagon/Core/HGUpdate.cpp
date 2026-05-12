@@ -33,6 +33,8 @@
 
 #include "SFML/System/Angle.hpp"
 
+#include "SFML/Base/Math/Fabs.hpp"
+#include "SFML/Base/Math/Pow.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
@@ -42,7 +44,6 @@
 #include <cctype>
 #include <cerrno>
 #include <climits>
-#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 
@@ -345,7 +346,7 @@ void HexagonGame::update(float mFT, const float timescale)
 
                 if (!Config::getBlackAndWhite())
                 {
-                    styleData.update(mFT, std::pow(difficultyMult, 0.8f));
+                    styleData.update(mFT, SFML_BASE_MATH_POWF(difficultyMult, 0.8f));
                 }
 
                 player.updatePosition(getRadius());
@@ -651,29 +652,6 @@ void HexagonGame::updateInput_UpdateTouchControls()
     }
 }
 
-void HexagonGame::updateInput_ResolveInputImplToInputMovement()
-{
-    if (inputImplCW && !inputImplCCW)
-    {
-        inputMovement = inputImplLastMovement = 1;
-        return;
-    }
-
-    if (!inputImplCW && inputImplCCW)
-    {
-        inputMovement = inputImplLastMovement = -1;
-        return;
-    }
-
-    if (inputImplCW && inputImplCCW)
-    {
-        inputMovement = -inputImplLastMovement;
-        return;
-    }
-
-    inputMovement = inputImplLastMovement = 0;
-}
-
 void HexagonGame::updateInput_RecordCurrentInputToLastReplayData()
 {
     if (!status.started || status.hasDied)
@@ -726,7 +704,25 @@ void HexagonGame::updateInput()
         updateInput_UpdateTouchControls();    // Touchscreen state.
     }
 
-    updateInput_ResolveInputImplToInputMovement();
+    // Resolve `inputImplCW`/`inputImplCCW` into the signed `inputMovement`:
+    //   only CW       -> +1
+    //   only CCW      -> -1
+    //   both pressed  -> reverse the last direction (lets the player flip
+    //                    by tapping the opposite key while still holding)
+    //   neither       ->  0
+    if (inputImplCW != inputImplCCW)
+    {
+        inputMovement = inputImplLastMovement = (inputImplCW ? 1 : -1);
+    }
+    else if (inputImplCW) // both pressed
+    {
+        inputMovement = -inputImplLastMovement;
+    }
+    else // neither
+    {
+        inputMovement = inputImplLastMovement = 0;
+    }
+
     updateInput_RecordCurrentInputToLastReplayData();
 }
 
@@ -777,7 +773,7 @@ void HexagonGame::updateLevel(float mFT)
         return;
     }
 
-    runLuaFunctionIfExists<float>("onUpdate", mFT);
+    (void)runLuaFunctionIfExists<float>("onUpdate", mFT);
 
     const auto o = timelineRunner.update(timeline, status.getTimeTP());
 
@@ -877,7 +873,7 @@ void HexagonGame::updateRotation(float mFT)
     auto nextRotation(getRotationSpeed() * 10.f);
     if (status.fastSpin > 0)
     {
-        nextRotation += std::abs((Utils::getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) / 3.5f) * 17.f) *
+        nextRotation += SFML_BASE_MATH_FABSF((Utils::getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) / 3.5f) * 17.f) *
                         Utils::getSign(nextRotation);
 
         status.fastSpin -= mFT;
@@ -944,16 +940,10 @@ void HexagonGame::updateFlash(float mFT)
 
     status.flashEffect = sf::base::clamp(status.flashEffect, 0.f, 255.f);
 
-    // `flashPolygon` is allocated lazily by `initFlashEffect` (typically
-    // called from Lua). Iterating with `begin()` on a never-reserved
-    // vector trips an assert -- skip the alpha-update entirely until the
-    // polygon has been initialised.
-    if (flashPolygon.size() == 0u)
-        return;
-
+    const auto alpha = static_cast<sf::base::U8>(status.flashEffect);
     for (sf::Vertex& vertex : flashPolygon)
     {
-        vertex.color.a = status.flashEffect;
+        vertex.color.a = alpha;
     }
 }
 
@@ -1608,6 +1598,12 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 
     if (ilcLuaTracked.size() > 0)
     {
+        // TODO (P2): `ilcLuaTrackedResults` is grown asynchronously by the
+        // Lua-side `u_impl_addTrackedResult` callback, so the size invariant
+        // asserted below only holds if every tracked expression actually
+        // invokes that callback. Switch to a synchronous return-value-based
+        // model (or weaken the asserts + zip with nil placeholders) before
+        // relying on this for anything user-visible.
         ilcLuaTrackedResults.clear();
         bool problem = false;
 

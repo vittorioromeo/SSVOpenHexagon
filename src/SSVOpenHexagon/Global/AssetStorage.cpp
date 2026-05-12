@@ -4,7 +4,7 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
-#include "SSVOpenHexagon/Global/StringHash.hpp"
+
 
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/Image.hpp"
@@ -14,12 +14,11 @@
 
 #include "SFML/System/Path.hpp"
 
+#include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
-
-#include <unordered_map>
 
 #include <cstring>
 
@@ -30,15 +29,17 @@ template <typename Map, typename Key>
 [[nodiscard]] static auto* getAsPtr(Map& map, const Key& key) noexcept
 {
     auto it = map.find(key);
-    return it == map.end() ? nullptr : &it->second;
+    return it == map.end() ? nullptr : it->second.get();
 }
 
 class AssetStorage::AssetStorageImpl
 {
 private:
-    std::unordered_map<sf::base::String, sf::Texture>     _textures;
-    std::unordered_map<sf::base::String, sf::Font>        _fonts;
-    std::unordered_map<sf::base::String, sf::SoundBuffer> _soundBuffers;
+    // `UniquePtr` indirection: returned `T*` from `get*()` must stay valid
+    // across subsequent insertions (which can rehash the table).
+    ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<sf::Texture>>     _textures;
+    ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<sf::Font>>        _fonts;
+    ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<sf::SoundBuffer>> _soundBuffers;
 
 public:
     [[nodiscard]] bool loadTexture(const sf::base::String& id, const sf::base::String& path)
@@ -50,7 +51,7 @@ public:
             return false;
         }
 
-        auto [it, inserted] = _textures.emplace(id, *SFML_BASE_MOVE(texture));
+        auto [it, inserted] = _textures.emplace(id, sf::base::makeUnique<sf::Texture>(*SFML_BASE_MOVE(texture)));
         return inserted;
     }
 
@@ -63,7 +64,7 @@ public:
             return false;
         }
 
-        auto [it, inserted] = _fonts.emplace(id, *SFML_BASE_MOVE(font));
+        auto [it, inserted] = _fonts.emplace(id, sf::base::makeUnique<sf::Font>(*SFML_BASE_MOVE(font)));
         return inserted;
     }
 
@@ -76,7 +77,7 @@ public:
             return false;
         }
 
-        auto [it, inserted] = _soundBuffers.emplace(id, *SFML_BASE_MOVE(soundBuffer));
+        auto [it, inserted] = _soundBuffers.emplace(id, sf::base::makeUnique<sf::SoundBuffer>(*SFML_BASE_MOVE(soundBuffer)));
         return inserted;
     }
 
@@ -113,9 +114,6 @@ public:
     void removeByPackPrefix(const sf::base::String& packIdPrefix)
     {
         // Erase every key starting with `packIdPrefix` from a single map.
-        // We can't use `std::erase_if` directly on `unordered_map<sf::base::String, V>`
-        // because `sf::base::String` doesn't satisfy std's requirements
-        // for `erase_if` in all toolchains, so do it explicitly.
         const auto sweep = [&](auto& map)
         {
             for (auto it = map.begin(); it != map.end();)

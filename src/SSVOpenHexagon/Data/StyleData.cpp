@@ -230,7 +230,7 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
             currentColor = Utils::getColorDarkened(currentColor, 1.4f);
         }
 
-        vertices.batch_unsafe_emplace_back(currentColor,
+        vertices.batchUnsafeEmplaceBack(currentColor,
                                            mCenterPos,
                                            mCenterPos.movedTowards(distance, sf::radians(angle + halfDiv)),
                                            mCenterPos.movedTowards(distance, sf::radians(angle - halfDiv)));
@@ -255,12 +255,12 @@ void StyleData::drawBackgroundMenuHexagonImpl(
     {
         const float angle{Utils::toRad(BGRotOff) + div * i};
 
-        vertices.batch_unsafe_emplace_back(colorMain,
+        vertices.batchUnsafeEmplaceBack(colorMain,
                                            mCenterPos,
                                            mCenterPos.movedTowards(hexagonRadius + 10.f, sf::radians(angle + halfDiv)),
                                            mCenterPos.movedTowards(hexagonRadius + 10.f, sf::radians(angle - halfDiv)));
 
-        vertices.batch_unsafe_emplace_back(colorCap,
+        vertices.batchUnsafeEmplaceBack(colorCap,
                                            mCenterPos,
                                            mCenterPos.movedTowards(hexagonRadius, sf::radians(angle + halfDiv)),
                                            mCenterPos.movedTowards(hexagonRadius, sf::radians(angle - halfDiv)));
@@ -273,7 +273,7 @@ void StyleData::drawBackground(Utils::FastVertexVectorTris& mTris,
                                const bool                   darkenUnevenBackgroundChunk,
                                const bool                   blackAndWhite) const
 {
-    mTris.reserve_more(sides * 3);
+    mTris.reserveMore(sides * 3);
 
     drawBackgroundImpl(mTris, mCenterPos, sides, darkenUnevenBackgroundChunk, blackAndWhite);
 }
@@ -285,7 +285,7 @@ void StyleData::drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
                                    const bool                   blackAndWhite,
                                    const bool                   fourByThree) const
 {
-    mTris.reserve_more(sides * 3 + sides * 6);
+    mTris.reserveMore(sides * 3 + sides * 6);
 
     drawBackgroundImpl(mTris, mCenterPos, sides, darkenUnevenBackgroundChunk, blackAndWhite);
     drawBackgroundMenuHexagonImpl(mTris, mCenterPos, sides, fourByThree, blackAndWhite);

@@ -43,9 +43,9 @@ public:
         _flags       = 0u;
     }
 
-    [[gnu::always_inline]] void draw(Utils::FastVertexVectorTris& wallQuads)
+    [[gnu::always_inline]] void draw(Utils::FastVertexVectorQuads& wallQuads)
     {
-        wallQuads.unsafe_emplace_back_quad( //
+        wallQuads.unsafeEmplaceBackQuad( //
             _vertexPositions[0],
             _vertexColors[0], //
             _vertexPositions[1],
