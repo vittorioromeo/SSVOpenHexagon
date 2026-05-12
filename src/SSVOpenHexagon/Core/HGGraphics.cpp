@@ -241,8 +241,7 @@ void HexagonGame::draw()
         {
             const float i = static_cast<float>(depthInt - j - 1);
 
-            const float offset(
-                styleData._3dSpacing * ((i + 1.f) * styleData._3dPerspectiveMult) * (effect * 3.6f) * 1.4f);
+            const float offset(styleData._3dSpacing * ((i + 1.f) * styleData._3dPerspectiveMult) * (effect * 3.6f) * 1.4f);
 
             const sf::Vec2f newPos(offset * cosRot, offset * sinRot);
 
@@ -265,7 +264,8 @@ void HexagonGame::draw()
                 adjustAlpha(playerColor, i);
             }
 
-            const auto offsetAndColor = [&newPos](auto& buf, const sf::base::SizeT begin, const sf::base::SizeT end, const sf::Color color)
+            const auto offsetAndColor =
+                [&newPos](auto& buf, const sf::base::SizeT begin, const sf::base::SizeT end, const sf::Color color)
             {
                 for (sf::base::SizeT k = begin; k < end; ++k)
                 {

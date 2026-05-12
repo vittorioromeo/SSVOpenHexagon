@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
 
-
 #include "SFML/Graphics/Font.hpp"
 #include "SFML/Graphics/Image.hpp"
 #include "SFML/Graphics/Texture.hpp"
@@ -77,7 +76,8 @@ public:
             return false;
         }
 
-        auto [it, inserted] = _soundBuffers.emplace(id, sf::base::makeUnique<sf::SoundBuffer>(*SFML_BASE_MOVE(soundBuffer)));
+        auto [it,
+              inserted] = _soundBuffers.emplace(id, sf::base::makeUnique<sf::SoundBuffer>(*SFML_BASE_MOVE(soundBuffer)));
         return inserted;
     }
 

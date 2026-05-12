@@ -55,11 +55,7 @@ void CWall::draw(sf::Color color, Utils::FastVertexVectorQuads& wallQuads)
         color = Utils::transformHue(color, _hueMod);
     }
 
-    wallQuads.batchUnsafeEmplaceBackQuad(color,
-                                             _vertexPositions[0],
-                                             _vertexPositions[1],
-                                             _vertexPositions[2],
-                                             _vertexPositions[3]);
+    wallQuads.batchUnsafeEmplaceBackQuad(color, _vertexPositions[0], _vertexPositions[1], _vertexPositions[2], _vertexPositions[3]);
 }
 
 void CWall::update(const float wallSpawnDist, const float radius, const sf::Vec2f centerPos, const float ft)

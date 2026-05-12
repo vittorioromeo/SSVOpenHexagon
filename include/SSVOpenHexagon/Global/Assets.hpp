@@ -5,7 +5,6 @@
 #pragma once
 
 
-
 #include "SFML/Base/AnkerlUnorderedDense.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Optional.hpp"

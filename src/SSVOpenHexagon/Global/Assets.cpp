@@ -79,9 +79,9 @@ private:
     sf::base::Vector<PackInfo> packInfos;
     sf::base::Vector<PackInfo> selectablePackInfos;
 
-    ankerl::unordered_dense::map<sf::base::String, sf::base::String>                 musicPathMap;
-    ankerl::unordered_dense::map<sf::base::String, MusicData>                        musicDataMap;
-    ankerl::unordered_dense::map<sf::base::String, StyleData>                        styleDataMap;
+    ankerl::unordered_dense::map<sf::base::String, sf::base::String> musicPathMap;
+    ankerl::unordered_dense::map<sf::base::String, MusicData>        musicDataMap;
+    ankerl::unordered_dense::map<sf::base::String, StyleData>        styleDataMap;
     // `UniquePtr` indirection: `currentProfilePtr` / `Services::currentProfile`
     // hold long-lived `ProfileData*` into this map.
     ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<ProfileData>> profileDataMap;
@@ -813,8 +813,11 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
                 continue;
             }
 
-            const sf::base::String&
-                errorMessage = concatIntoBuf("Missing pack dependency '", pd.name, "' for pack '", packData->name, "'\n");
+            const sf::base::String& errorMessage = concatIntoBuf("Missing pack dependency '",
+                                                                 pd.name,
+                                                                 "' for pack '",
+                                                                 packData->name,
+                                                                 "'\n");
 
             loadInfo.errorMessages.emplaceBack(errorMessage);
             hg::lo("::loadAssets") << errorMessage;
@@ -1818,7 +1821,8 @@ void HGAssets::HGAssetsImpl::pRemove(const sf::base::String& mName)
     return it == musicPathMap.end() ? nullptr : &it->second;
 }
 
-[[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<LevelData>>& HGAssets::HGAssetsImpl::getLevelDatas() const noexcept
+[[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, sf::base::UniquePtr<LevelData>>& HGAssets::HGAssetsImpl::getLevelDatas()
+    const noexcept
 {
     return levelDatas;
 }

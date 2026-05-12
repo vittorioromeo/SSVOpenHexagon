@@ -27,7 +27,8 @@ private:
         sf::base::Optional<Database::ProcessedScore> _ownScore;
         HRTimePoint                                  _cacheTime;
         bool                                         _received{false}; // Becomes true only once the server replies
-        ankerl::unordered_dense::set<sf::base::U64> _unavailableTimestamps; // Set of score timestamps that have no stored replay on the server
+        ankerl::unordered_dense::set<sf::base::U64>
+            _unavailableTimestamps; // Set of score timestamps that have no stored replay on the server
     };
 
     // `UniquePtr` indirection gives address stability: callers (e.g.
@@ -68,7 +69,8 @@ public:
     [[nodiscard]] bool hasReceivedScores(const sf::base::String& levelValidator) const;
 
     // Stable reference to the set of "no replay" timestamps for a validator.
-    [[nodiscard]] const ankerl::unordered_dense::set<sf::base::U64>& getUnavailableTimestamps(const sf::base::String& levelValidator) const;
+    [[nodiscard]] const ankerl::unordered_dense::set<sf::base::U64>& getUnavailableTimestamps(
+        const sf::base::String& levelValidator) const;
 };
 
 } // namespace hg

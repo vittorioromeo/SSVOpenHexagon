@@ -28,19 +28,19 @@ struct LevelData
     sf::Path         packPath;
     sf::base::String packId;
 
-    sf::base::String                            id;
-    sf::base::String                            name;
-    sf::base::String                            description;
-    sf::base::String                            author;
-    int                                         menuPriority;
-    bool                                        selectable;
-    sf::base::String                            musicId;
-    sf::base::String                            soundId;
-    sf::base::String                            styleId;
-    sf::base::String                            luaScriptPath;
-    sf::base::Vector<float>                     difficultyMults;
-    bool                                        unscored;
-    sf::base::Vector<sf::base::String>          tags; //!< optional, parsed from `level.json` "tags" array
+    sf::base::String                                      id;
+    sf::base::String                                      name;
+    sf::base::String                                      description;
+    sf::base::String                                      author;
+    int                                                   menuPriority;
+    bool                                                  selectable;
+    sf::base::String                                      musicId;
+    sf::base::String                                      soundId;
+    sf::base::String                                      styleId;
+    sf::base::String                                      luaScriptPath;
+    sf::base::Vector<float>                               difficultyMults;
+    bool                                                  unscored;
+    sf::base::Vector<sf::base::String>                    tags; //!< optional, parsed from `level.json` "tags" array
     ankerl::unordered_dense::map<float, sf::base::String> validators;
     ankerl::unordered_dense::map<float, sf::base::String> validatorsWithoutPackId;
 

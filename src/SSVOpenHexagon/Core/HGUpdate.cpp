@@ -873,7 +873,8 @@ void HexagonGame::updateRotation(float mFT)
     auto nextRotation(getRotationSpeed() * 10.f);
     if (status.fastSpin > 0)
     {
-        nextRotation += SFML_BASE_MATH_FABSF((Utils::getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) / 3.5f) * 17.f) *
+        nextRotation += SFML_BASE_MATH_FABSF(
+                            (Utils::getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) / 3.5f) * 17.f) *
                         Utils::getSign(nextRotation);
 
         status.fastSpin -= mFT;

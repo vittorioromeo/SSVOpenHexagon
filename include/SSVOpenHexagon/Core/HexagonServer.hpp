@@ -5,7 +5,6 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
-
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
@@ -44,7 +43,7 @@ private:
     HexagonGame* _hexagonGame; //!< may be `nullptr` in test builds that do not exercise replay handling
 
     const ankerl::unordered_dense::set<sf::base::String> _supportedLevelValidators;
-    const sf::base::Vector<sf::base::String>   _supportedLevelValidatorsVector;
+    const sf::base::Vector<sf::base::String>             _supportedLevelValidatorsVector;
 
     const sf::IpAddress  _serverIp;
     const unsigned short _serverPort;
@@ -184,11 +183,11 @@ private:
     [[nodiscard]] bool isLevelSupported(const sf::base::String& levelValidator) const;
 
 public:
-    explicit HexagonServer(HGAssets*                                   assets,
-                           HexagonGame*                                hexagonGame,
-                           const sf::IpAddress&                        serverIp,
-                           const unsigned short                        serverPort,
-                           const unsigned short                        serverControlPort,
+    explicit HexagonServer(HGAssets*                                             assets,
+                           HexagonGame*                                          hexagonGame,
+                           const sf::IpAddress&                                  serverIp,
+                           const unsigned short                                  serverPort,
+                           const unsigned short                                  serverControlPort,
                            const ankerl::unordered_dense::set<sf::base::String>& serverLevelWhitelist);
 
     ~HexagonServer();

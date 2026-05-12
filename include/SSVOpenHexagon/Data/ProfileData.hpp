@@ -30,20 +30,20 @@ struct PerLevelState
 class ProfileData
 {
 private:
-    GameVersion                                         version;
-    sf::base::String                                    name;
+    GameVersion                                                   version;
+    sf::base::String                                              name;
     ankerl::unordered_dense::map<sf::base::String, float>         scores;
     ankerl::unordered_dense::set<sf::base::String>                favoriteLevelsDataIDs;
     ankerl::unordered_dense::map<sf::base::String, PerLevelState> perLevelState;
 
 public:
-    ProfileData(const GameVersion                                  mVersion,
-                const sf::base::String&                            mName,
+    ProfileData(const GameVersion                                            mVersion,
+                const sf::base::String&                                      mName,
                 const ankerl::unordered_dense::map<sf::base::String, float>& mScores,
-                const sf::base::Vector<sf::base::String>&          mFavorites);
+                const sf::base::Vector<sf::base::String>&                    mFavorites);
 
-    [[nodiscard]] GameVersion                                        getVersion() const noexcept;
-    [[nodiscard]] const sf::base::String&                            getName() const noexcept;
+    [[nodiscard]] GameVersion                                                  getVersion() const noexcept;
+    [[nodiscard]] const sf::base::String&                                      getName() const noexcept;
     [[nodiscard]] const ankerl::unordered_dense::map<sf::base::String, float>& getScores() const noexcept;
 
     [[nodiscard]] ankerl::unordered_dense::set<sf::base::String>& getFavoriteLevelIds() noexcept;

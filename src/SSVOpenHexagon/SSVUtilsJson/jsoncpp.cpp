@@ -2329,8 +2329,7 @@ sf::base::String valueToQuotedString(const char* value)
                 {
                     static constexpr char kHex[] = "0123456789ABCDEF";
                     const unsigned int    v      = static_cast<unsigned char>(*c);
-                    char                  buf[6] = {'\\', 'u', kHex[(v >> 12) & 0xF], kHex[(v >> 8) & 0xF],
-                                                    kHex[(v >> 4) & 0xF], kHex[v & 0xF]};
+                    char buf[6] = {'\\', 'u', kHex[(v >> 12) & 0xF], kHex[(v >> 8) & 0xF], kHex[(v >> 4) & 0xF], kHex[v & 0xF]};
                     result.append(buf, sizeof(buf));
                 }
                 else

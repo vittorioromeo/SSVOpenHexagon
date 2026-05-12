@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters_AnkerlUnorderedDense.hpp"

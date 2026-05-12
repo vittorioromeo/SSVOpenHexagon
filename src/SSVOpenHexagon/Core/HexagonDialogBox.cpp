@@ -129,11 +129,11 @@ void HexagonDialogBox::draw(const sf::View& view, const sf::Color txtColor, cons
 }
 
 void HexagonDialogBox::drawBox(Utils::FastVertexVectorQuads& quads,
-                               const sf::Color              frameColor,
-                               const float                  x1,
-                               const float                  x2,
-                               const float                  y1,
-                               const float                  y2)
+                               const sf::Color               frameColor,
+                               const float                   x1,
+                               const float                   x2,
+                               const float                   y1,
+                               const float                   y2)
 {
     const sf::Vec2f nw{x1, y1};
     const sf::Vec2f sw{x1, y2};

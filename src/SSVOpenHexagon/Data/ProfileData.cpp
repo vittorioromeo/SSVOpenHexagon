@@ -3,7 +3,6 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
-
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 
@@ -13,10 +12,10 @@
 namespace hg
 {
 
-ProfileData::ProfileData(const GameVersion                                  mVersion,
-                         const sf::base::String&                            mName,
+ProfileData::ProfileData(const GameVersion                                            mVersion,
+                         const sf::base::String&                                      mName,
                          const ankerl::unordered_dense::map<sf::base::String, float>& mScores,
-                         const sf::base::Vector<sf::base::String>&          mFavorites) :
+                         const sf::base::Vector<sf::base::String>&                    mFavorites) :
     version{mVersion},
     name{mName},
     scores{mScores},

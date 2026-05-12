@@ -99,9 +99,9 @@ void CPlayer::draw(const unsigned int            sides,
 
     playerTris.reserveMore(3);
     playerTris.batchUnsafeEmplaceBack(swapBlinkingEffect ? getColorAdjustedForSwap(colorPlayer) : getColor(colorPlayer),
-                                         _pos.movedTowards(_size, sf::radians(tiltedAngle)),
-                                         pLeft,
-                                         pRight);
+                                      _pos.movedTowards(_size, sf::radians(tiltedAngle)),
+                                      pLeft,
+                                      pRight);
 }
 
 void CPlayer::drawPivot(const unsigned int            sides,
