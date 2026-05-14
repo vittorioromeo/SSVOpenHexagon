@@ -2606,7 +2606,7 @@ void StyledWriter::writeWithIndent(const sf::base::String& value)
 
 void StyledWriter::indent()
 {
-    indentString_ += sf::base::String(std::string(indentSize_, ' '));
+    indentString_ += sf::base::String(std::string(indentSize_, ' ')); // TODO P0: cleanup
 }
 
 void StyledWriter::unindent()

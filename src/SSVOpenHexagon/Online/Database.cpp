@@ -4,20 +4,26 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
+#include "SSVOpenHexagon/Online/DatabaseInternals.hpp"
+#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Log.hpp"
 #include "SSVOpenHexagon/Utils/Timestamp.hpp"
 
 #include "SFML/Base/Algorithm/Remove.hpp"
 #include "SFML/Base/IntTypes.hpp"
+#include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/Vector.hpp"
 
 #include <sqlite3.h>
 #include <sqlite_orm.h>
 #include <string>
+
+#include <cstdio>
 
 
 static auto& dlog(const char* funcName)

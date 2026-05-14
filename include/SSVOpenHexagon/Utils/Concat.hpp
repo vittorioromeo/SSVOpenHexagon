@@ -8,7 +8,6 @@
 
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
-#include "SFML/Base/StringStreamOp.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Trait/IsConvertible.hpp"
 #include "SFML/Base/Trait/IsSame.hpp"
