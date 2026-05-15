@@ -10,6 +10,10 @@ echo "--------------------------------------------------------------------"
 cmake .. -G"Ninja" \
          -DFORCE_COLORED_OUTPUT=1 \
          -DCMAKE_BUILD_TYPE=DEBUG \
+         -DCMAKE_LINKER_TYPE=LLD \
+         -DCMAKE_EXE_LINKER_FLAGS="-Wl,--undefined-version" \
+         -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--undefined-version" \
+         -DCMAKE_MODULE_LINKER_FLAGS="-Wl,--undefined-version"
          -DCMAKE_C_COMPILER="clang" \
          -DCMAKE_CXX_COMPILER="clang++" \
          -DCMAKE_CXX_FLAGS="\

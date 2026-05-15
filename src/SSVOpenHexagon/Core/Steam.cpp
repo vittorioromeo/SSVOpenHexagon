@@ -190,6 +190,11 @@ public:
     void               subscribe_workshop_item(sf::base::U64 publishedFileId);
     void               unsubscribe_workshop_item(sf::base::U64 publishedFileId);
     [[nodiscard]] bool is_workshop_item_subscribed(sf::base::U64 publishedFileId) const noexcept;
+
+    [[nodiscard]] bool query_workshop_item_download_progress(
+        sf::base::U64 publishedFileId, sf::base::U64& outBytesDownloaded, sf::base::U64& outBytesTotal) const noexcept;
+
+    [[nodiscard]] sf::base::U32 query_workshop_item_state(sf::base::U64 publishedFileId) const noexcept;
     [[nodiscard]] sf::base::Optional<WorkshopEvent> poll_workshop_event();
 
     // Async HTTP preview fetches. See `Steam.hpp` for semantics.
@@ -912,6 +917,29 @@ bool steam_manager::steam_manager_impl::is_workshop_item_subscribed(sf::base::U6
     return (SteamUGC()->GetItemState(static_cast<PublishedFileId_t>(publishedFileId)) & k_EItemStateSubscribed) != 0;
 }
 
+bool steam_manager::steam_manager_impl::query_workshop_item_download_progress(
+    sf::base::U64 publishedFileId, sf::base::U64& outBytesDownloaded, sf::base::U64& outBytesTotal) const noexcept
+{
+    if (!_initialized)
+        return false;
+    uint64     bytesDl{};
+    uint64     bytesTotal{};
+    const bool ok =
+        SteamUGC()->GetItemDownloadInfo(static_cast<PublishedFileId_t>(publishedFileId), &bytesDl, &bytesTotal);
+    if (!ok)
+        return false;
+    outBytesDownloaded = static_cast<sf::base::U64>(bytesDl);
+    outBytesTotal      = static_cast<sf::base::U64>(bytesTotal);
+    return true;
+}
+
+sf::base::U32 steam_manager::steam_manager_impl::query_workshop_item_state(sf::base::U64 publishedFileId) const noexcept
+{
+    if (!_initialized)
+        return 0u;
+    return static_cast<sf::base::U32>(SteamUGC()->GetItemState(static_cast<PublishedFileId_t>(publishedFileId)));
+}
+
 sf::base::Optional<WorkshopEvent> steam_manager::steam_manager_impl::poll_workshop_event()
 {
     if (_workshop_events.empty())
@@ -1460,6 +1488,17 @@ void steam_manager::unsubscribe_workshop_item(sf::base::U64 publishedFileId)
     return impl().is_workshop_item_subscribed(publishedFileId);
 }
 
+[[nodiscard]] bool steam_manager::query_workshop_item_download_progress(
+    sf::base::U64 publishedFileId, sf::base::U64& outBytesDownloaded, sf::base::U64& outBytesTotal) const noexcept
+{
+    return impl().query_workshop_item_download_progress(publishedFileId, outBytesDownloaded, outBytesTotal);
+}
+
+[[nodiscard]] sf::base::U32 steam_manager::query_workshop_item_state(sf::base::U64 publishedFileId) const noexcept
+{
+    return impl().query_workshop_item_state(publishedFileId);
+}
+
 [[nodiscard]] sf::base::Optional<WorkshopEvent> steam_manager::poll_workshop_event()
 {
     return impl().poll_workshop_event();
@@ -1597,6 +1636,20 @@ void steam_manager::unsubscribe_workshop_item([[maybe_unused]] sf::base::U64 pub
 [[nodiscard]] bool steam_manager::is_workshop_item_subscribed([[maybe_unused]] sf::base::U64 publishedFileId) const noexcept
 {
     return false;
+}
+
+[[nodiscard]] bool steam_manager::query_workshop_item_download_progress( //
+    [[maybe_unused]] sf::base::U64  publishedFileId,
+    [[maybe_unused]] sf::base::U64& outBytesDownloaded,
+    [[maybe_unused]] sf::base::U64& outBytesTotal) const noexcept
+{
+    return false;
+}
+
+[[nodiscard]] sf::base::U32 steam_manager::query_workshop_item_state(
+    [[maybe_unused]] sf::base::U64 publishedFileId) const noexcept
+{
+    return 0u;
 }
 
 [[nodiscard]] sf::base::Optional<WorkshopEvent> steam_manager::poll_workshop_event()

@@ -42,6 +42,17 @@ struct WorkshopItem
     // may display this as a thumbnail / carousel slide. Empty when Steam
     // didn't return a URL (e.g. the item has no preview).
     sf::base::String previewUrl;
+
+    // Live download counters, refreshed by the host while the item is
+    // subscribed-but-not-yet-installed (`isSubscribed && !isInstalled`).
+    // Source: `ISteamUGC::GetItemDownloadInfo`. `downloadTotalBytes`
+    // becomes non-zero once Steam has started the actual transfer; until
+    // then both stay at zero (Steam is queueing / hashing). When both
+    // are zero but the item is subscribed-and-not-installed, surface a
+    // "pending" indicator (no percent). When `downloadTotalBytes > 0`,
+    // surface a percentage bar.
+    sf::base::U64 downloadBytes{};
+    sf::base::U64 downloadTotalBytes{};
 };
 
 // Sort/filter mode passed to `query_workshop_items`.
@@ -159,6 +170,23 @@ public:
     // Cheap synchronous lookup against the local item-state cache; safe
     // to use as a guard before calling `subscribe_workshop_item`.
     [[nodiscard]] bool is_workshop_item_subscribed(sf::base::U64 publishedFileId) const noexcept;
+
+    // Polls `ISteamUGC::GetItemDownloadInfo` for a workshop item. Returns
+    // true if Steam is currently tracking a download for this item and
+    // writes the byte counters into the out params; returns false (with
+    // both out params untouched) if Steam isn't downloading or the call
+    // failed. Per Steam docs, `outTotalBytes` is only valid once the
+    // transfer has actually started -- it stays 0 during the "pending"
+    // window, which the UI surfaces as an indeterminate spinner.
+    [[nodiscard]] bool query_workshop_item_download_progress(
+        sf::base::U64 publishedFileId, sf::base::U64& outBytesDownloaded, sf::base::U64& outBytesTotal) const noexcept;
+
+    // Bitfield of `ISteamUGC::k_EItemState*` for the given file id, or 0
+    // when Steam isn't initialized / unknown id. Lets the host decide
+    // when a download is in flight (state has `k_EItemStateDownloading`
+    // or `k_EItemStateDownloadPending`) vs. finished
+    // (`k_EItemStateInstalled`).
+    [[nodiscard]] sf::base::U32 query_workshop_item_state(sf::base::U64 publishedFileId) const noexcept;
 
     // Drains one event from the queue. Caller polls until empty.
     [[nodiscard]] sf::base::Optional<WorkshopEvent> poll_workshop_event();

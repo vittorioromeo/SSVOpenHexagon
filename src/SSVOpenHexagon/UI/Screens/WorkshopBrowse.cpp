@@ -425,6 +425,73 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
                item.isSubscribed ? "subscribed " : "not subscribed ",
                item.isInstalled ? "/ installed" : "");
 
+        // Download progress indicator. The host (`MenuGame::pumpWorkshopEvents`)
+        // refreshes `downloadBytes` / `downloadTotalBytes` every frame from
+        // `ISteamUGC::GetItemDownloadInfo`. We only surface it when the
+        // item is in flight (subscribed, not yet installed) so completed
+        // items don't keep showing a 100% bar.
+        if (item.isSubscribed && !item.isInstalled)
+        {
+            constexpr float kBarW     = 420.f;
+            constexpr float kBarH     = 12.f;
+            constexpr float kBarFrame = 2.f;
+
+            if (item.downloadTotalBytes > 0)
+            {
+                const double done    = static_cast<double>(item.downloadBytes);
+                const double total   = static_cast<double>(item.downloadTotalBytes);
+                const float  pct     = static_cast<float>(done / total);
+                const float  clamped = pct < 0.f ? 0.f : (pct > 1.f ? 1.f : pct);
+
+                labelf(ctx,
+                       "DOWNLOADING:  %.1f%%  (%.2f / %.2f MB)",
+                       static_cast<double>(clamped) * 100.0,
+                       done / (1024.0 * 1024.0),
+                       total / (1024.0 * 1024.0));
+
+                // Bar lives on the line *below* the text. Capture the cursor
+                // AFTER `labelf` advanced it; capturing before would overlap.
+                const sf::Vec2f barPos = ctx.cursor;
+
+                // Frame (magenta-sentinel) + dark backdrop + magenta fill.
+                // Fill width is clamped to the inner area so subpixel
+                // overshoot doesn't paint past the frame edge.
+                ctx.target->draw(
+                    sf::RectangleShapeData{
+                        .position  = barPos,
+                        .fillColor = ctx.colAccent,
+                        .size      = {kBarW, kBarH},
+                    },
+                    ctx.renderStates);
+                ctx.target->draw(
+                    sf::RectangleShapeData{
+                        .position  = {barPos.x + kBarFrame, barPos.y + kBarFrame},
+                        .fillColor = ctx.colRow,
+                        .size      = {kBarW - 2.f * kBarFrame, kBarH - 2.f * kBarFrame},
+                    },
+                    ctx.renderStates);
+                const float fillW = (kBarW - 2.f * kBarFrame) * clamped;
+                if (fillW > 0.f)
+                {
+                    ctx.target->draw(
+                        sf::RectangleShapeData{
+                            .position  = {barPos.x + kBarFrame, barPos.y + kBarFrame},
+                            .fillColor = ctx.colAccent,
+                            .size      = {fillW, kBarH - 2.f * kBarFrame},
+                        },
+                        ctx.renderStates);
+                }
+                ctx.cursor.y += kBarH + 6.f;
+            }
+            else
+            {
+                // Steam knows about the subscription but hasn't started
+                // the actual transfer yet (queue / hash phase). No bytes
+                // to bar, so just say so explicitly.
+                labelf(ctx, "DOWNLOADING:  pending");
+            }
+        }
+
         newLine(ctx, 4.f);
         separator(ctx);
         newLine(ctx, 4.f);

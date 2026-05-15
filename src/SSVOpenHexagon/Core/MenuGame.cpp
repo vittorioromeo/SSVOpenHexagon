@@ -855,6 +855,35 @@ void MenuGame::pumpWorkshopEvents()
     // refresh" no matter how many times they clicked DOWNLOAD/DELETE.
     steamManager.run_callbacks();
 
+    // Refresh per-item download progress for anything Steam is currently
+    // transferring. Steam's `GetItemDownloadInfo` is a poll-only API (no
+    // "bytes downloaded" callback), and we only need it for items the
+    // user can actually see on the Workshop screen, so just walk the
+    // already-loaded `ui_app.workshop.items` list. Cost is one VM call
+    // per visible item per frame -- negligible compared to drawing.
+    for (auto& it : ui_app.workshop.items)
+    {
+        sf::base::U64 dl    = 0;
+        sf::base::U64 total = 0;
+        if (steamManager.query_workshop_item_download_progress(it.publishedFileId, dl, total))
+        {
+            it.downloadBytes      = dl;
+            it.downloadTotalBytes = total;
+        }
+        else if (it.isInstalled)
+        {
+            // No active download AND the item is installed -- clear any
+            // counters left over from a previous transfer so the UI
+            // stops showing a progress bar on a finished item.
+            it.downloadBytes      = 0;
+            it.downloadTotalBytes = 0;
+        }
+        // If the call returned false AND the item is still subscribed-not-
+        // installed, leave the last-known counters in place. Steam can
+        // briefly return false between "queued" and "downloading" and we
+        // don't want the bar to flicker back to zero in that window.
+    }
+
     // Helper: stash {id, title} pairs into the screen's name cache so the
     // dependency list can render readable titles instead of raw 64-bit ids.
     const auto mergeIntoNameCache = [&](const auto& items)
