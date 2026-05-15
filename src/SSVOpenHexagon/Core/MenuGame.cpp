@@ -394,10 +394,25 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
                 switch (key)
                 {
                     case sf::Keyboard::Key::Up:
-                        ui_pendingInput.up = true;
+                        // Shift-arrow is the keyboard shortcut for the
+                        // section-jump edge; only one of `up` / `pageUp`
+                        // fires per press so screens don't have to dedupe.
+                        if (e->shift)
+                            ui_pendingInput.pageUp = true;
+                        else
+                            ui_pendingInput.up = true;
                         break;
                     case sf::Keyboard::Key::Down:
-                        ui_pendingInput.down = true;
+                        if (e->shift)
+                            ui_pendingInput.pageDown = true;
+                        else
+                            ui_pendingInput.down = true;
+                        break;
+                    case sf::Keyboard::Key::PageUp:
+                        ui_pendingInput.pageUp = true;
+                        break;
+                    case sf::Keyboard::Key::PageDown:
+                        ui_pendingInput.pageDown = true;
                         break;
                     case sf::Keyboard::Key::Left:
                         ui_pendingInput.left = true;
@@ -426,6 +441,26 @@ MenuGame::MenuGame(Steam::steam_manager&     mSteamManager,
             if (window.hasFocus())
             {
                 setMouseCursorVisible(true);
+            }
+            return;
+        }
+
+        if (const auto* e = event.getIf<sf::Event::MouseWheelScrolled>())
+        {
+            // Wheel always drives the currently-focused widget's
+            // vertical navigation. We don't route by mouse-position
+            // (which pane the cursor is over) -- the keyboard model is
+            // already "the focused pane consumes up/down", and matching
+            // that here keeps screens simple.
+            //
+            // Suppressed when a modal dialog is open (the dialog has
+            // its own dismissal flow) and when the boot splash is up.
+            if (newUIActiveForCurrentState() && dialogBox.empty())
+            {
+                if (e->delta > 0.f)
+                    ui_pendingInput.up = true;
+                else if (e->delta < 0.f)
+                    ui_pendingInput.down = true;
             }
             return;
         }

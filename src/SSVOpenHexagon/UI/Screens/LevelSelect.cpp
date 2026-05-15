@@ -322,6 +322,60 @@ void drawLevelSelectScreen(Context& ctx, App& app, Services& svc)
             }
         }
     }
+    // PageUp / PageDown jumps the level cursor to a pack boundary
+    // (top of current pack on PageUp from mid-pack, top of previous
+    // pack on PageUp from already-at-top, top of next pack on
+    // PageDown). Active even when the level list is focused -- the
+    // user shouldn't have to switch panes to skip packs. Consumes the
+    // edges so the regular `navigatePane` call below doesn't also
+    // count a one-row step.
+    if (s.pane == Pane::Levels && n > 0)
+    {
+        const auto packOf = [&](int idx) -> sf::base::StringView
+        { return assets.getLevelData(s.filteredLevelIds[idx]).packId.toStringView(); };
+
+        if (ctx.input.pageDown)
+        {
+            // Find the first level whose pack differs from the current.
+            const auto curPack = packOf(s.levelIdx);
+            for (int j = s.levelIdx + 1; j < n; ++j)
+            {
+                if (packOf(j) != curPack)
+                {
+                    s.levelIdx = j;
+                    break;
+                }
+            }
+            ctx.input.pageDown = false;
+        }
+        else if (ctx.input.pageUp)
+        {
+            // Find the top of the current pack first.
+            int top = s.levelIdx;
+            const auto curPack = packOf(s.levelIdx);
+            while (top > 0 && packOf(top - 1) == curPack)
+                --top;
+
+            if (top < s.levelIdx)
+            {
+                // Mid-pack: snap to top of current pack.
+                s.levelIdx = top;
+            }
+            else if (top > 0)
+            {
+                // Already at top of current pack: jump to top of the
+                // previous pack. `top - 1` is the last level of the
+                // previous pack; walk back to that pack's first level.
+                const auto prevPack = packOf(top - 1);
+                int        prevTop  = top - 1;
+                while (prevTop > 0 && packOf(prevTop - 1) == prevPack)
+                    --prevTop;
+                s.levelIdx = prevTop;
+            }
+            ctx.input.pageUp = false;
+        }
+    }
+
     navigatePane(ctx, svc, s.levelIdx, n, s.pane == Pane::Levels);
     navigatePane(ctx, svc, s.actionIdx, actionCount, s.pane == Pane::Actions);
     if (s.actionIdx < 0 || s.actionIdx >= actionCount)

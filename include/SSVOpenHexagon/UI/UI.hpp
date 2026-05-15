@@ -72,6 +72,14 @@ struct Input
     bool escape{};    //!< edge: back / cancel
     bool backspace{}; //!< edge: erase one character (text fields)
 
+    // Coarse vertical navigation edges. Screens that have a natural
+    // "section" or "page" larger than a single row interpret these as
+    // "jump to the top of the current section, or to the previous
+    // section if already there" / "jump to the next section". Host
+    // emits them on `PgUp`/`PgDn` and on `Shift+Up`/`Shift+Down`.
+    bool pageUp{};
+    bool pageDown{};
+
     // Null-terminated chars typed this frame (max 7 chars + NUL). Caller fills.
     char typedChars[8] = {0};
 };

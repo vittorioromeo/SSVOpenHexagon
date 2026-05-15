@@ -121,6 +121,25 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         s.activePane = paneCount - 1;
     paneSwitchLeftRight(ctx, svc, s.activePane, paneCount);
 
+    // PageUp / PageDown on the items pane swaps the workshop "page"
+    // (server-side pagination) and refires the query. Other panes
+    // don't paginate, so the edges go unused there.
+    if (s.activePane == kPaneList)
+    {
+        if (ctx.input.pageDown)
+        {
+            s.page += 1;
+            fireQuery(s, svc);
+            ctx.input.pageDown = false;
+        }
+        else if (ctx.input.pageUp && s.page > 1)
+        {
+            s.page -= 1;
+            fireQuery(s, svc);
+            ctx.input.pageUp = false;
+        }
+    }
+
     navigatePane(ctx, svc, s.sidebarIdx, kSidebarCount, s.activePane == kPaneSidebar);
     navigatePane(ctx, svc, s.selectedIdx, n, s.activePane == kPaneList);
     navigatePane(ctx, svc, s.actionIdx, kActionRowCount, s.activePane == kPaneActions);
