@@ -109,6 +109,14 @@ struct WorkshopBrowseScreenState
     // shifts mid-prefetch.
     ankerl::unordered_dense::set<sf::base::U64> prefetchedFileIds;
 
+    // Set by the REFRESH sidebar button; consumed at the top of the
+    // next draw. Deferring is mandatory because the button handler
+    // would otherwise clear `catalog` mid-frame, *after* the same
+    // function already built `filteredIndices` against the previous
+    // contents -- the item-list draw then indexes into an empty vector
+    // and crashes inside `Vector::operator[]`.
+    bool refreshPending{false};
+
     // Client-side text filter applied to `catalog`. Filters by title +
     // description. Empty = show all.
     sf::base::String search;

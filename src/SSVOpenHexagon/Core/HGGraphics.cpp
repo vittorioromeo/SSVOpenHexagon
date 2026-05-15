@@ -139,7 +139,16 @@ void HexagonGame::draw()
         const float pulse3D{Config::getNoPulse() ? 1.f : status.pulse3D};
         const float effect{styleData._3dSkew * Config::get3DMultiplier() * pulse3D};
 
-        backgroundCameraTransform.skew = sf::Vec2f{1.f, 1.f + effect};
+        // Floor the multiplier slightly above zero. A custom level with a
+        // large negative `_3dSkew` can drive `1 + effect` to 0 (or
+        // negative), which `computeCameraView` propagates to `View::size.y`
+        // and SFML asserts on at draw flush time. The visual difference
+        // between skew.y == 0.001 and skew.y == 0 is imperceptible, so
+        // clamping here is preferable to letting the level crash the
+        // preview pipeline.
+        constexpr float kMinSkew       = 0.001f;
+        const float     skewY          = (1.f + effect < kMinSkew) ? kMinSkew : 1.f + effect;
+        backgroundCameraTransform.skew = sf::Vec2f{1.f, skewY};
     }
 
     const sf::View backgroundView = Utils::computeCameraView(*backgroundCamera, backgroundCameraTransform);

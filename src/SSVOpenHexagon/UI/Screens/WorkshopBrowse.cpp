@@ -90,6 +90,16 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         return;
     }
 
+    // Apply any deferred refresh requested by last frame's REFRESH button.
+    // We can't reset mid-draw -- the same function builds `filteredIndices`
+    // against the catalog and later indexes into it; clearing the catalog
+    // between those two points crashes inside `Vector::operator[]`.
+    if (s.refreshPending)
+    {
+        resetCatalog(s);
+        s.refreshPending = false;
+    }
+
     // Prefetch driver: drain pages one-at-a-time into `s.catalog` until
     // we've got every workshop item. Steam responds via `QueryComplete`
     // which appends results, clears `queryInFlight`, and flips
@@ -272,12 +282,18 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         // Useful when the user has subscribed to / unsubscribed from items
         // through the Steam overlay and wants the workshop view to catch
         // up to the current Steam state.
+        //
+        // The actual `resetCatalog` runs at the TOP of the next frame's
+        // draw (see `s.refreshPending` handling above). Clearing the
+        // catalog mid-draw would invalidate `filteredIndices` -- which
+        // was already built against the current contents -- and the
+        // item-list loop would index into an empty vector.
         sidebarButton("REFRESH",
                       kSidebarRefresh,
                       [&]
         {
-            resetCatalog(s);
-            s.selectedIdx = 0;
+            s.refreshPending = true;
+            s.selectedIdx    = 0;
         });
 
         // DOWNLOADED-only toggle. Toggling resets the selected item so it
