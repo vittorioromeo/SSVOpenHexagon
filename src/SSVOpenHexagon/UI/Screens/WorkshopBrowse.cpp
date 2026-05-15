@@ -26,26 +26,44 @@ namespace hg::ui
 namespace
 {
 
-constexpr struct
-{
-    const char*              label;
-    Steam::WorkshopQueryMode mode;
-} kModeTabs[] = {
-    {"POPULAR", Steam::WorkshopQueryMode::MostPopular},
-    {"NEWEST", Steam::WorkshopQueryMode::Newest},
-    {"TRENDING", Steam::WorkshopQueryMode::Trending},
-    {"ALL", Steam::WorkshopQueryMode::All},
-};
+// We always prefetch in "Newest" order. The catalog is small enough
+// (OH's workshop fits in low hundreds) that local sort/search/filter
+// covers every UX need the old mode-tabs served, without the
+// "search/filter only see the current page" footgun the page-by-page
+// model produced.
+constexpr Steam::WorkshopQueryMode kPrefetchMode = Steam::WorkshopQueryMode::Newest;
 
-constexpr int kModeTabCount = static_cast<int>(sizeof(kModeTabs) / sizeof(*kModeTabs));
+// Window into `filteredIndices` shown at once. PgUp/PgDn shift by one
+// of these; PREV/NEXT in the sidebar do the same.
+constexpr int kPageSize = 12;
 
-void fireQuery(WorkshopBrowseScreenState& s, Services& svc)
+// Kick off a query for the next page of the prefetch drain. Sets
+// `queryInFlight`; the screen's per-frame driver won't fire again
+// until the `QueryComplete` event clears it.
+void fireNextPrefetchPage(WorkshopBrowseScreenState& s, Services& svc)
 {
-    if (svc.steamManager == nullptr)
+    if (svc.steamManager == nullptr || s.queryInFlight || s.prefetchDone)
         return;
-    svc.steamManager->query_workshop_items(s.queryMode, s.page);
+
+    svc.steamManager->query_workshop_items(kPrefetchMode, s.nextPageToFetch);
     s.queryInFlight = true;
-    std::snprintf(s.statusMessage, sizeof(s.statusMessage), "Querying workshop...");
+    s.nextPageToFetch += 1;
+
+    if (s.expectedTotal == 0)
+        std::snprintf(s.statusMessage, sizeof(s.statusMessage), "Loading workshop...");
+}
+
+// Reset prefetch state and start over (REFRESH button, etc.).
+void resetCatalog(WorkshopBrowseScreenState& s)
+{
+    s.catalog.clear();
+    s.prefetchedFileIds.clear();
+    s.expectedTotal     = 0;
+    s.nextPageToFetch   = 1;
+    s.prefetchDone      = false;
+    // `queryInFlight` is cleared by the QueryComplete handler -- don't
+    // touch it here, an outstanding query is still going to land.
+    s.statusMessage[0] = '\0';
 }
 
 [[nodiscard]] bool itemPasses(const Steam::WorkshopItem& it, sf::base::StringView search, bool downloadedOnly) noexcept
@@ -72,47 +90,61 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         return;
     }
 
-    // First entry: kick off a default query.
-    if (!s.initialQueryFired)
+    // Prefetch driver: drain pages one-at-a-time into `s.catalog` until
+    // we've got every workshop item. Steam responds via `QueryComplete`
+    // which appends results, clears `queryInFlight`, and flips
+    // `prefetchDone` when the catalog is full. Each frame we top off
+    // the pipeline by firing the next page if not already in flight.
+    if (s.catalog.empty() && !s.queryInFlight && !s.prefetchDone)
     {
-        s.initialQueryFired = true;
-        fireQuery(s, svc);
+        fireNextPrefetchPage(s, svc);
+    }
+    else if (!s.prefetchDone && !s.queryInFlight)
+    {
+        fireNextPrefetchPage(s, svc);
     }
 
     // ---- Input -----------------------------------------------------------
     if (handleEscape(ctx, app))
         return;
 
-    // Build a filtered view of `s.items` according to the search box.
-    // Indices are into `s.items`; `selectedIdx` is into this filtered list.
-    sf::base::Vector<int> filtered;
-    filtered.reserve(s.items.size());
+    // Build a filtered view of `s.catalog` according to search +
+    // downloaded-only. `filteredIndices` is rebuilt from scratch each
+    // frame -- O(N) over the catalog -- which is fine for OH's workshop
+    // size and dodges every cache-invalidation footgun we'd hit
+    // otherwise.
+    sf::base::Vector<int> filteredIndices;
+    filteredIndices.reserve(s.catalog.size());
     {
         const auto search = s.search.toStringView();
-        for (sf::base::SizeT i = 0; i < s.items.size(); ++i)
+        for (sf::base::SizeT i = 0; i < s.catalog.size(); ++i)
         {
-            if (itemPasses(s.items[i], search, s.downloadedOnly))
+            if (itemPasses(s.catalog[i], search, s.downloadedOnly))
             {
-                filtered.emplaceBack(static_cast<int>(i));
+                filteredIndices.emplaceBack(static_cast<int>(i));
             }
         }
     }
 
-    const int n = static_cast<int>(filtered.size());
+    const int n = static_cast<int>(filteredIndices.size());
     if (s.selectedIdx < 0 || s.selectedIdx >= n)
         s.selectedIdx = 0;
 
     // Three-pane keyboard navigation. Pane indices: 0 = sidebar,
-    // 1 = list, 2 = actions. Left/right hop via `paneSwitchLeftRight`;
-    // up/down navigate the active pane.
+    // 1 = list, 2 = actions.
     //
-    // Sidebar layout: 4 mode tabs + 3 pagination rows + DOWNLOADED-only
-    // toggle. Indices kept stable so input handlers can compare directly.
-    constexpr int kSidebarCount   = 8; // 0..3 modes, 4 prev, 5 next, 6 refresh, 7 dl-only
-    constexpr int kActionRowCount = 2;
-    constexpr int kPaneSidebar    = 0;
-    constexpr int kPaneList       = 1;
-    constexpr int kPaneActions    = 2;
+    // Sidebar layout (post-prefetch redesign): PREV, NEXT, REFRESH,
+    // DOWNLOADED. The mode tabs are gone -- with the full catalog
+    // cached locally there's nothing for them to switch between.
+    constexpr int kSidebarPrev      = 0;
+    constexpr int kSidebarNext      = 1;
+    constexpr int kSidebarRefresh   = 2;
+    constexpr int kSidebarDlOnly    = 3;
+    constexpr int kSidebarCount     = 4;
+    constexpr int kActionRowCount   = 2;
+    constexpr int kPaneSidebar      = 0;
+    constexpr int kPaneList         = 1;
+    constexpr int kPaneActions      = 2;
 
     // The actions pane is only meaningful when there's an item to act on.
     // Skip past it during pane-switching when the list is empty.
@@ -121,21 +153,26 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         s.activePane = paneCount - 1;
     paneSwitchLeftRight(ctx, svc, s.activePane, paneCount);
 
-    // PageUp / PageDown on the items pane swaps the workshop "page"
-    // (server-side pagination) and refires the query. Other panes
-    // don't paginate, so the edges go unused there.
-    if (s.activePane == kPaneList)
+    // Local pagination: a "page" is just `kPageSize` filtered entries.
+    // The current page index is derived from `selectedIdx` so that
+    // arrowing through items naturally scrolls the visible window, and
+    // jumping to "page 2" via PgDn / NEXT just hops `selectedIdx` over
+    // one window. The math falls out: `pageStart = currentPage*kPageSize`.
+    const int totalPages = (n + kPageSize - 1) / kPageSize;
+    const int currentPage = (n == 0) ? 0 : (s.selectedIdx / kPageSize);
+
+    if (s.activePane == kPaneList && n > 0)
     {
         if (ctx.input.pageDown)
         {
-            s.page += 1;
-            fireQuery(s, svc);
+            // Land on the first item of the next page, clamped to n-1.
+            const int target = (currentPage + 1) * kPageSize;
+            s.selectedIdx = (target < n) ? target : n - 1;
             ctx.input.pageDown = false;
         }
-        else if (ctx.input.pageUp && s.page > 1)
+        else if (ctx.input.pageUp && currentPage > 0)
         {
-            s.page -= 1;
-            fireQuery(s, svc);
+            s.selectedIdx = (currentPage - 1) * kPageSize;
             ctx.input.pageUp = false;
         }
     }
@@ -144,10 +181,8 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     navigatePane(ctx, svc, s.selectedIdx, n, s.activePane == kPaneList);
     navigatePane(ctx, svc, s.actionIdx, kActionRowCount, s.activePane == kPaneActions);
 
-    // Windowing index -- the pill animates inside the visible slice.
-    // `animatedPill` (called below) drives the per-frame stepToward for us.
-    constexpr int kMaxVisible = 12;
-    const int     start       = (s.selectedIdx >= kMaxVisible) ? s.selectedIdx - kMaxVisible + 1 : 0;
+    // Recompute after `navigatePane` may have moved `selectedIdx`.
+    const int pageStart = (n == 0) ? 0 : (s.selectedIdx / kPageSize) * kPageSize;
 
     // ---- Layout ----------------------------------------------------------
     const sf::Vec2f origin = screenOrigin(ctx);
@@ -166,21 +201,16 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
         }
         (void)searchSubmitted;
 
-        // "PAGE current/total" -- total = ⌈totalMatching / kSteamPageSize⌉.
-        // Steam UGC pages are 50 items by default; we don't override that
-        // when querying. Falls back to "PAGE n" when no query has landed
-        // (totalMatching = 0).
-        constexpr sf::base::U32 kSteamPageSize = 50u;
-        char                    pageBuf[48];
-        if (s.totalMatching > 0u)
-        {
-            const auto totalPages = static_cast<int>((s.totalMatching + kSteamPageSize - 1u) / kSteamPageSize);
-            std::snprintf(pageBuf, sizeof(pageBuf), "PAGE %d/%d", s.page, totalPages);
-        }
+        // "PAGE current/total" against the filtered list. With the
+        // prefetch model this is always correct -- `totalPages` reflects
+        // the user's actual filtered view, not "however many pages Steam
+        // happens to think exist", and we can never overshoot it.
+        char pageBuf[48];
+        if (totalPages > 0)
+            std::snprintf(pageBuf, sizeof(pageBuf), "PAGE %d/%d", currentPage + 1, totalPages);
         else
-        {
-            std::snprintf(pageBuf, sizeof(pageBuf), "PAGE %d", s.page);
-        }
+            std::snprintf(pageBuf, sizeof(pageBuf), "PAGE -/-");
+
         ctx.cursor.x = left + 440.f;
         ctx.cursor.y -= ctx.rowHeight;
         label(ctx, pageBuf, 200.f);
@@ -201,7 +231,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     const float     listTop     = ctx.cursor.y;
     const float     detailsLeft = listLeft + kListW + 20.f;
 
-    // ---- Sidebar (mode tabs + pagination + DOWNLOADED toggle) ------------
+    // ---- Sidebar (page nav + DOWNLOADED toggle) --------------------------
     {
         ctx.cursor = ctx.origin = {left, listTop};
 
@@ -211,57 +241,49 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
 
         const auto sbFocused = [&](int idx) { return sidebarActive && s.sidebarIdx == idx; };
 
-        // Mode tabs (rows 0..3). The currently-active mode is also rendered
-        // as "focused" so users see what's selected even when keyboard
-        // focus has moved on.
-        for (int i = 0; i < kModeTabCount; ++i)
-        {
-            const bool active = (s.queryMode == kModeTabs[i].mode);
-            const bool focRow = sbFocused(i);
-            if (button(ctx, kModeTabs[i].label, focRow || active, kSidebarW) || (focRow && ctx.input.enter))
-            {
-                s.queryMode = kModeTabs[i].mode;
-                s.page      = 1;
-                fireQuery(s, svc);
-            }
-        }
-
-        // Pagination buttons. The page indicator itself lives outside
-        // the sidebar (next to the search bar) so it doesn't consume a
-        // navigable row slot -- every button index here corresponds 1:1
-        // to a visible row.
         const auto sidebarButton = [&](const char* lbl, int idx, auto&& onActivate)
         {
             const bool foc = sbFocused(idx);
             if (button(ctx, lbl, foc, kSidebarW) || (foc && ctx.input.enter))
-            {
                 onActivate();
-            }
         };
 
+        // PREV / NEXT just shift `selectedIdx` by one page-window worth.
+        // No Steam round-trip; everything's already in memory.
         sidebarButton("PREV",
-                      4,
+                      kSidebarPrev,
                       [&]
         {
-            if (s.page > 1)
-            {
-                s.page -= 1;
-                fireQuery(s, svc);
-            }
+            if (n > 0 && currentPage > 0)
+                s.selectedIdx = (currentPage - 1) * kPageSize;
         });
         sidebarButton("NEXT",
-                      5,
+                      kSidebarNext,
                       [&]
         {
-            s.page += 1;
-            fireQuery(s, svc);
+            if (n > 0 && currentPage + 1 < totalPages)
+            {
+                const int target = (currentPage + 1) * kPageSize;
+                s.selectedIdx    = (target < n) ? target : n - 1;
+            }
         });
-        sidebarButton("REFRESH", 6, [&] { fireQuery(s, svc); });
 
-        // DOWNLOADED-only toggle (row 7). Toggling resets the selected
-        // item so it stays in-bounds of the new filtered view.
+        // REFRESH wipes the cached catalog and restarts the prefetch.
+        // Useful when the user has subscribed to / unsubscribed from items
+        // through the Steam overlay and wants the workshop view to catch
+        // up to the current Steam state.
+        sidebarButton("REFRESH",
+                      kSidebarRefresh,
+                      [&]
         {
-            const bool foc = sbFocused(7);
+            resetCatalog(s);
+            s.selectedIdx = 0;
+        });
+
+        // DOWNLOADED-only toggle. Toggling resets the selected item so it
+        // stays in-bounds of the new filtered view.
+        {
+            const bool foc = sbFocused(kSidebarDlOnly);
             bool       dl  = s.downloadedOnly;
             if (toggle(ctx, "DOWNLOADED", dl, foc, kSidebarW))
             {
@@ -276,56 +298,53 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
 
     if (n == 0)
     {
-        if (s.queryInFlight)
-        {
+        // Empty-state messages reflect the actual reason. Prefetch in
+        // flight is signalled by `!prefetchDone`; once that's true the
+        // catalog is the whole workshop and "no items" means the filter
+        // is too tight (or nothing's been published yet).
+        if (!s.prefetchDone)
             label(ctx, "(loading...)");
-        }
-        else if (!s.search.empty() && !s.items.empty())
-        {
+        else if (!s.search.empty())
             label(ctx, "(no items match search)");
-        }
+        else if (s.downloadedOnly)
+            label(ctx, "(no installed items)");
         else
-        {
-            label(ctx, "(no items - try another mode or page)");
-        }
+            label(ctx, "(no workshop items)");
     }
     else
     {
-        // Item-list pill -- index is windowed (`selectedIdx - start`)
-        // because we scroll inside the visible slice, not the full list.
-        animatedPill(ctx, ctx.cursor, 420.f, s.selectedIdx - start, s.selectionY, s.activePane == kPaneList);
+        // Item-list pill -- index is windowed (`selectedIdx - pageStart`)
+        // because we scroll inside the current page.
+        animatedPill(ctx, ctx.cursor, 420.f, s.selectedIdx - pageStart, s.selectionY, s.activePane == kPaneList);
 
-        const int end = (start + kMaxVisible < n) ? start + kMaxVisible : n;
+        const int end = (pageStart + kPageSize < n) ? pageStart + kPageSize : n;
 
-        for (int i = start; i < end; ++i)
+        const auto formatRow = [](char* buf, sf::base::SizeT bufSize, const Steam::WorkshopItem& item)
         {
-            const Steam::WorkshopItem& item = s.items[filtered[i]];
-            char                       rowBuf[180];
-            std::snprintf(rowBuf,
-                          sizeof(rowBuf),
+            std::snprintf(buf,
+                          bufSize,
                           "%c%c %.*s",
                           item.isInstalled ? '*' : ' ',
                           item.isSubscribed ? '+' : ' ',
                           static_cast<int>(item.title.size()),
                           item.title.cStr());
+        };
+
+        for (int i = pageStart; i < end; ++i)
+        {
+            const Steam::WorkshopItem& item = s.catalog[filteredIndices[i]];
+            char                       rowBuf[180];
+            formatRow(rowBuf, sizeof(rowBuf), item);
             if (button(ctx, rowBuf, i == s.selectedIdx, 420.f))
-            {
                 s.selectedIdx = i;
-            }
         }
 
         // Faded peek of the next item below the visible window.
         if (end < n)
         {
-            const Steam::WorkshopItem& item = s.items[filtered[end]];
+            const Steam::WorkshopItem& item = s.catalog[filteredIndices[end]];
             char                       buf[180];
-            std::snprintf(buf,
-                          sizeof(buf),
-                          "%c%c %.*s",
-                          item.isInstalled ? '*' : ' ',
-                          item.isSubscribed ? '+' : ' ',
-                          static_cast<int>(item.title.size()),
-                          item.title.cStr());
+            formatRow(buf, sizeof(buf), item);
             drawFadedPeekRow(ctx, buf, 420.f);
         }
     }
@@ -334,7 +353,7 @@ void drawWorkshopBrowseScreen(Context& ctx, App& app, Services& svc)
     ctx.cursor = ctx.origin = {detailsLeft, listTop};
     if (n > 0 && s.selectedIdx >= 0 && s.selectedIdx < n)
     {
-        const Steam::WorkshopItem& item = s.items[filtered[s.selectedIdx]];
+        const Steam::WorkshopItem& item = s.catalog[filteredIndices[s.selectedIdx]];
 
         // Title row: row backdrop + larger highlight-colored title text.
         // Routed through `text()` so the menu's case-folding sanitizer

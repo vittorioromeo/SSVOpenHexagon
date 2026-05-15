@@ -894,9 +894,9 @@ void MenuGame::pumpWorkshopEvents()
     // transferring. Steam's `GetItemDownloadInfo` is a poll-only API (no
     // "bytes downloaded" callback), and we only need it for items the
     // user can actually see on the Workshop screen, so just walk the
-    // already-loaded `ui_app.workshop.items` list. Cost is one VM call
-    // per visible item per frame -- negligible compared to drawing.
-    for (auto& it : ui_app.workshop.items)
+    // already-loaded `ui_app.workshop.catalog`. Cost is one VM call
+    // per cached item per frame -- negligible compared to drawing.
+    for (auto& it : ui_app.workshop.catalog)
     {
         sf::base::U64 dl    = 0;
         sf::base::U64 total = 0;
@@ -948,14 +948,51 @@ void MenuGame::pumpWorkshopEvents()
         switch (evt->kind)
         {
             case EK::QueryComplete:
+                // Prefetch-style append: the workshop screen drives a
+                // page-by-page drain into `catalog`. Each `QueryComplete`
+                // here represents one page; we append (deduping against
+                // `prefetchedFileIds` in case Steam reorders mid-prefetch),
+                // record `expectedTotal` from the first reply, and mark
+                // the prefetch done when we've drained every item or
+                // Steam returned an empty page.
                 mergeIntoNameCache(evt->queryResults);
-                ui_app.workshop.items         = SFML_BASE_MOVE(evt->queryResults);
-                ui_app.workshop.queryInFlight = false;
-                ui_app.workshop.totalMatching = evt->totalMatching;
-                std::snprintf(ui_app.workshop.statusMessage,
-                              sizeof(ui_app.workshop.statusMessage),
-                              "%zu items received",
-                              static_cast<sf::base::SizeT>(ui_app.workshop.items.size()));
+                {
+                    auto& ws = ui_app.workshop;
+
+                    if (ws.expectedTotal == 0)
+                        ws.expectedTotal = evt->totalMatching;
+
+                    const sf::base::SizeT before = ws.catalog.size();
+                    for (auto& it : evt->queryResults)
+                    {
+                        if (ws.prefetchedFileIds.insert(it.publishedFileId).second)
+                            ws.catalog.emplaceBack(SFML_BASE_MOVE(it));
+                    }
+
+                    ws.queryInFlight = false;
+
+                    // Treat an empty page as end-of-catalog -- protects
+                    // against `expectedTotal` being optimistic relative
+                    // to what Steam will actually return (deleted items,
+                    // privacy changes, etc.).
+                    const bool noNewItems = (ws.catalog.size() == before);
+                    if (noNewItems || ws.catalog.size() >= ws.expectedTotal)
+                        ws.prefetchDone = true;
+
+                    if (ws.prefetchDone)
+                    {
+                        std::snprintf(ws.statusMessage, sizeof(ws.statusMessage), //
+                                      "%zu items",
+                                      static_cast<sf::base::SizeT>(ws.catalog.size()));
+                    }
+                    else
+                    {
+                        std::snprintf(ws.statusMessage, sizeof(ws.statusMessage), //
+                                      "Loading workshop... %zu / %u",
+                                      static_cast<sf::base::SizeT>(ws.catalog.size()),
+                                      static_cast<unsigned>(ws.expectedTotal));
+                    }
+                }
                 break;
 
             case EK::DetailsComplete:
@@ -1013,8 +1050,8 @@ void MenuGame::pumpWorkshopEvents()
                 {
                     hg::lo("MenuGame::pumpWorkshopEvents") << "  installFolder is empty, skipping install\n";
                 }
-                // Reflect install state in the UI's cached list.
-                for (auto& it : ui_app.workshop.items)
+                // Reflect install state in the UI's cached catalog.
+                for (auto& it : ui_app.workshop.catalog)
                 {
                     if (it.publishedFileId == evt->publishedFileId)
                     {
@@ -1025,7 +1062,7 @@ void MenuGame::pumpWorkshopEvents()
                 break;
 
             case EK::ItemSubscribed:
-                for (auto& it : ui_app.workshop.items)
+                for (auto& it : ui_app.workshop.catalog)
                 {
                     if (it.publishedFileId == evt->publishedFileId)
                     {
@@ -1114,9 +1151,10 @@ void MenuGame::pumpWorkshopEvents()
                     }
                 }
 
-                // Reflect subscribe state in the UI's cached list (also
-                // flip `isInstalled` since we just released the assets).
-                for (auto& it : ui_app.workshop.items)
+                // Reflect subscribe state in the UI's cached catalog
+                // (also flip `isInstalled` since we just released the
+                // assets).
+                for (auto& it : ui_app.workshop.catalog)
                 {
                     if (it.publishedFileId == evt->publishedFileId)
                     {

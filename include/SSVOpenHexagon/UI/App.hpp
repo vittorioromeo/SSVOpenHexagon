@@ -74,20 +74,43 @@ enum class LevelSortKey : sf::base::U8
 
 struct WorkshopBrowseScreenState
 {
-    Steam::WorkshopQueryMode              queryMode{Steam::WorkshopQueryMode::MostPopular};
-    int                                   page{1};
-    sf::base::Vector<Steam::WorkshopItem> items;
+    // Full local catalog -- prefetched at first screen visit by draining
+    // every Steam page back-to-back into one vector. Filtering / paging /
+    // search all operate on this list locally, so they apply to the
+    // entire workshop, not just whichever page Steam happens to have
+    // returned. The original "query per page" design hid items behind
+    // pagination and made "downloaded-only" / "search" feel broken
+    // because they only saw the active page.
+    sf::base::Vector<Steam::WorkshopItem> catalog;
 
+    // True while one Steam UGC query is outstanding (we drain pages one
+    // at a time, never in parallel, because each call uses the shared
+    // SteamAPI single-pending-call slot).
     bool queryInFlight{false};
-    bool initialQueryFired{false};
 
-    // Total result count Steam reports for the active query -- used to
-    // render the page indicator as "current/total". 0 until the first
-    // query lands.
-    sf::base::U32 totalMatching{0};
+    // Page number to request on the next prefetch step. Steam's UGC
+    // pagination is 1-based; we keep firing for `nextPageToFetch` until
+    // either an empty page comes back or `catalog.size() >= expectedTotal`,
+    // at which point `prefetchDone` is set.
+    int nextPageToFetch{1};
 
-    // Client-side text filter applied to the items received from Steam.
-    // Filters by title + description. Empty = show all.
+    // Total result count from the first QueryComplete -- the catalog is
+    // considered "full" once `catalog.size() >= expectedTotal`. Stays at
+    // 0 until the first page lands.
+    sf::base::U32 expectedTotal{0};
+
+    // True once the prefetch loop has drained every page (or hit an
+    // empty page). The per-frame driver in the screen only fires
+    // another query when this is false.
+    bool prefetchDone{false};
+
+    // Dedup set of `publishedFileId`s already in `catalog`. Insulates
+    // against Steam re-listing an item across pages if its ranking
+    // shifts mid-prefetch.
+    ankerl::unordered_dense::set<sf::base::U64> prefetchedFileIds;
+
+    // Client-side text filter applied to `catalog`. Filters by title +
+    // description. Empty = show all.
     sf::base::String search;
 
     // Resolved {publishedFileId, title} pairs used to display dependency
