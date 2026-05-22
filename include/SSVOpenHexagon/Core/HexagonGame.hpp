@@ -314,7 +314,7 @@ private:
     bool             inputImplCCW{false};
     bool             playerNowReadyToSwap{false};
 
-    sf::OutStringStream os;
+    sf::base::String os;
 
 
     // Color of the polygon in the center.

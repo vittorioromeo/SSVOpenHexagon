@@ -5,6 +5,9 @@
 
 #include "SFML/System/IO.hpp"
 
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Scn/ScnStdin.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- numeric args
 #include "SFML/Base/String.hpp"
 
 namespace
@@ -12,7 +15,7 @@ namespace
 
 [[nodiscard]] bool cin_getline_string(sf::base::String& result) noexcept
 {
-    return sf::getLine(sf::cIn(), result);
+    return sf::base::scnStdinReadLine(result);
 }
 
 } // namespace
@@ -21,13 +24,13 @@ int main(int argc, char* argv[])
 {
     if (argc < 1)
     {
-        sf::cErr() << "Fatal error: no executable specified" << sf::endL;
+        sf::base::printErrLn("Fatal error: no executable specified");
         return -1;
     }
 
     if (argc > 2)
     {
-        sf::cErr() << "Invalid number of arguments" << sf::endL;
+        sf::base::printErrLn("Invalid number of arguments");
         return -1;
     }
 
@@ -37,7 +40,7 @@ int main(int argc, char* argv[])
     auto controlSocketOpt = sf::UdpSocket::create(true /* isBlocking */);
     if (!controlSocketOpt.hasValue())
     {
-        sf::cErr() << "Failed to create UDP control socket\n";
+        sf::base::printErr("Failed to create UDP control socket\n");
         return -1;
     }
 
@@ -50,7 +53,7 @@ int main(int argc, char* argv[])
 
         if (controlSocket.send(packet, sf::IpAddress::LocalHost, 50'506) != sf::Socket::Status::Done)
         {
-            sf::cErr() << "Error sending control packet\n";
+            sf::base::printErr("Error sending control packet\n");
             return false;
         }
 
@@ -63,7 +66,7 @@ int main(int argc, char* argv[])
         {
             if (!cin_getline_string(stringBuf))
             {
-                sf::cErr() << "Error reading line from stdin\n";
+                sf::base::printErr("Error reading line from stdin\n");
                 continue;
             }
 

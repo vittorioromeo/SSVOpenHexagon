@@ -98,7 +98,7 @@ private:
     sf::base::Optional<sf::TcpSocket> _socket;
 
     sf::Packet          _packetBuffer;
-    sf::OutStringStream _errorOss;
+    sf::base::String _errorOss;
 
     HRTimePoint _lastHeartbeatTime;
 

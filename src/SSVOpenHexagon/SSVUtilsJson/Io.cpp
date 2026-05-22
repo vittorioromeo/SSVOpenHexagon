@@ -10,9 +10,8 @@
 
 #include "SFML/System/Path.hpp"
 
+#include "SFML/Base/Fmt/Fmt.hpp"
 #include "SFML/Base/String.hpp"
-
-#include <ostream>
 
 
 namespace ssvuj
@@ -26,7 +25,7 @@ namespace
     if (mReader.parse(mSrc, mObj, false))
         return true;
 
-    sf::cOut() << "ssvuj::logReadError:" << mReader.getFormattedErrorMessages() << "\nFrom: [" << mSrc << "]" << sf::endL;
+    sf::base::printLn("ssvuj::logReadError:{}\nFrom: [{}]", mReader.getFormattedErrorMessages(), mSrc);
 
     return false;
 }
@@ -95,19 +94,10 @@ std::pair<Obj, sf::base::String> getFromFileWithErrors(const sf::Path& mPath)
     return {result, error};
 }
 
-static void writeToStream(const Obj& mObj, std::ostream& mStream)
-{
-    Json::StyledStreamWriter writer;
-    writer.write(mStream, mObj);
-    mStream.flush();
-}
-
 void writeToString(const Obj& mObj, sf::base::String& mStr)
 {
-    sf::OutStringStream o;
-    std::ostream        tmp{o.rdbuf()};
-    writeToStream(mObj, tmp);
-    mStr = o.to<sf::base::String>();
+    Json::StyledStreamWriter writer;
+    writer.write(mStr, mObj);
 }
 
 void writeToFile(const Obj& mObj, const sf::Path& mPath)

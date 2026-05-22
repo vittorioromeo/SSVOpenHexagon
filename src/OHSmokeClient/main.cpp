@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 
     sf::Packet          outPacket;
     sf::Packet          inPacket;
-    sf::OutStringStream errOss;
+    sf::base::String errOss;
 
     for (int i = 0; i < count; ++i)
     {
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
                          "'%s')\n",
                          i + 1,
                          count,
-                         errOss.to<sf::base::String>().cStr());
+                         errOss.cStr());
             return 1;
         }
     }

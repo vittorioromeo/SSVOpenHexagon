@@ -2,6 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SFML/Base/Fmt/Fmt.hpp"
+
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Core/CustomTimeline.hpp"
@@ -613,10 +615,9 @@ void HexagonGame::initLua_LevelControl()
                                 .cStr());
         } catch (const std::runtime_error& mError)
         {
-            sf::cOut() << "[l_overrideScore] Runtime error on overriding score "
-                       << "with level \"" << levelData->name << "\": \n"
-                       << mError.what() << '\n'
-                       << sf::endL;
+            sf::base::printLn("[l_overrideScore] Runtime error on overriding score with level \"{}\": \n{}",
+                              levelData->name,
+                              mError.what());
             if (!Config::getDebug())
             {
                 goToMenu(false /* mSendScores */, true /* mError */);
@@ -872,9 +873,10 @@ try
     throw;
 } catch (const std::runtime_error& mError)
 {
-    sf::cOut() << "[runLuaFunctionIfExists] Runtime error on \"" << mName << "\" with level \"" << levelData->name << "\": \n"
-               << mError.what() << '\n'
-               << sf::endL;
+    sf::base::printLn("[runLuaFunctionIfExists] Runtime error on \"{}\" with level \"{}\": \n{}",
+                      mName,
+                      levelData->name,
+                      mError.what());
 
     if (!Config::getDebug())
     {
@@ -882,10 +884,9 @@ try
     }
 } catch (...)
 {
-    sf::cOut() << "[runLuaFunctionIfExists] Unknown runtime error on \"" << mName << "\" with level \""
-               << levelData->name << "\": \n"
-               << '\n'
-               << sf::endL;
+    sf::base::printLn("[runLuaFunctionIfExists] Unknown runtime error on \"{}\" with level \"{}\": \n",
+                      mName,
+                      levelData->name);
 
     if (!Config::getDebug())
     {

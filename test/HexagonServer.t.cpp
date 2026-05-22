@@ -125,7 +125,7 @@ int main()
     sf::Packet inPacket;
     TEST_ASSERT_EQ(toInt(receivePacketWithRetry(client1, inPacket, std::chrono::seconds(2))), toInt(Status::Done));
 
-    sf::OutStringStream        errOss;
+    sf::base::String        errOss;
     const hg::PVServerToClient decoded1 = hg::decodeServerToClientPacket(/* keyReceive */ nullptr, errOss, inPacket);
 
     TEST_ASSERT(decoded1.is<hg::STCPPublicKey>());

@@ -9,10 +9,13 @@
 
 #include "SFML/Network/Packet.hpp"
 
+#include "SFML/System/Fmt/FmtPath.hpp" // IWYU pragma: keep -- fmtArg(Path) for printErr("{}", path)
 #include "SFML/System/IO.hpp"
 #include "SFML/System/Path.hpp"
 
 #include "SFML/Base/Bitset.hpp"
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- printErr formats numeric args
 #include "SFML/Base/Builtin/Memcpy.hpp"
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Macros.hpp"
@@ -27,16 +30,18 @@
 namespace sf::base
 {
 template <::sf::base::SizeT N>
-OutStringStream& operator<<(OutStringStream& os, const Bitset<N>& b)
+FmtResult fmtArg(FmtSink& sink, const Bitset<N>& b, const FmtSpec&)
 {
     for (SizeT i = N; i-- != 0u;)
-        os << (b[i] ? '1' : '0');
-    return os;
+        SFML_BASE_FMT_TRY(sink.appendChar(b[i] ? '1' : '0'));
+
+    return FmtResult::ok;
 }
 
-template OutStringStream& operator<< <static_cast<::sf::base::SizeT>(::hg::input_bit::k_count)>(
-    OutStringStream&,
-    const Bitset<static_cast<::sf::base::SizeT>(::hg::input_bit::k_count)>&);
+template FmtResult fmtArg<static_cast<::sf::base::SizeT>(::hg::input_bit::k_count)>(
+    FmtSink&,
+    const Bitset<static_cast<::sf::base::SizeT>(::hg::input_bit::k_count)>&,
+    const FmtSpec&);
 
 } // namespace sf::base
 
@@ -45,7 +50,7 @@ namespace hg
 
 [[gnu::cold]] static void printTryFailure(const char* code)
 {
-    ::sf::cErr() << "Failed [de]serialization operation '" << code << "'\n";
+    sf::base::printErr("Failed [de]serialization operation '{}'\n", code);
 }
 
 #define SSVOH_TRY(...)                     \
@@ -352,7 +357,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
     fileBuf.clear();
     if (!sf::readFromFile(p, fileBuf))
     {
-        sf::cErr() << "Couldn't open replay path '" << p << "'\n";
+        sf::base::printErr("Couldn't open replay path '{}'\n", p);
         return false;
     }
 
@@ -442,7 +447,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
     _data.clear();
     if (!sf::readFromFile(p, _data))
     {
-        sf::cErr() << "Couldn't open compressed replay path '" << p << "'\n";
+        sf::base::printErr("Couldn't open compressed replay path '{}'\n", p);
         return false;
     }
 
@@ -507,7 +512,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 
     if (rc != Z_OK)
     {
-        sf::cErr() << "Failed compression of replay file, error code: '" << rc << "'\n";
+        sf::base::printErr("Failed compression of replay file, error code: '{}'\n", rc);
 
         return sf::base::nullOpt;
     }
@@ -532,7 +537,7 @@ static constexpr sf::base::SizeT buf_size{2'097'152}; // 2MB
 
     if (rc != Z_OK)
     {
-        sf::cErr() << "Failed compression of replay file, error code: '" << rc << "'\n";
+        sf::base::printErr("Failed compression of replay file, error code: '{}'\n", rc);
 
         return sf::base::nullOpt;
     }

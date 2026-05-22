@@ -2,6 +2,9 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- numeric args
+
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
@@ -103,7 +106,7 @@ try
         TEST_ASSERT(score2.hasValue());
         const double replayPlayedTimeSeconds = score2.value().playedTimeSeconds;
 
-        sf::cErr() << score << " == " << replayPlayedTimeSeconds << sf::endL;
+        sf::base::printErrLn("{} == {}", score, replayPlayedTimeSeconds);
 
         TEST_ASSERT_EQ(score, replayPlayedTimeSeconds);
     };
@@ -127,8 +130,8 @@ try
     return 0;
 } catch (const std::runtime_error& e)
 {
-    sf::cErr() << "EXCEPTION: " << e.what() << sf::endL;
+    sf::base::printErrLn("EXCEPTION: {}", e.what());
 } catch (...)
 {
-    sf::cErr() << "EXCEPTION: unknown" << sf::endL;
+    sf::base::printErrLn("EXCEPTION: unknown");
 }

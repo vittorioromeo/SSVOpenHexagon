@@ -35,6 +35,8 @@
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtAppendMixin.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Trait/Decay.hpp"
@@ -1807,13 +1809,13 @@ void printDocs()
 
     for (sf::base::SizeT i = 0; i < lm.getNumCategories(); ++i)
     {
-        sf::cOut() << '\n' << lm.prefixHeaders[i] << "\n\n";
+        sf::base::print("\n{}\n\n", lm.prefixHeaders[i]);
 
         lm.forFnEntries([](const sf::base::String& ret,
                            const sf::base::String& name,
                            const sf::base::String& args,
                            const sf::base::String& docs)
-        { sf::cOut() << "* **`" << ret << " " << name << "(" << args << ")`**: " << docs << "\n\n"; },
+        { sf::base::print("* **`{} {}({})`**: {}\n\n", ret, name, args, docs); },
                         i);
     }
 }
@@ -1846,7 +1848,7 @@ sf::base::String getDocsForFunction(const sf::base::String& fnName)
     Utils::LuaMetadata& lm = getMetadata();
 
     bool                found = false;
-    sf::OutStringStream oss;
+    sf::base::String oss;
 
     for (sf::base::SizeT i = 0; i < lm.getNumCategories(); ++i)
     {
@@ -1860,7 +1862,7 @@ sf::base::String getDocsForFunction(const sf::base::String& fnName)
 
             found = true;
 
-            oss << ret << " " << name << "(" << args << "):\n" << docs << "\n\n";
+            oss.appendFmt("{} {}({}):\n{}\n\n", ret, name, args, docs);
         },
             i);
     }
@@ -1870,7 +1872,7 @@ sf::base::String getDocsForFunction(const sf::base::String& fnName)
         return "UNKNOWN FUNCTION";
     }
 
-    return oss.to<sf::base::String>();
+    return oss;
 }
 
 } // namespace hg::LuaScripting

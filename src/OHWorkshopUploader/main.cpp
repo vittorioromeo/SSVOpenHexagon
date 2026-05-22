@@ -7,27 +7,47 @@
 #include "steam/steamtypes.h"
 
 #include "SFML/System/Atomic.hpp"
-#include "SFML/System/IO.hpp"
+#include "SFML/System/Fmt/FmtPath.hpp" // IWYU pragma: keep -- fmtArg(Path) used in log() args below
 #include "SFML/System/Path.hpp"
 
 #include "SFML/Base/FixedFunction.hpp"
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- numeric args
+#include "SFML/Base/Macros.hpp"
+#include "SFML/Base/NonDeduced.hpp"
+#include "SFML/Base/Optional.hpp"
+#include "SFML/Base/Scn/ScnNumeric.hpp" // IWYU pragma: keep -- scnStdin<int>
+#include "SFML/Base/Scn/ScnStdin.hpp"
+#include "SFML/Base/Scn/ScnString.hpp" // IWYU pragma: keep -- scnStdinReadLine target type
 #include "SFML/Base/StdChrono.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 
 #include <inttypes.h> // Steam libs need this.
-#include <ios>
-#include <limits>
 #include <optional>
 
 #include <cassert>
+#include <cmath>
 
 // ----------------------------------------------------------------------------
 // Utilities.
-[[nodiscard]] sf::IOStreamOutput& log(const sf::base::StringView category) noexcept
+
+template <typename... Args>
+void log(const sf::base::StringView                                              category,
+         typename sf::base::NonDeduced<const sf::base::FmtString<Args...>>::type fmtStr,
+         const Args&... args) noexcept
 {
-    sf::cOut() << "[" << category << "] ";
-    return sf::cOut();
+    sf::base::print("[{}] ", category);
+    sf::base::print(fmtStr, args...);
+}
+
+template <typename... Args>
+void logLn(const sf::base::StringView                                              category,
+           typename sf::base::NonDeduced<const sf::base::FmtString<Args...>>::type fmtStr,
+           const Args&... args) noexcept
+{
+    sf::base::print("[{}] ", category);
+    sf::base::printLn(fmtStr, args...);
 }
 
 template <typename F>
@@ -46,24 +66,22 @@ struct scope_guard : F
 template <typename T>
 [[nodiscard]] T read_integer() noexcept
 {
-    T result;
-    while (!(sf::cIn() >> result))
+    while (true)
     {
-        sf::cIn().clear();
-        sf::cIn().ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        if (const sf::base::Optional<T> parsed = sf::base::scnStdin<T>(); parsed.hasValue())
+        {
+            sf::base::scnStdinIgnoreLine();
+            return *parsed;
+        }
 
-        sf::cOut() << "Please insert an integer.\n";
+        sf::base::scnStdinIgnoreLine();
+        sf::base::print("Please insert an integer.\n");
     }
-
-    sf::cIn().clear();
-    sf::cIn().ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    return result;
 }
 
 [[nodiscard]] bool cin_getline_string(sf::base::String& result) noexcept
 {
-    return sf::getLine(sf::cIn(), result);
+    return sf::base::scnStdinReadLine(result);
 }
 
 [[nodiscard]] bool cin_getline_path(sf::Path& result) noexcept
@@ -75,7 +93,7 @@ template <typename T>
         return false;
     }
 
-    sf::cOut() << "Read '" << buf << "'\n";
+    sf::base::print("Read '{}'\n", buf);
     result = sf::Path{buf.cStr()};
 
     return true;
@@ -87,7 +105,7 @@ template <typename T>
 
     while (!cin_getline_path(result) || !result.exists() || !result.isDirectory())
     {
-        sf::cOut() << "Please insert a valid path to an existing directory.\n";
+        sf::base::print("Please insert a valid path to an existing directory.\n");
     }
 
     return result;
@@ -99,7 +117,7 @@ template <typename T>
 
     while (!cin_getline_path(result) || !result.exists() || !result.isRegularFile())
     {
-        sf::cOut() << "Please insert a valid path to an existing file.\n";
+        sf::base::print("Please insert a valid path to an existing file.\n");
     }
 
     return result;
@@ -134,15 +152,15 @@ private:
     // Initialization utils.
     [[nodiscard]] static bool initialize_steamworks()
     {
-        log("Steam") << "Initializing Steam API\n";
+        logLn("Steam", "Initializing Steam API");
 
         if (SteamAPI_Init())
         {
-            log("Steam") << "Steam API successfully initialized\n";
+            logLn("Steam", "Steam API successfully initialized");
             return true;
         }
 
-        log("Steam") << "Failed to initialize Steam API\n";
+        logLn("Steam", "Failed to initialize Steam API");
         return false;
     }
 
@@ -289,20 +307,19 @@ private:
 
         if (io_failure)
         {
-            log("Steam") << "Error creating item. IO failure.\n";
+            logLn("Steam", "Error creating item. IO failure.");
             return;
         }
 
         if (const EResult rc = result->m_eResult; rc != EResult::k_EResultOK)
         {
-            log("Steam") << "Error creating item. Error code '" << static_cast<int>(rc) << "' (" << result_to_string(rc)
-                         << ")\n";
+            logLn("Steam", "Error creating item. Error code '{}' ({})", static_cast<int>(rc), result_to_string(rc));
 
             return;
         }
 
         const PublishedFileId_t fileId = result->m_nPublishedFileId;
-        log("Steam") << "Successfully created workshop item with id '" << fileId << "'\n";
+        logLn("Steam", "Successfully created workshop item with id '{}'", fileId);
 
         assert(_create_item_continuation);
         _create_item_continuation(fileId);
@@ -315,15 +332,14 @@ private:
 
         if (io_failure)
         {
-            log("Steam") << "Error creating item. IO failure.\n";
+            logLn("Steam", "Error creating item. IO failure.");
             return;
         }
 
 
         if (const EResult rc = result->m_eResult; rc != EResult::k_EResultOK)
         {
-            log("Steam") << "Error updating item. Error code '" << static_cast<int>(rc) << "' (" << result_to_string(rc)
-                         << ")\n";
+            logLn("Steam", "Error updating item. Error code '{}' ({})", static_cast<int>(rc), result_to_string(rc));
 
             return;
         }
@@ -342,9 +358,9 @@ public:
     {
         if (_initialized)
         {
-            log("Steam") << "Shutting down Steam API\n";
+            logLn("Steam", "Shutting down Steam API");
             SteamAPI_Shutdown();
-            log("Steam") << "Shut down Steam API\n";
+            logLn("Steam", "Shut down Steam API");
         }
     }
 
@@ -355,7 +371,7 @@ public:
             return;
         }
 
-        log("Steam") << "Creating workshop item...\n";
+        logLn("Steam", "Creating workshop item...");
         add_pending_operation();
 
         const SteamAPICall_t api_call = SteamUGC()->CreateItem(oh_app_id, EWorkshopFileType::k_EWorkshopFileTypeCommunity);
@@ -370,7 +386,7 @@ public:
 
         if (handle == k_UGCUpdateHandleInvalid)
         {
-            log("Steam") << "Invalid update handle for file id '" << item_id << "'\n";
+            logLn("Steam", "Invalid update handle for file id '{}'", item_id);
 
             return std::nullopt;
         }
@@ -386,7 +402,7 @@ public:
         const sf::base::String s = directory_path.to<sf::base::String>();
         if (!SteamUGC()->SetItemContent(update_handle, s.cStr()))
         {
-            log("Steam") << "Failed to set workshop item contents from path '" << directory_path << "'\n";
+            logLn("Steam", "Failed to set workshop item contents from path '{}'", directory_path);
 
             return false;
         }
@@ -402,7 +418,7 @@ public:
         const sf::base::String s = file_path.to<sf::base::String>();
         if (!SteamUGC()->SetItemPreview(update_handle, s.cStr()))
         {
-            log("Steam") << "Failed to set workshop item preview image from path '" << file_path << "'\n";
+            logLn("Steam", "Failed to set workshop item preview image from path '{}'", file_path);
 
             return false;
         }
@@ -412,7 +428,7 @@ public:
 
     void submit_item_update(const UGCUpdateHandle_t handle, const char* change_note, submit_item_continuation&& continuation) noexcept
     {
-        log("Steam") << "Submitting workshop item update...\n";
+        logLn("Steam", "Submitting workshop item update...");
         add_pending_operation();
 
         const SteamAPICall_t api_call = SteamUGC()->SubmitItemUpdate(handle, change_note);
@@ -445,7 +461,7 @@ public:
     void add_pending_operation() noexcept
     {
         _pending_operations.fetchAddRelaxed(1);
-        log("Steam") << "Added pending operation\n";
+        logLn("Steam", "Added pending operation");
     }
 
     void remove_pending_operation() noexcept
@@ -453,7 +469,7 @@ public:
         assert(any_pending_operation());
 
         _pending_operations.fetchSubRelaxed(1);
-        log("Steam") << "Removed pending operation\n";
+        logLn("Steam", "Removed pending operation");
     }
 };
 
@@ -477,50 +493,49 @@ private:
     void create_new_workshop_item()
     {
         _steam_helper.create_workshop_item([](const PublishedFileId_t item_id)
-        { sf::cOut() << "Successfully created new workshop item: " << item_id << ".\n"; });
+        { sf::base::print("Successfully created new workshop item: {}.\n", item_id); });
     }
 
     void upload_contents_to_existing_workshop_item()
     {
-        sf::cOut() << "Enter the workshop item id to upload contents to:\n";
+        sf::base::print("Enter the workshop item id to upload contents to:\n");
         const auto item_id = read_integer<PublishedFileId_t>();
 
         const std::optional<UGCUpdateHandle_t> update_handle = _steam_helper.start_workshop_item_update(item_id);
 
         if (!update_handle.has_value())
         {
-            log("CLI") << "Failure getting update handle\n";
+            logLn("CLI", "Failure getting update handle");
             return;
         }
 
-        sf::cOut() << "Enter the path to the folder containing the contents:\n";
+        sf::base::print("Enter the path to the folder containing the contents:\n");
         const sf::Path directory_path = read_directory_path();
 
         if (!_steam_helper.set_workshop_item_content(update_handle.value(), directory_path))
         {
-            log("CLI") << "Failure setting workshop item content\n";
+            logLn("CLI", "Failure setting workshop item content");
             return;
         }
 
-        sf::cOut() << "Enter changelog note:\n";
+        sf::base::print("Enter changelog note:\n");
 
         sf::base::String changelog_note;
         while (!cin_getline_string(changelog_note))
         {
-            sf::cOut() << "Error reading changelog note, please try again\n";
+            sf::base::print("Error reading changelog note, please try again\n");
         }
 
-        log("CLI") << "Uploading contents to Steam servers...\n";
+        logLn("CLI", "Uploading contents to Steam servers...");
 
         _steam_helper.submit_item_update(update_handle.value(), changelog_note.cStr(), [item_id] {
-            sf::cOut() << "Successfully updated workshop item: " << item_id << ".\n";
+            sf::base::print("Successfully updated workshop item: {}.\n", item_id);
         });
     }
 
     void set_preview_image_of_existing_workshop_item()
     {
-        sf::cOut() << "Enter the workshop item id whose preview image will be "
-                      "changed:\n";
+        sf::base::print("Enter the workshop item id whose preview image will be changed:\n");
 
         const auto item_id = read_integer<PublishedFileId_t>();
 
@@ -528,37 +543,37 @@ private:
 
         if (!update_handle.has_value())
         {
-            log("CLI") << "Failure getting update handle\n";
+            logLn("CLI", "Failure getting update handle");
             return;
         }
 
-        sf::cOut() << "Enter the path of the new preview image file:\n";
+        sf::base::print("Enter the path of the new preview image file:\n");
         const sf::Path file_path = read_file_path();
 
         if (!_steam_helper.set_workshop_item_preview_image(update_handle.value(), file_path))
         {
-            log("CLI") << "Failure setting workshop item preview image\n";
+            logLn("CLI", "Failure setting workshop item preview image");
             return;
         }
 
-        sf::cOut() << "Enter changelog note:\n";
+        sf::base::print("Enter changelog note:\n");
 
         sf::base::String changelog_note;
         while (!cin_getline_string(changelog_note))
         {
-            sf::cOut() << "Error reading changelog note, please try again\n";
+            sf::base::print("Error reading changelog note, please try again\n");
         }
 
-        log("CLI") << "Uploading preview image to Steam servers...\n";
+        logLn("CLI", "Uploading preview image to Steam servers...");
 
         _steam_helper.submit_item_update(update_handle.value(), changelog_note.cStr(), [item_id] {
-            sf::cOut() << "Successfully updated workshop item: " << item_id << ".\n";
+            sf::base::print("Successfully updated workshop item: {}.\n", item_id);
         });
     }
 
     [[nodiscard]] bool main_menu() noexcept
     {
-        sf::cOut() << R"(Welcome! Please visit the following webpage for more information:
+        sf::base::print(R"(Welcome! Please visit the following webpage for more information:
 https://openhexagon.org/workshop
 
 Enter one of the following options:
@@ -566,7 +581,7 @@ Enter one of the following options:
 1. Upload contents of an existing workshop item.
 2. Set preview image of an existing workshop item.
 3. Exit
-)";
+)");
 
         const auto choice = read_integer<int>();
 
@@ -593,7 +608,7 @@ Enter one of the following options:
             return false;
         }
 
-        sf::cOut() << "Invalid choice.\n";
+        sf::base::print("Invalid choice.\n");
         return true;
     }
 
@@ -618,12 +633,12 @@ public:
         {
             if (!poll_steam_callbacks())
             {
-                log("CLI") << "Failure polling callbacks\n";
+                logLn("CLI", "Failure polling callbacks");
                 return false;
             }
         }
 
-        log("CLI") << "Finished\n";
+        logLn("CLI", "Finished");
         return true;
     }
 
@@ -638,13 +653,13 @@ public:
         {
             if (!_steam_helper.run_callbacks())
             {
-                log("CLI") << "Could not run Steam API callbacks\n";
+                logLn("CLI", "Could not run Steam API callbacks");
                 return false;
             }
 
             if (clock::now() - loop_begin_time > std::chrono::seconds(240))
             {
-                log("CLI") << "Timed out\n";
+                logLn("CLI", "Timed out");
                 return false;
             }
         }
@@ -663,7 +678,7 @@ int main()
 
     if (!steam.initialized())
     {
-        log("Main") << "Could not initialize Steam API, exiting...\n";
+        logLn("Main", "Could not initialize Steam API, exiting...");
         return 1;
     }
 

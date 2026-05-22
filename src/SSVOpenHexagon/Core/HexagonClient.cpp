@@ -568,14 +568,14 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         return fail();
     }
 
-    _errorOss.setStr("");
+    _errorOss.clear();
     const PVServerToClient pv = decodeServerToClientPacket(_clientRTKeys.hasValue() ? &_clientRTKeys->keyReceive : nullptr,
                                                            _errorOss,
                                                            p);
 
     return pv.linearMatch( //
 
-        [&](const PInvalid&) { return fail("Error processing packet from server, details: ", _errorOss.getString()); },
+        [&](const PInvalid&) { return fail("Error processing packet from server, details: ", _errorOss); },
 
         [&](const PEncryptedMsg&) { return fail("Received non-decrypted encrypted msg packet from server"); },
 

@@ -15,6 +15,9 @@
 #include "SFML/System/IO.hpp"
 
 #include "SFML/Base/Array.hpp"
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtAppendMixin.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- fmtTo formats numeric args
 #include "SFML/Base/IntTypes.hpp"
 #include "SFML/Base/Macros.hpp"
 #include "SFML/Base/MiniPFR.hpp"
@@ -104,18 +107,18 @@ void encodePacketType(sf::Packet& p, const T&)
 }
 
 template <typename T>
-[[nodiscard]] bool extractInto(T& target, sf::OutStringStream& errorOss, sf::Packet& p);
+[[nodiscard]] bool extractInto(T& target, sf::base::String& errorOss, sf::Packet& p);
 
 template <typename T, typename = void>
 struct Extractor
 {
     template <typename U = T>
-    [[nodiscard]] static auto doExtractIntoImpl(U& target, sf::OutStringStream& errorOss, sf::Packet& p, int)
+    [[nodiscard]] static auto doExtractIntoImpl(U& target, sf::base::String& errorOss, sf::Packet& p, int)
         -> decltype((p >> target), bool())
     {
         if (!(p >> target))
         {
-            errorOss << "Error extracting single object\n";
+            errorOss += "Error extracting single object\n";
             return false;
         }
 
@@ -123,7 +126,7 @@ struct Extractor
     }
 
     template <typename U = T>
-    [[nodiscard]] static bool doExtractIntoImpl(U& target, sf::OutStringStream& errorOss, sf::Packet& p, long)
+    [[nodiscard]] static bool doExtractIntoImpl(U& target, sf::base::String& errorOss, sf::Packet& p, long)
     {
         bool result = true;
 
@@ -142,7 +145,7 @@ struct Extractor
         return result;
     }
 
-    [[nodiscard]] static bool doExtractInto(T& target, sf::OutStringStream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(T& target, sf::base::String& errorOss, sf::Packet& p)
     {
         return doExtractIntoImpl(target, errorOss, p, 0);
     }
@@ -153,7 +156,7 @@ struct Extractor<sf::base::Array<T, N>>
 {
     using Type = sf::base::Array<T, N>;
 
-    [[nodiscard]] static bool doExtractInto(Type& result, sf::OutStringStream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, sf::base::String& errorOss, sf::Packet& p)
     {
         for (sf::base::SizeT i = 0; i < N; ++i)
         {
@@ -162,7 +165,7 @@ struct Extractor<sf::base::Array<T, N>>
                 continue;
             }
 
-            errorOss << "Error extracting array element at index '" << i << "'\n";
+            errorOss.appendFmt("Error extracting array element at index '{}'\n", i);
 
             return false;
         }
@@ -176,11 +179,11 @@ struct Extractor<sf::base::Array<T, N>>
 template <>
 struct Extractor<sf::base::String>
 {
-    [[nodiscard]] static bool doExtractInto(sf::base::String& result, sf::OutStringStream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(sf::base::String& result, sf::base::String& errorOss, sf::Packet& p)
     {
         if (!(p >> result))
         {
-            errorOss << "Error extracting sf::base::String\n";
+            errorOss += "Error extracting sf::base::String\n";
             return false;
         }
         return true;
@@ -192,12 +195,12 @@ struct Extractor<sf::base::Vector<T>>
 {
     using Type = sf::base::Vector<T>;
 
-    [[nodiscard]] static bool doExtractInto(Type& result, sf::OutStringStream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, sf::base::String& errorOss, sf::Packet& p)
     {
         sf::base::U64 size;
         if (!(p >> size))
         {
-            errorOss << "Error extracting vector size\n";
+            errorOss += "Error extracting vector size\n";
             return false;
         }
 
@@ -210,7 +213,7 @@ struct Extractor<sf::base::Vector<T>>
                 continue;
             }
 
-            errorOss << "Error extracting vector element at index '" << i << "'\n";
+            errorOss.appendFmt("Error extracting vector element at index '{}'\n", i);
 
             return false;
         }
@@ -224,12 +227,12 @@ struct Extractor<sf::base::Optional<T>>
 {
     using Type = sf::base::Optional<T>;
 
-    [[nodiscard]] static bool doExtractInto(Type& result, sf::OutStringStream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, sf::base::String& errorOss, sf::Packet& p)
     {
         bool set;
         if (!(p >> set))
         {
-            errorOss << "Error extracting optional set flag\n";
+            errorOss += "Error extracting optional set flag\n";
             return false;
         }
 
@@ -243,7 +246,7 @@ struct Extractor<sf::base::Optional<T>>
 
         if (!extractInto(*result, errorOss, p))
         {
-            errorOss << "Error extracting optional element\n";
+            errorOss += "Error extracting optional element\n";
             return false;
         }
 
@@ -256,11 +259,11 @@ struct Extractor<hg::replay_file>
 {
     using Type = hg::replay_file;
 
-    [[nodiscard]] static bool doExtractInto(Type& result, sf::OutStringStream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, sf::base::String& errorOss, sf::Packet& p)
     {
         if (!result.deserialize_from_packet(p))
         {
-            errorOss << "Error deserializing replay\n";
+            errorOss += "Error deserializing replay\n";
             return false;
         }
 
@@ -273,11 +276,11 @@ struct Extractor<hg::compressed_replay_file>
 {
     using Type = hg::compressed_replay_file;
 
-    [[nodiscard]] static bool doExtractInto(Type& result, sf::OutStringStream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, sf::base::String& errorOss, sf::Packet& p)
     {
         if (!result.deserialize_from_packet(p))
         {
-            errorOss << "Error deserializing compressed replay\n";
+            errorOss += "Error deserializing compressed replay\n";
             return false;
         }
 
@@ -290,26 +293,26 @@ struct Extractor<hg::GameVersion>
 {
     using Type = hg::GameVersion;
 
-    [[nodiscard]] static bool doExtractInto(Type& result, sf::OutStringStream& errorOss, sf::Packet& p)
+    [[nodiscard]] static bool doExtractInto(Type& result, sf::base::String& errorOss, sf::Packet& p)
     {
         sf::base::I32 major;
         if (!(p >> major))
         {
-            errorOss << "Error deserializing major version\n";
+            errorOss += "Error deserializing major version\n";
             return false;
         }
 
         sf::base::I32 minor;
         if (!(p >> minor))
         {
-            errorOss << "Error deserializing minor version\n";
+            errorOss += "Error deserializing minor version\n";
             return false;
         }
 
         sf::base::I32 micro;
         if (!(p >> micro))
         {
-            errorOss << "Error deserializing micro version\n";
+            errorOss += "Error deserializing micro version\n";
             return false;
         }
 
@@ -322,13 +325,13 @@ struct Extractor<hg::GameVersion>
 };
 
 template <typename T>
-[[nodiscard]] bool extractInto(T& target, sf::OutStringStream& errorOss, sf::Packet& p)
+[[nodiscard]] bool extractInto(T& target, sf::base::String& errorOss, sf::Packet& p)
 {
     return Extractor<T>::doExtractInto(target, errorOss, p);
 }
 
 template <typename T>
-[[nodiscard]] sf::base::Optional<T> extract(sf::OutStringStream& errorOss, sf::Packet& p)
+[[nodiscard]] sf::base::Optional<T> extract(sf::base::String& errorOss, sf::Packet& p)
 {
     T temp;
 
@@ -341,7 +344,7 @@ template <typename T>
 }
 
 template <typename T>
-[[nodiscard]] auto makeAlwaysTrueMatcher(sf::OutStringStream& errorOss, sf::Packet& p)
+[[nodiscard]] auto makeAlwaysTrueMatcher(sf::base::String& errorOss, sf::Packet& p)
 {
     return [&](const char* name) -> bool
     {
@@ -349,7 +352,7 @@ template <typename T>
 
         if (!extractInto<T>(temp, errorOss, p))
         {
-            errorOss << "Error extracting " << name << '\n';
+            errorOss.appendFmt("Error extracting {}\n", name);
             return false;
         }
 
@@ -360,11 +363,11 @@ template <typename T>
 class AdvancedMatcher
 {
 private:
-    sf::OutStringStream& _errorOss;
+    sf::base::String& _errorOss;
     sf::Packet&          _p;
 
 public:
-    [[nodiscard]] explicit AdvancedMatcher(sf::OutStringStream& errorOss, sf::Packet& p) : _errorOss{errorOss}, _p{p}
+    [[nodiscard]] explicit AdvancedMatcher(sf::base::String& errorOss, sf::Packet& p) : _errorOss{errorOss}, _p{p}
     {
     }
 
@@ -373,7 +376,7 @@ public:
     {
         if (!extractInto<T>(target, _errorOss, _p))
         {
-            _errorOss << "Error extracting " << name << '\n';
+            _errorOss.appendFmt("Error extracting {}\n", name);
             return false;
         }
 
@@ -390,8 +393,10 @@ public:
 
         if (target != expected)
         {
-            _errorOss << "Error, " << name << " has value '" << target << ", which doesn't match expected value '"
-                      << expected << "'\n";
+            _errorOss.appendFmt("Error, {} has value '{}, which doesn't match expected value '{}'\n",
+                                name,
+                                target,
+                                expected);
 
             return false;
         }
@@ -428,20 +433,20 @@ public:
 };
 
 template <typename T>
-[[nodiscard]] auto makeMatcher(sf::OutStringStream& errorOss, sf::Packet& p)
+[[nodiscard]] auto makeMatcher(sf::base::String& errorOss, sf::Packet& p)
 {
     return [&](const char* name, const T& expected) -> bool
     { return AdvancedMatcher{errorOss, p}.matchOrPrintError<T>(name, expected); };
 }
 
 template <typename T>
-[[nodiscard]] auto makeExtractor(sf::OutStringStream& errorOss, sf::Packet& p)
+[[nodiscard]] auto makeExtractor(sf::base::String& errorOss, sf::Packet& p)
 {
     return [&](const char* name) -> sf::base::Optional<T>
     { return AdvancedMatcher{errorOss, p}.extractOrPrintError<T>(name); };
 }
 
-[[nodiscard]] bool verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(sf::OutStringStream& errorOss, sf::Packet& p)
+[[nodiscard]] bool verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(sf::base::String& errorOss, sf::Packet& p)
 {
     AdvancedMatcher m{errorOss, p};
 
@@ -456,7 +461,7 @@ template <typename T>
         m.skipOrPrintError<sf::base::U8>("micro version");
 }
 
-[[nodiscard]] sf::base::Optional<PacketType> extractPacketType(sf::OutStringStream& errorOss, sf::Packet& p)
+[[nodiscard]] sf::base::Optional<PacketType> extractPacketType(sf::base::String& errorOss, sf::Packet& p)
 {
     const sf::base::Optional<sf::base::U8> extracted = makeExtractor<sf::base::U8>(errorOss, p)("packet type");
 
@@ -606,7 +611,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
     }
 }
 
-[[nodiscard]] bool decryptPacket(sf::OutStringStream&         errorOss,
+[[nodiscard]] bool decryptPacket(sf::base::String&         errorOss,
                                  sf::Packet&                  p,
                                  const SodiumReceiveKeyArray& keyReceive,
                                  sf::Packet&                  decryptedPacket)
@@ -614,21 +619,21 @@ void encodeOHPacket(sf::Packet& p, const T& data)
     SodiumNonceArray nonce;
     if (!extractInto(nonce, errorOss, p))
     {
-        errorOss << "Error decoding client nonce\n";
+        errorOss += "Error decoding client nonce\n";
         return false;
     }
 
     sf::base::U64 messageLength;
     if (!extractInto(messageLength, errorOss, p))
     {
-        errorOss << "Error decoding client message length\n";
+        errorOss += "Error decoding client message length\n";
         return false;
     }
 
     sf::base::U64 ciphertextLength;
     if (!extractInto(ciphertextLength, errorOss, p))
     {
-        errorOss << "Error decoding client ciphertext length\n";
+        errorOss += "Error decoding client ciphertext length\n";
         return false;
     }
 
@@ -642,7 +647,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
             continue;
         }
 
-        errorOss << "Error decoding client ciphertext at index '" << i << "'\n";
+        errorOss.appendFmt("Error decoding client ciphertext at index '{}'\n", i);
 
         return false;
     }
@@ -652,7 +657,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
 
     if (crypto_secretbox_open_easy(message.data(), ciphertext.data(), ciphertextLength, nonce.data(), keyReceive.data()) != 0)
     {
-        errorOss << "Failure decrypting encrypted client message\n";
+        errorOss += "Failure decrypting encrypted client message\n";
         return false;
     }
 
@@ -739,7 +744,7 @@ SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS_ENCRYPTED, NOTHING)
                                                                                         \
             if (!extractAllMembers(result))                                             \
             {                                                                           \
-                return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}}; \
+                return VariantType{PInvalid{.error = errorOss}}; \
             }                                                                           \
                                                                                         \
             return VariantType{result};                                                 \
@@ -751,14 +756,14 @@ SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS_ENCRYPTED, NOTHING)
                                                                                     \
     if (!pt.hasValue())                                                             \
     {                                                                               \
-        return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};     \
+        return VariantType{PInvalid{.error = errorOss}};     \
     }                                                                               \
                                                                                     \
     if (*pt == getPacketType<PEncryptedMsg>())                                      \
     {                                                                               \
         if (!decodeEncryptedPacket(keyReceive, errorOss, p))                        \
         {                                                                           \
-            return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}}; \
+            return VariantType{PInvalid{.error = errorOss}}; \
         }                                                                           \
                                                                                     \
         return function(keyReceive, errorOss, getStaticPacketBuffer());             \
@@ -771,7 +776,7 @@ SSVOH_CTS_PACKETS_X(INSTANTIATE_MAKE_CTS_ENCRYPTED, NOTHING)
 
 // ----------------------------------------------------------------------------
 
-static auto makeExtractAllMembers(sf::OutStringStream& errorOss, sf::Packet& p)
+static auto makeExtractAllMembers(sf::base::String& errorOss, sf::Packet& p)
 {
     return [&]<typename T>(T& target)
     {
@@ -785,7 +790,7 @@ static auto makeExtractAllMembers(sf::OutStringStream& errorOss, sf::Packet& p)
             {
                 if (!extractInto(field, errorOss, p))
                 {
-                    errorOss << "Error decoding field #" << i << " \n";
+                    errorOss.appendFmt("Error decoding field #{} \n", i);
                     success = false;
                 }
                 ++i;
@@ -797,12 +802,12 @@ static auto makeExtractAllMembers(sf::OutStringStream& errorOss, sf::Packet& p)
 }
 
 [[nodiscard]] static bool decodeEncryptedPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                sf::OutStringStream&         errorOss,
+                                                sf::base::String&         errorOss,
                                                 sf::Packet&                  p)
 {
     if (keyReceive == nullptr)
     {
-        errorOss << "Cannot decode encrypted message without receive key\n";
+        errorOss += "Cannot decode encrypted message without receive key\n";
         return false;
     }
 
@@ -817,20 +822,20 @@ static auto makeExtractAllMembers(sf::OutStringStream& errorOss, sf::Packet& p)
 // ----------------------------------------------------------------------------
 
 template <typename VariantType, typename... Ts>
-VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::OutStringStream& errorOss, sf::Packet& p, auto&& func)
+VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::base::String& errorOss, sf::Packet& p, auto&& func)
 {
     const sf::base::Optional<PacketType> pt = extractPacketType(errorOss, p);
 
     if (!pt.hasValue())
     {
-        return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};
+        return VariantType{PInvalid{.error = errorOss}};
     }
 
     if (*pt == getPacketType<PEncryptedMsg>())
     {
         if (!decodeEncryptedPacket(keyReceive, errorOss, p))
         {
-            return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};
+            return VariantType{PInvalid{.error = errorOss}};
         }
 
         return func(keyReceive, errorOss, getStaticPacketBuffer());
@@ -852,7 +857,7 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::OutSt
 
             if (!extractAllMembers(result))
             {
-                variantResult = VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};
+                variantResult = VariantType{PInvalid{.error = errorOss}};
             }
 
             variantResult = VariantType{result};
@@ -861,8 +866,8 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::OutSt
 
     if (!found)
     {
-        errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
-        return VariantType{PInvalid{.error = errorOss.to<sf::base::String>()}};
+        errorOss.appendFmt("Unknown packet type '{}'\n", static_cast<int>(*pt));
+        return VariantType{PInvalid{.error = errorOss}};
     }
 
     return variantResult;
@@ -871,19 +876,19 @@ VariantType packetHandlerImpl(const SodiumReceiveKeyArray* keyReceive, sf::OutSt
 // ----------------------------------------------------------------------------
 
 [[nodiscard]] static PVClientToServer decodeClientToServerPacketInner(const SodiumReceiveKeyArray* keyReceive,
-                                                                      sf::OutStringStream&         errorOss,
+                                                                      sf::base::String&         errorOss,
                                                                       sf::Packet&                  p)
 {
     return packetHandlerImpl<PVClientToServer, SSVOH_CTS_PACKETS>(keyReceive, errorOss, p, decodeClientToServerPacketInner);
 }
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                          sf::OutStringStream&         errorOss,
+                                                          sf::base::String&         errorOss,
                                                           sf::Packet&                  p)
 {
     if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(errorOss, p))
     {
-        return PVClientToServer{PInvalid{.error = errorOss.to<sf::base::String>()}};
+        return PVClientToServer{PInvalid{.error = errorOss}};
     }
 
     return decodeClientToServerPacketInner(keyReceive, errorOss, p);
@@ -922,19 +927,19 @@ SSVOH_STC_PACKETS_X(INSTANTIATE_MAKE_STC_ENCRYPTED, NOTHING)
 // ----------------------------------------------------------------------------
 
 [[nodiscard]] static PVServerToClient decodeServerToClientPacketInner(const SodiumReceiveKeyArray* keyReceive,
-                                                                      sf::OutStringStream&         errorOss,
+                                                                      sf::base::String&         errorOss,
                                                                       sf::Packet&                  p)
 {
     return packetHandlerImpl<PVServerToClient, SSVOH_STC_PACKETS>(keyReceive, errorOss, p, decodeServerToClientPacketInner);
 }
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                          sf::OutStringStream&         errorOss,
+                                                          sf::base::String&         errorOss,
                                                           sf::Packet&                  p)
 {
     if (!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(errorOss, p))
     {
-        return PVServerToClient{PInvalid{.error = errorOss.to<sf::base::String>()}};
+        return PVServerToClient{PInvalid{.error = errorOss}};
     }
 
     return decodeServerToClientPacketInner(keyReceive, errorOss, p);

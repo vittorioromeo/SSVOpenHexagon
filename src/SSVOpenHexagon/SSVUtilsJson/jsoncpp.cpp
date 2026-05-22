@@ -7,14 +7,13 @@
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 
 #include "SFML/Base/AnkerlUnorderedDense.hpp"
+#include "SFML/Base/Fmt/FmtSinkRef.hpp"
 #include "SFML/Base/Math/Floor.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Vector.hpp"
 
-#include <ios>
-#include <istream>
-#include <ostream>
 #include <stdexcept>
 #include <string>
 
@@ -953,30 +952,6 @@ sf::base::String Reader::getFormattedErrorMessages() const
                                 " for detail.\n";
     }
     return formattedMessage;
-}
-
-////////////////////////////////////////////////////////////
-// JsonStream support
-////////////////////////////////////////////////////////////
-
-bool parse(Reader& reader, std::istream& sin, Value& root, bool collectComments)
-{
-    std::string doc;
-    std::getline(sin, doc, (char)EOF);
-    return reader.parse(sf::base::String(doc), root, collectComments);
-}
-
-std::istream& operator>>(std::istream& sin, Value& root)
-{
-    Json::Reader reader;
-    bool         ok = parse(reader, sin, root, true);
-    if (!ok)
-    {
-        const sf::base::String msg = reader.getFormattedErrorMessages();
-        fprintf(stderr, "Error from reader: %.*s", static_cast<int>(msg.size()), msg.data());
-        JSON_FAIL_MESSAGE("reader error");
-    }
-    return sin;
 }
 
 ////////////////////////////////////////////////////////////
@@ -2010,8 +1985,10 @@ sf::base::String Value::getComment(CommentPlacement placement) const
 }
 sf::base::String Value::toStyledString() const
 {
-    StyledWriter writer;
-    return writer.write(*this);
+    sf::base::String out;
+    StyledWriter     writer;
+    writer.write(*this, out);
+    return out;
 }
 Value::const_iterator Value::begin() const
 {
@@ -2361,12 +2338,25 @@ void FastWriter::dropNullPlaceholders()
     dropNullPlaceholders_ = true;
 }
 
-sf::base::String FastWriter::write(const Value& root)
+namespace
 {
-    document_ = "";
+template <sf::base::SizeT N>
+[[gnu::always_inline]] inline void emitLit(sf::base::FmtSinkRef sink, const char (&literal)[N])
+{
+    sink.append(literal, N - 1u); // exclude null terminator
+}
+
+[[gnu::always_inline]] inline void emitStr(sf::base::FmtSinkRef sink, const sf::base::String& s)
+{
+    sink.append(s.data(), s.size());
+}
+} // namespace
+
+void FastWriter::write(const Value& root, sf::base::FmtSinkRef sink)
+{
+    sink_ = sink;
     writeValue(root);
-    document_ += "\n";
-    return document_;
+    emitLit(sink_, "\n");
 }
 
 void FastWriter::writeValue(const Value& value)
@@ -2375,50 +2365,53 @@ void FastWriter::writeValue(const Value& value)
     {
         case nullValue:
             if (!dropNullPlaceholders_)
-                document_ += "null";
+                emitLit(sink_, "null");
             break;
         case intValue:
-            document_ += valueToString(value.asLargestInt());
+            emitStr(sink_, valueToString(value.asLargestInt()));
             break;
         case uintValue:
-            document_ += valueToString(value.asLargestUInt());
+            emitStr(sink_, valueToString(value.asLargestUInt()));
             break;
         case realValue:
-            document_ += valueToString(value.asDouble());
+            emitStr(sink_, valueToString(value.asDouble()));
             break;
         case stringValue:
-            document_ += valueToQuotedString(value.asCString());
+            emitStr(sink_, valueToQuotedString(value.asCString()));
             break;
         case booleanValue:
-            document_ += valueToString(value.asBool());
+            emitStr(sink_, valueToString(value.asBool()));
             break;
         case arrayValue:
         {
-            document_ += "[";
+            emitLit(sink_, "[");
             int sz = value.size();
             for (int index = 0; index < sz; ++index)
             {
                 if (index > 0)
-                    document_ += ",";
+                    emitLit(sink_, ",");
                 writeValue(value[index]);
             }
-            document_ += "]";
+            emitLit(sink_, "]");
         }
         break;
         case objectValue:
         {
             Value::Members members(value.getMemberNames());
-            document_ += "{";
+            emitLit(sink_, "{");
             for (auto it = members.begin(); it != members.end(); ++it)
             {
                 const sf::base::String& name = *it;
                 if (it != members.begin())
-                    document_ += ",";
-                document_ += valueToQuotedString(name.cStr());
-                document_ += yamlCompatiblityEnabled_ ? ": " : ":";
+                    emitLit(sink_, ",");
+                emitStr(sink_, valueToQuotedString(name.cStr()));
+                if (yamlCompatiblityEnabled_)
+                    emitLit(sink_, ": ");
+                else
+                    emitLit(sink_, ":");
                 writeValue(value[name]);
             }
-            document_ += "}";
+            emitLit(sink_, "}");
         }
         break;
     }
@@ -2428,16 +2421,34 @@ StyledWriter::StyledWriter() : rightMargin_(74), indentSize_(3), addChildValues_
 {
 }
 
-sf::base::String StyledWriter::write(const Value& root)
+void StyledWriter::emit(const char* data, sf::base::SizeT n)
 {
-    document_       = "";
+    if (n == 0)
+        return;
+    sink_.append(data, n);
+    lastEmitted_ = data[n - 1];
+}
+
+void StyledWriter::emit(sf::base::StringView s)
+{
+    emit(s.data(), s.size());
+}
+
+void StyledWriter::emit(char c)
+{
+    emit(&c, 1u);
+}
+
+void StyledWriter::write(const Value& root, sf::base::FmtSinkRef sink)
+{
+    sink_           = sink;
+    lastEmitted_    = '\0';
     addChildValues_ = false;
     indentString_   = "";
     writeCommentBeforeValue(root);
     writeValue(root);
     writeCommentAfterValueOnSameLine(root);
-    document_ += "\n";
-    return document_;
+    emit('\n');
 }
 
 void StyledWriter::writeValue(const Value& value)
@@ -2481,14 +2492,14 @@ void StyledWriter::writeValue(const Value& value)
                     const Value&            childValue = value[name];
                     writeCommentBeforeValue(childValue);
                     writeWithIndent(valueToQuotedString(name.cStr()));
-                    document_ += " : ";
+                    emit(" : ");
                     writeValue(childValue);
                     if (++it == members.end())
                     {
                         writeCommentAfterValueOnSameLine(childValue);
                         break;
                     }
-                    document_ += ",";
+                    emit(',');
                     writeCommentAfterValueOnSameLine(childValue);
                 }
                 unindent();
@@ -2529,7 +2540,7 @@ void StyledWriter::writeArrayValue(const Value& value)
                     writeCommentAfterValueOnSameLine(childValue);
                     break;
                 }
-                document_ += ",";
+                emit(',');
                 writeCommentAfterValueOnSameLine(childValue);
             }
             unindent();
@@ -2538,14 +2549,14 @@ void StyledWriter::writeArrayValue(const Value& value)
         else
         {
             SSVOH_ASSERT(childValues_.size() == sz);
-            document_ += "[ ";
+            emit("[ ");
             for (unsigned index = 0; index < sz; ++index)
             {
                 if (index > 0)
-                    document_ += ", ";
-                document_ += childValues_[index];
+                    emit(", ");
+                emit(sf::base::StringView{childValues_[index].data(), childValues_[index].size()});
             }
-            document_ += " ]";
+            emit(" ]");
         }
     }
 }
@@ -2582,31 +2593,34 @@ void StyledWriter::pushValue(const sf::base::String& value)
     if (addChildValues_)
         childValues_.emplaceBack(value);
     else
-        document_ += value;
+        emit(sf::base::StringView{value.data(), value.size()});
 }
 
 void StyledWriter::writeIndent()
 {
-    if (!document_.empty())
+    // `lastEmitted_ == '\0'` means nothing has been written yet (start of
+    // document); the original ostream-based code treated that the same as
+    // a fresh-line state and skipped the leading newline.
+    if (lastEmitted_ != '\0')
     {
-        char last = document_[document_.size() - 1];
-        if (last == ' ')
+        if (lastEmitted_ == ' ')
             return;
-        if (last != '\n')
-            document_ += '\n';
+        if (lastEmitted_ != '\n')
+            emit('\n');
     }
-    document_ += indentString_;
+    emit(sf::base::StringView{indentString_.data(), indentString_.size()});
 }
 
 void StyledWriter::writeWithIndent(const sf::base::String& value)
 {
     writeIndent();
-    document_ += value;
+    emit(sf::base::StringView{value.data(), value.size()});
 }
 
 void StyledWriter::indent()
 {
-    indentString_ += sf::base::String(std::string(indentSize_, ' ')); // TODO P0: cleanup
+    for (int i = 0; i < indentSize_; ++i)
+        indentString_ += ' ';
 }
 
 void StyledWriter::unindent()
@@ -2619,19 +2633,25 @@ void StyledWriter::writeCommentBeforeValue(const Value& root)
 {
     if (!root.hasComment(commentBefore))
         return;
-    document_ += normalizeEOL(root.getComment(commentBefore));
-    document_ += "\n";
+    const sf::base::String normalized = normalizeEOL(root.getComment(commentBefore));
+    emit(sf::base::StringView{normalized.data(), normalized.size()});
+    emit('\n');
 }
 
 void StyledWriter::writeCommentAfterValueOnSameLine(const Value& root)
 {
     if (root.hasComment(commentAfterOnSameLine))
-        document_ += sf::base::String(" ") + normalizeEOL(root.getComment(commentAfterOnSameLine));
+    {
+        emit(' ');
+        const sf::base::String normalized = normalizeEOL(root.getComment(commentAfterOnSameLine));
+        emit(sf::base::StringView{normalized.data(), normalized.size()});
+    }
     if (root.hasComment(commentAfter))
     {
-        document_ += "\n";
-        document_ += normalizeEOL(root.getComment(commentAfter));
-        document_ += "\n";
+        emit('\n');
+        const sf::base::String normalized = normalizeEOL(root.getComment(commentAfter));
+        emit(sf::base::StringView{normalized.data(), normalized.size()});
+        emit('\n');
     }
 }
 
@@ -2674,7 +2694,7 @@ StyledStreamWriter::StyledStreamWriter(sf::base::String indentation) :
 {
 }
 
-void StyledStreamWriter::write(std::ostream& out, const Value& root)
+void StyledStreamWriter::write(sf::base::String& out, const Value& root)
 {
     document_       = &out;
     addChildValues_ = false;
@@ -2682,17 +2702,9 @@ void StyledStreamWriter::write(std::ostream& out, const Value& root)
     writeCommentBeforeValue(root);
     writeValue(root);
     writeCommentAfterValueOnSameLine(root);
-    *document_ << '\n';
+    *document_ += '\n';
     document_ = nullptr;
 }
-
-namespace
-{
-inline std::ostream& writeStr(std::ostream& os, const sf::base::String& s)
-{
-    return os.write(s.data(), static_cast<std::streamsize>(s.size()));
-}
-} // namespace
 
 void StyledStreamWriter::writeValue(const Value& value)
 {
@@ -2735,14 +2747,14 @@ void StyledStreamWriter::writeValue(const Value& value)
                     const Value&            childValue = value[name];
                     writeCommentBeforeValue(childValue);
                     writeWithIndent(valueToQuotedString(name.cStr()));
-                    *document_ << " : ";
+                    *document_ += " : ";
                     writeValue(childValue);
                     if (++it == members.end())
                     {
                         writeCommentAfterValueOnSameLine(childValue);
                         break;
                     }
-                    *document_ << ",";
+                    *document_ += ',';
                     writeCommentAfterValueOnSameLine(childValue);
                 }
                 unindent();
@@ -2783,7 +2795,7 @@ void StyledStreamWriter::writeArrayValue(const Value& value)
                     writeCommentAfterValueOnSameLine(childValue);
                     break;
                 }
-                *document_ << ",";
+                *document_ += ",";
                 writeCommentAfterValueOnSameLine(childValue);
             }
             unindent();
@@ -2792,14 +2804,14 @@ void StyledStreamWriter::writeArrayValue(const Value& value)
         else
         {
             SSVOH_ASSERT(childValues_.size() == sz);
-            *document_ << "[ ";
+            *document_ += "[ ";
             for (unsigned index = 0; index < sz; ++index)
             {
                 if (index > 0)
-                    *document_ << ", ";
-                writeStr(*document_, childValues_[index]);
+                    *document_ += ", ";
+                *document_ += childValues_[index];
             }
-            *document_ << " ]";
+            *document_ += " ]";
         }
     }
 }
@@ -2836,19 +2848,19 @@ void StyledStreamWriter::pushValue(const sf::base::String& value)
     if (addChildValues_)
         childValues_.emplaceBack(value);
     else
-        writeStr(*document_, value);
+        *document_ += value;
 }
 
 void StyledStreamWriter::writeIndent()
 {
-    *document_ << '\n';
-    writeStr(*document_, indentString_);
+    *document_ += '\n';
+    *document_ += indentString_;
 }
 
 void StyledStreamWriter::writeWithIndent(const sf::base::String& value)
 {
     writeIndent();
-    writeStr(*document_, value);
+    *document_ += value;
 }
 
 void StyledStreamWriter::indent()
@@ -2866,22 +2878,22 @@ void StyledStreamWriter::writeCommentBeforeValue(const Value& root)
 {
     if (!root.hasComment(commentBefore))
         return;
-    writeStr(*document_, normalizeEOL(root.getComment(commentBefore)));
-    *document_ << '\n';
+    *document_ += normalizeEOL(root.getComment(commentBefore));
+    *document_ += '\n';
 }
 
 void StyledStreamWriter::writeCommentAfterValueOnSameLine(const Value& root)
 {
     if (root.hasComment(commentAfterOnSameLine))
     {
-        *document_ << ' ';
-        writeStr(*document_, normalizeEOL(root.getComment(commentAfterOnSameLine)));
+        *document_ += ' ';
+        *document_ += normalizeEOL(root.getComment(commentAfterOnSameLine));
     }
     if (root.hasComment(commentAfter))
     {
-        *document_ << '\n';
-        writeStr(*document_, normalizeEOL(root.getComment(commentAfter)));
-        *document_ << '\n';
+        *document_ += '\n';
+        *document_ += normalizeEOL(root.getComment(commentAfter));
+        *document_ += '\n';
     }
 }
 
@@ -2910,13 +2922,6 @@ sf::base::String StyledStreamWriter::normalizeEOL(const sf::base::String& text)
             normalized += c;
     }
     return normalized;
-}
-
-std::ostream& operator<<(std::ostream& sout, const Value& root)
-{
-    Json::StyledStreamWriter writer;
-    writer.write(sout, root);
-    return sout;
 }
 
 } // namespace Json

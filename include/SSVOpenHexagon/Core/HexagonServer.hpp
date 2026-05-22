@@ -56,7 +56,7 @@ private:
     sf::Atomic<bool>                    _running;
 
     sf::Packet          _packetBuffer;
-    sf::OutStringStream _errorOss;
+    sf::base::String _errorOss;
 
     struct ConnectedClient
     {

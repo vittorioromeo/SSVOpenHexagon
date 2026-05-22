@@ -5,16 +5,14 @@
 #ifndef SSVUJ_OH_JSONCPP_JSONSTREAM
 #define SSVUJ_OH_JSONCPP_JSONSTREAM
 
-// Stream-aware companion of json.hpp. Pulls in <iosfwd>; include only where
-// std::istream / std::ostream interaction is genuinely needed.
+// Pretty-printer for `Json::Value`. Writes into a `sf::base::String` so
+// the vendored jsoncpp stays free of `<iosfwd>` / `std::ostream`.
 
 #pragma GCC system_header
 
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 
 #include "SFML/Base/String.hpp"
-
-#include <iosfwd>
 
 namespace Json
 {
@@ -26,7 +24,7 @@ public:
     ~StyledStreamWriter()
     {
     }
-    void write(std::ostream& out, const Value& root);
+    void write(sf::base::String& out, const Value& root);
 
 private:
     void                    writeValue(const Value& value);
@@ -42,17 +40,13 @@ private:
     bool                    hasCommentForValue(const Value& value);
     static sf::base::String normalizeEOL(const sf::base::String& text);
     using ChildValues = sf::base::Vector<sf::base::String>;
-    ChildValues      childValues_;
-    std::ostream*    document_;
-    sf::base::String indentString_;
-    int              rightMargin_;
-    sf::base::String indentation_;
-    bool             addChildValues_;
+    ChildValues       childValues_;
+    sf::base::String* document_;
+    sf::base::String  indentString_;
+    int               rightMargin_;
+    sf::base::String  indentation_;
+    bool              addChildValues_;
 };
-
-bool          parse(Reader& reader, std::istream& is, Value& root, bool collectComments = true);
-std::istream& operator>>(std::istream&, Value&);
-std::ostream& operator<<(std::ostream&, const Value& root);
 
 } // namespace Json
 

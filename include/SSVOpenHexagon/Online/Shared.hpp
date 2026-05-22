@@ -96,7 +96,7 @@ template <typename T>
 [[nodiscard]] bool makeClientToServerEncryptedPacket(const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data);
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                          sf::OutStringStream&         errorOss,
+                                                          sf::base::String&         errorOss,
                                                           sf::Packet&                  p);
 
 // ----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ template <typename T>
 [[nodiscard]] bool makeServerToClientEncryptedPacket(const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data);
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(const SodiumReceiveKeyArray* keyReceive,
-                                                          sf::OutStringStream&         errorOss,
+                                                          sf::base::String&         errorOss,
                                                           sf::Packet&                  p);
 
 } // namespace hg

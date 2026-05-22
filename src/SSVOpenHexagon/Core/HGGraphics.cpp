@@ -17,6 +17,10 @@
 #include "SSVOpenHexagon/Utils/Random.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtAppendMixin.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- fmtTo formats numeric args
+
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/Graphics/RenderStates.hpp"
 #include "SFML/Graphics/Shader.hpp"
@@ -484,70 +488,70 @@ void HexagonGame::updateText(float mFT)
     }
 
     // ------------------------------------------------------------------------
-    os.setStr("");
+    os.clear();
 
     if (debugPause)
     {
-        os << "(!) PAUSED (!)\n";
+        os += "(!) PAUSED (!)\n";
     }
 
     if (levelStatus.tutorialMode)
     {
-        os << "TUTORIAL MODE\n";
+        os += "TUTORIAL MODE\n";
     }
     else if (Config::getOfficial())
     {
-        os << "OFFICIAL MODE\n";
+        os += "OFFICIAL MODE\n";
     }
 
     if (Config::getDebug())
     {
-        os << "DEBUG MODE\n";
+        os += "DEBUG MODE\n";
 
-        os << "CUSTOM WALLS: " << cwManager.count() << " / " << cwManager.maxHandles() << '\n';
+        os.appendFmt("CUSTOM WALLS: {} / {}\n", cwManager.count(), cwManager.maxHandles());
     }
 
     if (status.started)
     {
         if (levelStatus.swapEnabled)
         {
-            os << "SWAP ENABLED\n";
+            os += "SWAP ENABLED\n";
         }
 
         if (Config::getInvincible())
         {
-            os << "INVINCIBILITY ON\n";
+            os += "INVINCIBILITY ON\n";
         }
 
         if (const float timescale = Config::getTimescale(); timescale != 1.f)
         {
-            os << "TIMESCALE " << timescale << '\n';
+            os.appendFmt("TIMESCALE {}\n", timescale);
         }
 
         if (status.scoreInvalid)
         {
-            os << "SCORE INVALIDATED (" << status.invalidReason << ")\n";
+            os.appendFmt("SCORE INVALIDATED ({})\n", status.invalidReason);
         }
 
         if (status.hasDied)
         {
-            os << status.restartInput;
-            os << status.replayInput;
+            os += status.restartInput;
+            os += status.replayInput;
         }
 
         if (calledDeprecatedFunctions.size() > 1)
         {
-            os << calledDeprecatedFunctions.size() << " WARNINGS RAISED (CHECK CONSOLE)\n";
+            os.appendFmt("{} WARNINGS RAISED (CHECK CONSOLE)\n", calledDeprecatedFunctions.size());
         }
         else if (calledDeprecatedFunctions.size() > 0)
         {
-            os << "1 WARNING RAISED (CHECK CONSOLE)\n";
+            os += "1 WARNING RAISED (CHECK CONSOLE)\n";
         }
 
         const auto& trackedVariables(levelStatus.trackedVariables);
         if (Config::getShowTrackedVariables() && !trackedVariables.empty())
         {
-            os << '\n';
+            os += '\n';
             for (const auto& tv : trackedVariables)
             {
                 if (!lua.doesVariableExist(tv.key.cStr()))
@@ -557,17 +561,15 @@ void HexagonGame::updateText(float mFT)
 
                 const sf::base::String value{lua.readVariable<sf::base::String>(tv.key.cStr())};
 
-                os << Utils::toUppercase(tv.value) << ": " << Utils::toUppercase(value) << '\n';
+                os.appendFmt("{}: {}\n", Utils::toUppercase(tv.value), Utils::toUppercase(value));
             }
         }
     }
     else if (Config::getRotateToStart())
     {
-        os << "ROTATE TO START\n";
+        os += "ROTATE TO START\n";
         textUI->messageText.setString("ROTATE TO START");
     }
-
-    os.flush();
 
     // Set in game timer text
     if (!levelStatus.scoreOverridden)
@@ -594,7 +596,7 @@ void HexagonGame::updateText(float mFT)
     setVisualCharacterSize(textUI->timeText, getScaledCharacterSize(70.f));
 
     // Set information text
-    textUI->text.setString(os.to<sf::base::String>());
+    textUI->text.setString(os);
     setVisualCharacterSize(textUI->text, getScaledCharacterSize(20.f));
     textUI->text.origin = {0.f, 0.f};
 
@@ -618,23 +620,21 @@ void HexagonGame::updateText(float mFT)
     {
         const replay_file& rf = activeReplay->replayFile;
 
-        os.setStr("");
+        os.clear();
 
         if (!levelStatus.scoreOverridden)
         {
-            os << formatTime(rf.played_seconds()) << "s";
+            os.appendFmt("{}s", formatTime(rf.played_seconds()));
         }
         else
         {
-            os << formatTime(rf._played_score);
+            os += formatTime(rf._played_score);
         }
 
-        os << " BY " << rf._player_name;
-
-        os.flush();
+        os.appendFmt(" BY {}", rf._player_name);
 
         setVisualCharacterSize(textUI->replayText, getScaledCharacterSize(16.f));
-        textUI->replayText.setString(os.to<sf::base::String>());
+        textUI->replayText.setString(os);
     }
     else
     {

@@ -41,7 +41,7 @@ using input_bitset = sf::base::Bitset<static_cast<sf::base::SizeT>(input_bit::k_
 
 } // namespace hg
 
-// Test harness diagnostics use `sf::OutStringStream`. Forward-declare it here and
+// Test harness diagnostics use `sf::base::String`. Forward-declare it here and
 // provide an overload for it; this avoids pulling `<ostream>` into this header.
 namespace sf
 {
@@ -52,8 +52,12 @@ class OutStringStream;
 // `hg::input_bitset`) finds it.
 namespace sf::base
 {
+class FmtSink;
+struct FmtSpec;
+enum class FmtResult;
+
 template <::sf::base::SizeT N>
-OutStringStream& operator<<(OutStringStream& os, const Bitset<N>& b);
+[[nodiscard]] FmtResult fmtArg(FmtSink& sink, const Bitset<N>& b, const FmtSpec&);
 } // namespace sf::base
 
 namespace hg

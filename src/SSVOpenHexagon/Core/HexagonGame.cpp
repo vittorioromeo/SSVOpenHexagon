@@ -56,6 +56,7 @@
 #include "SFML/Base/Math/Pow.hpp"
 #include "SFML/Base/MinMax.hpp"
 #include "SFML/Base/Optional.hpp"
+#include "SFML/Base/Fmt/Fmt.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/UniquePtr.hpp"
@@ -1370,7 +1371,7 @@ void HexagonGame::raiseWarning(const sf::base::String& mFunctionName, const sf::
                                                     "\") is deprecated. ",
                                                     mAdditionalInfo);
 
-    sf::cOut() << errorMsg << sf::endL;
+    sf::base::printLn("{}", errorMsg);
     ilcCmdLog.emplaceBack(Utils::concat("[warning]: ", errorMsg, '\n'));
 }
 

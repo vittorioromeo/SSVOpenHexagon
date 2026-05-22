@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "SFML/System/IO.hpp"
-
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtAppendMixin.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- numeric args to `concat` need this in scope
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
@@ -95,11 +96,14 @@ template <typename... Ts>
 [[nodiscard]] sf::base::String concat(const Ts&... xs)
     requires(!Impl::AllConvertibleToStringView<Ts...>)
 {
-    thread_local sf::OutStringStream oss;
-    oss.setStr("");
-
-    (oss << ... << xs);
-    return oss.to<sf::base::String>();
+    // Slow path: arbitrary types. Each `xs` is formatted via Fmt's ADL
+    // `fmtArg` hook into a single shared `String`. Types without a
+    // string-view conversion (numerics, custom types with `fmtArg`
+    // overloads, etc.) flow through here. `appendArg` bypasses the
+    // format-string machinery and dispatches `fmtArg` directly.
+    sf::base::String result;
+    (result.appendArg(xs), ...);
+    return result;
 }
 
 template <typename... Ts>

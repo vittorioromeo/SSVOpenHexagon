@@ -3,6 +3,9 @@
 #include "SFML/System/IO.hpp"
 
 #include "SFML/Base/Abort.hpp"
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtAppendMixin.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- fmtTo formats numeric args (line numbers)
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Trait/CommonType.hpp"
@@ -22,58 +25,54 @@ namespace test_impl::impl
 
 inline auto& get_ostringstream() noexcept
 {
-    static sf::OutStringStream oss;
+    static sf::base::String oss;
     return oss;
 }
 
 inline auto& clear_and_get_ostringstream() noexcept
 {
     auto& oss(get_ostringstream());
-    oss.setStr("");
+    oss.clear();
     return oss;
 }
 
 [[noreturn]] inline void fail() noexcept
 {
-    sf::cOut() << get_ostringstream().to<sf::base::String>() << sf::endL;
+    sf::base::printLn("{}", get_ostringstream());
     sf::base::abort();
 }
 
-template <typename TStream>
-void output_header(TStream& s)
+inline void output_header(sf::base::String& s)
 {
-    s << "____________________________________________________________________"
+    s += "____________________________________________________________________"
          "\nTEST FAILED:\n";
 }
 
-template <typename TStream>
-void output_line(TStream& s, int line)
+inline void output_line(sf::base::String& s, int line)
 {
-    s << "*     line: `" << line << "`\n";
+    s.appendFmt("*     line: `{}`\n", line);
 }
 
-template <typename TStream>
-void output_expr(TStream& s, const char* expr)
+inline void output_expr(sf::base::String& s, const char* expr)
 {
-    s << "*     expr: `" << expr << "`\n";
+    s.appendFmt("*     expr: `{}`\n", expr);
 }
 
-template <typename TStream, typename T>
-void output_result(TStream& s, const T& lhs_result)
+template <typename T>
+void output_result(sf::base::String& s, const T& lhs_result)
 {
-    s << "*   result: `" << lhs_result << "`\n";
+    s.appendFmt("*   result: `{}`\n", lhs_result);
 }
 
-template <typename TStream>
-void output_expected(TStream& s, const char* expected)
+inline void output_expected(sf::base::String& s, const char* expected)
 {
-    s << "* expected: `" << expected << "`\n";
+    s.appendFmt("* expected: `{}`\n", expected);
 }
 
-template <typename TStream, typename T>
-void output_expected(TStream& s, const char* expected, const T& rhs_result)
+template <typename T>
+void output_expected(sf::base::String& s, const char* expected, const T& rhs_result)
 {
-    s << "* expected: `" << expected << "` (which evaluates to `" << rhs_result << "`)\n";
+    s.appendFmt("* expected: `{}` (which evaluates to `{}`)\n", expected, rhs_result);
 }
 
 template <typename TF>

@@ -35,6 +35,8 @@
 
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/ScopeGuard.hpp"
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- numeric args
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/Vector.hpp"
 
@@ -188,9 +190,9 @@ struct ParsedArgs
         nullptr /* client */ //
     };
 
-    sf::cOut() << "\n\n\n\n\n";
+    sf::base::print("\n\n\n\n\n");
     hg.initLuaAndPrintDocs();
-    sf::cOut() << "\n\n\n\n\n";
+    sf::base::print("\n\n\n\n\n");
 
     hg::lo("::mainPrintLuaDocs") << "Finished\n";
     return 0;
@@ -548,7 +550,7 @@ struct ParsedArgs
 
             if (!replayFileOpt.hasValue())
             {
-                sf::cErr() << "Could not decompress replay file\n";
+                sf::base::printErr("Could not decompress replay file\n");
                 return;
             }
 
@@ -601,7 +603,7 @@ struct ParsedArgs
         // TODO (P2): code repetition, cleanup
         if (!compressedReplayFilename.hasValue())
         {
-            sf::cOut() << "Running in headless mode without replay...?\n";
+            sf::base::print("Running in headless mode without replay...?\n");
             return 1;
         }
 
@@ -611,7 +613,7 @@ struct ParsedArgs
 
             if (!replayFileOpt.hasValue())
             {
-                sf::cErr() << "Could not decompress replay file\n";
+                sf::base::printErr("Could not decompress replay file\n");
                 return 1;
             }
 
@@ -621,11 +623,12 @@ struct ParsedArgs
 
             // TODO (P2): check level validity
 
-            sf::cOut() << "Player died.\nFinal time: "
-                       << hg.runReplayUntilDeathAndGetScore(replayFile, 1 /* maxProcessingSeconds */, 1.f /* timescale */)
-                              .value()
-                              .playedTimeSeconds
-                       << '\n';
+            sf::base::printLn("Player died.\nFinal time: {}",
+                              hg.runReplayUntilDeathAndGetScore(replayFile,
+                                                                1 /* maxProcessingSeconds */,
+                                                                1.f /* timescale */)
+                                  .value()
+                                  .playedTimeSeconds);
         }
         else
         {
@@ -658,7 +661,7 @@ int main(int argc, char* argv[])
 {
     if (argc < 1)
     {
-        sf::cErr() << "Fatal error: no executable specified" << sf::endL;
+        sf::base::printErrLn("Fatal error: no executable specified");
         return -1;
     }
 

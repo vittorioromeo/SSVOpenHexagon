@@ -709,8 +709,8 @@ void HexagonServer::runIteration_FlushLogs()
         return;
     }
 
-    sf::cOut().flush();
-    sf::cErr().flush();
+    sf::base::priv::fmtFlushStdout();
+    sf::base::priv::fmtFlushStderr();
     hg::lo().flush();
 }
 
@@ -958,7 +958,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
 
     constexpr int topScoresLimit = 6;
 
-    _errorOss.setStr("");
+    _errorOss.clear();
     const PVClientToServer pv = decodeClientToServerPacket(c._rtKeys.hasValue() ? &c._rtKeys->keyReceive : nullptr, _errorOss, p);
 
     const auto checkState = [&](const ConnectedClient::State state)
@@ -990,7 +990,7 @@ void HexagonServer::printCTSPDataVerbose(ConnectedClient& c, const char* title, 
     return pv.linearMatch( //
 
         [&](const PInvalid&)
-    { return fail("Error processing packet from client '", clientAddr, "', details: ", _errorOss.getString()); },
+    { return fail("Error processing packet from client '", clientAddr, "', details: ", _errorOss); },
 
         [&](const PEncryptedMsg&)
     { return fail("Received non-decrypted encrypted msg packet from client '", clientAddr, '\''); },
@@ -1540,15 +1540,14 @@ HexagonServer::HexagonServer(HGAssets*                                          
     // ------------------------------------------------------------------------
     // Print supported (ranked) level validators
     {
-        sf::OutStringStream oss;
-        oss << "Server initialized!\nSupported levels:\n";
+        sf::base::String oss = "Server initialized!\nSupported levels:\n";
 
         for (const sf::base::String& levelValidator : _supportedLevelValidators)
         {
-            oss << " - " << levelValidator << '\n';
+            oss.appendFmt(" - {}\n", levelValidator);
         }
 
-        SSVOH_SLOG << oss.getString() << '\n';
+        SSVOH_SLOG << oss << '\n';
     }
 }
 

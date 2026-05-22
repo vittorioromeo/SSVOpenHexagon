@@ -46,6 +46,8 @@
 #include "SFML/Base/Optional.hpp"
 #include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/StdChrono.hpp"
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/StringViewSplits.hpp"
 #include "SFML/Base/String.hpp"
 #include "SFML/Base/UniquePtr.hpp"
 #include "SFML/Base/Vector.hpp"
@@ -595,7 +597,7 @@ HGAssets::HGAssetsImpl::~HGAssetsImpl()
         return *ptr;
     }
 
-    sf::cErr() << "Fatal error: missing font file '" << mId << '\'' << sf::endL;
+    sf::base::printErrLn("Fatal error: missing font file '{}'", mId);
     std::terminate();
 }
 

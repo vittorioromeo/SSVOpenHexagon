@@ -13,7 +13,7 @@ cmake .. -G"Ninja" \
          -DCMAKE_LINKER_TYPE=LLD \
          -DCMAKE_EXE_LINKER_FLAGS="-Wl,--undefined-version" \
          -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--undefined-version" \
-         -DCMAKE_MODULE_LINKER_FLAGS="-Wl,--undefined-version"
+         -DCMAKE_MODULE_LINKER_FLAGS="-Wl,--undefined-version" \
          -DCMAKE_C_COMPILER="clang" \
          -DCMAKE_CXX_COMPILER="clang++" \
          -DCMAKE_CXX_FLAGS="\

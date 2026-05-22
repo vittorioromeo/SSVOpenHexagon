@@ -9,8 +9,11 @@
 // Include as system header to suppress dependency warnings.
 #pragma GCC system_header
 
+#include "SFML/Base/Fmt/FmtSinkRef.hpp"
 #include "SFML/Base/InPlacePImpl.hpp"
+#include "SFML/Base/SizeT.hpp"
 #include "SFML/Base/String.hpp"
+#include "SFML/Base/StringView.hpp"
 #include "SFML/Base/Vector.hpp"
 
 #define JSON_HAS_INT64
@@ -499,7 +502,8 @@ private:
 struct Writer
 {
     virtual ~Writer();
-    virtual sf::base::String write(const Value& root) = 0;
+    /// \brief Serialize `root` directly into `sink` (streaming).
+    virtual void write(const Value& root, sf::base::FmtSinkRef sink) = 0;
 };
 class FastWriter final : public Writer
 {
@@ -508,15 +512,15 @@ public:
     virtual ~FastWriter()
     {
     }
-    void                     enableYAMLCompatibility();
-    void                     dropNullPlaceholders();
-    virtual sf::base::String write(const Value& root);
+    void         enableYAMLCompatibility();
+    void         dropNullPlaceholders();
+    virtual void write(const Value& root, sf::base::FmtSinkRef sink) override;
 
 private:
-    void             writeValue(const Value& value);
-    sf::base::String document_;
-    bool             yamlCompatiblityEnabled_;
-    bool             dropNullPlaceholders_;
+    void                 writeValue(const Value& value);
+    sf::base::FmtSinkRef sink_; // overwritten in `write()` before any emission
+    bool                 yamlCompatiblityEnabled_;
+    bool                 dropNullPlaceholders_;
 };
 class StyledWriter final : public Writer
 {
@@ -525,7 +529,7 @@ public:
     virtual ~StyledWriter()
     {
     }
-    virtual sf::base::String write(const Value& root);
+    virtual void write(const Value& root, sf::base::FmtSinkRef sink) override;
 
 private:
     void                                      writeValue(const Value& value);
@@ -540,13 +544,24 @@ private:
     void                                      writeCommentAfterValueOnSameLine(const Value& root);
     bool                                      hasCommentForValue(const Value& value);
     static sf::base::String                   normalizeEOL(const sf::base::String& text);
-    using ChildValues                         = sf::base::Vector<sf::base::String>;
-    ChildValues                               childValues_;
-    sf::base::String                          document_;
-    sf::base::String                          indentString_;
-    int                                       rightMargin_;
-    int                                       indentSize_;
-    bool                                      addChildValues_;
+
+    // Emit `[data, n)` directly into the active sink (or accumulate into the
+    // in-progress child string if `addChildValues_` is set). Tracks the last
+    // emitted byte so `writeIndent` can decide whether a newline is needed
+    // without peeking back into the sink (which would defeat streaming).
+    void emit(const char* data, sf::base::SizeT n);
+    void emit(sf::base::StringView s);
+    void emit(char c);
+
+    using ChildValues = sf::base::Vector<sf::base::String>;
+    ChildValues          childValues_;
+    sf::base::String     pendingChild_;             // accumulator used while `addChildValues_` is true
+    sf::base::String     indentString_;
+    sf::base::FmtSinkRef sink_;                     // overwritten in `write()` before any emission
+    char                 lastEmitted_ = '\0';       // last byte written to the sink ('\0' means "nothing yet")
+    int                  rightMargin_;
+    int                  indentSize_;
+    bool                 addChildValues_;
 };
 
 inline const Value nullJsonValue{};

@@ -12,6 +12,9 @@
 // replies with an `STCPPublicKey`, which gives us an observable round-trip
 // without having to go through the full Sodium RT-key exchange.
 
+#include "SFML/Base/Fmt/Fmt.hpp"
+#include "SFML/Base/Fmt/FmtNumeric.hpp" // IWYU pragma: keep -- numeric args
+
 #include "SSVOpenHexagon/Core/HexagonServer.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
@@ -93,7 +96,7 @@ void clientWorker(const unsigned short port, const int messagesPerClient, sf::At
 
     sf::Packet          outPacket;
     sf::Packet          inPacket;
-    sf::OutStringStream errOss;
+    sf::base::String errOss;
 
     for (int i = 0; i < messagesPerClient; ++i)
     {
@@ -198,7 +201,7 @@ int main()
     TEST_ASSERT_EQ(toInt(probe.send(outPacket)), toInt(Status::Done));
 
     sf::Packet          inPacket;
-    sf::OutStringStream errOss;
+    sf::base::String errOss;
     TEST_ASSERT_EQ(toInt(receivePacketWithRetry(probe, inPacket, std::chrono::seconds(2))), toInt(Status::Done));
 
     const hg::PVServerToClient decoded = hg::decodeServerToClientPacket(nullptr, errOss, inPacket);
@@ -212,6 +215,8 @@ int main()
     serverThread.join();
 
     // Report for human eyes when run standalone.
-    sf::cOut() << "Load test: " << expectedSuccesses << " round trips in " << elapsed.count() << " ms ("
-               << (expectedSuccesses * 1000 / (elapsed.count() == 0 ? 1 : elapsed.count())) << " req/s)\n";
+    sf::base::print("Load test: {} round trips in {} ms ({} req/s)\n",
+                    expectedSuccesses,
+                    elapsed.count(),
+                    expectedSuccesses * 1000 / (elapsed.count() == 0 ? 1 : elapsed.count()));
 }

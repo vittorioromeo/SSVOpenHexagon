@@ -133,7 +133,7 @@ int main()
             // server has accepted us, added us to `_connectedClients`, and
             // stored our key in `_clientPublicKey`.
             sf::Packet          inPacket;
-            sf::OutStringStream errOss;
+            sf::base::String errOss;
             if (sockOpt->receive(inPacket) == Status::Done)
             {
                 const hg::PVServerToClient decoded = hg::decodeServerToClientPacket(nullptr, errOss, inPacket);
